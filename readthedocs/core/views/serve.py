@@ -21,7 +21,7 @@ Settings
 --------
 
 PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
-SERVE_PUBLIC_DOCS (False) - Set this to True to serve public as well as private docs from Python
+SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
 from django.conf import settings
@@ -30,6 +30,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.static import serve
 
+from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.core.resolver import resolve, resolve_path
@@ -115,30 +116,36 @@ def serve_symlink_docs(request, project, filename=''):
         filename += 'index.html'
 
     # This breaks path joining, by ignoring the root when given an "absolute" path
-    assert filename[0] is not '/'
+    if filename[0] == '/':
+        filename = filename[1:]
 
-    if settings.DEBUG or getattr(settings, 'SERVE_PUBLIC_DOCS', False):
+    log.info('Serving %s for %s' % (filename, project))
+
+    SERVE_DOCS = getattr(settings, 'SERVE_DOCS', [constants.PUBLIC])
+
+    if settings.DEBUG or constants.PUBLIC in SERVE_DOCS:
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
 
-    # Handle private
-    private_symlink = PrivateSymlink(project)
-    basepath = private_symlink.project_root
+    if settings.DEBUG or constants.PRIVATE in SERVE_DOCS:
 
-    if not os.path.exists(os.path.join(basepath, filename)):
-        raise Http404('Path does not exist: %s' % filename)
+        # Handle private
+        private_symlink = PrivateSymlink(project)
+        basepath = private_symlink.project_root
 
-    # Only check permissions if we are about to serve an existing private file
-    if not AdminPermission.is_member(user=request.user, project=project):
-        # Do basic auth check on the project, but not the version
-        res = render_to_response('401.html',
-                                 context_instance=RequestContext(request))
-        res.status_code = 401
-        log.error('Unauthorized access to {0} documentation'.format(project.slug))
-        return res
+        if os.path.exists(os.path.join(basepath, filename)):
 
-    log.info('Serving %s for %s' % (filename, project))
+            # Only check permissions if we are about to serve an existing private file
+            if not AdminPermission.is_member(user=request.user, project=project):
+                # Do basic auth check on the project, but not the version
+                res = render_to_response('401.html',
+                                         context_instance=RequestContext(request))
+                res.status_code = 401
+                log.error('Unauthorized access to {0} documentation'.format(project.slug))
+                return res
 
-    return _serve_file(request, filename, basepath)
+            return _serve_file(request, filename, basepath)
+
+    raise Http404('No file serving method available.')

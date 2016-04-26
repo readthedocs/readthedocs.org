@@ -3,7 +3,6 @@ Core views, including the main homepage,
 documentation and header rendering, and server errors.
 """
 
-import re
 import os
 import logging
 
@@ -27,7 +26,6 @@ from readthedocs.projects.tasks import remove_dir
 from readthedocs.redirects.utils import get_redirect_response
 
 log = logging.getLogger(__name__)
-pc_log = logging.getLogger(__name__ + '.post_commit')
 
 
 class NoProjectException(Exception):

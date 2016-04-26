@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 from readthedocs.core.views.serve import serve_symlink_docs
 
@@ -28,43 +29,33 @@ class BaseDocServing(RequestFactoryTestMixin, TestCase):
         self.public_url = '/docs/public/en/latest/usage.html'
 
 
-@override_settings(SERVE_PUBLIC_DOCS=False)
+@override_settings(SERVE_DOCS=[constants.PRIVATE])
 class TestPrivateDocs(BaseDocServing):
 
     @override_settings(PYTHON_MEDIA=True)
     def test_private_python_media_serving(self):
         with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
-            request = self.request(self.private_url, user=self.eric)
-            serve_symlink_docs(request, project=self.private, filename='en/latest/usage.html')
-            serve_mock.assert_called_with(
-                request,
-                'en/latest/usage.html',
-                '/Users/eric/projects/readthedocs.org/private_web_root/private'
-            )
-
-        r = self.client.get(self.private_url)
-        self.assertEqual(r.status_code, 401)
-
-        r = self.client.get(self.public_url)
-        self.assertEqual(r.status_code, 401)
+            with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
+                request = self.request(self.private_url, user=self.eric)
+                serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+                serve_mock.assert_called_with(
+                    request,
+                    'en/latest/usage.html',
+                    '/Users/eric/projects/readthedocs.org/private_web_root/private'
+                )
 
     @override_settings(PYTHON_MEDIA=False)
     def test_private_nginx_serving(self):
-        request = self.request(self.private_url, user=self.eric)
-        r = serve_symlink_docs(request, project=self.private, filename='en/latest/usage.html')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
-        )
-
-        r = self.client.get(self.private_url)
-        self.assertEqual(r.status_code, 401)
-
-        r = self.client.get(self.public_url)
-        self.assertEqual(r.status_code, 401)
+        with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
+            request = self.request(self.private_url, user=self.eric)
+            r = serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
+            )
 
 
-@override_settings(SERVE_PUBLIC_DOCS=True)
+@override_settings(SERVE_DOCS=[constants.PRIVATE, constants.PUBLIC])
 class TestPublicDocs(BaseDocServing):
 
     @override_settings(PYTHON_MEDIA=True)
@@ -72,38 +63,19 @@ class TestPublicDocs(BaseDocServing):
         with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
             with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
                 request = self.request(self.public_url, user=self.eric)
-                serve_symlink_docs(request, project=self.public, filename='en/latest/usage.html')
+                serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html')
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
                     '/Users/eric/projects/readthedocs.org/public_web_root/public'
                 )
 
-        with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
-            r = self.client.get(self.public_url)
-            self.assertEqual(r.status_code, 200)
-
-        with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
-            r = self.client.get(self.public_url)
-            self.assertEqual(r.status_code, 200)
-            serve_mock.assert_called_with(
-                request,
-                'en/latest/usage.html',
-                '/Users/eric/projects/readthedocs.org/public_web_root/public'
-            )
-
     @override_settings(PYTHON_MEDIA=False)
     def test_public_nginx_serving(self):
         with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
             request = self.request(self.public_url, user=self.eric)
-            r = serve_symlink_docs(request, project=self.public, filename='en/latest/usage.html')
+            r = serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
                 r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
             )
-
-        r = self.client.get(self.public_url)
-        self.assertEqual(r.status_code, 401)
-
-        r = self.client.get(self.public_url)
-        self.assertEqual(r.status_code, 401)
