@@ -7,6 +7,7 @@
 <div id="project_details">
   <div class="wrapper">
 
+{% block search %}
 <!-- BEGIN search bar -->
 <div class="search">
   <form action="{% url "elastic_project_search" project.slug %}" method="GET">
@@ -16,6 +17,7 @@
   </form>
 </div>
 <!-- END search bar -->
+{% endblock search %}
 
 <div class="module">
   {% if onboard %}
@@ -73,6 +75,7 @@
     </div>
   </div>
 
+{% block build_versions %}
 {% if versions %}
   <div class="build_a_version">
     <h3>{% trans "Build a version" %}</h3>
@@ -88,6 +91,7 @@
     </div>
   </div>
 {% endif %}
+{% endblock %}
 
 <div id="project_description">
 {% if project.description %}

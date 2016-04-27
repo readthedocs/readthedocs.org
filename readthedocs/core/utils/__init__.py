@@ -111,9 +111,15 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
 def send_email(recipient, subject, template, template_html, context=None,
                request=None):
-    """Pass email send command to task"""
-    if request:
-        scheme = 'https' if request.is_secure() else 'http'
-        context['uri'] = '{scheme}://{host}'.format(scheme=scheme,
-                                                    host=request.get_host())
+    """Alter context passed in and call email send task
+
+    .. seealso::
+
+        Task :py:func:`readthedocs.core.tasks.send_email_task`
+            Task that handles templating and sending email message
+    """
+    if context is None:
+        context = {}
+    context['uri'] = '{scheme}://{host}'.format(
+        scheme='https', host=settings.PRODUCTION_DOMAIN)
     send_email_task.delay(recipient, subject, template, template_html, context)

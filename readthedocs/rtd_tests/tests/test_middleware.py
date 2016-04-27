@@ -21,6 +21,7 @@ def create_user(username, password):
     return user
 
 
+@override_settings(USE_SUBDOMAIN=True)
 class MiddlewareTests(TestCase):
 
     def setUp(self):
@@ -57,7 +58,7 @@ class MiddlewareTests(TestCase):
 
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'core.subdomain_urls')
+        self.assertEqual(request.urlconf, 'readthedocs.core.subdomain_urls')
         self.assertEqual(request.domain_object, True)
         self.assertEqual(request.slug, 'pip')
 
@@ -100,8 +101,8 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')
 
-    @override_settings(DEBUG=True)
-    def test_debug_on(self):
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_use_subdomain_on(self):
         request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
         ret_val = self.middleware.process_request(request)
         self.assertEqual(ret_val, None)

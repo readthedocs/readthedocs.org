@@ -12,9 +12,18 @@
   </p>
 
   <ul>
-    {% for user in users %}
+    {% for user in users|slice:":20" %}
       <li>{{ user.email }} ({{ user }})</li>
     {% endfor %}
+    {% with extra_users=users|slice:"20:" %}
+      {% if extra_users|length > 0 %}
+        <li>
+          {% blocktrans with count=extra_users|length %}
+            And {{ count }} other users...
+          {% endblocktrans %}
+        </li>
+      {% endif %}
+    {% endwith %}
   </ul>
 
   <p>
