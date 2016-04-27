@@ -10,7 +10,7 @@ The API is written in Tastypie, which provides a nice ability to browse the API 
 A basic API client using slumber
 --------------------------------
 
-You can use `Slumber <http://slumber.readthedocs.org/>`_ to build basic API wrappers in python. Here is a simple example of using slumber to interact with the RTD API::
+You can use `Slumber <http://slumber.readthedocs.io/>`_ to build basic API wrappers in python. Here is a simple example of using slumber to interact with the RTD API::
 
     from __future__ import print_function
     import slumber
@@ -296,7 +296,7 @@ Project
           "crate_url": "", 
           "default_branch": "", 
           "default_version": "latest", 
-          "description": "Make docs.readthedocs.org work :D", 
+          "description": "Make docs.readthedocs.io work :D", 
           "django_packages_url": "", 
           "documentation_type": "sphinx", 
           "id": "2599", 
@@ -309,7 +309,7 @@ Project
           "requirements_file": "", 
           "resource_uri": "/api/v1/project/2599/", 
           "slug": "docs", 
-          "subdomain": "http://docs.readthedocs.org/", 
+          "subdomain": "http://docs.readthedocs.io/", 
           "suffix": ".rst", 
           "theme": "default", 
           "use_virtualenv": false, 
@@ -561,7 +561,7 @@ File Search
                       "requirements_file": "", 
                       "resource_uri": "/api/v1/project/530/", 
                       "slug": "python-guide", 
-                      "subdomain": "http://python-guide.readthedocs.org/", 
+                      "subdomain": "http://python-guide.readthedocs.io/", 
                       "suffix": ".rst", 
                       "theme": "kr", 
                       "use_virtualenv": false, 
@@ -593,9 +593,9 @@ Anchor Search
 
       {
           "objects": [
-              "http//django-fab-deploy.readthedocs.org/en/latest/...", 
-              "http//dimagi-deployment-tools.readthedocs.org/en/...", 
-              "http//openblock.readthedocs.org/en/latest/install/base_install.html#virtualenv", 
+              "http//django-fab-deploy.readthedocs.io/en/latest/...", 
+              "http//dimagi-deployment-tools.readthedocs.io/en/...", 
+              "http//openblock.readthedocs.io/en/latest/install/base_install.html#virtualenv", 
               ...
           ]
       }

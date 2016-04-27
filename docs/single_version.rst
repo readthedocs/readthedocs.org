@@ -17,7 +17,7 @@ You can toggle the "Single Version" option on or off for your project in the Pro
 Effects
 ~~~~~~~
 
-Links generated on Read the Docs will now point to the proper URL. For example, if pip was set as a "Single Version" project, then links to its documentation would point to ``http://pip.readthedocs.org/`` rather than the default ``http://pip.readthedocs.org/en/latest/``.
+Links generated on Read the Docs will now point to the proper URL. For example, if pip was set as a "Single Version" project, then links to its documentation would point to ``http://pip.readthedocs.io/`` rather than the default ``http://pip.readthedocs.io/en/latest/``.
 
 Documentation at ``/<language>/<default_version>/`` will still be served for backwards compatibility reasons. However, our usage of :doc:`canonical` should stop these from being indexed by Google.
 
