@@ -1,7 +1,7 @@
 Enabling Build Notifications
 ============================
 
-Read the Docs allows you to configure emails that can be send on failing builds.
+Read the Docs allows you to configure emails that can be sent on failing builds.
 This makes sure you know when your builds have failed.
 
 Take these steps to enable build notifications:
