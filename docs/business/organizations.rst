@@ -24,7 +24,7 @@ Team Types
 
 You can create two types of Teams:
 
-* **Admins** -- These teams have full access to administer the projects in the team. They are allowed to change all of the settings, set notifications, and everything else under the **Admin** tab.
+* **Admins** -- These teams have full access to administer the projects in the team. They are allowed to change all of the settings, set notifications, and perform any action under the **Admin** tab.
 * **Read Only** -- These teams are only able to read and search inside the documents.
 
 Example
