@@ -9,4 +9,4 @@ You can enable it by:
 
 Once your documentation rebuilds it will include your Analytics tracking code and start sending data.
 Google Analytics usually takes 60 minutes,
-and sometimes up to a day before it starts reporting data.
+and sometimes can take up to a day before it starts reporting data.
