@@ -542,6 +542,11 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
     if filename[0] == '/':
         filename = filename[1:]
 
+    # Add correct path for project
+    # TODO: When we move to final version serving code this should be passed in via the filename
+    if not project.single_version:
+        filename = os.path.join(lang_slug, version_slug, filename)
+
     log.info('Serving %s for %s' % (filename, project))
 
     files_tried = []
