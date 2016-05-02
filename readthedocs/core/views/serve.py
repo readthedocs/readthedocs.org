@@ -79,6 +79,9 @@ def redirect_page_with_filename(request, project, filename):
 
 @map_project_slug
 def serve_docs(request, project, lang_slug=None, version_slug=None, filename=''):
+    """
+    This exists mainly to map existing proj, lang, version, filename views to the file format.
+    """
     filename = resolve_path(
         project, version_slug=version_slug, language=lang_slug, filename=filename
     )
