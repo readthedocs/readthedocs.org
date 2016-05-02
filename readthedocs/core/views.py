@@ -556,20 +556,17 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
     if settings.DEBUG or constants.PUBLIC in SERVE_DOCS:
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
+
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
         else:
             files_tried.append(os.path.join(basepath, filename))
 
     if settings.DEBUG or constants.PRIVATE in SERVE_DOCS:
-
-        # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root
 
         if os.path.exists(os.path.join(basepath, filename)):
-
-            # Do basic auth check on the project, but not the version
             if not AdminPermission.is_member(user=request.user, project=project):
                 return _serve_401(request, project)
 
