@@ -20,12 +20,14 @@ from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.forms import FacetedSearchForm, SendEmailForm
 from readthedocs.core.utils import trigger_build, broadcast, send_email
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.donate.mixins import DonateProgressMixin
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile, ProjectRelationship
 from readthedocs.projects.tasks import remove_dir, update_imported_docs
 from readthedocs.redirects.utils import get_redirect_response
+from readthedocs.privacy.loader import AdminPermission
 
 import json
 import mimetypes
@@ -473,6 +475,14 @@ def redirect_page_with_filename(request, filename, project_slug=None):
     return HttpResponseRedirect(url)
 
 
+def _serve_401(request, project):
+    res = render_to_response('401.html',
+                             context_instance=RequestContext(request))
+    res.status_code = 401
+    log.error('Unauthorized access to {0} documentation'.format(project.slug))
+    return res
+
+
 def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
     if not project_slug:
         project_slug = request.slug
@@ -488,13 +498,33 @@ def serve_docs(request, lang_slug, version_slug, filename, project_slug=None):
                                   filename)
 
     if ver not in proj.versions.public(request.user, proj, only_active=False):
-        r = render_to_response('401.html',
-                               context_instance=RequestContext(request))
-        r.status_code = 401
-        return r
+        return _serve_401(request, proj)
     return _serve_docs(request, project=proj, version=ver, filename=filename,
                        lang_slug=lang_slug, version_slug=version_slug,
                        project_slug=project_slug)
+
+
+def _serve_file(request, filename, basepath):
+    # Serve the file from the proper location
+    if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
+        # Serve from Python
+        return serve(request, filename, basepath)
+    else:
+        # Serve from Nginx
+        content_type, encoding = mimetypes.guess_type(os.path.join(basepath, filename))
+        content_type = content_type or 'application/octet-stream'
+        response = HttpResponse(content_type=content_type)
+        if encoding:
+            response["Content-Encoding"] = encoding
+        try:
+            response['X-Accel-Redirect'] = os.path.join(
+                basepath[len(settings.SITE_ROOT):],
+                filename
+            )
+        except UnicodeEncodeError:
+            raise Http404
+
+        return response
 
 
 def _serve_docs(request, project, version, filename, lang_slug=None,
@@ -504,54 +534,47 @@ def _serve_docs(request, project, version, filename, lang_slug=None,
     This is not called directly, but is wrapped by :py:func:`serve_docs` so that
     authentication can be manipulated.
     '''
-    # Figure out actual file to serve
-    if not filename:
-        filename = "index.html"
-    # This is required because we're forming the filenames outselves instead of
-    # letting the web server do it.
-    elif (
-            (project.documentation_type == 'sphinx_htmldir' or
-             project.documentation_type == 'mkdocs') and
-            "_static" not in filename and
-            ".css" not in filename and
-            ".js" not in filename and
-            ".png" not in filename and
-            ".jpg" not in filename and
-            ".svg" not in filename and
-            "_images" not in filename and
-            ".html" not in filename and
-            "font" not in filename and
-            "inv" not in filename):
-        filename += "index.html"
-    else:
-        filename = filename.rstrip('/')
-    # Use the old paths if we're on our old location.
-    # Otherwise use the new language symlinks.
-    # This can be removed once we have 'en' symlinks for every project.
-    if lang_slug == project.language:
-        basepath = project.rtd_build_path(version_slug)
-    else:
-        basepath = project.translations_symlink_path(lang_slug)
-        basepath = os.path.join(basepath, version_slug)
+    # Handle indexes
+    if filename == '' or filename[-1] == '/':
+        filename += 'index.html'
 
-    # Serve file
+    # This breaks path joining, by ignoring the root when given an "absolute" path
+    if filename[0] == '/':
+        filename = filename[1:]
+
+    # Add correct path for project
+    # TODO: When we move to final version serving code this should be passed in via the filename
+    if not project.single_version:
+        filename = os.path.join(lang_slug, version_slug, filename)
+
     log.info('Serving %s for %s' % (filename, project))
-    if not settings.DEBUG and not getattr(settings, 'PYTHON_MEDIA', False):
-        fullpath = os.path.join(basepath, filename)
-        content_type, encoding = mimetypes.guess_type(fullpath)
-        content_type = content_type or 'application/octet-stream'
-        response = HttpResponse(content_type=content_type)
-        if encoding:
-            response["Content-Encoding"] = encoding
-        try:
-            response['X-Accel-Redirect'] = os.path.join(basepath[len(settings.SITE_ROOT):],
-                                                        filename)
-        except UnicodeEncodeError:
-            raise Http404
 
-        return response
-    else:
-        return serve(request, filename, basepath)
+    files_tried = []
+
+    SERVE_DOCS = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
+
+    if settings.DEBUG or constants.PUBLIC in SERVE_DOCS:
+        public_symlink = PublicSymlink(project)
+        basepath = public_symlink.project_root
+
+        if os.path.exists(os.path.join(basepath, filename)):
+            return _serve_file(request, filename, basepath)
+        else:
+            files_tried.append(os.path.join(basepath, filename))
+
+    if settings.DEBUG or constants.PRIVATE in SERVE_DOCS:
+        private_symlink = PrivateSymlink(project)
+        basepath = private_symlink.project_root
+
+        if os.path.exists(os.path.join(basepath, filename)):
+            if not AdminPermission.is_member(user=request.user, project=project):
+                return _serve_401(request, project)
+
+            return _serve_file(request, filename, basepath)
+        else:
+            files_tried.append(os.path.join(basepath, filename))
+
+    raise Http404('File not found. Tried these files: %s' % ','.join(files_tried))
 
 
 def serve_single_version_docs(request, filename, project_slug=None):
