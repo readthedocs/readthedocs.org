@@ -16,7 +16,9 @@ subdomain_urls = patterns(
         name='docs_detail'),
 
     url(r'^$', 'readthedocs.core.views.serve.redirect_project_slug', name='redirect_project_slug'),
-    url(r'', 'readthedocs.core.views.serve.serve_symlink_docs', name='serve_symlink_docs'),
+    url(r'^(?P<filename>.*)$',
+        'readthedocs.core.views.serve.serve_symlink_docs',
+        name='docs_detail'),
 )
 
 groups = [subdomain_urls]
