@@ -42,18 +42,6 @@ class SubdomainUrlTests(TestCase):
                       kwargs={'filename': 'install.html'})
         self.assertEqual(url, '/page/install.html')
 
-    def test_sub_version(self):
-        url = reverse('version_subdomain_handler',
-                      urlconf='readthedocs.core.urls.subdomain',
-                      kwargs={'version_slug': '1.4.1'})
-        self.assertEqual(url, '/1.4.1/')
-
-    def test_sub_lang(self):
-        url = reverse('lang_subdomain_handler',
-                      urlconf='readthedocs.core.urls.subdomain',
-                      kwargs={'lang_slug': 'en'})
-        self.assertEqual(url, '/en/')
-
 
 class WipeUrlTests(TestCase):
 
