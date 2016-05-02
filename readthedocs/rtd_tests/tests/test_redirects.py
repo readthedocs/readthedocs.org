@@ -14,7 +14,7 @@ from readthedocs.redirects.models import Redirect
 import logging
 
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+@override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -41,35 +41,15 @@ class RedirectTests(TestCase):
         # This is triggered by Django, so its a 301, basically just
         # APPEND_SLASH
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://readthedocs.org/docs/pip/')
+        self.assertEqual(r['Location'], 'http://testserver/docs/pip/')
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 302)
-        r = self.client.get(r['Location'])
-        self.assertEqual(r.status_code, 200)
 
     def test_proper_url(self):
         r = self.client.get('/docs/pip/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
-        r = self.client.get(r['Location'])
-        self.assertEqual(r.status_code, 200)
-
-    def test_proper_url_with_lang_slug_only(self):
-        r = self.client.get('/docs/pip/en/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
-        r = self.client.get(r['Location'])
-        self.assertEqual(r.status_code, 200)
-
-    def test_proper_url_full(self):
-        r = self.client.get('/docs/pip/en/latest/')
-        self.assertEqual(r.status_code, 200)
-
-    def test_proper_url_full_with_filename(self):
-        r = self.client.get('/docs/pip/en/latest/test.html')
-        self.assertEqual(r.status_code, 200)
 
     # Specific Page Redirects
     def test_proper_page_on_main_site(self):
@@ -77,16 +57,6 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
                          'http://readthedocs.org/docs/pip/en/latest/test.html')
-        r = self.client.get(r['Location'])
-        self.assertEqual(r.status_code, 200)
-
-    def test_proper_url_with_version_slug_only(self):
-        r = self.client.get('/docs/pip/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
-        r = self.client.get(r['Location'])
-        self.assertEqual(r.status_code, 200)
 
     # If slug is neither valid lang nor valid version, it should 404.
     # TODO: This should 404 directly, not redirect first
@@ -126,24 +96,6 @@ class RedirectTests(TestCase):
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/')
 
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_proper_subdomain_with_lang_slug_only(self):
-        r = self.client.get('/en/', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://pip.readthedocs.org/en/latest/')
-
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_proper_subdomain_and_url(self):
-        r = self.client.get('/en/latest/', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(r.status_code, 200)
-
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_proper_subdomain_and_url_with_filename(self):
-        r = self.client.get(
-            '/en/latest/test.html', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(r.status_code, 200)
-
     # Specific Page Redirects
     @override_settings(USE_SUBDOMAIN=True)
     def test_proper_page_on_subdomain(self):
@@ -152,39 +104,13 @@ class RedirectTests(TestCase):
         self.assertEqual(r['Location'],
                          'http://pip.readthedocs.org/en/latest/test.html')
 
-    # When there's only a version slug, the redirect prepends the lang slug
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_proper_subdomain_with_version_slug_only(self):
-        r = self.client.get('/1.4.1/', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['Location'],
-                         'http://pip.readthedocs.org/en/1.4.1/')
-
     @override_settings(USE_SUBDOMAIN=True)
     def test_improper_subdomain_filename_only(self):
         r = self.client.get('/test.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 404)
 
 
-class RedirectUnderscoreTests(TestCase):
-    fixtures = ["eric", "test_data"]
-
-    def setUp(self):
-        logging.disable(logging.DEBUG)
-        self.client.login(username='eric', password='test')
-        whatup = Project.objects.create(
-            slug='what_up', name='What Up Underscore')
-
-    # Test _ -> - slug lookup
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_underscore_redirect(self):
-        r = self.client.get('/',
-                            HTTP_HOST='what-up.readthedocs.org')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://what-up.readthedocs.org/en/latest/')
-
-
+@override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectAppTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -217,7 +143,9 @@ class RedirectAppTests(TestCase):
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_page(self):
         Redirect.objects.create(
-            project=self.pip, redirect_type='page', from_url='/install.html', to_url='/tutorial/install.html')
+            project=self.pip, redirect_type='page',
+            from_url='/install.html', to_url='/tutorial/install.html'
+        )
         r = self.client.get('/install.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -228,7 +156,7 @@ class RedirectAppTests(TestCase):
         Redirect.objects.create(
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html')
-        with patch('readthedocs.core.views._serve_docs') as _serve_docs:
+        with patch('readthedocs.core.views.serve.serve_symlink_docs') as _serve_docs:
             _serve_docs.side_effect = Http404()
             r = self.client.get('/en/0.8.1/how_to_install.html',
                                 HTTP_HOST='pip.readthedocs.org')
@@ -242,7 +170,7 @@ class RedirectAppTests(TestCase):
         Redirect.objects.create(
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html')
-        with patch('readthedocs.core.views._serve_docs') as _serve_docs:
+        with patch('readthedocs.core.views.serve.serve_symlink_docs') as _serve_docs:
             _serve_docs.side_effect = Http404()
             r = self.client.get('/de/0.8.1/how_to_install.html',
                                 HTTP_HOST='pip.readthedocs.org')
@@ -282,28 +210,31 @@ class RedirectAppTests(TestCase):
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq/')
 
+
+@override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectBuildTests(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
         self.project = get(Project,
-                      slug='project-1',
-                      documentation_type='sphinx',
-                      conf_py_file='test_conf.py',
-                      versions=[fixture()])
+                           slug='project-1',
+                           documentation_type='sphinx',
+                           conf_py_file='test_conf.py',
+                           versions=[fixture()])
         self.version = self.project.versions.all()[0]
 
     def test_redirect_list(self):
         r = self.client.get('/builds/project-1/')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://readthedocs.org/projects/project-1/builds/')
+        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/')
 
     def test_redirect_detail(self):
         r = self.client.get('/builds/project-1/1337/')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://readthedocs.org/projects/project-1/builds/1337/')
+        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/1337/')
 
 
+@override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class GetFullPathTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -320,7 +251,7 @@ class GetFullPathTests(TestCase):
     def test_redirects_no_subdomain(self):
         self.assertEqual(
             self.redirect.get_full_path('index.html'),
-            '/docs/read-the-docs/en/latest/index.html'
+            '/docs/read-the-docs/en/latest/'
         )
 
     @override_settings(

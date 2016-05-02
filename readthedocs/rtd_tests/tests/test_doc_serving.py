@@ -77,7 +77,7 @@ class TestPublicDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/private_web_root/private'
+                    settings.SITE_ROOT + '/public_web_root/private'
                 )
 
     @override_settings(PYTHON_MEDIA=False)

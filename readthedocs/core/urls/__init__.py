@@ -16,6 +16,11 @@ docs_urls = patterns(
         name='docs_detail'),
 
     # Handle single version URLs
+    url((r'^docs/(?P<project_slug>{project_slug})/$'.format(**pattern_opts)),
+        'readthedocs.core.views.serve.redirect_project_slug',
+        name='docs_detail'),
+
+    # Handle single version URLs
     url((r'^docs/(?P<project_slug>{project_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'readthedocs.core.views.serve.serve_symlink_docs',
