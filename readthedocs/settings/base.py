@@ -266,6 +266,7 @@ class CommunityBaseSettings(Settings):
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     GROK_API_HOST = 'https://api.grokthedocs.com'
+    SERVE_DOCS = ['public']
 
     # Haystack
     HAYSTACK_CONNECTIONS = {
