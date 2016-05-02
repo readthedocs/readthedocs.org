@@ -4,8 +4,6 @@ from django.conf.urls import url, patterns
 from django.conf import settings
 from django.conf.urls.static import static
 
-from readthedocs.urls import search_urls
-
 handler500 = 'readthedocs.core.views.server_error'
 handler404 = 'readthedocs.core.views.server_error_404'
 
@@ -21,7 +19,7 @@ subdomain_urls = patterns(
         name='docs_detail'),
 )
 
-groups = [subdomain_urls, search_urls]
+groups = [subdomain_urls]
 
 if getattr(settings, 'DEBUG', False):
     groups.insert(0, static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
