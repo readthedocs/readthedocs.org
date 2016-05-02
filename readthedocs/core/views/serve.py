@@ -131,9 +131,9 @@ def serve_symlink_docs(request, project, filename=''):
 
     files_tried = []
 
-    SERVE_DOCS = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
+    serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
 
-    if settings.DEBUG or constants.PUBLIC in SERVE_DOCS:
+    if settings.DEBUG or constants.PUBLIC in serve_docs:
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -141,7 +141,7 @@ def serve_symlink_docs(request, project, filename=''):
         else:
             files_tried.append(os.path.join(basepath, filename))
 
-    if settings.DEBUG or constants.PRIVATE in SERVE_DOCS:
+    if settings.DEBUG or constants.PRIVATE in serve_docs:
 
         # Handle private
         private_symlink = PrivateSymlink(project)
