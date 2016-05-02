@@ -14,6 +14,7 @@ from readthedocs.redirects.models import Redirect
 import logging
 
 
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class RedirectTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -40,7 +41,7 @@ class RedirectTests(TestCase):
         # This is triggered by Django, so its a 301, basically just
         # APPEND_SLASH
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://testserver/docs/pip/')
+        self.assertEqual(r['Location'], 'http://readthedocs.org/docs/pip/')
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 302)
         r = self.client.get(r['Location'])
@@ -50,7 +51,7 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'http://testserver/docs/pip/en/latest/')
+            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
@@ -58,7 +59,7 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/en/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'http://testserver/docs/pip/en/latest/')
+            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
@@ -75,7 +76,7 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/page/test.html')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['Location'],
-                         'http://testserver/docs/pip/en/latest/test.html')
+                         'http://readthedocs.org/docs/pip/en/latest/test.html')
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
@@ -83,7 +84,7 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/latest/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'http://testserver/docs/pip/en/latest/')
+            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
         r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 200)
 
@@ -91,8 +92,6 @@ class RedirectTests(TestCase):
     # TODO: This should 404 directly, not redirect first
     def test_improper_url_with_nonexistent_slug(self):
         r = self.client.get('/docs/pip/nonexistent/')
-        self.assertEqual(r.status_code, 302)
-        r = self.client.get(r['Location'])
         self.assertEqual(r.status_code, 404)
 
     def test_improper_url_filename_only(self):
@@ -297,12 +296,12 @@ class RedirectBuildTests(TestCase):
     def test_redirect_list(self):
         r = self.client.get('/builds/project-1/')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/')
+        self.assertEqual(r['Location'], 'http://readthedocs.org/projects/project-1/builds/')
 
     def test_redirect_detail(self):
         r = self.client.get('/builds/project-1/1337/')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/1337/')
+        self.assertEqual(r['Location'], 'http://readthedocs.org/projects/project-1/builds/1337/')
 
 
 class GetFullPathTests(TestCase):

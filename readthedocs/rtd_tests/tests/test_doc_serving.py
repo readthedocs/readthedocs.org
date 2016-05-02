@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.http import Http404
+from django.conf import settings
 
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.projects import constants
@@ -42,7 +43,7 @@ class TestPrivateDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    '/Users/eric/projects/readthedocs.org/private_web_root/private'
+                    settings.SITE_ROOT + '/private_web_root/private'
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -76,7 +77,7 @@ class TestPublicDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    '/Users/eric/projects/readthedocs.org/public_web_root/public'
+                    settings.SITE_ROOT + '/private_web_root/private'
                 )
 
     @override_settings(PYTHON_MEDIA=False)

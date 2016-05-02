@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 
 from readthedocs.projects.models import Project, Domain
 
@@ -111,7 +111,7 @@ class SubdomainMiddleware(object):
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
                 log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
-                raise Http404(_('Invalid hostname'))
+                return HttpResponseBadRequest(_('Invalid hostname'))
             log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
             # raise Http404(_('Invalid hostname'))
         # Normal request.
