@@ -107,9 +107,9 @@ that documentation will also be served under the parent project's subdomain.
 
 For example,
 Kombu is a subproject of celery,
-so you can access it on the `celery.readthedocs.org` domain:
+so you can access it on the `celery.readthedocs.io` domain:
 
-http://celery.readthedocs.org/projects/kombu/en/latest/
+http://celery.readthedocs.io/projects/kombu/en/latest/
 
 This also works the same for CNAMEs:
 
@@ -170,7 +170,7 @@ Read The Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
 knows how to convert your customized docstrings.  Two such extensions
 are `numpydoc <https://github.com/numpy/numpydoc>`_ and
-`napoleon <http://sphinxcontrib-napoleon.readthedocs.org>`_. Only
+`napoleon <http://sphinxcontrib-napoleon.readthedocs.io>`_. Only
 ``napoleon`` is able to handle both docstring formats. Its default
 output more closely matches the format of standard Sphinx annotations,
 and as a result, it tends to look a bit better with the default theme.

@@ -4,6 +4,9 @@ import mock
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
+from django.test.client import RequestFactory
+
+from readthedocs.core.middleware import FooterNoSessionMiddleware
 
 from django_dynamic_fixture import get
 
@@ -318,3 +321,28 @@ class ProbabilityTests(TestCase):
             randint.return_value = total + 1
             ret = choose_promo(self.promo_list)
             self.assertEqual(ret, None)
+
+
+class CookieTests(TestCase):
+
+    def setUp(self):
+        self.promo = get(SupporterPromo, live=True)
+
+    def test_no_cookie(self):
+        mid = FooterNoSessionMiddleware()
+        factory = RequestFactory()
+
+        # Setup
+        cache.set(self.promo.cache_key(type=VIEWS, hash='random_hash'), 0)
+        request = factory.get(
+            'http://testserver/sustainability/view/%s/random_hash/' % self.promo.id
+        )
+
+        # Null session here
+        mid.process_request(request)
+        self.assertEqual(request.session, {})
+
+        # Proper session here
+        home_request = factory.get('/')
+        mid.process_request(home_request)
+        self.assertTrue(home_request.session.TEST_COOKIE_NAME, 'testcookie')

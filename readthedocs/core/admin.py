@@ -1,9 +1,11 @@
-"""Django admin interface for core models.
-"""
+"""Django admin interface for core models"""
+
+from datetime import datetime, timedelta
 
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.views import SendEmailView
 from readthedocs.core.models import UserProfile
@@ -17,9 +19,43 @@ class UserProjectInline(admin.TabularInline):
     extra = 1
 
 
+class UserProjectFilter(admin.SimpleListFilter):
+
+    """Filter users based on project properties"""
+
+    parameter_name = 'project_state'
+    title = _('user projects')
+
+    PROJECT_ACTIVE = 'active'
+    PROJECT_BUILT = 'built'
+    PROJECT_RECENT = 'recent'
+
+    def lookups(self, request, model_admin):
+        return (
+            (self.PROJECT_ACTIVE, _('has active project')),
+            (self.PROJECT_BUILT, _('has built project')),
+            (self.PROJECT_RECENT, _('has project with recent builds')),
+        )
+
+    def queryset(self, request, queryset):
+        """Add filters to queryset filter
+
+        ``PROJECT_ACTIVE`` and ``PROJECT_BUILT`` look for versions on projects,
+        ``PROJECT_RECENT`` looks for projects with builds in the last year
+        """
+        if self.value() == self.PROJECT_ACTIVE:
+            return queryset.filter(projects__versions__active=True)
+        if self.value() == self.PROJECT_BUILT:
+            return queryset.filter(projects__versions__built=True)
+        if self.value() == self.PROJECT_RECENT:
+            recent_date = datetime.today() - timedelta(days=365)
+            return queryset.filter(projects__builds__date__gt=recent_date)
+
+
 class UserAdminExtra(UserAdmin):
     list_display = ('username', 'email', 'first_name',
                     'last_name', 'is_staff', 'is_banned')
+    list_filter = (UserProjectFilter,) + UserAdmin.list_filter
     actions = ['ban_user', 'send_email']
     inlines = [UserProjectInline]
 

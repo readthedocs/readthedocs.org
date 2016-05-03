@@ -44,7 +44,7 @@ Redirects on root URLs
 ----------------------
 
 When a user hits the root URL for your documentation,
-for example ``http://pip.readthedocs.org/``,
+for example ``http://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.

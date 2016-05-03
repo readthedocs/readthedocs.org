@@ -11,6 +11,7 @@ from readthedocs.core.resolver import resolve_path, resolve, resolve_domain
 from django_dynamic_fixture import get
 
 
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):
 
     def setUp(self):
@@ -239,14 +240,14 @@ class ResolverDomainTests(ResolverBase):
     def test_domain_public(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.translation)
-            self.assertEqual(url, 'public.readthedocs.org')
+            self.assertEqual(url, 'readthedocs.org')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_domain(project=self.translation)
             self.assertEqual(url, 'pip.public.readthedocs.org')
         # Private overrides domain
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.translation, private=True)
-            self.assertEqual(url, 'public.readthedocs.org')
+            self.assertEqual(url, 'readthedocs.org')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_domain(project=self.translation, private=True)
             self.assertEqual(url, 'pip.public.readthedocs.org')
@@ -356,9 +357,9 @@ class ResolverTests(ResolverBase):
     def test_resolver_public_domain_overrides(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip, private=True)
-            self.assertEqual(url, 'http://public.readthedocs.org/docs/pip/en/latest/')
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
             url = resolve(project=self.pip, private=False)
-            self.assertEqual(url, 'http://public.readthedocs.org/docs/pip/en/latest/')
+            self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip, private=True)
             self.assertEqual(url, 'http://pip.public.readthedocs.org/en/latest/')

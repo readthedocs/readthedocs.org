@@ -102,7 +102,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
     options = {}
     if project.build_queue:
-        options['queue'] = 'build-{0}'.format(project.build_queue)
+        options['queue'] = project.build_queue
 
     update_docs.apply_async(kwargs=kwargs, **options)
 
@@ -120,8 +120,6 @@ def send_email(recipient, subject, template, template_html, context=None,
     """
     if context is None:
         context = {}
-    if request:
-        scheme = 'https' if request.is_secure() else 'http'
-        context['uri'] = '{scheme}://{host}'.format(scheme=scheme,
-                                                    host=request.get_host())
+    context['uri'] = '{scheme}://{host}'.format(
+        scheme='https', host=settings.PRODUCTION_DOMAIN)
     send_email_task.delay(recipient, subject, template, template_html, context)
