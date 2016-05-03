@@ -288,10 +288,6 @@ class AdminPermission(object):
     def is_admin(cls, user, project):
         return user in project.users.all()
 
-    @classmethod
-    def is_member(cls, user, project):
-        return user in project.users.all()
-
 
 class AdminNotAuthorized(ValueError):
     pass
