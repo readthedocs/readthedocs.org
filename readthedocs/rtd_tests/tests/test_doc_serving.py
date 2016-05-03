@@ -1,16 +1,22 @@
+import mock
 import django_dynamic_fixture as fixture
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.http import Http404
+from django.conf import settings
 
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.projects import constants
 from readthedocs.projects.models import Project
+from readthedocs.core.views.serve import serve_symlink_docs
 
 
 @override_settings(
     USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False
 )
-class TestPrivateDocs(TestCase):
+class BaseDocServing(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
         self.eric = fixture.get(User, username='eric')
@@ -21,56 +27,73 @@ class TestPrivateDocs(TestCase):
             Project, slug='private', privacy_level='private',
             version_privacy_level='private', users=[self.eric],
         )
+        self.private_url = '/docs/private/en/latest/usage.html'
+        self.public_url = '/docs/public/en/latest/usage.html'
 
-    @override_settings(
-        PYTHON_MEDIA=False, SERVE_PUBLIC_DOCS=False
-    )
-    def test_private_nginx_serving(self):
-        self.client.login(username='eric', password='eric')
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
-        )
 
-        self.client.logout()
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 401)
+@override_settings(SERVE_DOCS=[constants.PRIVATE])
+class TestPrivateDocs(BaseDocServing):
 
-    @override_settings(
-        PYTHON_MEDIA=False, SERVE_PUBLIC_DOCS=True
-    )
-    def test_public_nginx_doc_serving(self):
-        self.client.login(username='eric', password='eric')
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
-        )
-
-        self.client.logout()
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 401)
-
-    @override_settings(
-        PYTHON_MEDIA=True, SERVE_PUBLIC_DOCS=False
-    )
+    @override_settings(PYTHON_MEDIA=True)
     def test_private_python_media_serving(self):
-        self.client.login(username='eric', password='eric')
-        r = self.client.get('/docs/private/en/latest/usage.html')
+        with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
+            with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
+                request = self.request(self.private_url, user=self.eric)
+                serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+                serve_mock.assert_called_with(
+                    request,
+                    'en/latest/usage.html',
+                    settings.SITE_ROOT + '/private_web_root/private'
+                )
 
-        self.client.logout()
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 401)
+    @override_settings(PYTHON_MEDIA=False)
+    def test_private_nginx_serving(self):
+        with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
+            request = self.request(self.private_url, user=self.eric)
+            r = serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
+            )
 
-    @override_settings(
-        PYTHON_MEDIA=True, SERVE_PUBLIC_DOCS=True
-    )
-    def test_public_python_doc_serving(self):
-        self.client.login(username='eric', password='eric')
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 404)
+    @override_settings(PYTHON_MEDIA=False)
+    def test_private_files_not_found(self):
+        request = self.request(self.private_url, user=self.eric)
+        with self.assertRaises(Http404) as exc:
+            serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+        self.assertTrue('private_web_root' in exc.exception.message)
+        self.assertTrue('public_web_root' not in exc.exception.message)
 
-        self.client.logout()
-        r = self.client.get('/docs/private/en/latest/usage.html')
-        self.assertEqual(r.status_code, 401)
+
+@override_settings(SERVE_DOCS=[constants.PRIVATE, constants.PUBLIC])
+class TestPublicDocs(BaseDocServing):
+
+    @override_settings(PYTHON_MEDIA=True)
+    def test_public_python_media_serving(self):
+        with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
+            with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
+                request = self.request(self.public_url, user=self.eric)
+                serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html')
+                serve_mock.assert_called_with(
+                    request,
+                    'en/latest/usage.html',
+                    settings.SITE_ROOT + '/public_web_root/public'
+                )
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_public_nginx_serving(self):
+        with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
+            request = self.request(self.public_url, user=self.eric)
+            r = serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html')
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(
+                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
+            )
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_both_files_not_found(self):
+        request = self.request(self.private_url, user=self.eric)
+        with self.assertRaises(Http404) as exc:
+            serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+        self.assertTrue('private_web_root' in exc.exception.message)
+        self.assertTrue('public_web_root' in exc.exception.message)

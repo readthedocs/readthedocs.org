@@ -21,26 +21,6 @@ class RedirectSingleVersionTests(TestCase):
     def test_test_case_version_exists(self):
         self.assertTrue(Version.objects.filter(project__name__exact='Pip').get(slug=LATEST))
 
-    def test_proper_single_version_url_full_with_filename(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            r = self.client.get('/docs/pip/usage.html')
-            self.assertEqual(r.status_code, 200)
-
-    def test_improper_single_version_url_nonexistent_project(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            r = self.client.get('/docs/nonexistent/blah.html')
-            self.assertEqual(r.status_code, 404)
-
-    def test_proper_single_version_url_subdomain(self):
-        r = self.client.get('/usage.html',
-                            HTTP_HOST='pip.public.readthedocs.org')
-        self.assertEqual(r.status_code, 200)
-
-    def test_improper_single_version_url_subdomain(self):
-        r = self.client.get('/blah.html',
-                            HTTP_HOST='nonexistent.public.readthedocs.org')
-        self.assertEqual(r.status_code, 404)
-
     def test_docs_url_generation(self):
         self.pip.single_version = True
         with override_settings(USE_SUBDOMAIN=False):

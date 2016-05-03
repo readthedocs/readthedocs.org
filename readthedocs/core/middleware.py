@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 
 from readthedocs.projects.models import Project, Domain
 
@@ -21,6 +21,11 @@ SINGLE_VERSION_URLCONF = getattr(
     settings,
     'SINGLE_VERSION_URLCONF',
     'readthedocs.core.urls.single_version'
+)
+DEV_URL = getattr(
+    settings,
+    'DEV_URL',
+    'dev.readthedocs.io'
 )
 
 
@@ -47,10 +52,10 @@ class SubdomainMiddleware(object):
         domain_parts = host.split('.')
 
         # Serve subdomains - but don't depend on the production domain only having 2 parts
-        if len(domain_parts) == len(public_domain.split('.')) + 1:
+        if len(domain_parts) == len(public_domain.split('.')) + 1 or DEV_URL in host:
             subdomain = domain_parts[0]
             is_www = subdomain.lower() == 'www'
-            if not is_www and public_domain in host:
+            if not is_www and public_domain in host or DEV_URL in host:
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = SUBDOMAIN_URLCONF
@@ -106,11 +111,11 @@ class SubdomainMiddleware(object):
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
-        if len(domain_parts) > 3:
+        if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
                 log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
-                raise Http404(_('Invalid hostname'))
+                return HttpResponseBadRequest(_('Invalid hostname'))
             log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
             # raise Http404(_('Invalid hostname'))
         # Normal request.
