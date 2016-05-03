@@ -119,12 +119,13 @@ def serve_docs(request, project, lang_slug=None, version_slug=None, filename='')
     try:
         version = project.versions.public(request.user).get(slug=version_slug)
     except Version.DoesNotExist:
+        # Properly raise a 404 if the version doesn't exist & a 401 if it does
         if Version.objects.filter(slug=version_slug).exists():
             return _serve_401(request, project)
         raise Http404('Version does not exist.')
     filename = resolve_path(
         project, version_slug=version_slug, language=lang_slug, filename=filename,
-        internal=True,  # internal will make it a "full" path without a URL prefix
+        subdomain=True,  # subdomain will make it a "full" path without a URL prefix
     )
     return _serve_symlink_docs(request,
                                filename=filename,
