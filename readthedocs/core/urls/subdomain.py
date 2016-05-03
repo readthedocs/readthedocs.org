@@ -4,6 +4,8 @@ from django.conf.urls import url, patterns
 from django.conf import settings
 from django.conf.urls.static import static
 
+from readthedocs.constants import pattern_opts
+
 handler500 = 'readthedocs.core.views.server_error'
 handler404 = 'readthedocs.core.views.server_error_404'
 
@@ -14,8 +16,11 @@ subdomain_urls = patterns(
         name='docs_detail'),
 
     url(r'^$', 'readthedocs.core.views.serve.redirect_project_slug', name='redirect_project_slug'),
-    url(r'^(?P<filename>.*)$',
-        'readthedocs.core.views.serve.serve_symlink_docs',
+    # Just for reversing URL's for now
+    url((r'^(?P<lang_slug>{lang_slug})/'
+         r'(?P<version_slug>{version_slug})/'
+         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
+        'readthedocs.core.views.serve.serve_docs',
         name='docs_detail'),
 )
 

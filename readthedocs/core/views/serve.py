@@ -30,6 +30,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.static import serve
 
+from readthedocs.builds.models import Version
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
@@ -82,10 +83,20 @@ def serve_docs(request, project, lang_slug=None, version_slug=None, filename='')
     """
     This exists mainly to map existing proj, lang, version, filename views to the file format.
     """
+    if not version_slug:
+        version_slug = project.get_default_version()
+    try:
+        version = project.versions.public(request.user).get(slug=version_slug)
+    except Version.DoesNotExist:
+        raise Http404("User doesn't have access to this version")
     filename = resolve_path(
-        project, version_slug=version_slug, language=lang_slug, filename=filename
+        project, version_slug=version_slug, language=lang_slug, filename=filename,
+        internal=True,  # internal will make it a "full" path without a URL prefix
     )
-    return serve_symlink_docs(request, filename=filename, project=project)
+    return _serve_symlink_docs(request,
+                               filename=filename,
+                               project=project,
+                               privacy_level=version.privacy_level)
 
 
 def _serve_file(request, filename, basepath):
@@ -119,8 +130,7 @@ def _serve_401(request, project):
     return res
 
 
-@map_project_slug
-def serve_symlink_docs(request, project, filename=''):
+def _serve_symlink_docs(request, project, filename='', privacy_level=constants.PUBLIC):
 
     # Handle indexes
     if filename == '' or filename[-1] == '/':
@@ -136,7 +146,7 @@ def serve_symlink_docs(request, project, filename=''):
 
     serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
 
-    if settings.DEBUG or constants.PUBLIC in serve_docs:
+    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -144,7 +154,7 @@ def serve_symlink_docs(request, project, filename=''):
         else:
             files_tried.append(os.path.join(basepath, filename))
 
-    if settings.DEBUG or constants.PRIVATE in serve_docs:
+    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:
 
         # Handle private
         private_symlink = PrivateSymlink(project)
@@ -152,10 +162,8 @@ def serve_symlink_docs(request, project, filename=''):
 
         if os.path.exists(os.path.join(basepath, filename)):
 
-            # Do basic auth check on the project, but not the version
             if not AdminPermission.is_member(user=request.user, project=project):
                 return _serve_401(request, project)
-
             return _serve_file(request, filename, basepath)
         else:
             files_tried.append(os.path.join(basepath, filename))

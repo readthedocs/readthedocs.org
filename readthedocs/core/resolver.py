@@ -51,11 +51,11 @@ class ResolverBase(object):
 
     def base_resolve_path(self, project_slug, filename, version_slug=None,
                           language=None, private=False, single_version=None,
-                          subproject_slug=None, subdomain=None, cname=None):
+                          subproject_slug=None, subdomain=None, cname=None, internal=False):
         """Resolve a with nothing smart, just filling in the blanks"""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        if subdomain or cname or (self._use_subdomain()):
+        if subdomain or cname or internal or (self._use_subdomain()):
             url = '/'
         else:
             url = '/docs/{project_slug}/'
@@ -76,7 +76,7 @@ class ResolverBase(object):
 
     def resolve_path(self, project, filename='', version_slug=None,
                      language=None, single_version=None, subdomain=None,
-                     cname=None, private=None):
+                     cname=None, private=None, internal=False):
         """Resolve a URL with a subset of fields defined"""
         relation = project.superprojects.first()
         cname = cname or project.domains.filter(canonical=True).first()
@@ -115,7 +115,8 @@ class ResolverBase(object):
             single_version=single_version,
             subproject_slug=subproject_slug,
             cname=cname,
-            private=private
+            private=private,
+            internal=internal,
         )
 
     def resolve_domain(self, project, private=None):
@@ -181,6 +182,9 @@ class ResolverBase(object):
 
         This basically means stripping / and .html endings and then re-adding them properly.
         """
+        # Bail out on non-html files
+        if '.' in filename and '.html' not in filename:
+            return filename
         filename = filename.lstrip('/')
         filename = re.sub('index.html$', '', filename)
         filename = re.sub('index$', '', filename)
