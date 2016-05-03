@@ -22,6 +22,7 @@ single_version_urls = patterns(
 
 groups = [single_version_urls]
 
+# Needed to serve media locally
 if getattr(settings, 'DEBUG', False):
     groups.insert(0, static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
 

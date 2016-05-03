@@ -78,25 +78,12 @@ def redirect_page_with_filename(request, project, filename):
     return HttpResponseRedirect(resolve(project, filename=filename))
 
 
-@map_project_slug
-def serve_docs(request, project, lang_slug=None, version_slug=None, filename=''):
-    """
-    This exists mainly to map existing proj, lang, version, filename views to the file format.
-    """
-    if not version_slug:
-        version_slug = project.get_default_version()
-    try:
-        version = project.versions.public(request.user).get(slug=version_slug)
-    except Version.DoesNotExist:
-        raise Http404("User doesn't have access to this version")
-    filename = resolve_path(
-        project, version_slug=version_slug, language=lang_slug, filename=filename,
-        internal=True,  # internal will make it a "full" path without a URL prefix
-    )
-    return _serve_symlink_docs(request,
-                               filename=filename,
-                               project=project,
-                               privacy_level=version.privacy_level)
+def _serve_401(request, project):
+    res = render_to_response('401.html',
+                             context_instance=RequestContext(request))
+    res.status_code = 401
+    log.error('Unauthorized access to {0} documentation'.format(project.slug))
+    return res
 
 
 def _serve_file(request, filename, basepath):
@@ -122,12 +109,25 @@ def _serve_file(request, filename, basepath):
         return response
 
 
-def _serve_401(request, project):
-    res = render_to_response('401.html',
-                             context_instance=RequestContext(request))
-    res.status_code = 401
-    log.error('Unauthorized access to {0} documentation'.format(project.slug))
-    return res
+@map_project_slug
+def serve_docs(request, project, lang_slug=None, version_slug=None, filename=''):
+    """
+    This exists mainly to map existing proj, lang, version, filename views to the file format.
+    """
+    if not version_slug:
+        version_slug = project.get_default_version()
+    try:
+        version = project.versions.public(request.user).get(slug=version_slug)
+    except Version.DoesNotExist:
+        return _serve_401(request, project)
+    filename = resolve_path(
+        project, version_slug=version_slug, language=lang_slug, filename=filename,
+        internal=True,  # internal will make it a "full" path without a URL prefix
+    )
+    return _serve_symlink_docs(request,
+                               filename=filename,
+                               project=project,
+                               privacy_level=version.privacy_level)
 
 
 def _serve_symlink_docs(request, project, filename='', privacy_level=constants.PUBLIC):
@@ -161,7 +161,6 @@ def _serve_symlink_docs(request, project, filename='', privacy_level=constants.P
         basepath = private_symlink.project_root
 
         if os.path.exists(os.path.join(basepath, filename)):
-
             if not AdminPermission.is_member(user=request.user, project=project):
                 return _serve_401(request, project)
             return _serve_file(request, filename, basepath)

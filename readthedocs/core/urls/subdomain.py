@@ -26,6 +26,7 @@ subdomain_urls = patterns(
 
 groups = [subdomain_urls]
 
+# Needed to serve media locally
 if getattr(settings, 'DEBUG', False):
     groups.insert(0, static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
 
