@@ -39,7 +39,11 @@ class SubdomainMiddleware(object):
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-        production_domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
+        production_domain = getattr(
+            settings,
+            'PRODUCTION_DOMAIN',
+            'readthedocs.org'
+        )
 
         if public_domain is None:
             public_domain = production_domain
