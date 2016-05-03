@@ -44,11 +44,13 @@
   <div class="wrapper">
     <div class="navigable">
       <ul>
-        <li class="{% block profile-admin-details %}{% endblock %}"><a href="{% url 'profiles_profile_edit' %}">{% trans "Details" %}</a></li>
-        <li class="{% block profile-admin-social-accounts %}{% endblock %}"><a href="{% url 'socialaccount_connections' %}">{% trans "Connected Services" %}</a></li>
-        <li class="{% block profile-admin-change-password %}{% endblock %}"><a href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a></li>
-        <li class="{% block profile-admin-change-email %}{% endblock %}"><a href="{% url 'account_email' %}">{% trans "Change Email" %}</a></li>
-        <li class="{% block profile-admin-gold-edit %}{% endblock %}"><a href="{% url 'gold_detail' %}">{% trans "Gold" %}</a></li>
+        {% block profile-admin-nav %}
+          <li class="{% block profile-admin-details %}{% endblock %}"><a href="{% url 'profiles_profile_edit' %}">{% trans "Details" %}</a></li>
+          <li class="{% block profile-admin-social-accounts %}{% endblock %}"><a href="{% url 'socialaccount_connections' %}">{% trans "Connected Services" %}</a></li>
+          <li class="{% block profile-admin-change-password %}{% endblock %}"><a href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a></li>
+          <li class="{% block profile-admin-change-email %}{% endblock %}"><a href="{% url 'account_email' %}">{% trans "Change Email" %}</a></li>
+          <li class="{% block profile-admin-gold-edit %}{% endblock %}"><a href="{% url 'gold_detail' %}">{% trans "Gold" %}</a></li>
+        {% endblock %}
       </ul>
       <div>
         <h2>{% block edit_content_header %}{% endblock %}</h2>
@@ -59,6 +61,3 @@
   </div>
 </div>
 {% endblock %}
-
-
-
