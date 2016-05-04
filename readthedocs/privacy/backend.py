@@ -289,8 +289,8 @@ class AdminPermission(object):
         return user in project.users.all()
 
     @classmethod
-    def is_member(cls, user, project):
-        return user in project.users.all()
+    def is_member(cls, user, obj):
+        return user in obj.users.all()
 
 
 class AdminNotAuthorized(ValueError):

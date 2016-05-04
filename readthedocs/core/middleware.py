@@ -44,6 +44,7 @@ class SubdomainMiddleware(object):
         if public_domain is None:
             public_domain = production_domain
         if ':' in host:
+            full_host = host
             host = host.split(':')[0]
         domain_parts = host.split('.')
 
@@ -51,7 +52,10 @@ class SubdomainMiddleware(object):
         if len(domain_parts) == len(public_domain.split('.')) + 1 or DEV_URL in host:
             subdomain = domain_parts[0]
             is_www = subdomain.lower() == 'www'
-            if not is_www and public_domain in host or DEV_URL in host:
+            if not is_www and public_domain in host or DEV_URL in host or (
+                # Support ports during local dev
+                public_domain in host or public_domain in full_host
+            ):
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = SUBDOMAIN_URLCONF

@@ -189,7 +189,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         basepath = private_symlink.project_root
 
         if os.path.exists(os.path.join(basepath, filename)):
-            if not AdminPermission.is_member(user=request.user, project=project):
+            if not AdminPermission.is_member(user=request.user, obj=project):
                 return _serve_401(request, project)
             return _serve_file(request, filename, basepath)
         else:
