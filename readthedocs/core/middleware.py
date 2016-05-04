@@ -22,9 +22,9 @@ SINGLE_VERSION_URLCONF = getattr(
     'SINGLE_VERSION_URLCONF',
     'readthedocs.core.urls.single_version'
 )
-DEV_URL = getattr(
+DEV_DOMAIN = getattr(
     settings,
-    'DEV_URL',
+    'DEV_DOMAIN',
     'dev.readthedocs.io'
 )
 
@@ -48,10 +48,10 @@ class SubdomainMiddleware(object):
         domain_parts = host.split('.')
 
         # Serve subdomains - but don't depend on the production domain only having 2 parts
-        if len(domain_parts) == len(public_domain.split('.')) + 1 or DEV_URL in host:
+        if len(domain_parts) == len(public_domain.split('.')) + 1 or DEV_DOMAIN in host:
             subdomain = domain_parts[0]
             is_www = subdomain.lower() == 'www'
-            if not is_www and public_domain in host or DEV_URL in host or (
+            if not is_www and public_domain in host or DEV_DOMAIN in host or (
                 # Support ports during local dev
                 public_domain in host or public_domain in full_host
             ):
