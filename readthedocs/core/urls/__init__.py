@@ -9,19 +9,16 @@ from readthedocs.projects.filters import ProjectFilter
 docs_urls = patterns(
     '',
 
-    # Handle /page/<path> redirects for explicit "latest" version goodness.
     url((r'^docs/(?P<project_slug>{project_slug})/page/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'readthedocs.core.views.serve.redirect_page_with_filename',
         name='docs_detail'),
 
-    # Redirect root to actual docs
     url((r'^docs/(?P<project_slug>{project_slug})/'
         r'(?:|projects/(?P<subproject_slug>{project_slug})/)$'.format(**pattern_opts)),
         'readthedocs.core.views.serve.redirect_project_slug',
         name='docs_detail'),
 
-    # Just for reversing URL's for now
     url((r'^docs/(?P<project_slug>{project_slug})/'
          r'(?:|projects/(?P<subproject_slug>{project_slug})/)'
          r'(?P<lang_slug>{lang_slug})/'

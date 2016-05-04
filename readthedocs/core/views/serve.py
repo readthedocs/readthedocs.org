@@ -158,7 +158,7 @@ def serve_docs(request, project, subproject,
 
 
 @map_project_slug
-def _serve_symlink_docs(request, project, filename='', privacy_level=constants.PUBLIC):
+def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     # Handle indexes
     if filename == '' or filename[-1] == '/':
