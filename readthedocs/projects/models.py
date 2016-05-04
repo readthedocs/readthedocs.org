@@ -847,8 +847,7 @@ class ImportedFile(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, self.project.language,
-                                self.version.slug, self.path])
+        return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)

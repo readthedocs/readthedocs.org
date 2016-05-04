@@ -12,7 +12,7 @@ handler404 = 'readthedocs.core.views.server_error_404'
 subdomain_urls = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
     url(r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-        r'^page/(?P<filename>.*)$',
+        r'page/(?P<filename>.*)$'.format(**pattern_opts),
         'readthedocs.core.views.serve.redirect_page_with_filename',
         name='docs_detail'),
 
