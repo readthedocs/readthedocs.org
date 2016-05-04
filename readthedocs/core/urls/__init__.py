@@ -17,8 +17,7 @@ docs_urls = patterns(
 
     # Redirect root to actual docs
     url((r'^docs/(?P<project_slug>{project_slug})/'
-        r'(?:|projects/(?P<subproject_slug>{project_slug})/)$'
-        .format(**pattern_opts)),
+        r'(?:|projects/(?P<subproject_slug>{project_slug})/)$'.format(**pattern_opts)),
         'readthedocs.core.views.serve.redirect_project_slug',
         name='docs_detail'),
 

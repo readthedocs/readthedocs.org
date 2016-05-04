@@ -30,14 +30,14 @@ if getattr(settings, 'DEBUG', False):
     groups.insert(0, static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
 
 # Allow `/docs/<foo>` URL's when not using subdomains or during local dev
-if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG: 
+if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     docs_url = patterns(
-        '', 
+        '',
         url((r'^docs/(?P<project_slug>[-\w]+)/'
-        r'(?:|projects/(?P<subproject_slug>{project_slug})/)'
-        r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-        'readthedocs.core.views.serve.serve_docs',
-        name='docs_detail')
+             r'(?:|projects/(?P<subproject_slug>{project_slug})/)'
+             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
+            'readthedocs.core.views.serve.serve_docs',
+            name='docs_detail')
     )
     groups.insert(1, docs_url)
 
