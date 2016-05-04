@@ -16,14 +16,18 @@ docs_urls = patterns(
         name='docs_detail'),
 
     # Redirect root to actual docs
-    url((r'^docs/(?P<project_slug>{project_slug})/$'.format(**pattern_opts)),
+    url((r'^docs/(?P<project_slug>{project_slug})/'
+        r'(?:|projects/(?P<subproject_slug>{project_slug})/)$'
+        .format(**pattern_opts)),
         'readthedocs.core.views.serve.redirect_project_slug',
         name='docs_detail'),
 
     # Just for reversing URL's for now
-    url((r'^docs/(?P<project_slug>{project_slug})/(?P<lang_slug>{lang_slug})/'
+    url((r'^docs/(?P<project_slug>{project_slug})/'
+         r'(?:|projects/(?P<subproject_slug>{project_slug})/)'
+         r'(?P<lang_slug>{lang_slug})/'
          r'(?P<version_slug>{version_slug})/'
-         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
+         r'(?P<filename>{filename_slug})'.format(**pattern_opts)),
         'readthedocs.core.views.serve.serve_docs',
         name='docs_detail'),
 )

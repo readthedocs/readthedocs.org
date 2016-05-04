@@ -15,9 +15,12 @@ subdomain_urls = patterns(
         'readthedocs.core.views.serve.redirect_page_with_filename',
         name='docs_detail'),
 
-    url(r'^$', 'readthedocs.core.views.serve.redirect_project_slug', name='redirect_project_slug'),
-    # Just for reversing URL's for now
-    url((r'^(?P<lang_slug>{lang_slug})/'
+    url((r'^(?:|projects/(?P<subproject_slug>{project_slug})/)$').format(**pattern_opts),
+        'readthedocs.core.views.serve.redirect_project_slug',
+        name='redirect_project_slug'),
+
+    url((r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+         r'(?P<lang_slug>{lang_slug})/'
          r'(?P<version_slug>{version_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
         'readthedocs.core.views.serve.serve_docs',

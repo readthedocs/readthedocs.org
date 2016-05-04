@@ -116,6 +116,7 @@ class ResolverBase(object):
             subproject_slug=subproject_slug,
             cname=cname,
             private=private,
+            subdomain=subdomain,
         )
 
     def resolve_domain(self, project, private=None):
