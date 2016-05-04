@@ -12,7 +12,8 @@ handler404 = 'readthedocs.core.views.server_error_404'
 single_version_urls = patterns(
     '',  # base view, flake8 complains if it is on the previous line.
 
-    url(r'^page/(?P<filename>.*)$',
+    url(r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+        r'page/(?P<filename>.*)$',
         'readthedocs.core.views.serve.redirect_page_with_filename',
         name='docs_detail'),
 
@@ -28,6 +29,7 @@ groups = [single_version_urls]
 if getattr(settings, 'DEBUG', False):
     groups.insert(0, static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
 
+# Allow `/docs/<foo>` URL's when not using subdomains or during local dev
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG: 
     docs_url = patterns(
         '', 

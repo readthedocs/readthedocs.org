@@ -93,6 +93,7 @@ def redirect_project_slug(request, project, subproject):
 
 
 @map_project_slug
+@map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):
     """Redirect /page/file.html to /en/latest/file.html."""
     return HttpResponseRedirect(resolve(subproject or project, filename=filename))
