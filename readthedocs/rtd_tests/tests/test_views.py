@@ -179,7 +179,7 @@ class RandomPageTests(TestCase):
     def test_takes_project_slug(self):
         response = self.client.get('/random/pip/')
         self.assertEqual(response.status_code, 302)
-        self.assertTrue('/pip/' in response['Location'])
+        self.assertTrue('pip' in response['Location'])
 
     def test_404_for_unknown_project(self):
         response = self.client.get('/random/not-existent/')

@@ -10,7 +10,7 @@ from django.conf import settings
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
-from readthedocs.core.views.serve import serve_symlink_docs
+from readthedocs.core.views.serve import _serve_symlink_docs
 
 
 @override_settings(
@@ -39,7 +39,7 @@ class TestPrivateDocs(BaseDocServing):
         with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
             with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
                 request = self.request(self.private_url, user=self.eric)
-                serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+                _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
@@ -50,7 +50,7 @@ class TestPrivateDocs(BaseDocServing):
     def test_private_nginx_serving(self):
         with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
             request = self.request(self.private_url, user=self.eric)
-            r = serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+            r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
                 r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
@@ -60,7 +60,7 @@ class TestPrivateDocs(BaseDocServing):
     def test_private_files_not_found(self):
         request = self.request(self.private_url, user=self.eric)
         with self.assertRaises(Http404) as exc:
-            serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
+            _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
         self.assertTrue('private_web_root' in exc.exception.message)
         self.assertTrue('public_web_root' not in exc.exception.message)
 
@@ -73,7 +73,7 @@ class TestPublicDocs(BaseDocServing):
         with mock.patch('readthedocs.core.views.serve.serve') as serve_mock:
             with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
                 request = self.request(self.public_url, user=self.eric)
-                serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html')
+                _serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html', privacy_level='public')
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
@@ -84,7 +84,7 @@ class TestPublicDocs(BaseDocServing):
     def test_public_nginx_serving(self):
         with mock.patch('readthedocs.core.views.serve.os.path.exists', return_value=True):
             request = self.request(self.public_url, user=self.eric)
-            r = serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html')
+            r = _serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html', privacy_level='public')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
                 r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
@@ -94,6 +94,6 @@ class TestPublicDocs(BaseDocServing):
     def test_both_files_not_found(self):
         request = self.request(self.private_url, user=self.eric)
         with self.assertRaises(Http404) as exc:
-            serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html')
-        self.assertTrue('private_web_root' in exc.exception.message)
+            _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='public')
+        self.assertTrue('private_web_root' not in exc.exception.message)
         self.assertTrue('public_web_root' in exc.exception.message)

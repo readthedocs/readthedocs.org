@@ -14,7 +14,7 @@ from readthedocs.redirects.models import Redirect
 import logging
 
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
+@override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False, APPEND_SLASH=False)
 class RedirectTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -38,12 +38,7 @@ class RedirectTests(TestCase):
 
     def test_proper_url_no_slash(self):
         r = self.client.get('/docs/pip')
-        # This is triggered by Django, so its a 301, basically just
-        # APPEND_SLASH
-        self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://testserver/docs/pip/')
-        r = self.client.get(r['Location'])
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 404)
 
     def test_proper_url(self):
         r = self.client.get('/docs/pip/')
@@ -156,7 +151,7 @@ class RedirectAppTests(TestCase):
         Redirect.objects.create(
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html')
-        with patch('readthedocs.core.views.serve.serve_symlink_docs') as _serve_docs:
+        with patch('readthedocs.core.views.serve._serve_symlink_docs') as _serve_docs:
             _serve_docs.side_effect = Http404()
             r = self.client.get('/en/0.8.1/how_to_install.html',
                                 HTTP_HOST='pip.readthedocs.org')
@@ -170,7 +165,7 @@ class RedirectAppTests(TestCase):
         Redirect.objects.create(
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html')
-        with patch('readthedocs.core.views.serve.serve_symlink_docs') as _serve_docs:
+        with patch('readthedocs.core.views.serve._serve_symlink_docs') as _serve_docs:
             _serve_docs.side_effect = Http404()
             r = self.client.get('/de/0.8.1/how_to_install.html',
                                 HTTP_HOST='pip.readthedocs.org')
@@ -277,11 +272,5 @@ class GetFullPathTests(TestCase):
         self.redirect.project.single_version = True
         self.assertEqual(
             self.redirect.get_full_path('faq.html'),
-            reverse(
-                'docs_detail',
-                kwargs={
-                    'project_slug': self.proj.slug,
-                    'filename': 'faq.html',
-                }
-            )
+            '/docs/read-the-docs/faq.html'
         )

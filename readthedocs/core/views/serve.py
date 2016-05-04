@@ -30,6 +30,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.static import serve
 
+from readthedocs.builds.models import Version
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
@@ -42,6 +43,25 @@ import logging
 from functools import wraps
 
 log = logging.getLogger(__name__)
+
+
+def map_subproject_slug(view_func):
+    """
+    A decorator that maps a ``subproject_slug`` URL param into a Project.
+
+    :raises: Http404 if the Project doesn't exist
+
+    .. warning:: Does not take into account any kind of privacy settings.
+    """
+    @wraps(view_func)
+    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):
+        if subproject is None and subproject_slug:
+            try:
+                subproject = Project.objects.get(slug=subproject_slug)
+            except Project.DoesNotExist:
+                raise Http404
+        return view_func(request, subproject=subproject, *args, **kwargs)
+    return inner_view
 
 
 def map_project_slug(view_func):
@@ -66,26 +86,25 @@ def map_project_slug(view_func):
 
 
 @map_project_slug
-def redirect_project_slug(request, project):
+@map_subproject_slug
+def redirect_project_slug(request, project, subproject):
     """Handle / -> /en/latest/ directs on subdomains"""
-    return HttpResponseRedirect(resolve(project))
+    return HttpResponseRedirect(resolve(subproject or project))
 
 
 @map_project_slug
-def redirect_page_with_filename(request, project, filename):
+@map_subproject_slug
+def redirect_page_with_filename(request, project, subproject, filename):
     """Redirect /page/file.html to /en/latest/file.html."""
-    return HttpResponseRedirect(resolve(project, filename=filename))
+    return HttpResponseRedirect(resolve(subproject or project, filename=filename))
 
 
-@map_project_slug
-def serve_docs(request, project, lang_slug=None, version_slug=None, filename=''):
-    """
-    This exists mainly to map existing proj, lang, version, filename views to the file format.
-    """
-    filename = resolve_path(
-        project, version_slug=version_slug, language=lang_slug, filename=filename
-    )
-    return serve_symlink_docs(request, filename=filename, project=project)
+def _serve_401(request, project):
+    res = render_to_response('401.html',
+                             context_instance=RequestContext(request))
+    res.status_code = 401
+    log.error('Unauthorized access to {0} documentation'.format(project.slug))
+    return res
 
 
 def _serve_file(request, filename, basepath):
@@ -111,16 +130,35 @@ def _serve_file(request, filename, basepath):
         return response
 
 
-def _serve_401(request, project):
-    res = render_to_response('401.html',
-                             context_instance=RequestContext(request))
-    res.status_code = 401
-    log.error('Unauthorized access to {0} documentation'.format(project.slug))
-    return res
+@map_project_slug
+@map_subproject_slug
+def serve_docs(request, project, subproject,
+               lang_slug=None, version_slug=None, filename=''):
+    """
+    This exists mainly to map existing proj, lang, version, filename views to the file format.
+    """
+    if not version_slug:
+        version_slug = project.get_default_version()
+    try:
+        version = project.versions.public(request.user).get(slug=version_slug)
+    except Version.DoesNotExist:
+        # Properly raise a 404 if the version doesn't exist & a 401 if it does
+        if project.versions.filter(slug=version_slug).exists():
+            return _serve_401(request, project)
+        raise Http404('Version does not exist.')
+    filename = resolve_path(
+        subproject or project,  # Resolve the subproject if it exists
+        version_slug=version_slug, language=lang_slug, filename=filename,
+        subdomain=True,  # subdomain will make it a "full" path without a URL prefix
+    )
+    return _serve_symlink_docs(request,
+                               filename=filename,
+                               project=project,
+                               privacy_level=version.privacy_level)
 
 
 @map_project_slug
-def serve_symlink_docs(request, project, filename=''):
+def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     # Handle indexes
     if filename == '' or filename[-1] == '/':
@@ -136,7 +174,7 @@ def serve_symlink_docs(request, project, filename=''):
 
     serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
 
-    if settings.DEBUG or constants.PUBLIC in serve_docs:
+    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -144,18 +182,15 @@ def serve_symlink_docs(request, project, filename=''):
         else:
             files_tried.append(os.path.join(basepath, filename))
 
-    if settings.DEBUG or constants.PRIVATE in serve_docs:
+    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:
 
         # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root
 
         if os.path.exists(os.path.join(basepath, filename)):
-
-            # Do basic auth check on the project, but not the version
-            if not AdminPermission.is_member(user=request.user, project=project):
+            if not AdminPermission.is_member(user=request.user, obj=project):
                 return _serve_401(request, project)
-
             return _serve_file(request, filename, basepath)
         else:
             files_tried.append(os.path.join(basepath, filename))
