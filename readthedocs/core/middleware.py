@@ -35,7 +35,7 @@ class SubdomainMiddleware(object):
         if not getattr(settings, 'USE_SUBDOMAIN', False):
             return None
 
-        host = request.get_host().lower()
+        full_host = host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
@@ -44,7 +44,6 @@ class SubdomainMiddleware(object):
         if public_domain is None:
             public_domain = production_domain
         if ':' in host:
-            full_host = host
             host = host.split(':')[0]
         domain_parts = host.split('.')
 
