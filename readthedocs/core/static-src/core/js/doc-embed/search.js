@@ -95,6 +95,10 @@ function attach_elastic_search_query(data) {
 
         $.ajax({
             url: search_url.href,
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true,
+            },
             complete: function(resp, status_code) {
                 if (typeof(resp.responseJSON) == 'undefined' ||
                         typeof(resp.responseJSON.results) == 'undefined') {

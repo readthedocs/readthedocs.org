@@ -43,8 +43,8 @@ you will say that ``phpmyadmin-spanish`` is a translation for your project.
 
 This has the results of serving:
 
-* ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.org/en/latest/``
-* ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.org/es/latest/``
+* ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.io/en/latest/``
+* ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.io/es/latest/``
 
 It also gets included in the Read the Docs flyout:
 

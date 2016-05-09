@@ -78,6 +78,7 @@ class CommunityBaseSettings(Settings):
             'textclassifier',
             'annoying',
             'django_countries',
+            'django_extensions',
 
             # Celery bits
             'djcelery',
@@ -110,8 +111,6 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
-        if self.DEBUG:
-            apps.append('django_extensions')
         return apps
 
     TEMPLATE_LOADERS = (
@@ -129,12 +128,9 @@ class CommunityBaseSettings(Settings):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'pagination.middleware.PaginationMiddleware',
-        # Hack
-        # 'core.underscore_middleware.UnderscoreMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
-        # 'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -249,8 +245,8 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '^http://(.+)\.readthedocs\.org$',
-        '^https://(.+)\.readthedocs\.org$')
+        '^http://(.+)\.readthedocs\.io$',
+        '^https://(.+)\.readthedocs\.io$')
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_HEADERS = (

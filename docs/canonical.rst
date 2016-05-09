@@ -15,10 +15,10 @@ Example
 
 Fabric hosts their docs on Read the Docs.
 They mostly use their own domain for them ``http://docs.fabfile.org``.
-This means that Google will index both ``http://fabric-docs.readthedocs.org`` and ``http://docs.fabfile.org`` for their documentation.
+This means that Google will index both ``http://fabric-docs.readthedocs.io`` and ``http://docs.fabfile.org`` for their documentation.
 
 Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL.
-This means that when Google indexes ``http://fabric-docs.readthedocs.org``, it will know that it should really point at ``http://docs.fabfile.org``.
+This means that when Google indexes ``http://fabric-docs.readthedocs.io``, it will know that it should really point at ``http://docs.fabfile.org``.
 
 Enabling
 --------
@@ -33,7 +33,7 @@ you should see a bit of HTML like this:
 
 .. code-block:: html
 
-    <link rel="canonical" href="http://pip.readthedocs.org/en/latest/installing.html">
+    <link rel="canonical" href="http://pip.readthedocs.io/en/latest/installing.html">
 
 Links
 -----
