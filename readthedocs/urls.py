@@ -88,7 +88,7 @@ debug_urls = add(
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
           money_urls, deprecated_urls]
 
-if not getattr(settings, 'USE_SUBDOMAIN', False):
+if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):
     groups.append(admin_urls)
