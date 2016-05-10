@@ -203,12 +203,12 @@ class PrivacyTests(TestCase):
                           'privacy-test-slug': 'private'})
         r = self.client.get('/docs/django-kong/en/test-slug/')
         self.client.login(username='eric', password='test')
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 404)
 
         # Make sure it doesn't show up as tester
         self.client.login(username='tester', password='test')
         r = self.client.get('/docs/django-kong/en/test-slug/')
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 401)
 
 # Private download tests
 

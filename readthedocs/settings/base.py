@@ -20,7 +20,7 @@ class CommunityBaseSettings(Settings):
     # Django settings
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
-    SUBDOMAIN_URLCONF = 'readthedocs.core.subdomain_urls'
+    SUBDOMAIN_URLCONF = 'readthedocs.core.urls.subdomain'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
@@ -245,8 +245,8 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '^http://(.+)\.readthedocs\.org$',
-        '^https://(.+)\.readthedocs\.org$')
+        '^http://(.+)\.readthedocs\.io$',
+        '^https://(.+)\.readthedocs\.io$')
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_HEADERS = (
@@ -262,6 +262,7 @@ class CommunityBaseSettings(Settings):
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     GROK_API_HOST = 'https://api.grokthedocs.com'
+    SERVE_DOCS = ['public']
 
     # Haystack
     HAYSTACK_CONNECTIONS = {

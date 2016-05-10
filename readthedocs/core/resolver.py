@@ -115,7 +115,8 @@ class ResolverBase(object):
             single_version=single_version,
             subproject_slug=subproject_slug,
             cname=cname,
-            private=private
+            private=private,
+            subdomain=subdomain,
         )
 
     def resolve_domain(self, project, private=None):
@@ -181,6 +182,9 @@ class ResolverBase(object):
 
         This basically means stripping / and .html endings and then re-adding them properly.
         """
+        # Bail out on non-html files
+        if '.' in filename and '.html' not in filename:
+            return filename
         filename = filename.lstrip('/')
         filename = re.sub('index.html$', '', filename)
         filename = re.sub('index$', '', filename)

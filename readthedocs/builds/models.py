@@ -18,7 +18,6 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
                                             BITBUCKET_REGEXS, PRIVATE)
-from readthedocs.core.resolver import resolve
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
