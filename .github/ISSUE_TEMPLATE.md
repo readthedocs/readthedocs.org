@@ -1,6 +1,13 @@
 ## Details
 
-If this issue is for a specific project or build, include the following:
+* Project URL: 
+* Build URL (if applicable):
+* Read the Docs username (if applicable): 
 
-* Project: 
-* Build #: 
+## Excepted Result
+
+*A description of what you wanted to happen*
+
+## Actual Result
+
+*A description of what actually happened*
