@@ -241,7 +241,7 @@ class BaseLatexBuildCommand(object):
     '''Ignore LaTeX exit code if there was file output'''
 
     def run(self):
-        super(LatexBuildCommand, self).run()
+        super(BaseLatexBuildCommand, self).run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
