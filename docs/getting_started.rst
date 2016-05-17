@@ -117,7 +117,7 @@ If you have any more trouble, don't hesitate to reach out to us. The :doc:`suppo
 .. _install Sphinx: http://sphinx-doc.org/latest/install.html
 .. _install Mkdocs: http://www.mkdocs.org/#installation
 .. _reStructuredText: http://sphinx-doc.org/rest.html
-.. _this template: http://docs.writethedocs.org/en/latest/writing/beginners-guide-to-docs/#id1
+.. _this template: http://docs.writethedocs.org/writing/beginners-guide-to-docs/#id1
 .. _Sign up: http://readthedocs.org/accounts/signup
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard

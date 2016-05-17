@@ -845,10 +845,8 @@ class ImportedFile(models.Model):
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, self.project.language,
-                                self.version.slug, self.path])
+        return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
