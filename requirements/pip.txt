@@ -1,6 +1,6 @@
 # Base packages
-pip==8.0.2
-virtualenv==14.0.5
+pip==8.1.1
+virtualenv==15.0.1
 docutils==0.11
 Sphinx==1.3.5
 Pygments==2.0.2
