@@ -128,6 +128,7 @@ class Symlink(object):
         # Build structure inside symlink zone
         if self.project.single_version:
             self.symlink_single_version()
+            self.symlink_subprojects()
         else:
             self.symlink_translations()
             self.symlink_subprojects()
