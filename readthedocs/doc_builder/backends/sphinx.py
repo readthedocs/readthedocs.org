@@ -10,14 +10,13 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
-from readthedocs.builds.constants import BRANCH
 from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
-from ..environments import BuildCommand
+from ..environments import DockerBuildCommand, BuildCommand
 from ..constants import SPHINX_TEMPLATE_DIR, SPHINX_STATIC_DIR, PDF_RE
 
 log = logging.getLogger(__name__)
@@ -249,6 +248,18 @@ class LatexBuildCommand(BuildCommand):
             self.exit_code = 0
 
 
+class DockerLatexBuildCommand(DockerBuildCommand):
+
+    '''Ignore LaTeX exit code if there was file output'''
+
+    def run(self):
+        super(DockerLatexBuildCommand, self).run()
+        # Force LaTeX exit code to be a little more optimistic. If LaTeX
+        # reports an output file, let's just assume we're fine.
+        if PDF_RE.search(self.output):
+            self.exit_code = 0
+
+
 class PdfBuilder(BaseSphinx):
     type = 'sphinx_pdf'
     sphinx_build_dir = '_build/latex'
@@ -290,18 +301,22 @@ class PdfBuilder(BaseSphinx):
                     os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
             for tex_file in tex_files]
 
+        if self.build_env.command_class == DockerBuildCommand:
+            latex_class = DockerLatexBuildCommand
+        else:
+            latex_class = LatexBuildCommand
         pdf_commands = []
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_commands.append(cmd_ret)
         for cmd in makeindex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_commands.append(cmd_ret)
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
                 self.pdf_file_name = pdf_match.group(1).strip()

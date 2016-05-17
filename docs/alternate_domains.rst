@@ -17,7 +17,7 @@ CNAME Support
 If you have your own domain, you can still host with us.
 This requires two steps:
 
-* Add a CNAME record in your DNS that point to our servers `readthedocs.org`
+* Add a CNAME record in your DNS that point to our servers `readthedocs.io`
 * Add a Domain object in the **Project Admin > Domains** page for your project.
 
 Using pip as an example, http://www.pip-installer.org resolves, but is hosted on our infrastructure.
