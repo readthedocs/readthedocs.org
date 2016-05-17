@@ -236,7 +236,7 @@ class EpubBuilder(BaseSphinx):
             self.run('mv', '-f', from_file, to_file)
 
 
-class BaseLatexBuildCommand(object):
+class BaseLatexBuildCommand(BuildCommand):
 
     '''Ignore LaTeX exit code if there was file output'''
 
