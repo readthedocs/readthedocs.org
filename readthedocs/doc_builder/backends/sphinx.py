@@ -236,24 +236,28 @@ class EpubBuilder(BaseSphinx):
             self.run('mv', '-f', from_file, to_file)
 
 
-class BaseLatexBuildCommand(BuildCommand):
+class LatexBuildCommand(BuildCommand):
 
     '''Ignore LaTeX exit code if there was file output'''
 
     def run(self):
-        super(BaseLatexBuildCommand, self).run()
+        super(LatexBuildCommand, self).run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
             self.exit_code = 0
 
 
-class DockerLatexBuildCommand(DockerBuildCommand, BaseLatexBuildCommand):
-    pass
+class DockerLatexBuildCommand(DockerBuildCommand):
 
+    '''Ignore LaTeX exit code if there was file output'''
 
-class LatexBuildCommand(BuildCommand, BaseLatexBuildCommand):
-    pass
+    def run(self):
+        super(DockerLatexBuildCommand, self).run()
+        # Force LaTeX exit code to be a little more optimistic. If LaTeX
+        # reports an output file, let's just assume we're fine.
+        if PDF_RE.search(self.output):
+            self.exit_code = 0
 
 
 class PdfBuilder(BaseSphinx):
