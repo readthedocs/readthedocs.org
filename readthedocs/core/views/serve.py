@@ -151,6 +151,11 @@ def serve_docs(request, project, subproject,
         version_slug=version_slug, language=lang_slug, filename=filename,
         subdomain=True,  # subdomain will make it a "full" path without a URL prefix
     )
+    if (
+        version.privacy_level == constants.PRIVATE and
+        not AdminPermission.is_member(user=request.user, obj=project)
+    ):
+        return _serve_401(request, project)
     return _serve_symlink_docs(request,
                                filename=filename,
                                project=project,
@@ -189,8 +194,6 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         basepath = private_symlink.project_root
 
         if os.path.exists(os.path.join(basepath, filename)):
-            if not AdminPermission.is_member(user=request.user, obj=project):
-                return _serve_401(request, project)
             return _serve_file(request, filename, basepath)
         else:
             files_tried.append(os.path.join(basepath, filename))
