@@ -84,6 +84,7 @@ class Virtualenv(PythonEnvironment):
 
     def setup_base(self):
         site_packages = '--no-site-packages'
+        no_download = '--no-download'
         if self.config.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path()
@@ -91,6 +92,7 @@ class Virtualenv(PythonEnvironment):
             self.config.python_interpreter,
             '-mvirtualenv',
             site_packages,
+            no_download,
             env_path,
             bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
         )
