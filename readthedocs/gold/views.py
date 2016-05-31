@@ -1,4 +1,4 @@
-"""Gold suscription views"""
+"""Gold subscription views"""
 
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
