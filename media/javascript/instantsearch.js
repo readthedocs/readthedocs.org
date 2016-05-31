@@ -183,7 +183,7 @@
   Search.run = run;
 
   // TODO: The api search is incomplete. It doesn't take into account
-  // facets nor pagination. It's a partial implemenation.
+  // facets nor pagination. It's a partial implementation.
   function apiSearch(data) {
      xhr.push(jQuery.ajax({
       type: 'GET',
