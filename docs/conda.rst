@@ -15,7 +15,7 @@ Activating Conda
 ----------------
 
 Conda Support is the first feature enabled with :doc:`yaml-config`.
-You can enable it by creating a `readthedocs.yml` file in the root of your repsitory with the contents:
+You can enable it by creating a `readthedocs.yml` file in the root of your repository with the contents:
 
 .. code-block:: yaml
 
