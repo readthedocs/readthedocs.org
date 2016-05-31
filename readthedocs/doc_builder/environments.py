@@ -42,7 +42,7 @@ class BuildCommand(BuildCommandResultMixin):
     This wraps subprocess commands with some logic to handle exceptions,
     logging, and setting up the env for the build command.
 
-    This acts a mapping of sorts to the API reprensentation of the
+    This acts a mapping of sorts to the API representation of the
     :py:cls:`readthedocs.builds.models.BuildCommandResult` model.
 
     :param command: string or array of command parameters
