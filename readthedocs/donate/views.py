@@ -64,7 +64,7 @@ def click_proxy(request, promo_id, hash):
     promo = get_object_or_404(SupporterPromo, pk=promo_id)
     count = cache.get(promo.cache_key(type=CLICKS, hash=hash), None)
     if count is None:
-        log.warning('Old or nonexistant hash tried on Click.')
+        log.warning('Old or nonexistent hash tried on Click.')
     elif count == 0:
         promo.incr(CLICKS)
         cache.incr(promo.cache_key(type=CLICKS, hash=hash))
@@ -85,7 +85,7 @@ def view_proxy(request, promo_id, hash):
     promo = get_object_or_404(SupporterPromo, pk=promo_id)
     count = cache.get(promo.cache_key(type=VIEWS, hash=hash), None)
     if count is None:
-        log.warning('Old or nonexistant hash tried on View.')
+        log.warning('Old or nonexistent hash tried on View.')
     elif count == 0:
         promo.incr(VIEWS)
         cache.incr(promo.cache_key(type=VIEWS, hash=hash))
