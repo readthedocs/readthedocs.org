@@ -119,7 +119,7 @@ class Project(models.Model):
         _('Default version'), max_length=255, default=LATEST,
         help_text=_('The version of your project that / redirects to'))
     # In default_branch, None max_lengtheans the backend should choose the
-    # appropraite branch. Eg 'master' for git
+    # appropriate branch. Eg 'master' for git
     default_branch = models.CharField(
         _('Default branch'), max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty '
