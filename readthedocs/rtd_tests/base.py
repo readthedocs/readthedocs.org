@@ -45,7 +45,7 @@ class WizardTestCase(TestCase):
     @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
     @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
     def post_step(self, step, **data):
-        '''Post step form data to `url`, using supplimentary `kwargs`
+        '''Post step form data to `url`, using supplementary `kwargs`
 
         Use data from kwargs to build dict to pass into form
         '''
