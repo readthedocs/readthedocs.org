@@ -73,15 +73,15 @@ Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
-    ./manage.py migrate
+    python manage.py migrate
 
 Then please create a superuser account for Django::
 
-    ./manage.py createsuperuser
+    python manage.py createsuperuser
     
 Now let's properly generate the static assets::
 
-    ./manage.py collectstatic
+    python manage.py collectstatic
 
 By now, it is the right time to load in a couple users and a test project::
 
