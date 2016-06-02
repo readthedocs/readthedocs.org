@@ -69,6 +69,7 @@ log = logging.getLogger(__name__)
 
 
 class Symlink(object):
+
     """Base class for symlinking of projects."""
 
     def __init__(self, project):

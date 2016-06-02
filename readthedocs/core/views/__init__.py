@@ -1,5 +1,6 @@
 """
 Core views, including the main homepage,
+
 documentation and header rendering, and server errors.
 """
 
@@ -37,7 +38,7 @@ class HomepageView(DonateProgressMixin, TemplateView):
     template_name = 'homepage.html'
 
     def get_context_data(self, **kwargs):
-        '''Add latest builds and featured projects'''
+        """Add latest builds and featured projects"""
         context = super(HomepageView, self).get_context_data(**kwargs)
         latest = []
         latest_builds = (
@@ -107,9 +108,7 @@ def divide_by_zero(request):
 
 
 def server_error(request, template_name='500.html'):
-    """
-    A simple 500 handler so we get media
-    """
+    """A simple 500 handler so we get media"""
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
     r.status_code = 500
@@ -117,9 +116,7 @@ def server_error(request, template_name='500.html'):
 
 
 def server_error_404(request, template_name='404.html'):
-    """
-    A simple 404 handler so we get media
-    """
+    """A simple 404 handler so we get media"""
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response
@@ -132,6 +129,7 @@ def server_error_404(request, template_name='404.html'):
 class SendEmailView(FormView):
 
     """Form view for sending emails to users from admin pages
+
     Accepts the following additional parameters:
     queryset
         The queryset to use to determine the users to send emails to
@@ -142,6 +140,7 @@ class SendEmailView(FormView):
 
     def get_form_kwargs(self):
         """Override form kwargs based on input fields
+
         The admin posts to this view initially, so detect the send button on
         form post variables. Drop additional fields if we see the send button.
         """
@@ -189,6 +188,7 @@ class SendEmailView(FormView):
     def message_user(self, message, level=messages.INFO, extra_tags='',
                      fail_silently=False):
         """Implementation of :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
+
         Send message through messages framework
         """
         # TODO generalize this or check if implementation in ModelAdmin is
