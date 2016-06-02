@@ -8,7 +8,7 @@ Subdomain Support
 
 Every project has a subdomain that is available to serve its documentation. If you go to <slug>.readthedocs.io, it should show you the latest version of documentation. A good example is http://pip.readthedocs.io
 
-.. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hypen (-).
+.. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hyphen (-).
           `RFC 1035 <http://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains.
 
 CNAME Support
