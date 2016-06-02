@@ -34,6 +34,10 @@ mccabe:
 
 pep257:
   run: false
+  disable:
+      - D105
+      - D211
+      - D104
 
 pyflakes:
   disable:

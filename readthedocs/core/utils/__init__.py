@@ -16,9 +16,7 @@ SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
 def run_on_app_servers(command):
-    """
-    A helper to copy a single file across app servers
-    """
+    """A helper to copy a single file across app servers"""
     log.info("Running %s on app servers" % command)
     ret_val = 0
     if getattr(settings, "MULTIPLE_APP_SERVERS", None):

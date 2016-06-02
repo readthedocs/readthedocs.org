@@ -1,6 +1,4 @@
-"""
-Common mixin classes for views
-"""
+"""Common mixin classes for views"""
 
 from vanilla import ListView
 from django.contrib.auth.decorators import login_required

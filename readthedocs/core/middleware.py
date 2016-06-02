@@ -178,6 +178,7 @@ class ProxyMiddleware(object):
 
     """
     Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the
+
     latter is set. This is useful if you're sitting behind a reverse proxy that
     causes each request's REMOTE_ADDR to be set to 127.0.0.1.
     Note that this does NOT validate HTTP_X_FORWARDED_FOR. If you're not behind
@@ -207,6 +208,7 @@ class FooterNoSessionMiddleware(SessionMiddleware):
 
     This will reduce the size of our session table drastically.
     """
+
     IGNORE_URLS = ['/api/v2/footer_html', '/sustainability/view', '/sustainability/click']
 
     def process_request(self, request):

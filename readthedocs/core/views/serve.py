@@ -134,9 +134,7 @@ def _serve_file(request, filename, basepath):
 @map_subproject_slug
 def serve_docs(request, project, subproject,
                lang_slug=None, version_slug=None, filename=''):
-    """
-    This exists mainly to map existing proj, lang, version, filename views to the file format.
-    """
+    """Exists to map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:
