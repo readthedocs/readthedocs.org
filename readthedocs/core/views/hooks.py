@@ -136,9 +136,7 @@ def _build_url(url, projects, branches):
 
 @csrf_exempt
 def github_build(request):
-    """
-    A post-commit hook for github.
-    """
+    """A post-commit hook for github."""
     if request.method == 'POST':
         try:
             # GitHub RTD integration
@@ -176,9 +174,7 @@ def github_build(request):
 
 @csrf_exempt
 def gitlab_build(request):
-    """
-    A post-commit hook for GitLab.
-    """
+    """A post-commit hook for GitLab."""
     if request.method == 'POST':
         try:
             # GitLab RTD integration
