@@ -42,7 +42,7 @@ class RelatedProjectIsOwner(permissions.BasePermission):
 class APIPermission(permissions.IsAuthenticatedOrReadOnly):
 
     '''
-    This permission should allow authenicated users readonly access to the API,
+    This permission should allow authenticated users readonly access to the API,
     and allow admin users write access. This should be used on API resources
     that need to implement write operations to resources that were based on the
     ReadOnlyViewSet

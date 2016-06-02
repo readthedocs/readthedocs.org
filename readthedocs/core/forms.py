@@ -105,7 +105,7 @@ class SendEmailForm(forms.Form):
 
     """Send email form
 
-    Used for building an email notifiction to a list of users from admin pages
+    Used for building an email notification to a list of users from admin pages
 
     Fields:
 

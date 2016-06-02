@@ -118,8 +118,8 @@ class Project(models.Model):
     default_version = models.CharField(
         _('Default version'), max_length=255, default=LATEST,
         help_text=_('The version of your project that / redirects to'))
-    # In default_branch, None max_lengtheans the backend should choose the
-    # appropraite branch. Eg 'master' for git
+    # In default_branch, None means the backend should choose the
+    # appropriate branch. Eg 'master' for git
     default_branch = models.CharField(
         _('Default branch'), max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty '
@@ -240,7 +240,7 @@ class Project(models.Model):
         default='words',
         help_text=_("The primary programming language the project is written in."),
         choices=constants.PROGRAMMING_LANGUAGES, blank=True)
-    # A subproject pointed at it's main language, so it can be tracked
+    # A subproject pointed at its main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
                                               blank=True, null=True)
