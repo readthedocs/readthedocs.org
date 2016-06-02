@@ -73,19 +73,19 @@ Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
-    ./manage.py migrate
+    python manage.py migrate
 
 Then please create a superuser account for Django::
 
-    ./manage.py createsuperuser
+    python manage.py createsuperuser
     
 Now let's properly generate the static assets::
 
-    ./manage.py collectstatic
+    python manage.py collectstatic
 
 By now, it is the right time to load in a couple users and a test project::
 
-    ./manage.py loaddata test_data
+    python manage.py loaddata test_data
 
 .. note::
 
@@ -95,7 +95,7 @@ By now, it is the right time to load in a couple users and a test project::
 
 Finally, you're ready to start the webserver::
 
-    ./manage.py runserver
+    python manage.py runserver
 
 Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
@@ -110,7 +110,7 @@ While the webserver is running, you can build documentation for the latest versi
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
 with the name of any added project::
 
-   ./manage.py update_repos pip
+   python manage.py update_repos pip
 
 What's available
 ----------------

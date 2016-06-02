@@ -29,10 +29,10 @@ You can use `Slumber <http://slumber.readthedocs.io/>`_ to build basic API wrapp
     
 Alternatively you can try with the following value::
 
-    # fetch project project pip without metadata.
+    # fetch project pip without metadata.
     val = api.project('pip').get()
 
-    # get a specfic build
+    # get a specific build
     val = api.build(2592228).get()
 
     # get the build of a specific project.

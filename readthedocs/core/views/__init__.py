@@ -172,7 +172,7 @@ class SendEmailView(FormView):
             )
             count += 1
         if count == 0:
-            self.message_user("No receipients to send to", level=messages.ERROR)
+            self.message_user("No recipients to send to", level=messages.ERROR)
         else:
             self.message_user("Queued {0} messages".format(count))
         return HttpResponseRedirect(self.request.get_full_path())

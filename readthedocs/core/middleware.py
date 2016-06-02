@@ -82,7 +82,7 @@ class SubdomainMiddleware(object):
                 request.urlconf = SUBDOMAIN_URLCONF
                 request.rtdheader = True
                 log.debug(LOG_TEMPLATE.format(
-                    msg='X-RTD-Slug header detetected: %s' % request.slug,
+                    msg='X-RTD-Slug header detected: %s' % request.slug,
                     **log_kwargs))
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
@@ -101,7 +101,7 @@ class SubdomainMiddleware(object):
                     request.slug = slug
                     request.urlconf = SUBDOMAIN_URLCONF
                     log.debug(LOG_TEMPLATE.format(
-                        msg='CNAME detetected: %s' % request.slug,
+                        msg='CNAME detected: %s' % request.slug,
                         **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.

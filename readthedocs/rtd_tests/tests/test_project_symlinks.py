@@ -197,7 +197,7 @@ class TestPublicSymlinkTranslations(BaseSymlinkTranslations, TestCase):
         self.project = get(Project, slug='kong')
         self.translation = get(Project, slug='pip')
         self.translation.language = 'de'
-        self.translation.main_lanuage_project = self.project
+        self.translation.main_language_project = self.project
         self.project.translations.add(self.translation)
         self.translation.save()
         self.project.save()
@@ -218,7 +218,7 @@ class TestPrivateSymlinkTranslations(BaseSymlinkTranslations, TestCase):
         self.project = get(Project, slug='kong', privacy_level='private')
         self.translation = get(Project, slug='pip', privacy_level='private')
         self.translation.language = 'de'
-        self.translation.main_lanuage_project = self.project
+        self.translation.main_language_project = self.project
         self.project.translations.add(self.translation)
         self.translation.save()
         self.project.save()
