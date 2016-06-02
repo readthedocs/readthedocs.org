@@ -107,10 +107,9 @@ in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
 (By default, it's ``localhost:8000``)
 
 While the webserver is running, you can build documentation for the latest version of
-a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
-with the name of any added project::
+a project called 'project_name' with the ``update_repos`` command::
 
-   ./manage.py update_repos pip
+   ./manage.py update_repos project_name
 
 What's available
 ----------------
