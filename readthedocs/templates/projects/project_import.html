@@ -90,20 +90,24 @@ $(document).ready(function() {
 
                     <form
                         method="get"
-                        action="{% provider_login_url "github" process="connect" next="/dashboard/import/" %}"
+                        action="{% provider_login_url "github" %}"
                         class="import-connect import-connect-github">
                       <button>
                         {% trans "Connect to GitHub" %}
                       </button>
+                      <input type="hidden" name="process" value="connect">
+                      <input type="hidden" name="next" value="/dashboard/import/">
                     </form>
 
                     <form
                         method="get"
-                        action="{% provider_login_url "bitbucket_oauth2" process="connect" next="/dashboard/import/" %}"
+                        action="{% provider_login_url "bitbucket_oauth2" %}"
                         class="import-connect import-connect-bitbucket">
                       <button>
                         {% trans "Connect to Bitbucket" %}
                       </button>
+                      <input type="hidden" name="process" value="connect">
+                      <input type="hidden" name="next" value="/dashboard/import/">
                     </form>
 
                   {% endif %}
