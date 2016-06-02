@@ -7,18 +7,6 @@
 <div id="project_details">
   <div class="wrapper">
 
-{% block search %}
-<!-- BEGIN search bar -->
-<div class="search">
-  <form action="{% url "elastic_project_search" project.slug %}" method="GET">
-    <input type="text" name="q" value="" placeholder="{% blocktrans %}Search {{ project }}{% endblocktrans %}" id="id_site_search">
-    <input type="hidden" name="selected_facets" value="project_exact:{{ project.name }}">
-    <input type="submit" value="{% trans "Search" %}">
-  </form>
-</div>
-<!-- END search bar -->
-{% endblock search %}
-
 <div class="module">
   {% if onboard %}
   <!-- BEGIN onboard -->
