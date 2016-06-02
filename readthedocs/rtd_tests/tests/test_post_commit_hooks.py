@@ -192,7 +192,7 @@ class GitHubPostCommitTest(BasePostCommitTest):
         """
         Test the github post commit hook will build properly with upper case
         repository.
-        This allows for capitization differences in post-commit hook URL's.
+        This allows for capitalization differences in post-commit hook URL's.
         """
         payload = self.payload.copy()
         payload['repository']['url'] = payload['repository']['url'].upper()

@@ -10,7 +10,7 @@ class ConfigWrapper(object):
     """
     A config object that wraps the Project & YAML based configs.
 
-    Gives precidence to YAML, falling back to project if it isn't defined.
+    Gives precedence to YAML, falling back to project if it isn't defined.
 
     We only currently implement a subset of the existing YAML config.
     This should be the canonical source for our usage of the YAML files,

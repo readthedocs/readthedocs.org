@@ -23,7 +23,7 @@ We are hoping to bring in enough money with our `Gold`_ program to change that,
 so please sign up if you are able.
 
 **All people answering your questions are doing it with their own time,
-so please be kind and provide as much infromation as possible.**
+so please be kind and provide as much information as possible.**
 
 Bugs & Support Issues
 ~~~~~~~~~~~~~~~~~~~~~

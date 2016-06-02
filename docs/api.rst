@@ -32,7 +32,7 @@ Alternatively you can try with the following value::
     # fetch project project pip without metadata.
     val = api.project('pip').get()
 
-    # get a specfic build
+    # get a specific build
     val = api.build(2592228).get()
 
     # get the build of a specific project.

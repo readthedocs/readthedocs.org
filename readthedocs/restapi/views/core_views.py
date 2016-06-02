@@ -80,7 +80,7 @@ def embed(request):
 
     ### Arguments
 
-        * project (requied)
+        * project (required)
         * doc (required)
         * version (default latest)
         * section

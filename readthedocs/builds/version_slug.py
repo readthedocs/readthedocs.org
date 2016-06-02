@@ -121,7 +121,7 @@ class VersionSlugField(models.CharField):
         if model_instance.pk:
             queryset = queryset.exclude(pk=model_instance.pk)
 
-        # form a kwarg dict used to impliment any unique_together contraints
+        # form a kwarg dict used to implement any unique_together constraints
         kwargs = {}
         for params in model_instance._meta.unique_together:
             if self.attname in params:
