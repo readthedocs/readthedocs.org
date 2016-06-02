@@ -17,6 +17,7 @@ class UserProjectInline(admin.TabularInline):
     verbose_name = 'User project'
     verbose_name_plural = 'User projects'
     extra = 1
+    raw_id_fields = ('project',)
 
 
 class UserProjectFilter(admin.SimpleListFilter):
