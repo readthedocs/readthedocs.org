@@ -50,6 +50,7 @@ Filters
         <div class="module">
           <div class="module-wrapper">
 
+            {% block build_versions %}
             {% if versions %}
             <div class="module-header">
               <div style="float:right;">
@@ -69,6 +70,7 @@ Filters
                 </div>
               </div>
             {% endif %}
+            {% endblock %}
 
               <h1>{% trans "Recent Builds" %}</h1>
             </div>
