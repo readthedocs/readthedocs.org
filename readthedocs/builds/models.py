@@ -83,7 +83,7 @@ class Version(models.Model):
 
     class Meta:
         unique_together = [('project', 'slug')]
-        ordering = ['verbose_name']
+        ordering = ['-verbose_name']
         permissions = (
             # Translators: Permission around whether a user can view the
             #              version
