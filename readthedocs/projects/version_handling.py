@@ -127,7 +127,7 @@ def comparable_version(version_string):
         elif version_string == STABLE_VERBOSE_NAME:
             comparable = Version('9999.0')
         else:
-            comparable = Version('999.0')
+            comparable = Version('0.01')
     return comparable
 
 
