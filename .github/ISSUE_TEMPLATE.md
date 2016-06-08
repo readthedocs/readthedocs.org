@@ -4,7 +4,7 @@
 * Build URL (if applicable):
 * Read the Docs username (if applicable): 
 
-## Excepted Result
+## Expected Result
 
 *A description of what you wanted to happen*
 
