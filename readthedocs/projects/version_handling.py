@@ -117,8 +117,7 @@ def comparable_version(version_string):
 
     The ``LATEST`` version shall always beat other versions in comparison.
     ``STABLE`` should be listed second. If we cannot figure out the version
-    number then we still assume it's bigger than all other versions since we
-    cannot predict what it is.
+    number then we sort it to the bottom of the list.
     """
     comparable = parse_version_failsafe(version_string)
     if not comparable:
