@@ -32,7 +32,7 @@
 
     <div class="module-list-wrapper">
       <ul>
-      {% for version in filter %}
+      {% for version in filter|sort_version_aware %}
         <li class="module-item col-span">
         {% if version.uploaded or version.built %}
           {# Link to the docs #}
