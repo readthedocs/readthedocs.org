@@ -44,7 +44,7 @@ class GitLabService(Service):
         """Sync repositories from GitLab API"""
         org = None
         repos = self.paginate(
-            '{url}/api/v3/projects'.format(url=self.adapter.provider_base_url),
+            u'{url}/api/v3/projects'.format(url=self.adapter.provider_base_url),
             per_page=100,
             order_by='path',
             sort='asc'
@@ -112,7 +112,7 @@ class GitLabService(Service):
             return repo
         else:
             log.info(
-                'Not importing {0} because mismatched type: public={1}'.format(
+                u'Not importing {0} because mismatched type: public={1}'.format(
                     fields['name_with_namespace'],
                     fields['public'],
                 )
@@ -139,11 +139,11 @@ class GitLabService(Service):
 
         organization.name = fields.get('name')
         organization.account = self.account
-        organization.url = '{url}/{path}'.format(
+        organization.url = u'{url}/{path}'.format(
             url=self.adapter.provider_base_url, path=fields.get('path')
         )
         if fields.get('avatar'):
-            organization.avatar_url = '{url}/{avatar}'.format(
+            organization.avatar_url = u'{url}/{avatar}'.format(
                 url=self.adapter.provider_base_url,
                 avatar=fields['avatar']['url'],
             )
@@ -169,7 +169,7 @@ class GitLabService(Service):
             'merge_requests_events': False,
             'note_events': False,
             'tag_push_events': True,
-            'url': 'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
+            'url': u'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
         })
         resp = None
         try:
@@ -179,7 +179,7 @@ class GitLabService(Service):
             assert repositories
             repo_id = repositories[0].get_serialized()['id']
             resp = session.post(
-                '{url}/api/v3/projects/{repo_id}/hooks'.format(
+                u'{url}/api/v3/projects/{repo_id}/hooks'.format(
                     url=self.adapter.provider_base_url,
                     repo_id=repo_id,
                 ),
