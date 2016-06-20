@@ -8,6 +8,7 @@ from django.conf import settings
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
+from urlparse import urljoin
 
 from readthedocs.restapi.client import api
 
@@ -23,6 +24,10 @@ class GitLabService(Service):
 
     adapter = GitLabOAuth2Adapter
     url_pattern = re.compile(re.escape(adapter.provider_base_url))
+    default_avatar = {
+        'repo': urljoin(settings.MEDIA_URL, 'images/fa-bookmark.svg'),
+        'org':  urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
+    }
 
     def paginate(self, url, **kwargs):
         """Combines return from GitLab pagination. GitLab uses
@@ -106,7 +111,10 @@ class GitLabService(Service):
                 repo.admin = is_owned_by(fields['owner']['id'])
             repo.vcs = 'git'
             repo.account = self.account
-            repo.avatar_url = fields.get('avatar_url')
+            owner = fields.get('owner') or {}
+            repo.avatar_url = (fields.get('avatar_url') or
+                               owner.get('avatar_url') or
+                               self.default_avatar['repo'])
             repo.json = json.dumps(fields)
             repo.save()
             return repo
@@ -142,11 +150,14 @@ class GitLabService(Service):
         organization.url = u'{url}/{path}'.format(
             url=self.adapter.provider_base_url, path=fields.get('path')
         )
-        if fields.get('avatar'):
+        avatar = fields.get('avatar') or {}
+        if avatar.get('url'):
             organization.avatar_url = u'{url}/{avatar}'.format(
                 url=self.adapter.provider_base_url,
-                avatar=fields['avatar']['url'],
+                avatar=avatar.get('url'),
             )
+        else:
+            organization.avatar_url = self.default_avatar['org']
         organization.json = json.dumps(fields)
         organization.save()
         return organization
