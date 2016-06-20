@@ -105,8 +105,9 @@ class GitLabService(Service):
             repo.ssh_url = fields['ssh_url_to_repo']
             repo.html_url = fields['web_url']
             repo.private = not fields['public']
-            repo.clone_url = fields['http_url_to_repo']
             repo.admin = not repo_is_public
+            repo.clone_url = (repo.admin and repo.ssh_url or
+                              fields['http_url_to_repo'])
             if not repo.admin and 'owner' in fields:
                 repo.admin = is_owned_by(fields['owner']['id'])
             repo.vcs = 'git'
