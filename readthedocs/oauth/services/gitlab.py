@@ -189,7 +189,7 @@ class GitLabService(Service):
             if resp.status_code == 201:
                 log.info('GitLab webhook creation successful for project: %s',  # noqa
                          project)
-                return True
+                return (True, resp)
         except (AssertionError,  RemoteRepository.DoesNotExist) as ex:
             log.error('GitLab remote repository not found', exc_info=ex)
         except RequestException as ex:
@@ -199,6 +199,7 @@ class GitLabService(Service):
 
         log.error('GitLab webhook creation failed for project: %s',  # noqa
                   project, exc_info=ex)
+        return (False, resp)
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
