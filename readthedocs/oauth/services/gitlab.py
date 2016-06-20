@@ -102,7 +102,7 @@ class GitLabService(Service):
             repo.private = not fields['public']
             repo.clone_url = fields['http_url_to_repo']
             repo.admin = not repo_is_public
-            if not repo.admin and organization:
+            if not repo.admin and 'owner' in fields:
                 repo.admin = is_owned_by(fields['owner']['id'])
             repo.vcs = 'git'
             repo.account = self.account
