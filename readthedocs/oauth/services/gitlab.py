@@ -77,13 +77,13 @@ class GitLabService(Service):
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
             try:
                 repo = RemoteRepository.objects.get(
-                    full_name=fields['name'],
+                    full_name=fields['name_with_namespace'],
                     users=self.user,
                     account=self.account,
                 )
             except RemoteRepository.DoesNotExist:
                 repo = RemoteRepository.objects.create(
-                    full_name=fields['name'],
+                    full_name=fields['name_with_namespace'],
                     account=self.account,
                 )
                 repo.users.add(self.user)
