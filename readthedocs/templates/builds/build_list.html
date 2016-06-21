@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% load pagination_tags %}
+{% load projects_tags %}
 
 {% block title %}Builds{% endblock %}
 
@@ -50,6 +51,7 @@ Filters
         <div class="module">
           <div class="module-wrapper">
 
+            {% block build_versions %}
             {% if versions %}
             <div class="module-header">
               <div style="float:right;">
@@ -60,7 +62,7 @@ Filters
                     </li>
                     <li style="display: inline-block">
                       <select id="id_version" name="version_slug">
-                      {% for version in versions %}
+                      {% for version in versions|sort_version_aware %}
                         <option value="{{ version.slug }}">{{ version.slug }}</option>
                       {% endfor %}
                       </select>
@@ -69,6 +71,7 @@ Filters
                 </div>
               </div>
             {% endif %}
+            {% endblock %}
 
               <h1>{% trans "Recent Builds" %}</h1>
             </div>

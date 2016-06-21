@@ -42,7 +42,7 @@ but will be available once linked to.
 Private
 ~~~~~~~
 
-Private objects are available only to people who have permissions so see them.
+Private objects are available only to people who have permissions to see them.
 They will not display on any list view, and will 404 when you link them to others.
 
 Project Objects

@@ -32,7 +32,7 @@ from django.views.static import serve
 
 from readthedocs.builds.models import Version
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, ProjectRelationship
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.privacy.loader import AdminPermission
@@ -59,7 +59,15 @@ def map_subproject_slug(view_func):
             try:
                 subproject = Project.objects.get(slug=subproject_slug)
             except Project.DoesNotExist:
-                raise Http404
+                try:
+                    # Depends on a project passed into kwargs
+                    rel = ProjectRelationship.objects.get(
+                        parent=kwargs['project'],
+                        alias=subproject_slug,
+                    )
+                    subproject = rel.child
+                except (ProjectRelationship.DoesNotExist, KeyError):
+                    raise Http404
         return view_func(request, subproject=subproject, *args, **kwargs)
     return inner_view
 
@@ -134,9 +142,7 @@ def _serve_file(request, filename, basepath):
 @map_subproject_slug
 def serve_docs(request, project, subproject,
                lang_slug=None, version_slug=None, filename=''):
-    """
-    This exists mainly to map existing proj, lang, version, filename views to the file format.
-    """
+    """Exists to map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:

@@ -1,8 +1,12 @@
+import mock
+
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.contrib.auth.models import User
 
 from readthedocs.projects.forms import SubprojectForm
 from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.utils import create_user
 
 from django_dynamic_fixture import get
 
@@ -56,3 +60,33 @@ class SubprojectFormTests(TestCase):
         self.assertEqual(
             [r.child for r in project.subprojects.all()],
             [subproject])
+
+
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+class ResolverBase(TestCase):
+
+    def setUp(self):
+        with mock.patch('readthedocs.projects.models.broadcast'):
+            with mock.patch('readthedocs.projects.models.update_static_metadata'):
+                self.owner = create_user(username='owner', password='test')
+                self.tester = create_user(username='tester', password='test')
+                self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+                self.subproject = get(Project, slug='sub', language='ja', users=[
+                                      self.owner], main_language_project=None)
+                self.translation = get(Project, slug='trans', language='ja', users=[
+                                       self.owner], main_language_project=None)
+                self.pip.add_subproject(self.subproject)
+                self.pip.translations.add(self.translation)
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_subproject_alias(self):
+        relation = self.pip.subprojects.first()
+        relation.alias = 'sub_alias'
+        relation.save()
+        with override_settings(USE_SUBDOMAIN=False):
+            resp = self.client.get('/docs/pip/projects/sub_alias/')
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(
+                resp._headers['location'][1],
+                'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/'
+            )

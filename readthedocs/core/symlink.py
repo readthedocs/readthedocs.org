@@ -69,6 +69,7 @@ log = logging.getLogger(__name__)
 
 
 class Symlink(object):
+
     """Base class for symlinking of projects."""
 
     def __init__(self, project):
@@ -95,8 +96,6 @@ class Symlink(object):
 
         This will leave it in the proper state for the single_project setting.
         """
-        if not self.run_sanity_check():
-            return
         if os.path.islink(self.project_root) and not self.project.single_version:
             self._log("Removing single version symlink")
             os.unlink(self.project_root)
@@ -309,17 +308,11 @@ class PublicSymlink(Symlink):
     def get_translations(self):
         return self.project.translations.protected()
 
-    def run_sanity_check(self):
-        return self.project.privacy_level in [constants.PUBLIC, constants.PROTECTED]
-
 
 class PrivateSymlink(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
     PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
-
-    def run_sanity_check(self):
-        return self.project.privacy_level == constants.PRIVATE
 
     def get_version_queryset(self):
         return (self.project.versions.private(only_active=False).filter(built=True) |
