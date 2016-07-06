@@ -297,11 +297,15 @@ class UpdateDocsTask(Task):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        self.python_env.delete_existing_build_dir()
-        self.python_env.setup_base()
-        self.python_env.install_core_requirements()
-        self.python_env.install_user_requirements()
-        self.python_env.install_package()
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            self.python_env.delete_existing_build_dir()
+            self.python_env.setup_base()
+            self.python_env.install_core_requirements()
+            self.python_env.install_user_requirements()
+            self.python_env.install_package()
 
     def build_docs(self):
         """Wrapper to all build functions
