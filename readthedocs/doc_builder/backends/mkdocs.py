@@ -124,8 +124,13 @@ class BaseMkdocs(BaseBuilder):
         data_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
         data_file.write('''
-READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
-    0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+//mkdocs doesn't expose this var for non-content-bearing pages (such as search.html)
+if(typeof mkdocs_page_input_path !== "undefined")
+{
+    READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
+        0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+}
+//else, ["page"] will be null
 ''')
         data_file.close()
 
