@@ -27,7 +27,9 @@ function init() {
           value: 'file'
       }).appendTo('#rtd-search-form');
 
-      $("#rtd-search-form").prop("action", rtd.api_host + "/search/");
+      var search_url = window.location.protocol + "//" + window.location.hostname +
+                       "/" + rtd.language + "/" + rtd.version + "/search.html";
+      $("#rtd-search-form").prop("action", search_url);
 
       // Apply stickynav to mkdocs builds
       var nav_bar = $('nav.wy-nav-side:first'),
