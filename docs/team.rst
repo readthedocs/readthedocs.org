@@ -21,6 +21,39 @@ as well as mentioning who is on the team.
           So please be bold and go ahead and contact us,
           and we'll get you sorted into the right team.
 
+Support Team
+------------
+
+Read the Docs has thousands of users who depend on it everyday.
+Every day at least one of them has an issue that needs to be addressed by a site admin.
+This might include tasks like:
+
+* Resetting a password
+* Asking for a project name to be released
+* Various other support issues
+
+Members
+~~~~~~~
+
+* `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
+* `Anthony Johnson <https://github.com/agjohnson>`_ (Pacific Time)
+* `edunham <https://github.com/edunham>`_
+* Your Name Here
+
+Feel free to ask any of us if you have questions or want to join!
+
+Joining
+~~~~~~~
+
+The best place to start would be to start addressing some of the issues in our issue tracker.
+We have our support policies quite well documented in our :doc:`/contribute`.
+**Be bold**.
+Start trying to reproduce issues that people have,
+or talk to them to get more information.
+After you get the hang of things,
+we'll happily give you the ability to tag and close issues by joining our Support Team.
+
+
 Operations Team
 ---------------
 
@@ -61,38 +94,6 @@ The tools that we use are:
 
 It's fine if you aren't familiar with all of these things,
 but are willing to help with part of it!
-
-Support Team
-------------
-
-Read the Docs has thousands of users who depend on it everyday.
-Every day at least one of them has an issue that needs to be addressed by a site admin.
-This might include tasks like:
-
-* Resetting a password
-* Asking for a project name to be released
-* Various other support issues
-
-Members
-~~~~~~~
-
-* `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`_ (Pacific Time)
-* `edunham <https://github.com/edunham>`_
-* Your Name Here
-
-Feel free to ask any of us if you have questions or want to join!
-
-Joining
-~~~~~~~
-
-The best place to start would be to start addressing some of the issues in our issue tracker.
-We have our support policies quite well documented in our :doc:`/contribute`.
-**Be bold**.
-Start trying to reproduce issues that people have,
-or talk to them to get more information.
-After you get the hang of things,
-we'll happily give you the ability to tag and close issues by joining our Support Team.
 
 Development Team
 ----------------
