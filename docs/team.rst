@@ -80,7 +80,7 @@ we'd love to piggy back on that duty as well.
 
 You can email us at dev@readthedocs.org if you want to join our operations team.
 Because of the sensitive nature (API tokens, secret keys, SSL certs, etc.) of the work,
-we keep a private GitHub repository with the opreations code & documentation.
+we keep a private GitHub repository with the operations code & documentation.
 
 The tools that we use are:
 
@@ -94,6 +94,10 @@ The tools that we use are:
 
 It's fine if you aren't familiar with all of these things,
 but are willing to help with part of it!
+
+**Please reach out if you want to share the on-call responsibility**.
+It really is an important job,
+and we'd love to have it be more geographically distributed.
 
 Development Team
 ----------------
