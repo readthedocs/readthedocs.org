@@ -7,15 +7,12 @@
 
 {% block content %}
 
-  {% include 'donate/progress.html' with done=True %}
-
   <a name="totals"></a>
   <h2>Fundraising Status</h2>
 
   <div>
     <ul>
-      <li><b>{{ donate_percent }}%</b> funded</li>
-      <li><b>${{ donate_amount }}</b> contributed to $24,000 goal</li>
+      <li><b>${{ donate_amount }}</b> contributed</li>
       <li><b>${{ donate_avg }}</b> average contribution</li>
       <li><b>{{ donate_count }}</b> <a href="{% url 'donate' %}#supporters">Supporters</a></li>
     </ul>
