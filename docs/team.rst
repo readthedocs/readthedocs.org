@@ -13,9 +13,6 @@ There are three major parts of this work:
 * Operations
 * Development
 
-I'll talk about each below,
-as well as mentioning who is on the team.
-
 .. note:: You may notice that a number of names appear on multiple teams.
           This is because we are lacking contributors.
           So please be bold and go ahead and contact us,
@@ -30,7 +27,7 @@ This might include tasks like:
 
 * Resetting a password
 * Asking for a project name to be released
-* Various other support issues
+* Troubleshooting build errors
 
 Members
 ~~~~~~~
