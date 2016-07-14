@@ -186,6 +186,8 @@ class UpdateDocsTask(Task):
             self.send_notifications()
         build_complete.send(sender=Build, build=self.build_env.build)
 
+        self.build_env.update_build(state=BUILD_STATE_FINISHED)
+
     @staticmethod
     def get_project(project_pk):
         """Get project from API"""

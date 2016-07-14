@@ -527,9 +527,7 @@ class DockerEnvironment(BuildEnvironment):
                           version=self.version.slug,
                           msg="Couldn't remove container"),
                       exc_info=True)
-
         self.container = None
-        self.update_build(state=BUILD_STATE_FINISHED)
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
