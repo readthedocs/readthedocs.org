@@ -61,7 +61,12 @@
         </div>
       </li>
       {% endif %}
+      {% if not evergreen %}
+      <li><b>{{ donate_percent }}%</b> funded</li>    
+      <li><b>${{ donate_amount }}</b> contributed to $24,000 goal</li>
+      {% else %}
       <li><b>${{ donate_amount }}</b> contributed</li>
+      {% endif %}
       <li><b>${{ donate_avg }}</b> average contribution</li>
       <li><b>{{ donate_count }}</b> <a href="{% url 'donate' %}#supporters">Supporters</a></li>
     </ul>
