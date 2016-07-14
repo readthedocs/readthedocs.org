@@ -251,13 +251,18 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         """
+        form_data = self.get_all_cleaned_data()
+        extra_fields = ProjectExtraForm.Meta.fields
         # expect the first form
         basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
-        for form in form_list[1:]:
-            for (field, value) in form.cleaned_data.items():
+        tags = form_data.pop('tags', [])
+        for tag in tags:
+            project.tags.add(tag)
+        for field, value in form_data.items():
+            if field in extra_fields:
                 setattr(project, field, value)
         basic_only = True
         project.save()
