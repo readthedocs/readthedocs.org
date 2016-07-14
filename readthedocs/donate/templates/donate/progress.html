@@ -53,7 +53,7 @@
   <div class="donate-stats-sm">
     <ul>
       <h2>Status</h2>
-      {% if not done %}
+      {% if not done and not evergreen %}
       <li>
         <div class="donate-progress">
           <div class="donate-progress-inner" style="width: {% if donate_percent > 100 %}100{% else %}{{ donate_percent }}{% endif %}%;">
@@ -61,8 +61,7 @@
         </div>
       </li>
       {% endif %}
-      <li><b>{{ donate_percent }}%</b> funded</li>
-      <li><b>${{ donate_amount }}</b> contributed to $24,000 goal</li>
+      <li><b>${{ donate_amount }}</b> contributed</li>
       <li><b>${{ donate_avg }}</b> average contribution</li>
       <li><b>{{ donate_count }}</b> <a href="{% url 'donate' %}#supporters">Supporters</a></li>
     </ul>
@@ -82,9 +81,6 @@
       </select>
       <button>{% trans 'Donate Now' %}</button>
     </form>
-    {% endif %}
-    {% if not done %}
-    <em>Companies that contribute $400 or more will get a <a href="http://docs.readthedocs.io/en/latest/support.html#named-support-contact">Named Support Contact</a> or <a href="http://docs.readthedocs.io/en/latest/sponsors.html#footer-logo-promotion">Footer Logo Promotion</a>. Both offers good for 3 month duration of the Sustainability project.</em>
     {% endif %}
   </div>
 
