@@ -15,7 +15,7 @@ There are three major parts of this work:
 
 .. note:: You may notice that a number of names appear on multiple teams.
           This is because we are lacking contributors.
-          So please be bold and go ahead and contact us,
+          So please be bold and contact us,
           and we'll get you sorted into the right team.
 
 Support Team
