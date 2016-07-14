@@ -262,7 +262,6 @@ class BuildEnvironment(object):
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
-    :param report_build_success: update build if successful
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
