@@ -9,9 +9,9 @@ and we hope to maintain a reliable and stable hosting platform for years to come
 
 There are three major parts of this work:
 
-* Support
-* Operations
-* Development
+.. contents::
+   :local:
+   :depth: 1
 
 .. note:: You may notice that a number of names appear on multiple teams.
           This is because we are lacking contributors.
