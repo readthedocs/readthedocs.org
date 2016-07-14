@@ -241,7 +241,7 @@ class UpdateDocsTask(Task):
                                     msg=str(e)),
                 exc_info=True,
             )
-            raise BuildEnvironmentError('Failed to import project: %s' % str(e),
+            raise BuildEnvironmentError('Failed to import project: %s' % e,
                                         status_code=404)
 
     def get_env_vars(self):
