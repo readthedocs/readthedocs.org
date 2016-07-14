@@ -5,7 +5,6 @@ import os
 import json
 import logging
 import mimetypes
-import md5
 
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
@@ -106,20 +105,8 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         return context
 
 
-def _badge_return(redirect, url):
-    if redirect:
-        return HttpResponseRedirect(url)
-    else:
-        response = requests.get(url)
-        http_response = HttpResponse(response.content,
-                                     content_type="image/svg+xml")
-        http_response['Cache-Control'] = 'no-cache'
-        http_response['Etag'] = md5.new(url)
-        return http_response
-
-
 @cache_control(no_cache=True)
-def project_badge(request, project_slug, redirect=True):
+def project_badge(request, project_slug):
     """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
     style = request.GET.get('style', 'flat')
@@ -130,13 +117,13 @@ def project_badge(request, project_slug, redirect=True):
         url = (
             'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}'
             .format(style=style))
-        return _badge_return(redirect, url)
+        return HttpResponseRedirect(url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
         url = (
             'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}'
             .format(style=style))
-        return _badge_return(redirect, url)
+        return HttpResponseRedirect(url)
     last_build = version_builds[0]
     if last_build.success:
         color = 'brightgreen'
@@ -144,7 +131,7 @@ def project_badge(request, project_slug, redirect=True):
         color = 'red'
     url = 'https://img.shields.io/badge/docs-%s-%s.svg?style=%s' % (
         version.slug.replace('-', '--'), color, style)
-    return _badge_return(redirect, url)
+    return HttpResponseRedirect(url)
 
 
 def project_downloads(request, project_slug):
