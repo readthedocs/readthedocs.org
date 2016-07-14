@@ -266,13 +266,12 @@ class BuildEnvironment(object):
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None, report_build_success=True):
+                 environment=None):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
-        self.report_build_success = report_build_success
 
         self.commands = []
         self.failure = None
@@ -384,8 +383,7 @@ class BuildEnvironment(object):
         want to record successful builds yet (if we are running setup commands
         for the build)
         """
-        if not self.record or (state == BUILD_STATE_FINISHED and
-                               not self.report_build_success):
+        if not self.record:
             return None
 
         self.build['project'] = self.project.pk
