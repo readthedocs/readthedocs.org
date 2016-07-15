@@ -1,37 +1,41 @@
-import json
 import mock
 
-from django.test import TestCase
-from django.test.client import RequestFactory
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from readthedocs.core.middleware import FooterNoSessionMiddleware
-
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 from readthedocs.projects.models import Project
+from readthedocs.restapi.views.footer_views import footer_html
 
 
-class Testmaker(TestCase):
-    fixtures = ["eric", "test_data"]
+class Testmaker(APITestCase):
+    fixtures = ['test_data']
+    url = '/api/v2/footer_html/?project=pip&version=latest&page=index'
+    factory = APIRequestFactory()
 
-    def setUp(self):
-        self.client.login(username='eric', password='test')
-        self.pip = Project.objects.get(slug='pip')
-        self.latest = self.pip.versions.create_latest()
+    @classmethod
+    def setUpTestData(cls):
+        cls.pip = Project.objects.get(slug='pip')
+        cls.latest = cls.pip.versions.create_latest()
+
+    def render(self):
+        request = self.factory.get(self.url)
+        response = footer_html(request)
+        response.render()
+        return response
 
     def test_footer(self):
-        r = self.client.get('/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-        resp = json.loads(r.content)
-        self.assertEqual(resp['version_active'], True)
-        self.assertEqual(resp['version_compare']['is_highest'], True)
-        self.assertEqual(resp['version_supported'], True)
+        r = self.client.get(self.url)
+        self.assertTrue(r.data['version_active'])
+        self.assertTrue(r.data['version_compare']['is_highest'])
+        self.assertTrue(r.data['version_supported'])
         self.assertEqual(r.context['main_project'], self.pip)
         self.assertEqual(r.status_code, 200)
 
         self.latest.active = False
         self.latest.save()
-        r = self.client.get('/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-        resp = json.loads(r.content)
-        self.assertEqual(resp['version_active'], False)
+        r = self.render()
+        self.assertFalse(r.data['version_active'])
         self.assertEqual(r.status_code, 200)
 
     def test_footer_uses_version_compare(self):
@@ -40,51 +44,43 @@ class Testmaker(TestCase):
             get_version_compare_data.return_value = {
                 'MOCKED': True
             }
-
-            r = self.client.get('/api/v2/footer_html/?project=pip&version=latest&page=index', {})
+            r = self.render()
             self.assertEqual(r.status_code, 200)
-
-            resp = json.loads(r.content)
-            self.assertEqual(resp['version_compare'], {'MOCKED': True})
+            self.assertEqual(r.data['version_compare'], {'MOCKED': True})
 
     def test_pdf_build_mentioned_in_footer(self):
         with fake_paths_by_regex('\.pdf$'):
-            response = self.client.get(
-                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-        self.assertContains(response, 'pdf')
+            response = self.render()
+        self.assertIn('pdf', response.data['html'])
 
     def test_pdf_not_mentioned_in_footer_when_build_is_disabled(self):
         self.pip.enable_pdf_build = False
         self.pip.save()
         with fake_paths_by_regex('\.pdf$'):
-            response = self.client.get(
-                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-        self.assertNotContains(response, 'pdf')
+            response = self.render()
+        self.assertNotIn('pdf', response.data['html'])
 
     def test_epub_build_mentioned_in_footer(self):
         with fake_paths_by_regex('\.epub$'):
-            response = self.client.get(
-                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-        self.assertContains(response, 'epub')
+            response = self.render()
+        self.assertIn('epub', response.data['html'])
 
     def test_epub_not_mentioned_in_footer_when_build_is_disabled(self):
         self.pip.enable_epub_build = False
         self.pip.save()
         with fake_paths_by_regex('\.epub$'):
-            response = self.client.get(
-                '/api/v2/footer_html/?project=pip&version=latest&page=index', {})
-        self.assertNotContains(response, 'epub')
+            response = self.render()
+        self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):
         mid = FooterNoSessionMiddleware()
-        factory = RequestFactory()
 
         # Null session here
-        request = factory.get('/api/v2/footer_html/')
+        request = self.factory.get('/api/v2/footer_html/')
         mid.process_request(request)
         self.assertEqual(request.session, {})
 
         # Proper session here
-        home_request = factory.get('/')
+        home_request = self.factory.get('/')
         mid.process_request(home_request)
-        self.assertTrue(home_request.session.TEST_COOKIE_NAME, 'testcookie')
+        self.assertEqual(home_request.session.TEST_COOKIE_NAME, 'testcookie')
