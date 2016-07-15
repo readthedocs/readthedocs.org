@@ -746,8 +746,8 @@ def send_notifications(version_pk, build_pk):
 def email_notification(version, build, email):
     """Send email notifications for build failure
 
-    :param version: :py:cls:`Version` instance that failed
-    :param build: :py:cls:`Build` instance that failed
+    :param version: :py:class:`Version` instance that failed
+    :param build: :py:class:`Build` instance that failed
     :param email: Email recipient address
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,

@@ -62,7 +62,7 @@ class APIRestrictedPermission(permissions.BasePermission):
 
     """Allow admin write, authenticated and anonymous read only
 
-    This differs from :py:cls:`APIPermission` by not allowing for authenticated
+    This differs from :py:class:`APIPermission` by not allowing for authenticated
     POSTs. This permission is endpoints like ``/api/v2/build/``, which are used
     by admin users to coordinate build instance creation, but only should be
     readable by end users.

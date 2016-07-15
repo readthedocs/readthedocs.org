@@ -334,7 +334,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     """On GET, show the source an import view, on POST, mock out a wizard
 
     If we are accepting POST data, use the fields to seed the initial data in
-    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
+    :py:class:`ImportWizardView`.  The import templates will redirect the form to
     `/dashboard/import`
     """
 
