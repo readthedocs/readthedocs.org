@@ -367,7 +367,7 @@ class BuildCommandResultMixin(object):
 
     '''Mixin for common command result methods/properties
 
-    Shared methods between the database model :py:cls:`BuildCommandResult` and
+    Shared methods between the database model :py:class:`BuildCommandResult` and
     non-model respresentations of build command results from the API
     '''
 

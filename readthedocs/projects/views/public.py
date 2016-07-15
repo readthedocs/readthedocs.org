@@ -38,7 +38,7 @@ mimetypes.add_type("application/epub+zip", ".epub")
 
 class ProjectIndex(ListView):
 
-    """List view of public :py:cls:`Project` instances"""
+    """List view of public :py:class:`Project` instances"""
 
     model = Project
 

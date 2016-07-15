@@ -36,7 +36,7 @@ class SettingsOverrideObject(LazyObject):
     def _setup(self):
         """Set up wrapped object
 
-        This is called when attributes are accessed on :py:cls:`LazyObject`
+        This is called when attributes are accessed on :py:class:`LazyObject`
         and the underlying wrapped object does not yet exist.
         """
         cls = self._default_class

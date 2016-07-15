@@ -53,8 +53,8 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
 
     :param request: request instance
     :param query: string to query for
-    :param project_slug: :py:cls:`Project` slug
-    :param version_slug: slug for :py:cls:`Project` version slug
+    :param project_slug: :py:class:`Project` slug
+    :param version_slug: slug for :py:class:`Project` version slug
     :param taxonomy: taxonomy for search
     """
     kwargs = {}
@@ -168,8 +168,8 @@ def search_section(request, query, project_slug=None, version_slug=LATEST,
 
     :param request: Request instance
     :param query: string to use in query
-    :param project_slug: :py:cls:`Project` instance
-    :param version_slug: :py:cls:`Project` version instance
+    :param project_slug: :py:class:`Project` instance
+    :param version_slug: :py:class:`Project` version instance
     :param taxonomy: search taxonomy
     """
     kwargs = {}

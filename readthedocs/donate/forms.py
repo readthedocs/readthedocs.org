@@ -20,7 +20,7 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
 
     This extends the basic payment form, giving fields for credit card number,
     expiry, and CVV. The proper Knockout data bindings are established on
-    :py:cls:`StripeModelForm`
+    :py:class:`StripeModelForm`
     """
 
     class Meta:

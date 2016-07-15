@@ -1,7 +1,7 @@
 """Payment utility functions
 
 These are mostly one-off functions. Define the bulk of Stripe operations on
-:py:cls:`readthedocs.payments.forms.StripeResourceMixin`.
+:py:class:`readthedocs.payments.forms.StripeResourceMixin`.
 """
 
 import stripe
