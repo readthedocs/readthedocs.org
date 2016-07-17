@@ -7,6 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import Http404, HttpResponseBadRequest
 
+from readthedocs.core.utils import cname_to_slug
 from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
@@ -89,10 +90,7 @@ class SubdomainMiddleware(object):
                 try:
                     slug = cache.get(host)
                     if not slug:
-                        from dns import resolver
-                        answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-                        domain = answer.target.to_unicode().lower()
-                        slug = domain.split('.')[0]
+                        slug = cname_to_slug(host)
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
                         log.debug(LOG_TEMPLATE.format(
