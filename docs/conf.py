@@ -38,7 +38,7 @@ default_role = 'obj'
 pygments_style = 'sphinx'
 intersphinx_mapping = {
     'python': ('http://python.readthedocs.io/en/latest/', None),
-    'django': ('http://django.readthedocs.io/en/latest/', None),
+    'django': ('http://django.readthedocs.io/en/1.8.x/', None),
     'sphinx': ('http://sphinx.readthedocs.io/en/latest/', None),
 }
 # This doesn't exist since we aren't shipping any static files ourselves.
