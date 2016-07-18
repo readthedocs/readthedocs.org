@@ -195,6 +195,9 @@ class ResolverBase(object):
                 path = "index.html#document-" + filename
             elif project.documentation_type in ["sphinx_htmldir", "mkdocs"]:
                 path = filename + "/"
+            elif '#' in filename:
+                # do nothing if the filename contains URL fragments
+                path = filename
             else:
                 path = filename + ".html"
         else:
