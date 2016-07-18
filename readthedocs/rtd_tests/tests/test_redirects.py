@@ -215,6 +215,36 @@ class RedirectAppTests(TestCase):
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq/')
 
 
+class CustomRedirectTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.pip = Project.objects.create(**{
+            'repo_type': 'git',
+            'name': 'Pip',
+            'default_branch': '',
+            'project_url': 'http://pip.rtfd.org',
+            'repo': 'https://github.com/fail/sauce',
+            'default_version': LATEST,
+            'privacy_level': 'public',
+            'version_privacy_level': 'public',
+            'description': 'wat',
+            'documentation_type': 'sphinx',
+        })
+        Redirect.objects.create(
+            project=cls.pip,
+            redirect_type='page',
+            from_url='/install.html',
+            to_url='/install.html#custom-fragment',
+        )
+
+    def test_redirect_fragment(self):
+        redirect = Redirect.objects.get(project=self.pip)
+        path = redirect.get_redirect_path('/install.html')
+        expected_path = '/docs/pip/en/latest/install.html#custom-fragment'
+        self.assertEqual(path, expected_path)
+
+
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectBuildTests(TestCase):
     fixtures = ["eric", "test_data"]
