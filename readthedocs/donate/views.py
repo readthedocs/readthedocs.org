@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect, get_object_or_404
 from django.core.cache import cache
+from django.http import Http404
 
 from vanilla import CreateView, ListView
 
@@ -83,6 +84,8 @@ def click_proxy(request, promo_id, hash):
 
 def view_proxy(request, promo_id, hash):
     promo = get_object_or_404(SupporterPromo, pk=promo_id)
+    if not promo.image:
+        raise Http404('No image defined for this promo.')
     count = cache.get(promo.cache_key(type=VIEWS, hash=hash), None)
     if count is None:
         log.warning('Old or nonexistent hash tried on View.')
