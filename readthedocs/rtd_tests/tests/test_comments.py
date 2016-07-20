@@ -30,28 +30,29 @@ def create_node(hash=None, commit=None, **kwargs):
 
 
 class ModerationTests(TestCase):
-    def setUp(self):
-        self.owner = create_user(username='owner', password='test')
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = create_user(username='owner', password='test')
 
-        self.moderated_project = get(Project, comment_moderation=True)
-        self.moderated_project.users.add(self.owner)
+        cls.moderated_project = get(Project, comment_moderation=True)
+        cls.moderated_project.users.add(cls.owner)
 
-        self.moderated_node = create_node(project=self.moderated_project)
+        cls.moderated_node = create_node(project=cls.moderated_project)
 
-        self.first_moderated_comment = get(DocumentComment,
-                                           node=self.moderated_node)
-        self.second_moderated_comment = get(DocumentComment,
-                                            node=self.moderated_node)
+        cls.first_moderated_comment = get(DocumentComment,
+                                          node=cls.moderated_node)
+        cls.second_moderated_comment = get(DocumentComment,
+                                           node=cls.moderated_node)
 
-        self.unmoderated_project = get(Project, comment_moderation=False)
-        self.unmoderated_project.users.add(self.owner)
+        cls.unmoderated_project = get(Project, comment_moderation=False)
+        cls.unmoderated_project.users.add(cls.owner)
 
-        self.unmoderated_node = create_node(project=self.unmoderated_project)
+        cls.unmoderated_node = create_node(project=cls.unmoderated_project)
 
-        self.first_unmoderated_comment = get(DocumentComment,
-                                             node=self.unmoderated_node)
-        self.second_unmoderated_comment = get(DocumentComment,
-                                              node=self.unmoderated_node)
+        cls.first_unmoderated_comment = get(DocumentComment,
+                                            node=cls.unmoderated_node)
+        cls.second_unmoderated_comment = get(DocumentComment,
+                                             node=cls.unmoderated_node)
 
     def test_approved_comments(self):
         c = self.first_unmoderated_comment
@@ -204,19 +205,20 @@ class NodeAndSnapshotTests(TestCase):
 
 
 class CommentModerationViewsTests(TestCase):
-    def setUp(self):
-        self.owner = create_user(username='owner', password='test')
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = create_user(username='owner', password='test')
 
-        self.moderated_project = get(Project, comment_moderation=True)
-        self.moderated_project.users.add(self.owner)
+        cls.moderated_project = get(Project, comment_moderation=True)
+        cls.moderated_project.users.add(cls.owner)
 
-        self.moderated_node = get(DocumentNode,
-                                  project=self.moderated_project)
-        get(NodeSnapshot, node=self.moderated_node)
+        cls.moderated_node = get(DocumentNode,
+                                 project=cls.moderated_project)
+        get(NodeSnapshot, node=cls.moderated_node)
 
-        self.moderated_comment = get(DocumentComment,
-                                     text='Some comment text.',
-                                     node=self.moderated_node)
+        cls.moderated_comment = get(DocumentComment,
+                                    text='Some comment text.',
+                                    node=cls.moderated_node)
 
     def test_unmoderated_comments_are_listed_in_view(self):
 
@@ -232,17 +234,18 @@ class CommentAPIViewsTests(APITestCase):
 
     request_factory = APIRequestFactory()
 
-    def setUp(self):
-        self.owner = create_user(username='owner', password='test')
+    @classmethod
+    def setUpTestData(cls):
+        cls.owner = create_user(username='owner', password='test')
 
-        self.moderated_project = get(Project, comment_moderation=True)
-        self.moderated_project.users.add(self.owner)
-        self.moderated_version = get(Version, project=self.moderated_project)
+        cls.moderated_project = get(Project, comment_moderation=True)
+        cls.moderated_project.users.add(cls.owner)
+        cls.moderated_version = get(Version, project=cls.moderated_project)
 
-        self.moderated_node = get(DocumentNode,
-                                  project=self.moderated_project,
-                                  version=self.moderated_version)
-        get(NodeSnapshot, node=self.moderated_node)
+        cls.moderated_node = get(DocumentNode,
+                                 project=cls.moderated_project,
+                                 version=cls.moderated_version)
+        get(NodeSnapshot, node=cls.moderated_node)
 
     def test_get_comments_view(self):
 
@@ -425,12 +428,6 @@ class CommentAPIViewsTests(APITestCase):
 
         self.assertEqual(response.data['results'][0]['text'], comment_text)
 
-    def test_retrieve_comment_on_old_hash(self):
-        pass
-
-    def test_post_comment_on_old_hash(self):
-        pass
-
     def test_moderate_comment_by_approving(self):
         user = create_user(username='test', password='test')
 
@@ -465,3 +462,5 @@ class CommentAPIViewsTests(APITestCase):
                                    )
 
         self.assertEqual(response.status_code, 403)
+
+    test_retrieve_comment_on_old_hash = test_post_comment_on_old_hash = None

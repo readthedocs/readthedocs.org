@@ -343,8 +343,8 @@ class SubprojectForm(forms.Form):
     def clean_subproject(self):
         """Normalize subproject field
 
-        Does lookup on against :py:cls:`Project` to ensure matching project
-        exists. Return the :py:cls:`Project` object instead.
+        Does lookup on against :py:class:`Project` to ensure matching project
+        exists. Return the :py:class:`Project` object instead.
         """
         subproject_name = self.cleaned_data['subproject']
         subproject_qs = Project.objects.filter(slug=subproject_name)

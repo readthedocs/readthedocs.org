@@ -75,6 +75,7 @@ Information about development is also available:
    :maxdepth: 2
    :caption: Developer Documentation
 
+   team
    install
    changelog
    contribute

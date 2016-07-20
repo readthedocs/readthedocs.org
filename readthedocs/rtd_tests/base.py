@@ -116,7 +116,7 @@ class WizardTestCase(TestCase):
 
 class RequestFactoryTestMixin(object):
 
-    """Adds helper methods for testing with :py:cls:`RequestFactory`
+    """Adds helper methods for testing with :py:class:`RequestFactory`
 
     This handles setting up authentication, messages, and session handling
     """
@@ -131,7 +131,7 @@ class RequestFactoryTestMixin(object):
 
         user
             User instance to use for the request, will default to an
-            :py:cls:`AnonymousUser` instance otherwise.
+            :py:class:`AnonymousUser` instance otherwise.
 
         session
             Dictionary to instantiate the session handler with.

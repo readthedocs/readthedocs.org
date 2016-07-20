@@ -58,7 +58,8 @@ class BaseMkdocs(BaseBuilder):
 
         # Mkdocs needs a full domain here because it tries to link to local media files
         if not media_url.startswith('http'):
-            media_url = 'http://localhost:8000' + media_url
+            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+            media_url = 'http://{}/{}'.format(domain, media_url)
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append('readthedocs-data.js')
