@@ -228,7 +228,7 @@ class CommunityBaseSettings(Settings):
 
     # Docker
     DOCKER_ENABLE = False
-    DOCKER_IMAGE = 'rtfd-build'
+    DOCKER_IMAGE = 'readthedocs/build:14.04'
 
     # All auth
     ACCOUNT_EMAIL_REQUIRED = True
