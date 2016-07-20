@@ -43,7 +43,7 @@ class BuildCommand(BuildCommandResultMixin):
     logging, and setting up the env for the build command.
 
     This acts a mapping of sorts to the API representation of the
-    :py:cls:`readthedocs.builds.models.BuildCommandResult` model.
+    :py:class:`readthedocs.builds.models.BuildCommandResult` model.
 
     :param command: string or array of command parameters
     :param cwd: current working path for the command
@@ -295,8 +295,8 @@ class BuildEnvironment(object):
 
         This reports on the exception we're handling and special cases
         subclasses of BuildEnvironmentException.  For
-        :py:cls:`BuildEnvironmentWarning`, exit this context gracefully, but
-        don't mark the build as a failure.  For :py:cls:`BuildEnvironmentError`,
+        :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
+        don't mark the build as a failure.  For :py:class:`BuildEnvironmentError`,
         exit gracefully, but mark the build as a failure.  For all other
         exception classes, the build will be marked as a failure and an
         exception will bubble up.

@@ -6,11 +6,8 @@ from django.test import TestCase
 class WipeUrlTests(TestCase):
 
     def test_wipe_no_params(self):
-        try:
+        with self.assertRaises(NoReverseMatch):
             reverse('wipe_version')
-            self.fail('reverse with no parameters should fail')
-        except NoReverseMatch:
-            pass
 
     def test_wipe_alphabetic(self):
         project_slug = 'alphabetic'

@@ -673,7 +673,7 @@ class Project(models.Model):
             This is a temporary workaround for activate_versions filtering out
             things that were active, but failed to build
 
-        :returns: :py:cls:`Version` queryset
+        :returns: :py:class:`Version` queryset
         """
         return self.versions.filter(active=True)
 
@@ -814,7 +814,7 @@ class Project(models.Model):
         :param page: Page to attach comment to
         :param content_hash: Hash of content to apply comment to
         :param commit: Commit that updated comment
-        :param user: :py:cls:`User` instance that created comment
+        :param user: :py:class:`User` instance that created comment
         :param text: Comment text
         """
         from readthedocs.comments.models import DocumentNode

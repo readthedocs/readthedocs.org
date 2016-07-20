@@ -75,7 +75,7 @@ class VersionManager(object):
 def version_windows(versions, major=1, minor=1, point=1):
     """Return list of versions that have been pruned to version windows
 
-    Uses :py:cls:`VersionManager` to prune the list of versions
+    Uses :py:class:`VersionManager` to prune the list of versions
 
     :param versions: List of version strings
     :param major: Major version window

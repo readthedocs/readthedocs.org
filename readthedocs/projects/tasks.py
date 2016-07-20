@@ -297,11 +297,15 @@ class UpdateDocsTask(Task):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        self.python_env.delete_existing_build_dir()
-        self.python_env.setup_base()
-        self.python_env.install_core_requirements()
-        self.python_env.install_user_requirements()
-        self.python_env.install_package()
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            self.python_env.delete_existing_build_dir()
+            self.python_env.setup_base()
+            self.python_env.install_core_requirements()
+            self.python_env.install_user_requirements()
+            self.python_env.install_package()
 
     def build_docs(self):
         """Wrapper to all build functions
@@ -742,8 +746,8 @@ def send_notifications(version_pk, build_pk):
 def email_notification(version, build, email):
     """Send email notifications for build failure
 
-    :param version: :py:cls:`Version` instance that failed
-    :param build: :py:cls:`Build` instance that failed
+    :param version: :py:class:`Version` instance that failed
+    :param build: :py:class:`Build` instance that failed
     :param email: Email recipient address
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,

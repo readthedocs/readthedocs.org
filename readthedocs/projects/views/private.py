@@ -251,13 +251,18 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         """
+        form_data = self.get_all_cleaned_data()
+        extra_fields = ProjectExtraForm.Meta.fields
         # expect the first form
         basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
-        for form in form_list[1:]:
-            for (field, value) in form.cleaned_data.items():
+        tags = form_data.pop('tags', [])
+        for tag in tags:
+            project.tags.add(tag)
+        for field, value in form_data.items():
+            if field in extra_fields:
                 setattr(project, field, value)
         basic_only = True
         project.save()
@@ -329,7 +334,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     """On GET, show the source an import view, on POST, mock out a wizard
 
     If we are accepting POST data, use the fields to seed the initial data in
-    :py:cls:`ImportWizardView`.  The import templates will redirect the form to
+    :py:class:`ImportWizardView`.  The import templates will redirect the form to
     `/dashboard/import`
     """
 

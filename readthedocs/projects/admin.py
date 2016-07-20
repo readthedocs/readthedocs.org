@@ -12,7 +12,7 @@ from readthedocs.donate.models import ProjectImpressions
 
 class ProjectRelationshipInline(admin.TabularInline):
 
-    """Project inline relationship view for :py:cls:`ProjectAdmin`"""
+    """Project inline relationship view for :py:class:`ProjectAdmin`"""
 
     model = ProjectRelationship
     fk_name = 'parent'
@@ -21,14 +21,14 @@ class ProjectRelationshipInline(admin.TabularInline):
 
 class VersionInline(admin.TabularInline):
 
-    """Version inline relationship view for :py:cls:`ProjectAdmin`"""
+    """Version inline relationship view for :py:class:`ProjectAdmin`"""
 
     model = Version
 
 
 class RedirectInline(admin.TabularInline):
 
-    """Redirect inline relationship view for :py:cls:`ProjectAdmin`"""
+    """Redirect inline relationship view for :py:class:`ProjectAdmin`"""
 
     model = Redirect
 
@@ -68,7 +68,7 @@ class ProjectAdmin(GuardedModelAdmin):
 
 class ImportedFileAdmin(admin.ModelAdmin):
 
-    """Admin view for :py:cls:`ImportedFile`"""
+    """Admin view for :py:class:`ImportedFile`"""
 
     list_display = ('path', 'name', 'version')
 

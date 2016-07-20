@@ -1,6 +1,18 @@
 from django.contrib import admin
-from .models import (Supporter, SupporterPromo,
+from .models import (Supporter, SupporterPromo, Country,
                      PromoImpressions, GeoFilter)
+
+
+DEFAULT_EXCLUDES = ['BD', 'CN', 'TF', 'GT', 'IN', 'ID',
+                    'IR', 'PK', 'PH', 'RU', 'TW', 'TH', 'TR', 'UA', 'VN']
+
+
+def set_default_countries(modeladmin, request, queryset):
+    for project in queryset:
+        filter = project.geo_filters.create(filter_type='exclude')
+        for country in Country.objects.filter(country__in=DEFAULT_EXCLUDES):
+            filter.countries.add(country)
+set_default_countries.short_description = "Add default exclude countries to this Promo"
 
 
 class GeoFilterAdmin(admin.ModelAdmin):
@@ -42,6 +54,7 @@ class SupporterPromoAdmin(admin.ModelAdmin):
     list_filter = ('live', 'display_type')
     readonly_fields = ('total_views',)
     inlines = [ImpressionInline, GeoFilterInline]
+    actions = [set_default_countries]
 
     def view_ratio(self, instance):
         return instance.view_ratio() * 100

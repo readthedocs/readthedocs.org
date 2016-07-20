@@ -245,7 +245,7 @@ class ChildRelatedProjectManager(RelatedProjectManager):
 
 class RelatedBuildManager(models.Manager):
 
-    '''For models with association to a project through :py:cls:`Build`'''
+    '''For models with association to a project through :py:class:`Build`'''
 
     use_for_related_fields = True
 
@@ -273,7 +273,7 @@ class RelatedBuildManager(models.Manager):
 
 class RelatedUserManager(models.Manager):
 
-    """For models with relations through :py:cls:`User`"""
+    """For models with relations through :py:class:`User`"""
 
     def api(self, user=None):
         """Return objects for user"""

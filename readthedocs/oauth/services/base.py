@@ -18,7 +18,7 @@ class Service(object):
     """Service mapping for local accounts
 
     :param user: User to use in token lookup and session creation
-    :param account: :py:cls:`SocialAccount` instance for user
+    :param account: :py:class:`SocialAccount` instance for user
     """
 
     adapter = None
@@ -56,7 +56,7 @@ class Service(object):
     def create_session(self):
         """Create OAuth session for user
 
-        This configures the OAuth session based on the :py:cls:`SocialToken`
+        This configures the OAuth session based on the :py:class:`SocialToken`
         attributes. If there is an ``expires_at``, treat the session as an auto
         renewing token. Some providers expire tokens after as little as 2
         hours.
@@ -131,7 +131,7 @@ class Service(object):
 
         .. note::
             This should be deprecated in favor of attaching the
-            :py:cls:`RemoteRepository` to the project instance. This is a slight
+            :py:class:`RemoteRepository` to the project instance. This is a slight
             improvement on the legacy check for webhooks
         """
         # TODO Replace this check by keying project to remote repos
