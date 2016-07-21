@@ -246,6 +246,7 @@ class CommunityBaseSettings(Settings):
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
         '^http://(.+)\.readthedocs\.io$',
+        # '^http://(.+)\.readthedocs\.io:8000$',
         '^https://(.+)\.readthedocs\.io$')
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
