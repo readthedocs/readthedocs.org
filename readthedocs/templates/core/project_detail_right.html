@@ -85,8 +85,8 @@
 {% block short-urls %}
   <h3>{% trans "Short URLs" %}</h3>
   <p>
-    <a href="http://{{ project.slug}}.{{ PRODUCTION_DOMAIN }}">{{ project.slug }}.{{ PRODUCTION_DOMAIN }}</a><br>
-    {% if PRODUCTION_DOMAIN == "readthedocs.org" %}
+    <a href="http://{{ project.slug}}.{{ PUBLIC_DOMAIN }}">{{ project.slug }}.{{ PUBLIC_DOMAIN }}</a><br>
+    {% if PUBLIC_DOMAIN == "readthedocs.io" %}
     <a href="http://{{ project.slug}}.rtfd.io">{{ project.slug }}.rtfd.io</a>
     {% endif %}
   </p>
