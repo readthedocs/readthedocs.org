@@ -890,9 +890,12 @@ class Domain(models.Model):
         default=False,
         help_text=_('This Domain is the primary one where the documentation is served from.')
     )
+    https = models.BooleanField(
+        _('Use HTTPS'),
+        default=False,
+        help_text=_('SSL is enabled for this domain')
+    )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
-    https = models.BooleanField(_('HTTPS'), default=False, editable=False,
-                                help_text=_('Use HTTPS'))
 
     objects = RelatedProjectManager()
 

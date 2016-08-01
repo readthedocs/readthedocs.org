@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='domain',
             name='https',
-            field=models.BooleanField(default=False, help_text='Use HTTPS', verbose_name='HTTPS', editable=False),
+            field=models.BooleanField(default=False, help_text='SSL is enabled for this domain', verbose_name='Use HTTPS'),
         ),
     ]
