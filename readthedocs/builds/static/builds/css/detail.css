@@ -110,7 +110,6 @@ div.build-command div.build-command-output {
 div.build-command div.build-command-run > span,
 div.build-command div.build-command-output > span {
     display: block;
-    margin-bottom: -16px;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     white-space: pre;
     overflow-x: scroll;
