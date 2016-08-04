@@ -9,6 +9,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.forms import DomainForm
 
 
 class MiddlewareTests(TestCase):
@@ -62,6 +63,24 @@ class ModelTests(TestCase):
         self.assertEqual(domain.domain, 'www.google.com')
 
 
+class FormTests(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+
+    def test_https(self):
+        """Make sure https is an admin-only attribute"""
+        form = DomainForm({'domain': 'example.com', 'canonical': True},
+                          project=self.project)
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertFalse(domain.https)
+        form = DomainForm({'domain': 'example.com', 'canonical': True,
+                           'https': True},
+                          project=self.project)
+        self.assertFalse(form.is_valid())
+
+
 class TestAPI(TestCase):
 
     def setUp(self):
@@ -74,3 +93,4 @@ class TestAPI(TestCase):
         obj = json.loads(resp.content)
         self.assertEqual(obj['results'][0]['domain'], 'djangokong.com')
         self.assertEqual(obj['results'][0]['canonical'], False)
+        self.assertNotIn('https', obj['results'][0])
