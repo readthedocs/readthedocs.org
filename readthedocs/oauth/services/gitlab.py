@@ -4,11 +4,15 @@ import logging
 import json
 import re
 
+try:
+    from urlparse import urljoin, urlparse
+except ImportError:
+    from urllib.parse import urljoin, urlparse
+
 from django.conf import settings
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
-from urlparse import urljoin
 
 from readthedocs.restapi.client import api
 
@@ -23,7 +27,9 @@ class GitLabService(Service):
     """Provider service for GitLab"""
 
     adapter = GitLabOAuth2Adapter
-    url_pattern = re.compile(re.escape(adapter.provider_base_url))
+    # Just use the network location to determine if it's a GitLab project
+    # because private repos have another base url, eg. git@gitlab.example.com
+    url_pattern = re.compile(re.escape(urlparse(adapter.provider_base_url).netloc))
     default_avatar = {
         'repo': urljoin(settings.MEDIA_URL, 'images/fa-bookmark.svg'),
         'org':  urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
