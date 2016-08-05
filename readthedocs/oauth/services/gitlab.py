@@ -4,10 +4,7 @@ import logging
 import json
 import re
 
-try:
-    from urlparse import urljoin, urlparse
-except ImportError:
-    from urllib.parse import urljoin, urlparse
+from urlparse import urljoin, urlparse
 
 from django.conf import settings
 from requests.exceptions import RequestException
