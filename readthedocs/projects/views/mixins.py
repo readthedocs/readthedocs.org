@@ -38,10 +38,6 @@ class ProjectRelationMixin(object):
         )
 
     def get_context_data(self, **kwargs):
-        context = {}
-        try:
-            context = super(ProjectRelationMixin, self).get_context_data(**kwargs)
-        except AttributeError:
-            pass
+        context = super(ProjectRelationMixin, self).get_context_data(**kwargs)
         context[self.project_context_object_name] = self.get_project()
         return context
