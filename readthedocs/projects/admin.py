@@ -1,13 +1,14 @@
 """Django administration interface for `projects.models`"""
 
-from readthedocs.builds.models import Version
 from django.contrib import admin
-from readthedocs.redirects.models import Redirect
-from .models import (Project, ImportedFile,
-                     ProjectRelationship, EmailHook, WebHook, Domain)
 from guardian.admin import GuardedModelAdmin
 
+from readthedocs.builds.models import Version
+from readthedocs.redirects.models import Redirect
 from readthedocs.donate.models import ProjectImpressions
+
+from .models import (Project, ImportedFile,
+                     ProjectRelationship, EmailHook, WebHook, Domain)
 
 
 class ProjectRelationshipInline(admin.TabularInline):
@@ -74,11 +75,12 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
 
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ('domain', 'project', 'count')
+    list_display = ('domain', 'project', 'https', 'count')
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
     list_filter = ('canonical',)
     model = Domain
+
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
