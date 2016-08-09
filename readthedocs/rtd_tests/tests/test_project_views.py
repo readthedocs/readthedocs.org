@@ -4,6 +4,7 @@ from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
+from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
 
@@ -11,8 +12,9 @@ from readthedocs.core.models import UserProfile
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
                                         RequestFactoryTestMixin)
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
+from readthedocs.projects.views.mixins import ProjectRelationMixin
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
@@ -330,3 +332,26 @@ class TestPrivateViews(MockBuildTestCase):
             remove_dir.apply_async.assert_called_with(
                 queue='celery',
                 args=[project.doc_path])
+
+
+class TestPrivateMixins(MockBuildTestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.domain = get(Domain, project=self.project)
+
+    def test_project_relation(self):
+        """Class using project relation mixin class"""
+
+        class FoobarView(ProjectRelationMixin, ContextMixin):
+            model = Domain
+
+            def get_project_queryset(self):
+                # Don't test this as a view with a request.user
+                return Project.objects.all()
+
+        view = FoobarView()
+        view.kwargs = {'project_slug': 'kong'}
+        self.assertEqual(view.get_project(), self.project)
+        self.assertEqual(view.get_queryset().first(), self.domain)
+        self.assertEqual(view.get_context_data()['project'], self.project)
