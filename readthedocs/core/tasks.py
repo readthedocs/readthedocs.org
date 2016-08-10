@@ -10,8 +10,10 @@ from django.template.loader import get_template
 
 log = logging.getLogger(__name__)
 
+EMAIL_TIME_LIMIT = 30
 
-@task(queue='web')
+
+@task(queue='web', time_limit=EMAIL_TIME_LIMIT)
 def send_email_task(recipient, subject, template, template_html, context=None):
     """Send multipart email
 
