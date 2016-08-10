@@ -178,7 +178,7 @@ class GitLabService(Service):
 
         # See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
         data = json.dumps({
-            'id': 'readthedocs',
+            'id': settings.PRODUCTION_DOMAIN,
             'push_events': True,
             'issues_events': False,
             'merge_requests_events': False,
