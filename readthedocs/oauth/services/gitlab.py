@@ -187,12 +187,14 @@ class GitLabService(Service):
             'url': u'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
         })
         resp = None
+        repositories = RemoteRepository.objects.filter(clone_url=project.vcs_repo().repo_url)
+
+        if not repositories.exists():
+            log.error('GitLab remote repository not found')
+            return False, resp
+
+        repo_id = repositories[0].get_serialized()['id']
         try:
-            repositories = RemoteRepository.objects.filter(
-                clone_url=project.vcs_repo().repo_url
-            )
-            assert repositories
-            repo_id = repositories[0].get_serialized()['id']
             resp = session.post(
                 u'{url}/api/v3/projects/{repo_id}/hooks'.format(
                     url=self.adapter.provider_base_url,
@@ -202,19 +204,13 @@ class GitLabService(Service):
                 headers={'content-type': 'application/json'}
             )
             if resp.status_code == 201:
-                log.info('GitLab webhook creation successful for project: %s',  # noqa
-                         project)
-                return (True, resp)
-        except (AssertionError,  RemoteRepository.DoesNotExist) as ex:
-            log.error('GitLab remote repository not found', exc_info=ex)
-        except RequestException as ex:
-            pass
+                log.info('GitLab webhook creation successful for project: %s', project)
+                return True, resp
+        except RequestException:
+            log.error('GitLab webhook creation failed for project: %s', project, exc_info=True)
         else:
-            ex = False
-
-        log.error('GitLab webhook creation failed for project: %s',  # noqa
-                  project, exc_info=ex)
-        return (False, resp)
+            log.error('GitLab webhook creation failed for project: %s', project)
+        return False, resp
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
