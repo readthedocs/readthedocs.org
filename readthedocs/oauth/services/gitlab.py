@@ -178,17 +178,6 @@ class GitLabService(Service):
         :rtype: bool
         """
         session = self.get_session()
-
-        # See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
-        data = json.dumps({
-            'id': settings.PRODUCTION_DOMAIN,
-            'push_events': True,
-            'issues_events': False,
-            'merge_requests_events': False,
-            'note_events': False,
-            'tag_push_events': True,
-            'url': u'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
-        })
         resp = None
         repositories = RemoteRepository.objects.filter(clone_url=project.vcs_repo().repo_url)
 
@@ -197,6 +186,17 @@ class GitLabService(Service):
             return False, resp
 
         repo_id = repositories[0].get_serialized()['id']
+        # See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
+        data = json.dumps({
+            'id': repo_id,
+            'push_events': True,
+            'issues_events': False,
+            'merge_requests_events': False,
+            'note_events': False,
+            'tag_push_events': True,
+            'url': u'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
+        })
+
         try:
             resp = session.post(
                 u'{url}/api/v3/projects/{repo_id}/hooks'.format(
