@@ -4,6 +4,7 @@ from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
+from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
 
@@ -342,16 +343,15 @@ class TestPrivateMixins(MockBuildTestCase):
     def test_project_relation(self):
         """Class using project relation mixin class"""
 
-        class FoobarView(ProjectRelationMixin):
+        class FoobarView(ProjectRelationMixin, ContextMixin):
             model = Domain
 
             def get_project_queryset(self):
                 # Don't test this as a view with a request.user
                 return Project.objects.all()
 
-
         view = FoobarView()
         view.kwargs = {'project_slug': 'kong'}
         self.assertEqual(view.get_project(), self.project)
         self.assertEqual(view.get_queryset().first(), self.domain)
-        self.assertEqual(view.get_context_data(), {'project': self.project})
+        self.assertEqual(view.get_context_data()['project'], self.project)
