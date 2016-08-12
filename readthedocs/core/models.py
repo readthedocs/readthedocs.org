@@ -3,7 +3,8 @@ import logging
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 from annoying.fields import AutoOneToOneField
-from .signals import handler  # noqa
+
+from .signals import handler
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
 
