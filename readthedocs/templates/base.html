@@ -85,17 +85,13 @@
 
         {% block footer-content %}
         <p>
-        Copyright {% getCopyrightYears %}.
-
-        {% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}
-          Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.
-        {% endblocktrans %}
+          Copyright {% getCopyrightYears %} Read the Docs, Inc
         </p>
         <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.io">{%  trans "Docs" %}</a>.
 
         {% url "gold_detail" as gold_detail %}
         {% blocktrans %}
-        Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
+        Made by <a href="https://docs.readthedocs.io/en/latest/team.html">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
         {% endblocktrans %}
         </p>
         {% endblock %}
