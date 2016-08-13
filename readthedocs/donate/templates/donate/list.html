@@ -9,24 +9,6 @@
 
   {% include 'donate/progress.html' with evergreen=True %}
 
-  <a name="totals"></a>
-  <h2>Fundraising Status</h2>
-
-
-  <div>
-    <ul>
-      <li><b>${{ donate_amount }}</b> contributed</li>
-      <li><b>${{ donate_avg }}</b> average contribution</li>
-      <li><b>{{ donate_count }}</b> <a href="{% url 'donate' %}#supporters">Supporters</a></li>
-    </ul>
-    
-    <p>
-    We will continue to keep donations open in case you missed your initial chance.
-    That money will go to the next set of work after this 3 month trial.
-    </p>
-
-  </div>
-
   <a name="about"></a>
   <h2>About Read the Docs</h2>
 
@@ -37,7 +19,7 @@
   </p>
 
   <ul class="donate-about">
-    <li>Serve over <b>14 million pages</b> of documentation a month</li>
+    <li>Serve over <b>20 million pages</b> of documentation a month</li>
     <li>Have 10 servers and serve over <b>2 TB</b> of documentation a month</li>
     <li>Host over <b>18,000 projects</b> and support <b>25,000 users</b></li>
     <li>Are supported by two dedicated engineers</li>

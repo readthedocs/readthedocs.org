@@ -1,32 +1,9 @@
 {% load i18n %}
 
-
 <div class="donate-stats">
-  {% if done %}
-
-  <h2>Thanks for supporting us!</h2>
-    <p>
-    Read the Docs has reached our 3 month sustainability goal.
-    From May until July we will be devoting those contributions to making Read the Docs better supported.
-    Thanks to all the folks who have contributed.
-    </p>
-
-    <p>
-    Please read our <a href="https://blog.readthedocs.com/fundraising-wrapup/">blog post</a> outlining our plan going forward.
-    All backers will receive information about how to follow along with the work we've been doing.
-    We're excited to get things rolling,
-    so stay tuned!
-    </p>
-
-    {% if read_more %}
-      <p>
-        You can find more information on our <b><a href="{% url 'donate' %}#about">{% trans 'Sustainability Page' %}</a></b>
-      </p>
-    {% endif %}
-
-  {% else %}
-
   <h2>Help Support Read the Docs</h2>
+
+  <div class="donate-stats-lg">
     <p>
       Since its inception over four years ago, Read the Docs has grown
       into a massive resource that developers rely on daily.  To
@@ -48,47 +25,44 @@
         <b><a href="{% url 'donate' %}#about">{% trans 'Read More' %}</a></b>
       </p>
     {% endif %}
-
+  </div>
 
   <div class="donate-stats-sm">
     <ul>
-      <h2>Status</h2>
       {% if not done and not evergreen %}
-      <li>
-        <div class="donate-progress">
-          <div class="donate-progress-inner" style="width: {% if donate_percent > 100 %}100{% else %}{{ donate_percent }}{% endif %}%;">
+        <li>
+          <div class="donate-progress">
+            <div class="donate-progress-inner" style="width: {% if donate_percent > 100 %}100{% else %}{{ donate_percent }}{% endif %}%;">
+            </div>
           </div>
-        </div>
-      </li>
+        </li>
       {% endif %}
       {% if not evergreen %}
-      <li><b>{{ donate_percent }}%</b> funded</li>    
-      <li><b>${{ donate_amount }}</b> contributed to $24,000 goal</li>
+        <li><b>{{ donate_percent }}%</b> funded</li>
+        <li><b>${{ donate_amount }}</b> contributed to $24,000 goal</li>
       {% else %}
-      <li><b>${{ donate_amount }}</b> contributed</li>
+        <li><b>${{ donate_amount }}</b> contributed</li>
       {% endif %}
       <li><b>${{ donate_avg }}</b> average contribution</li>
       <li><b>{{ donate_count }}</b> <a href="{% url 'donate' %}#supporters">Supporters</a></li>
     </ul>
 
     {% if not read_more %}
-    <form action="{% url 'donate_add' %}" method="get" class="donate-form">
-      <select id="id_dollars" name="dollars">
-        <option value="5">$5</option>
-        <option value="10">$10</option>
-        <option value="25">$25</option>
-        <option value="50" selected="selected">1 Hour ($50)</option>
-        <option value="100">2 Hours ($100)</option>
-        <option value="200">4 Hours ($200)</option>
-        <option value="400">1 Day ($400)</option>
-        <option value="800">2 Days ($800)</option>
-        <option value="2000">5 Days ($2000)</option>
-      </select>
-      <button>{% trans 'Donate Now' %}</button>
-    </form>
+      <form action="{% url 'donate_add' %}" method="get" class="donate-form">
+        <select id="id_dollars" name="dollars">
+          <option value="5">$5</option>
+          <option value="10">$10</option>
+          <option value="25">$25</option>
+          <option value="50" selected="selected">1 Hour ($50)</option>
+          <option value="100">2 Hours ($100)</option>
+          <option value="200">4 Hours ($200)</option>
+          <option value="400">1 Day ($400)</option>
+          <option value="800">2 Days ($800)</option>
+          <option value="2000">5 Days ($2000)</option>
+        </select>
+        <button>{% trans 'Donate Now' %}</button>
+      </form>
     {% endif %}
   </div>
-
-  {% endif %}
 
 </div>
