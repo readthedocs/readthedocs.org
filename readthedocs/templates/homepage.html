@@ -118,52 +118,6 @@ as we always need more contributors to the project.
           </div>
           <!-- END projects list -->
 
-
-          {% comment %}
-          <!-- BEGIN projects list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                <h3>{% trans "Most Viewed Pages" %} <span class="small_head"><a href="{% url "pageviews_list" %}">{% trans "(All Views)" %}</a></span></h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% with updated_list as pageview_list %}
-                      {% include "core/pageview_list_detailed.html" %}
-                    {% endwith %}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END projects list -->
-
-
-          <!-- BEGIN marks list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                <h3>{% trans "Recently bookmarked docs" %} <span class="small_head"><a href="{% url "bookmarks_list" %}">{% trans "(All Bookmarks)" %}</a></span></h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/bookmark_list_detailed.html" %}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END marks list -->
-          {% endcomment %}
-
     <div>
         <h3>{% trans "Read the Docs is funded by the community" %}</h3>
         <p>
