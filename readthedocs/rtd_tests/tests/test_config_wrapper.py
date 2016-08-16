@@ -55,6 +55,28 @@ class ConfigWrapperTests(TestCase):
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
         self.assertEqual(config.install_project, False)
 
+    def test_extra_requirements(self):
+        yaml_config = get_build_config({'python': {
+            'pip_install': True,
+            'extra_requirements': ['tests', 'docs']}})
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        self.assertEqual(config.extra_requirements, ['tests', 'docs'])
+
+        yaml_config = get_build_config({'python': {
+            'extra_requirements': ['tests', 'docs']}})
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        self.assertEqual(config.extra_requirements, [])
+
+        yaml_config = get_build_config({})
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        self.assertEqual(config.extra_requirements, [])
+
+        yaml_config = get_build_config({'python': {
+            'setup_py_install': True,
+            'extra_requirements': ['tests', 'docs']}})
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        self.assertEqual(config.extra_requirements, [])
+
     def test_conda(self):
         to_find = 'urls.py'
         yaml_config = get_build_config({'conda': {'file': to_find}})

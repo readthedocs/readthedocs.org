@@ -44,6 +44,10 @@ class PythonEnvironment(object):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
         if os.path.isfile(setup_path) and self.config.install_project:
             if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
+                extra_req_param = ''
+                if self.config.extra_requirements:
+                    extra_req_param = '[{0}]'.format(
+                        ','.join(self.config.extra_requirements))
                 self.build_env.run(
                     'python',
                     self.venv_bin(filename='pip'),
@@ -51,7 +55,7 @@ class PythonEnvironment(object):
                     '--ignore-installed',
                     '--cache-dir',
                     self.project.pip_cache_path,
-                    '.',
+                    '.{0}'.format(extra_req_param),
                     cwd=self.checkout_path,
                     bin_path=self.venv_bin()
                 )
