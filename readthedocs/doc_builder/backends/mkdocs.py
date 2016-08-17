@@ -66,12 +66,12 @@ class BaseMkdocs(BaseBuilder):
             user_config['extra_javascript'].append(
                 'readthedocs-dynamic-include.js')
             user_config['extra_javascript'].append(
-                '%sjavascript/readthedocs-doc-embed.js' % media_url)
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url)
         else:
             user_config['extra_javascript'] = [
                 'readthedocs-data.js',
                 'readthedocs-dynamic-include.js',
-                '%sjavascript/readthedocs-doc-embed.js' % media_url,
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
             ]
 
         if 'extra_css' in user_config:
