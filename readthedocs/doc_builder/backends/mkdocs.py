@@ -54,24 +54,25 @@ class BaseMkdocs(BaseBuilder):
 
         # Set mkdocs config values
 
-        media_url = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        media_url = getattr(settings, 'MEDIA_URL', '')
 
         # Mkdocs needs a full domain here because it tries to link to local media files
         if not media_url.startswith('http'):
             domain = getattr(settings, 'PRODUCTION_DOMAIN')
-            media_url = 'http://{}/{}'.format(domain, media_url)
+            # media_url has already a prefix slash
+            media_url = 'http://{}{}'.format(domain, media_url)
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append('readthedocs-data.js')
             user_config['extra_javascript'].append(
                 'readthedocs-dynamic-include.js')
             user_config['extra_javascript'].append(
-                '%sjavascript/readthedocs-doc-embed.js' % media_url)
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url)
         else:
             user_config['extra_javascript'] = [
                 'readthedocs-data.js',
                 'readthedocs-dynamic-include.js',
-                '%sjavascript/readthedocs-doc-embed.js' % media_url,
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
             ]
 
         if 'extra_css' in user_config:
@@ -122,7 +123,8 @@ class BaseMkdocs(BaseBuilder):
             'doc_builder/data.js.tmpl'
         ).render(data_ctx)
 
-        data_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-data.js'), 'w+')
+        data_file = open(os.path.join(
+            self.root_path, docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
         data_file.write('''
 READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
@@ -138,7 +140,8 @@ READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
             'doc_builder/include.js.tmpl'
         ).render(include_ctx)
         include_file = open(
-            os.path.join(self.root_path, docs_dir, 'readthedocs-dynamic-include.js'),
+            os.path.join(self.root_path, docs_dir,
+                         'readthedocs-dynamic-include.js'),
             'w+'
         )
         include_file.write(include_string)
