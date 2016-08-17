@@ -70,10 +70,7 @@ class ConfigWrapper(object):
 
     @property
     def use_conda(self):
-        if 'conda' in self._yaml_config:
-            return True
-        else:
-            return False
+        return 'conda' in self._yaml_config
 
     @property
     def conda_file(self):
