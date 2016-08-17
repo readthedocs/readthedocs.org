@@ -14,7 +14,6 @@ import hashlib
 from collections import defaultdict
 
 from celery import task, Task
-from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -42,6 +41,7 @@ from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.privacy.loader import Syncer
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.search.utils import process_mkdocs_json
+from readthedocs.settings.celery import app as celery_app
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.api.client import api as api_v1

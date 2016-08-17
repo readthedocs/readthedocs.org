@@ -1,4 +1,4 @@
-from djcelery import celery as celery_app
+from readthedocs.settings.celery import app as celery_app
 from celery.result import AsyncResult
 
 

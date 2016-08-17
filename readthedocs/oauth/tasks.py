@@ -1,11 +1,11 @@
 """Tasks for OAuth services"""
 
 from django.contrib.auth.models import User
-from djcelery import celery as celery_app
 
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import permission_check
 from readthedocs.core.utils.tasks import user_id_matches
+from readthedocs.settings.celery import app as celery_app
 from .services import registry
 
 

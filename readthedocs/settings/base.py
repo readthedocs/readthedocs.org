@@ -3,12 +3,7 @@
 
 import os
 
-import djcelery
-
 from readthedocs.core.settings import Settings
-
-
-djcelery.setup_loader()
 
 _ = gettext = lambda s: s
 
@@ -79,9 +74,6 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_countries',
             'django_extensions',
-
-            # Celery bits
-            'djcelery',
 
             # daniellindsleyrocksdahouse
             'haystack',
