@@ -1,9 +1,7 @@
-"""Core application config for establishing signals"""
-
 from django.apps import AppConfig
 
 
-class GoldAppConfig(AppConfig):
+class CoreAppConfig(AppConfig):
     name = 'readthedocs.core'
     verbose_name = 'Core'
 
