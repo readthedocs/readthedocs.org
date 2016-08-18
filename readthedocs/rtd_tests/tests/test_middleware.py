@@ -118,7 +118,6 @@ class TestCORSMiddleware(TestCase):
         request = self.factory.get(
             self.url,
             {'project': self.pip.slug},
-            HTTP_HOST='http://my.valid.domain',
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
@@ -128,8 +127,16 @@ class TestCORSMiddleware(TestCase):
         request = self.factory.get(
             self.url,
             {'project': self.pip.slug},
-            HTTP_HOST='http://invalid.domain',
             HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    def test_invalid_project(self):
+        request = self.factory.get(
+            self.url,
+            {'project': 'foo'},
+            HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
