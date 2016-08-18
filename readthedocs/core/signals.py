@@ -1,14 +1,25 @@
+import logging
 from urlparse import urlparse
 
 from corsheaders import signals
 
 from readthedocs.projects.models import Project, Domain
 
+log = logging.getLogger(__name__)
 
 WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search']
 
 
-def handler(sender, request, **kwargs):
+def decide_if_cors(sender, request, **kwargs):
+    """
+    Decide whether a request should be given CORS access.
+
+    This checks that:
+    * The URL is whitelisted against our CORS-allowed domains
+    * The Domain exists in our database, and belongs to the project being queried.
+
+    Returns True when a request should be given CORS access.
+    """
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
     valid_url = False
     for url in WHITELIST_URLS:
@@ -20,6 +31,12 @@ def handler(sender, request, **kwargs):
         try:
             project = Project.objects.get(slug=project_slug)
         except Project.DoesNotExist:
+            log.warning(
+                'Invalid project passed to domain. [{project}:{domain}'.format(
+                    project=project_slug,
+                    domain=host,
+                )
+            )
             return False
 
         domain = Domain.objects.filter(
@@ -31,4 +48,4 @@ def handler(sender, request, **kwargs):
 
     return False
 
-signals.check_request_enabled.connect(handler)
+signals.check_request_enabled.connect(decide_if_cors)

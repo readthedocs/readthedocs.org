@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 from annoying.fields import AutoOneToOneField
 
-from .signals import handler
+from .signals import decide_if_cors
 
 STANDARD_EMAIL = "anonymous@readthedocs.org"
 
