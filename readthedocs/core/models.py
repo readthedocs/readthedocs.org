@@ -1,9 +1,6 @@
 import logging
 
 from django.db import models
-from django.db.models.signals import post_save
-from django.db.utils import DatabaseError
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from annoying.fields import AutoOneToOneField
 
