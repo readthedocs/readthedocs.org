@@ -50,8 +50,7 @@ class SubdomainMiddleware(object):
         # Serve subdomains - but don't depend on the production domain only having 2 parts
         if len(domain_parts) == len(public_domain.split('.')) + 1:
             subdomain = domain_parts[0]
-            is_www = subdomain.lower() == 'www'
-            if not is_www and (
+            if (
                 # Support ports during local dev
                 public_domain in host or public_domain in full_host
             ):
