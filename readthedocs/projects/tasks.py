@@ -25,6 +25,7 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_BUILDING,
                                           BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.signals import build_complete
 from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.cdn.purge import purge
@@ -184,6 +185,7 @@ class UpdateDocsTask(Task):
 
         if self.build_env.failed:
             self.send_notifications()
+        build_complete.send(sender=Build, build=self.build_env.build)
 
     @staticmethod
     def get_project(project_pk):

@@ -7,6 +7,7 @@ from urlparse import urlparse
 from django.conf import settings
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from ..tasks import send_email_task
 
 
@@ -101,6 +102,18 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     options = {}
     if project.build_queue:
         options['queue'] = project.build_queue
+
+    # Set per-task time limit
+    time_limit = DOCKER_LIMITS['time']
+    try:
+        if project.container_time_limit:
+            time_limit = int(project.container_time_limit)
+    except ValueError:
+        pass
+    # Add 20% overhead to task, to ensure the build can timeout and the task
+    # will cleanly finish.
+    options['soft_time_limit'] = time_limit
+    options['time_limit'] = int(time_limit * 1.2)
 
     update_docs.apply_async(kwargs=kwargs, **options)
 

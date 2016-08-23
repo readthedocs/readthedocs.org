@@ -6,6 +6,8 @@ from django.test.utils import override_settings
 
 from django_dynamic_fixture import get, new
 
+from corsheaders.middleware import CorsMiddleware
+
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Project, Domain
 
@@ -97,3 +99,44 @@ class MiddlewareTests(TestCase):
         request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
         ret_val = self.middleware.process_request(request)
         self.assertEqual(ret_val, None)
+
+
+class TestCORSMiddleware(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = CorsMiddleware()
+        self.url = '/api/v2/search'
+        self.owner = create_user(username='owner', password='test')
+        self.pip = get(
+            Project, slug='pip',
+            users=[self.owner], privacy_level='public',
+        )
+        self.domain = get(Domain, domain='my.valid.domain', project=self.pip)
+
+    def test_proper_domain(self):
+        request = self.factory.get(
+            self.url,
+            {'project': self.pip.slug},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_invalid_domain(self):
+        request = self.factory.get(
+            self.url,
+            {'project': self.pip.slug},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+    def test_invalid_project(self):
+        request = self.factory.get(
+            self.url,
+            {'project': 'foo'},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
