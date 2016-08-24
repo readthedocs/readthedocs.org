@@ -373,7 +373,7 @@ class BuildEnvironment(object):
     def done(self):
         '''Is build in finished state'''
         return (self.build is not None and
-                self.build.get('state') == BUILD_STATE_FINISHED)
+                self.build['state'] == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
         """Record a build by hitting the API
@@ -528,6 +528,7 @@ class DockerEnvironment(BuildEnvironment):
                           msg="Couldn't remove container"),
                       exc_info=True)
         self.container = None
+        self.build['state'] = BUILD_STATE_FINISHED
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
