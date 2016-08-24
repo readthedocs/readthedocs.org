@@ -373,7 +373,7 @@ class BuildEnvironment(object):
     def done(self):
         '''Is build in finished state'''
         return (self.build is not None and
-                self.build['state'] == BUILD_STATE_FINISHED)
+                self.build.get('state') == BUILD_STATE_FINISHED)
 
     def update_build(self, state=None):
         """Record a build by hitting the API
