@@ -40,6 +40,14 @@ class ConfigWrapper(object):
             return self._project.install_project
 
     @property
+    def extra_requirements(self):
+        if self.pip_install and 'extra_requirements' in self._yaml_config.get(
+                'python', {}):
+            return self._yaml_config['python']['extra_requirements']
+        else:
+            return []
+
+    @property
     def python_interpreter(self):
         if 'version' in self._yaml_config.get('python', {}):
             ver = self._yaml_config['python']['version']

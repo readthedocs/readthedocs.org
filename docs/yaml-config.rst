@@ -144,6 +144,56 @@ documentation.
 
 		conf_file: project2/docs/conf.py
 
+python.extra_requirements
+`````````````````````````
+
+* Default: ``[]``
+* Type: List
+
+List of `extra requirements`_ sections to install, additionnaly to the
+`package default dependencies`_. Only works if ``python.pip_install`` option
+above is set to ``True``.
+
+Let's say your Python package has a ``setup.py`` which looks like this:
+
+.. code-block:: python
+
+    from setuptools import setup
+
+    setup(
+        name="my_package",
+        # (...)
+        install_requires=[
+            'requests',
+            'simplejson'],
+        extras_require={
+            'tests': [
+                'nose',
+                'pycodestyle >= 2.1.0'],
+            'docs': [
+                'sphinx >= 1.4',
+                'sphinx_rtd_theme']}
+    )
+
+Then to have all dependencies from the ``tests`` and ``docs`` sections
+installed in addition to the default ``requests`` and ``simplejson``, use the
+``extra_requirements`` as such:
+
+.. code-block:: yaml
+
+    python:
+        extra_requirements:
+            - tests
+            - docs
+
+Behind the scene the following Pip command will be run:
+
+.. code-block:: shell
+
+    $ pip install -e .[tests,docs]
+
 
 .. _issue: https://github.com/rtfd/readthedocs.org/issues
 .. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
+.. _extra requirements: http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
+.. _package default dependencies: http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
