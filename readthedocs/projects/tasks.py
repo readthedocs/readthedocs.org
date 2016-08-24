@@ -116,8 +116,7 @@ class UpdateDocsTask(Task):
 
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record,
-                                 report_build_success=False)
+                                 build=self.build, record=record)
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
@@ -135,7 +134,7 @@ class UpdateDocsTask(Task):
 
             self.config = load_yaml_config(version=self.version)
 
-        if self.setup_env.failed or self.config is None:
+        if self.setup_env.failure or self.config is None:
             self.send_notifications()
             self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return None
@@ -186,6 +185,8 @@ class UpdateDocsTask(Task):
         if self.build_env.failed:
             self.send_notifications()
         build_complete.send(sender=Build, build=self.build_env.build)
+
+        self.build_env.update_build(state=BUILD_STATE_FINISHED)
 
     @staticmethod
     def get_project(project_pk):
@@ -242,7 +243,7 @@ class UpdateDocsTask(Task):
                                     msg=str(e)),
                 exc_info=True,
             )
-            raise BuildEnvironmentError('Failed to import project',
+            raise BuildEnvironmentError('Failed to import project: %s' % e,
                                         status_code=404)
 
     def get_env_vars(self):
