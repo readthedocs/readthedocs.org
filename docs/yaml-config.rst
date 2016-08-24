@@ -150,7 +150,7 @@ python.extra_requirements
 * Default: ``[]``
 * Type: List
 
-List of `extra requirements`_ sections to install, additionnaly to the
+List of `extra requirements`_ sections to install, additionally to the
 `package default dependencies`_. Only works if ``python.pip_install`` option
 above is set to ``True``.
 
