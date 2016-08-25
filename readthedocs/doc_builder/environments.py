@@ -262,17 +262,15 @@ class BuildEnvironment(object):
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
-    :param report_build_success: update build if successful
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None, report_build_success=True):
+                 environment=None):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
-        self.report_build_success = report_build_success
 
         self.commands = []
         self.failure = None
@@ -384,8 +382,7 @@ class BuildEnvironment(object):
         want to record successful builds yet (if we are running setup commands
         for the build)
         """
-        if not self.record or (state == BUILD_STATE_FINISHED and
-                               not self.report_build_success):
+        if not self.record:
             return None
 
         self.build['project'] = self.project.pk
@@ -530,9 +527,8 @@ class DockerEnvironment(BuildEnvironment):
                           version=self.version.slug,
                           msg="Couldn't remove container"),
                       exc_info=True)
-
         self.container = None
-        self.update_build(state=BUILD_STATE_FINISHED)
+        self.build['state'] = BUILD_STATE_FINISHED
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
