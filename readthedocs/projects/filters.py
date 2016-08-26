@@ -45,8 +45,7 @@ class ProjectFilter(django_filters.FilterSet):
 
     name = django_filters.CharFilter(label=_("Name"), name='name',
                                      lookup_type='icontains')
-    slug = django_filters.CharFilter(label=_("Slug"), name='slug',
-                                     action=sort_slug)
+    slug = django_filters.CharFilter(label=_("Slug"), name='slug')
     pub_date = django_filters.DateRangeFilter(label=_("Created Date"),
                                               name="pub_date")
     repo = django_filters.CharFilter(label=_("Repository URL"), name='repo',

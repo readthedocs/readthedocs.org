@@ -135,6 +135,7 @@ class UpdateDocsTask(Task):
             self.config = load_yaml_config(version=self.version)
 
         if self.setup_env.failure or self.config is None:
+            self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
             self.send_notifications()
             self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return None
