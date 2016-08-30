@@ -15,15 +15,16 @@ we have :ref:`information <ethical-buy-ads>` on how to get in touch with us abou
 Our worldview
 -------------
 
-What we're trying to do is to do advertising properly:
+We're doing advertising properly:
 
 * We don't track users
 * We don't sell your data
 * We host everything ourselves, no third-party scripts
 
-Basically what we're doing is newspaper advertising,
+What we're doing is newspaper advertising,
 on the internet.
-For a hundred years newspapers put an ad on the page,
+For a hundred years,
+newspapers put an ad on the page,
 some folks would see it,
 and advertisers would pay for this.
 This is our model.
@@ -33,7 +34,7 @@ You follow them across them web,
 from site to site,
 showing them the same ad.
 Then retailers sell your purchase data to try and attribute sales to advertising.
-Now there is an industry in doing fake ad clicks and other scams,
+Now there is an industry in doing `fake ad clicks`_ and other scams,
 which leads the ad industry to track you even more intrusively to know more about you.
 The current advertising industry is a vicious downward spiral.
 **We opt out.**
@@ -42,13 +43,13 @@ As developers,
 we understand the `massive downsides`_ of the current advertising industry.
 From malware,
 slow site performance,
-huge databases of your personal data sold to the highest bidder,
-**we opt out.**
+and huge databases of your personal data sold to the highest bidder.
+**We opt out.**
 
 The trend in advertising is to have larger and larger ads.
 They should run before your content,
 they should take over the page,
-the bigger and flashier the better.
+the bigger, weirder, or flashier the better.
 **We opt out.**
 
 We don't store personal information about you.
@@ -60,18 +61,23 @@ We are running a single,
 small,
 unobtrusive ad on documentation pages.
 The products should be interesting to you.
-They won't flash or move,
-but we will give 10% of our ad inventory to causes we believe in that aren't flashy.
+They won't flash or move.
+
+We run the ads we want to have on our product,
+in a way that makes us feel good.
+
+.. _fake ad clicks: https://en.wikipedia.org/wiki/Click_fraud
 
 Join us
 -------
 
 We're building the advertising product that we wished existed.
-We hope that others will join us in this mission.
-**If you're a developer**,
-talk to your marketing people about using products that respect user privacy.
-**If you're a marketer**,
-vote with your dollars and support us in building the internet we want to exist.
+We hope that others will join us in this mission:
+
+* **If you're a developer**,
+  talk to your marketing people about using products that respect user privacy.
+* **If you're a marketer**,
+  vote with your dollars and support us in building the internet we want to exist.
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
@@ -87,6 +93,11 @@ and we'll get in touch.
 
 **We only work with people who sell products that would be of interest to our audience of programmers and users of open source.**
 
+Advertising Interest Form
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fill out your information and we'll get in touch.
+
 .. raw:: html
 
     <style type="text/css">
@@ -100,10 +111,6 @@ and we'll get in touch.
     }
     </style>
     <div class="form-input">
-    <h3>Advertising Interest Form</h3>
-    <p>
-    Fill out your information and we'll get in touch.
-    </p>
     <form action="https://formspree.io/rev@readthedocs.org" method="POST">
         <input type="text" name="name" placeholder="Your name" />
         <input type="email" name="_replyto" placeholder="Your work email" />
