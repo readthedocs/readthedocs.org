@@ -40,7 +40,7 @@ The current advertising industry is a vicious downward cycle.
 **We opt out.**
 
 As developers,
-we understand the `massive downsides <http://idlewords.com/2015/11/the_advertising_bubble.htm>`_ of the current advertising industry.
+we understand the `massive downsides`_ of the current advertising industry.
 From malware to your data sold to the highest bidder,
 **We opt out.**
 
@@ -62,7 +62,7 @@ The products should be interesting to you.
 They won't flash or move,
 but we will give 10% of our ad inventory to causes we believe in that aren't flashy.
 
-.. _ethical-info:
+.. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
 .. _ethical-buy-ads:
 
