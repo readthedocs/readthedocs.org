@@ -17,7 +17,7 @@ we have :ref:`information <ethical-buy-ads>` on how to get in touch with us abou
 Our worldview
 -------------
 
-We're doing advertising properly:
+We're building the advertising model we want to exist:
 
 * We don't track users
 * We don't sell your data
