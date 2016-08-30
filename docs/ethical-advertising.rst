@@ -68,9 +68,9 @@ Join us
 
 We're building the advertising product that we wished existed.
 We hope that others will join us in this mission.
-If you're a developer,
+**If you're a developer**,
 talk to your marketing people about using products that respect user privacy.
-If you're a marketer,
+**If you're a marketer**,
 vote with your dollars and support us in building the internet we want to exist.
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
@@ -84,6 +84,7 @@ If you like our vision,
 we're love to work with you about getting your ad in front of the Read the Docs audience.
 You can fill out the basic form below,
 and we'll get in touch.
+
 **We only work with people who sell products that would be of interest to our audience of programmers and users of open source.**
 
 .. raw:: html
@@ -99,10 +100,14 @@ and we'll get in touch.
     }
     </style>
     <div class="form-input">
+    <h3>Advertising Interest Form</h3>
+    <p>
+    Fill out your information and we'll get in touch.
+    </p>
     <form action="https://formspree.io/rev@readthedocs.org" method="POST">
         <input type="text" name="name" placeholder="Your name" />
         <input type="email" name="_replyto" placeholder="Your work email" />
-        <input type="text" name="job" placeholder="What is it you do here?">
+        <input type="text" name="job" placeholder="Your job">
         <input type="submit" value="Send">
         <input type="hidden" name="_subject" value="Read the Docs Advertising Inquiry" />
         <input type="text" name="_gotcha" style="display:none" />
