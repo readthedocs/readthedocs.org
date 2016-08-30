@@ -5,7 +5,7 @@ Read the Docs is a large,
 free web service.
 There is one proven business model to support this kind of site:
 Advertising.
-We're offering an advertising product that respects users while providing value to advertisers.
+We're building an advertising model that respects users while providing value to advertisers.
 
 We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
 
@@ -72,7 +72,7 @@ in a way that makes us feel good.
 Join us
 -------
 
-We're building the advertising model that we wished existed.
+We're building the advertising model we want to exist.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
