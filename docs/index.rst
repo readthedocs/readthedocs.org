@@ -47,6 +47,16 @@ Information about development is also available:
    yaml-config
    guides/index
 
+.. _about-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: About Read the Docs
+
+   open-source-philosophy
+   ethical-advertising
+   sponsors
+   talks
 
 .. _feature-docs:
 
@@ -112,17 +122,6 @@ Information about development is also available:
 
    design
    theme
-
-
-.. _about-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: About Read the Docs
-
-   open-source-philosophy
-   sponsors
-   talks
 
 
 .. _ops-docs:
