@@ -1,11 +1,13 @@
 Ethical Advertising
 ===================
 
-Read the Docs is a large free website on the internet.
+Read the Docs is a large,
+free web service.
 There is one proven business model to support this kind of site:
 Advertising.
+We're offering an advertising product that respects users while providing value to advertisers.
 
-We talk a bit :ref:`below <ethical-info>` about our philosophy on advertising.
+We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
 
 If you're a marketer,
 we have :ref:`information <ethical-buy-ads>` on how to get in touch with us about running ads.
@@ -21,7 +23,7 @@ We're doing advertising properly:
 * We don't sell your data
 * We host everything ourselves, no third-party scripts
 
-What we're doing is newspaper advertising,
+We're doing newspaper advertising,
 on the internet.
 For a hundred years,
 newspapers put an ad on the page,
@@ -32,7 +34,7 @@ This is our model.
 So much ad tech has been built to track users.
 Following them across them web,
 from site to site,
-showing the same ad.
+showing the same ads and gathering data about them.
 Then retailers sell your purchase data to try and attribute sales to advertising.
 Now there is an industry in doing `fake ad clicks`_ and other scams,
 which leads the ad industry to track you even more intrusively to know more about you.
@@ -42,7 +44,7 @@ As developers,
 we understand the `massive downsides`_ of the current advertising industry.
 From malware,
 slow site performance,
-and huge databases of your personal data sold to the highest bidder.
+and huge databases of your personal data being sold to the highest bidder.
 
 The trend in advertising is to have larger and larger ads.
 They should run before your content,
@@ -62,7 +64,7 @@ unobtrusive ad on documentation pages.
 The products should be interesting to you.
 The ads won't flash or move.
 
-We run the ads we want to have on our product,
+We run the ads we want to have on our site,
 in a way that makes us feel good.
 
 .. _fake ad clicks: https://en.wikipedia.org/wiki/Click_fraud
@@ -70,13 +72,13 @@ in a way that makes us feel good.
 Join us
 -------
 
-We're building the advertising product that we wished existed.
+We're building the advertising model that we wished existed.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
-  talk to your marketing people about using products that respect user privacy.
+  talk to your marketing people about using advertising that respect user privacy.
 * **If you're a marketer**,
-  vote with your dollars and support us in building the internet we want to exist.
+  vote with your dollars and support us in building the ad model we want to exist.
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
@@ -87,6 +89,7 @@ Advertise with us
 
 If you like our vision,
 let's work together to get your ad in front of the Read the Docs audience.
+We have over 5 million developers reading documentation each month.
 You can fill out the basic form below,
 and we'll get in touch.
 
