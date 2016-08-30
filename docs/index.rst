@@ -54,6 +54,7 @@ Information about development is also available:
    :caption: About Read the Docs
 
    contribute
+   team
    ethical-advertising
    sponsors
    open-source-philosophy
@@ -85,7 +86,6 @@ Information about development is also available:
    :maxdepth: 2
    :caption: Developer Documentation
 
-   team
    install
    changelog
    tests
