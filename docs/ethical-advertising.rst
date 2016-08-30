@@ -30,26 +30,25 @@ and advertisers would pay for this.
 This is our model.
 
 So much ad tech has been built to track users.
-You follow them across them web,
+Following them across them web,
 from site to site,
-showing them the same ad.
+showing the same ad.
 Then retailers sell your purchase data to try and attribute sales to advertising.
 Now there is an industry in doing `fake ad clicks`_ and other scams,
 which leads the ad industry to track you even more intrusively to know more about you.
 The current advertising industry is a vicious downward spiral.
-**We opt out.**
 
 As developers,
 we understand the `massive downsides`_ of the current advertising industry.
 From malware,
 slow site performance,
 and huge databases of your personal data sold to the highest bidder.
-**We opt out.**
 
 The trend in advertising is to have larger and larger ads.
 They should run before your content,
 they should take over the page,
 the bigger, weirder, or flashier the better.
+
 **We opt out.**
 
 We don't store personal information about you.
@@ -61,7 +60,7 @@ We are running a single,
 small,
 unobtrusive ad on documentation pages.
 The products should be interesting to you.
-They won't flash or move.
+The ads won't flash or move.
 
 We run the ads we want to have on our product,
 in a way that makes us feel good.
@@ -83,11 +82,11 @@ We hope that others will join us in this mission:
 
 .. _ethical-buy-ads:
 
-Buy ads
--------
+Advertise with us
+-----------------
 
 If you like our vision,
-we're love to work with you about getting your ad in front of the Read the Docs audience.
+let's work together to get your ad in front of the Read the Docs audience.
 You can fill out the basic form below,
 and we'll get in touch.
 
