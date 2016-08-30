@@ -53,10 +53,10 @@ Information about development is also available:
    :maxdepth: 2
    :caption: About Read the Docs
 
-   open-source-philosophy
+   contribute
    ethical-advertising
    sponsors
-   talks
+   open-source-philosophy
 
 .. _feature-docs:
 
@@ -88,7 +88,6 @@ Information about development is also available:
    team
    install
    changelog
-   contribute
    tests
    architecture
    development/standards
