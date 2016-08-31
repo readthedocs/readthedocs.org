@@ -54,7 +54,7 @@ the bigger, weirder, or flashier the better.
 **We opt out.**
 
 We don't store personal information about you.
-We keep track of views and clicks.
+We only keep track of views and clicks.
 We don't build a profile of your personality to sell ads against.
 We only show high quality ads from companies that are of interest to developers.
 
@@ -94,9 +94,6 @@ You can fill out the basic form below,
 and we'll get in touch.
 
 **We only work with people who sell products that would be of interest to our audience of programmers and users of open source.**
-
-Advertising Interest Form
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Fill out your information and we'll get in touch.
 
