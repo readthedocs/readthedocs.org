@@ -99,25 +99,27 @@ Fill out your information and we'll get in touch.
 .. raw:: html
 
     <style type="text/css">
-    .form-input {
-        width: 300px;
-        clear: both;
-        margin-bottom: 50px;
+    form.advertising {
+        margin: 1.5em 0em;
+        padding: 1.5em 0em;
+        border-top: 1px solid rgba(0,0,0,.1);
     }
-    .form-input input {
-        width: 100%;
-        clear: both;
+    form.advertising input {
+        display: block;
+        margin: 1em 0em;
     }
     </style>
-    <div class="form-input">
-    <form action="https://formspree.io/rev@readthedocs.org" method="POST">
-        <input type="text" name="name" placeholder="Your name" />
-        <input type="email" name="_replyto" placeholder="Your work email" />
-        <input type="text" name="job" placeholder="Your job">
-        <input type="submit" value="Send">
+    <form action="https://formspree.io/rev@readthedocs.org" method="POST" class="advertising">
+        <label>Your name</label>
+        <input type="text" name="name" size=50 />
+        <label>Your work email</label>
+        <input type="email" name="_replyto" size=40 />
+        <label>What is your job?</label>
+        <input type="text" name="job" size=50 />
+        <input type="submit" value="Send" class="btn" />
+
         <input type="hidden" name="_subject" value="Read the Docs Advertising Inquiry" />
-        <input type="text" name="_gotcha" style="display:none" />
         <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html" />
+        <input type="text" name="_gotcha" style="display:none" />
     </form>
-    </div>
 
