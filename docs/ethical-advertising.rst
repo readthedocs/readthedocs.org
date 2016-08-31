@@ -102,6 +102,7 @@ Fill out your information and we'll get in touch.
     .form-input {
         width: 300px;
         clear: both;
+        margin-bottom: 50px;
     }
     .form-input input {
         width: 100%;
@@ -119,3 +120,4 @@ Fill out your information and we'll get in touch.
         <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html" />
     </form>
     </div>
+
