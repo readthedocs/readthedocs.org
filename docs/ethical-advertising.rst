@@ -19,7 +19,7 @@ Our worldview
 
 We're building the advertising model we want to exist:
 
-* We don't track users
+* We don't track you
 * We don't sell your data
 * We host everything ourselves, no third-party scripts
 
@@ -76,7 +76,7 @@ We're building the advertising model we want to exist.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
-  talk to your marketing people about using advertising that respect user privacy.
+  talk to your marketing people about using advertising that respects your privacy.
 * **If you're a marketer**,
   vote with your dollars and support us in building the ad model we want to exist.
 
@@ -89,9 +89,8 @@ Advertise with us
 
 If you like our vision,
 let's work together to get your ad in front of the Read the Docs audience.
-We have over 5 million developers reading documentation each month.
-You can fill out the basic form below,
-and we'll get in touch.
+We have over 5 million developers reading documentation each month,
+and provide a valuable service to the open source community.
 
 **We only work with people who sell products that would be of interest to our audience of programmers and users of open source.**
 
