@@ -12,14 +12,14 @@
   </p>
 
   <ul>
-    {% for user in users|slice:":20" %}
-      <li>{{ user.email }} ({{ user }})</li>
+    {% for recipient in recipients|slice:":20" %}
+      <li>{{ recipient.email }} ({{ recipient }})</li>
     {% endfor %}
-    {% with extra_users=users|slice:"20:" %}
-      {% if extra_users|length > 0 %}
+    {% with extra_recipients=recipients|slice:"20:" %}
+      {% if extra_recipients|length > 0 %}
         <li>
-          {% blocktrans with count=extra_users|length %}
-            And {{ count }} other users...
+          {% blocktrans with count=extra_recipients|length %}
+            And {{ count }} other recipients...
           {% endblocktrans %}
         </li>
       {% endif %}
@@ -35,7 +35,7 @@
   <form method="post" action="">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="hidden" name="action" value="send_email" />
+    <input type="hidden" name="action" value="{{ action_name }}" />
     <input type="submit" name="send" value="{% trans 'Send Messages' %}" />
   </form>
 {% endblock %}
