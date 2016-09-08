@@ -41,6 +41,7 @@ rtd_urls = [
     url(r'^profiles/', include('readthedocs.profiles.urls.public')),
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^notifications/', include('readthedocs.notifications.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
 ]

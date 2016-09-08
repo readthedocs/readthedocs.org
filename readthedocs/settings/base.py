@@ -79,6 +79,7 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_countries',
             'django_extensions',
+            'messages_extends',
 
             # Celery bits
             'djcelery',
@@ -102,6 +103,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.gold',
             'readthedocs.donate',
             'readthedocs.payments',
+            'readthedocs.notifications',
 
             # allauth
             'allauth',
@@ -150,6 +152,8 @@ class CommunityBaseSettings(Settings):
         # Read the Docs processor
         "readthedocs.core.context_processors.readthedocs_processor",
     )
+
+    MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
 
     # Paths
     SITE_ROOT = os.path.dirname(
