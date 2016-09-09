@@ -3,24 +3,37 @@ from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.db import models
 
+from .backends import send_notification
+from .constants import *
+
 
 TEXT = 'txt'
 HTML = 'html'
 
 
-class NotificationSource(object):
+class Notification(object):
 
     name = None
     context_object_name = 'object'
+    level = INFO
+    user = None
 
-    def __init__(self, object):
+    def __init__(self, object, request, user=None):
         self.object = object
+        self.request = request
+        self.user = user
+        if self.user is None:
+            self.user = request.user
 
     def get_subject(self):
         template = Template(self.subject)
-        return template.render(context=Context({
-            self.context_object_name: self.object
-        }))
+        return template.render(context=Context(self.get_context_data()))
+
+    def get_context_data(self):
+        return {
+            self.context_object_name: self.object,
+            'request': self.request,
+        }
 
     def get_template_names(self, backend_name, source_format=HTML):
         names = []
@@ -43,7 +56,8 @@ class NotificationSource(object):
                 backend_name=backend_name,
                 source_format=source_format,
             ),
-            context=Context({
-                self.context_object_name: self.object
-            })
+            context=Context(self.get_context_data()),
         )
+
+    def send(self):
+        send_notification(self.request, self)

@@ -155,6 +155,11 @@ class CommunityBaseSettings(Settings):
 
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
 
+    NOTIFICATION_BACKENDS = [
+        'readthedocs.notifications.backends.EmailBackend',
+        'readthedocs.notifications.backends.SiteBackend',
+    ]
+
     # Paths
     SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
