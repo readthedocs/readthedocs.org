@@ -34,7 +34,7 @@ class EmailBackend(Backend):
         if notification.level >= REQUIREMENT:
             send_email(
                 recipient=notification.user.email,
-                subject=str(notification.get_subject()),
+                subject=notification.get_subject(),
                 template='core/email/common.txt',
                 template_html='core/email/common.html',
                 context={
