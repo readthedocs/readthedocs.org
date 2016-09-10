@@ -103,26 +103,36 @@ class FacetedSearchForm(SearchForm):
         return sqs
 
 
-class SendEmailForm(forms.Form):
+class SendNotificationForm(forms.Form):
 
-    """Send email form
+    """Send notification form
 
-    Used for building an email notification to a list of users from admin pages
+    Used for sending a notification to a list of users from admin pages
 
     Fields:
 
         _selected_action
             This is required for the admin intermediate form to submit
 
-        subject
-            Email subject
+        source
+            Source notification class to use, referenced by name
 
-        body
-            Email body
+    :param notification_classes: List of notification sources to display
+    :type notification_classes: list
     """
 
     _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
 
-    subject = forms.CharField(label=_('Email subject'), required=True)
-    body = forms.CharField(label=_('Email body'), widget=forms.Textarea,
-                           required=True)
+    source = forms.ChoiceField(label=_('Notification'), choices=[])
+
+    def __init__(self, *args, **kwargs):
+        self.notification_classes = kwargs.pop('notification_classes', [])
+        super(SendNotificationForm, self).__init__(*args, **kwargs)
+        self.fields['source'].choices = [(cls.name, cls.name) for cls
+                                         in self.notification_classes]
+
+    def clean_source(self):
+        """Get the source class from the class name"""
+        source = self.cleaned_data['source']
+        classes = dict((cls.name, cls) for cls in self.notification_classes)
+        return classes.get(source, None)

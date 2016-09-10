@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.core.views import SendEmailView
+from readthedocs.core.views import SendNotificationView
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
 
@@ -76,7 +76,7 @@ class UserAdminExtra(UserAdmin):
     ban_user.short_description = 'Ban user'
 
     def send_email(self, request, queryset):
-        view = SendEmailView.as_view()
+        view = SendNotificationView.as_view()
         return view(request, queryset=queryset)
 
     send_email.short_description = 'Email user'

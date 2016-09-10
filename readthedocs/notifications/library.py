@@ -16,6 +16,7 @@ class Notification(object):
     name = None
     context_object_name = 'object'
     level = INFO
+    subject = None
     user = None
 
     def __init__(self, object, request, user=None):

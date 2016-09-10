@@ -8,6 +8,7 @@ import os
 import logging
 
 
+from django import forms
 from django.contrib import admin, messages
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404
@@ -19,7 +20,7 @@ from django.views.generic import TemplateView, FormView
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast, send_email
-from readthedocs.core.forms import SendEmailForm
+from readthedocs.core.forms import SendNotificationForm
 from readthedocs.donate.mixins import DonateProgressMixin
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
@@ -126,9 +127,9 @@ def server_error_404(request, template_name='404.html'):
     return r
 
 
-class SendEmailView(FormView):
+class SendNotificationView(FormView):
 
-    """Form view for sending emails to users from admin pages
+    """Form view for sending notifications to users from admin pages
 
     Accepts the following additional parameters:
 
@@ -137,13 +138,16 @@ class SendEmailView(FormView):
 
     :cvar action_name: Name of the action to pass to the form template,
                        determines the action to pass back to the admin view
+    :cvar notification_classes: List of :py:class:`Notification` classes to
+                                display in the form
     :cvar email_context_object_name: Object variable name in templates
     :ivar email_context_data: Addition context data to pass to the templates
     """
 
-    form_class = SendEmailForm
+    form_class = SendNotificationForm
     template_name = 'core/send_email_form.html'
     action_name = 'send_email'
+    notification_classes = []
     email_context_object_name = 'object'
     email_context_data = None
 
@@ -153,7 +157,8 @@ class SendEmailView(FormView):
         The admin posts to this view initially, so detect the send button on
         form post variables. Drop additional fields if we see the send button.
         """
-        kwargs = super(SendEmailView, self).get_form_kwargs()
+        kwargs = super(SendNotificationView, self).get_form_kwargs()
+        kwargs['notification_classes'] = self.notification_classes
         if 'send' not in self.request.POST:
             kwargs.pop('data', None)
             kwargs.pop('files', None)
@@ -161,7 +166,7 @@ class SendEmailView(FormView):
 
     def get_initial(self):
         """Add selected ids to initial form data"""
-        initial = super(SendEmailView, self).get_initial()
+        initial = super(SendNotificationView, self).get_initial()
         initial['_selected_action'] = self.request.POST.getlist(
             admin.ACTION_CHECKBOX_NAME)
         return initial
@@ -175,21 +180,13 @@ class SendEmailView(FormView):
         variable.
         """
         count = 0
-        template = Template(form.cleaned_data['body'])
+        notification_cls = form.cleaned_data['source']
         for obj in self.get_queryset().all():
-            ctx = Context()
-            if self.email_context_data is not None:
-                ctx.update(self.email_context_data)
-            ctx[self.email_context_object_name] = obj
             for recipient in self.get_object_recipients(obj):
-                send_email(
-                    recipient.email,
-                    subject=form.cleaned_data['subject'],
-                    template='core/email/common.txt',
-                    template_html='core/email/common.html',
-                    context={'content': template.render(ctx)},
-                    request=self.request,
-                )
+                notification = notification_cls(object=obj,
+                                                request=self.request,
+                                                user=recipient)
+                notification.send()
                 count += 1
         if count == 0:
             self.message_user("No recipients to send to", level=messages.ERROR)
@@ -210,7 +207,7 @@ class SendEmailView(FormView):
 
     def get_context_data(self, **kwargs):
         """Return queryset in context"""
-        context = super(SendEmailView, self).get_context_data(**kwargs)
+        context = super(SendNotificationView, self).get_context_data(**kwargs)
         recipients = []
         for obj in self.get_queryset().all():
             recipients.extend(self.get_object_recipients(obj))
