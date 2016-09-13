@@ -88,7 +88,7 @@ def map_project_slug(view_func):
             try:
                 project = Project.objects.get(slug=project_slug)
             except Project.DoesNotExist:
-                raise Http404
+                raise Http404('Project does not exist.')
         return view_func(request, project=project, *args, **kwargs)
     return inner_view
 
