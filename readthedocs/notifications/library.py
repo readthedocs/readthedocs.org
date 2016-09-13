@@ -4,11 +4,7 @@ from django.template.loader import render_to_string
 from django.db import models
 
 from .backends import send_notification
-from .constants import *
-
-
-TEXT = 'txt'
-HTML = 'html'
+from .constants import INFO, HTML, TEXT
 
 
 class Notification(object):
