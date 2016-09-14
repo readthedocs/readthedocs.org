@@ -26,16 +26,19 @@ class FallbackUniqueStorage(FallbackStorage):
         safe_messages = []
         for message in messages:
             if message.level in PERSISTENT_MESSAGE_LEVELS:
+                message_pk = message.pk
                 message = Message(message.level,
                                   mark_safe(message.message),
                                   message.extra_tags)
+                message.pk = message_pk
             safe_messages.append(message)
         return safe_messages, all_ret
 
     def add(self, level, message, extra_tags='', *args, **kwargs):
         persist_messages = (PersistentMessage.objects
                             .filter(message=message,
-                                    user=self.request.user))
+                                    user=self.request.user,
+                                    read=False))
         if persist_messages.exists():
             return
         super(FallbackUniqueStorage, self).add(level, message, extra_tags,
