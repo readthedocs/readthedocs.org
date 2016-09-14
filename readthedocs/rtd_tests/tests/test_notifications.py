@@ -16,7 +16,7 @@ from readthedocs.builds.models import Build
         'readthedocs.notifications.backends.SiteBackend'
     ]
 )
-@mock.patch('readthedocs.notifications.library.render_to_string')
+@mock.patch('readthedocs.notifications.notification.render_to_string')
 @mock.patch.object(Notification, 'send')
 class NotificationTests(TestCase):
 
@@ -46,7 +46,7 @@ class NotificationTests(TestCase):
         ])
 
 
-@mock.patch('readthedocs.notifications.library.render_to_string')
+@mock.patch('readthedocs.notifications.notification.render_to_string')
 class NotificationBackendTests(TestCase):
 
     @mock.patch('readthedocs.notifications.backends.send_email')
