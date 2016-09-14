@@ -7,7 +7,7 @@ from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search']
+WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search', '/api/v2/docsearch']
 
 
 def decide_if_cors(sender, request, **kwargs):
