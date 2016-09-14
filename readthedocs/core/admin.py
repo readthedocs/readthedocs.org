@@ -8,7 +8,6 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.models import UserProfile
-from readthedocs.notifications.views import SendNotificationView
 from readthedocs.projects.models import Project
 
 
@@ -57,7 +56,7 @@ class UserAdminExtra(UserAdmin):
     list_display = ('username', 'email', 'first_name',
                     'last_name', 'is_staff', 'is_banned')
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
-    actions = ['ban_user', 'send_email']
+    actions = ['ban_user']
     inlines = [UserProjectInline]
 
     def is_banned(self, obj):
@@ -74,12 +73,6 @@ class UserAdminExtra(UserAdmin):
         self.message_user(request, 'Banned users: %s' % ', '.join(users))
 
     ban_user.short_description = 'Ban user'
-
-    def send_email(self, request, queryset):
-        view = SendNotificationView.as_view()
-        return view(request, queryset=queryset)
-
-    send_email.short_description = 'Email user'
 
 
 class UserProfileAdmin(admin.ModelAdmin):

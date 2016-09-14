@@ -18,16 +18,12 @@ class SendNotificationView(FormView):
                        determines the action to pass back to the admin view
     :cvar notification_classes: List of :py:class:`Notification` classes to
                                 display in the form
-    :cvar email_context_object_name: Object variable name in templates
-    :ivar email_context_data: Addition context data to pass to the templates
     """
 
     form_class = SendNotificationForm
-    template_name = 'core/send_email_form.html'
+    template_name = 'notifications/send_notification_form.html'
     action_name = 'send_email'
     notification_classes = []
-    email_context_object_name = 'object'
-    email_context_data = None
 
     def get_form_kwargs(self):
         """Override form kwargs based on input fields
@@ -50,13 +46,7 @@ class SendNotificationView(FormView):
         return initial
 
     def form_valid(self, form):
-        """If form is valid, send emails to selected recipients
-
-        This treats the body field as a string template, so full template tags
-        are allowed in the field.  The object will be available in the template
-        as the variable specified by the ``email_context_object_name`` class
-        variable.
-        """
+        """If form is valid, send notification to recipients"""
         count = 0
         notification_cls = form.cleaned_data['source']
         for obj in self.get_queryset().all():
