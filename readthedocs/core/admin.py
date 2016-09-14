@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.core.views import SendNotificationView
 from readthedocs.core.models import UserProfile
+from readthedocs.notifications.views import SendNotificationView
 from readthedocs.projects.models import Project
 
 
