@@ -713,7 +713,7 @@ class Project(models.Model):
                         "Update stable version: {project}:{version}".format(
                             project=self.slug,
                             version=new_stable.identifier))
-                    current_stable.identifier = new_stable.identifier
+                    current_stable.identifier = new_stable.verbose_name
                     current_stable.save()
                     return new_stable
             else:
@@ -723,7 +723,7 @@ class Project(models.Model):
                         version=new_stable.identifier))
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
-                    identifier=new_stable.identifier)
+                    identifier=new_stable.verbose_name)
                 return new_stable
 
     def versions_from_branch_name(self, branch):
