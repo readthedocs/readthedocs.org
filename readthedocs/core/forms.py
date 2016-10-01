@@ -1,7 +1,7 @@
 import logging
+
 from haystack.forms import SearchForm
 from haystack.query import SearchQuerySet
-
 from django import forms
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
@@ -101,28 +101,3 @@ class FacetedSearchForm(SearchForm):
             sqs = sqs.narrow(facet)
         self.searchqueryset = sqs
         return sqs
-
-
-class SendEmailForm(forms.Form):
-
-    """Send email form
-
-    Used for building an email notification to a list of users from admin pages
-
-    Fields:
-
-        _selected_action
-            This is required for the admin intermediate form to submit
-
-        subject
-            Email subject
-
-        body
-            Email body
-    """
-
-    _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
-
-    subject = forms.CharField(label=_('Email subject'), required=True)
-    body = forms.CharField(label=_('Email body'), widget=forms.Textarea,
-                           required=True)

@@ -8,18 +8,16 @@ import os
 import logging
 
 
-from django.contrib import admin, messages
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.template import RequestContext, Template, Context
+from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.core.utils import broadcast, send_email
-from readthedocs.core.forms import SendEmailForm
+from readthedocs.core.utils import broadcast
 from readthedocs.donate.mixins import DonateProgressMixin
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
@@ -124,107 +122,3 @@ def server_error_404(request, template_name='404.html'):
                            context_instance=RequestContext(request))
     r.status_code = 404
     return r
-
-
-class SendEmailView(FormView):
-
-    """Form view for sending emails to users from admin pages
-
-    Accepts the following additional parameters:
-
-    queryset
-        The queryset to use to determine the users to send emails to
-
-    :cvar action_name: Name of the action to pass to the form template,
-                       determines the action to pass back to the admin view
-    :cvar email_context_object_name: Object variable name in templates
-    :ivar email_context_data: Addition context data to pass to the templates
-    """
-
-    form_class = SendEmailForm
-    template_name = 'core/send_email_form.html'
-    action_name = 'send_email'
-    email_context_object_name = 'object'
-    email_context_data = None
-
-    def get_form_kwargs(self):
-        """Override form kwargs based on input fields
-
-        The admin posts to this view initially, so detect the send button on
-        form post variables. Drop additional fields if we see the send button.
-        """
-        kwargs = super(SendEmailView, self).get_form_kwargs()
-        if 'send' not in self.request.POST:
-            kwargs.pop('data', None)
-            kwargs.pop('files', None)
-        return kwargs
-
-    def get_initial(self):
-        """Add selected ids to initial form data"""
-        initial = super(SendEmailView, self).get_initial()
-        initial['_selected_action'] = self.request.POST.getlist(
-            admin.ACTION_CHECKBOX_NAME)
-        return initial
-
-    def form_valid(self, form):
-        """If form is valid, send emails to selected recipients
-
-        This treats the body field as a string template, so full template tags
-        are allowed in the field.  The object will be available in the template
-        as the variable specified by the ``email_context_object_name`` class
-        variable.
-        """
-        count = 0
-        template = Template(form.cleaned_data['body'])
-        for obj in self.get_queryset().all():
-            ctx = Context()
-            if self.email_context_data is not None:
-                ctx.update(self.email_context_data)
-            ctx[self.email_context_object_name] = obj
-            for recipient in self.get_object_recipients(obj):
-                send_email(
-                    recipient.email,
-                    subject=form.cleaned_data['subject'],
-                    template='core/email/common.txt',
-                    template_html='core/email/common.html',
-                    context={'content': template.render(ctx)},
-                    request=self.request,
-                )
-                count += 1
-        if count == 0:
-            self.message_user("No recipients to send to", level=messages.ERROR)
-        else:
-            self.message_user("Queued {0} messages".format(count))
-        return HttpResponseRedirect(self.request.get_full_path())
-
-    def get_object_recipients(self, obj):
-        """An iterator for each recipient address for an object
-
-        This allows for non-User querysets to pass back a list of users to send
-        to. By default, assume we're working with :py:class:`User` objects.
-        """
-        yield obj
-
-    def get_queryset(self):
-        return self.kwargs.get('queryset')
-
-    def get_context_data(self, **kwargs):
-        """Return queryset in context"""
-        context = super(SendEmailView, self).get_context_data(**kwargs)
-        recipients = []
-        for obj in self.get_queryset().all():
-            recipients.extend(self.get_object_recipients(obj))
-        context['recipients'] = recipients
-        context['action_name'] = self.action_name
-        return context
-
-    def message_user(self, message, level=messages.INFO, extra_tags='',
-                     fail_silently=False):
-        """Implementation of :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
-
-        Send message through messages framework
-        """
-        # TODO generalize this or check if implementation in ModelAdmin is
-        # useable here
-        messages.add_message(self.request, level, message, extra_tags=extra_tags,
-                             fail_silently=fail_silently)

@@ -6,9 +6,19 @@ from guardian.admin import GuardedModelAdmin
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
 from readthedocs.donate.models import ProjectImpressions
+from readthedocs.notifications.views import SendNotificationView
 
+from .notifications import ResourceUsageNotification
 from .models import (Project, ImportedFile,
                      ProjectRelationship, EmailHook, WebHook, Domain)
+
+
+class ProjectSendNotificationView(SendNotificationView):
+    notification_classes = [ResourceUsageNotification]
+
+    def get_object_recipients(self, obj):
+        for owner in obj.users.all():
+            yield owner
 
 
 class ProjectRelationshipInline(admin.TabularInline):
@@ -65,6 +75,15 @@ class ProjectAdmin(GuardedModelAdmin):
     inlines = [ProjectRelationshipInline, RedirectInline,
                VersionInline, DomainInline, ImpressionInline]
     raw_id_fields = ('users', 'main_language_project')
+    actions = ['send_owner_email']
+
+    def send_owner_email(self, request, queryset):
+        view = ProjectSendNotificationView.as_view(
+            action_name='send_owner_email'
+        )
+        return view(request, queryset=queryset)
+
+    send_owner_email.short_description = 'Notify project owners'
 
 
 class ImportedFileAdmin(admin.ModelAdmin):
