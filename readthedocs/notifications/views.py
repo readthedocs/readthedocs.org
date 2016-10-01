@@ -63,10 +63,19 @@ class SendNotificationView(FormView):
         return HttpResponseRedirect(self.request.get_full_path())
 
     def get_object_recipients(self, obj):
-        """An iterator for each recipient address for an object
+        """Iterate over queryset objects and return User objects
 
-        This allows for non-User querysets to pass back a list of users to send
-        to. By default, assume we're working with :py:class:`User` objects.
+        This allows for non-User querysets to pass back a list of Users to send
+        to. By default, assume we're working with :py:class:`User` objects and
+        just yield the single object.
+
+        For example, this could be made to return project owners with::
+
+            for owner in project.users.all():
+                yield owner
+
+        :param obj: object from queryset, type is dependent on model class
+        :rtype: django.contrib.auth.models.User
         """
         yield obj
 

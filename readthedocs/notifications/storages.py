@@ -12,6 +12,13 @@ class FallbackUniqueStorage(FallbackStorage):
     This loops through all backends to find messages to store, but will skip
     this step if the message already exists for the user in the database.
 
+    Deduplication is important here, as a persistent message may ask a user to
+    perform a specific action, such as change a build option.  Duplicated
+    messages would lead to confusing UX, where a duplicate message may not be
+    dismissed when the prescribed action is taken.  Instead of detecting
+    duplication while triggering the message, we handle this at the storage
+    level.
+
     This class also assumes that notifications set as persistent messages are
     more likely to have HTML that should be marked safe. If the level matches a
     persistent message level, mark the message text as safe so that we can
@@ -25,6 +32,9 @@ class FallbackUniqueStorage(FallbackStorage):
                              ._get(self, *args, **kwargs))
         safe_messages = []
         for message in messages:
+            # Handle all message types, if the message is persistent, take
+            # special action. As the default message handler, this will also
+            # process ephemeral messages
             if message.level in PERSISTENT_MESSAGE_LEVELS:
                 message_pk = message.pk
                 message = Message(message.level,

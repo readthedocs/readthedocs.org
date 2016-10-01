@@ -57,4 +57,11 @@ class Notification(object):
         )
 
     def send(self):
+        """Trigger notification send through all notification backends
+
+        In order to limit which backends a notification will send out from,
+        override this method and duplicate the logic from
+        :py:func:`send_notification`, taking care to limit which backends are
+        avoided.
+        """
         send_notification(self.request, self)
