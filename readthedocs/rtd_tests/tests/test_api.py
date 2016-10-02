@@ -2,6 +2,7 @@ import json
 import base64
 import datetime
 
+import mock
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
@@ -9,7 +10,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 from allauth.socialaccount.models import SocialAccount
 
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import Build, Version
+from readthedocs.projects.models import Project
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
@@ -289,3 +291,91 @@ class APIImportTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         repos = resp.data['results']
         self.assertEqual(len(repos), 0)
+
+
+@mock.patch('readthedocs.core.views.hooks.trigger_build')
+class IntegrationsTests(TestCase):
+
+    """Integration for webhooks, etc"""
+
+    fixtures = ['eric.json', 'test_data.json']
+
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, verbose_name='master', project=self.project)
+
+    def test_github_webhook(self, trigger_build):
+        """GitHub webhook API"""
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'master'},
+            format='json',
+        )
+        trigger_build.assert_has_calls([
+            mock.call(force=True, version=mock.ANY, project=self.project)
+        ])
+        resp = client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'non-existent'},
+            format='json',
+        )
+        trigger_build.assert_has_calls([
+            mock.call(force=True, version=mock.ANY, project=self.project)
+        ])
+
+    def test_gitlab_webhook(self, trigger_build):
+        """GitLab webhook API"""
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            {'object_kind': 'push', 'ref': 'master'},
+            format='json',
+        )
+        trigger_build.assert_has_calls([
+            mock.call(force=True, version=mock.ANY, project=self.project)
+        ])
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            {'object_kind': 'push', 'ref': 'non-existent'},
+            format='json',
+        )
+        trigger_build.assert_has_calls([
+            mock.call(force=True, version=mock.ANY, project=self.project)
+        ])
+
+    def test_bitbucket_webhook(self, trigger_build):
+        """Bitbucket webhook API"""
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            {
+                'push': {
+                    'changes': [{
+                        'new': {
+                            'name': 'master'
+                        }
+                    }]
+                }
+            },
+            format='json',
+        )
+        trigger_build.assert_has_calls([
+            mock.call(force=True, version=mock.ANY, project=self.project)
+        ])
+        resp = client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            {
+                'push': {
+                    'changes': [{
+                        'new': {
+                            'name': 'non-existent'
+                        }
+                    }]
+                }
+            },
+            format='json',
+        )
+        trigger_build.assert_has_calls([
+            mock.call(force=True, version=mock.ANY, project=self.project)
+        ])

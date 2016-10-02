@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect
@@ -58,7 +59,7 @@ def _build_version(project, slug, already_built=()):
         return None
 
 
-def _build_branches(project, branch_list):
+def build_branches(project, branch_list):
     """
     Build the branches for a specific project.
 
@@ -105,7 +106,7 @@ def _build_url(url, projects, branches):
     all_built = {}
     all_not_building = {}
     for project in projects:
-        (built, not_building) = _build_branches(project, branches)
+        (built, not_building) = build_branches(project, branches)
         if not built:
             # Call update_imported_docs to update tag/branch info
             update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
@@ -136,91 +137,135 @@ def _build_url(url, projects, branches):
 
 @csrf_exempt
 def github_build(request):
-    """A post-commit hook for github."""
+    """GitHub webhook consumer
+
+    This will search for projects matching either a stripped down HTTP or SSH
+    URL. The search is error prone, use the API v2 webhook for new webhooks.
+    """
     if request.method == 'POST':
         try:
-            # GitHub RTD integration
-            obj = json.loads(request.POST['payload'])
-        except:
-            # Generic post-commit hook
-            obj = json.loads(request.body)
-        repo_url = obj['repository']['url']
-        hacked_repo_url = repo_url.replace('http://', '').replace('https://', '')
-        ssh_url = obj['repository']['ssh_url']
-        hacked_ssh_url = ssh_url.replace('git@', '').replace('.git', '')
+            data = json.loads(request.body)
+        except (ValueError, TypeError):
+            log.error('Invalid GitHub webhook payload', exc_info=True)
+            return HttpResponse('Invalid request', status=400)
+        http_url = data['repository']['url']
+        http_search_url = http_url.replace('http://', '').replace('https://', '')
+        ssh_url = data['repository']['ssh_url']
+        ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
         try:
-            branch = obj['ref'].replace('refs/heads/', '')
+            branches = [data['ref'].replace('refs/heads/', '')]
         except KeyError:
-            response = HttpResponse('ref argument required to build branches.')
-            response.status_code = 400
-            return response
-
+            log.error('Invalid GitHub webhook payload', exc_info=True)
+            return HttpResponse('Invalid request', status=400)
         try:
-            repo_projects = get_project_from_url(hacked_repo_url)
+            repo_projects = get_project_from_url(http_search_url)
             if repo_projects:
-                log.info("(Incoming GitHub Build) %s [%s]" % (hacked_repo_url, branch))
-            ssh_projects = get_project_from_url(hacked_ssh_url)
+                log.info(
+                    'GitHub webhook search: url=%s branches=%s',
+                    http_search_url,
+                    branches
+                )
+            ssh_projects = get_project_from_url(ssh_search_url)
             if ssh_projects:
-                log.info("(Incoming GitHub Build) %s [%s]" % (hacked_ssh_url, branch))
+                log.info(
+                    'GitHub webhook search: url=%s branches=%s',
+                    ssh_search_url,
+                    branches
+                )
             projects = repo_projects | ssh_projects
-            return _build_url(hacked_repo_url, projects, [branch])
+            return _build_url(http_search_url, projects, branches)
         except NoProjectException:
-            log.error(
-                "(Incoming GitHub Build) Repo not found:  %s" % hacked_repo_url)
-            return HttpResponseNotFound('Repo not found: %s' % hacked_repo_url)
+            log.error('Project match not found: url=%s', http_search_url)
+            return HttpResponseNotFound('Project not found')
     else:
-        return HttpResponse("You must POST to this resource.")
+        return HttpResponse('Method not allowed', status=405)
 
 
 @csrf_exempt
 def gitlab_build(request):
-    """A post-commit hook for GitLab."""
+    """GitLab webhook consumer
+
+    Search project repository URLs using the site URL from GitLab webhook payload.
+    This search is error-prone, use the API v2 webhook view for new webhooks.
+    """
     if request.method == 'POST':
         try:
-            # GitLab RTD integration
-            obj = json.loads(request.POST['payload'])
-        except:
-            # Generic post-commit hook
-            obj = json.loads(request.body)
-        url = obj['repository']['homepage']
-        ghetto_url = url.replace('http://', '').replace('https://', '')
-        branch = obj['ref'].replace('refs/heads/', '')
-        log.info("(Incoming GitLab Build) %s [%s]" % (ghetto_url, branch))
-        projects = get_project_from_url(ghetto_url)
+            data = json.loads(request.body)
+        except (ValueError, TypeError):
+            log.error('Invalid GitLab webhook payload', exc_info=True)
+            return HttpResponse('Invalid request', status=400)
+        url = data['project']['http_url']
+        search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
+        branches = [data['ref'].replace('refs/heads/', '')]
+        log.info(
+            'GitLab webhook search: url=%s branches=%s',
+            search_url,
+            branches
+        )
+        projects = get_project_from_url(search_url)
         if projects:
-            return _build_url(ghetto_url, projects, [branch])
+            return _build_url(search_url, projects, branches)
         else:
-            log.error(
-                "(Incoming GitLab Build) Repo not found:  %s" % ghetto_url)
-            return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
+            log.error('Project match not found: url=%s', search_url)
+            return HttpResponseNotFound('Project match not found')
     else:
-        return HttpResponse("You must POST to this resource.")
+        return HttpResponse('Method not allowed', status=405)
 
 
 @csrf_exempt
 def bitbucket_build(request):
+    """Consume webhooks from multiple versions of Bitbucket's API
+
+    API v1
+        https://confluence.atlassian.com/bitbucket/events-resources-296095220.html
+
+    API v2
+        https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-Push
+    """
     if request.method == 'POST':
-        payload = request.POST.get('payload')
-        log.info("(Incoming Bitbucket Build) Raw: %s" % payload)
-        if not payload:
-            return HttpResponseNotFound('Invalid Request')
-        obj = json.loads(payload)
-        rep = obj['repository']
-        branches = [rec.get('branch', '') for rec in obj['commits']]
-        ghetto_url = "%s%s" % (
-            "bitbucket.org", rep['absolute_url'].rstrip('/'))
-        log.info("(Incoming Bitbucket Build) %s [%s]" % (
-            ghetto_url, ' '.join(branches)))
-        log.info("(Incoming Bitbucket Build) JSON: \n\n%s\n\n" % obj)
-        projects = get_project_from_url(ghetto_url)
+        try:
+            data = json.loads(request.body)
+        except (TypeError, ValueError):
+            log.error('Invalid Bitbucket webhook payload', exc_info=True)
+            return HttpResponse('Invalid request', status=400)
+
+        version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
+        if version == 1:
+            try:
+                branches = [commit.get('branch', '')
+                            for commit in data['commits']]
+                repository = data['repository']
+                search_url = 'bitbucket.org{0}'.format(
+                    repository['absolute_url'].rstrip('/')
+                )
+            except KeyError:
+                log.error('Invalid Bitbucket webhook payload', exc_info=True)
+                return HttpResponse('Invalid request', status=400)
+        elif version == 2:
+            try:
+                changes = data['push']['changes']
+                branches = [change['new']['name']
+                            for change in changes]
+                search_url = 'bitbucket.org/{0}'.format(
+                    data['repository']['full_name']
+                )
+            except KeyError:
+                log.error('Invalid Bitbucket webhook payload', exc_info=True)
+                return HttpResponse('Invalid request', status=400)
+        log.info(
+            'Bitbucket webhook search: url=%s branches=%s',
+            search_url,
+            branches
+        )
+        log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
+        projects = get_project_from_url(search_url)
         if projects:
-            return _build_url(ghetto_url, projects, branches)
+            return _build_url(search_url, projects, branches)
         else:
-            log.error(
-                "(Incoming Bitbucket Build) Repo not found:  %s" % ghetto_url)
-            return HttpResponseNotFound('Repo not found: %s' % ghetto_url)
+            log.error('Project match not found: url=%s', search_url)
+            return HttpResponseNotFound('Project match not found')
     else:
-        return HttpResponse("You must POST to this resource.")
+        return HttpResponse('Method not allowed', status=405)
 
 
 @csrf_exempt
