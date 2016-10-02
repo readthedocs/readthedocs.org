@@ -31,7 +31,7 @@ class WebhookMixin(object):
             raise Http404('Project does not exist')
         return Response(resp)
 
-    def handle_webhook(self, project, branch, event=GITHUB_PUSH, data=None):
+    def handle_webhook(self, request, project, data=None):
         """Handle webhook payload
 
         If a build is triggered from this method, return a JSON response with
@@ -43,7 +43,7 @@ class WebhookMixin(object):
                 "versions": [...]
             }
         """
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class GitHubWebhookView(WebhookMixin, APIView):
@@ -85,7 +85,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return {'build_triggered': triggered,
                     'project': project.slug,
                     'versions': to_build}
-        return {'build_triggered': false}
+        return {'build_triggered': False}
 
 
 class GitLabWebhookView(WebhookMixin, APIView):
@@ -126,7 +126,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             return {'build_triggered': triggered,
                     'project': project.slug,
                     'versions': to_build}
-        return {'build_triggered': false}
+        return {'build_triggered': False}
 
 
 class BitbucketWebhookView(WebhookMixin, APIView):
@@ -169,4 +169,4 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             return {'build_triggered': triggered,
                     'project': project.slug,
                     'versions': to_build}
-        return {'build_triggered': false}
+        return {'build_triggered': False}
