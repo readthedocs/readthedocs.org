@@ -205,8 +205,7 @@ class TestImportDemoView(MockBuildTestCase):
     def test_import_demo_pass(self):
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         'http://testserver/projects/eric-demo/')
+        self.assertEqual(resp['Location'], '/projects/eric-demo/')
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
@@ -219,8 +218,7 @@ class TestImportDemoView(MockBuildTestCase):
 
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         'http://testserver/projects/eric-demo/')
+        self.assertEqual(resp['Location'], '/projects/eric-demo/')
 
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
@@ -239,8 +237,7 @@ class TestImportDemoView(MockBuildTestCase):
         self.client.login(username='test', password='test')
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         'http://testserver/projects/test-demo/')
+        self.assertEqual(resp['Location'], '/projects/test-demo/')
 
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
@@ -256,8 +253,7 @@ class TestImportDemoView(MockBuildTestCase):
 
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         'http://testserver/projects/eric-demo/')
+        self.assertEqual(resp['Location'], '/projects/eric-demo/')
 
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)
@@ -283,8 +279,7 @@ class TestImportDemoView(MockBuildTestCase):
 
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'],
-                         'http://testserver/dashboard/')
+        self.assertEqual(resp['Location'], '/dashboard/')
 
         resp_redir = self.client.get(resp['Location'])
         self.assertEqual(resp_redir.status_code, 200)

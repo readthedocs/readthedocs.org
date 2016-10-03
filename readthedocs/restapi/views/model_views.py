@@ -35,13 +35,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     filter_class = ProjectFilter
-    model = Project
     paginate_by = 100
     paginate_by_param = 'page_size'
     max_paginate_by = 1000
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return Project.objects.api(self.request.user)
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
@@ -165,19 +164,17 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     filter_class = VersionFilter
-    model = Version
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return Version.objects.api(self.request.user)
 
 
 class BuildViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
-    model = Build
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return Build.objects.api(self.request.user)
 
     def get_serializer_class(self):
         """Vary serializer class based on user status
@@ -194,19 +191,17 @@ class BuildCommandViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
-    model = BuildCommandResult
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return BuildCommandResult.objects.api(self.request.user)
 
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
     renderer_classes = (JSONRenderer,)
-    model = EmailHook
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return EmailHook.objects.api(self.request.user)
 
 
 class DomainViewSet(viewsets.ModelViewSet):
@@ -214,21 +209,19 @@ class DomainViewSet(viewsets.ModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
     filter_class = DomainFilter
-    model = Domain
 
     def get_queryset(self):
-        return self.model.objects.api(self.request.user)
+        return Domain.objects.api(self.request.user)
 
 
 class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwner]
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
-    model = RemoteOrganization
     paginate_by = 25
 
     def get_queryset(self):
-        return (self.model.objects.api(self.request.user)
+        return (RemoteOrganization.objects.api(self.request.user)
                 .filter(account__provider__in=[service.adapter.provider_id
                                                for service in registry]))
 
@@ -237,10 +230,9 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsOwner]
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
-    model = RemoteRepository
 
     def get_queryset(self):
-        query = self.model.objects.api(self.request.user)
+        query = RemoteRepository.objects.api(self.request.user)
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)

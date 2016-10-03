@@ -1,5 +1,6 @@
 """Public project views"""
 
+from collections import OrderedDict
 import operator
 import os
 import json
@@ -16,7 +17,6 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import cache_control
 from django.views.generic import ListView, DetailView
-from django.utils.datastructures import SortedDict
 from django.views.decorators.cache import cache_page
 
 from taggit.models import Tag
@@ -138,7 +138,7 @@ def project_downloads(request, project_slug):
     """A detail view for a project with various dataz"""
     project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     versions = Version.objects.public(user=request.user, project=project)
-    version_data = SortedDict()
+    version_data = OrderedDict()
     for version in versions:
         data = version.get_downloads()
         # Don't show ones that have no downloads.

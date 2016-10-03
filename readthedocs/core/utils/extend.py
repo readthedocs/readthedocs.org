@@ -3,7 +3,7 @@
 import inspect
 
 from django.conf import settings
-from django.utils.module_loading import import_by_path
+from django.utils.module_loading import import_string
 from django.utils.functional import LazyObject
 
 
@@ -45,7 +45,7 @@ class SettingsOverrideObject(LazyObject):
         if cls_path is None and self._override_setting is not None:
             cls_path = getattr(settings, self._override_setting, None)
         if cls_path is not None:
-            cls = import_by_path(cls_path)
+            cls = import_string(cls_path)
         self._wrapped = cls()
 
     def _get_class_id(self):
