@@ -59,9 +59,6 @@ class URLAccessMixin(object):
         if self.context_data and getattr(response, 'context'):
             self._test_context(response)
         for (key, val) in response_attrs.items():
-            if getattr(response, key) != val:
-                from pdb import set_trace
-                set_trace()
             self.assertEqual(getattr(response, key), val)
         return response
 
