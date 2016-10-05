@@ -324,6 +324,18 @@ class IntegrationsTests(TestCase):
             mock.call(force=True, version=mock.ANY, project=self.project)
         ])
 
+    def test_github_invalid_webhook(self, trigger_build):
+        """GitHub webhook unhandled event"""
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'foo': 'bar'},
+            format='json',
+            HTTP_X_GITHUB_EVENT='pull_request',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
     def test_gitlab_webhook(self, trigger_build):
         """GitLab webhook API"""
         client = APIClient()
@@ -343,6 +355,17 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_has_calls([
             mock.call(force=True, version=mock.ANY, project=self.project)
         ])
+
+    def test_gitlab_invalid_webhook(self, trigger_build):
+        """GitLab webhook unhandled event"""
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            {'object_kind': 'pull_request'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API"""
@@ -379,3 +402,15 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_has_calls([
             mock.call(force=True, version=mock.ANY, project=self.project)
         ])
+
+    def test_bitbucket_invalid_webhook(self, trigger_build):
+        """Bitbucket webhook unhandled event"""
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            {'foo': 'bar'},
+            format='json',
+            HTTP_X_EVENT_KEY='pull_request'
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')

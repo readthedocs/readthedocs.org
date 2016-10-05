@@ -1,9 +1,10 @@
-from django.test import TestCase
 import json
 import logging
-import mock
+from urllib import urlencode
 
+import mock
 from django_dynamic_fixture import get
+from django.test import TestCase
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
@@ -209,6 +210,17 @@ class GitHubPostCommitTest(BasePostCommitTest):
             }
         }
 
+    def test_post_types(self):
+        """Ensure various POST formats"""
+        r = self.client.post('/github/',
+                             data=json.dumps(self.payload),
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.post('/github/',
+                             data=urlencode({'payload': json.dumps(self.payload)}),
+                             content_type='application/x-www-form-urlencoded')
+        self.assertEqual(r.status_code, 200)
+
     def test_github_upper_case_repo(self):
         """
         Test the github post commit hook will build properly with upper case
@@ -403,6 +415,17 @@ class BitBucketHookTests(BasePostCommitTest):
             },
             "user": "marcus"
         }
+
+    def test_post_types(self):
+        """Ensure various POST formats"""
+        r = self.client.post('/bitbucket/',
+                             data=json.dumps(self.hg_payload),
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.post('/bitbucket/',
+                             data=urlencode({'payload': json.dumps(self.hg_payload)}),
+                             content_type='application/x-www-form-urlencoded')
+        self.assertEqual(r.status_code, 200)
 
     def test_bitbucket_post_commit(self):
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),

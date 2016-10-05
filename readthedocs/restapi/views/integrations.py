@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
@@ -13,6 +15,8 @@ from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
 from readthedocs.projects.models import Project
 
 
+log = logging.getLogger(__name__)
+
 GITHUB_PUSH = 'push'
 GITLAB_PUSH = 'push'
 BITBUCKET_PUSH = 'repo:push'
@@ -27,23 +31,41 @@ class WebhookMixin(object):
         try:
             project = Project.objects.get(slug=project_slug)
             resp = self.handle_webhook(request, project, request.data)
+            if resp is None:
+                log.info('Unhandled webhook event')
+                resp = {'detail': 'Unhandled webhook event'}
         except Project.DoesNotExist:
             raise Http404('Project does not exist')
         return Response(resp)
 
     def handle_webhook(self, request, project, data=None):
-        """Handle webhook payload
+        """Handle webhook payload"""
+        raise NotImplementedError
 
-        If a build is triggered from this method, return a JSON response with
-        the following::
+    def get_response_push(self, project, branches):
+        """Build branches on push events and return API response
+
+        Return a JSON response with the following::
 
             {
                 "build_triggered": true,
                 "project": "project_name",
                 "versions": [...]
             }
+
+        :param project: Project instance
+        :type project: Project
+        :param branches: List of branch names to build
+        :type branches: list(str)
         """
-        raise NotImplementedError
+        to_build, not_building = build_branches(project, branches)
+        if not_building:
+            log.info('Skipping project branches: project=%s branches=%s',
+                     project, branches)
+        triggered = True if to_build else False
+        return {'build_triggered': triggered,
+                'project': project.slug,
+                'versions': to_build}
 
 
 class GitHubWebhookView(WebhookMixin, APIView):
@@ -60,14 +82,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
             "ref": "branch-name",
             ...
         }
-
-    If a build is triggered, this will return JSON with the following::
-
-        {
-            "build_triggered": true,
-            "project": "project_name",
-            "versions": [...]
-        }
     """
 
     def handle_webhook(self, request, project, data=None):
@@ -75,17 +89,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
         event = request.META.get('HTTP_X_GITHUB_EVENT', 'push')
         webhook_github.send(Project, project=project, data=data, event=event)
         # Handle push events and trigger builds
-        try:
-            branches = [request.data['ref'].replace('refs/heads/', '')]
-        except KeyError:
-            raise ParseError('Parameter "ref" is required')
         if event == GITHUB_PUSH:
-            to_build, not_building = build_branches(project, branches)
-            triggered = True if to_build else False
-            return {'build_triggered': triggered,
-                    'project': project.slug,
-                    'versions': to_build}
-        return {'build_triggered': False}
+            try:
+                branches = [request.data['ref'].replace('refs/heads/', '')]
+                return self.get_response_push(project, branches)
+            except KeyError:
+                raise ParseError('Parameter "ref" is required')
 
 
 class GitLabWebhookView(WebhookMixin, APIView):
@@ -101,14 +110,6 @@ class GitLabWebhookView(WebhookMixin, APIView):
             "ref": "branch-name",
             ...
         }
-
-    If a build is triggered, this will return JSON with the following::
-
-        {
-            "build_triggered": true,
-            "project": "project_name",
-            "versions": [...]
-        }
     """
 
     def handle_webhook(self, request, project, data=None):
@@ -116,17 +117,12 @@ class GitLabWebhookView(WebhookMixin, APIView):
         event = data.get('object_kind', GITLAB_PUSH)
         webhook_gitlab.send(Project, project=project, data=data, event=event)
         # Handle push events and trigger builds
-        try:
-            branches = [request.data['ref'].replace('refs/heads/', '')]
-        except KeyError:
-            raise ParseError('Parameter "ref" is required')
         if event == GITLAB_PUSH:
-            to_build, not_building = build_branches(project, branches)
-            triggered = True if to_build else False
-            return {'build_triggered': triggered,
-                    'project': project.slug,
-                    'versions': to_build}
-        return {'build_triggered': False}
+            try:
+                branches = [request.data['ref'].replace('refs/heads/', '')]
+                return self.get_response_push(project, branches)
+            except KeyError:
+                raise ParseError('Parameter "ref" is required')
 
 
 class BitbucketWebhookView(WebhookMixin, APIView):
@@ -162,11 +158,6 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 changes = data['push']['changes']
                 branches = [change['new']['name']
                             for change in changes]
+                return self.get_response_push(project, branches)
             except KeyError:
                 raise ParseError('Invalid request')
-            to_build, not_building = build_branches(project, branches)
-            triggered = True if to_build else False
-            return {'build_triggered': triggered,
-                    'project': project.slug,
-                    'versions': to_build}
-        return {'build_triggered': False}

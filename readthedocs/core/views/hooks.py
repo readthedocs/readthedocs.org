@@ -141,20 +141,24 @@ def github_build(request):
 
     This will search for projects matching either a stripped down HTTP or SSH
     URL. The search is error prone, use the API v2 webhook for new webhooks.
+
+    Old webhooks may not have specified the content type to POST with, and
+    therefore can use ``application/x-www-form-urlencoded`` to pass the JSON
+    payload. More information on the API docs here:
+    https://developer.github.com/webhooks/creating/#content-type
     """
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-        except (ValueError, TypeError):
-            log.error('Invalid GitHub webhook payload', exc_info=True)
-            return HttpResponse('Invalid request', status=400)
-        http_url = data['repository']['url']
-        http_search_url = http_url.replace('http://', '').replace('https://', '')
-        ssh_url = data['repository']['ssh_url']
-        ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
-        try:
+            if request.META['CONTENT_TYPE'] == 'application/x-www-form-urlencoded':
+                data = json.loads(request.POST.get('payload'))
+            else:
+                data = json.loads(request.body)
+            http_url = data['repository']['url']
+            http_search_url = http_url.replace('http://', '').replace('https://', '')
+            ssh_url = data['repository']['ssh_url']
+            ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
             branches = [data['ref'].replace('refs/heads/', '')]
-        except KeyError:
+        except (ValueError, TypeError, KeyError):
             log.error('Invalid GitHub webhook payload', exc_info=True)
             return HttpResponse('Invalid request', status=400)
         try:
@@ -178,7 +182,7 @@ def github_build(request):
             log.error('Project match not found: url=%s', http_search_url)
             return HttpResponseNotFound('Project not found')
     else:
-        return HttpResponse('Method not allowed', status=405)
+        return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt
@@ -191,12 +195,12 @@ def gitlab_build(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-        except (ValueError, TypeError):
+            url = data['project']['http_url']
+            search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
+            branches = [data['ref'].replace('refs/heads/', '')]
+        except (ValueError, TypeError, KeyError):
             log.error('Invalid GitLab webhook payload', exc_info=True)
             return HttpResponse('Invalid request', status=400)
-        url = data['project']['http_url']
-        search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
-        branches = [data['ref'].replace('refs/heads/', '')]
         log.info(
             'GitLab webhook search: url=%s branches=%s',
             search_url,
@@ -209,49 +213,52 @@ def gitlab_build(request):
             log.error('Project match not found: url=%s', search_url)
             return HttpResponseNotFound('Project match not found')
     else:
-        return HttpResponse('Method not allowed', status=405)
+        return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt
 def bitbucket_build(request):
     """Consume webhooks from multiple versions of Bitbucket's API
 
+    New webhooks are set up with v2, but v1 webhooks will still point to this
+    endpoint. There are also "services" that point here and submit
+    ``application/x-www-form-urlencoded`` data.
+
     API v1
         https://confluence.atlassian.com/bitbucket/events-resources-296095220.html
 
     API v2
         https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-Push
+
+    Services
+        https://confluence.atlassian.com/bitbucket/post-service-management-223216518.html
     """
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-        except (TypeError, ValueError):
-            log.error('Invalid Bitbucket webhook payload', exc_info=True)
-            return HttpResponse('Invalid request', status=400)
+            if request.META['CONTENT_TYPE'] == 'application/x-www-form-urlencoded':
+                data = json.loads(request.POST.get('payload'))
+            else:
+                data = json.loads(request.body)
 
-        version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
-        if version == 1:
-            try:
+            version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
+            if version == 1:
                 branches = [commit.get('branch', '')
                             for commit in data['commits']]
                 repository = data['repository']
                 search_url = 'bitbucket.org{0}'.format(
                     repository['absolute_url'].rstrip('/')
                 )
-            except KeyError:
-                log.error('Invalid Bitbucket webhook payload', exc_info=True)
-                return HttpResponse('Invalid request', status=400)
-        elif version == 2:
-            try:
+            elif version == 2:
                 changes = data['push']['changes']
                 branches = [change['new']['name']
                             for change in changes]
                 search_url = 'bitbucket.org/{0}'.format(
                     data['repository']['full_name']
                 )
-            except KeyError:
-                log.error('Invalid Bitbucket webhook payload', exc_info=True)
-                return HttpResponse('Invalid request', status=400)
+        except (TypeError, ValueError, KeyError):
+            log.error('Invalid Bitbucket webhook payload', exc_info=True)
+            return HttpResponse('Invalid request', status=400)
+
         log.info(
             'Bitbucket webhook search: url=%s branches=%s',
             search_url,
@@ -265,7 +272,7 @@ def bitbucket_build(request):
             log.error('Project match not found: url=%s', search_url)
             return HttpResponseNotFound('Project match not found')
     else:
-        return HttpResponse('Method not allowed', status=405)
+        return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt
