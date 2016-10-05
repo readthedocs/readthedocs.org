@@ -5,6 +5,7 @@ import json
 import re
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -169,9 +170,19 @@ class GitHubService(Service):
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
         data = json.dumps({
-            'name': 'readthedocs',
+            'name': 'web',
             'active': True,
-            'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
+            'config': {
+                'url': 'https://{domain}{path}'.format(
+                    domain=settings.PRODUCTION_DOMAIN,
+                    path=reverse(
+                        'api_webhook_github',
+                        kwargs={'project_slug': project.slug}
+                    )
+                ),
+                'content_type': 'json',
+            },
+            'events': ['push', 'pull_request'],
         })
         resp = None
         try:
@@ -213,5 +224,5 @@ class GitHubService(Service):
                     if tokens.exists():
                         token = tokens[0].token
         except Exception:
-            log.error('Failed to get token for user', exc_info=True)
+            log.error('Failed to get token for project', exc_info=True)
         return token

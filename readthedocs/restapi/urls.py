@@ -2,16 +2,18 @@ from django.conf.urls import url, include
 
 from rest_framework import routers
 
+from readthedocs.constants import pattern_opts
+from readthedocs.comments.views import CommentViewSet
+from readthedocs.restapi import views
+from readthedocs.restapi.views import (
+    core_views, footer_views, search_views, task_views, integrations
+)
+
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
                                 VersionViewSet, DomainViewSet,
                                 RemoteOrganizationViewSet,
                                 RemoteRepositoryViewSet)
-from readthedocs.comments.views import CommentViewSet
-from readthedocs.restapi import views
-from readthedocs.restapi.views import (
-    core_views, footer_views, search_views, task_views,
-)
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet)
@@ -57,6 +59,28 @@ task_urls = [
         name='api_sync_remote_repositories'),
 ]
 
+integration_urls = [
+    url(r'webhook/github/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.GitHubWebhookView.as_view(),
+        name='api_webhook_github'),
+    url(r'webhook/gitlab/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.GitLabWebhookView.as_view(),
+        name='api_webhook_gitlab'),
+    url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.BitbucketWebhookView.as_view(),
+        name='api_webhook_bitbucket'),
+]
+
 urlpatterns += function_urls
 urlpatterns += search_urls
 urlpatterns += task_urls
+urlpatterns += integration_urls
+
+try:
+    from readthedocsext.search.docsearch import DocSearch
+    api_search_urls = [
+        url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
+    ]
+    urlpatterns += api_search_urls
+except ImportError:
+    pass
