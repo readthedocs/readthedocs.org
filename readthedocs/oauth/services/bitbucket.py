@@ -5,6 +5,7 @@ import json
 import re
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter)
@@ -185,7 +186,13 @@ class BitbucketService(Service):
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         data = json.dumps({
             'description': 'Read the Docs ({domain})'.format(domain=settings.PRODUCTION_DOMAIN),
-            'url': 'https://{domain}/bitbucket'.format(domain=settings.PRODUCTION_DOMAIN),
+            'url': 'https://{domain}{path}'.format(
+                domain=settings.PRODUCTION_DOMAIN,
+                path=reverse(
+                    'api_webhook_bitbucket',
+                    kwargs={'project_slug': project.slug}
+                )
+            ),
             'active': True,
             'events': ['repo:push'],
         })

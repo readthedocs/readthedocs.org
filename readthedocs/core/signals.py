@@ -1,6 +1,7 @@
 import logging
 from urlparse import urlparse
 
+from django.dispatch import Signal
 from corsheaders import signals
 
 from readthedocs.projects.models import Project, Domain
@@ -8,6 +9,11 @@ from readthedocs.projects.models import Project, Domain
 log = logging.getLogger(__name__)
 
 WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search', '/api/v2/docsearch']
+
+
+webhook_github = Signal(providing_args=['project', 'data', 'event'])
+webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
+webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
 
 
 def decide_if_cors(sender, request, **kwargs):
