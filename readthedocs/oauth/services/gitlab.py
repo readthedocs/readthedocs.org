@@ -4,11 +4,15 @@ import logging
 import json
 import re
 
+try:
+    from urlparse import urljoin, urlparse
+except ImportError:
+    from urllib.parse import urljoin, urlparse  # noqa
+
 from django.conf import settings
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
-from urlparse import urljoin
 
 from readthedocs.restapi.client import api
 
@@ -23,7 +27,9 @@ class GitLabService(Service):
     """Provider service for GitLab"""
 
     adapter = GitLabOAuth2Adapter
-    url_pattern = re.compile(re.escape(adapter.provider_base_url))
+    # Just use the network location to determine if it's a GitLab project
+    # because private repos have another base url, eg. git@gitlab.example.com
+    url_pattern = re.compile(re.escape(urlparse(adapter.provider_base_url).netloc))
     default_avatar = {
         'repo': urljoin(settings.MEDIA_URL, 'images/fa-bookmark.svg'),
         'org':  urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
@@ -172,10 +178,17 @@ class GitLabService(Service):
         :rtype: bool
         """
         session = self.get_session()
+        resp = None
+        repositories = RemoteRepository.objects.filter(clone_url=project.vcs_repo().repo_url)
 
+        if not repositories.exists():
+            log.error('GitLab remote repository not found')
+            return False, resp
+
+        repo_id = repositories[0].get_serialized()['id']
         # See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
         data = json.dumps({
-            'id': 'readthedocs',
+            'id': repo_id,
             'push_events': True,
             'issues_events': False,
             'merge_requests_events': False,
@@ -183,13 +196,8 @@ class GitLabService(Service):
             'tag_push_events': True,
             'url': u'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
         })
-        resp = None
+
         try:
-            repositories = RemoteRepository.objects.filter(
-                clone_url=project.vcs_repo().repo_url
-            )
-            assert repositories
-            repo_id = repositories[0].get_serialized()['id']
             resp = session.post(
                 u'{url}/api/v3/projects/{repo_id}/hooks'.format(
                     url=self.adapter.provider_base_url,
@@ -199,19 +207,13 @@ class GitLabService(Service):
                 headers={'content-type': 'application/json'}
             )
             if resp.status_code == 201:
-                log.info('GitLab webhook creation successful for project: %s',  # noqa
-                         project)
-                return (True, resp)
-        except (AssertionError,  RemoteRepository.DoesNotExist) as ex:
-            log.error('GitLab remote repository not found', exc_info=ex)
-        except RequestException as ex:
-            pass
+                log.info('GitLab webhook creation successful for project: %s', project)
+                return True, resp
+        except RequestException:
+            log.error('GitLab webhook creation failed for project: %s', project, exc_info=True)
         else:
-            ex = False
-
-        log.error('GitLab webhook creation failed for project: %s',  # noqa
-                  project, exc_info=ex)
-        return (False, resp)
+            log.error('GitLab webhook creation failed for project: %s', project)
+        return False, resp
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
