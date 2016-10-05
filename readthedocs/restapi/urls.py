@@ -57,6 +57,16 @@ task_urls = [
         name='api_sync_remote_repositories'),
 ]
 
+
 urlpatterns += function_urls
 urlpatterns += search_urls
 urlpatterns += task_urls
+
+try:
+    from readthedocsext.search.docsearch import DocSearch
+    api_search_urls = [
+        url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
+    ]
+    urlpatterns += api_search_urls
+except ImportError:
+    pass

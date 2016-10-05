@@ -1,6 +1,8 @@
 User-defined Redirects
 ======================
 
+You can set up redirects for a project on the project's Admin page.
+
 Prefix Redirects
 ----------------
 
