@@ -30,6 +30,9 @@ class Notification(object):
         return {
             self.context_object_name: self.object,
             'request': self.request,
+            'production_uri':'{scheme}://{host}'.format(
+                scheme='https', host=settings.PRODUCTION_DOMAIN
+            )
         }
 
     def get_template_names(self, backend_name, source_format=HTML):
