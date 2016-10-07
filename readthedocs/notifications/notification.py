@@ -30,7 +30,7 @@ class Notification(object):
         return {
             self.context_object_name: self.object,
             'request': self.request,
-            'production_uri':'{scheme}://{host}'.format(
+            'production_uri': '{scheme}://{host}'.format(
                 scheme='https', host=settings.PRODUCTION_DOMAIN
             )
         }
