@@ -37,7 +37,9 @@ class NotificationTests(TestCase):
         self.assertEqual(notify.get_subject(),
                          'This is {0}'.format(build.id))
         self.assertEqual(notify.get_context_data(),
-                         {'foo': build, 'request': req})
+                         {'foo': build,
+                          'production_uri': 'https://readthedocs.org',
+                          'request': req})
 
         notify.render('site')
         render_to_string.assert_has_calls([
