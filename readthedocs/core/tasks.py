@@ -41,7 +41,7 @@ def send_email_task(recipient, subject, template, template_html, context=None):
     )
     try:
         msg.attach_alternative(get_template(template_html).render(context),
-                            'text/html')
+                               'text/html')
     except TemplateDoesNotExist:
         pass
     msg.send()
