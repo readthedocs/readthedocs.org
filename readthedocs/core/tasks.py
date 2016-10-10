@@ -6,6 +6,7 @@ from celery import task
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
+from django.template import TemplateDoesNotExist
 
 
 log = logging.getLogger(__name__)
@@ -38,7 +39,10 @@ def send_email_task(recipient, subject, template, template_html, context=None):
         settings.DEFAULT_FROM_EMAIL,
         [recipient]
     )
-    msg.attach_alternative(get_template(template_html).render(context),
-                           'text/html')
+    try:
+        msg.attach_alternative(get_template(template_html).render(context),
+                            'text/html')
+    except TemplateDoesNotExist:
+        pass
     msg.send()
     log.info('Sent email to recipient: %s', recipient)
