@@ -295,6 +295,9 @@ class APIMixin(URLAccessMixin):
             'api_project_search': {'status_code': 400},
             'api_section_search': {'status_code': 400},
             'api_sync_remote_repositories': {'status_code': 403},
+            'api_webhook_github': {'status_code': 405},
+            'api_webhook_gitlab': {'status_code': 405},
+            'api_webhook_bitbucket': {'status_code': 405},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
         }

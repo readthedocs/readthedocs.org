@@ -240,6 +240,7 @@ class CommunityBaseSettings(Settings):
     DOCKER_IMAGE = 'readthedocs/build:14.04'
 
     # All auth
+    ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     ACCOUNT_EMAIL_VERIFICATION = "mandatory"
     ACCOUNT_AUTHENTICATION_METHOD = "username_email"
