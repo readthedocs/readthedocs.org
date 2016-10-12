@@ -1,5 +1,8 @@
 """Allauth overrides"""
 
+import pickle
+import logging
+
 from allauth.account.adapter import DefaultAccountAdapter
 from django.template.loader import render_to_string
 
@@ -9,6 +12,8 @@ try:
     from django.utils.encoding import force_text
 except ImportError:
     from django.utils.encoding import force_unicode as force_text
+
+log = logging.getLogger(__name__)
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -24,6 +29,19 @@ class AccountAdapter(DefaultAccountAdapter):
         )
         subject = " ".join(subject.splitlines()).strip()
         subject = self.format_email_subject(subject)
+
+        # Allauth sends some additional data in the context, remove it if the
+        # pieces can't be pickled
+        removed_keys = []
+        for key in context.keys():
+            try:
+                _ = pickle.dumps(context[key])
+            except pickle.PickleError:
+                removed_keys.append(key)
+                del context[key]
+        if removed_keys:
+            log.debug('Removed context we were unable to serialize: %s',
+                      removed_keys)
 
         send_email(
             recipient=email,
