@@ -260,12 +260,12 @@ class RedirectBuildTests(TestCase):
     def test_redirect_list(self):
         r = self.client.get('/builds/project-1/')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/')
+        self.assertEqual(r['Location'], '/projects/project-1/builds/')
 
     def test_redirect_detail(self):
         r = self.client.get('/builds/project-1/1337/')
         self.assertEqual(r.status_code, 301)
-        self.assertEqual(r['Location'], 'http://testserver/projects/project-1/builds/1337/')
+        self.assertEqual(r['Location'], '/projects/project-1/builds/1337/')
 
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)

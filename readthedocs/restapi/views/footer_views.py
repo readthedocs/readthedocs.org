@@ -4,8 +4,9 @@ from django.conf import settings
 
 
 from rest_framework import decorators, permissions
-from rest_framework.renderers import JSONPRenderer, JSONRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework_jsonp.renderers import JSONPRenderer
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
