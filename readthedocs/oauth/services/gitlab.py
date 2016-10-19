@@ -42,7 +42,7 @@ class GitLabService(Service):
         :param url: start url to get the data from.
         :param kwargs: optional parameters passed to .get() method
 
-        See http://doc.gitlab.com/ce/api/README.html#pagination
+        See https://docs.gitlab.com/ce/api/README.html#pagination
         """
         resp = self.get_session().get(url, data=kwargs)
         result = resp.json()
@@ -79,7 +79,7 @@ class GitLabService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
-        # See: http://doc.gitlab.com/ce/api/projects.html#projects
+        # See: https://docs.gitlab.com/ce/api/projects.html#projects
         repo_is_public = fields['visibility_level'] == 20
 
         def is_owned_by(owner_id):
