@@ -43,8 +43,8 @@ you can point it at ``https://readthedocs.org/bitbucket``.
 GitLab
 ------
 
-If your project is hosted on GitLab, you can manually set the webhook on Gitlab and
-point it at ``https://readthedocs.org/gitlab``:
+If your project is hosted on GitLab.com, you can manually set the webhook on
+Gitlab.com and point it at ``https://readthedocs.org/gitlab``:
 
 * Click the settings icon for your project
 * Select "Webhooks"
