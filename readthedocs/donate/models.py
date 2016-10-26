@@ -72,9 +72,9 @@ class SupporterPromo(models.Model):
                                     choices=DISPLAY_CHOICES, default='doc')
     sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000)
     sold_days = models.IntegerField(_('Sold Days'), default=30)
-    programming_languages = models.CharField(_('Programming Languages'), max_length=200,
-                                             choices=PROGRAMMING_LANGUAGES, default=None,
-                                             blank=True, null=True)
+    programming_language = models.CharField(_('Programming Languages'), max_length=200,
+                                            choices=PROGRAMMING_LANGUAGES, default=None,
+                                            blank=True, null=True)
     live = models.BooleanField(_('Live'), default=False)
 
     class Meta:

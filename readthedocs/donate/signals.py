@@ -38,8 +38,8 @@ def show_to_programming_language(promo, programming_language):
     which means show to all languages.
     """
 
-    if promo.programming_languages.count():
-        return programming_language in promo.programming_languages
+    if promo.programming_language:
+        return programming_language == promo.programming_language
     return True
 
 
@@ -96,17 +96,14 @@ def get_promo(country_code, programming_language, gold_project=False, gold_user=
 
     filtered_promos = []
     for obj in promo_queryset:
-        filtered = False
-        if country_code:
-            filtered = True
-            if show_to_geo(obj, country_code):
-                filtered_promos.append(obj)
-        if programming_language:
-            filtered = True
-            if show_to_programming_language(obj, country_code):
-                filtered_promos.append(obj)
-        if not filtered:
-            filtered_promos.append(obj)
+        # Break out if we aren't meant to show to this language
+        if programming_language and not show_to_programming_language(obj, country_code):
+                continue
+        # Break out if we aren't meant to show to this country
+        if country_code and not show_to_geo(obj, country_code):
+                continue
+        # If we haven't bailed because of language or country, possibly show the promo
+        filtered_promos.append(obj)
 
     promo_obj = choose_promo(filtered_promos)
 
