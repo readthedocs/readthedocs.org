@@ -42,12 +42,12 @@ class Command(BaseCommand):
                 print 'No GitHub repo for %s' % repo_url
                 continue
 
-            headers = {'Authorization': 'token {token}'.format(token=token)}
             url = 'https://api.github.com/repos/{user}/{repo}/languages'.format(
                 user=user,
                 repo=repo,
             )
-
+            # We need this to get around GitHub's rate limiting
+            headers = {'Authorization': 'token {token}'.format(token=token)}
             resp = requests.get(url, headers=headers)
             languages = resp.json()
             sorted_langs = sorted(languages.items(), key=lambda x: x[1], reverse=True)
