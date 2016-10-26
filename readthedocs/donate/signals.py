@@ -30,6 +30,19 @@ def show_to_geo(promo, country_code):
     return True
 
 
+def show_to_programming_language(promo, programming_language):
+    """
+    Filter a promo by a specific programming language
+
+    Return True if we haven't set a specific language,
+    which means show to all languages.
+    """
+
+    if promo.programming_languages.count():
+        return programming_language in promo.programming_languages
+    return True
+
+
 def choose_promo(promo_list):
     """
     This is the algorithm to pick which promo to show.
@@ -67,7 +80,7 @@ def choose_promo(promo_list):
     return None
 
 
-def get_promo(country_code, gold_project=False, gold_user=False):
+def get_promo(country_code, programming_language, gold_project=False, gold_user=False):
     """
     Get a proper promo.
 
@@ -76,19 +89,26 @@ def get_promo(country_code, gold_project=False, gold_user=False):
     * Gold User status
     * Gold Project status
     * Geo
+    * Programming Language
     """
 
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
 
-    filtered_objects = []
+    filtered_promos = []
     for obj in promo_queryset:
+        filtered = False
         if country_code:
+            filtered = True
             if show_to_geo(obj, country_code):
-                filtered_objects.append(obj)
-        else:
-            filtered_objects.append(obj)
+                filtered_promos.append(obj)
+        if programming_language:
+            filtered = True
+            if show_to_programming_language(obj, country_code):
+                filtered_promos.append(obj)
+        if not filtered:
+            filtered_promos.append(obj)
 
-    promo_obj = choose_promo(filtered_objects)
+    promo_obj = choose_promo(filtered_promos)
 
     # Show a random house ad if we don't have anything else
     if not promo_obj:
@@ -161,6 +181,7 @@ def attach_promo_data(sender, **kwargs):
     if show_promo:
         promo_obj = get_promo(
             country_code=country_code,
+            programming_language=project.programming_language,
             gold_project=gold_project,
             gold_user=gold_user,
         )
