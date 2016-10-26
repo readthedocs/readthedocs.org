@@ -22,10 +22,12 @@ class Command(BaseCommand):
     Requies a ``GITHUB_AUTH_TOKEN`` to be set in the environment,
     which should contain a proper GitHub Oauth Token for rate limiting.
     """
+
     def handle(self, *args, **options):
         token = os.environ.get('GITHUB_AUTH_TOKEN')
         if not token:
             print 'Invalid GitHub token, exiting'
+            return
 
         for project in Project.objects.filter(programming_language__in=['', 'words']):
             user = repo = ''
