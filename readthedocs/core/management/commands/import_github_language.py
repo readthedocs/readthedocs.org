@@ -13,6 +13,15 @@ for slug, name in PROGRAMMING_LANGUAGES:
 
 
 class Command(BaseCommand):
+    """
+    Import a project's programming language from GitHub.
+
+    This builds a basic management command that will set
+    a projects language to the most used one in GitHub.
+
+    Requies a ``GITHUB_AUTH_TOKEN`` to be set in the environment,
+    which should contain a proper GitHub Oauth Token for rate limiting.
+    """
     def handle(self, *args, **options):
         token = os.environ.get('GITHUB_AUTH_TOKEN')
         if not token:
