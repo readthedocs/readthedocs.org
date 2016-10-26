@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='supporterpromo',
-            name='programming_languages',
-            field=models.CharField(default=None, choices=[(b'words', b'Only Words'), (b'py', b'Python'), (b'js', b'Javascript'), (b'php', b'PHP'), (b'ruby', b'Ruby'), (b'perl', b'Perl'), (b'java', b'Java'), (b'go', b'Go'), (b'julia', b'Julia'), (b'c', b'C'), (b'csharp', b'C#'), (b'cpp', b'C++'), (b'objc', b'Objective-C'), (b'other', b'Other')], max_length=200, blank=True, null=True, verbose_name='Programming Languages'),
+            name='programming_language',
+            field=models.CharField(default=None, choices=[(b'words', b'Only Words'), (b'py', b'Python'), (b'js', b'Javascript'), (b'php', b'PHP'), (b'ruby', b'Ruby'), (b'perl', b'Perl'), (b'java', b'Java'), (b'go', b'Go'), (b'julia', b'Julia'), (b'c', b'C'), (b'csharp', b'C#'), (b'cpp', b'C++'), (b'objc', b'Objective-C'), (b'other', b'Other')], max_length=200, blank=True, null=True, verbose_name='Programming Language'),
         ),
     ]

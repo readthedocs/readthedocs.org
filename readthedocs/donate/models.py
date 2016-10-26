@@ -72,7 +72,7 @@ class SupporterPromo(models.Model):
                                     choices=DISPLAY_CHOICES, default='doc')
     sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000)
     sold_days = models.IntegerField(_('Sold Days'), default=30)
-    programming_language = models.CharField(_('Programming Languages'), max_length=200,
+    programming_language = models.CharField(_('Programming Language'), max_length=200,
                                             choices=PROGRAMMING_LANGUAGES, default=None,
                                             blank=True, null=True)
     live = models.BooleanField(_('Live'), default=False)
@@ -217,8 +217,7 @@ class GeoFilter(models.Model):
                               blank=True, null=True)
     filter_type = models.CharField(_('Filter Type'), max_length=20,
                                    choices=FILTER_CHOICES, default='')
-    countries = models.ManyToManyField(Country, related_name='filters',
-                                       blank=True)
+    countries = models.ManyToManyField(Country, related_name='filters')
 
     @property
     def codes(self):
@@ -228,8 +227,5 @@ class GeoFilter(models.Model):
         return ret
 
     def __unicode__(self):
-        codes = []
-        for code in self.countries.values_list('country'):
-            codes.append(code[0])
         return "Filter for {promo} that {type}s: {countries}".format(
-            promo=self.promo.name, type=self.filter_type, countries=','.join(codes))
+            promo=self.promo.name, type=self.filter_type, countries=self.codes)
