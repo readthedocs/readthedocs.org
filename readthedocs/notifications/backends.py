@@ -75,4 +75,5 @@ class SiteBackend(Backend):
             ),
             level=LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT),
             extra_tags='',
+            user=notification.user,
         )
