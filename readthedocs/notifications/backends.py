@@ -1,9 +1,9 @@
 """Notification to message backends"""
 
 from django.conf import settings
-from django.contrib.messages import add_message
 from django.utils.module_loading import import_string
 from messages_extends.constants import INFO_PERSISTENT
+from messages_extends import add_message
 
 from readthedocs.core.utils import send_email
 
@@ -75,4 +75,5 @@ class SiteBackend(Backend):
             ),
             level=LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT),
             extra_tags='',
+            user=notification.user,
         )
