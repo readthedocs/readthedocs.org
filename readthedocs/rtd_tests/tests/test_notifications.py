@@ -4,6 +4,7 @@ import mock
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib.auth.models import User
 
 from readthedocs.notifications import Notification
 from readthedocs.notifications.backends import EmailBackend, SiteBackend
@@ -76,11 +77,13 @@ class NotificationBackendTests(TestCase):
             context_object_name = 'foo'
 
         build = fixture.get(Build)
+        user = fixture.get(User)
         req = mock.MagicMock()
-        notify = TestNotification(object=build, request=req)
+        notify = TestNotification(object=build, request=req, user=user)
         backend = SiteBackend(request=req)
         backend.send(notify)
 
         add_message.assert_has_calls([
-            mock.call(level=21, request=req, message=mock.ANY, extra_tags='')
+            mock.call(level=21, request=req, message=mock.ANY, extra_tags='',
+                      user=user)
         ])
