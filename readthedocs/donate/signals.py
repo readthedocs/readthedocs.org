@@ -30,6 +30,19 @@ def show_to_geo(promo, country_code):
     return True
 
 
+def show_to_programming_language(promo, programming_language):
+    """
+    Filter a promo by a specific programming language
+
+    Return True if we haven't set a specific language,
+    which means show to all languages.
+    """
+
+    if promo.programming_language:
+        return programming_language == promo.programming_language
+    return True
+
+
 def choose_promo(promo_list):
     """
     This is the algorithm to pick which promo to show.
@@ -67,7 +80,7 @@ def choose_promo(promo_list):
     return None
 
 
-def get_promo(country_code, gold_project=False, gold_user=False):
+def get_promo(country_code, programming_language, gold_project=False, gold_user=False):
     """
     Get a proper promo.
 
@@ -76,19 +89,23 @@ def get_promo(country_code, gold_project=False, gold_user=False):
     * Gold User status
     * Gold Project status
     * Geo
+    * Programming Language
     """
 
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
 
-    filtered_objects = []
+    filtered_promos = []
     for obj in promo_queryset:
-        if country_code:
-            if show_to_geo(obj, country_code):
-                filtered_objects.append(obj)
-        else:
-            filtered_objects.append(obj)
+        # Break out if we aren't meant to show to this language
+        if obj.programming_language and not show_to_programming_language(obj, programming_language):
+            continue
+        # Break out if we aren't meant to show to this country
+        if country_code and not show_to_geo(obj, country_code):
+            continue
+        # If we haven't bailed because of language or country, possibly show the promo
+        filtered_promos.append(obj)
 
-    promo_obj = choose_promo(filtered_objects)
+    promo_obj = choose_promo(filtered_promos)
 
     # Show a random house ad if we don't have anything else
     if not promo_obj:
@@ -161,6 +178,7 @@ def attach_promo_data(sender, **kwargs):
     if show_promo:
         promo_obj = get_promo(
             country_code=country_code,
+            programming_language=project.programming_language,
             gold_project=gold_project,
             gold_user=gold_user,
         )

@@ -259,7 +259,7 @@ LANGUAGES_REGEX = "|".join(
 PROGRAMMING_LANGUAGES = (
     ("words", "Only Words"),
     ("py", "Python"),
-    ("js", "Javascript"),
+    ("js", "JavaScript"),
     ("php", "PHP"),
     ("ruby", "Ruby"),
     ("perl", "Perl"),
