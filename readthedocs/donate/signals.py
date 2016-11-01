@@ -97,7 +97,7 @@ def get_promo(country_code, programming_language, gold_project=False, gold_user=
     filtered_promos = []
     for obj in promo_queryset:
         # Break out if we aren't meant to show to this language
-        if programming_language and not show_to_programming_language(obj, programming_language):
+        if obj.programming_language and not show_to_programming_language(obj, programming_language):
             continue
         # Break out if we aren't meant to show to this country
         if country_code and not show_to_geo(obj, country_code):
