@@ -50,13 +50,14 @@ class Command(BaseCommand):
             headers = {'Authorization': 'token {token}'.format(token=token)}
             resp = requests.get(url, headers=headers)
             languages = resp.json()
+            if not languages:
+                continue
             sorted_langs = sorted(languages.items(), key=lambda x: x[1], reverse=True)
             print 'Sorted langs: %s ' % sorted_langs
             top_lang = sorted_langs[0][0]
             if top_lang in PL_DICT:
                 slug = PL_DICT[top_lang]
                 print 'Setting %s to %s' % (repo_url, slug)
-                project.programming_language = slug
-                project.save()
+                Project.objects.filter(pk=project.pk).update(programming_language=slug)
             else:
                 print 'Language unknown: %s' % top_lang
