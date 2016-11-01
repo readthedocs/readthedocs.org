@@ -13,7 +13,7 @@ from django_dynamic_fixture import get
 from .models import (SupporterPromo, GeoFilter, Country,
                      CLICKS, VIEWS, OFFERS,
                      INCLUDE, EXCLUDE)
-from .signals import show_to_geo, get_promo, choose_promo
+from .signals import show_to_geo, get_promo, choose_promo, show_to_programming_language
 from readthedocs.projects.models import Project
 
 
@@ -197,7 +197,9 @@ class FilterTests(TestCase):
                          slug='promo-slug',
                          link='http://example.com',
                          live=True,
-                         image='http://media.example.com/img.png')
+                         programming_language='py',
+                         image='http://media.example.com/img.png'
+                         )
         self.filter = get(GeoFilter,
                           promo=self.promo,
                           countries=[us, ca, mx],
@@ -209,6 +211,7 @@ class FilterTests(TestCase):
                           slug='promo2-slug',
                           link='http://example.com',
                           live=True,
+                          programming_language='js',
                           image='http://media.example.com/img.png')
         self.filter2 = get(GeoFilter,
                            promo=self.promo2,
@@ -216,7 +219,7 @@ class FilterTests(TestCase):
                            filter_type=EXCLUDE,
                            )
 
-        self.pip = get(Project, slug='pip', allow_promos=True)
+        self.pip = get(Project, slug='pip', allow_promos=True, programming_language='py')
 
     def test_include(self):
         # US view
@@ -257,6 +260,19 @@ class FilterTests(TestCase):
 
         ret = get_promo('RANDOM')
         self.assertEqual(ret, self.promo2)
+
+    def test_programming_language(self):
+        ret = show_to_programming_language(self.promo, 'py')
+        self.assertTrue(ret)
+
+        ret = show_to_programming_language(self.promo, 'js')
+        self.assertFalse(ret)
+
+        ret = show_to_programming_language(self.promo2, 'py')
+        self.assertTrue(ret)
+
+        ret = show_to_programming_language(self.promo2, 'js')
+        self.assertFalse(ret)
 
 
 class ProbabilityTests(TestCase):
