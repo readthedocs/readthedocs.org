@@ -49,10 +49,10 @@ class ImpressionInline(admin.TabularInline):
 
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
-    list_display = ('name', 'display_type', 'live',
-                    'click_ratio', 'sold_impressions', 'total_views')
+    list_display = ('name', 'live', 'click_ratio', 'sold_impressions',
+                    'total_views', 'total_clicks')
     list_filter = ('live', 'display_type')
-    readonly_fields = ('total_views',)
+    readonly_fields = ('total_views', 'total_clicks')
     inlines = [ImpressionInline, GeoFilterInline]
     actions = [set_default_countries]
 
@@ -64,6 +64,9 @@ class SupporterPromoAdmin(admin.ModelAdmin):
 
     def total_views(self, instance):
         return sum(imp.views for imp in instance.impressions.all())
+
+    def total_clicks(self, instance):
+        return sum(imp.clicks for imp in instance.impressions.all())
 
 admin.site.register(Supporter, SupporterAdmin)
 admin.site.register(SupporterPromo, SupporterPromoAdmin)
