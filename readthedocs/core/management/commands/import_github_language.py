@@ -72,3 +72,4 @@ class Command(BaseCommand):
                 Project.objects.filter(pk=project.pk).update(programming_language=slug)
             else:
                 print 'Language unknown: %s' % top_lang
+            CACHE[cache_key] = top_lang
