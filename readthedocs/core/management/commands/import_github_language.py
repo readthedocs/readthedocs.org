@@ -2,6 +2,7 @@ import os
 import requests
 
 from django.core.management.base import BaseCommand
+from django.core.cache import cache
 
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import GITHUB_REGEXS, PROGRAMMING_LANGUAGES
@@ -11,7 +12,6 @@ PL_DICT = {}
 for slug, name in PROGRAMMING_LANGUAGES:
     PL_DICT[name] = slug
 
-CACHE = {}
 
 
 class Command(BaseCommand):
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 continue
 
             cache_key = '%s-%s' % (user, repo)
-            top_lang = CACHE.get(cache_key, None)
+            top_lang = cache.get(cache_key, None)
             if not top_lang:
                 url = 'https://api.github.com/repos/{user}/{repo}/languages'.format(
                     user=user,
@@ -72,4 +72,4 @@ class Command(BaseCommand):
                 Project.objects.filter(pk=project.pk).update(programming_language=slug)
             else:
                 print 'Language unknown: %s' % top_lang
-            CACHE[cache_key] = top_lang
+            cache.set(cache_key, top_lang, 60 * 600)
