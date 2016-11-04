@@ -13,7 +13,6 @@ for slug, name in PROGRAMMING_LANGUAGES:
     PL_DICT[name] = slug
 
 
-
 class Command(BaseCommand):
     """
     Import a project's programming language from GitHub.
