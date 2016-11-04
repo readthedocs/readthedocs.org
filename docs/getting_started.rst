@@ -76,8 +76,12 @@ Then in your ``conf.py``:
     source_suffix = ['.rst', '.md']
 
 .. note:: Markdown doesn't support a lot of the features of Sphinx,
-          like inline markup and directives.
-          However, it works for basic prose content.
+          like inline markup and directives. However, it works for
+          basic prose content. reStructuredText is the preferred
+          format for technical documentation, please read `this blog post`_
+          for motivation.
+
+.. _this blog post: http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
 .. _import-docs:
 
@@ -96,13 +100,13 @@ you'd use to checkout, clone, or branch your code. Some examples:
 
 Add an optional homepage URL and some tags, then click "Create".
 
-Within a few seconds your code will automatically be fetched from your public repository, 
-and the documentation will be built. 
-Check out our :doc:`builds` page to learn more about how we build your docs, 
+Within a few seconds your code will automatically be fetched from your public repository,
+and the documentation will be built.
+Check out our :doc:`builds` page to learn more about how we build your docs,
 and to troubleshoot any issues that arise.
 
-If you want to keep your code updated as you commit, 
-configure your code repository to hit our `Post Commit Hooks`_. 
+If you want to keep your code updated as you commit,
+configure your code repository to hit our `Post Commit Hooks`_.
 This will rebuild your docs every time you push your code.
 
 We support multiple versions of your code. You can read more about how to use this well on our :doc:`versions` page.
@@ -122,4 +126,4 @@ If you have any more trouble, don't hesitate to reach out to us. The :doc:`suppo
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard
 .. _Import: http://readthedocs.org/dashboard/import
-.. _Post Commit Hooks: http://readthedocs.org/docs/read-the-docs/en/latest/webhooks.html 
+.. _Post Commit Hooks: http://readthedocs.org/docs/read-the-docs/en/latest/webhooks.html
