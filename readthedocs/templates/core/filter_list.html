@@ -1,6 +1,6 @@
 {% load i18n %}
 
-        {% for obj in filter %}
+        {% for obj in filter.qs %}
         <li class="module-item col-span">
             <div id="obj-{{ obj.id }}">
                 <a href="{{ obj.get_absolute_url }}">
