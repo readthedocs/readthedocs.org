@@ -15,10 +15,26 @@ from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Project
 
 from .models import Supporter, SupporterPromo, CLICKS, VIEWS
-from .forms import SupporterForm
+from .forms import SupporterForm, EthicalAdForm
 from .mixins import DonateProgressMixin
 
 log = logging.getLogger(__name__)
+
+
+class PayAdsView(StripeMixin, CreateView):
+
+    """Create a donation locally and in Stripe"""
+
+    form_class = EthicalAdForm
+    success_message = _('Your payment has been received')
+    template_name = 'donate/ethicalads.html'
+
+    def get_success_url(self):
+        return reverse('pay_success')
+
+
+class PaySuccess(TemplateView):
+    template_name = 'donate/ethicalads-success.html'
 
 
 class DonateCreateView(StripeMixin, CreateView):

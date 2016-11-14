@@ -86,3 +86,47 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
             supporter.user = self.user
             supporter.save()
         return supporter
+
+
+class EthicalAdForm(StripeResourceMixin, StripeModelForm):
+
+    """Payment form for ethical ads
+
+    This extends the basic payment form, giving fields for credit card number,
+    expiry, and CVV. The proper Knockout data bindings are established on
+    :py:class:`StripeModelForm`
+    """
+
+    class Meta:
+        model = Supporter
+        fields = (
+            'last_4_digits',
+            'name',
+            'email',
+            'dollars',
+        )
+        help_texts = {
+            'email': _('Your email is used so we can send you a receipt'),
+        }
+        widgets = {
+            'dollars': forms.HiddenInput(attrs={
+                'data-bind': 'value: dollars'
+            }),
+            'last_4_digits': forms.TextInput(attrs={
+                'data-bind': 'valueInit: card_digits, value: card_digits'
+            }),
+        }
+
+    last_4_digits = forms.CharField(widget=forms.HiddenInput(), required=True)
+    name = forms.CharField(required=True)
+    email = forms.CharField(required=True)
+
+    def validate_stripe(self):
+        """Call stripe for payment (not ideal here) and clean up logo < $200"""
+        stripe.Charge.create(
+            amount=int(self.cleaned_data['dollars']) * 100,
+            currency='usd',
+            source=self.cleaned_data['stripe_token'],
+            description='Read the Docs Ethical Ads',
+            receipt_email=self.cleaned_data['email']
+        )
