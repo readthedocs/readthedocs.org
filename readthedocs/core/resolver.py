@@ -186,8 +186,7 @@ class ResolverBase(object):
         if '.' in filename and '.html' not in filename:
             return filename
         filename = filename.lstrip('/')
-        filename = re.sub('index.html$', '', filename)
-        filename = re.sub('index$', '', filename)
+        filename = re.sub(r'(^|/)index(?:.html)?$', '\\1', filename)
         if filename:
             if filename.endswith('/') or filename.endswith('.html'):
                 path = filename
