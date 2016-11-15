@@ -76,8 +76,14 @@ class Backend(BaseVCS):
                                   self.repo_url, '.')
         if code != 0:
             raise ProjectImportError(
-                "Failed to get code from '%s' (git clone): %s" % (
-                    self.repo_url, code)
+                (
+                    "Failed to get code from '{url}' (git clone): {exit}\n\n"
+                    "git clone error output: {sterr}"
+                ).format(
+                    url=self.repo_url,
+                    exit=code,
+                    sterr=err
+                )
             )
 
     @property
