@@ -50,6 +50,13 @@ class SmartResolverPathTests(ResolverBase):
             url = resolve_path(project=self.pip, filename='foo/index/index.html')
             self.assertEqual(url, '/docs/pip/en/latest/foo/index/')
 
+    def test_resolver_filename_false_index(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_path(project=self.pip, filename='foo/foo_index.html')
+            self.assertEqual(url, '/docs/pip/en/latest/foo/foo_index.html')
+            url = resolve_path(project=self.pip, filename='foo_index/foo_index.html')
+            self.assertEqual(url, '/docs/pip/en/latest/foo_index/foo_index.html')
+
     def test_resolver_filename_sphinx(self):
         self.pip.documentation_type = 'sphinx'
         with override_settings(USE_SUBDOMAIN=False):
