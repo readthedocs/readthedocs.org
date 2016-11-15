@@ -178,15 +178,20 @@ class Conda(PythonEnvironment):
             # Re-create conda directory each time to keep fresh state
             self._log('Removing existing conda directory')
             shutil.rmtree(version_path)
+
+        conda_cmd = [
+            'conda', 'env', 'create', '--prefix', self.venv_path(),
+            '--file', self.config.conda_file
+        ]
+
+        if self.config.conda_channels is not None:
+            for channel in self.config.conda_channels:
+                conda_cmd.append('-c')
+                conda_cmd.append(channel)
+
         self.build_env.run(
-            'conda',
-            'env',
-            'create',
-            '--name',
-            self.version.slug,
-            '--file',
-            self.config.conda_file,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
+            *conda_cmd
         )
 
     def install_core_requirements(self):
@@ -206,8 +211,8 @@ class Conda(PythonEnvironment):
             'conda',
             'install',
             '--yes',
-            '--name',
-            self.version.slug,
+            '--prefix',
+            self.venv_path(),
         ]
         cmd.extend(requirements)
         self.build_env.run(
@@ -238,12 +243,5 @@ class Conda(PythonEnvironment):
         )
 
     def install_user_requirements(self):
-        self.build_env.run(
-            'conda',
-            'env',
-            'update',
-            '--name',
-            self.version.slug,
-            '--file',
-            self.config.conda_file,
-        )
+        # User requirements are installed during the conda create
+        pass

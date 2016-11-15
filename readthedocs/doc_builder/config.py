@@ -88,6 +88,13 @@ class ConfigWrapper(object):
             return None
 
     @property
+    def conda_channels(self):
+        if 'channels' in self._yaml_config.get('conda', []):
+            return self._yaml_config['conda']['channels']
+        else:
+            return None
+
+    @property
     def requirements_file(self):
         if 'requirements_file' in self._yaml_config:
             return self._yaml_config['requirements_file']
