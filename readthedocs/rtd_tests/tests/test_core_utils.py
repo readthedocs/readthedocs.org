@@ -84,10 +84,10 @@ class CoreUtilTests(TestCase):
         self.assertEqual(slugify('This is a test'),
                          'this-is-a-test')
         self.assertEqual(slugify('project_with_underscores-v.1.0'),
-                         'project_with_underscores-v10')
-        self.assertEqual(slugify('project_with_underscores-v.1.0', dns_safe=True),
                          'project-with-underscores-v10')
+        self.assertEqual(slugify('project_with_underscores-v.1.0', dns_safe=False),
+                         'project_with_underscores-v10')
         self.assertEqual(slugify('A title_-_with separated parts'),
-                         'a-title_-_with-separated-parts')
-        self.assertEqual(slugify('A title_-_with separated parts', dns_safe=True),
                          'a-title-with-separated-parts')
+        self.assertEqual(slugify('A title_-_with separated parts', dns_safe=False),
+                         'a-title_-_with-separated-parts')

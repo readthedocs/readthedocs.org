@@ -145,7 +145,7 @@ def slugify(value, *args, **kwargs):
 
     :param dns_safe: Remove underscores from slug as well
     """
-    dns_safe = kwargs.pop('dns_safe', False)
+    dns_safe = kwargs.pop('dns_safe', True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
         value = mark_safe(re.sub('[-_]+', '-', value))

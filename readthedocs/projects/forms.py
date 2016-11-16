@@ -88,7 +88,7 @@ class ProjectBasicsForm(ProjectForm):
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
-            potential_slug = slugify(name, dns_safe=True)
+            potential_slug = slugify(name)
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _('Invalid project name, a project already exists with that name'))
