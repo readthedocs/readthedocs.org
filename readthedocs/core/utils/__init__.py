@@ -152,10 +152,4 @@ def slugify(value, *args, **kwargs):
     return value
 
 
-def slugify_dns_safe(value, *args, **kwargs):
-    kwargs['dns_safe'] = True
-    return slugify(value, *args, **kwargs)
-
-
 slugify = allow_lazy(slugify, six.text_type, SafeText)
-slugify_dns_safe = allow_lazy(slugify_dns_safe, six.text_type, SafeText)
