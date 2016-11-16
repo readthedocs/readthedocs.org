@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 class PayAdsView(StripeMixin, CreateView):
 
-    """Create a donation locally and in Stripe"""
+    """Create a payment locally and in Stripe"""
 
     form_class = EthicalAdForm
     success_message = _('Your payment has been received')

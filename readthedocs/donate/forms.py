@@ -122,11 +122,10 @@ class EthicalAdForm(StripeResourceMixin, StripeModelForm):
     email = forms.CharField(required=True)
 
     def validate_stripe(self):
-        """Call stripe for payment (not ideal here) and clean up logo < $200"""
         stripe.Charge.create(
             amount=int(self.cleaned_data['dollars']) * 100,
             currency='usd',
             source=self.cleaned_data['stripe_token'],
-            description='Read the Docs Ethical Ads',
+            description='Read the Docs Sponsorship Payment',
             receipt_email=self.cleaned_data['email']
         )
