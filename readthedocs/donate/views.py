@@ -82,7 +82,12 @@ class PromoDetailView(TemplateView):
 
     def get_context_data(self, promo_slug):
         slugs = promo_slug.split(',')
-        return {'promos': SupporterPromo.objects.filter(analytics_id__in=slugs)}
+        days = int(self.request.GET.get('days', 90))
+        return {
+            'promos': SupporterPromo.objects.filter(analytics_id__in=slugs),
+            'days': days,
+            'days_slice': ':%s' % days,
+        }
 
 
 def click_proxy(request, promo_id, hash):
