@@ -77,6 +77,14 @@ class DonateListView(DonateProgressMixin, ListView):
         return [self.template_name]
 
 
+class PromoDetailView(TemplateView):
+    template_name = 'donate/promo_detail.html'
+
+    def get_context_data(self, promo_slug):
+        slugs = promo_slug.split(',')
+        return {'promos': SupporterPromo.objects.filter(analytics_id__in=slugs)}
+
+
 def click_proxy(request, promo_id, hash):
     promo = get_object_or_404(SupporterPromo, pk=promo_id)
     count = cache.get(promo.cache_key(type=CLICKS, hash=hash), None)

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Promo Detail" %}{% endblock %}
+
+{% block content %}
+
+<h1> Promo Results </h1>
+
+{% for promo in promos %}
+
+<h3>
+Results for {{ promo.name }}
+</h3>
+
+<table>
+  <tr>
+    <th>Day (UTC)</th>
+    <th>Views</th> 
+    <th>Clicks</th>
+    <th>CTR</th>
+  </tr>
+  {% for day in promo.impressions.all %}
+  <tr>
+    <td>{{ day.date }}</td>
+    <td><code>{{ day.views }}</code></td> 
+    <td><code>{{ day.clicks }}</code></td>
+    <td><code>{{ day.click_ratio }}%</code></td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endfor %}
+
+{% endblock %}
