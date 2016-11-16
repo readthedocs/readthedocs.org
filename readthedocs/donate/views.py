@@ -80,7 +80,8 @@ class DonateListView(DonateProgressMixin, ListView):
 class PromoDetailView(TemplateView):
     template_name = 'donate/promo_detail.html'
 
-    def get_context_data(self, promo_slug):
+    def get_context_data(self, **kwargs):
+        promo_slug = kwargs['promo_slug']
         slugs = promo_slug.split(',')
         days = int(self.request.GET.get('days', 90))
         return {
