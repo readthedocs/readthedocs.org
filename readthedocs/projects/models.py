@@ -10,14 +10,13 @@ from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
-from readthedocs.core.utils import broadcast
+from readthedocs.core.utils import broadcast, slugify
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.privacy.loader import (RelatedProjectManager, ProjectManager,
@@ -304,7 +303,7 @@ class Project(models.Model):
         first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
-            self.slug = slugify(self.name).replace('_', '-')
+            self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
         super(Project, self).save(*args, **kwargs)

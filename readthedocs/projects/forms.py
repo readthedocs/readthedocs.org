@@ -6,7 +6,6 @@ from urlparse import urlparse
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -15,7 +14,7 @@ from textclassifier.validators import ClassifierValidator
 from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import TAG
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_build, slugify
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
@@ -89,7 +88,7 @@ class ProjectBasicsForm(ProjectForm):
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
-            potential_slug = slugify(name)
+            potential_slug = slugify(name, dns_safe=True)
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _('Invalid project name, a project already exists with that name'))

@@ -1,10 +1,14 @@
 import getpass
 import logging
 import os
-
+import re
 from urlparse import urlparse
 
 from django.conf import settings
+from django.utils import six
+from django.utils.functional import allow_lazy
+from django.utils.safestring import SafeText, mark_safe
+from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
@@ -134,3 +138,24 @@ def send_email(recipient, subject, template, template_html, context=None,
     context['uri'] = '{scheme}://{host}'.format(
         scheme='https', host=settings.PRODUCTION_DOMAIN)
     send_email_task.delay(recipient, subject, template, template_html, context)
+
+
+def slugify(value, *args, **kwargs):
+    """Add a DNS safe option to slugify
+
+    :param dns_safe: Remove underscores from slug as well
+    """
+    dns_safe = kwargs.pop('dns_safe', False)
+    value = slugify_base(value, *args, **kwargs)
+    if dns_safe:
+        value = mark_safe(re.sub('[-_]+', '-', value))
+    return value
+
+
+def slugify_dns_safe(value, *args, **kwargs):
+    kwargs['dns_safe'] = True
+    return slugify(value, *args, **kwargs)
+
+
+slugify = allow_lazy(slugify, six.text_type, SafeText)
+slugify_dns_safe = allow_lazy(slugify_dns_safe, six.text_type, SafeText)
