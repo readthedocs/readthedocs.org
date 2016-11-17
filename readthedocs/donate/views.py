@@ -84,8 +84,14 @@ class PromoDetailView(TemplateView):
         promo_slug = kwargs['promo_slug']
         slugs = promo_slug.split(',')
         days = int(self.request.GET.get('days', 90))
+
+        if promo_slug == 'live' and self.request.user.is_staff:
+            promos = SupporterPromo.objects.filter(live=True)
+        else:
+            promos = SupporterPromo.objects.filter(analytics_id__in=slugs)
+
         return {
-            'promos': SupporterPromo.objects.filter(analytics_id__in=slugs),
+            'promos': promos,
             'days': days,
             'days_slice': ':%s' % days,
         }
