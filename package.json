@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "Read the Docs build dependencies",
   "author": "Anthony Johnson <anthony@readthedocs.com>",
-  "dependencies": {},
+  "dependencies": {
+    "cssfilter": "0.0.8"
+  },
   "devDependencies": {
     "bower": "*",
     "bower-resolve": "^2.2.1",
