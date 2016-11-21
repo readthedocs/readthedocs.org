@@ -164,7 +164,9 @@ class SupporterPromo(models.Model):
         return sum(imp.clicks for imp in self.impressions.all())
 
     def total_click_ratio(self):
-        return '%.4f' % (float(self.total_clicks()) / float(self.total_views()))
+        return '%.4f' % float(
+            (float(self.total_clicks()) / float(self.total_views())) * 100
+        )
 
 
 class BaseImpression(models.Model):
@@ -188,7 +190,9 @@ class BaseImpression(models.Model):
     def click_ratio(self):
         if self.views == 0:
             return 0  # Don't divide by 0
-        return float(self.clicks) / float(self.views)
+        return float(
+            float(self.clicks) / float(self.views) * 100
+        )
 
 
 class PromoImpressions(BaseImpression):
