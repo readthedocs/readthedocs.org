@@ -2,7 +2,8 @@
  * Sphinx search overrides
  */
 
-var rtddata = require('./rtd-data');
+var rtddata = require('./rtd-data'),
+    xss = require('xss/lib/index');
 
 
 function init() {
@@ -62,7 +63,7 @@ function attach_elastic_search_query(data) {
                         }
                         if (highlight.content.length) {
                             var content = $('<div class="context">')
-                                .html(highlight.content[0]);
+                                .html(xss(highlight.content[0]));
                             content.find('em').addClass('highlighted');
                             list_item.append(content);
                         }
