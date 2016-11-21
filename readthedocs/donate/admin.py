@@ -63,11 +63,6 @@ class SupporterPromoAdmin(admin.ModelAdmin):
     def click_ratio(self, instance):
         return instance.click_ratio() * 100
 
-    def total_views(self, instance):
-        return sum(imp.views for imp in instance.impressions.all())
-
-    def total_clicks(self, instance):
-        return sum(imp.clicks for imp in instance.impressions.all())
 
 admin.site.register(Supporter, SupporterAdmin)
 admin.site.register(SupporterPromo, SupporterPromoAdmin)

@@ -157,6 +157,15 @@ class SupporterPromo(models.Model):
             return 0
         return ret
 
+    def total_views(self):
+        return sum(imp.views for imp in self.impressions.all())
+
+    def total_clicks(self):
+        return sum(imp.clicks for imp in self.impressions.all())
+
+    def total_click_ratio(self):
+        return '%.4f' % (float(self.total_clicks()) / float(self.total_views()))
+
 
 class BaseImpression(models.Model):
     date = models.DateField(_('Date'))

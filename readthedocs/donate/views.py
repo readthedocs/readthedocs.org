@@ -15,10 +15,26 @@ from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Project
 
 from .models import Supporter, SupporterPromo, CLICKS, VIEWS
-from .forms import SupporterForm
+from .forms import SupporterForm, EthicalAdForm
 from .mixins import DonateProgressMixin
 
 log = logging.getLogger(__name__)
+
+
+class PayAdsView(StripeMixin, CreateView):
+
+    """Create a payment locally and in Stripe"""
+
+    form_class = EthicalAdForm
+    success_message = _('Your payment has been received')
+    template_name = 'donate/ethicalads.html'
+
+    def get_success_url(self):
+        return reverse('pay_success')
+
+
+class PaySuccess(TemplateView):
+    template_name = 'donate/ethicalads-success.html'
 
 
 class DonateCreateView(StripeMixin, CreateView):
@@ -59,6 +75,26 @@ class DonateListView(DonateProgressMixin, ListView):
 
     def get_template_names(self):
         return [self.template_name]
+
+
+class PromoDetailView(TemplateView):
+    template_name = 'donate/promo_detail.html'
+
+    def get_context_data(self, **kwargs):
+        promo_slug = kwargs['promo_slug']
+        slugs = promo_slug.split(',')
+        days = int(self.request.GET.get('days', 90))
+
+        if promo_slug == 'live' and self.request.user.is_staff:
+            promos = SupporterPromo.objects.filter(live=True)
+        else:
+            promos = SupporterPromo.objects.filter(analytics_id__in=slugs)
+
+        return {
+            'promos': promos,
+            'days': days,
+            'days_slice': ':%s' % days,
+        }
 
 
 def click_proxy(request, promo_id, hash):
