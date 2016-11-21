@@ -164,6 +164,8 @@ class SupporterPromo(models.Model):
         return sum(imp.clicks for imp in self.impressions.all())
 
     def total_click_ratio(self):
+        if self.total_views() == 0:
+            return float(0)
         return '%.4f' % float(
             (float(self.total_clicks()) / float(self.total_views())) * 100
         )

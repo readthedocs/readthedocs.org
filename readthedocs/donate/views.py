@@ -88,7 +88,7 @@ class PromoDetailView(TemplateView):
         if promo_slug == 'live' and self.request.user.is_staff:
             promos = SupporterPromo.objects.filter(live=True)
         else:
-            promos = SupporterPromo.objects.filter(analytics_id__in=slugs)
+            promos = SupporterPromo.objects.filter(analytics_id__in=slugs).order_by('analytics_id')
 
         return {
             'promos': promos,

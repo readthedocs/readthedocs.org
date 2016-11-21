@@ -18,7 +18,7 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
 <div class="example" style="width: 30%;">
 <a href="{{ promo.link }}"><img width=120 height=90 src="{{ promo.image }}"></a>
 <br>
-{{ promo.text }}
+{{ promo.text|safe }}
 
 </div>
 
