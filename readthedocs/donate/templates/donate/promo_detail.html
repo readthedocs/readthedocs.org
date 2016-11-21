@@ -32,12 +32,14 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
     <th><strong>CTR</strong></th>
   </tr>
   {% for day in promo.impressions.all|slice:days_slice %}
+  {% if day.views > 0 %}
   <tr>
     <td>{{ day.date }}</td>
     <td><code>{{ day.views }}</code></td> 
     <td><code>{{ day.clicks }}</code></td>
     <td><code>{{ day.click_ratio }}%</code></td>
   </tr>
+  {% endif %}
   {% endfor %}
   <tr>
     <td><strong>Total (over all time)</strong> </td>
