@@ -78,7 +78,7 @@ class SupporterPromo(models.Model):
     live = models.BooleanField(_('Live'), default=False)
 
     class Meta:
-        ordering = ('-live',)
+        ordering = ('analytics_id', '-live')
 
     def __str__(self):
         return self.name
