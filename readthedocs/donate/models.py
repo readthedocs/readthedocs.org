@@ -186,7 +186,9 @@ class BaseImpression(models.Model):
     def view_ratio(self):
         if self.offers == 0:
             return 0  # Don't divide by 0
-        return float(self.views) / float(self.offers)
+        return float(
+            float(self.views) / float(self.offers) * 100
+        )
 
     @property
     def click_ratio(self):

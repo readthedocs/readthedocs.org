@@ -58,10 +58,10 @@ class SupporterPromoAdmin(admin.ModelAdmin):
     actions = [set_default_countries]
 
     def view_ratio(self, instance):
-        return instance.view_ratio() * 100
+        return instance.view_ratio()
 
     def click_ratio(self, instance):
-        return instance.click_ratio() * 100
+        return instance.click_ratio()
 
 
 admin.site.register(Supporter, SupporterAdmin)
