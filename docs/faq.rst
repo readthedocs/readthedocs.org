@@ -43,6 +43,8 @@ environment, and will be set to ``True`` when building on RTD::
 
 I get import errors on libraries that depend on C modules
 ----------------------------------------------------------
+or RTD cannot install a module with C extension
+--------------------------------------------
 
 .. note::
     Another use case for this is when you have a module with a C extension.
