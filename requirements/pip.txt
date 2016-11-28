@@ -56,7 +56,7 @@ docker-py==1.3.1
 django-textclassifier==1.0
 django-annoying==0.8.4
 django-messages-extends==0.5
-django-filter<1.0
+django-filter==1.0.0
 
 # Docs
 sphinxcontrib-httpdomain==1.4.0

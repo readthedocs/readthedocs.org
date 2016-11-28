@@ -44,17 +44,17 @@ class ProjectFilter(django_filters.FilterSet):
     """Project filter for filter views"""
 
     name = django_filters.CharFilter(label=_("Name"), name='name',
-                                     lookup_type='icontains')
+                                     lookup_expr='icontains')
     slug = django_filters.CharFilter(label=_("Slug"), name='slug',
-                                     lookup_type='icontains')
+                                     lookup_expr='icontains')
     pub_date = django_filters.DateRangeFilter(label=_("Created Date"),
                                               name="pub_date")
     repo = django_filters.CharFilter(label=_("Repository URL"), name='repo',
-                                     lookup_type='icontains')
+                                     lookup_expr='icontains')
     repo_type = django_filters.ChoiceFilter(
         label=_("Repository Type"),
         name='repo',
-        lookup_type='icontains',
+        lookup_expr='icontains',
         choices=REPO_CHOICES,
     )
 
@@ -65,7 +65,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 class DomainFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(label=_("Project"), name='project__slug',
-                                        lookup_type='exact')
+                                        lookup_expr='exact')
 
     class Meta:
         model = Domain
