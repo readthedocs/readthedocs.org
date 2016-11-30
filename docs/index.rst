@@ -89,6 +89,7 @@ Information about development is also available:
    install
    changelog
    tests
+   docs
    architecture
    development/standards
    development/buildenvironments
