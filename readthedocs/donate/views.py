@@ -82,16 +82,23 @@ class PromoDetailView(TemplateView):
 
     def get_context_data(self, **kwargs):
         promo_slug = kwargs['promo_slug']
-        slugs = promo_slug.split(',')
         days = int(self.request.GET.get('days', 90))
 
         if promo_slug == 'live' and self.request.user.is_staff:
             promos = SupporterPromo.objects.filter(live=True)
+        elif '*' in promo_slug:
+            promos = SupporterPromo.objects.filter(
+                analytics_id__contains=promo_slug.replace('*', '')
+            )
         else:
+            slugs = promo_slug.split(',')
             promos = SupporterPromo.objects.filter(analytics_id__in=slugs)
+
+        total_clicks = sum(promo.total_clicks() for promo in promos)
 
         return {
             'promos': promos,
+            'total_clicks': total_clicks,
             'days': days,
             'days_slice': ':%s' % days,
         }

@@ -9,6 +9,12 @@
 
 <h1> Promo Results </h1>
 
+{% if promos %}
+
+<p>
+Total Clicks for all shown promos: {{ total_clicks }}
+</p>
+
 {% for promo in promos %}
 
 <h3>
@@ -50,5 +56,11 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
 </table>
 
 {% endfor %}
+
+{% else %}
+
+No promos match this query.
+
+{% endif %}
 
 {% endblock %}
