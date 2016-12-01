@@ -45,7 +45,7 @@ Filters
 
 <div id="build_list">
 
-        {% autopaginate filter 15 %}
+        {% autopaginate filter.qs 15 %}
 
         <!-- BEGIN builds list -->
         <div class="module">
@@ -67,9 +67,10 @@ Filters
                       {% endfor %}
                       </select>
                     </li>
-                  </form>
-                </div>
+                  </ul>
+                </form>
               </div>
+            </div>
             {% endif %}
             {% endblock %}
 
