@@ -44,8 +44,6 @@ class Testmaker(TestCase):
         _ = form.save()
         _ = Project.objects.get(slug='django-kong')
 
-        r = self.client.get('/docs/django-kong/en/latest/', {})
-        self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/versions/', {})
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/builds/')
@@ -81,20 +79,8 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/manual/demo/')
         self.assertRedirectToLogin(response)
 
-    def test_import_github(self):
-        response = self.client.get('/dashboard/import/github/')
-        self.assertRedirectToLogin(response)
-
-    def test_import_bitbucket(self):
-        response = self.client.get('/dashboard/import/bitbucket/')
-        self.assertRedirectToLogin(response)
-
     def test_projects_manage(self):
         response = self.client.get('/dashboard/pip/')
-        self.assertRedirectToLogin(response)
-
-    def test_alias_manage(self):
-        response = self.client.get('/dashboard/pip/alias/')
         self.assertRedirectToLogin(response)
 
     def test_comments_moderation(self):
@@ -193,7 +179,7 @@ class RandomPageTests(TestCase):
     def test_takes_project_slug(self):
         response = self.client.get('/random/pip/')
         self.assertEqual(response.status_code, 302)
-        self.assertTrue('/pip/' in response['Location'])
+        self.assertTrue('pip' in response['Location'])
 
     def test_404_for_unknown_project(self):
         response = self.client.get('/random/not-existent/')

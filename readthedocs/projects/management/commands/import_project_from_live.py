@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 'conf_py_file',
                 'skip',
                 'mirror',
-                'use_virtualenv',
+                'install_project',
                 'python_interpreter',
                 'use_system_packages',
                 'django_packages_url',

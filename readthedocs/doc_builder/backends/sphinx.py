@@ -10,14 +10,13 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from readthedocs.builds import utils as version_utils
-from readthedocs.builds.constants import BRANCH
 from readthedocs.projects.utils import safe_write
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
-from ..environments import BuildCommand
+from ..environments import DockerBuildCommand, BuildCommand
 from ..constants import SPHINX_TEMPLATE_DIR, SPHINX_STATIC_DIR, PDF_RE
 
 log = logging.getLogger(__name__)
@@ -97,7 +96,8 @@ class BaseSphinx(BaseBuilder):
                 'static_path': SPHINX_STATIC_DIR,
                 'template_path': SPHINX_TEMPLATE_DIR,
                 'conf_py_path': conf_py_path,
-                'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+                'api_host': getattr(settings, 'PUBLIC_API_URL',
+                                    'https://readthedocs.org'),
                 # GitHub
                 'github_user': github_user,
                 'github_repo': github_repo,
@@ -138,7 +138,7 @@ class BaseSphinx(BaseBuilder):
         project = self.project
         build_command = [
             'python',
-            project.venv_bin(version=self.version.slug, filename='sphinx-build'),
+            self.python_env.venv_bin(filename='sphinx-build'),
             '-T'
         ]
         if self._force:
@@ -153,7 +153,7 @@ class BaseSphinx(BaseBuilder):
         cmd_ret = self.run(
             *build_command,
             cwd=project.conf_dir(self.version.slug),
-            bin_path=project.venv_bin(version=self.version.slug)
+            bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
 
@@ -183,7 +183,10 @@ class HtmlDirBuilder(HtmlBuilder):
 
 class SingleHtmlBuilder(HtmlBuilder):
     type = 'sphinx_singlehtml'
-    sphinx_builder = 'readthedocssinglehtml'
+
+    def __init__(self, *args, **kwargs):
+        super(SingleHtmlBuilder, self).__init__(*args, **kwargs)
+        sphinx_builder = 'readthedocssinglehtml'
 
 
 class SearchBuilder(BaseSphinx):
@@ -237,10 +240,23 @@ class EpubBuilder(BaseSphinx):
 
 
 class LatexBuildCommand(BuildCommand):
+
     '''Ignore LaTeX exit code if there was file output'''
 
     def run(self):
         super(LatexBuildCommand, self).run()
+        # Force LaTeX exit code to be a little more optimistic. If LaTeX
+        # reports an output file, let's just assume we're fine.
+        if PDF_RE.search(self.output):
+            self.exit_code = 0
+
+
+class DockerLatexBuildCommand(DockerBuildCommand):
+
+    '''Ignore LaTeX exit code if there was file output'''
+
+    def run(self):
+        super(DockerLatexBuildCommand, self).run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
@@ -259,15 +275,14 @@ class PdfBuilder(BaseSphinx):
         # Default to this so we can return it always.
         self.run(
             'python',
-            self.project.venv_bin(version=self.version.slug,
-                                  filename='sphinx-build'),
+            self.python_env.venv_bin(filename='sphinx-build'),
             '-b', 'latex',
             '-D', 'language={lang}'.format(lang=self.project.language),
             '-d', '_build/doctrees',
             '.',
             '_build/latex',
             cwd=cwd,
-            bin_path=self.project.venv_bin(version=self.version.slug)
+            bin_path=self.python_env.venv_bin()
         )
         latex_cwd = os.path.join(cwd, '_build', 'latex')
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))
@@ -289,18 +304,22 @@ class PdfBuilder(BaseSphinx):
                     os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
             for tex_file in tex_files]
 
+        if self.build_env.command_class == DockerBuildCommand:
+            latex_class = DockerLatexBuildCommand
+        else:
+            latex_class = LatexBuildCommand
         pdf_commands = []
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_commands.append(cmd_ret)
         for cmd in makeindex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_commands.append(cmd_ret)
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=LatexBuildCommand, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
                 self.pdf_file_name = pdf_match.group(1).strip()

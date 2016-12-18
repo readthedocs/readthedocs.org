@@ -54,23 +54,24 @@ class BaseMkdocs(BaseBuilder):
 
         # Set mkdocs config values
 
-        media_url = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        media_url = settings.MEDIA_URL
 
         # Mkdocs needs a full domain here because it tries to link to local media files
         if not media_url.startswith('http'):
-            media_url = 'http://localhost:8000' + media_url
+            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+            media_url = 'http://{}{}'.format(domain, media_url)
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append('readthedocs-data.js')
             user_config['extra_javascript'].append(
                 'readthedocs-dynamic-include.js')
             user_config['extra_javascript'].append(
-                '%sjavascript/readthedocs-doc-embed.js' % media_url)
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url)
         else:
             user_config['extra_javascript'] = [
                 'readthedocs-data.js',
                 'readthedocs-dynamic-include.js',
-                '%sjavascript/readthedocs-doc-embed.js' % media_url,
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
             ]
 
         if 'extra_css' in user_config:
@@ -98,14 +99,15 @@ class BaseMkdocs(BaseBuilder):
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
-            'version': self.version.verbose_name,
+            'version': self.version.slug,
             'language': self.version.project.language,
             'page': None,
             'theme': "readthedocs",
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
-            'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+            'api_host': getattr(settings, 'PUBLIC_API_URL',
+                                'https://readthedocs.org'),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(readthedocs_data, indent=4)
@@ -122,7 +124,10 @@ class BaseMkdocs(BaseBuilder):
 
         data_file = open(os.path.join(self.root_path, docs_dir, 'readthedocs-data.js'), 'w+')
         data_file.write(data_string)
-        data_file.write('\nREADTHEDOCS_DATA["page"] = mkdocs_page_name')
+        data_file.write('''
+READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
+    0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+''')
         data_file.close()
 
         include_ctx = {
@@ -143,7 +148,7 @@ class BaseMkdocs(BaseBuilder):
         checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             'python',
-            self.project.venv_bin(version=self.version.slug, filename='mkdocs'),
+            self.python_env.venv_bin(filename='mkdocs'),
             self.builder,
             '--clean',
             '--site-dir', self.build_dir,
@@ -153,7 +158,7 @@ class BaseMkdocs(BaseBuilder):
         cmd_ret = self.run(
             *build_command,
             cwd=checkout_path,
-            bin_path=self.project.venv_bin(version=self.version.slug)
+            bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
 

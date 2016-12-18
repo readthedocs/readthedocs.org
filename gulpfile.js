@@ -22,7 +22,7 @@ var sources = {
     core: {
         'js/readthedocs-doc-embed.js': {expose: false},
         'js/autocomplete.js': {},
-        'js/projectimport.js': {},
+        'js/site.js': {},
         'css/badge_only.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/badge_only.css'},
         'css/theme.css': {src: 'bower_components/sphinx-rtd-theme/sphinx_rtd_theme/static/css/theme.css'},
 
@@ -40,7 +40,12 @@ var sources = {
         'font/fontawesome-webfont.woff': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.woff'},
         'font/FontAwesome.otf': {src: 'bower_components/font-awesome/fonts/FontAwesome.otf'}
     },
-    projects: {'js/tools.js': {}},
+    projects: {
+        'js/tools.js': {},
+        'js/import.js': {},
+        'css/import.less': {},
+        'css/admin.less': {},
+    },
     gold: {'js/gold.js': {}},
     donate: {'js/donate.js': {}}
 };
@@ -129,7 +134,9 @@ function build_app_sources (application, minify) {
 function browserify_stream (file, config, cb_output) {
     bower_resolve.offline = true;
     bower_resolve.init(function () {
-        var bundle_stream = browserify();
+        var bundle_stream = browserify({
+            paths: ['./']
+        });
 
         Object.keys(standalone).map(function (module) {
             bundle_stream = bundle_stream.external(module);

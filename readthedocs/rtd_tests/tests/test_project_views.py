@@ -1,11 +1,77 @@
+from datetime import datetime, timedelta
+
+from mock import patch
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
+from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
-from mock import patch
 
-from readthedocs.rtd_tests.base import WizardTestCase, MockBuildTestCase
-from readthedocs.projects.models import Project
+from readthedocs.core.models import UserProfile
+from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
+                                        RequestFactoryTestMixin)
+from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.views.private import ImportWizardView
+from readthedocs.projects.views.mixins import ProjectRelationMixin
+
+
+@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
+
+    wizard_class_slug = 'import_wizard_view'
+    url = '/dashboard/import/manual/'
+
+    def setUp(self):
+        super(TestProfileMiddleware, self).setUp()
+        data = {
+            'basics': {
+                'name': 'foobar',
+                'repo': 'http://example.com/foobar',
+                'repo_type': 'git',
+            },
+            'extra': {
+                'description': 'Describe foobar',
+                'language': 'en',
+                'documentation_type': 'sphinx',
+            },
+        }
+        self.data = {}
+        for key in data:
+            self.data.update({('{0}-{1}'.format(key, k), v)
+                              for (k, v) in data[key].items()})
+        self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
+
+    def test_profile_middleware_no_profile(self):
+        """User without profile and isn't banned"""
+        req = self.request('/projects/import', method='post', data=self.data)
+        req.user = get(User, profile=None)
+        resp = ImportWizardView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/projects/foobar/')
+
+    @patch.object(ImportWizardView, 'done')
+    def test_profile_middleware_spam(self, view):
+        """User will be banned"""
+        view.side_effect = ProjectSpamError
+        req = self.request('/projects/import', method='post', data=self.data)
+        req.user = get(User)
+        resp = ImportWizardView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/')
+        self.assertTrue(req.user.profile.banned)
+
+    def test_profile_middleware_banned(self):
+        """User is banned"""
+        req = self.request('/projects/import', method='post', data=self.data)
+        req.user = get(User)
+        req.user.profile.banned = True
+        req.user.profile.save()
+        self.assertTrue(req.user.profile.banned)
+        resp = ImportWizardView.as_view()(req)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/')
 
 
 class TestBasicsForm(WizardTestCase):
@@ -52,6 +118,7 @@ class TestAdvancedForm(TestBasicsForm):
             'description': 'Describe foobar',
             'language': 'en',
             'documentation_type': 'sphinx',
+            'tags': 'foo, bar, baz',
         }
 
     def test_form_pass(self):
@@ -65,6 +132,11 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertIsNotNone(proj)
         data = self.step_data['basics']
         del data['advanced']
+        del self.step_data['extra']['tags']
+        self.assertItemsEqual(
+            [tag.name for tag in proj.tags.all()],
+            [u'bar', u'baz', u'foo']
+        )
         data.update(self.step_data['extra'])
         for (key, val) in data.items():
             self.assertEqual(getattr(proj, key), val)
@@ -80,6 +152,46 @@ class TestAdvancedForm(TestBasicsForm):
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
+
+    @patch('readthedocs.projects.forms.ProjectExtraForm.clean_description',
+           create=True)
+    def test_form_spam(self, mocked_validator):
+        '''Don't add project on a spammy description'''
+        self.eric.date_joined = datetime.now() - timedelta(days=365)
+        self.eric.save()
+        mocked_validator.side_effect=ProjectSpamError
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+
+        resp = self.post_step('basics')
+        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step('extra')
+        self.assertWizardResponse(resp)
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+        self.assertFalse(self.eric.profile.banned)
+
+    @patch('readthedocs.projects.forms.ProjectExtraForm.clean_description',
+           create=True)
+    def test_form_spam_ban_user(self, mocked_validator):
+        '''Don't add spam and ban new user'''
+        self.eric.date_joined = datetime.now()
+        self.eric.save()
+        mocked_validator.side_effect=ProjectSpamError
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+
+        resp = self.post_step('basics')
+        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step('extra')
+        self.assertWizardResponse(resp)
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+        self.assertTrue(self.eric.profile.banned)
 
 
 class TestImportDemoView(MockBuildTestCase):
@@ -212,12 +324,34 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch(
-            'readthedocs.projects.views.private.remove_path_from_web')
-        with patcher as remove_path_from_web:
+        patcher = patch('readthedocs.projects.tasks.remove_dir')
+        with patcher as remove_dir:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
-
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            remove_path_from_web.delay.assert_called_with(
-                path=project.doc_path)
+            remove_dir.apply_async.assert_called_with(
+                queue='celery',
+                args=[project.doc_path])
+
+
+class TestPrivateMixins(MockBuildTestCase):
+
+    def setUp(self):
+        self.project = get(Project, slug='kong')
+        self.domain = get(Domain, project=self.project)
+
+    def test_project_relation(self):
+        """Class using project relation mixin class"""
+
+        class FoobarView(ProjectRelationMixin, ContextMixin):
+            model = Domain
+
+            def get_project_queryset(self):
+                # Don't test this as a view with a request.user
+                return Project.objects.all()
+
+        view = FoobarView()
+        view.kwargs = {'project_slug': 'kong'}
+        self.assertEqual(view.get_project(), self.project)
+        self.assertEqual(view.get_queryset().first(), self.domain)
+        self.assertEqual(view.get_context_data()['project'], self.project)

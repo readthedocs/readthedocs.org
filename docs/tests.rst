@@ -34,11 +34,11 @@ target a single environment to limit the test suite::
     docs
         Test documentation compilation with Sphinx.
 
-.. _`Tox`: http://tox.readthedocs.org/en/latest/index.html
-.. _`Prospector`: http://prospector.readthedocs.org/en/master/
+.. _`Tox`: http://tox.readthedocs.io/en/latest/index.html
+.. _`Prospector`: http://prospector.readthedocs.io/en/master/
 .. _`pylint`: http://docs.pylint.org/
 .. _`pyflakes`: https://github.com/pyflakes/pyflakes
-.. _`pep8`: http://pep8.readthedocs.org/en/latest/index.html
+.. _`pep8`: http://pep8.readthedocs.io/en/latest/index.html
 
 Continuous Integration
 ----------------------

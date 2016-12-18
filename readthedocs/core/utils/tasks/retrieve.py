@@ -14,9 +14,9 @@ class TaskNotFound(Exception):
 def get_task_data(task_id):
     """
     Will raise `TaskNotFound` if the task is in state ``PENDING`` or the task
+
     meta data has no ``'task_name'`` key set.
     """
-
     result = AsyncResult(task_id)
     state, info = result.state, result.info
     if state == 'PENDING':

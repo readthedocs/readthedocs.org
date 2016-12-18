@@ -5,6 +5,9 @@ from shutil import copytree
 import subprocess
 from tempfile import mkdtemp
 
+from django_dynamic_fixture import new
+from django.contrib.auth.models import User
+
 log = logging.getLogger(__name__)
 
 
@@ -46,3 +49,10 @@ def make_test_hg():
     log.info(check_output(['hg', 'commit', '-u', hguser, '-m"init"']))
     chdir(path)
     return directory
+
+
+def create_user(username, password, **kwargs):
+    user = new(User, username=username, **kwargs)
+    user.set_password(password)
+    user.save()
+    return user

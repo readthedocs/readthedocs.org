@@ -8,12 +8,22 @@ ProjectManager = import_by_path(
 VersionManager = import_by_path(
     getattr(settings, 'VERSION_MANAGER',
             'readthedocs.privacy.backend.VersionManager'))
+BuildManager = import_by_path(
+    getattr(settings, 'BUILD_MANAGER',
+            'readthedocs.privacy.backend.BuildManager'))
+
 RelatedProjectManager = import_by_path(
     getattr(settings, 'RELATED_PROJECT_MANAGER',
             'readthedocs.privacy.backend.RelatedProjectManager'))
 RelatedBuildManager = import_by_path(
     getattr(settings, 'RELATED_BUILD_MANAGER',
             'readthedocs.privacy.backend.RelatedBuildManager'))
+RelatedUserManager = import_by_path(
+    getattr(settings, 'RELATED_USER_MANAGER',
+            'readthedocs.privacy.backend.RelatedUserManager'))
+ChildRelatedProjectManager = import_by_path(
+    getattr(settings, 'CHILD_RELATED_PROJECT_MANAGER',
+            'readthedocs.privacy.backend.ChildRelatedProjectManager'))
 
 # Permissions
 AdminPermission = import_by_path(

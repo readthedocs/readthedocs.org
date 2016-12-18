@@ -6,13 +6,13 @@ env:
  - TOX_ENV=py27
  - TOX_ENV=docs
  - TOX_ENV=lint
+cache:
+  directories:
+    - ~/.cache/pip
 install:
  - pip install tox
- - pip install coveralls
 script:
  - tox -e $TOX_ENV
-after_success:
- - coveralls
 notifications:
   slack:
     rooms:

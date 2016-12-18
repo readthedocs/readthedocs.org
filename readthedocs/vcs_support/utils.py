@@ -14,7 +14,7 @@ class Lock(object):
     """
     A simple file based lock with timeout
 
-    On entering the context, it will try to aquire the lock. If timeout passes,
+    On entering the context, it will try to acquire the lock. If timeout passes,
     it just gets the lock anyway.
 
     If we're in the same thread as the one holding this lock, ignore the lock.
@@ -46,7 +46,7 @@ class Lock(object):
             log.info(("%s still locked after %.2f seconds; retry for %.2f"
                       " seconds") % (self.name, timesince, self.timeout))
         open(self.fpath, 'w').close()
-        log.info("Lock (%s): Lock aquired" % self.name)
+        log.info("Lock (%s): Lock acquired" % self.name)
 
     def __exit__(self, exc, value, tb):
         try:

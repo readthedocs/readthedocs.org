@@ -27,9 +27,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        '''
-        Find stale builds and remove build paths
-        '''
+        """Find stale builds and remove build paths"""
         max_date = datetime.now() - timedelta(days=options['days'])
         queryset = (Build.objects
                     .values('project', 'version')

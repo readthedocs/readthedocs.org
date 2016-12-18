@@ -1,21 +1,23 @@
 """Project forms"""
 
 from random import choice
+from urlparse import urlparse
 
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from textclassifier.validators import ClassifierValidator
 
 from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import TAG
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_build, slugify
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
+from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 
@@ -129,6 +131,12 @@ class ProjectExtraForm(ProjectForm):
             'tags',
         )
 
+    description = forms.CharField(
+        validators=[ClassifierValidator(raises=ProjectSpamError)],
+        required=False,
+        widget=forms.Textarea
+    )
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
@@ -143,7 +151,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         model = Project
         fields = (
             # Standard build edits
-            'use_virtualenv',
+            'install_project',
             'requirements_file',
             'single_version',
             'conf_py_file',
@@ -324,6 +332,7 @@ class SubprojectForm(forms.Form):
     """Project subproject form"""
 
     subproject = forms.CharField()
+    alias = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -333,8 +342,8 @@ class SubprojectForm(forms.Form):
     def clean_subproject(self):
         """Normalize subproject field
 
-        Does lookup on against :py:cls:`Project` to ensure matching project
-        exists. Return the :py:cls:`Project` object instead.
+        Does lookup on against :py:class:`Project` to ensure matching project
+        exists. Return the :py:class:`Project` object instead.
         """
         subproject_name = self.cleaned_data['subproject']
         subproject_qs = Project.objects.filter(slug=subproject_name)
@@ -350,7 +359,9 @@ class SubprojectForm(forms.Form):
 
     def save(self):
         relationship = self.parent.add_subproject(
-            self.cleaned_data['subproject'])
+            self.cleaned_data['subproject'],
+            alias=self.cleaned_data['alias'],
+        )
         return relationship
 
 
@@ -431,16 +442,21 @@ class TranslationForm(forms.Form):
         super(TranslationForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
-        subproject_name = self.cleaned_data['project']
-        subproject_qs = Project.objects.filter(slug=subproject_name)
-        if not subproject_qs.exists():
+        translation_name = self.cleaned_data['project']
+        translation_qs = Project.objects.filter(slug=translation_name)
+        if not translation_qs.exists():
             raise forms.ValidationError((_("Project %(name)s does not exist")
-                                         % {'name': subproject_name}))
-        self.subproject = subproject_qs[0]
-        return subproject_name
+                                         % {'name': translation_name}))
+        if translation_qs.first().language == self.parent.language:
+            err = ("Both projects have a language of `%s`. "
+                   "Please choose one with another language" % self.parent.language)
+            raise forms.ValidationError(_(err))
+
+        self.translation = translation_qs.first()
+        return translation_name
 
     def save(self):
-        project = self.parent.translations.add(self.subproject)
+        project = self.parent.translations.add(self.translation)
         return project
 
 
@@ -471,7 +487,7 @@ class DomainForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        exclude = ['machine', 'cname', 'count']
+        exclude = ['machine', 'cname', 'count', 'https']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -480,10 +496,31 @@ class DomainForm(forms.ModelForm):
     def clean_project(self):
         return self.project
 
+    def clean_domain(self):
+        parsed = urlparse(self.cleaned_data['domain'])
+        if parsed.scheme or parsed.netloc:
+            domain_string = parsed.netloc
+        else:
+            domain_string = parsed.path
+        return domain_string
+
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
         if canonical and Domain.objects.filter(
             project=self.project, canonical=True
-        ).exclude(url=self.cleaned_data['url']).exists():
+        ).exclude(domain=self.cleaned_data['domain']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
+
+
+class ProjectAdvertisingForm(forms.ModelForm):
+
+    """Project promotion opt-out form"""
+
+    class Meta:
+        model = Project
+        fields = ['allow_promos']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(ProjectAdvertisingForm, self).__init__(*args, **kwargs)

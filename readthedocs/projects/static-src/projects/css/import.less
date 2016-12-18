@@ -1,0 +1,119 @@
+div.project-import-remote {
+    h1 {
+        font-size: 1.2em;
+    }
+
+    button.remote-sync {
+        float: right;
+        margin: 0em;
+        font-size: 1em;
+        font-weight: normal;
+        padding: .25em 1em;
+    }
+
+    span.remote-sync-loader {
+        float: right;
+        height: 1.2em;
+        padding: .25em 1em;
+        border: 1px solid #ddd;
+        border-radius: .2em;
+        -webkit-border-radius: .2em;
+        -ms-border-radius: .2em;
+    }
+
+    li.remote-repo {
+        padding-left: 3em;
+        padding-right: 3em;
+
+        img.remote-repo-avatar {
+            float: left;
+            margin-left: -2.25em;
+            width: 1.5em;
+            height: 1.5em;
+
+            border-radius: .2em;
+            -moz-border-radius: .2em;
+            -ms-border-radius: .2em;
+            -webkit-border-radius: .2em;
+        }
+
+        div.remote-repo-info {
+            height: 2.625em;
+            overflow: hidden;
+
+            a.remote-repo-name {
+                line-height: 1.5em;
+                text-decoration: none;
+            }
+
+            span.remote-repo-extra {
+                display: block;
+                font-size: .75em;
+                line-height: 1.5em;
+                color: #999;
+            }
+        }
+
+        ul.remote-repo-menu {
+            top: 10px;
+            right: 10px;
+        }
+    }
+
+    form.import-connect {
+        overflow: auto;
+        display: inline;
+
+        button {
+            display: inline;
+            margin-bottom: .5em;
+            font-size: 1em;
+            font-weight: normal;
+        }
+    }
+}
+
+div.project-import-sidebar {
+    h1, h2, h3 {
+        font-size: 1.1em;
+    }
+
+    li.remote-org {
+        margin: .5em 0em;
+        padding-left: 3em;
+        cursor: pointer;
+
+        &.remote-org-hidden {
+            span.remote-org-name {
+                color: #ccc;
+            }
+
+            img.remote-org-avatar {
+                opacity: .3;
+                filter: alpha(opacity=30);
+            }
+        }
+
+        img.remote-org-avatar {
+            float: left;
+            margin-left: -2.25em;
+            margin-right: .5em;
+            width: 1.5em;
+            height: 1.5em;
+
+            border-radius: .2em;
+            -moz-border-radius: .2em;
+            -ms-border-radius: .2em;
+            -webkit-border-radius: .2em;
+
+            vertical-align: baseline;
+        }
+
+        a.remote-org-name {
+            font-size: .9em;
+            text-decoration: none;
+            line-height: 1.5em;
+            vertical-align: baseline;
+        }
+    }
+}

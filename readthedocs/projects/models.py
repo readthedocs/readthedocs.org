@@ -2,38 +2,44 @@
 
 import fnmatch
 import logging
+import sys
 import os
-from urlparse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
+from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import LATEST_VERBOSE_NAME
-from readthedocs.builds.constants import STABLE
-from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
+from readthedocs.api.client import api
+from readthedocs.core.utils import broadcast, slugify
+from readthedocs.restapi.client import api as apiv2
+from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
+from readthedocs.privacy.loader import (RelatedProjectManager, ProjectManager,
+                                        ChildRelatedProjectManager)
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import (make_api_version, symlink,
-                                        update_static_metadata)
+from readthedocs.projects.utils import make_api_version, update_static_metadata
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from taggit.managers import TaggableManager
-from readthedocs.api.client import api
-from readthedocs.restapi.client import api as apiv2
+from readthedocs.core.resolver import resolve, resolve_domain
+from readthedocs.core.validators import validate_domain_name
 
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
+if sys.version_info > (3,):
+    # pylint: disable=import-error
+    from urllib.parse import urlparse
+    # pylint: enable=import-error
+else:
+    from urlparse import urlparse
 
 log = logging.getLogger(__name__)
 
@@ -49,14 +55,21 @@ class ProjectRelationship(models.Model):
                                related_name='subprojects')
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
+    alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
+
+    objects = ChildRelatedProjectManager()
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
 
+    def save(self, *args, **kwargs):
+        if not self.alias:
+            self.alias = self.child.slug
+        super(ProjectRelationship, self).save(*args, **kwargs)
+
     # HACK
     def get_absolute_url(self):
-        return ("http://%s.readthedocs.org/projects/%s/%s/latest/"
-                % (self.parent.slug, self.child.slug, self.child.language))
+        return resolve(self.child)
 
 
 class Project(models.Model):
@@ -99,13 +112,13 @@ class Project(models.Model):
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your '
                     '"latest" version, served at the root of the domain. Use '
-                    'this with caution, only turn it on if you will <b>never</b>'
+                    'this with caution, only turn it on if you will <b>never</b> '
                     'have multiple versions of your docs.'))
     default_version = models.CharField(
         _('Default version'), max_length=255, default=LATEST,
         help_text=_('The version of your project that / redirects to'))
-    # In default_branch, None max_lengtheans the backend should choose the
-    # appropraite branch. Eg 'master' for git
+    # In default_branch, None means the backend should choose the
+    # appropriate branch. Eg 'master' for git
     default_branch = models.CharField(
         _('Default branch'), max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty '
@@ -114,7 +127,7 @@ class Project(models.Model):
     requirements_file = models.CharField(
         _('Requirements file'), max_length=255, default=None, null=True,
         blank=True, help_text=_(
-            'Requires Virtualenv. A <a '
+            'A <a '
             'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
             'pip requirements file</a> needed to build your documentation. '
             'Path from the root of your project.'))
@@ -136,6 +149,17 @@ class Project(models.Model):
                     "This may slow down your page loads."))
     container_image = models.CharField(
         _('Alternative container image'), max_length=64, null=True, blank=True)
+    container_mem_limit = models.CharField(
+        _('Container memory limit'), max_length=10, null=True, blank=True,
+        help_text=_("Memory limit in Docker format "
+                    "-- example: <code>512m</code> or <code>1g</code>"))
+    container_time_limit = models.CharField(
+        _('Container time limit'), max_length=10, null=True, blank=True)
+    build_queue = models.CharField(
+        _('Alternate build queue id'), max_length=32, null=True, blank=True)
+    allow_promos = models.BooleanField(
+        _('Sponsor advertisements'), default=True, help_text=_(
+            "Allow sponsor advertisements on my project documentation"))
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
@@ -160,7 +184,7 @@ class Project(models.Model):
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
     mirror = models.BooleanField(_('Mirror'), default=False)
-    use_virtualenv = models.BooleanField(
+    install_project = models.BooleanField(
         _('Install Project'),
         help_text=_("Install your project inside a virtualenv using <code>setup.py "
                     "install</code>"),
@@ -215,7 +239,7 @@ class Project(models.Model):
         default='words',
         help_text=_("The primary programming language the project is written in."),
         choices=constants.PROGRAMMING_LANGUAGES, blank=True)
-    # A subproject pointed at it's main language, so it can be tracked
+    # A subproject pointed at its main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
                                               blank=True, null=True)
@@ -243,6 +267,13 @@ class Project(models.Model):
         help_text=_("2 means supporting 2.2.2 and 2.2.1, but not 2.2.0")
     )
 
+    has_valid_webhook = models.BooleanField(
+        default=False, help_text=_('This project has been built with a webhook')
+    )
+    has_valid_clone = models.BooleanField(
+        default=False, help_text=_('This project has been successfully cloned')
+    )
+
     tags = TaggableManager(blank=True)
     objects = ProjectManager()
     all_objects = models.Manager()
@@ -258,15 +289,6 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def subdomain(self):
-        prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        # if self.canonical_domain:
-        #     return self.canonical_domain
-        # else:
-        subdomain_slug = self.slug.replace('_', '-')
-        return "%s.%s" % (subdomain_slug, prod_domain)
-
     def sync_supported_versions(self):
         supported = self.supported_versions()
         if supported:
@@ -277,10 +299,11 @@ class Project(models.Model):
             self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
     def save(self, *args, **kwargs):
+        from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
-            self.slug = slugify(self.name).replace('_', '-')
+            self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
         super(Project, self).save(*args, **kwargs)
@@ -302,7 +325,7 @@ class Project(models.Model):
             log.error('failed to sync supported versions', exc_info=True)
         try:
             if not first_save:
-                symlink(project=self.slug)
+                broadcast(type='app', task=tasks.symlink_project, args=[self.pk])
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
@@ -313,80 +336,44 @@ class Project(models.Model):
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
-            # if not self.versions.filter(slug=STABLE).exists():
-            #     self.versions.create_stable(type=BRANCH, identifier=branch)
         except Exception:
             log.error('Error creating default branches', exc_info=True)
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None):
+    def get_docs_url(self, version_slug=None, lang_slug=None, private=None):
         """Return a url for the docs
 
         Always use http for now, to avoid content warnings.
         """
-        protocol = "http"
-        version = version_slug or self.get_default_version()
-        lang = lang_slug or self.language
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
-            if self.single_version:
-                return "%s://%s/" % (
-                    protocol,
-                    self.subdomain,
-                )
-            else:
-                return "%s://%s/%s/%s/" % (
-                    protocol,
-                    self.subdomain,
-                    lang,
-                    version,
-                )
-        else:
-            if self.single_version:
-                return reverse('docs_detail', kwargs={
-                    'project_slug': self.slug,
-                    'filename': ''
-                })
-            else:
-                return reverse('docs_detail', kwargs={
-                    'project_slug': self.slug,
-                    'lang_slug': lang,
-                    'version_slug': version,
-                    'filename': ''
-                })
-
-    def get_translation_url(self, version_slug=None, full=False):
-        parent = self.main_language_project
-        lang_slug = self.language
-        protocol = "http"
-        version = version_slug or parent.get_default_version()
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain and full:
-            return "%s://%s/%s/%s/" % (
-                protocol,
-                parent.subdomain,
-                lang_slug,
-                version,
-            )
-        elif use_subdomain and not full:
-            return "/%s/%s/" % (
-                lang_slug,
-                version,
-            )
-        else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': parent.slug,
-                'lang_slug': lang_slug,
-                'version_slug': version,
-                'filename': ''
-            })
+        return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private)
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
             'project_slug': self.slug,
         })
+
+    def get_canonical_url(self):
+        if getattr(settings, 'DONT_HIT_DB', True):
+            return apiv2.project(self.pk).canonical_url().get()['url']
+        else:
+            return self.get_docs_url()
+
+    def get_subproject_urls(self):
+        """List subproject URLs
+
+        This is used in search result linking
+        """
+        if getattr(settings, 'DONT_HIT_DB', True):
+            return [(proj['slug'], proj['canonical_url'])
+                    for proj in (
+                        apiv2.project(self.pk)
+                        .subprojects()
+                        .get()['subprojects'])]
+        else:
+            return [(proj.child.slug, proj.child.get_docs_url())
+                    for proj in self.subprojects.all()]
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -411,14 +398,21 @@ class Project(models.Model):
 
     def get_production_media_url(self, type_, version_slug, full_path=True):
         """Get the URL for downloading a specific media file."""
-        path = reverse('project_download_media', kwargs={
-            'project_slug': self.slug,
-            'type_': type_,
-            'version_slug': version_slug,
-        })
+        try:
+            path = reverse('project_download_media', kwargs={
+                'project_slug': self.slug,
+                'type_': type_,
+                'version_slug': version_slug,
+            })
+        except NoReverseMatch:
+            return ''
         if full_path:
             path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
+
+    def subdomain(self):
+        """Get project subdomain from resolver"""
+        return resolve_domain(self)
 
     def get_downloads(self):
         downloads = {}
@@ -429,44 +423,6 @@ class Project(models.Model):
         downloads['pdf'] = self.get_production_media_url(
             'pdf', self.get_default_version())
         return downloads
-
-    @property
-    def canonical_domain(self):
-        if not self.clean_canonical_url:
-            return ""
-        return urlparse(self.clean_canonical_url).netloc
-
-    @property
-    def clean_canonical_url(self):
-        if getattr(settings, 'DONT_HIT_DB', True):
-            resp = apiv2.domain.get(project=self.slug, canonical=True)
-            if resp['count']:
-                url = resp['results']['url']
-            else:
-                return ''
-        else:
-            try:
-                domain = self.domains.get(canonical=True)
-                url = domain.url
-            except (Domain.DoesNotExist, MultipleObjectsReturned):
-                return ''
-
-        parsed = urlparse(url)
-        if parsed.scheme:
-            scheme, netloc = parsed.scheme, parsed.netloc
-        elif parsed.netloc:
-            scheme, netloc = "http", parsed.netloc
-        else:
-            scheme, netloc = "http", parsed.path
-
-        if getattr(settings, 'DONT_HIT_DB', True):
-            if parsed.path:
-                netloc = netloc + parsed.path
-        else:
-            if self.superprojects.count() and parsed.path:
-                netloc = netloc + parsed.path
-
-        return "%s://%s/" % (scheme, netloc)
 
     @property
     def clean_repo(self):
@@ -484,49 +440,23 @@ class Project(models.Model):
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
 
-    def venv_path(self, version=LATEST):
-        return os.path.join(self.doc_path, 'envs', version)
+    @property
+    def pip_cache_path(self):
+        """Path to pip cache"""
+        return os.path.join(self.doc_path, '.cache', 'pip')
 
     #
     # Paths for symlinks in project doc_path.
     #
-    def cnames_symlink_path(self, domain):
-        """
-        Path in the doc_path that we symlink cnames
-
-        This has to be at the top-level because Nginx doesn't know the projects slug.
-        """
-        return os.path.join(settings.CNAME_ROOT, domain)
-
     def translations_symlink_path(self, language=None):
         """Path in the doc_path that we symlink translations"""
         if not language:
             language = self.language
         return os.path.join(self.doc_path, 'translations', language)
 
-    def subprojects_symlink_path(self, project):
-        """Path in the doc_path that we symlink subprojects"""
-        return os.path.join(self.doc_path, 'subprojects', project)
-
-    def single_version_symlink_path(self):
-        """Path in the doc_path for the single_version symlink"""
-        return os.path.join(self.doc_path, 'single_version')
-
     #
     # End symlink paths
     #
-
-    def venv_bin(self, version=LATEST, filename=None):
-        """Return path to the virtualenv bin path, or a specific binary
-
-        :param version: Version slug to use in path name
-        :param filename: If specified, add this filename to the path return
-        :returns: Path to virtualenv bin or filename in virtualenv bin
-        """
-        parts = [self.venv_path(version), 'bin']
-        if filename is not None:
-            parts.append(filename)
-        return os.path.join(*parts)
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project"""
@@ -742,7 +672,7 @@ class Project(models.Model):
             This is a temporary workaround for activate_versions filtering out
             things that were active, but failed to build
 
-        :returns: :py:cls:`Version` queryset
+        :returns: :py:class:`Version` queryset
         """
         return self.versions.filter(active=True)
 
@@ -795,13 +725,6 @@ class Project(models.Model):
                     identifier=new_stable.identifier)
                 return new_stable
 
-    def version_from_branch_name(self, branch):
-        versions = self.versions_from_branch_name(branch)
-        try:
-            return versions[0]
-        except IndexError:
-            return None
-
     def versions_from_branch_name(self, branch):
         return (
             self.versions.filter(identifier=branch) |
@@ -834,9 +757,9 @@ class Project(models.Model):
         else:
             return self.vcs_repo().fallback_branch
 
-    def add_subproject(self, child):
+    def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
-            parent=self, child=child,
+            parent=self, child=child, alias=alias,
         )
         return subproject
 
@@ -890,7 +813,7 @@ class Project(models.Model):
         :param page: Page to attach comment to
         :param content_hash: Hash of content to apply comment to
         :param commit: Commit that updated comment
-        :param user: :py:cls:`User` instance that created comment
+        :param user: :py:class:`User` instance that created comment
         :param text: Comment text
         """
         from readthedocs.comments.models import DocumentNode
@@ -921,10 +844,8 @@ class ImportedFile(models.Model):
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, self.project.language,
-                                self.version.slug, self.path])
+        return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
@@ -956,31 +877,44 @@ class WebHook(Notification):
 
 class Domain(models.Model):
     project = models.ForeignKey(Project, related_name='domains')
-    url = models.URLField(_('URL'), unique=True)
+    domain = models.CharField(_('Domain'), unique=True, max_length=255,
+                              validators=[validate_domain_name])
     machine = models.BooleanField(
-        default=False, help_text=_('This URL was auto-created')
+        default=False, help_text=_('This Domain was auto-created')
     )
     cname = models.BooleanField(
-        default=False, help_text=_('This URL is a CNAME for the project')
+        default=False, help_text=_('This Domain is a CNAME for the project')
     )
     canonical = models.BooleanField(
         default=False,
-        help_text=_('This URL is the primary one where the documentation is served from.')
+        help_text=_('This Domain is the primary one where the documentation is served from.')
+    )
+    https = models.BooleanField(
+        _('Use HTTPS'),
+        default=False,
+        help_text=_('SSL is enabled for this domain')
     )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
     objects = RelatedProjectManager()
 
     class Meta:
-        ordering = ('-canonical', '-machine', 'url')
+        ordering = ('-canonical', '-machine', 'domain')
 
     def __unicode__(self):
-        return "{url} pointed at {project}".format(url=self.url, project=self.project.name)
+        return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
-    @property
-    def clean_host(self):
-        parsed = urlparse(self.url)
+    def save(self, *args, **kwargs):
+        from readthedocs.projects import tasks
+        parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
-            return parsed.netloc
+            self.domain = parsed.netloc
         else:
-            return parsed.path
+            self.domain = parsed.path
+        super(Domain, self).save(*args, **kwargs)
+        broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
+
+    def delete(self, *args, **kwargs):
+        from readthedocs.projects import tasks
+        broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
+        super(Domain, self).delete(*args, **kwargs)

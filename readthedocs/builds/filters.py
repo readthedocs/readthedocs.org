@@ -27,9 +27,9 @@ class VersionFilter(django_filters.FilterSet):
     project = django_filters.CharFilter(name='project__slug')
     # Allow filtering on slug= or version=
     slug = django_filters.CharFilter(label=_("Name"), name='slug',
-                                     lookup_type='exact')
+                                     lookup_expr='exact')
     version = django_filters.CharFilter(label=_("Version"), name='slug',
-                                        lookup_type='exact')
+                                        lookup_expr='exact')
 
     class Meta:
         model = Version
@@ -37,7 +37,7 @@ class VersionFilter(django_filters.FilterSet):
 
 
 class BuildFilter(django_filters.FilterSet):
-    date = django_filters.DateRangeFilter(label=_("Build Date"), name="date", lookup_type='range')
+    date = django_filters.DateRangeFilter(label=_("Build Date"), name="date", lookup_expr='range')
     type = django_filters.ChoiceFilter(label=_("Build Type"),
                                        choices=BUILD_TYPES)
 

@@ -1,0 +1,135 @@
+{% extends "projects/project_edit_base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Documentation Advertising" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/admin.css" %}" />
+{% endblock %}
+
+{% block project-ads-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Documentation Advertising" %}{% endblock %}
+
+{% block project_edit_content %}
+  <p>
+    {% blocktrans %}
+      Read the Docs is an open source project, maintained and operated by
+      full-time volunteers. In order to maintain service, we rely on both the
+      support of our users, and from sponsor support.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    {% blocktrans %}
+      We will periodically run advertisements on built documentation pages for
+      sponsors, however we have strict guidelines on advertisements:
+    {% endblocktrans %}
+  </p>
+
+  <ul class="project-ads-guidelines">
+    <li>
+      {% blocktrans %}
+        We don't give sponsors access to user information
+      {% endblocktrans %}
+    </li>
+    <li>
+      {% blocktrans %}
+        We only report the number of impressions and number of ad clicks
+      {% endblocktrans %}
+    </li>
+    <li>
+      {% blocktrans %}
+        We only allow and image and text, no Javascript besides our existing
+        tracking
+      {% endblocktrans %}
+    </li>
+  </ul>
+
+  <p>
+    {% blocktrans %}
+      For more information on our stance on sponsor advertisements, we wrote
+      more about our stance
+      <a href="https://blog.readthedocs.com/ads-on-read-the-docs/">on our blog</a>.
+    {% endblocktrans %}
+  </p>
+
+  <h4>{% trans "Opting out" %}</h4>
+
+  <p>
+    {% blocktrans %}
+      If you do not wish to support Read the Docs with use of this ad space,
+      we ask that you help support Read the Docs in one of following ways:
+    {% endblocktrans %}
+  </p>
+
+  <ul class="module-list project-ads-support">
+    <li class="module-item">
+      {% blocktrans %}
+        If you have an open source project, and can contribute financially,
+        consider a gold subscription. Gold subscribers can disable ads for
+        projects they author.
+      {% endblocktrans %}
+
+      <form method="get" action="{% url "gold_subscription" %}">
+        <input type="submit" value="{% trans "I can contribute financially" %}" />
+      </form>
+    </li>
+
+    <li class="module-item">
+      {% blocktrans %}
+        If your project is an open source project, you most certainly also
+        lack funding.  If you can't contribute financially to Read the Docs,
+        consider donating your time. We can always use help with support
+        requests, documentation updates, and of course feature development.
+      {% endblocktrans %}
+
+      <form method="get" action="http://docs.readthedocs.io/en/latest/contribute.html">
+        <input type="submit" value="{% trans "I can contribute my time" %}" />
+      </form>
+    </li>
+
+    <li class="module-item">
+      {% blocktrans %}
+        If you are part of a company that uses Read the Docs to host
+        documentation for a commercial product, we offer paid plans that
+        offer email support, additional build resources, and features like
+        CDN support and private documentation.
+      {% endblocktrans %}
+
+      <form method="get" action="https://readthedocs.com/pricing/">
+        <input type="submit" value="{% trans "Learn more about a paid plan" %}" />
+      </form>
+    </li>
+  </ul>
+
+  <h4>{% trans "Still can't help?" %}</h4>
+
+  <p>
+    {% blocktrans %}
+      If you can't contribute your support for your open source project, but
+      are conflicted by allowing support through advertising, we still would
+      like to give you the option to disable showing promotions inside your
+      documentation. We might be in contact in the future to see if you would
+      reconsider offering your support.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    {% blocktrans %}
+      If you are a company hosting commercial documentation on our community
+      site, but can't offer support for Read the Docs, we do not allow
+      removing sponsor advertisements on your documentation. This goes
+      against the spirit of supporting the open source community, please find
+      a way to offer your support.
+    {% endblocktrans %}
+  </p>
+
+  <form method="post" action=".">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Update advertisement preference" %}">
+    </p>
+  </form>
+{% endblock %}

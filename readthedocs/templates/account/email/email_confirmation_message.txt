@@ -1,0 +1,13 @@
+{% extends "core/email/common.txt" %}
+
+{% load i18n %}
+
+{% block content %}{% blocktrans %}
+To verify your email address and finish setting up your account, please
+go to:
+
+{{ activate_url }}
+
+If you did not sign up for an account with Read the Docs, you can
+disregard this email.
+{% endblocktrans %}{% endblock %}

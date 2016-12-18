@@ -24,7 +24,7 @@ The language will be represented in the URL for you project.
 For example,
 a project that is in spanish will have a default URL of ``/es/latest/`` instead of ``/en/latest/``.
 
-.. note:: You must commit the ``.mo`` files for Read the Docs to translate your documentation.
+.. note:: You must commit the ``.po`` files for Read the Docs to translate your documentation.
 
 Project with multiple translations
 ----------------------------------
@@ -43,10 +43,14 @@ you will say that ``phpmyadmin-spanish`` is a translation for your project.
 
 This has the results of serving:
 
-* ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.org/en/latest/``
-* ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.org/es/latest/``
+* ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.io/en/latest/``
+* ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.io/es/latest/``
 
 It also gets included in the Read the Docs flyout:
 
 .. image:: /img/translation_bar.png
 
+.. note:: The default language of any CNAME will be the language of the project the Domain object was set on. See :doc:`alternate_domains` for more information.
+
+.. note:: You can include multiple translations in the same repository,
+          but each project must specify the language to build for those docs.

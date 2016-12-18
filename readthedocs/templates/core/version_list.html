@@ -1,6 +1,6 @@
 <div class="module-list-wrapper">
   <ul>
-  {% for version in filter %}
+  {% for version in filter.qs %}
     <li class="module-item">
       {# Link to the docs #}
       <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>

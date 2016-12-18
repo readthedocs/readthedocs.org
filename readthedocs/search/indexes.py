@@ -60,7 +60,7 @@ class Index(object):
         Returns the analysis dict to be used in settings for create_index.
 
         For languages that ES supports we define either the minimal or light
-        stemming, which isn't as aggresive as the snowball stemmer. We also
+        stemming, which isn't as aggressive as the snowball stemmer. We also
         define the stopwords for that language.
 
         For all languages we've customized we're using the ICU plugin.

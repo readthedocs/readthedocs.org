@@ -2,9 +2,11 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.projects.models import Project, Domain
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    canonical_url = serializers.ReadOnlyField(source='get_docs_url')
 
     class Meta:
         model = Project
@@ -15,6 +17,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'default_version', 'default_branch',
             'documentation_type',
             'users',
+            'canonical_url',
         )
 
 
@@ -75,8 +78,32 @@ class DomainSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'project',
-            'url',
+            'domain',
             'canonical',
             'machine',
             'cname',
         )
+
+
+class RemoteOrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RemoteOrganization
+        exclude = ('json', 'email', 'users')
+
+
+class RemoteRepositorySerializer(serializers.ModelSerializer):
+
+    """Remote service repository serializer"""
+
+    organization = RemoteOrganizationSerializer()
+    matches = serializers.SerializerMethodField()
+
+    class Meta:
+        model = RemoteRepository
+        exclude = ('json', 'users')
+
+    def get_matches(self, obj):
+        request = self.context['request']
+        if request.user is not None and request.user.is_authenticated():
+            return obj.matches(request.user)

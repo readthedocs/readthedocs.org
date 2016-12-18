@@ -52,10 +52,9 @@ def mock_version(repo):
                     "requirements_file": "",
                     "resource_uri": "/api/v1/project/2599/",
                     "slug": "docs",
-                    "subdomain": "http://docs.readthedocs.org/",
                     "suffix": ".rst",
                     "theme": "default",
-                    "use_virtualenv": false,
+                    "install_project": false,
                     "users": [
                         "/api/v1/user/1/"
                     ],

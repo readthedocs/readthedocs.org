@@ -1,0 +1,141 @@
+{% extends "profiles/base_profile_edit.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block profile-admin-gold-edit %}active{% endblock %}
+
+{% block title %}
+Read the Docs Gold
+{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'payments/css/form.css' %}" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
+  <script type="text/javascript" src="{% static 'gold/js/gold.js' %}"></script>
+  <script type="text/javascript">
+var gold_views = require('gold/gold');
+$(document).ready(function () {
+    var key;
+    //<![CDATA[
+    key = '{{ stripe_publishable }}';
+    //]]>
+
+    var view = gold_views.GoldView.init({
+      key: key,
+      form: $('form#gold-register')
+    });
+});
+  </script>
+{% endblock %}
+
+{% block edit_content %}
+<div>
+  <h2>Read the Docs Gold</h2>
+
+  <p>
+    {% blocktrans %}
+      Supporting Read the Docs lets us work more on features that people love.
+      Your money will go directly to maintenance and development of the
+      product.
+    {% endblocktrans %}
+  </p>
+    <p>
+    {% blocktrans %}
+      If you are an individual,
+      feel free to give whatever feels right for the value you get out of Read the Docs.
+    {% endblocktrans %}
+    </p>
+    <p>
+    {% blocktrans %}
+      If you are a company using Read the Docs,
+      please consider getting a <a href="https://readthedocs.com/services/#open-source-support">commercial support contract</a>.
+      This will help us cover our costs,
+      and provide you with a better experience on the site.
+      If you aren't able to do that,
+      we suggest giving at least $20/month to help cover our support and operations costs.
+    {% endblocktrans %}
+    </p>
+  <p>
+    {% blocktrans %}
+      You can also make one-time donations on our <a href="https://readthedocs.org/sustainability/">sustainability</a> page.
+    {% endblocktrans %}
+  </p>
+
+  {% if domains.count %}
+  <h3>Domains</h2>
+  <p>
+    {% blocktrans %}
+    We ask that folks who use custom Domains give Read the Docs $5 per domain they are using.
+    This is optional, but it really does help us maintain the site going forward.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    You are currently using {{ domains.count }} domains:
+    
+    <ul class="donate-about">
+    {% for domain in domains %}
+      <li>{{ domain.domain }} ({{ domain.project.name }})</li>
+    {% endfor %}
+    </ul>
+  </p>
+
+  {% endif %}
+
+  {% trans "Become a Gold Member" as subscription_title %}
+  {% if golduser %}
+    {% trans "Update Your Subscription" as subscription_title %}
+  {% endif %}
+  <h3>{{ subscription_title }}</h3>
+
+  <form accept-charset="UTF-8" action="" method="post" id="gold-register" class="payment">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    {% for field in form.fields_with_cc_group %}
+      {% if field.is_cc_group %}
+        <p
+            data-bind="visible: card_digits"
+            style="display: none;"
+            class="subscription-card">
+          <label>{% trans "Current card" %}:</label>
+          <span class="subscription-card-number">
+            ****-<span data-bind="text: card_digits"></span>
+          </span>
+        </p>
+
+        <div data-bind="visible: !show_card_form()">
+          <a
+              href="#"
+              data-bind="click: function () { is_editing_card(true); }"
+              class="subscription-edit-link">
+            {% trans "Edit Card" %}
+          </a>
+        </div>
+        <div
+            class="subscription-card"
+            data-bind="visible: show_card_form"
+            style="display: none;">
+          {% for groupfield in field.fields %}
+            {% include 'core/ko_form_field.html' with field=groupfield %}
+          {% endfor %}
+        </div>
+      {% else %}
+        {% include 'core/ko_form_field.html' with field=field %}
+      {% endif %}
+    {% endfor %}
+
+    {% trans "Sign Up" as form_submit_text %}
+    {% if golduser %}
+      {% trans "Update Subscription" as form_submit_text %}
+    {% endif %}
+    <input type="submit" value="{{ form_submit_text }}" data-bind="click: process_full_form" />
+
+    <em>{% trans "All information is submitted directly to Stripe." %}</em>
+  </form>
+{% endblock %}

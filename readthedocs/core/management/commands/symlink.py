@@ -1,29 +1,24 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
-from readthedocs.projects import tasks, utils
+from readthedocs.projects import tasks
 
-import redis
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
+    def add_arguments(self, parser):
+        parser.add_argument('projects', nargs='+', type=str)
+
     def handle(self, *args, **options):
-        if len(args):
-            if args[0] == "cnames":
-                log.info("Updating all CNAME Symlinks")
-                redis_conn = redis.Redis(**settings.REDIS)
-                slugs = redis_conn.keys('rtd_slug:v1:*')
-                slugs = [slug.replace("rtd_slug:v1:", "") for slug in slugs]
-                for slug in slugs:
-                    try:
-                        log.info("Got slug from redis: %s" % slug)
-                        utils.symlink(project=slug)
-                    except Exception, e:
-                        print e
-            else:
-                for slug in args:
-                    utils.symlink(project=slug)
+        projects = options['projects']
+        if 'all' in projects:
+            queryset = Project.objects.all()
+        else:
+            queryset = Project.objects.filter(slug__in=projects)
+        for proj in queryset:
+            tasks.symlink_project(project_pk=proj.pk)

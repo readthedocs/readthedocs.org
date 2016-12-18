@@ -1,7 +1,7 @@
 import shutil
 import os
 
-from projects.models import Project
+from readthedocs.projects.models import Project
 
 slugs = [p.slug for p in Project.objects.all()]
 build_projects = os.listdir('/home/docs/checkouts/readthedocs.org/user_builds/')

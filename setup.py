@@ -5,7 +5,6 @@ setup(
     name='readthedocs',
     version="1.0",
     description='A documentation hosting website',
-    #long_description=readme,
     author='Eric Holscher, Charles Leifer, Bobby Grace',
     author_email='eric@ericholscher.com',
     url='http://readthedocs.org',

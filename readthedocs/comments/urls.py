@@ -1,30 +1,14 @@
-from django.conf.urls import url, patterns, include
+from django.conf.urls import url, include
 
-urlpatterns = patterns(
-    # base view, flake8 complains if it is on the previous line.
-    '',
-    url(r'build',
-        'readthedocs.comments.views.build',
-        name='build'),
-    url(r'_has_node',
-        'readthedocs.comments.views.has_node',
-        name='has_node'),
-    url(r'_add_node',
-        'readthedocs.comments.views.add_node',
-        name='add_node'),
-    url(r'_update_node',
-        'readthedocs.comments.views.update_node',
-        name='update_node'),
-    url(r'_attach_comment',
-        'readthedocs.comments.views.attach_comment',
-        name='attach_comment'),
-    url(r'_get_metadata',
-        'readthedocs.comments.views.get_metadata',
-        name='get_metadata'),
-    url(r'_get_options',
-        'readthedocs.comments.views.get_options',
-        name='get_options'),
-    url(r'(?P<file>.*)',
-        'readthedocs.comments.views.serve_file',
-        name='serve_file'),
-)
+from readthedocs.comments import views
+
+urlpatterns = [
+    url(r'build', views.build, name='build'),
+    url(r'_has_node', views.has_node, name='has_node'),
+    url(r'_add_node', views.add_node, name='add_node'),
+    url(r'_update_node', views.update_node, name='update_node'),
+    url(r'_attach_comment', views.attach_comment, name='attach_comment'),
+    url(r'_get_metadata', views.get_metadata, name='get_metadata'),
+    url(r'_get_options', views.get_options, name='get_options'),
+    url(r'(?P<file>.*)', views.serve_file, name='serve_file'),
+]

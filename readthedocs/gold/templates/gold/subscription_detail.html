@@ -1,0 +1,68 @@
+{% extends "profiles/base_profile_edit.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block profile-admin-gold-edit %}active{% endblock %}
+
+{% block title %}{% trans "Gold Subscription" %}{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
+  <script type="text/javascript" src="{% static 'gold/js/gold.js' %}"></script>
+  <script type="text/javascript">
+var gold_views = require('gold/gold');
+$(document).ready(function () {
+    var key;
+    //<![CDATA[
+    key = '{{ publishable }}';
+    //]]>
+
+    var view = gold_views.GoldView.init({
+      key: key,
+      form: $('form#gold-register')
+    });
+});
+  </script>
+{% endblock %}
+
+{% block edit_content %}
+  <div class="gold-subscription">
+    <h2>{% trans "Gold Subscription" %}</h2>
+
+    <p>
+      {% blocktrans %}
+        Thanks for supporting Read the Docs! It really means a lot to us.
+      {% endblocktrans %}
+    </p>
+
+    <p class="subscription-detail subscription-detail-level">
+      <label>{% trans "Level" %}:</label>
+      <span>{{ golduser.get_level_display }}</span>
+    </p>
+
+    <p class="subscription-detail subscription-detail-card">
+      <label>{% trans "Card" %}:</label>
+      <span>****-{{ golduser.last_4_digits }}</span>
+    </p>
+
+    <form method="get" action="{% url "gold_subscription" %}" class="subscription-update">
+      <button>{% trans "Update Subscription" %}</button>
+    </form>
+
+    <form method="get" action="{% url "gold_cancel" %}" class="subscription-cancel">
+      <button>{% trans "Cancel Subscription" %}</button>
+    </form>
+
+    <h3>{% trans "Projects" %}</h3>
+    <p class="subscription-projects">
+      {% blocktrans with projects=golduser.num_supported_projects %}
+        You can adopt {{ projects }} projects with your subscription.
+      {% endblocktrans %}
+    </p>
+
+    <form method="get" action="{% url "gold_projects" %}" class="subscription-projects">
+      <button>{% trans "Select Projects" %}</button>
+    </form>
+  </div>
+{% endblock %}

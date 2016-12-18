@@ -11,13 +11,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.privacy.loader import (VersionManager, RelatedProjectManager,
-                                        RelatedBuildManager)
+from readthedocs.core.utils import broadcast
+from readthedocs.privacy.loader import (VersionManager, RelatedBuildManager,
+                                        BuildManager)
 from readthedocs.projects.models import Project
-from readthedocs.projects.constants import (PRIVACY_CHOICES, REPO_TYPE_GIT,
-                                            REPO_TYPE_HG, GITHUB_URL,
+from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
-                                            BITBUCKET_REGEXS)
+                                            BITBUCKET_REGEXS, PRIVATE)
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
@@ -146,17 +146,30 @@ class Version(models.Model):
                 'project_slug': self.project.slug,
                 'version_slug': self.slug,
             })
-        return self.project.get_docs_url(version_slug=self.slug)
+        private = self.privacy_level == PRIVATE
+        return self.project.get_docs_url(version_slug=self.slug, private=private)
 
     def save(self, *args, **kwargs):
         """
         Add permissions to the Version for all owners on save.
         """
+        from readthedocs.projects import tasks
         obj = super(Version, self).save(*args, **kwargs)
         for owner in self.project.users.all():
             assign('view_version', owner, self)
-        self.project.sync_supported_versions()
+        try:
+            self.project.sync_supported_versions()
+        except Exception:
+            log.error('failed to sync supported versions', exc_info=True)
+        broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
+
+    def delete(self, *args, **kwargs):
+        from readthedocs.projects import tasks
+        log.info('Removing files for version %s' % self.slug)
+        tasks.clear_artifacts.delay(version_pk=self.pk)
+        broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
+        super(Version, self).delete(*args, **kwargs)
 
     @property
     def identifier_friendly(self):
@@ -167,26 +180,10 @@ class Version(models.Model):
         return self.identifier
 
     def get_subdomain_url(self):
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
-            return "/%s/%s/" % (
-                self.project.language,
-                self.slug,
-            )
-        else:
-            return reverse('docs_detail', kwargs={
-                'project_slug': self.project.slug,
-                'lang_slug': self.project.language,
-                'version_slug': self.slug,
-                'filename': ''
-            })
-
-    def get_subproject_url(self):
-        return "/projects/%s/%s/%s/" % (
-            self.project.slug,
-            self.project.language,
-            self.slug,
-        )
+        private = self.privacy_level == PRIVATE
+        return self.project.get_docs_url(version_slug=self.slug,
+                                         lang_slug=self.project.language,
+                                         private=private)
 
     def get_downloads(self, pretty=False):
         project = self.project
@@ -339,7 +336,7 @@ class Build(models.Model):
 
     # Manager
 
-    objects = RelatedProjectManager()
+    objects = BuildManager()
 
     class Meta:
         ordering = ['-date']
@@ -367,9 +364,10 @@ class Build(models.Model):
 
 
 class BuildCommandResultMixin(object):
+
     '''Mixin for common command result methods/properties
 
-    Shared methods between the database model :py:cls:`BuildCommandResult` and
+    Shared methods between the database model :py:class:`BuildCommandResult` and
     non-model respresentations of build command results from the API
     '''
 

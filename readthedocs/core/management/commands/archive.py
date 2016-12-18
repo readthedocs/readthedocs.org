@@ -10,8 +10,11 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    """Custom management command to rebuild documentation for all projects on
-    the site. Invoked via ``./manage.py update_repos``.
+
+    """
+    Custom management command to rebuild documentation for all projects.
+
+    Invoked via ``./manage.py update_repos``.
     """
 
     def handle(self, *args, **options):

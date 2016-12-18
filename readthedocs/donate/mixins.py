@@ -1,6 +1,4 @@
-'''
-Mixin classes for donation views
-'''
+"""Mixin classes for donation views"""
 
 from django.db.models import Avg, Sum
 
@@ -8,10 +6,11 @@ from .models import Supporter
 
 
 class DonateProgressMixin(object):
-    '''Add donation progress to context data'''
 
-    def get_context_data(self):
-        context = super(DonateProgressMixin, self).get_context_data()
+    """Add donation progress to context data"""
+
+    def get_context_data(self, **kwargs):
+        context = super(DonateProgressMixin, self).get_context_data(**kwargs)
         sums = (Supporter.objects
                 .aggregate(dollars=Sum('dollars')))
         avgs = (Supporter.objects

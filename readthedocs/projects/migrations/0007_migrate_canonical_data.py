@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 from django.db import migrations
 from django.db import transaction
@@ -15,12 +15,12 @@ def migrate_canonical(apps, schema_editor):
                         url=project.canonical_url,
                         canonical=True,
                     )
-                    print u"Added {url} to {project}".format(url=project.canonical_url, project=project.name)
-            except Exception, e:
-                print e
-                print u"Failed adding {url} to {project}".format(
+                    print(u"Added {url} to {project}".format(url=project.canonical_url, project=project.name))
+            except Exception as e:
+                print(e)
+                print(u"Failed adding {url} to {project}".format(
                     url=project.canonical_url, project=project.name
-                )
+                ))
 
 
 class Migration(migrations.Migration):

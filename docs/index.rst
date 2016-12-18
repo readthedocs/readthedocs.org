@@ -44,7 +44,20 @@ Information about development is also available:
    features
    support
    faq
+   yaml-config
+   guides/index
 
+.. _about-docs:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: About Read the Docs
+
+   contribute
+   team
+   ethical-advertising
+   sponsors
+   open-source-philosophy
 
 .. _feature-docs:
 
@@ -58,6 +71,7 @@ Information about development is also available:
    alternate_domains
    localization
    vcs
+   conda
    canonical
    single_version
    privacy
@@ -74,8 +88,8 @@ Information about development is also available:
 
    install
    changelog
-   contribute
    tests
+   docs
    architecture
    development/standards
    development/buildenvironments
@@ -83,7 +97,6 @@ Information about development is also available:
    settings
    i18n
    issue-labels
-   api
 
 .. _business-docs:
 
@@ -110,22 +123,3 @@ Information about development is also available:
    design
    theme
 
-
-.. _about-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: About Read the Docs
-
-   open-source-philosophy
-   sponsors
-   talks
-
-
-.. _ops-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Operations Documentation
-
-   rtfd

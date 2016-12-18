@@ -160,7 +160,7 @@ function addComment(form) {
         .val('')
         .add(form.find('input'))
         .removeAttr('disabled');
-      display.showOneCommet($(".comment-list"), data)
+      display.showOneComment($(".comment-list"), data)
       var comment_element = $('#' + node_id);
       comment_element.find('img').attr({'src': settings.opts.commentBrightImage});
       comment_element.find('a').removeClass('nocomment');
@@ -196,7 +196,7 @@ function attachComment(form) {
         .val('')
         .add(form.find('input'))
         .removeAttr('disabled');
-      display.showOneCommet($(".comment-list"), data)
+      display.showOneComment($(".comment-list"), data)
       var comment_element = $('#' + node_id);
       comment_element.find('img').attr({'src': settings.opts.commentBrightImage});
       comment_element.find('a').removeClass('nocomment');
@@ -214,7 +214,7 @@ function attachComment(form) {
 module.exports = {
     initDisplay: initDisplay,
     displayComments: displayComments,
-    showOneCommet: showOneCommet,
+    showOneComment: showOneComment,
     closeComments: closeComments
 }
 
@@ -267,7 +267,7 @@ function showComments(id, comment_data) {
   element.append("<div class='comment-list' id='current-comment-list'>")
   for (index in comment_data) {
       obj = comment_data[index]
-      showOneCommet($(".comment-list"), obj)
+      showOneComment($(".comment-list"), obj)
   }
   element.append("</div>")
   var reply = '\
@@ -290,7 +290,7 @@ function showComments(id, comment_data) {
     element.append("<div class='floating-comment-list' id='floating-comment-list'>")
     for (index in comment_data) {
         obj = comment_data[index]
-        showOneCommet($(".floating-comment-list"), obj)
+        showOneComment($(".floating-comment-list"), obj)
         var attach = '\
             <div class="attach-div" id="comment-attach-' + id + '>">\
               <form class= "comment-attach-form" id="comment-attach-form' + id + '">\
@@ -311,7 +311,7 @@ function showComments(id, comment_data) {
   $.pageslide({direction: 'left', href:'#current-comment' })
 }
 
-function showOneCommet(element, comment) {
+function showOneComment(element, comment) {
     console.log("Displaying")
     console.log(comment)
       to_append = "<span class='comment'>"
