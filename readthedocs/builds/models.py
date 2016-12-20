@@ -175,7 +175,7 @@ class Version(models.Model):
     def identifier_friendly(self):
         '''Return display friendly identifier'''
         re_sha = re.compile(r'^[0-9a-f]{40}$', re.I)
-        if re_sha.match(str(self.identifier)):
+        if re_sha.match(self.identifier):
             return self.identifier[:8]
         return self.identifier
 
