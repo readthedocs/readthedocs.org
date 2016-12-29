@@ -69,8 +69,11 @@ class NotificationBackendTests(TestCase):
             mock.call(level=21, request=req, message=mock.ANY, extra_tags='')
         ])
 
-    @mock.patch('readthedocs.notifications.backends.add_message')
-    def test_email_backend(self, add_message, render_to_string):
+    @mock.patch('readthedocs.notifications.storages.FallbackUniqueStorage')
+    def test_email_backend(self, storage_class, render_to_string):
+        mock_storage = mock.Mock()
+        storage_class.return_value = mock_storage
+
         class TestNotification(Notification):
             name = 'foo'
             subject = 'This is {{ foo.id }}'
@@ -83,7 +86,6 @@ class NotificationBackendTests(TestCase):
         backend = SiteBackend(request=req)
         backend.send(notify)
 
-        add_message.assert_has_calls([
-            mock.call(level=21, request=req, message=mock.ANY, extra_tags='',
-                      user=user)
+        mock_storage.add.assert_has_calls([
+            mock.call(level=21, message=mock.ANY, extra_tags='', user=user)
         ])
