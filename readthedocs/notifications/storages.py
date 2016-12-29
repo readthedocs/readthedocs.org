@@ -45,12 +45,12 @@ class FallbackUniqueStorage(FallbackStorage):
         return safe_messages, all_ret
 
     def add(self, level, message, extra_tags='', *args, **kwargs):
-        if self.request.user.is_authenticated():
-            persist_messages = (PersistentMessage.objects
-                                .filter(message=message,
-                                        user=self.request.user,
-                                        read=False))
-            if persist_messages.exists():
-                return
+        user = kwargs.get('user') or self.request.user
+        persist_messages = (PersistentMessage.objects
+                            .filter(message=message,
+                                    user=user,
+                                    read=False))
+        if persist_messages.exists():
+            return
         super(FallbackUniqueStorage, self).add(level, message, extra_tags,
                                                *args, **kwargs)
