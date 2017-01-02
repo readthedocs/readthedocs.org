@@ -46,11 +46,12 @@ class FallbackUniqueStorage(FallbackStorage):
 
     def add(self, level, message, extra_tags='', *args, **kwargs):
         user = kwargs.get('user') or self.request.user
-        persist_messages = (PersistentMessage.objects
-                            .filter(message=message,
-                                    user=user,
-                                    read=False))
-        if persist_messages.exists():
-            return
+        if not user.is_anonymous():
+            persist_messages = (PersistentMessage.objects
+                                .filter(message=message,
+                                        user=user,
+                                        read=False))
+            if persist_messages.exists():
+                return
         super(FallbackUniqueStorage, self).add(level, message, extra_tags,
                                                *args, **kwargs)
