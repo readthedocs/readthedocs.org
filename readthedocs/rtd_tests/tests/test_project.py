@@ -48,6 +48,15 @@ class TestProject(TestCase):
             set(translation_ids_from_orm)
         )
 
+    def test_translation_delete(self):
+        project_a = get(Project)
+        project_b = get(Project, main_language_project=project_a)
+        self.assertTrue(Project.objects.filter(pk=project_a.pk).exists())
+        self.assertTrue(Project.objects.filter(pk=project_b.pk).exists())
+        project_a.delete()
+        self.assertFalse(Project.objects.filter(pk=project_a.pk).exists())
+        self.assertTrue(Project.objects.filter(pk=project_b.pk).exists())
+
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})
         resp = json.loads(r.content)
