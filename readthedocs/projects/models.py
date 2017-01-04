@@ -242,6 +242,7 @@ class Project(models.Model):
     # A subproject pointed at its main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
+                                              on_delete=models.SET_NULL,
                                               blank=True, null=True)
 
     # Version State

@@ -113,7 +113,7 @@ Fill out your information and we'll get in touch.
         <label>Your name</label>
         <input type="text" name="name" size=50 />
         <label>Your work email</label>
-        <input type="email" name="_replyto" size=40 />
+        <input type="email" name="_replyto" size=40 required/>
         <label>What is your job?</label>
         <input type="text" name="job" size=50 />
         <input type="submit" value="Send" class="btn" />
