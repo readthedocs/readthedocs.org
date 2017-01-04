@@ -89,6 +89,7 @@ Information about development is also available:
    install
    changelog
    tests
+   docs
    architecture
    development/standards
    development/buildenvironments
@@ -122,11 +123,3 @@ Information about development is also available:
    design
    theme
 
-
-.. _ops-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Operations Documentation
-
-   rtfd

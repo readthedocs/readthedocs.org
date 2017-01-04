@@ -183,7 +183,10 @@ class HtmlDirBuilder(HtmlBuilder):
 
 class SingleHtmlBuilder(HtmlBuilder):
     type = 'sphinx_singlehtml'
-    sphinx_builder = 'readthedocssinglehtml'
+
+    def __init__(self, *args, **kwargs):
+        super(SingleHtmlBuilder, self).__init__(*args, **kwargs)
+        sphinx_builder = 'readthedocssinglehtml'
 
 
 class SearchBuilder(BaseSphinx):
