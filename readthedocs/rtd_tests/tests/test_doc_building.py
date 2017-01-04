@@ -22,6 +22,8 @@ from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 
+DUMMY_BUILD_ID = 123
+
 
 class TestLocalEnvironment(TestCase):
     '''Test execution and exception handling in environment'''
@@ -44,7 +46,7 @@ class TestLocalEnvironment(TestCase):
         type(self.mocks.process).returncode = PropertyMock(return_value=0)
 
         build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={})
+                                     build={'id': DUMMY_BUILD_ID})
         with build_env:
             build_env.run('echo', 'test')
         self.assertTrue(self.mocks.process.communicate.called)
@@ -52,6 +54,7 @@ class TestLocalEnvironment(TestCase):
         self.assertTrue(build_env.successful)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, u'This is okay')
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_failing_execution(self):
         '''Build in failing state'''
@@ -60,7 +63,7 @@ class TestLocalEnvironment(TestCase):
         type(self.mocks.process).returncode = PropertyMock(return_value=1)
 
         build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={})
+                                     build={'id': DUMMY_BUILD_ID})
         with build_env:
             build_env.run('echo', 'test')
             self.fail('This should be unreachable')
@@ -69,11 +72,12 @@ class TestLocalEnvironment(TestCase):
         self.assertTrue(build_env.failed)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, u'This is not okay')
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_failing_execution_with_caught_exception(self):
         '''Build in failing state with BuildEnvironmentError exception'''
         build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={})
+                                     build={'id': DUMMY_BUILD_ID})
 
         with build_env:
             raise BuildEnvironmentError('Foobar')
@@ -82,11 +86,12 @@ class TestLocalEnvironment(TestCase):
         self.assertEqual(len(build_env.commands), 0)
         self.assertTrue(build_env.done)
         self.assertTrue(build_env.failed)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_failing_execution_with_uncaught_exception(self):
         '''Build in failing state with exception from code'''
         build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={})
+                                     build={'id': DUMMY_BUILD_ID})
 
         def _inner():
             with build_env:
@@ -96,6 +101,7 @@ class TestLocalEnvironment(TestCase):
         self.assertFalse(self.mocks.process.communicate.called)
         self.assertTrue(build_env.done)
         self.assertTrue(build_env.failed)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
 
 class TestDockerEnvironment(TestCase):
@@ -116,7 +122,7 @@ class TestDockerEnvironment(TestCase):
     def test_container_id(self):
         '''Test docker build command'''
         docker = DockerEnvironment(version=self.version, project=self.project,
-                                   build={'id': 123})
+                                   build={'id': DUMMY_BUILD_ID})
         self.assertEqual(docker.container_id,
                          'build-123-project-6-pip')
 
@@ -126,13 +132,14 @@ class TestDockerEnvironment(TestCase):
             'side_effect': DockerException
         })
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={})
+                                      build={'id': DUMMY_BUILD_ID})
 
         def _inner():
             with build_env:
                 self.fail('Should not hit this')
 
         self.assertRaises(BuildEnvironmentError, _inner)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_api_failure(self):
         '''Failing API error response from docker should raise exception'''
@@ -146,13 +153,14 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={})
+                                      build={'id': DUMMY_BUILD_ID})
 
         def _inner():
             with build_env:
                 self.fail('Should not hit this')
 
         self.assertRaises(BuildEnvironmentError, _inner)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_command_execution(self):
         '''Command execution through Docker'''
@@ -163,7 +171,7 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={'id': 123})
+                                      build={'id': DUMMY_BUILD_ID})
         with build_env:
             build_env.run('echo test', cwd='/tmp')
 
@@ -177,6 +185,7 @@ class TestDockerEnvironment(TestCase):
         self.assertEqual(build_env.commands[0].output, 'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
         self.assertTrue(build_env.failed)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_command_execution_cleanup_exception(self):
         '''Command execution through Docker, catch exception during cleanup'''
@@ -193,13 +202,14 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={'id': 123})
+                                      build={'id': DUMMY_BUILD_ID})
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
         self.mocks.docker_client.kill.assert_called_with(
             'build-123-project-6-pip')
         self.assertTrue(build_env.successful)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_container_already_exists(self):
         '''Docker container already exists'''
@@ -211,7 +221,7 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={})
+                                      build={'id': DUMMY_BUILD_ID})
         def _inner():
             with build_env:
                 build_env.run('echo', 'test', cwd='/tmp')
@@ -222,6 +232,7 @@ class TestDockerEnvironment(TestCase):
             'A build environment is currently running for this version')
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 0)
         self.assertTrue(build_env.failed)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
     def test_container_timeout(self):
         '''Docker container timeout and command failure'''
@@ -241,7 +252,7 @@ class TestDockerEnvironment(TestCase):
         })
 
         build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={})
+                                      build={'id': DUMMY_BUILD_ID})
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
@@ -250,6 +261,7 @@ class TestDockerEnvironment(TestCase):
             'Build exited due to time out')
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 1)
         self.assertTrue(build_env.failed)
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
 
 class TestBuildCommand(TestCase):
