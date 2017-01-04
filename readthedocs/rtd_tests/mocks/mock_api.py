@@ -9,6 +9,9 @@ class ProjectData(object):
     def get(self):
         return dict()
 
+    def put(self, x=None):
+        return x
+
 
 def mock_version(repo):
     class MockVersion(object):
