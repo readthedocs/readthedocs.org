@@ -294,10 +294,9 @@ class BuildEnvironment(object):
         This reports on the exception we're handling and special cases
         subclasses of BuildEnvironmentException.  For
         :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
-        don't mark the build as a failure.  For :py:class:`BuildEnvironmentError`,
-        exit gracefully, but mark the build as a failure.  For all other
-        exception classes, the build will be marked as a failure and an
-        exception will bubble up.
+        don't mark the build as a failure.  For all other exception classes,
+        including :py:class:`BuildEnvironmentError`, the build will be marked as
+        a failure and an exception will bubble up.
         """
         if exc_type is not None:
             log.error(LOG_TEMPLATE
@@ -305,13 +304,9 @@ class BuildEnvironment(object):
                               version=self.version.slug,
                               msg=exc_value),
                       exc_info=True)
-            if issubclass(exc_type, BuildEnvironmentWarning):
-                return True
-            else:
+            if not issubclass(exc_type, BuildEnvironmentWarning):
                 self.failure = exc_value
-                if issubclass(exc_type, BuildEnvironmentError):
-                    return True
-                return False
+            return True
 
     def run(self, *cmd, **kwargs):
         '''Shortcut to run command from environment'''

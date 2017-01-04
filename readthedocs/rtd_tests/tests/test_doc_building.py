@@ -88,16 +88,14 @@ class TestLocalEnvironment(TestCase):
         self.assertTrue(build_env.failed)
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
 
-    def test_failing_execution_with_uncaught_exception(self):
+    def test_failing_execution_with_unexpected_exception(self):
         '''Build in failing state with exception from code'''
         build_env = LocalEnvironment(version=self.version, project=self.project,
                                      build={'id': DUMMY_BUILD_ID})
 
-        def _inner():
-            with build_env:
-                raise Exception()
+        with build_env:
+            raise ValueError('uncaught')
 
-        self.assertRaises(Exception, _inner)
         self.assertFalse(self.mocks.process.communicate.called)
         self.assertTrue(build_env.done)
         self.assertTrue(build_env.failed)
