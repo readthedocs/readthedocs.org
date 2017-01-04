@@ -49,13 +49,24 @@ class TestProject(TestCase):
         )
 
     def test_translation_delete(self):
-        project_a = get(Project)
-        project_b = get(Project, main_language_project=project_a)
-        self.assertTrue(Project.objects.filter(pk=project_a.pk).exists())
-        self.assertTrue(Project.objects.filter(pk=project_b.pk).exists())
-        project_a.delete()
-        self.assertFalse(Project.objects.filter(pk=project_a.pk).exists())
-        self.assertTrue(Project.objects.filter(pk=project_b.pk).exists())
+        """Ensure translation deletion doesn't cascade up to main project"""
+        # In this scenario, a user has created a project and set the translation
+        # to another project. If the user deletes this new project, the delete
+        # operation shouldn't cascade up to the main project, and should instead
+        # set None on the relation.
+        project_keep = get(Project)
+        project_delete = get(Project)
+        project_delete.translations.add(project_keep)
+        self.assertTrue(Project.objects.filter(pk=project_keep.pk).exists())
+        self.assertTrue(Project.objects.filter(pk=project_delete.pk).exists())
+        self.assertEqual(
+            Project.objects.get(pk=project_keep.pk).main_language_project,
+            project_delete
+        )
+        project_delete.delete()
+        self.assertFalse(Project.objects.filter(pk=project_delete.pk).exists())
+        self.assertTrue(Project.objects.filter(pk=project_keep.pk).exists())
+        self.assertIsNone(Project.objects.get(pk=project_keep.pk).main_language_project)
 
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})
