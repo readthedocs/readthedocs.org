@@ -12,7 +12,7 @@ import socket
 from datetime import datetime
 
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext_noop
 from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
@@ -296,7 +296,7 @@ class BuildEnvironment(object):
         :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
         don't mark the build as a failure.  For all other exception classes,
         including :py:class:`BuildEnvironmentError`, the build will be marked as
-        a failure and an exception will bubble up.
+        a failure and the context will be gracefully exited.
         """
         if exc_type is not None:
             log.error(LOG_TEMPLATE
@@ -404,7 +404,14 @@ class BuildEnvironment(object):
             self.build['length'] = build_length.total_seconds()
 
         if self.failure is not None:
-            self.build['error'] = str(self.failure)
+            # Only surface the error message if it was a
+            # BuildEnvironmentException or BuildEnvironmentWarning
+            if isinstance(self.failure,
+                          (BuildEnvironmentException, BuildEnvironmentWarning)):
+                self.build['error'] = str(self.failure)
+            else:
+                self.build['error'] = ugettext_noop(
+                    "An unexpected error occurred")
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
