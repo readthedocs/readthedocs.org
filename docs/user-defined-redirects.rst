@@ -48,7 +48,7 @@ Note that the ``/`` at the start doesn't count the ``/en/latest``,
 but just the user-controlled section of the URL.
 
 Exact Redirects
---------------
+---------------
 
 If you're redirecting from an old host AND you aren't maintaining old paths for your
 documents, a Prefix Redirect won't suffice and you'll need to create *Exact Redirects*
