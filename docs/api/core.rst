@@ -21,11 +21,6 @@
 .. automodule:: readthedocs.core.models
     :members:
 
-:mod:`readthedocs.core.search_sites`
-------------------------------------
-.. automodule:: readthedocs.core.search_sites
-    :members:
-
 :mod:`readthedocs.core.views`
 -----------------------------
 .. automodule:: readthedocs.core.views
