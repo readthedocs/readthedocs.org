@@ -46,6 +46,7 @@ Information about development is also available:
    faq
    yaml-config
    guides/index
+   api
 
 .. _about-docs:
 
