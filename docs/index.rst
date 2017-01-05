@@ -30,7 +30,6 @@ Information about development is also available:
 
 * :ref:`dev-docs`
 * :ref:`design-docs`
-* :ref:`ops-docs`
 
 .. _user-docs:
 
