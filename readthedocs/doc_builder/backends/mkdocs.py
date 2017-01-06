@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 
 log = logging.getLogger(__name__)
 
@@ -42,6 +43,15 @@ class BaseMkdocs(BaseBuilder):
             user_config = {
                 'site_name': self.version.project.name,
             }
+        except yaml.YAMLError as exc:
+            note = ''
+            if hasattr(exc, 'problem_mark'):
+                mark = exc.problem_mark
+                note = ' (line %d, column %d)' % (mark.line+1, mark.column+1)
+            raise BuildEnvironmentError(
+                "Your mkdocs.yml could not be loaded, "
+                "possibly due to a syntax error%s" % (
+                    note,))
 
         # Handle custom docs dirs
 

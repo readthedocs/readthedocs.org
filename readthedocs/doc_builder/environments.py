@@ -12,7 +12,7 @@ import socket
 from datetime import datetime
 
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext_noop
 from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
@@ -281,7 +281,7 @@ class BuildEnvironment(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         ret = self.handle_exception(exc_type, exc_value, tb)
-        self.update_build(state=BUILD_STATE_FINISHED)
+        self.build['state'] = BUILD_STATE_FINISHED
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
@@ -294,10 +294,9 @@ class BuildEnvironment(object):
         This reports on the exception we're handling and special cases
         subclasses of BuildEnvironmentException.  For
         :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
-        don't mark the build as a failure.  For :py:class:`BuildEnvironmentError`,
-        exit gracefully, but mark the build as a failure.  For all other
-        exception classes, the build will be marked as a failure and an
-        exception will bubble up.
+        don't mark the build as a failure.  For all other exception classes,
+        including :py:class:`BuildEnvironmentError`, the build will be marked as
+        a failure and the context will be gracefully exited.
         """
         if exc_type is not None:
             log.error(LOG_TEMPLATE
@@ -305,13 +304,9 @@ class BuildEnvironment(object):
                               version=self.version.slug,
                               msg=exc_value),
                       exc_info=True)
-            if issubclass(exc_type, BuildEnvironmentWarning):
-                return True
-            else:
+            if not issubclass(exc_type, BuildEnvironmentWarning):
                 self.failure = exc_value
-                if issubclass(exc_type, BuildEnvironmentError):
-                    return True
-                return False
+            return True
 
     def run(self, *cmd, **kwargs):
         '''Shortcut to run command from environment'''
@@ -409,7 +404,14 @@ class BuildEnvironment(object):
             self.build['length'] = build_length.total_seconds()
 
         if self.failure is not None:
-            self.build['error'] = str(self.failure)
+            # Only surface the error message if it was a
+            # BuildEnvironmentException or BuildEnvironmentWarning
+            if isinstance(self.failure,
+                          (BuildEnvironmentException, BuildEnvironmentWarning)):
+                self.build['error'] = str(self.failure)
+            else:
+                self.build['error'] = ugettext_noop(
+                    "An unexpected error occurred")
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
@@ -480,7 +482,7 @@ class DockerEnvironment(BuildEnvironment):
                         _('A build environment is currently '
                           'running for this version'))
                     self.failure = exc
-                    self.update_build(state=BUILD_STATE_FINISHED)
+                    self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
                     log.warn(LOG_TEMPLATE
