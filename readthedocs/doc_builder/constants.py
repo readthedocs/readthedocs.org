@@ -15,6 +15,7 @@ SPHINX_STATIC_DIR = os.path.join(SPHINX_TEMPLATE_DIR, '_static')
 
 PDF_RE = re.compile('Output written on (.*?)')
 
+# Docker
 DOCKER_SOCKET = getattr(settings, 'DOCKER_SOCKET', 'unix:///var/run/docker.sock')
 DOCKER_VERSION = getattr(settings, 'DOCKER_VERSION', 'auto')
 DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'rtfd-build')
@@ -25,3 +26,16 @@ DOCKER_TIMEOUT_EXIT_CODE = 42
 DOCKER_OOM_EXIT_CODE = 137
 
 DOCKER_HOSTNAME_MAX_LEN = 64
+
+# Build images
+BUILD_IMAGES = {
+    'readthedocs/build:14.04': {
+        'python': {'supported_versions': [2, 2.7, 3, 3.3]},
+    },
+    'readthedocs/build:16.04': {
+        'python': {'supported_versions': [2, 2.7, 3, 3.5]},
+    },
+    'readthedocs/build:beta': {
+        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+    },
+}

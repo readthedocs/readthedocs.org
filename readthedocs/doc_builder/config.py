@@ -2,6 +2,7 @@ from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
 
 
+from .constants import BUILD_IMAGES, DOCKER_IMAGE
 from readthedocs.projects.exceptions import ProjectImportError
 
 
@@ -49,20 +50,20 @@ class ConfigWrapper(object):
 
     @property
     def python_interpreter(self):
-        if 'version' in self._yaml_config.get('python', {}):
-            ver = self._yaml_config['python']['version']
-            if str(ver).startswith('2'):
-                return 'python'
-            else:
-                return 'python3'
-        else:
-            return self._project.python_interpreter
+        ver = self.python_version
+        if ver in [2, 3]:
+            # Get the highest version of the major series version if user only
+            # gave us a version of '2', or '3'
+            ver = max(filter(
+                lambda x: x < ver + 1,
+                self._yaml_config.get_supported_versions(),
+            ))
+        return 'python{0}'.format(ver)
 
     @property
     def python_version(self):
         if 'version' in self._yaml_config.get('python', {}):
-            ver = self._yaml_config['python']['version']
-            return ver
+            return self._yaml_config['python']['version']
         else:
             if self._project.python_interpreter == 'python':
                 return 2
@@ -125,20 +126,36 @@ def load_yaml_config(version):
     """
 
     checkout_path = version.project.checkout_path(version.slug)
+    env_config = {}
+
+    # Get build image to set up the python version validation. Pass in the
+    # build image python limitations to the loaded config so that the versions
+    # can be rejected at validation
+    build_image = BUILD_IMAGES.get(
+        version.project.container_image,
+        BUILD_IMAGES.get(DOCKER_IMAGE, None),
+    )
+    if build_image:
+        env_config = {
+            'python': build_image['python'],
+        }
+
     try:
+        sphinx_env_config = env_config.copy()
+        sphinx_env_config.update({
+            'output_base': '',
+            'type': 'sphinx',
+            'name': version.slug,
+        })
         config = load_config(
             path=checkout_path,
-            env_config={
-                'output_base': '',
-                'type': 'sphinx',
-                'name': version.slug,
-            },
+            env_config=sphinx_env_config,
         )[0]
     except InvalidConfig:  # This is a subclass of ConfigError, so has to come first
         raise
     except ConfigError:
         config = BuildConfig(
-            env_config={},
+            env_config=env_config,
             raw_config={},
             source_file='empty',
             source_position=0,
