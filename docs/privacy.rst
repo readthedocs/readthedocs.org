@@ -44,32 +44,3 @@ Private
 
 Private objects are available only to people who have permissions to see them.
 They will not display on any list view, and will 404 when you link them to others.
-
-Project Objects
-----------------
-
-Detail Views
-~~~~~~~~~~~~
-
-    * Project Detail (/projects/<slug>)
-    * API Detail (/api/v1/project/<slug>/)
-
-List Views
-~~~~~~~~~~
-
-    * Home Page
-    * All Projects Page
-    * User Profile Page (/profiles/<user>/)
-    * Search 
-
-
-Version Objects
-----------------
-
-List Views
-~~~~~~~~~~
-
-    * Project Detail (/projects/<slug>)
-    * Version Selector on Home page
-    * Version Selector on Documentation page
-    * Search 

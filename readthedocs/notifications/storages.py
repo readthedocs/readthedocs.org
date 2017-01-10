@@ -45,10 +45,11 @@ class FallbackUniqueStorage(FallbackStorage):
         return safe_messages, all_ret
 
     def add(self, level, message, extra_tags='', *args, **kwargs):
-        if self.request.user.is_authenticated():
+        user = kwargs.get('user') or self.request.user
+        if not user.is_anonymous():
             persist_messages = (PersistentMessage.objects
                                 .filter(message=message,
-                                        user=self.request.user,
+                                        user=user,
                                         read=False))
             if persist_messages.exists():
                 return

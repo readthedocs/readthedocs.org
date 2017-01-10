@@ -1,6 +1,7 @@
 """Notification to message backends"""
 
 from django.conf import settings
+from django.http import HttpRequest
 from django.utils.module_loading import import_string
 from messages_extends.constants import INFO_PERSISTENT
 from messages_extends import add_message
@@ -67,13 +68,21 @@ class SiteBackend(Backend):
     name = 'site'
 
     def send(self, notification):
-        add_message(
-            request=self.request,
+        # Instead of calling the standard messages.add method, this instead
+        # manipulates the storage directly. This is because we don't have a
+        # request object and need to mock one out to fool the message storage
+        # into saving a message for a separate user.
+        cls_name = settings.MESSAGE_STORAGE
+        cls = import_string(cls_name)
+        req = HttpRequest()
+        setattr(req, 'session', '')
+        storage = cls(req)
+        storage.add(
+            level=LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT),
             message=notification.render(
                 backend_name=self.name,
                 source_format=HTML
             ),
-            level=LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT),
             extra_tags='',
             user=notification.user,
         )
