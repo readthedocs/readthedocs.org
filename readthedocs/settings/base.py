@@ -195,8 +195,10 @@ class CommunityBaseSettings(Settings):
     TIME_ZONE = 'America/Chicago'
     LANGUAGE_CODE = 'en-us'
     LANGUAGES = (
+        ('ca', gettext('Catalan')),
         ('en', gettext('English')),
         ('es', gettext('Spanish')),
+        ('pt-br', gettext('Brazilian Portuguese')),
         ('nb', gettext('Norwegian Bokmål')),
         ('fr', gettext('French')),
         ('ru', gettext('Russian')),
@@ -208,6 +210,7 @@ class CommunityBaseSettings(Settings):
         ('ja', gettext('Japanese')),
         ('uk', gettext('Ukrainian')),
         ('it', gettext('Italian')),
+        ('ko', gettext('Korean')),
     )
     LOCALE_PATHS = [
         os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
