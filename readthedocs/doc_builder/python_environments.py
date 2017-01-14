@@ -193,7 +193,7 @@ class Conda(PythonEnvironment):
 
         # Use conda for requirements it packages
         requirements = [
-            'sphinx==1.3.5',
+            'sphinx>=1.3.5',
             'Pygments==2.1.1',
             'docutils==0.12',
             'mock',
