@@ -13,7 +13,7 @@ from readthedocs.projects.models import Project
 
 
 class VersionCommitNameTests(TestCase):
-    def test_branch_name_unicode(self):
+    def test_branch_name_unicode_non_ascii(self):
         unicode_name = 'abc_\xd1\x84_\xe2\x99\x98'.decode('utf-8')
 
         version = new(Version, identifier=unicode_name, type=BRANCH)
@@ -25,8 +25,19 @@ class VersionCommitNameTests(TestCase):
                       type=BRANCH)
         self.assertEqual(version.commit_name, 'release-2.5.x')
 
+    def test_branch_name_unicode(self):
+        version = new(Version, identifier=u'release-2.5.x',
+                      slug='release-2.5.x', verbose_name='release-2.5.x',
+                      type=BRANCH)
+        self.assertEqual(version.commit_name, 'release-2.5.x')
+
     def test_tag_name(self):
         version = new(Version, identifier='10f1b29a2bd2', slug='release-2.5.0',
+                      verbose_name='release-2.5.0', type=TAG)
+        self.assertEqual(version.commit_name, 'release-2.5.0')
+
+    def test_tag_name_unicode(self):
+        version = new(Version, identifier=u'10f1b29a2bd2', slug='release-2.5.0',
                       verbose_name='release-2.5.0', type=TAG)
         self.assertEqual(version.commit_name, 'release-2.5.0')
 
@@ -38,6 +49,13 @@ class VersionCommitNameTests(TestCase):
     def test_stable_version_tag(self):
         version = new(Version,
                       identifier='3d92b728b7d7b842259ac2020c2fa389f13aff0d',
+                      slug=STABLE, verbose_name=STABLE, type=TAG)
+        self.assertEqual(version.commit_name,
+                         '3d92b728b7d7b842259ac2020c2fa389f13aff0d')
+
+    def test_stable_version_tag_unicode(self):
+        version = new(Version,
+                      identifier=u'3d92b728b7d7b842259ac2020c2fa389f13aff0d',
                       slug=STABLE, verbose_name=STABLE, type=TAG)
         self.assertEqual(version.commit_name,
                          '3d92b728b7d7b842259ac2020c2fa389f13aff0d')
