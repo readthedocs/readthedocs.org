@@ -1,17 +1,20 @@
 VCS Integration
 ===============
 
+If you want to integrate editing into your own theme, you will have to declare few variables inside your configuration file (config.py) in the "html_context" object, for the template to use them. 
+
 GitHub
 ------
 
-If you want to integrate GitHub editing into your own theme, the following variables are available in your custom templates:
+Conf.py::
 
-* github_user - GitHub username
-* github_repo - GitHub repo name
-* github_version - GitHub blob
-* conf_py_path - Path in the checkout to the docs root
-* pagename - Sphinx variable representing the name of the page you're on.
-* display_github
+      html_context = {
+        "display_github": True, # Integrate GitHub
+        "github_user": "MyUserName", # Username
+        "github_repo": "MyDoc", # Repo name
+        "github_version": "master", # Version
+        "conf_py_path": "/source/", # Path in the checkout to the docs root
+      }
 
 It can be used like this::
 
@@ -23,14 +26,17 @@ It can be used like this::
 Bitbucket
 ---------
 
-If you want to integrate Bitbucket editing into your own theme, the following variables are available in your custom templates:
+If you want to integrate Bitbucket, use the following variables:
 
-* bitbucket_user - Bitbucket username
-* bitbucket_repo - Bitbucket repo name
-* bitbucket_version - BitBucket version
-* conf_py_path - Path in the checkout to the docs root
-* pagename - Sphinx variable representing the name of the page you're on.
-* display_bitbucket
+Conf.py::
+
+      html_context = {
+        "display_bitbucket": True, # Integrate Bitbucket
+        "bitbucket_user": "MyUserName", # Username
+        "bitbucket_repo": "MyDoc", # Repo name
+        "bitbucket_version": "master", # Version
+        "conf_py_path": "/source/", # Path in the checkout to the docs root
+      }
 
 It can be used like this::
 
@@ -39,3 +45,30 @@ It can be used like this::
       {% endif %}
 
 
+
+Gitlab
+---------
+
+If you want to integrate Gitlab, use the following variables:
+
+Conf.py::
+
+      html_context = {
+        "display_gitlab": True, # Integrate Gitlab
+        "gitlab_user": "MyUserName", # Username
+        "gitlab_repo": "MyDoc", # Repo name
+        "gitlab_version": "master", # Version
+        "conf_py_path": "/source/", # Path in the checkout to the docs root
+      }
+
+It can be used like this::
+
+      {% if display_gitlab %}
+        <a href="https://{{ gitlab_host|default("gitlab.com") }}/{{ gitlab_user }}/{{ gitlab_repo }}/blob/{{ gitlab_version }}{{ conf_py_path }}{{ pagename }}{{ suffix }}" class="fa fa-gitlab"> Edit on GitLab</a>
+      {% endif %}
+
+
+Additionnal theme's variables:
+-------------------------------
+
+* pagename - Sphinx variable representing the name of the page you're on.
