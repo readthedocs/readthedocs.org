@@ -15,7 +15,6 @@ from readthedocs.projects.models import Project
 class VersionCommitNameTests(TestCase):
     def test_branch_name_unicode_non_ascii(self):
         unicode_name = 'abc_\xd1\x84_\xe2\x99\x98'.decode('utf-8')
-
         version = new(Version, identifier=unicode_name, type=BRANCH)
         self.assertEqual(version.identifier_friendly, unicode_name)
 
