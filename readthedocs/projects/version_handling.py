@@ -108,7 +108,7 @@ def version_windows(versions, major=1, minor=1, point=1):
 def parse_version_failsafe(version_string):
     try:
         return Version(version_string)
-    except (InvalidVersion, UnicodeEncodeError):
+    except InvalidVersion:
         return None
 
 
