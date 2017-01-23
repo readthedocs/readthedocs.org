@@ -164,8 +164,7 @@ class Version(models.Model):
     @property
     def identifier_friendly(self):
         '''Return display friendly identifier'''
-        re_sha = re.compile(r'^[0-9a-f]{40}$', re.I)
-        if re_sha.match(self.identifier):
+        if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
 
