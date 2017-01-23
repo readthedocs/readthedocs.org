@@ -15,10 +15,10 @@ If your project is hosted on GitHub, you can easily add a hook that will rebuild
 your docs whenever you push updates:
 
 * Go to the "Settings" page for your project
-* Click "Webhooks & Services"
+* Click "Integrations & Services"
 * In the "Services" section, click "Add service"
 * In the list of available services, click "ReadTheDocs"
-* Check "Active"
+* Leave "Active" checked
 * Click "Add service"
 
 .. note:: The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
