@@ -8,10 +8,14 @@ request, please familiarize yourself with `our process <Takedown Process_>`_.
 You will be asked to confirm that you have reviewed information if you submit a
 request or counter request.
 
-We aim to keep this entire process as transparent as possible. All requests and
-counter requests will be posted to this page below, in the `Request Archive`_.
-These requests will be redacted to remove all identifying information, except
-for Read the Docs user and project names.
+We aim to keep this entire process as transparent as possible. Our process is
+modeled after `GitHub's DMCA takedown process <github-dmca_>`_, which we
+appreciate for it's focus on transparency and fairness. All requests and counter
+requests will be posted to this page below, in the `Request Archive`_. These
+requests will be redacted to remove all identifying information, except for Read
+the Docs user and project names.
+
+.. _github-dmca: https://help.github.com/articles/dmca-takedown-policy/
 
 Takedown Process
 ----------------
