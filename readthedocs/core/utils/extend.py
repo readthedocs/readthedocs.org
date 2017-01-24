@@ -4,10 +4,9 @@ import inspect
 
 from django.conf import settings
 from django.utils.module_loading import import_by_path
-from django.utils.functional import LazyObject
 
 
-class SettingsOverrideObject(LazyObject):
+class SettingsOverrideObject(object):
 
     """Base class for creating class that can be overridden
 
@@ -33,22 +32,22 @@ class SettingsOverrideObject(LazyObject):
     _default_class = None
     _override_setting = None
 
-    def _setup(self):
+    def __new__(cls, *args, **kwargs):
         """Set up wrapped object
 
         This is called when attributes are accessed on :py:class:`LazyObject`
         and the underlying wrapped object does not yet exist.
         """
-        cls = self._default_class
+        cls_new = cls._default_class
         cls_path = (getattr(settings, 'CLASS_OVERRIDES', {})
-                    .get(self._get_class_id()))
-        if cls_path is None and self._override_setting is not None:
-            cls_path = getattr(settings, self._override_setting, None)
+                    .get(cls._get_class_id()))
+        if cls_path is None and cls._override_setting is not None:
+            cls_path = getattr(settings, cls._override_setting, None)
         if cls_path is not None:
-            cls = import_by_path(cls_path)
-        self._wrapped = cls()
+            cls_new = import_by_path(cls_path)
+        return cls_new(*args, **kwargs)
 
-    def _get_class_id(self):
+    @classmethod
+    def _get_class_id(cls):
         # type() here, because LazyObject overrides some attribute access
-        return '.'.join([inspect.getmodule(type(self)).__name__,
-                         type(self).__name__])
+        return '.'.join([inspect.getmodule(cls).__name__, cls.__name__])

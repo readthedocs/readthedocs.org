@@ -146,6 +146,13 @@ class VersionManager(models.Manager):
         defaults.update(kwargs)
         return self.create(**defaults)
 
+    def for_project(self, project):
+        """Return all versions for a project, including translations"""
+        return self.filter(
+            models.Q(project=project) |
+            models.Q(project__main_language_project=project)
+        )
+
 
 class BuildManager(models.Manager):
 
