@@ -61,6 +61,7 @@ Information about development is also available:
    open-source-philosophy
    story
    talks
+   dmca/index
 
 .. _feature-docs:
 
