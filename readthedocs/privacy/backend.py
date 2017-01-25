@@ -1,5 +1,3 @@
-import logging
-
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
@@ -14,7 +12,6 @@ from readthedocs.core.utils.extend import (SettingsOverrideObject,
                                            get_override_class)
 from readthedocs.projects import constants
 
-log = logging.getLogger(__name__)
 
 class ProjectManager(models.Manager):
 
@@ -87,6 +84,9 @@ class VersionManager(models.Manager):
 
     @classmethod
     def from_queryset(cls, queryset_class, class_name=None):
+        # This is overridden because :py:meth:`models.Manager.from_queryset`
+        # uses `inspect` to retrieve the class methods, and the proxy class has
+        # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
             VersionQuerySet._default_class
