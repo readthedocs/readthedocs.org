@@ -32,7 +32,7 @@ class SettingsOverrideMeta(type):
 
     """Meta class for passing along classmethod class to the underlying class"""
 
-    def __getattr__(cls, attr):
+    def __getattr__(cls, attr):  # noqa: pep8 false positive
         proxy_class = getattr(cls, '_default_class')
         return getattr(proxy_class, attr)
 

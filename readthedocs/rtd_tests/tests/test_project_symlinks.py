@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import shutil
+import tempfile
+import collections
 from functools import wraps
 
-from mock import patch
-from django.test import TestCase
+import mock
+from django.conf import settings
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
@@ -12,347 +16,778 @@ from readthedocs.projects.models import Project, Domain
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 
 
-def patched(fn):
-    '''Patches calls to run_on_app_servers on instance methods'''
+def get_filesystem(path, top_level_path=None):
+    """Recurse into path, return dictionary mapping of path and files
 
-    @wraps(fn)
-    def wrapper(self):
+    This will return the path `path` as a nested dictionary of path objects.
+    Directories are mapped to dictionary objects, file objects will have a
+    `type` of `file`, and symlinks will have a `type` of `link`, with a
+    parameter `target`, noting the relative path of the symlink target.
 
-        def _collect_commands(cmd):
-            self.commands.append(cmd)
+    :param path: Path to inspect
+    :param top_level_path: Original path for inspection, default is `path`
+    :returns: Dictionary of path objects
+    :rtype: dict
+    """
+    fs = {}
+    if top_level_path is None:
+        top_level_path = path
+    for child in os.listdir(path):
+        full_path = os.path.join(path, child)
+        if os.path.islink(full_path):
+            fs[child] = {
+                'type': 'link',
+                'target': os.path.relpath(os.path.realpath(full_path),
+                                          top_level_path)
+            }
+        elif os.path.isfile(full_path):
+            fs[child] = {
+                'type': 'file',
+            }
+        elif os.path.isdir(full_path):
+            fs[child] = get_filesystem(full_path, top_level_path)
+    return fs
 
-        with patch('readthedocs.core.symlink.run', _collect_commands):
-            return fn(self)
-    return wrapper
 
+class TempSiterootCase(object):
 
-class TestSymlinkCnames(TestCase):
+    """Override SITE_ROOT and patch necessary pieces to inspect symlink structure
+
+    This uses some patches and overidden settings to build out symlinking in a
+    temporary path.  Each test is therefore isolated, and cleanup will remove
+    these paths after the test case wraps up.
+
+    And subclasses that implement :py:cls:`TestCase` should also make use of
+    :py:func:`override_settings`.
+    """
 
     def setUp(self):
-        self.project = get(Project, slug='kong')
-        self.version = get(Version, verbose_name='latest', active=True, project=self.project)
-        self.symlink = PublicSymlink(self.project)
-        self.args = {
-            'cname_root': self.symlink.CNAME_ROOT,
-            'project_root': self.symlink.project_root,
+        self.maxDiff = None
+        self.site_root = os.path.realpath(tempfile.mkdtemp(suffix='siteroot'))
+        settings.SITE_ROOT = self.site_root
+        settings.DOCROOT = os.path.join(settings.SITE_ROOT, 'user_builds')
+        self.mocks = {
+            'PublicSymlinkBase.CNAME_ROOT': mock.patch(
+                'readthedocs.core.symlink.PublicSymlinkBase.CNAME_ROOT',
+                new_callable=mock.PropertyMock
+            ),
+            'PublicSymlinkBase.WEB_ROOT': mock.patch(
+                'readthedocs.core.symlink.PublicSymlinkBase.WEB_ROOT',
+                new_callable=mock.PropertyMock
+            ),
+            'PublicSymlinkBase.PROJECT_CNAME_ROOT': mock.patch(
+                'readthedocs.core.symlink.PublicSymlinkBase.PROJECT_CNAME_ROOT',
+                new_callable=mock.PropertyMock
+            ),
+            'PrivateSymlinkBase.CNAME_ROOT': mock.patch(
+                'readthedocs.core.symlink.PrivateSymlinkBase.CNAME_ROOT',
+                new_callable=mock.PropertyMock
+            ),
+            'PrivateSymlinkBase.WEB_ROOT': mock.patch(
+                'readthedocs.core.symlink.PrivateSymlinkBase.WEB_ROOT',
+                new_callable=mock.PropertyMock
+            ),
+            'PrivateSymlinkBase.PROJECT_CNAME_ROOT': mock.patch(
+                'readthedocs.core.symlink.PrivateSymlinkBase.PROJECT_CNAME_ROOT',
+                new_callable=mock.PropertyMock
+            ),
         }
-        self.commands = []
+        self.patches = dict((key, mock.start()) for (key, mock) in self.mocks.items())
+        self.patches['PublicSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
+            settings.SITE_ROOT, 'public_cname_root'
+        )
+        self.patches['PublicSymlinkBase.WEB_ROOT'].return_value = os.path.join(
+            settings.SITE_ROOT, 'public_web_root'
+        )
+        self.patches['PublicSymlinkBase.PROJECT_CNAME_ROOT'].return_value = os.path.join(
+            settings.SITE_ROOT, 'public_cname_project'
+        )
+        self.patches['PrivateSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
+            settings.SITE_ROOT, 'private_cname_root'
+        )
+        self.patches['PrivateSymlinkBase.WEB_ROOT'].return_value = os.path.join(
+            settings.SITE_ROOT, 'private_web_root'
+        )
+        self.patches['PrivateSymlinkBase.PROJECT_CNAME_ROOT'].return_value = os.path.join(
+            settings.SITE_ROOT, 'private_cname_project'
+        )
 
-    @patched
+    def tearDown(self):
+        shutil.rmtree(self.site_root)
+
+    def assertFilesystem(self, filesystem):
+        """
+        Creates a nested dictionary that represents the folder structure of rootdir
+        """
+        self.assertEqual(filesystem, get_filesystem(self.site_root))
+
+
+@override_settings()
+class TestSymlinkCnames(TempSiterootCase, TestCase):
+
+    def setUp(self):
+        super(TestSymlinkCnames, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='public',
+                           main_language_project=None)
+        self.symlink = PublicSymlink(self.project)
+
     def test_symlink_cname(self):
-        self.cname = get(Domain, project=self.project, url='http://woot.com', cname=True)
+        self.domain = get(Domain, project=self.project, domain='woot.com',
+                          url='http://woot.com', cname=True)
         self.symlink.symlink_cnames()
-        self.args['cname'] = self.cname.domain
-        commands = [
-            'ln -nsf {project_root} {cname_root}/{cname}',
-        ]
+        self.assertFilesystem({
+            'private_cname_project': {
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+            },
+            'private_cname_root': {
+                'woot.com': {'type': 'link', 'target': 'private_web_root/kong'},
+            },
+            'private_web_root': {'kong': {'en': {}}},
+            'public_cname_project': {
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+            },
+            'public_cname_root': {
+                'woot.com': {'type': 'link', 'target': 'public_web_root/kong'},
+            },
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}}
+            }
+        })
 
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
+    def test_symlink_cname_dont_link_missing_domains(self):
+        """Domains should be relinked after deletion"""
+        self.domain = get(Domain, project=self.project, domain='woot.com',
+                          url='http://woot.com', cname=True)
+        self.symlink.symlink_cnames()
+        filesystem = {
+            'private_cname_project': {
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+            },
+            'private_cname_root': {
+                'woot.com': {'type': 'link', 'target': 'private_web_root/kong'},
+            },
+            'private_web_root': {'kong': {'en': {}}},
+            'public_cname_project': {
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+            },
+            'public_cname_root': {
+                'woot.com': {'type': 'link', 'target': 'public_web_root/kong'},
+            },
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}}
+            }
+        }
+        self.assertFilesystem(filesystem)
+        self.domain.delete()
+        filesystem['public_cname_root'] = {}
+        filesystem['private_cname_root'] = {}
+        # TODO full removal is not handled by the symlink operation, and is
+        # instead a celery task. This won't reflect those changes
+        self.symlink.symlink_cnames()
+        self.assertFilesystem(filesystem)
 
 
-class BaseSubprojects(object):
+class BaseSubprojects(TempSiterootCase):
 
-    @patched
     def test_subproject_normal(self):
+        """Symlink pass adds symlink for subproject"""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
-        self.args['subproject'] = self.subproject.slug
-        commands = [
-            'ln -nsf {web_root}/{subproject} {subproject_root}/{subproject}',
-        ]
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+                'sub': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/kong/rtd-builds/latest',
+                    }},
+                    'projects': {
+                        'sub': {
+                            'type': 'link',
+                            'target': 'public_web_root/sub',
+                        }
+                    }
+                },
+                'sub': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/sub/rtd-builds/latest',
+                    }}
+                }
+            }
+        }
+        if self.privacy == 'private':
+            sub_projects = filesystem['public_web_root']['kong']['projects']
+            sub_projects['sub']['target'] = 'private_web_root/sub'
+            filesystem['private_web_root']['kong']['projects'] = sub_projects
+            del filesystem['public_web_root']['kong']['projects']
+        self.assertFilesystem(filesystem)
 
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
-
-    @patched
     def test_subproject_alias(self):
+        """Symlink pass adds symlink for subproject alias"""
         self.project.add_subproject(self.subproject, alias='sweet-alias')
         self.symlink.symlink_subprojects()
-        self.args['subproject'] = self.subproject.slug
-        self.args['alias'] = 'sweet-alias'
-        commands = [
-            'ln -nsf {web_root}/{subproject} {subproject_root}/{subproject}',
-            'ln -nsf {web_root}/{subproject} {subproject_root}/{alias}',
-        ]
-
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+                'sub': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/kong/rtd-builds/latest',
+                    }},
+                    'projects': {
+                        'sub': {
+                            'type': 'link',
+                            'target': 'public_web_root/sub',
+                        },
+                        'sweet-alias': {
+                            'type': 'link',
+                            'target': 'public_web_root/sub',
+                        },
+                    }
+                },
+                'sub': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/sub/rtd-builds/latest',
+                    }}
+                }
+            }
+        }
+        if self.privacy == 'private':
+            sub_projects = filesystem['public_web_root']['kong']['projects']
+            sub_projects['sub']['target'] = 'private_web_root/sub'
+            sub_projects['sweet-alias']['target'] = 'private_web_root/sub'
+            filesystem['private_web_root']['kong']['projects'] = sub_projects
+            del filesystem['public_web_root']['kong']['projects']
+        self.assertFilesystem(filesystem)
 
     def test_remove_subprojects(self):
+        """Nonexistant subprojects are unlinked"""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
-        subproject_link = os.path.join(
-            self.symlink.subproject_root, self.subproject.slug
-        )
-        self.assertTrue(os.path.lexists(subproject_link))
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+                'sub': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/kong/rtd-builds/latest',
+                    }},
+                    'projects': {
+                        'sub': {
+                            'type': 'link',
+                            'target': 'public_web_root/sub',
+                        }
+                    }
+                },
+                'sub': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/sub/rtd-builds/latest',
+                    }}
+                }
+            }
+        }
+        if self.privacy == 'private':
+            sub_projects = filesystem['public_web_root']['kong']['projects']
+            sub_projects['sub']['target'] = 'private_web_root/sub'
+            filesystem['private_web_root']['kong']['projects'] = sub_projects
+            del filesystem['public_web_root']['kong']['projects']
+        self.assertFilesystem(filesystem)
+
         self.project.remove_subproject(self.subproject)
         self.symlink.symlink_subprojects()
-        self.assertTrue(not os.path.lexists(subproject_link))
+        if self.privacy == 'public':
+            filesystem['public_web_root']['kong']['projects'] = {}
+        if self.privacy == 'private':
+            filesystem['private_web_root']['kong']['projects'] = {}
+        self.assertFilesystem(filesystem)
 
 
+@override_settings()
 class TestPublicSubprojects(BaseSubprojects, TestCase):
+
     def setUp(self):
-        self.project = get(Project, slug='kong')
-        self.subproject = get(Project, slug='sub')
+        super(TestPublicSubprojects, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='public',
+                           main_language_project=None)
+        self.subproject = get(Project, slug='sub', privacy_level='public',
+                              main_language_project=None)
         self.symlink = PublicSymlink(self.project)
-        self.args = {
-            'web_root': self.symlink.WEB_ROOT,
-            'subproject_root': self.symlink.subproject_root,
-        }
-        self.commands = []
+        self.privacy = 'public'
 
 
+@override_settings()
 class TestPrivateSubprojects(BaseSubprojects, TestCase):
+
     def setUp(self):
-        self.project = get(Project, slug='kong', privacy_level='private')
-        self.subproject = get(Project, slug='sub', privacy_level='private')
+        super(TestPrivateSubprojects, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='private',
+                           main_language_project=None)
+        self.subproject = get(Project, slug='sub', privacy_level='private',
+                              main_language_project=None)
         self.symlink = PrivateSymlink(self.project)
-        self.args = {
-            'web_root': self.symlink.WEB_ROOT,
-            'subproject_root': self.symlink.subproject_root,
-        }
-        self.commands = []
+        self.privacy = 'private'
 
 
-class BaseSymlinkTranslations(object):
+class BaseSymlinkTranslations(TempSiterootCase):
 
-    @patched
     def test_symlink_basic(self):
-        '''Test basic scenario, language english, translation german'''
+        """Test basic scenario, language english, translation german"""
         self.symlink.symlink_translations()
-        commands = [
-            'ln -nsf {translation_root}/de {project_root}/de',
-        ]
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+                'pip': {'de': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/master',
+                        },
+                    },
+                    'de': {
+                        'type': 'link',
+                        'target': 'public_web_root/pip/de',
+                    },
+                },
+                'pip': {
+                    'de': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/master',
+                        },
+                    }
+                }
+            }
+        }
+        if self.privacy == 'private':
+            lang = filesystem['public_web_root']['kong']['de']
+            lang['target'] = 'private_web_root/pip/de'
+            filesystem['private_web_root']['kong']['de'] = lang
+            del filesystem['public_web_root']['kong']['de']
+        self.assertFilesystem(filesystem)
 
-        for command in commands:
-            self.assertIsNotNone(
-                self.commands.pop(
-                    self.commands.index(command.format(**self.args))
-                ))
-
-    @patched
     def test_symlink_non_english(self):
-        '''Test language german, translation english'''
-        # Change the languages, and then clear commands, as project.save calls
-        # the symlinking
+        """Test language german, translation english"""
         self.project.language = 'de'
         self.translation.language = 'en'
         self.project.save()
         self.translation.save()
-        self.commands = []
-
         self.symlink.symlink_translations()
-        commands = [
-            'ln -nsf {translation_root}/en {project_root}/en',
-        ]
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'de': {}},
+                'pip': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {
+                        'type': 'link',
+                        'target': 'public_web_root/pip/en',
+                    },
+                    'de': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/master',
+                        },
+                    },
+                },
+                'pip': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/master',
+                        },
+                    }
+                }
+            }
+        }
+        if self.privacy == 'private':
+            lang = filesystem['public_web_root']['kong']['en']
+            lang['target'] = 'private_web_root/pip/en'
+            filesystem['private_web_root']['kong']['en'] = lang
+            del filesystem['public_web_root']['kong']['en']
+        self.assertFilesystem(filesystem)
 
-        for command in commands:
-            self.assertIsNotNone(
-                self.commands.pop(
-                    self.commands.index(command.format(**self.args))
-                ))
-
-    @patched
     def test_symlink_no_english(self):
-        '''Test language german, no english
+        """Test language german, no english
 
         This should symlink the translation to 'en' even though there is no 'en'
         language in translations or project language
-        '''
-        # Change the languages, and then clear commands, as project.save calls
-        # the symlinking
+        """
         self.project.language = 'de'
         trans = self.project.translations.first()
         self.project.translations.remove(trans)
         self.project.save()
         self.assertNotIn(trans, self.project.translations.all())
-        self.commands = []
-
         self.symlink.symlink_translations()
-        commands = []
-
-        for command in commands:
-            self.assertIsNotNone(
-                self.commands.pop(
-                    self.commands.index(command.format(**self.args))
-                ))
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'de': {}},
+                'pip': {'de': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'de': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/master',
+                        },
+                    },
+                },
+                'pip': {
+                    'de': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/master',
+                        },
+                    }
+                }
+            }
+        }
+        self.assertFilesystem(filesystem)
 
     def test_remove_language(self):
         self.symlink.symlink_translations()
-        trans_link = os.path.join(
-            self.symlink.project_root, self.translation.language
-        )
-        self.assertTrue(os.path.lexists(trans_link))
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+                'pip': {'de': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'de': {
+                        'type': 'link',
+                        'target': 'public_web_root/pip/de',
+                    },
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/master',
+                        },
+                    },
+                },
+                'pip': {
+                    'de': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/latest',
+                        },
+                        'master': {
+                            'type': 'link',
+                            'target': 'user_builds/pip/rtd-builds/master',
+                        },
+                    }
+                }
+            }
+        }
+        if self.privacy == 'private':
+            lang = filesystem['public_web_root']['kong']['de']
+            lang['target'] = 'private_web_root/pip/de'
+            filesystem['private_web_root']['kong']['de'] = lang
+            del filesystem['public_web_root']['kong']['de']
+        self.assertFilesystem(filesystem)
 
         trans = self.project.translations.first()
         self.project.translations.remove(trans)
         self.symlink.symlink_translations()
-        self.assertTrue(not os.path.lexists(trans_link))
+        if self.privacy == 'public':
+            del filesystem['public_web_root']['kong']['de']
+        elif self.privacy == 'private':
+            del filesystem['private_web_root']['kong']['de']
+        self.assertFilesystem(filesystem)
 
 
+@override_settings()
 class TestPublicSymlinkTranslations(BaseSymlinkTranslations, TestCase):
 
     def setUp(self):
-        self.project = get(Project, slug='kong')
-        self.translation = get(Project, slug='pip')
-        self.translation.language = 'de'
-        self.translation.main_language_project = self.project
+        super(TestPublicSymlinkTranslations, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='public',
+                           main_language_project=None)
+        self.translation = get(Project, slug='pip', language='de',
+                               privacy_level='public',
+                               main_language_project=None)
         self.project.translations.add(self.translation)
-        self.translation.save()
-        self.project.save()
         self.symlink = PublicSymlink(self.project)
-        get(Version, verbose_name='master', active=True, project=self.project)
-        get(Version, verbose_name='master', active=True, project=self.translation)
-        self.args = {
-            'project_root': self.symlink.project_root,
-            'translation_root': os.path.join(self.symlink.WEB_ROOT, self.translation.slug),
-        }
+        get(Version, slug='master', verbose_name='master', active=True,
+            project=self.project)
+        get(Version, slug='master', verbose_name='master', active=True,
+            project=self.translation)
         self.assertIn(self.translation, self.project.translations.all())
-        self.commands = []
+        self.privacy = 'public'
 
 
+@override_settings()
 class TestPrivateSymlinkTranslations(BaseSymlinkTranslations, TestCase):
 
     def setUp(self):
-        self.project = get(Project, slug='kong', privacy_level='private')
-        self.translation = get(Project, slug='pip', privacy_level='private')
-        self.translation.language = 'de'
-        self.translation.main_language_project = self.project
+        super(TestPrivateSymlinkTranslations, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='private',
+                           main_language_project=None)
+        self.translation = get(Project, slug='pip', language='de',
+                               privacy_level='private',
+                               main_language_project=None)
         self.project.translations.add(self.translation)
-        self.translation.save()
-        self.project.save()
         self.symlink = PrivateSymlink(self.project)
-        get(Version, verbose_name='master', active=True, project=self.project)
-        get(Version, verbose_name='master', active=True, project=self.translation)
-        self.args = {
-            'project_root': self.symlink.project_root,
-            'translation_root': os.path.join(self.symlink.WEB_ROOT, self.translation.slug),
-        }
+        get(Version, slug='master', verbose_name='master', active=True,
+            project=self.project)
+        get(Version, slug='master', verbose_name='master', active=True,
+            project=self.translation)
         self.assertIn(self.translation, self.project.translations.all())
-        self.commands = []
+        self.privacy = 'private'
 
 
-class TestPublicSymlinkSingleVersion(TestCase):
+@override_settings()
+class TestPublicSymlinkSingleVersion(TempSiterootCase, TestCase):
 
     def setUp(self):
-        self.project = get(Project, slug='kong')
-        self.version = get(Version, verbose_name='latest', active=True, project=self.project)
+        super(TestPublicSymlinkSingleVersion, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='public',
+                           main_language_project=None)
+        self.version = self.project.versions.get(slug='latest')
+        self.version.privacy_level = 'public'
+        self.version.save()
         self.symlink = PublicSymlink(self.project)
-        self.args = {
-            'project_root': self.symlink.project_root,
-            'doc_path': self.project.rtd_build_path(),
-        }
-        self.commands = []
 
-    @patched
     def test_symlink_single_version(self):
         self.symlink.symlink_single_version()
-        commands = [
-            'ln -nsf {doc_path}/ {project_root}',
-        ]
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                },
+            }
+        }
+        self.assertFilesystem(filesystem)
 
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
-
-    @patched
     def test_symlink_single_version_missing(self):
-        project = get(Project)
-        project.versions.update(privacy_level='private')
-        symlink = PublicSymlink(project)
-        # Set because *something* triggers project symlinking on get(Project)
-        self.commands = []
-        symlink.symlink_single_version()
-        self.assertEqual([], self.commands)
+        self.project.versions = []
+        self.project.save()
+        self.symlink = PublicSymlink(self.project)
+        self.symlink.symlink_single_version()
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }
+            }
+        }
+        self.assertFilesystem(filesystem)
 
 
-class BaseSymlinkVersions(object):
+class BaseSymlinkVersions(TempSiterootCase):
 
-    @patched
     def test_symlink_versions(self):
         self.symlink.symlink_versions()
-        commands = [
-            'ln -nsf {stable_path} {project_root}/en/stable',
-            'ln -nsf {latest_path} {project_root}/en/latest',
-        ]
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/latest',
+                        },
+                        'stable': {
+                            'type': 'link',
+                            'target': 'user_builds/kong/rtd-builds/stable',
+                        },
+                    },
+                },
+            }
+        }
+        if self.privacy == 'private':
+            versions = filesystem['public_web_root']['kong']['en']
+            filesystem['private_web_root']['kong']['en'] = versions.copy()
+            del filesystem['public_web_root']['kong']['en']['stable']
+        self.assertFilesystem(filesystem)
 
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
 
-
+@override_settings()
 class TestPublicSymlinkVersions(BaseSymlinkVersions, TestCase):
 
     def setUp(self):
-        self.project = get(Project, slug='kong')
-        self.stable = get(
-            Version, slug='stable', verbose_name='stable', active=True, project=self.project)
+        super(TestPublicSymlinkVersions, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='public',
+                           main_language_project=None)
+        self.stable = get(Version, slug='stable', verbose_name='stable',
+                          active=True, project=self.project,
+                          privacy_level='public')
         self.symlink = PublicSymlink(self.project)
-        self.args = {
-            'project_root': self.symlink.project_root,
-            'latest_path': self.project.rtd_build_path('latest'),
-            'stable_path': self.project.rtd_build_path('stable'),
-        }
-        self.commands = []
+        self.privacy = 'public'
 
-    @patched
-    def test_no_symlink_private_versions(self):
+    def test_symlink_private_versions(self):
         self.stable.privacy_level = 'private'
         self.stable.save()
         self.symlink.symlink_versions()
-        commands = [
-            'ln -nsf {latest_path} {project_root}/en/latest',
-        ]
-
-        for index, command in enumerate(commands):
-            self.assertEqual(self.commands[index], command.format(**self.args))
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {'stable': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/stable',
+                }}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}},
+            }
+        }
+        self.assertFilesystem(filesystem)
 
     def test_removed_versions(self):
-        version_link = os.path.join(
-            self.symlink.project_root, 'en', self.stable.slug
-        )
         self.symlink.symlink_versions()
-        self.assertTrue(os.path.lexists(version_link))
-        self.stable.privacy_level = 'private'
-        self.stable.save()
+        self.stable.delete()
         self.symlink.symlink_versions()
-        self.assertTrue(not os.path.lexists(version_link))
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}},
+            }
+        }
+        self.assertFilesystem(filesystem)
 
 
+@override_settings()
 class TestPrivateSymlinkVersions(BaseSymlinkVersions, TestCase):
 
     def setUp(self):
-        self.project = get(Project, slug='kong', privacy_level='private')
-        self.stable = get(
-            Version, slug='stable', verbose_name='stable',
-            active=True, project=self.project, privacy_level='private')
-        self.project.versions.filter(slug='latest').update(privacy_level='private')
+        super(TestPrivateSymlinkVersions, self).setUp()
+        self.project = get(Project, slug='kong', privacy_level='private',
+                           main_language_project=None)
+        self.stable = get(Version, slug='stable', verbose_name='stable',
+                          active=True, project=self.project,
+                          privacy_level='private')
+        self.project.versions.update(privacy_level='private')
         self.symlink = PrivateSymlink(self.project)
-        self.args = {
-            'project_root': self.symlink.project_root,
-            'latest_path': self.project.rtd_build_path('latest'),
-            'stable_path': self.project.rtd_build_path('stable'),
-        }
-        self.commands = []
-
-# Unicode
+        self.privacy = 'private'
 
 
-class TestPublicSymlinkUnicode(TestCase):
+@override_settings()
+class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
 
     def setUp(self):
-        self.project = get(Project, slug='kong', name=u'foo-∫')
-        self.stable = get(
-            Version, slug='stable', verbose_name=u'foo-∂', active=True, project=self.project)
+        super(TestPublicSymlinkUnicode, self).setUp()
+        self.project = get(Project, slug='kong', name=u'foo-∫',
+                           main_language_project=None)
+        self.stable = get(Version, slug='foo-a', verbose_name=u'foo-∂',
+                          active=True, project=self.project)
         self.symlink = PublicSymlink(self.project)
-        self.args = {
-            'project_root': self.symlink.project_root,
-            'latest_path': self.project.rtd_build_path('latest'),
-            'stable_path': self.project.rtd_build_path('stable'),
-        }
-        self.commands = []
 
-    @patched
     def test_symlink_no_error(self):
-        # Don't raise an error.
-        self.symlink.run()
-        self.assertTrue(True)
+        try:
+            self.symlink.run()
+        except:
+            self.fail('Symlink run raised an exception on unicode slug')
