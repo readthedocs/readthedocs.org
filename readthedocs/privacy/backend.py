@@ -1,3 +1,4 @@
+import logging
 
 from django.db import models
 
@@ -9,8 +10,11 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.core.utils.extend import (SettingsOverrideObject,
+                                           get_override_class)
 from readthedocs.projects import constants
 
+log = logging.getLogger(__name__)
 
 class ProjectManager(models.Manager):
 
@@ -75,6 +79,47 @@ class ProjectManager(models.Manager):
 
 class VersionManager(models.Manager):
 
+    """Version manager for manager only queries
+
+    For queries not suitable for the :py:cls:`VersionQuerySet`, such as create
+    queries.
+    """
+
+    @classmethod
+    def from_queryset(cls, queryset_class, class_name=None):
+        queryset_class = get_override_class(
+            VersionQuerySet,
+            VersionQuerySet._default_class
+        )
+        return super(VersionManager, cls).from_queryset(queryset_class, class_name)
+
+    def create_stable(self, **kwargs):
+        defaults = {
+            'slug': STABLE,
+            'verbose_name': STABLE_VERBOSE_NAME,
+            'machine': True,
+            'active': True,
+            'identifier': STABLE,
+            'type': TAG,
+        }
+        defaults.update(kwargs)
+        return self.create(**defaults)
+
+    def create_latest(self, **kwargs):
+        defaults = {
+            'slug': LATEST,
+            'verbose_name': LATEST_VERBOSE_NAME,
+            'machine': True,
+            'active': True,
+            'identifier': LATEST,
+            'type': BRANCH,
+        }
+        defaults.update(kwargs)
+        return self.create(**defaults)
+
+
+class VersionQuerySetBase(models.QuerySet):
+
     """
     Versions take into account their own privacy_level setting.
     """
@@ -83,7 +128,7 @@ class VersionManager(models.Manager):
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('builds.view_version'):
-            return self.get_queryset().all().distinct()
+            return self.all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             queryset = user_queryset | queryset
@@ -122,36 +167,17 @@ class VersionManager(models.Manager):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
-    def create_stable(self, **kwargs):
-        defaults = {
-            'slug': STABLE,
-            'verbose_name': STABLE_VERBOSE_NAME,
-            'machine': True,
-            'active': True,
-            'identifier': STABLE,
-            'type': TAG,
-        }
-        defaults.update(kwargs)
-        return self.create(**defaults)
-
-    def create_latest(self, **kwargs):
-        defaults = {
-            'slug': LATEST,
-            'verbose_name': LATEST_VERBOSE_NAME,
-            'machine': True,
-            'active': True,
-            'identifier': LATEST,
-            'type': BRANCH,
-        }
-        defaults.update(kwargs)
-        return self.create(**defaults)
-
     def for_project(self, project):
         """Return all versions for a project, including translations"""
         return self.filter(
             models.Q(project=project) |
             models.Q(project__main_language_project=project)
         )
+
+
+class VersionQuerySet(SettingsOverrideObject):
+
+    _default_class = VersionQuerySetBase
 
 
 class BuildManager(models.Manager):

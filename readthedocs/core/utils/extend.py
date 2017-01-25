@@ -6,6 +6,28 @@ from django.conf import settings
 from django.utils.module_loading import import_by_path
 
 
+def get_override_class(proxy_class, default_class):
+    class_id = '.'.join([
+        inspect.getmodule(proxy_class).__name__,
+        proxy_class.__name__
+    ])
+    class_path = getattr(settings, 'CLASS_OVERRIDES', {}).get(class_id)
+    if class_path is None and proxy_class._override_setting is not None:
+        class_path = getattr(settings, proxy_class._override_setting, None)
+    if class_path is not None:
+        default_class = import_by_path(class_path)
+    return default_class
+
+
+class SettingsOverrideMeta(type):
+
+    """Meta class for passing along classmethod class to the underlying class"""
+
+    def __getattr__(cls, attr):
+        proxy_class = getattr(cls, '_default_class')
+        return getattr(proxy_class, attr)
+
+
 class SettingsOverrideObject(object):
 
     """Base class for creating class that can be overridden
@@ -29,25 +51,15 @@ class SettingsOverrideObject(object):
     attempt to pull the key :py:cvar:`_override_setting` from ``settings``.
     """
 
+    __metaclass__ = SettingsOverrideMeta
+
     _default_class = None
     _override_setting = None
 
     def __new__(cls, *args, **kwargs):
         """Set up wrapped object
 
-        This is called when attributes are accessed on :py:class:`LazyObject`
-        and the underlying wrapped object does not yet exist.
+        Create an instance of the underlying proxy class and return instead of
+        this class.
         """
-        cls_new = cls._default_class
-        cls_path = (getattr(settings, 'CLASS_OVERRIDES', {})
-                    .get(cls._get_class_id()))
-        if cls_path is None and cls._override_setting is not None:
-            cls_path = getattr(settings, cls._override_setting, None)
-        if cls_path is not None:
-            cls_new = import_by_path(cls_path)
-        return cls_new(*args, **kwargs)
-
-    @classmethod
-    def _get_class_id(cls):
-        # type() here, because LazyObject overrides some attribute access
-        return '.'.join([inspect.getmodule(cls).__name__, cls.__name__])
+        return get_override_class(cls, cls._default_class)(*args, **kwargs)

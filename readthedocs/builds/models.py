@@ -12,8 +12,8 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
-from readthedocs.privacy.loader import (VersionManager, RelatedBuildManager,
-                                        BuildManager)
+from readthedocs.privacy.backend import VersionQuerySet, VersionManager
+from readthedocs.privacy.loader import RelatedBuildManager, BuildManager
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
@@ -69,7 +69,8 @@ class Version(models.Model):
     )
     tags = TaggableManager(blank=True)
     machine = models.BooleanField(_('Machine Created'), default=False)
-    objects = VersionManager()
+
+    objects = VersionManager.from_queryset(VersionQuerySet)()
 
     class Meta:
         unique_together = [('project', 'slug')]
