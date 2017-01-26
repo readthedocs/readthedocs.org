@@ -48,13 +48,17 @@ look something along the lines of ``http://readthedocs.org/build/<project_name>`
 Regardless of which revision control system you use, you can just hit this URL
 to kick off a rebuild.
 
+The following parameters available to customize the behavior of custom webhooks:
+
+* ``'version_slug'``: The build version to trigger build for (defaults to ``'latest'``)
+
+  Example::
+  
+      $ curl -X POST --data "version_slug=$VERSION" https://readthedocs.org/build/$PROJECT_NAME
+
 You could make this part of a hook using Git_, Subversion_, Mercurial_, or
 Bazaar_, perhaps through a simple script that accesses the build URL using
 ``wget`` or ``curl``.
-
-The POST parameters available for webhooks:
-
-    * version_slug: The build version to trigger build for (default: latest)
 
 .. _Git: http://www.kernel.org/pub/software/scm/git/docs/githooks.html
 .. _Subversion: http://mikewest.org/2006/06/subversion-post-commit-hooks-101
