@@ -75,6 +75,7 @@ Information about development is also available:
    alternate_domains
    localization
    vcs
+   subprojects
    conda
    canonical
    single_version
