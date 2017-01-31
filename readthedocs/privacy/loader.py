@@ -5,9 +5,7 @@ from django.conf import settings
 ProjectManager = import_by_path(
     getattr(settings, 'PROJECT_MANAGER',
             'readthedocs.privacy.backend.ProjectManager'))
-VersionManager = import_by_path(
-    getattr(settings, 'VERSION_MANAGER',
-            'readthedocs.privacy.backend.VersionManager'))
+# VersionQuerySet was replaced by SettingsOverrideObject
 BuildManager = import_by_path(
     getattr(settings, 'BUILD_MANAGER',
             'readthedocs.privacy.backend.BuildManager'))

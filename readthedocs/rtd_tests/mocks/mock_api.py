@@ -9,6 +9,9 @@ class ProjectData(object):
     def get(self):
         return dict()
 
+    def put(self, x=None):
+        return x
+
 
 def mock_version(repo):
     class MockVersion(object):
@@ -77,7 +80,7 @@ class MockApi(object):
         return ProjectData()
 
     def build(self, x):
-        return mock.Mock(**{'get.return_value': {'state': 'triggered'}})
+        return mock.Mock(**{'get.return_value': {'id': 123, 'state': 'triggered'}})
 
     def command(self, x):
         return mock.Mock(**{'get.return_value': {}})

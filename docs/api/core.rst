@@ -21,11 +21,6 @@
 .. automodule:: readthedocs.core.models
     :members:
 
-:mod:`readthedocs.core.search_sites`
-------------------------------------
-.. automodule:: readthedocs.core.search_sites
-    :members:
-
 :mod:`readthedocs.core.views`
 -----------------------------
 .. automodule:: readthedocs.core.views
@@ -36,9 +31,35 @@
 -------------------------------------------
 This is where custom ``manage.py`` commands are defined.
 
-.. automodule:: readthedocs.core.management.commands.build_files
+.. automodule:: readthedocs.core.management.commands.archive
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.clean_builds
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.import_github_language
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.import_github
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.pull
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.reindex_elasticsearch
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.set_metadata
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.symlink
+    :members:
+
+.. automodule:: readthedocs.core.management.commands.update_api
     :members:
 
 .. automodule:: readthedocs.core.management.commands.update_repos
     :members:
 
+.. automodule:: readthedocs.core.management.commands.update_versions
+    :members:

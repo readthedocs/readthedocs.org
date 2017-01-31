@@ -61,6 +61,7 @@ from collections import OrderedDict
 from django.conf import settings
 
 from readthedocs.builds.models import Version
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import run
@@ -293,7 +294,7 @@ class Symlink(object):
             return None
 
 
-class PublicSymlink(Symlink):
+class PublicSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
     PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
@@ -309,7 +310,7 @@ class PublicSymlink(Symlink):
         return self.project.translations.protected()
 
 
-class PrivateSymlink(Symlink):
+class PrivateSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
     PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
@@ -323,3 +324,13 @@ class PrivateSymlink(Symlink):
 
     def get_translations(self):
         return self.project.translations.private()
+
+
+class PublicSymlink(SettingsOverrideObject):
+
+    _default_class = PublicSymlinkBase
+
+
+class PrivateSymlink(SettingsOverrideObject):
+
+    _default_class = PrivateSymlinkBase

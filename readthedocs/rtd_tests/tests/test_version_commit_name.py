@@ -13,6 +13,18 @@ from readthedocs.projects.models import Project
 
 
 class VersionCommitNameTests(TestCase):
+    def test_branch_name_unicode_non_ascii(self):
+        unicode_name = 'abc_\xd1\x84_\xe2\x99\x98'.decode('utf-8')
+        version = new(Version, identifier=unicode_name, type=BRANCH)
+        self.assertEqual(version.identifier_friendly, unicode_name)
+
+    def test_branch_name_made_friendly_when_sha(self):
+        commit_hash = '3d92b728b7d7b842259ac2020c2fa389f13aff0d'
+        version = new(Version, identifier=commit_hash,
+                      slug=STABLE, verbose_name=STABLE, type=TAG)
+        # we shorten commit hashes to keep things readable
+        self.assertEqual(version.identifier_friendly, '3d92b728')
+
     def test_branch_name(self):
         version = new(Version, identifier='release-2.5.x',
                       slug='release-2.5.x', verbose_name='release-2.5.x',
