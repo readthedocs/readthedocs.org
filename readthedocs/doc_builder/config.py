@@ -56,7 +56,7 @@ class ConfigWrapper(object):
             # gave us a version of '2', or '3'
             ver = max(filter(
                 lambda x: x < ver + 1,
-                self._yaml_config.get_supported_versions(),
+                self._yaml_config.get_valid_python_versions(),
             ))
         return 'python{0}'.format(ver)
 
