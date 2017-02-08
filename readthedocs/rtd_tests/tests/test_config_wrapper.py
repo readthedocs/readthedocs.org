@@ -1,8 +1,7 @@
 from django.test import TestCase
-
 from django_dynamic_fixture import get
-from readthedocs_build.config import BuildConfig
 
+from readthedocs_build.config import BuildConfig
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.doc_builder.config import ConfigWrapper
@@ -40,11 +39,11 @@ class ConfigWrapperTests(TestCase):
     def test_python_interpreter(self):
         yaml_config = get_build_config({'python': {'version': 3}})
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
-        self.assertEqual(config.python_interpreter, 'python3')
+        self.assertEqual(config.python_interpreter, 'python3.5')
 
         yaml_config = get_build_config({})
         config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
-        self.assertEqual(config.python_interpreter, 'python')
+        self.assertEqual(config.python_interpreter, 'python2.7')
 
     def test_install_project(self):
         yaml_config = get_build_config({'python': {'setup_py_install': True}})

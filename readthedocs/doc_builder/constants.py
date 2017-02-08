@@ -18,7 +18,7 @@ PDF_RE = re.compile('Output written on (.*?)')
 # Docker
 DOCKER_SOCKET = getattr(settings, 'DOCKER_SOCKET', 'unix:///var/run/docker.sock')
 DOCKER_VERSION = getattr(settings, 'DOCKER_VERSION', 'auto')
-DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'rtfd-build')
+DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
 DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 DOCKER_LIMITS.update(getattr(settings, 'DOCKER_LIMITS', {}))
 
@@ -29,13 +29,13 @@ DOCKER_HOSTNAME_MAX_LEN = 64
 
 # Build images
 BUILD_IMAGES = {
-    'readthedocs/build:14.04': {
+    'readthedocs/build:1.0': {
         'python': {'supported_versions': [2, 2.7, 3, 3.3]},
     },
-    'readthedocs/build:16.04': {
+    'readthedocs/build:2.0': {
         'python': {'supported_versions': [2, 2.7, 3, 3.5]},
     },
-    'readthedocs/build:beta': {
+    'readthedocs/build:latest': {
         'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
     },
 }
