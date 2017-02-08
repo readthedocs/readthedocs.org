@@ -65,10 +65,10 @@ class BaseSphinx(BaseBuilder):
 
         project = self.project
         # Open file for appending.
-        outfile_path = project.conf_file(self.version.slug)
         try:
+            outfile_path = project.conf_file(self.version.slug)
             outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
-        except IOError:
+        except (ProjectImportError, IOError):
             trace = sys.exc_info()[2]
             raise ProjectImportError('Conf file not found'), None, trace
         try:
