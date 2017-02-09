@@ -5,7 +5,7 @@ docutils==0.11
 Sphinx==1.3.5
 Pygments==2.0.2
 mkdocs==0.14.0
-git+https://github.com/rtfd/readthedocs-build.git@31082ec0e7c6597c8e05c0e821271aaacd715dc7#egg=readthedocs-build-2.0.7.dev
+readthedocs-build==2.0.6
 django==1.8.16
 
 django-tastypie==0.12.2
