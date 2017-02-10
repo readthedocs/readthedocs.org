@@ -62,13 +62,15 @@ class ConfigWrapper(object):
 
     @property
     def python_version(self):
+        # There should always be a version in the YAML config. If the config
+        # version is the default response of `2`, then assume we can use the
+        # Python.python_interpreter version to infer this value instead.
+        version = 2
         if 'version' in self._yaml_config.get('python', {}):
-            return self._yaml_config['python']['version']
-        else:
-            if self._project.python_interpreter == 'python':
-                return 2
-            else:
-                return 3
+            version = self._yaml_config['python']['version']
+        if version == 2 and self._project.python_interpreter == 'python3':
+            version = 3
+        return version
 
     @property
     def use_system_site_packages(self):
