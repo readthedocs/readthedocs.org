@@ -10,7 +10,7 @@ from readthedocs.doc_builder.environments import LocalEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTask
-from readthedocs.rtd_tests.tests.test_config_wrapper import get_build_config
+from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
 
@@ -40,8 +40,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        yaml_config = get_build_config({})
-        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
@@ -65,8 +64,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        yaml_config = get_build_config({})
-        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
@@ -91,8 +89,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        yaml_config = get_build_config({})
-        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
@@ -116,8 +113,9 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        yaml_config = get_build_config({'formats': ['epub']})
-        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        config = ConfigWrapper(version=version, yaml_config=create_load({
+            'formats': ['epub']
+        })()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
@@ -171,8 +169,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        yaml_config = get_build_config({})
-        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
@@ -213,8 +210,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        yaml_config = get_build_config({})
-        config = ConfigWrapper(version=version, yaml_config=yaml_config)
+        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 

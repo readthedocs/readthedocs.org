@@ -18,8 +18,12 @@ def create_load(config=None):
     if config is None:
         config = {}
 
-    def inner(path, env_config):
-        env_config_defaults = {'output_base': ''}
+    def inner(path=None, env_config=None):
+        env_config_defaults = {
+            'output_base': '',
+            'name': '1',
+            'type': 'sphinx',
+        }
         if env_config is not None:
             env_config_defaults.update(env_config)
         yaml_config = ProjectConfig([
