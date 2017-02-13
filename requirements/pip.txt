@@ -5,7 +5,7 @@ docutils==0.11
 Sphinx==1.3.5
 Pygments==2.0.2
 mkdocs==0.14.0
-git+https://github.com/rtfd/readthedocs-build.git@db4ad19df4f432bfbbd56d05964c58b6634356f3#egg=readthedocs-build-2.0.6.dev
+readthedocs-build==2.0.6
 django==1.8.16
 
 django-tastypie==0.12.2
@@ -65,7 +65,7 @@ recommonmark==0.1.1
 
 # Version comparison stuff
 Distutils2==1.0a3
-packaging==15.2
+packaging==16.8
 
 # Commenting stuff
 git+https://github.com/zestedesavoir/django-cors-middleware.git@def9dc2f5e81eed53831bcda79ad1c127ecb3fe2

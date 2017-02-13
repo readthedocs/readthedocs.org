@@ -18,6 +18,7 @@ from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from readthedocs_build.config import ConfigError
 
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
@@ -132,7 +133,12 @@ class UpdateDocsTask(Task):
                     status_code=423
                 )
 
-            self.config = load_yaml_config(version=self.version)
+            try:
+                self.config = load_yaml_config(version=self.version)
+            except ConfigError as e:
+                raise BuildEnvironmentError(
+                    'Problem parsing YAML configuration. {0}'.format(str(e))
+                )
 
         if self.setup_env.failure or self.config is None:
             self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
