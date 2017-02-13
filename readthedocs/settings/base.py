@@ -190,7 +190,6 @@ class CommunityBaseSettings(Settings):
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
-    DEFAULT_CACHE_ALIAS = 'default'
 
     # I18n
     TIME_ZONE = 'America/Chicago'
