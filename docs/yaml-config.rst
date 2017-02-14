@@ -93,7 +93,7 @@ There is also an image in testing that supports Python versions ``2.7``,
 ``3.3``, ``3.4``, ``3.5``, and ``3.6``. If you would like access to this build
 image, you can sign up for beta access here:
 
-https://goo.gl/forms/AKEoeWHixlzVfqKT://goo.gl/forms/AKEoeWHixlzVfqKT2
+https://goo.gl/forms/AKEoeWHixlzVfqKT2
 
 .. code-block:: yaml
 
