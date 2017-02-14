@@ -30,7 +30,7 @@ DOCKER_HOSTNAME_MAX_LEN = 64
 # Build images
 BUILD_IMAGES = {
     'readthedocs/build:1.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3]},
+        'python': {'supported_versions': [2, 2.7, 3, 3.4]},
     },
     'readthedocs/build:2.0': {
         'python': {'supported_versions': [2, 2.7, 3, 3.5]},
