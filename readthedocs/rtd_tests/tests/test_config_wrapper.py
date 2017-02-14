@@ -53,7 +53,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(load_config.call_count, 1)
         load_config.assert_has_calls([
             mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.3]},
+                'python': {'supported_versions': [2, 2.7, 3, 3.4]},
                 'type': 'sphinx',
                 'output_base': '',
                 'name': mock.ANY
