@@ -78,15 +78,27 @@ used for building documentation.
 python.version
 ``````````````
 
-* Default: ``2``
-* Options: ``2``, ``3``
+* Default: ``2.7``
+* Options: ``2.7``, ``2``, ``3.5``, ``3``
 
-The version of Python to use when building your documentation.
+This is the version of Python to use when building your documentation. If you
+specify only the major version of Python, the highest supported minor version
+will be selected.
+
+The supported Python versions depends on the version of the build image your
+project is using. The default build image that is used to build documentation
+contains support for Python ``2.7`` and ``3.5``.
+
+There is also an image in testing that supports Python versions ``2.7``,
+``3.3``, ``3.4``, ``3.5``, and ``3.6``. If you would like access to this build
+image, you can sign up for beta access here:
+
+https://goo.gl/forms/AKEoeWHixlzVfqKT://goo.gl/forms/AKEoeWHixlzVfqKT2
 
 .. code-block:: yaml
 
-	python:
-	   version: 3
+    python:
+       version: 3.5
 
 python.setup_py_install
 ```````````````````````
