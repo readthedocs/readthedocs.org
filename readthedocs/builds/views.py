@@ -42,6 +42,7 @@ class BuildList(BuildBase, ListView):
         context['filter'] = filter
         context['active_builds'] = active_builds
         context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
+        context['build_qs'] = filter.qs
 
         try:
             redis = Redis.from_url(settings.BROKER_URL)
