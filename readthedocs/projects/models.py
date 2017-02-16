@@ -572,11 +572,15 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
-        version = self.versions.get(slug=version_slug)
-        config = load_yaml_config(version)
+        version = self.versions.filter(slug=version_slug).first()
         if not self.enable_pdf_build:
-            if 'pdf' not in config.formats:
+            try:
+                config = load_yaml_config(version)
+            except AttributeError:
                 return False
+            else:
+                if 'pdf' not in config.formats:
+                    return False
         return os.path.exists(self.get_production_media_path(
             type_='pdf', version_slug=version_slug))
 
