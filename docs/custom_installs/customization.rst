@@ -12,7 +12,7 @@ If you put a file named ``local_settings.py`` in the ``readthedocs/settings`` di
 Adding your own title to pages
 ------------------------------
 
-This requires 2 parts of setup. First, you need to add a custom :setting:`TEMPLATE_DIRS` setting that points at your template overrides. Then, in those template overrides you have to insert your logo where the normal RTD logo goes.
+This requires 2 parts of setup. First, you need to add a custom ``TEMPLATE_DIRS`` setting that points at your template overrides. Then, in those template overrides you have to insert your logo where the normal RTD logo goes.
 
 .. note:: This works for any setting you wish to change.
 
