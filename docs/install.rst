@@ -16,6 +16,10 @@ need to install Python 3 with virtualenv in your system as well.
 .. _Python 2.7: http://www.python.org/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
+.. _Homebrew: http://brew.sh/
+.. _Elasticsearch: https://www.elastic.co/products/elasticsearch
+.. _PostgreSQL: https://www.postgresql.org/
+.. _Redis: https://redis.io/
 
 
 .. note::
@@ -42,7 +46,24 @@ need to install Python 3 with virtualenv in your system as well.
     Users of other Linux distributions may need to install the equivalent
     packages, depending on their system configuration.
 
-.. _Homebrew: http://brew.sh/
+.. note::
+
+   If you want full support for searching inside your Read the Docs
+   site you will need to install Elasticsearch_.
+
+   Ubuntu users could install this package as following::
+
+        sudo apt-get install elasticsearch
+
+.. note::
+
+   Besides the Python specific dependencies, you will also need
+   PostgreSQL_ and Redis_.
+
+   Ubuntu users could install this package as following::
+
+        sudo apt-get install redis-server postgresql
+
 
 You will need to verify that your pip version is higher than 1.5 you can do this as such::
 
