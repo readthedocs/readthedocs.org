@@ -5,9 +5,9 @@ If you want to integrate editing into your own theme, you will have to declare
 few variables inside your configuration file ``conf.py`` in the ``'html_context'`` 
 setting, for the template to use them. 
 
-More information can be found on Sphinx-doc.org_.
+More information can be found on `Sphinx documentation`_.
 
-.. _Sphinx-doc.org: http://www.sphinx-doc.org/en/1.5.2/config.html#confval-html_context
+.. _`Sphinx documentation`: http://www.sphinx-doc.org/en/1.5.2/config.html#confval-html_context
 
 GitHub
 ------
