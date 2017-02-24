@@ -141,9 +141,10 @@ Image scaling in docutils depends on PIL. PIL is installed in the system that RT
 I want comments in my docs
 --------------------------
 
-RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ can be used for this purpose on RTD.
+RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
 
 .. _Disqus: http://disqus.com/
+.. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
 
 How do I support multiple languages of documentation?
 -----------------------------------------------------
