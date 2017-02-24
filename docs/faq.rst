@@ -164,7 +164,7 @@ have adopted customized docstring styles that are simultaneously
 informative and legible. The
 `NumPy <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
 and
-`Google <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html?showone=Comments#Comments>`_
+`Google <https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments>`_
 styles are two popular docstring formats.  Fortunately, the default
 Read The Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
