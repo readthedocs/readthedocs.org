@@ -16,20 +16,19 @@ any development on the Docker build system, you will need to set up `Docker`_ on
 your host system. Setup of Docker will vary by system, and so is out of the
 scope of this documentation.
 
-Once you have Docker set up, you will need to create the base image used for
-container creation. The ``base`` image is found in our `container images repo`_.
-It is the basic container image supported by our community site.
+Once you have Docker set up, you will need to pull down our build image. These
+images are found on our `Docker Hub repository`_, the source comes from our
+`container image repo`_.
 
-To get started, create the image using the `docker` command line tool. You can
-name the image whatever you like here, ``rtfd-build`` is the default name, but
-can be configured in your settings -- see `Configuration`_::
+To get started, pull one of the build images down::
 
-    docker build -t rtfd-build base/
+    docker pull readthedocs/build:latest
 
-When this process has completed, you should have a working image that Read the
-Docs can use to start containers.
+After this image is downloaded, you can update your settings to use the new
+image -- see `Configuration`_.
 
 .. _`Docker`: http://docker.com
+.. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
 .. _`container images repo`: https://github.com/rtfd/readthedocs-docker-images
 
 Configuration
