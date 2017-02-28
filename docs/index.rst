@@ -17,7 +17,7 @@ The code is open source, and `available on GitHub`_.
 .. _Subversion: http://subversion.tigris.org/
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
-.. _Mercurial: http://mercurial.selenic.com/
+.. _Mercurial: https://www.mercurial-scm.org/
 .. _available on GitHub: http://github.com/rtfd/readthedocs.org
 
 The main documentation for the site is organized into a couple sections:

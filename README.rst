@@ -16,7 +16,7 @@ Bazaar_, Git_, and Mercurial_ repositories.
 .. _Subversion: http://subversion.tigris.org/
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
-.. _Mercurial: http://mercurial.selenic.com/
+.. _Mercurial: https://www.mercurial-scm.org/
 
 Documentation for RTD
 ---------------------
