@@ -3,6 +3,7 @@ pip==8.1.1
 virtualenv==15.0.1
 docutils==0.11
 Sphinx==1.5.3
+sphinx_rtd_theme==0.2.0
 Pygments==2.0.2
 mkdocs==0.14.0
 readthedocs-build==2.0.6
