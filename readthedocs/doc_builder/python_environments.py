@@ -102,7 +102,7 @@ class Virtualenv(PythonEnvironment):
 
     def install_core_requirements(self):
         requirements = [
-            'sphinx==1.5.2',
+            'sphinx==1.5.3',
             'Pygments==2.1.3',
             'setuptools==20.1.1',
             'docutils==0.12',
