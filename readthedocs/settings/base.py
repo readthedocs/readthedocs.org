@@ -67,7 +67,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'pagination',
+            'linaro_django_pagination',
             'taggit',
             'djangosecure',
             'guardian',
@@ -129,7 +129,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'pagination.middleware.PaginationMiddleware',
+        'linaro_django_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
@@ -349,7 +349,7 @@ class CommunityBaseSettings(Settings):
         'handlers': {
             'null': {
                 'level': 'DEBUG',
-                'class': 'django.utils.log.NullHandler',
+                'class': 'logging.NullHandler',
             },
             'exceptionlog': {
                 'level': 'DEBUG',
