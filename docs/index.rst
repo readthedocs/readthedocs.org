@@ -56,6 +56,7 @@ Information about development is also available:
 
    contribute
    team
+   code-of-conduct
    ethical-advertising
    sponsors
    open-source-philosophy
