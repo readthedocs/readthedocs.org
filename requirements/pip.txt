@@ -1,6 +1,6 @@
 # Base packages
 pip==9.0.1
-appdirs==1.4.1
+appdirs==1.4.2
 virtualenv==15.0.1
 docutils==0.11
 Sphinx==1.5.3
