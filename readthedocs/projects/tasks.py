@@ -5,6 +5,7 @@ rebuilding documentation.
 """
 
 import os
+import sys
 import shutil
 import json
 import logging
@@ -171,6 +172,19 @@ class UpdateDocsTask(Task):
 
             self.setup_environment()
 
+            # Activate the conda environment
+            if self.config.use_conda:
+                os.environ['CONDA_DEFAULT_ENV'] = self.python_env.version.slug
+                os.environ['CONDA_ENV_PATH'] = os.path.join(
+                    self.project.doc_path,
+                    'conda',
+                    self.python_env.version.slug
+                )
+                sys.path.insert(
+                    0, os.path.join(os.environ['CONDA_ENV_PATH'], "bin")
+                )
+                os.environ["PATH"] = ":".join(sys.path)
+
             # TODO the build object should have an idea of these states, extend
             # the model to include an idea of these outcomes
             outcomes = self.build_docs()
@@ -188,6 +202,13 @@ class UpdateDocsTask(Task):
                     pdf=outcomes['pdf'],
                     epub=outcomes['epub'],
                 )
+
+        # Deactivate the conda environment
+        if self.config.use_conda:
+            del os.environ['CONDA_DEFAULT_ENV']
+            del os.environ['CONDA_ENV_PATH']
+            sys.path.remove(os.path.join(os.environ['CONDA_ENV_PATH'], "bin"))
+            os.environ["PATH"] = ":".join(sys.path)
 
         if self.build_env.failed:
             self.send_notifications()
