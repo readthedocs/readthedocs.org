@@ -141,9 +141,10 @@ Image scaling in docutils depends on PIL. PIL is installed in the system that RT
 I want comments in my docs
 --------------------------
 
-RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ can be used for this purpose on RTD.
+RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
 
 .. _Disqus: http://disqus.com/
+.. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
 
 How do I support multiple languages of documentation?
 -----------------------------------------------------
@@ -164,7 +165,7 @@ have adopted customized docstring styles that are simultaneously
 informative and legible. The
 `NumPy <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
 and
-`Google <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html?showone=Comments#Comments>`_
+`Google <https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments>`_
 styles are two popular docstring formats.  Fortunately, the default
 Read The Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
