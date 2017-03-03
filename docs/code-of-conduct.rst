@@ -1,7 +1,7 @@
 Code of Conduct
 ===============
 
-Like the technical community as a whole, the Django team and community
+Like the technical community as a whole, the Read the Docs team and community
 is made up of a mixture of professionals and volunteers from all over
 the world, working on every aspect of the mission - including
 mentorship, teaching, and connecting people.
@@ -15,9 +15,9 @@ This isn’t an exhaustive list of things that you can’t do. Rather, take
 it in the spirit in which it’s intended - a guide to make it easier to
 enrich all of us and the technical communities in which we participate.
 
-This code of conduct applies to all spaces managed by the Django project
-or Django Software Foundation. This includes IRC, the mailing lists, the
-issue tracker, DSF events, and any other forums created by the project
+This code of conduct applies to all spaces managed by the Read the Docs project.
+This includes IRC, the mailing lists, the
+issue tracker, and any other forums created by the project
 team which the community uses for communication. In addition, violations
 of this code outside these spaces may affect a person's ability to
 participate within them.
@@ -44,9 +44,9 @@ report it by emailing dev@readthedocs.org.
    might all experience some frustration now and then, but we cannot
    allow that frustration to turn into a personal attack. It’s important
    to remember that a community where people feel uncomfortable or
-   threatened is not a productive one. Members of the Django community
+   threatened is not a productive one. Members of the Read the Docs community
    should be respectful when dealing with other members as well as with
-   people outside the Django community.
+   people outside the Read the Docs community.
 -  **Be careful in the words that you choose.** We are a community of
    professionals, and we conduct ourselves professionally. Be kind to
    others. Do not insult or put down other participants. Harassment and
@@ -65,9 +65,9 @@ report it by emailing dev@readthedocs.org.
       stop, then stop.
 
 -  **When we disagree, try to understand why.** Disagreements, both
-   social and technical, happen all the time and Django is no exception.
+   social and technical, happen all the time and Read the Docs is no exception.
    It is important that we resolve disagreements and differing views
-   constructively. Remember that we’re different. The strength of Django
+   constructively. Remember that we’re different. The strength of Read the Docs
    comes from its varied community, people from a wide range of
    backgrounds. Different people have different perspectives on issues.
    Being unable to understand why someone holds a viewpoint doesn’t mean
