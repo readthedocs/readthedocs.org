@@ -16,6 +16,10 @@ need to install Python 3 with virtualenv in your system as well.
 .. _Python 2.7: http://www.python.org/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
+.. _Homebrew: http://brew.sh/
+.. _Elasticsearch: https://www.elastic.co/products/elasticsearch
+.. _PostgreSQL: https://www.postgresql.org/
+.. _Redis: https://redis.io/
 
 
 .. note::
@@ -42,7 +46,23 @@ need to install Python 3 with virtualenv in your system as well.
     Users of other Linux distributions may need to install the equivalent
     packages, depending on their system configuration.
 
-.. _Homebrew: http://brew.sh/
+.. note::
+
+   If you want full support for searching inside your Read the Docs
+   site you will need to install Elasticsearch_.
+
+   Ubuntu users could install this package as following::
+
+        sudo apt-get install elasticsearch
+
+.. note::
+
+   Besides the Python specific dependencies, you will also need Redis_.
+
+   Ubuntu users could install this package as following::
+
+        sudo apt-get install redis-server
+
 
 You will need to verify that your pip version is higher than 1.5 you can do this as such::
 
@@ -78,7 +98,7 @@ database::
 Then please create a superuser account for Django::
 
     python manage.py createsuperuser
-    
+
 Now let's properly generate the static assets::
 
     python manage.py collectstatic
@@ -101,7 +121,7 @@ Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
 
-For builds to properly kick off as expected, it is necessary the port 
+For builds to properly kick off as expected, it is necessary the port
 you're serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined
 in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
 (By default, it's ``localhost:8000``)
