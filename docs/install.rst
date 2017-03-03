@@ -57,12 +57,11 @@ need to install Python 3 with virtualenv in your system as well.
 
 .. note::
 
-   Besides the Python specific dependencies, you will also need
-   PostgreSQL_ and Redis_.
+   Besides the Python specific dependencies, you will also need Redis_.
 
    Ubuntu users could install this package as following::
 
-        sudo apt-get install redis-server postgresql
+        sudo apt-get install redis-server
 
 
 You will need to verify that your pip version is higher than 1.5 you can do this as such::
