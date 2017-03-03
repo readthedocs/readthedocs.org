@@ -37,6 +37,39 @@ image -- see `Configuration`_.
 .. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
 .. _`container image repo`: https://github.com/rtfd/readthedocs-docker-images
 
+.. Tip::
+
+   Since the already built docker image uses the `docs` user with a
+   specific `user id` and `group id` which probably is different than
+   the one you are running your `runserver`, you may receive
+   *Pemission errors*.
+
+   As a workaround for this, you could build your own docker image
+   with the following `Dockerfile`::
+
+     # Read the Docs - Environment base
+     FROM readthedocs/build:2.0
+
+     USER root
+
+     # UID and GID from readthedocs/user
+     RUN groupadd --gid 1000 humitos
+     RUN useradd -m --uid 1000 --gid 1000 humitos
+
+     USER humitos
+
+     CMD ["/bin/bash"]
+
+   Where `1000` and `humitos` should match with your own `group id`,
+   `user id` and `username` in your system. Then run this command to
+   build your *modified* image::
+
+     docker build -f Dockerfile.user -t readthedocs/build:2.0-modified .
+
+   After that you should set your `DOCKER_IMAGE` setting to
+   `readthedocs/build:2.0-modified`.
+
+
 Configuration
 -------------
 
