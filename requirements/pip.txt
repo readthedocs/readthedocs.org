@@ -8,7 +8,7 @@ sphinx_rtd_theme==0.2.0
 Pygments==2.0.2
 mkdocs==0.14.0
 readthedocs-build==2.0.6
-django==1.9.0
+django==1.9.12
 
 django-tastypie==0.13.0
 django-haystack==2.5.0

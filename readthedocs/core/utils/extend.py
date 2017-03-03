@@ -4,7 +4,6 @@ import inspect
 
 from django.conf import settings
 from django.utils.module_loading import import_string
-from django.utils.functional import LazyObject
 
 
 def get_override_class(proxy_class, default_class=None):
