@@ -78,7 +78,7 @@ class SupporterPromo(models.Model):
     live = models.BooleanField(_('Live'), default=False)
 
     class Meta:
-        ordering = ('-live',)
+        ordering = ('analytics_id', '-live')
 
     def __str__(self):
         return self.name
@@ -157,6 +157,19 @@ class SupporterPromo(models.Model):
             return 0
         return ret
 
+    def total_views(self):
+        return sum(imp.views for imp in self.impressions.all())
+
+    def total_clicks(self):
+        return sum(imp.clicks for imp in self.impressions.all())
+
+    def total_click_ratio(self):
+        if self.total_views() == 0:
+            return float(0)
+        return '%.4f' % float(
+            (float(self.total_clicks()) / float(self.total_views())) * 100
+        )
+
 
 class BaseImpression(models.Model):
     date = models.DateField(_('Date'))
@@ -173,13 +186,17 @@ class BaseImpression(models.Model):
     def view_ratio(self):
         if self.offers == 0:
             return 0  # Don't divide by 0
-        return float(self.views) / float(self.offers)
+        return float(
+            float(self.views) / float(self.offers) * 100
+        )
 
     @property
     def click_ratio(self):
         if self.views == 0:
             return 0  # Don't divide by 0
-        return float(self.clicks) / float(self.views)
+        return float(
+            float(self.clicks) / float(self.views) * 100
+        )
 
 
 class PromoImpressions(BaseImpression):

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Promo Detail" %}{% endblock %}
+
+{% block content %}
+
+<h1> Promo Results </h1>
+
+{% if promos %}
+
+<p>
+Total Clicks for all shown promos: {{ total_clicks }}
+</p>
+
+{% for promo in promos %}
+
+<h3>
+Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} days.
+</h3>
+
+<div class="example" style="width: 30%;">
+<a href="{{ promo.link }}"><img width=120 height=90 src="{{ promo.image }}"></a>
+<br>
+{{ promo.text|safe }}
+
+</div>
+
+<br>
+
+<table>
+  <tr>
+    <th><strong>Day (UTC)</strong></th>
+    <th><strong>Views</strong></th> 
+    <th><strong>Clicks</strong></th>
+    <th><strong>CTR</strong></th>
+  </tr>
+  {% for day in promo.impressions.all|slice:days_slice %}
+  {% if day.views > 0 %}
+  <tr>
+    <td>{{ day.date }}</td>
+    <td><code>{{ day.views }}</code></td> 
+    <td><code>{{ day.clicks }}</code></td>
+    <td><code>{{ day.click_ratio }}%</code></td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+  <tr>
+    <td><strong>Total (over all time)</strong> </td>
+    <td><strong>{{ promo.total_views }}</strong></td> 
+    <td><strong>{{ promo.total_clicks }}</strong></td>
+    <td><strong>{{ promo.total_click_ratio }}%</strong></td>
+  </tr>
+</table>
+
+{% endfor %}
+
+{% else %}
+
+No promos match this query.
+
+{% endif %}
+
+{% endblock %}
