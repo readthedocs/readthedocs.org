@@ -3,9 +3,9 @@ Build Environments
 ==================
 
 Read the Docs uses container virtualization to encapsulate documentation build
-processes. Each build spins up a new virtual machine using our base image,
+processes. Each build spins up a new container using our base image,
 which is an image with the minimum necessary components required to build
-documentation. Virtual machines are limiting in CPU time and memory, which aims
+documentation. Containers are limiting in CPU time and memory, which aims
 to reduce excessive usage of build resources.
 
 Setup
