@@ -28,7 +28,6 @@ django-countries==3.4.1
 # Basic tools
 redis==2.10.3
 celery==3.1.23
-django-celery==3.1.16
 git+https://github.com/pennersr/django-allauth.git@d869aff9#egg=django-allauth
 dnspython==1.11.0
 
