@@ -120,7 +120,7 @@ def has_node(request):
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer,))
 def add_node(request):
-    post_data = request.DATA
+    post_data = request.data
     project = Project.objects.get(slug=post_data['project'])
     page = post_data.get('document', '')
     node_hash = post_data.get('id', '')
@@ -135,7 +135,7 @@ def add_node(request):
 @authentication_classes([UnsafeSessionAuthentication])
 @renderer_classes((JSONRenderer,))
 def update_node(request):
-    post_data = request.DATA
+    post_data = request.data
     try:
         old_hash = post_data['old_hash']
         new_hash = post_data['new_hash']
@@ -199,7 +199,7 @@ class CommentViewSet(ModelViewSet):
     @detail_route(methods=['put'])
     def moderate(self, request, pk):
         comment = self.get_object()
-        decision = request.DATA['decision']
+        decision = request.data['decision']
         moderation_action = comment.moderate(request.user, decision)
 
         return Response(ModerationActionSerializer(moderation_action).data)

@@ -41,7 +41,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BuildCommandResult
-        fields = ('__all__')
+        exclude = ('')
 
 
 class BuildSerializer(serializers.ModelSerializer):
@@ -62,7 +62,7 @@ class BuildSerializerFull(BuildSerializer):
 
     class Meta:
         model = Build
-        fields = ('__all__')
+        exclude = ('')
 
 
 class SearchIndexSerializer(serializers.Serializer):

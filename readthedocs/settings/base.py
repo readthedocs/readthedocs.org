@@ -325,7 +325,7 @@ class CommunityBaseSettings(Settings):
         'field_name_limit': 50,
     }
     REST_FRAMEWORK = {
-        'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+        'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'PAGINATE_BY': 10
     }
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
