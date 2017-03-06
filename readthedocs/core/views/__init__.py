@@ -18,7 +18,6 @@ from django.views.generic import TemplateView
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
-from readthedocs.donate.mixins import DonateProgressMixin
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.projects.tasks import remove_dir
@@ -31,7 +30,7 @@ class NoProjectException(Exception):
     pass
 
 
-class HomepageView(DonateProgressMixin, TemplateView):
+class HomepageView(TemplateView):
 
     template_name = 'homepage.html'
 

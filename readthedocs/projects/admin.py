@@ -5,7 +5,6 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
-from readthedocs.donate.models import ProjectImpressions
 from readthedocs.notifications.views import SendNotificationView
 
 from .notifications import ResourceUsageNotification
@@ -49,6 +48,7 @@ class DomainInline(admin.TabularInline):
 
 
 class ImpressionInline(admin.TabularInline):
+    from readthedocs.donate.models import ProjectImpressions
     model = ProjectImpressions
     readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
     extra = 0
