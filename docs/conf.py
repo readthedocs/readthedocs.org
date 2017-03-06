@@ -6,7 +6,8 @@ import sys
 from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath('..'))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.sqlite")
+sys.path.append(os.path.dirname(__file__))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
 
 from django.conf import settings
 
@@ -20,6 +21,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinxcontrib.httpdomain',
     'djangodocs',
+    'doc_extensions',
 ]
 templates_path = ['_templates']
 
@@ -37,9 +39,9 @@ exclude_patterns = ['_build']
 default_role = 'obj'
 pygments_style = 'sphinx'
 intersphinx_mapping = {
-    'python': ('http://python.readthedocs.org/en/latest/', None),
-    'django': ('http://django.readthedocs.org/en/latest/', None),
-    'sphinx': ('http://sphinx.readthedocs.org/en/latest/', None),
+    'python': ('http://python.readthedocs.io/en/latest/', None),
+    'django': ('http://django.readthedocs.io/en/1.8.x/', None),
+    'sphinx': ('http://sphinx.readthedocs.io/en/latest/', None),
 }
 # This doesn't exist since we aren't shipping any static files ourselves.
 #html_static_path = ['_static']

@@ -75,36 +75,47 @@ $(document).ready(function() {
           <div class="module-list">
             <div class="module-list-wrapper">
 
-              <ul data-bind="visible: is_ready() && !has_projects()" style="display: none;">
+              <ul data-bind="visible: is_ready() && !has_projects()" style="display: none;"
+                  class="remote-repos-empty">
                 <li class="module-item">
                   {% if has_connected_accounts %}
                     {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
-                      No remote repositories found,
-                      try <a href="#" {{ binding }}>refreshing your accounts</a>.
+                      <p>
+                        No remote repositories found,
+                        try <a href="#" {{ binding }}>refreshing your accounts</a>.
+                      </p>
                     {% endblocktrans %}
                   {% else %}
-                    {% blocktrans trimmed %}
-                      You don't currently have any connected accounts.
-                      Connect your account to be able to easily set up projects.
-                    {% endblocktrans %}
+                    <p>
+                      {% blocktrans trimmed %}
+                        You don't currently have any connected accounts.
+                        Connect your account to be able to easily set up projects.
+                      {% endblocktrans %}
+                    </p>
 
-                    <form
-                        method="get"
-                        action="{% provider_login_url "github" process="connect" next="/dashboard/import/" %}"
-                        class="import-connect import-connect-github">
-                      <button>
-                        {% trans "Connect to GitHub" %}
-                      </button>
-                    </form>
+                    <div class="project-import-providers">
+                      <form
+                          method="get"
+                          action="{% provider_login_url "github" %}"
+                          class="import-connect import-connect-github">
+                        <button>
+                          {% trans "Connect to GitHub" %}
+                        </button>
+                        <input type="hidden" name="process" value="connect">
+                        <input type="hidden" name="next" value="/dashboard/import/">
+                      </form>
 
-                    <form
-                        method="get"
-                        action="{% provider_login_url "bitbucket_oauth2" process="connect" next="/dashboard/import/" %}"
-                        class="import-connect import-connect-bitbucket">
-                      <button>
-                        {% trans "Connect to Bitbucket" %}
-                      </button>
-                    </form>
+                      <form
+                          method="get"
+                          action="{% provider_login_url "bitbucket_oauth2" %}"
+                          class="import-connect import-connect-bitbucket">
+                        <button>
+                          {% trans "Connect to Bitbucket" %}
+                        </button>
+                        <input type="hidden" name="process" value="connect">
+                        <input type="hidden" name="next" value="/dashboard/import/">
+                      </form>
+                    </div>
 
                   {% endif %}
                 </li>

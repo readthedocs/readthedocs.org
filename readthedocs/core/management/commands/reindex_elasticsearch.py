@@ -22,12 +22,10 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        '''
-        Build/index all versions or a single project's version
-        '''
+        """Build/index all versions or a single project's version"""
         project = options['project']
 
-        queryset = Version.objects.public()
+        queryset = Version.objects.all()
 
         if project:
             queryset = queryset.filter(project__slug=project)

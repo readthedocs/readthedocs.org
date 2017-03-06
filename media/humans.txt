@@ -4,7 +4,7 @@ Original Authors
 * Eric Holscher
 * Bobby Grace
 
-Opeartions Team
+Operations Team
 ===============
 
 * Eric Holscher

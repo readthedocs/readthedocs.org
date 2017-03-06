@@ -9,6 +9,9 @@ class ProjectData(object):
     def get(self):
         return dict()
 
+    def put(self, x=None):
+        return x
+
 
 def mock_version(repo):
     class MockVersion(object):
@@ -52,7 +55,6 @@ def mock_version(repo):
                     "requirements_file": "",
                     "resource_uri": "/api/v1/project/2599/",
                     "slug": "docs",
-                    "subdomain": "http://docs.readthedocs.org/",
                     "suffix": ".rst",
                     "theme": "default",
                     "install_project": false,
@@ -78,7 +80,7 @@ class MockApi(object):
         return ProjectData()
 
     def build(self, x):
-        return mock.Mock(**{'get.return_value': {'state': 'triggered'}})
+        return mock.Mock(**{'get.return_value': {'id': 123, 'state': 'triggered'}})
 
     def command(self, x):
         return mock.Mock(**{'get.return_value': {}})

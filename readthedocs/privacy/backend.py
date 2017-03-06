@@ -1,4 +1,3 @@
-
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
@@ -9,6 +8,8 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.core.utils.extend import (SettingsOverrideObject,
+                                           get_override_class)
 from readthedocs.projects import constants
 
 
@@ -17,6 +18,8 @@ class ProjectManager(models.Manager):
     """
     Projects take into account their own privacy_level setting.
     """
+
+    use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
@@ -55,6 +58,13 @@ class ProjectManager(models.Manager):
         else:
             return queryset
 
+    def private(self, user=None):
+        queryset = self.filter(privacy_level=constants.PRIVATE)
+        if user:
+            return self._add_user_repos(queryset, user)
+        else:
+            return queryset
+
     # Aliases
 
     def dashboard(self, user=None):
@@ -66,40 +76,22 @@ class ProjectManager(models.Manager):
 
 class VersionManager(models.Manager):
 
+    """Version manager for manager only queries
+
+    For queries not suitable for the :py:cls:`VersionQuerySet`, such as create
+    queries.
     """
-    Versions take into account their own privacy_level setting.
-    """
 
-    def _add_user_repos(self, queryset, user):
-        if user.has_perm('builds.view_version'):
-            return self.get_queryset().all().distinct()
-        if user.is_authenticated():
-            user_queryset = get_objects_for_user(user, 'builds.view_version')
-            queryset = user_queryset | queryset
-        return queryset.distinct()
-
-    def public(self, user=None, project=None, only_active=True):
-        queryset = self.filter(privacy_level=constants.PUBLIC)
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        if only_active:
-            queryset = queryset.filter(active=True)
-        return queryset
-
-    def protected(self, user=None, project=None, only_active=True):
-        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
-        if user:
-            queryset = self._add_user_repos(queryset, user)
-        if project:
-            queryset = queryset.filter(project=project)
-        if only_active:
-            queryset = queryset.filter(active=True)
-        return queryset
-
-    def api(self, user=None):
-        return self.public(user, only_active=False)
+    @classmethod
+    def from_queryset(cls, queryset_class, class_name=None):
+        # This is overridden because :py:meth:`models.Manager.from_queryset`
+        # uses `inspect` to retrieve the class methods, and the proxy class has
+        # no direct members.
+        queryset_class = get_override_class(
+            VersionQuerySet,
+            VersionQuerySet._default_class
+        )
+        return super(VersionManager, cls).from_queryset(queryset_class, class_name)
 
     def create_stable(self, **kwargs):
         defaults = {
@@ -126,11 +118,75 @@ class VersionManager(models.Manager):
         return self.create(**defaults)
 
 
+class VersionQuerySetBase(models.QuerySet):
+
+    """
+    Versions take into account their own privacy_level setting.
+    """
+
+    use_for_related_fields = True
+
+    def _add_user_repos(self, queryset, user):
+        if user.has_perm('builds.view_version'):
+            return self.all().distinct()
+        if user.is_authenticated():
+            user_queryset = get_objects_for_user(user, 'builds.view_version')
+            queryset = user_queryset | queryset
+        return queryset.distinct()
+
+    def public(self, user=None, project=None, only_active=True):
+        queryset = self.filter(privacy_level=constants.PUBLIC)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        if only_active:
+            queryset = queryset.filter(active=True)
+        return queryset
+
+    def protected(self, user=None, project=None, only_active=True):
+        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        if only_active:
+            queryset = queryset.filter(active=True)
+        return queryset
+
+    def private(self, user=None, project=None, only_active=True):
+        queryset = self.filter(privacy_level__in=[constants.PRIVATE])
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        if only_active:
+            queryset = queryset.filter(active=True)
+        return queryset
+
+    def api(self, user=None):
+        return self.public(user, only_active=False)
+
+    def for_project(self, project):
+        """Return all versions for a project, including translations"""
+        return self.filter(
+            models.Q(project=project) |
+            models.Q(project__main_language_project=project)
+        )
+
+
+class VersionQuerySet(SettingsOverrideObject):
+
+    _default_class = VersionQuerySetBase
+
+
 class BuildManager(models.Manager):
 
     """
     Build objects take into account the privacy of the Version they relate to.
     """
+
+    use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
@@ -160,6 +216,8 @@ class RelatedProjectManager(models.Manager):
 
     This shouldn't be used as a subclass.
     """
+    use_for_related_fields = True
+    project_field = 'project'
 
     def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
@@ -169,11 +227,35 @@ class RelatedProjectManager(models.Manager):
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
             pks = [p.pk for p in project_qs]
-            queryset = self.get_queryset().filter(project__pk__in=pks) | queryset
+            kwargs = {'%s__pk__in' % self.project_field: pks}
+            queryset = self.get_queryset().filter(**kwargs) | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):
-        queryset = self.filter(project__privacy_level=constants.PUBLIC)
+        kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
+        queryset = self.filter(**kwargs)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        return queryset
+
+    def protected(self, user=None, project=None):
+        kwargs = {
+            '%s__privacy_level__in' % self.project_field: [constants.PUBLIC, constants.PROTECTED]
+        }
+        queryset = self.filter(**kwargs)
+        if user:
+            queryset = self._add_user_repos(queryset, user)
+        if project:
+            queryset = queryset.filter(project=project)
+        return queryset
+
+    def private(self, user=None, project=None):
+        kwargs = {
+            '%s__privacy_level' % self.project_field: constants.PRIVATE,
+        }
+        queryset = self.filter(**kwargs)
         if user:
             queryset = self._add_user_repos(queryset, user)
         if project:
@@ -184,9 +266,21 @@ class RelatedProjectManager(models.Manager):
         return self.public(user)
 
 
+class ParentRelatedProjectManager(RelatedProjectManager):
+    project_field = 'parent'
+    use_for_related_fields = True
+
+
+class ChildRelatedProjectManager(RelatedProjectManager):
+    project_field = 'child'
+    use_for_related_fields = True
+
+
 class RelatedBuildManager(models.Manager):
 
-    '''For models with association to a project through :py:cls:`Build`'''
+    '''For models with association to a project through :py:class:`Build`'''
+
+    use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
@@ -212,7 +306,7 @@ class RelatedBuildManager(models.Manager):
 
 class RelatedUserManager(models.Manager):
 
-    """For models with relations through :py:cls:`User`"""
+    """For models with relations through :py:class:`User`"""
 
     def api(self, user=None):
         """Return objects for user"""
@@ -226,6 +320,10 @@ class AdminPermission(object):
     @classmethod
     def is_admin(cls, user, project):
         return user in project.users.all()
+
+    @classmethod
+    def is_member(cls, user, obj):
+        return user in obj.users.all()
 
 
 class AdminNotAuthorized(ValueError):

@@ -23,16 +23,19 @@ as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
-When RTD builds your project, it sets the `READTHEDOCS` environment variable to the string `True`. So within your Sphinx ``conf.py`` file, you can vary the behavior based on this. For example::
+When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
+variable to the string `True`. So within your Sphinx :file:`conf.py` file, you
+can vary the behavior based on this. For example::
 
     import os
-    on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+    on_rtd = os.environ.get('READTHEDOCS') == 'True'
     if on_rtd:
         html_theme = 'default'
     else:
         html_theme = 'nature'
 
-The ``READTHEDOCS`` variable is also available in the Sphinx build environment, and will be set to ``True`` when building on RTD::
+The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
+environment, and will be set to ``True`` when building on RTD::
 
     {% if READTHEDOCS %}
     Woo
@@ -54,7 +57,7 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
     class Mock(MagicMock):
         @classmethod
         def __getattr__(cls, name):
-                return Mock()
+                return MagicMock()
 
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
@@ -104,9 +107,9 @@ that documentation will also be served under the parent project's subdomain.
 
 For example,
 Kombu is a subproject of celery,
-so you can access it on the `celery.readthedocs.org` domain:
+so you can access it on the `celery.readthedocs.io` domain:
 
-http://celery.readthedocs.org/projects/kombu/en/latest/
+http://celery.readthedocs.io/projects/kombu/en/latest/
 
 This also works the same for CNAMEs:
 
@@ -138,9 +141,10 @@ Image scaling in docutils depends on PIL. PIL is installed in the system that RT
 I want comments in my docs
 --------------------------
 
-RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ can be used for this purpose on RTD.
+RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
 
 .. _Disqus: http://disqus.com/
+.. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
 
 How do I support multiple languages of documentation?
 -----------------------------------------------------
@@ -161,13 +165,13 @@ have adopted customized docstring styles that are simultaneously
 informative and legible. The
 `NumPy <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
 and
-`Google <http://google-styleguide.googlecode.com/svn/trunk/pyguide.html?showone=Comments#Comments>`_
+`Google <https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments>`_
 styles are two popular docstring formats.  Fortunately, the default
 Read The Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
 knows how to convert your customized docstrings.  Two such extensions
 are `numpydoc <https://github.com/numpy/numpydoc>`_ and
-`napoleon <http://sphinxcontrib-napoleon.readthedocs.org>`_. Only
+`napoleon <http://sphinxcontrib-napoleon.readthedocs.io>`_. Only
 ``napoleon`` is able to handle both docstring formats. Its default
 output more closely matches the format of standard Sphinx annotations,
 and as a result, it tends to look a bit better with the default theme.

@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template import Context, loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 
 log = logging.getLogger(__name__)
 
@@ -42,35 +43,43 @@ class BaseMkdocs(BaseBuilder):
             user_config = {
                 'site_name': self.version.project.name,
             }
+        except yaml.YAMLError as exc:
+            note = ''
+            if hasattr(exc, 'problem_mark'):
+                mark = exc.problem_mark
+                note = ' (line %d, column %d)' % (mark.line+1, mark.column+1)
+            raise BuildEnvironmentError(
+                "Your mkdocs.yml could not be loaded, "
+                "possibly due to a syntax error%s" % (
+                    note,))
 
         # Handle custom docs dirs
 
         user_docs_dir = user_config.get('docs_dir')
-        if user_docs_dir:
-            user_docs_dir = os.path.join(self.root_path, user_docs_dir)
         docs_dir = self.docs_dir(docs_dir=user_docs_dir)
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
 
-        media_url = getattr(settings, 'MEDIA_URL', 'https://media.readthedocs.org')
+        media_url = settings.MEDIA_URL
 
         # Mkdocs needs a full domain here because it tries to link to local media files
         if not media_url.startswith('http'):
-            media_url = 'http://localhost:8000' + media_url
+            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+            media_url = 'http://{}{}'.format(domain, media_url)
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append('readthedocs-data.js')
             user_config['extra_javascript'].append(
                 'readthedocs-dynamic-include.js')
             user_config['extra_javascript'].append(
-                '%sjavascript/readthedocs-doc-embed.js' % media_url)
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url)
         else:
             user_config['extra_javascript'] = [
                 'readthedocs-data.js',
                 'readthedocs-dynamic-include.js',
-                '%sjavascript/readthedocs-doc-embed.js' % media_url,
+                '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
             ]
 
         if 'extra_css' in user_config:
@@ -105,7 +114,8 @@ class BaseMkdocs(BaseBuilder):
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
-            'api_host': getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org'),
+            'api_host': getattr(settings, 'PUBLIC_API_URL',
+                                'https://readthedocs.org'),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(readthedocs_data, indent=4)

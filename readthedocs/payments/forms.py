@@ -172,7 +172,7 @@ class StripeModelForm(forms.ModelForm):
         """Clear card data on validation errors
 
         This requires the form was created by passing in a mutable QueryDict
-        instance, see :py:cls:`readthedocs.payments.mixin.StripeMixin`
+        instance, see :py:class:`readthedocs.payments.mixin.StripeMixin`
         """
         try:
             self.data['stripe_token'] = None

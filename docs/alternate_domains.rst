@@ -6,18 +6,18 @@ Read the Docs supports a number of custom domains for your convenience. Shorter 
 Subdomain Support
 ------------------
 
-Every project has a subdomain that is available to serve its documentation. If you go to <slug>.readthedocs.org, it should show you the latest version of documentation. A good example is http://pip.readthedocs.org
+Every project has a subdomain that is available to serve its documentation. If you go to <slug>.readthedocs.io, it should show you the latest version of documentation. A good example is http://pip.readthedocs.io
 
-.. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hypen (-).
+.. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hyphen (-).
           `RFC 1035 <http://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains.
 
 CNAME Support
 -------------
 
-If you have your own domain, you can still host with us. 
+If you have your own domain, you can still host with us.
 This requires two steps:
 
-* Add a CNAME record in your DNS that point to our servers `readthedocs.org`
+* Add a CNAME record in your DNS that point to our servers `readthedocs.io`
 * Add a Domain object in the **Project Admin > Domains** page for your project.
 
 Using pip as an example, http://www.pip-installer.org resolves, but is hosted on our infrastructure.
@@ -27,7 +27,7 @@ As an example, fabric's dig record looks like this::
     -> dig docs.fabfile.org
     ...
     ;; ANSWER SECTION:
-    docs.fabfile.org.   7200    IN  CNAME   readthedocs.org.
+    docs.fabfile.org.   7200    IN  CNAME   readthedocs.io.
 
 .. note:: We used to map your projects documentation from the subdomain that you pointed your CNAME to.
           This wasn't workable at scale,
@@ -56,9 +56,9 @@ An example nginx configuration for pip would look like:
     server {
         server_name docs.pip-installer.org;
         location / {
-            proxy_pass http://pip.readthedocs.org:80;
+            proxy_pass https://pip.readthedocs.io:443;
             proxy_set_header Host $http_host;
-            proxy_set_header X-Forwarded-Proto http;
+            proxy_set_header X-Forwarded-Proto https;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Scheme $scheme;
             proxy_set_header X-RTD-SLUG pip;
@@ -70,4 +70,4 @@ An example nginx configuration for pip would look like:
 rtfd.org
 ---------
 
-You can also use `rtfd.org` as a short URL for Read the Docs. For example, http://pip.rtfd.org redirects to its documentation page. Any use of `rtfd.org` will simply be redirected to `readthedocs.org`.
+You can also use `rtfd.io` and `rtfd.org` for short URLs for Read the Docs. For example, http://pip.rtfd.io redirects to its documentation page. Any use of `rtfd.io` or `rtfd.org` will simply be redirected to `readthedocs.io`.

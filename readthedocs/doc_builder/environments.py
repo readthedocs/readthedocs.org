@@ -12,7 +12,7 @@ import socket
 from datetime import datetime
 
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext_noop
 from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
@@ -42,8 +42,8 @@ class BuildCommand(BuildCommandResultMixin):
     This wraps subprocess commands with some logic to handle exceptions,
     logging, and setting up the env for the build command.
 
-    This acts a mapping of sorts to the API reprensentation of the
-    :py:cls:`readthedocs.builds.models.BuildCommandResult` model.
+    This acts a mapping of sorts to the API representation of the
+    :py:class:`readthedocs.builds.models.BuildCommandResult` model.
 
     :param command: string or array of command parameters
     :param cwd: current working path for the command
@@ -262,17 +262,15 @@ class BuildEnvironment(object):
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
-    :param report_build_success: update build if successful
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None, report_build_success=True):
+                 environment=None):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
-        self.report_build_success = report_build_success
 
         self.commands = []
         self.failure = None
@@ -283,7 +281,7 @@ class BuildEnvironment(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         ret = self.handle_exception(exc_type, exc_value, tb)
-        self.update_build(state=BUILD_STATE_FINISHED)
+        self.build['state'] = BUILD_STATE_FINISHED
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
@@ -295,11 +293,10 @@ class BuildEnvironment(object):
 
         This reports on the exception we're handling and special cases
         subclasses of BuildEnvironmentException.  For
-        :py:cls:`BuildEnvironmentWarning`, exit this context gracefully, but
-        don't mark the build as a failure.  For :py:cls:`BuildEnvironmentError`,
-        exit gracefully, but mark the build as a failure.  For all other
-        exception classes, the build will be marked as a failure and an
-        exception will bubble up.
+        :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
+        don't mark the build as a failure.  For all other exception classes,
+        including :py:class:`BuildEnvironmentError`, the build will be marked as
+        a failure and the context will be gracefully exited.
         """
         if exc_type is not None:
             log.error(LOG_TEMPLATE
@@ -307,13 +304,9 @@ class BuildEnvironment(object):
                               version=self.version.slug,
                               msg=exc_value),
                       exc_info=True)
-            if issubclass(exc_type, BuildEnvironmentWarning):
-                return True
-            else:
+            if not issubclass(exc_type, BuildEnvironmentWarning):
                 self.failure = exc_value
-                if issubclass(exc_type, BuildEnvironmentError):
-                    return True
-                return False
+            return True
 
     def run(self, *cmd, **kwargs):
         '''Shortcut to run command from environment'''
@@ -384,8 +377,7 @@ class BuildEnvironment(object):
         want to record successful builds yet (if we are running setup commands
         for the build)
         """
-        if not self.record or (state == BUILD_STATE_FINISHED and
-                               not self.report_build_success):
+        if not self.record:
             return None
 
         self.build['project'] = self.project.pk
@@ -412,7 +404,14 @@ class BuildEnvironment(object):
             self.build['length'] = build_length.total_seconds()
 
         if self.failure is not None:
-            self.build['error'] = str(self.failure)
+            # Only surface the error message if it was a
+            # BuildEnvironmentException or BuildEnvironmentWarning
+            if isinstance(self.failure,
+                          (BuildEnvironmentException, BuildEnvironmentWarning)):
+                self.build['error'] = str(self.failure)
+            else:
+                self.build['error'] = ugettext_noop(
+                    "An unexpected error occurred")
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
@@ -483,7 +482,7 @@ class DockerEnvironment(BuildEnvironment):
                         _('A build environment is currently '
                           'running for this version'))
                     self.failure = exc
-                    self.update_build(state=BUILD_STATE_FINISHED)
+                    self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
                     log.warn(LOG_TEMPLATE
@@ -530,9 +529,8 @@ class DockerEnvironment(BuildEnvironment):
                           version=self.version.slug,
                           msg="Couldn't remove container"),
                       exc_info=True)
-
         self.container = None
-        self.update_build(state=BUILD_STATE_FINISHED)
+        self.build['state'] = BUILD_STATE_FINISHED
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,

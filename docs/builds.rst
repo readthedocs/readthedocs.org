@@ -125,3 +125,17 @@ Deleting a stale or broken build environment
 
 If you're having trouble getting your version to build, try wiping out the existing build/environment files.  On your version list page ``/projects/[project]/versions`` there is a "Wipe" button that will remove all of the files associated with your documentation build, but not the documentation itself.
 
+Build environment
+-----------------
+
+The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment variables when building your documentation:
+
++-------------------------+--------------------------------------------------+----------------------+
+| Environment variable    | Description                                      | Example value        |
++-------------------------+--------------------------------------------------+----------------------+
+| ``READTHEDOCS``         | Whether the build is running inside RTD          | ``True``             |
++-------------------------+--------------------------------------------------+----------------------+
+| ``READTHEDOCS_VERSION`` | The RTD name of the version which is being built | ``latest``           |
++-------------------------+--------------------------------------------------+----------------------+
+| ``READTHEDOCS_PROJECT`` | The RTD name of the project which is being built | ``myexampleproject`` |
++-------------------------+--------------------------------------------------+----------------------+

@@ -5,6 +5,7 @@ import json
 import re
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -27,7 +28,7 @@ class GitHubService(Service):
 
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
-    url_pattern = re.compile(r'^github\.com\/')
+    url_pattern = re.compile(r'github\.com')
 
     def sync(self):
         """Sync repositories and organizations"""
@@ -163,15 +164,25 @@ class GitHubService(Service):
 
         :param project: project to set up webhook for
         :type project: Project
-        :returns: boolean based on webhook set up success
-        :rtype: bool
+        :returns: boolean based on webhook set up success, and requests Response object
+        :rtype: (Bool, Response)
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
         data = json.dumps({
-            'name': 'readthedocs',
+            'name': 'web',
             'active': True,
-            'config': {'url': 'https://{domain}/github'.format(domain=settings.PRODUCTION_DOMAIN)}
+            'config': {
+                'url': 'https://{domain}{path}'.format(
+                    domain=settings.PRODUCTION_DOMAIN,
+                    path=reverse(
+                        'api_webhook_github',
+                        kwargs={'project_slug': project.slug}
+                    )
+                ),
+                'content_type': 'json',
+            },
+            'events': ['push', 'pull_request'],
         })
         resp = None
         try:
@@ -181,10 +192,11 @@ class GitHubService(Service):
                 data=data,
                 headers={'content-type': 'application/json'}
             )
-            if resp.status_code == 201:
+            # GitHub will return 200 if already synced
+            if resp.status_code in [200, 201]:
                 log.info('GitHub webhook creation successful for project: %s',
                          project)
-                return True
+                return (True, resp)
         except RequestException:
             log.error('GitHub webhook creation failed for project: %s',
                       project, exc_info=True)
@@ -192,7 +204,9 @@ class GitHubService(Service):
         else:
             log.error('GitHub webhook creation failed for project: %s',
                       project)
-            return False
+            log.debug('GitHub webhook creation failure response: %s',
+                      dict(resp))
+            return (False, resp)
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
@@ -212,5 +226,5 @@ class GitHubService(Service):
                     if tokens.exists():
                         token = tokens[0].token
         except Exception:
-            log.error('Failed to get token for user', exc_info=True)
+            log.error('Failed to get token for project', exc_info=True)
         return token

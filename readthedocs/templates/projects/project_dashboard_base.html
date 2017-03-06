@@ -15,13 +15,13 @@
   <div class="col-major project-dashboard-right">
     {% if project_list %}
 
-      {% if filter|length > 0 %}
+      {% if filter.qs.count > 0 %}
         <div class="module-header">
           <h3>{% trans "Important Versions" %}</h3>
         </div>
 
         <div class="filter">
-          {% autopaginate filter 15 %}
+          {% autopaginate filter.qs 15 %}
 
           <!-- BEGIN filter list -->
           <div class="module">
@@ -48,9 +48,11 @@
         <div class="module-wrapper">
 
           <div class="module-header">
+            {% block project_import_button %}
             <form method="get" action="{{ projects_import_url }}">
               <input type="submit" value="Import a Project" />
             </form>
+            {% endblock %}
             <h3>{% trans "Projects" %}</h3>
           </div>
 
@@ -138,7 +140,7 @@
         </p>
 
         <form method="get" action="{{ social_accounts }}">
-          <input type="submit" value="Connect to GitHub" />
+          <input type="submit" value="Connect your Accounts" />
         </form>
       </div>
     {% endif %}
@@ -150,7 +152,7 @@
     <div class="module info info-docs">
       <h3>Learn More</h3>
       <p>
-        Check out the <a href="http://docs.readthedocs.org/en/latest/index.html">documentation for Read the Docs</a>.
+        Check out the <a href="http://docs.readthedocs.io/en/latest/index.html">documentation for Read the Docs</a>.
         It contains lots of information about how to get the most out of RTD.
       </p>
     </div>

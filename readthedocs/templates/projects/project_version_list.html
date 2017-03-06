@@ -1,5 +1,6 @@
 {% extends "projects/base_project.html" %}
 {% load i18n %}
+{% load projects_tags %}
 {% load privacy_tags %}
 {% load core_tags highlight  %}
 
@@ -35,7 +36,7 @@ Versions
         <h1>{% trans "Active Versions" %}</h1>
         <div class="module-list-wrapper">
           <ul>
-            {% for version in active_filter %}
+            {% for version in active_filter.qs|sort_version_aware %}
               {% block active-versions %}
               <li class="module-item">
                 {# Link to the docs #}
@@ -83,7 +84,7 @@ Versions
           <h1>{% trans "Inactive Versions" %}</h1>
           <div class="module-list-wrapper">
             <ul>
-              {% for version in inactive_filter %}
+              {% for version in inactive_filter.qs|sort_version_aware %}
 
               {% block inactive-versions %}
                 <li class="module-item">

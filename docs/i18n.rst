@@ -7,7 +7,7 @@ Internationalization
 This document covers the details regarding internationalization and
 localization that are applied in Read the Docs. The guidelines described are
 mostly based on `Kitsune's localization documentation
-<http://kitsune.readthedocs.org/en/latest/localization.html>`_.
+<http://kitsune.readthedocs.io/en/latest/localization.html>`_.
 
 As with most of the Django applications out there, Read the Docs' i18n/l10n
 framework is based on `GNU gettext <http://www.gnu.org/software/gettext/>`_.
@@ -243,10 +243,11 @@ will need to use :func:`~django.utils.translation.pgettext_lazy`.
 
 
 Administrative Tasks
-====================
+--------------------
+
 
 Updating Localization Files
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To update the translation source files (eg if you changed or added translatable
 strings in the templates or Python code) you should run ``python manage.py
@@ -261,7 +262,7 @@ crowd-sourced online translation tool.
 .. _i18n-compiling:
 
 Compiling to MO
----------------
+^^^^^^^^^^^^^^^
 
 Gettext doesn't parse any text files, it reads a binary format for faster
 performance. To compile the latest PO files in the repository, Django provides
@@ -280,7 +281,7 @@ make sure you don't forcibly add them to the repository.
 
 
 Transifex Integration
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 To push updated translation source files to Transifex, run ``tx
 push -s`` (for English) or ``tx push -t <language>`` (for non-English).

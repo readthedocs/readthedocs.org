@@ -9,12 +9,17 @@ It will get you to a point of having a local running instance.
 First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them. Using a
 virtual environment will make the installation easier, and will help to avoid
 clutter in your system-wide libraries. You will also need Git_ in order to
-clone the repository.
+clone the repository. If you plan to import Python 3 project to your RTD then you'll
+need to install Python 3 with virtualenv in your system as well.
 
 
 .. _Python 2.7: http://www.python.org/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
+.. _Homebrew: http://brew.sh/
+.. _Elasticsearch: https://www.elastic.co/products/elasticsearch
+.. _PostgreSQL: https://www.postgresql.org/
+.. _Redis: https://redis.io/
 
 
 .. note::
@@ -41,7 +46,23 @@ clone the repository.
     Users of other Linux distributions may need to install the equivalent
     packages, depending on their system configuration.
 
-.. _Homebrew: http://brew.sh/
+.. note::
+
+   If you want full support for searching inside your Read the Docs
+   site you will need to install Elasticsearch_.
+
+   Ubuntu users could install this package as following::
+
+        sudo apt-get install elasticsearch
+
+.. note::
+
+   Besides the Python specific dependencies, you will also need Redis_.
+
+   Ubuntu users could install this package as following::
+
+        sudo apt-get install redis-server
+
 
 You will need to verify that your pip version is higher than 1.5 you can do this as such::
 
@@ -72,19 +93,19 @@ Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
-    ./manage.py migrate
+    python manage.py migrate
 
 Then please create a superuser account for Django::
 
-    ./manage.py createsuperuser
-    
+    python manage.py createsuperuser
+
 Now let's properly generate the static assets::
 
-    ./manage.py collectstatic
+    python manage.py collectstatic
 
 By now, it is the right time to load in a couple users and a test project::
 
-    ./manage.py loaddata test_data
+    python manage.py loaddata test_data
 
 .. note::
 
@@ -94,13 +115,13 @@ By now, it is the right time to load in a couple users and a test project::
 
 Finally, you're ready to start the webserver::
 
-    ./manage.py runserver
+    python manage.py runserver
 
 Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can use
 the admin interface via http://127.0.0.1:8000/admin (logging in with the
 superuser account you just created).
 
-For builds to properly kick off as expected, it is necessary the port 
+For builds to properly kick off as expected, it is necessary the port
 you're serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined
 in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
 (By default, it's ``localhost:8000``)
@@ -109,13 +130,13 @@ While the webserver is running, you can build documentation for the latest versi
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
 with the name of any added project::
 
-   ./manage.py update_repos pip
+   python manage.py update_repos pip
 
 What's available
 ----------------
 
 After registering with the site (or creating yourself a superuser account),
-you will be able to log in and view the `dashboard <http://readthedocs.org/dashboard/>`_.
+you will be able to log in and view the `dashboard <http://localhost:8000/dashboard/>`_.
 
 From the dashboard you can import your existing
 docs provided that they are in a git or mercurial repo.

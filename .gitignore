@@ -7,6 +7,7 @@
 .idea
 .vagrant
 .tox
+.env
 .rope_project/
 .ropeproject/
 _build
@@ -33,7 +34,6 @@ prod_artifacts
 wheelhouse
 whoosh_index
 xml_output
-public_web_root
-public_cname_project
-public_cname_root
+public_*
+private_*
 .rope_project/

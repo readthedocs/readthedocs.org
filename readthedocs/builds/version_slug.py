@@ -30,7 +30,7 @@ from django.utils.encoding import force_text
 #   *? -- allow multiple of those, but be not greedy about the matching
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
-VERSION_SLUG_REGEX = '(?:[a-z0-9][-._a-z0-9]*?)'
+VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
 
 
 class VersionSlugField(models.CharField):
@@ -121,7 +121,7 @@ class VersionSlugField(models.CharField):
         if model_instance.pk:
             queryset = queryset.exclude(pk=model_instance.pk)
 
-        # form a kwarg dict used to impliment any unique_together contraints
+        # form a kwarg dict used to implement any unique_together constraints
         kwargs = {}
         for params in model_instance._meta.unique_together:
             if self.attname in params:

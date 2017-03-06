@@ -27,6 +27,11 @@
 
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
   <script type="text/javascript" src="{{ MEDIA_URL }}javascript/base.js"></script>
+  <script type="text/javascript" src="{% static 'core/js/site.js' %}"></script>
+  <script type="text/javascript">
+    var site = require('core/site');
+    site.handle_notification_dismiss();
+  </script>
 
   {% block extra_scripts %}{% endblock %}
 
@@ -59,7 +64,7 @@
         {% if messages %}
           <ul class="notifications">
             {% for message in messages %}
-              <li class="notification notification-{{ message.level }}">
+              <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
                 {{ message }}
               </li>
             {% endfor %}
@@ -84,18 +89,11 @@
 
 
         {% block footer-content %}
-        <p>
-        Copyright {% getCopyrightYears %}.
-
-        {% blocktrans with "<a href='http://ericholscher.com/'>Eric Holscher</a>" as eric and "<a href='http://charlesleifer.com/'>Charles Leifer<a>" as charles and "<a href='http://bobbygrace.info/'>Bobby Grace</a>" as bobby and "<a href='http://djangodash.com/'>Django Dash</a>" as djangodash %}
-          Created by {{ eric }}, {{ charles }}, and {{ bobby }} for the 2010 {{ djangodash }}.
-        {% endblocktrans %}
-        </p>
-        <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.org">{%  trans "Docs" %}</a>.
+        <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.io">{%  trans "Docs" %}</a>.
 
         {% url "gold_detail" as gold_detail %}
         {% blocktrans %}
-        Made by <a href="https://github.com/rtfd/readthedocs.org/graphs/contributors">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
+        Made by <a href="https://docs.readthedocs.io/en/latest/team.html">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
         {% endblocktrans %}
         </p>
         {% endblock %}
@@ -114,7 +112,7 @@
                 }
               {% endfor %}
             </select>
-            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit">
+            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit" id="change-language-input">
         </form>
 
         <br>

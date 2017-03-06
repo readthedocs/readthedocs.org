@@ -8,27 +8,26 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import MultipleObjectsReturned
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
-from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
-from readthedocs.core.utils import broadcast
-from readthedocs.core.resolver import resolve_domain
+from readthedocs.core.utils import broadcast, slugify
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
-from readthedocs.privacy.loader import RelatedProjectManager, ProjectManager
+from readthedocs.privacy.loader import (RelatedProjectManager, ProjectManager,
+                                        ChildRelatedProjectManager)
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.utils import make_api_version, update_static_metadata
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.validators import validate_domain_name
 
 from readthedocs.vcs_support.base import VCSProject
@@ -57,6 +56,8 @@ class ProjectRelationship(models.Model):
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
     alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
+
+    objects = ChildRelatedProjectManager()
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
@@ -116,8 +117,8 @@ class Project(models.Model):
     default_version = models.CharField(
         _('Default version'), max_length=255, default=LATEST,
         help_text=_('The version of your project that / redirects to'))
-    # In default_branch, None max_lengtheans the backend should choose the
-    # appropraite branch. Eg 'master' for git
+    # In default_branch, None means the backend should choose the
+    # appropriate branch. Eg 'master' for git
     default_branch = models.CharField(
         _('Default branch'), max_length=255, default=None, null=True,
         blank=True, help_text=_('What branch "latest" points to. Leave empty '
@@ -238,9 +239,10 @@ class Project(models.Model):
         default='words',
         help_text=_("The primary programming language the project is written in."),
         choices=constants.PROGRAMMING_LANGUAGES, blank=True)
-    # A subproject pointed at it's main language, so it can be tracked
+    # A subproject pointed at its main language, so it can be tracked
     main_language_project = models.ForeignKey('self',
                                               related_name='translations',
+                                              on_delete=models.SET_NULL,
                                               blank=True, null=True)
 
     # Version State
@@ -288,16 +290,6 @@ class Project(models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def subdomain(self):
-        try:
-            domain = self.domains.get(canonical=True)
-            return domain.domain
-        except (Domain.DoesNotExist, MultipleObjectsReturned):
-            subdomain_slug = self.slug.replace('_', '-')
-            prod_domain = getattr(settings, 'PRODUCTION_DOMAIN')
-            return "%s.%s" % (subdomain_slug, prod_domain)
-
     def sync_supported_versions(self):
         supported = self.supported_versions()
         if supported:
@@ -312,7 +304,7 @@ class Project(models.Model):
         first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
-            self.slug = slugify(self.name).replace('_', '-')
+            self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_("Model must have slug"))
         super(Project, self).save(*args, **kwargs)
@@ -407,14 +399,21 @@ class Project(models.Model):
 
     def get_production_media_url(self, type_, version_slug, full_path=True):
         """Get the URL for downloading a specific media file."""
-        path = reverse('project_download_media', kwargs={
-            'project_slug': self.slug,
-            'type_': type_,
-            'version_slug': version_slug,
-        })
+        try:
+            path = reverse('project_download_media', kwargs={
+                'project_slug': self.slug,
+                'type_': type_,
+                'version_slug': version_slug,
+            })
+        except NoReverseMatch:
+            return ''
         if full_path:
             path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
         return path
+
+    def subdomain(self):
+        """Get project subdomain from resolver"""
+        return resolve_domain(self)
 
     def get_downloads(self):
         downloads = {}
@@ -674,7 +673,7 @@ class Project(models.Model):
             This is a temporary workaround for activate_versions filtering out
             things that were active, but failed to build
 
-        :returns: :py:cls:`Version` queryset
+        :returns: :py:class:`Version` queryset
         """
         return self.versions.filter(active=True)
 
@@ -726,13 +725,6 @@ class Project(models.Model):
                     type=new_stable.type,
                     identifier=new_stable.identifier)
                 return new_stable
-
-    def version_from_branch_name(self, branch):
-        versions = self.versions_from_branch_name(branch)
-        try:
-            return versions[0]
-        except IndexError:
-            return None
 
     def versions_from_branch_name(self, branch):
         return (
@@ -822,7 +814,7 @@ class Project(models.Model):
         :param page: Page to attach comment to
         :param content_hash: Hash of content to apply comment to
         :param commit: Commit that updated comment
-        :param user: :py:cls:`User` instance that created comment
+        :param user: :py:class:`User` instance that created comment
         :param text: Comment text
         """
         from readthedocs.comments.models import DocumentNode
@@ -853,10 +845,8 @@ class ImportedFile(models.Model):
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('docs_detail', [self.project.slug, self.project.language,
-                                self.version.slug, self.path])
+        return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __unicode__(self):
         return '%s: %s' % (self.name, self.project)
@@ -899,6 +889,11 @@ class Domain(models.Model):
     canonical = models.BooleanField(
         default=False,
         help_text=_('This Domain is the primary one where the documentation is served from.')
+    )
+    https = models.BooleanField(
+        _('Use HTTPS'),
+        default=False,
+        help_text=_('SSL is enabled for this domain')
     )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 

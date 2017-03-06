@@ -44,6 +44,10 @@ class PythonEnvironment(object):
         setup_path = os.path.join(self.checkout_path, 'setup.py')
         if os.path.isfile(setup_path) and self.config.install_project:
             if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
+                extra_req_param = ''
+                if self.config.extra_requirements:
+                    extra_req_param = '[{0}]'.format(
+                        ','.join(self.config.extra_requirements))
                 self.build_env.run(
                     'python',
                     self.venv_bin(filename='pip'),
@@ -51,7 +55,7 @@ class PythonEnvironment(object):
                     '--ignore-installed',
                     '--cache-dir',
                     self.project.pip_cache_path,
-                    '.',
+                    '.{0}'.format(extra_req_param),
                     cwd=self.checkout_path,
                     bin_path=self.venv_bin()
                 )
@@ -91,25 +95,26 @@ class Virtualenv(PythonEnvironment):
             self.config.python_interpreter,
             '-mvirtualenv',
             site_packages,
+            '--no-download',
             env_path,
             bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
         )
 
     def install_core_requirements(self):
         requirements = [
-            'sphinx==1.3.5',
+            'sphinx==1.5.3',
             'Pygments==2.1.3',
-            'setuptools==20.1.1',
-            'docutils==0.12',
+            'setuptools==28.8.0',
+            'docutils==0.13.1',
             'mkdocs==0.15.0',
             'mock==1.0.1',
             'pillow==2.6.1',
             ('git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
              '@0.6-alpha#egg=readthedocs-sphinx-ext'),
-            'sphinx-rtd-theme==0.1.9',
+            'sphinx-rtd-theme<0.3',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
-            'recommonmark==0.1.1',
+            'recommonmark==0.4.0',
         ]
 
         cmd = [

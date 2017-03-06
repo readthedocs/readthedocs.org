@@ -16,7 +16,7 @@ Bazaar_, Git_, and Mercurial_ repositories.
 .. _Subversion: http://subversion.tigris.org/
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
-.. _Mercurial: http://mercurial.selenic.com/
+.. _Mercurial: https://www.mercurial-scm.org/
 
 Documentation for RTD
 ---------------------
@@ -24,12 +24,12 @@ Documentation for RTD
 You will find complete documentation for setting up your project at `the Read
 the Docs site`_.
 
-.. _the Read the Docs site: https://docs.readthedocs.org/
+.. _the Read the Docs site: https://docs.readthedocs.io/
 
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.org/en/latest/contribute.html#contributing-to-development>`_
+You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html#contributing-to-development>`_
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
@@ -65,4 +65,5 @@ when you push to GitHub.
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
-    :target: https://docs.readthedocs.org/en/latest/?badge=latest
+    :target: https://docs.readthedocs.io/en/latest/?badge=latest
+

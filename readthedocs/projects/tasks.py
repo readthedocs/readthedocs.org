@@ -18,14 +18,17 @@ from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from readthedocs_build.config import ConfigError
 
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
-                                          BUILD_STATE_BUILDING)
+                                          BUILD_STATE_BUILDING,
+                                          BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.signals import build_complete
 from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
-from readthedocs.core.symlink import Symlink
+from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
@@ -114,8 +117,7 @@ class UpdateDocsTask(Task):
 
         env_cls = LocalEnvironment
         self.setup_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record,
-                                 report_build_success=False)
+                                 build=self.build, record=record)
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
@@ -131,11 +133,19 @@ class UpdateDocsTask(Task):
                     status_code=423
                 )
 
-            self.config = load_yaml_config(version=self.version)
+            try:
+                self.config = load_yaml_config(version=self.version)
+            except ConfigError as e:
+                raise BuildEnvironmentError(
+                    'Problem parsing YAML configuration. {0}'.format(str(e))
+                )
 
-        if self.setup_env.failed:
+        if self.setup_env.failure or self.config is None:
+            self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
             self.send_notifications()
+            self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return None
+
         if self.setup_env.successful and not self.project.has_valid_clone:
             self.set_valid_clone()
 
@@ -181,6 +191,9 @@ class UpdateDocsTask(Task):
 
         if self.build_env.failed:
             self.send_notifications()
+        build_complete.send(sender=Build, build=self.build_env.build)
+
+        self.build_env.update_build(state=BUILD_STATE_FINISHED)
 
     @staticmethod
     def get_project(project_pk):
@@ -237,7 +250,7 @@ class UpdateDocsTask(Task):
                                     msg=str(e)),
                 exc_info=True,
             )
-            raise BuildEnvironmentError('Failed to import project',
+            raise BuildEnvironmentError('Failed to import project: %s' % e,
                                         status_code=404)
 
     def get_env_vars(self):
@@ -294,11 +307,15 @@ class UpdateDocsTask(Task):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        self.python_env.delete_existing_build_dir()
-        self.python_env.setup_base()
-        self.python_env.install_core_requirements()
-        self.python_env.install_user_requirements()
-        self.python_env.install_package()
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            self.python_env.delete_existing_build_dir()
+            self.python_env.setup_base()
+            self.python_env.install_core_requirements()
+            self.python_env.install_user_requirements()
+            self.python_env.install_package()
 
     def build_docs(self):
         """Wrapper to all build functions
@@ -624,26 +641,29 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
 @task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
-    sym = Symlink(project=project)
-    sym.run()
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        sym = symlink(project=project)
+        sym.run()
 
 
 @task(queue='web')
 def symlink_domain(project_pk, domain_pk, delete=False):
     project = Project.objects.get(pk=project_pk)
     domain = Domain.objects.get(pk=domain_pk)
-    sym = Symlink(project=project)
-    if delete:
-        sym.remove_symlink_cname(domain)
-    else:
-        sym.symlink_cnames(domain)
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        sym = symlink(project=project)
+        if delete:
+            sym.remove_symlink_cname(domain)
+        else:
+            sym.symlink_cnames(domain)
 
 
 @task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
-    sym = Symlink(project=project)
-    sym.symlink_subprojects()
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        sym = symlink(project=project)
+        sym.symlink_subprojects()
 
 
 @task(queue='web')
@@ -735,8 +755,8 @@ def send_notifications(version_pk, build_pk):
 def email_notification(version, build, email):
     """Send email notifications for build failure
 
-    :param version: :py:cls:`Version` instance that failed
-    :param build: :py:cls:`Build` instance that failed
+    :param version: :py:class:`Version` instance that failed
+    :param build: :py:class:`Build` instance that failed
     :param email: Email recipient address
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,

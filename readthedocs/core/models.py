@@ -1,9 +1,6 @@
 import logging
 
 from django.db import models
-from django.db.models.signals import post_save
-from django.db.utils import DatabaseError
-from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from annoying.fields import AutoOneToOneField
 
@@ -14,8 +11,8 @@ log = logging.getLogger(__name__)
 
 class UserProfile (models.Model):
 
-    """Additional information about a User.
-    """
+    """Additional information about a User."""
+
     user = AutoOneToOneField('auth.User', verbose_name=_('User'),
                              related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)

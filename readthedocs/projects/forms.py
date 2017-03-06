@@ -6,7 +6,6 @@ from urlparse import urlparse
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.template.defaultfilters import slugify
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -15,7 +14,7 @@ from textclassifier.validators import ClassifierValidator
 from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import TAG
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import trigger_build, slugify
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
@@ -134,6 +133,7 @@ class ProjectExtraForm(ProjectForm):
 
     description = forms.CharField(
         validators=[ClassifierValidator(raises=ProjectSpamError)],
+        required=False,
         widget=forms.Textarea
     )
 
@@ -342,8 +342,8 @@ class SubprojectForm(forms.Form):
     def clean_subproject(self):
         """Normalize subproject field
 
-        Does lookup on against :py:cls:`Project` to ensure matching project
-        exists. Return the :py:cls:`Project` object instead.
+        Does lookup on against :py:class:`Project` to ensure matching project
+        exists. Return the :py:class:`Project` object instead.
         """
         subproject_name = self.cleaned_data['subproject']
         subproject_qs = Project.objects.filter(slug=subproject_name)
@@ -487,7 +487,7 @@ class DomainForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        exclude = ['machine', 'cname', 'count']
+        exclude = ['machine', 'cname', 'count', 'https']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

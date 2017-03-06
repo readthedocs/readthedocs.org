@@ -1,11 +1,10 @@
-from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 import logging
 import re
 
+from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 from .managers import RedirectManager
 
@@ -89,34 +88,10 @@ class Redirect(models.Model):
         if re.match('^https?://', filename):
             return filename
 
-        url_kwargs = {
-            'project_slug': self.project.slug,
-            'filename': filename,
-        }
-
-        if not self.project.single_version:
-            if language is None:
-                language = self.project.language
-            if version_slug is None:
-                version_slug = self.project.get_default_version()
-            else:
-                versions = self.project.versions.all()
-                if not versions.filter(slug=version_slug).exists():
-                    version_slug = self.project.get_default_version()
-            url_kwargs.update({
-                'lang_slug': language,
-                'version_slug': version_slug,
-            })
-
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        if use_subdomain:
-            if self.project.single_version:
-                return "/{filename}".format(**url_kwargs)
-            else:
-                return "/{lang_slug}/{version_slug}/{filename}".format(
-                    **url_kwargs)
-
-        return reverse('docs_detail', kwargs=url_kwargs)
+        return resolve_path(
+            project=self.project, language=language,
+            version_slug=version_slug, filename=filename
+        )
 
     def get_redirect_path(self, path, language=None, version_slug=None):
         method = getattr(self, 'redirect_{type}'.format(
@@ -154,14 +129,15 @@ class Redirect(models.Model):
                 return cut_path
 
     def redirect_sphinx_html(self, path, language=None, version_slug=None):
-        if path.endswith('/'):
-            log.debug('Redirecting %s' % self)
-            path = path[1:]  # Strip leading slash.
-            to = re.sub('/$', '.html', path)
-            return self.get_full_path(
-                filename=to,
-                language=language,
-                version_slug=version_slug)
+        for ending in ['/', '/index.html']:
+            if path.endswith(ending):
+                log.debug('Redirecting %s' % self)
+                path = path[1:]  # Strip leading slash.
+                to = re.sub(ending + '$', '.html', path)
+                return self.get_full_path(
+                    filename=to,
+                    language=language,
+                    version_slug=version_slug)
 
     def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
         if path.endswith('.html'):

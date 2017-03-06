@@ -36,26 +36,43 @@
 
 {% block content %}
 
-        {% if not request.user.is_authenticated %}
           <div class="module">
             <div class="module-wrapper">
 
               <div class="module-header">
                 <h3>{% trans "What is this place?" %}</h3>
                 <p>
-{% blocktrans %}Read the Docs hosts documentation, making it fully searchable and easy to find.
+{% blocktrans %}
+Read the Docs hosts documentation, making it fully searchable and easy to find.
 You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.
-We support <a href="http://read-the-docs.readthedocs.org/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
-There's also support for versioning so you can build docs from tags and branches of your code in your repository. A <a href="http://read-the-docs.readthedocs.org/en/latest/features.html">full list of features</a> is available.{% endblocktrans %}
+We support <a href="http://docs.readthedocs.io/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
+There's also support for <a href="http://docs.readthedocs.io/en/latest/versions.html">versioning</a> so you can build docs from tags and branches of your code in your repository. 
+{% endblocktrans %}
                 </p>
                 <p>
-{% blocktrans with "https://read-the-docs.readthedocs.org/en/latest/getting_started.html" as getting_started_url %}It's free and simple.  Read the <a href="{{ getting_started_url }}">Getting Started</a> guide to get going!{% endblocktrans %}
+{% blocktrans %}
+  Hosting documentation is free and simple,
+  <a href="https://docs.readthedocs.io/en/latest/getting_started.html">read our guide</a>
+  to get started!
+{% endblocktrans %}
                 <p>
+                <p>
+{% blocktrans %}
+Read the Docs is <b>community supported</b>. 
+It depends on users like you to contribute to development,
+support,
+and operations.
+You can learn more about how to <a href="https://docs.readthedocs.io/en/latest/contribute.html">contribute</a> in our docs.
+Thanks so much to our wonderful <a href="https://docs.readthedocs.io/en/latest/team.html">community team</a> who helps us run the site.
+Read the Docs wouldn't be possible without them.
+Please consider joining today,
+as we always need more contributors to the project.
+{% endblocktrans %}
+                </p>
               </div>
 
             </div>
           </div>
-        {% endif %}
 
           {% include "core/widesearchbar.html" %}
 
@@ -86,7 +103,7 @@ There's also support for versioning so you can build docs from tags and branches
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>{% trans "Recently Updated Projects" %}</h3>
+                <h3>{% trans "Recently updated projects" %}</h3>
               </div>
 
               <div class="module-list">
@@ -101,61 +118,15 @@ There's also support for versioning so you can build docs from tags and branches
           </div>
           <!-- END projects list -->
 
-
-          {% comment %}
-          <!-- BEGIN projects list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                <h3>{% trans "Most Viewed Pages" %} <span class="small_head"><a href="{% url "pageviews_list" %}">{% trans "(All Views)" %}</a></span></h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% with updated_list as pageview_list %}
-                      {% include "core/pageview_list_detailed.html" %}
-                    {% endwith %}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END projects list -->
-
-
-          <!-- BEGIN marks list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                <h3>{% trans "Recently Bookmarked Docs" %} <span class="small_head"><a href="{% url "bookmarks_list" %}">{% trans "(All Bookmarks)" %}</a></span></h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/bookmark_list_detailed.html" %}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END marks list -->
-          {% endcomment %}
-
     <div>
+        <h3>{% trans "Read the Docs is funded by the community" %}</h3>
         <p>
-            <a href="https://docs.readthedocs.org/en/latest/index.html">Documentation for Read the Docs</a> is hosted on the site. <a href="https://github.com/rtfd/readthedocs.org">Code for the site</a> is available on GitHub.
+          Read the Docs is funded by readers like you.
+          Help keep the site alive and well by supporting us with a <a href="{% url "gold_detail" %}">Gold Subscription</a>.
+          You can also make one-time donations on our <a href='{% url "donate" %}'>sustainability</a> page.
         </p>
         <p>
-            Read the Docs development is funded by readers like you. Help keep the site alive and well by supporting us with <a href="{% url "gold_detail" %}">Gold account</a>.
-        </p>
-        <p>
-            Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
+          Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
         </p>
     </div>
 

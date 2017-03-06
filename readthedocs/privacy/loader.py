@@ -5,9 +5,7 @@ from django.conf import settings
 ProjectManager = import_by_path(
     getattr(settings, 'PROJECT_MANAGER',
             'readthedocs.privacy.backend.ProjectManager'))
-VersionManager = import_by_path(
-    getattr(settings, 'VERSION_MANAGER',
-            'readthedocs.privacy.backend.VersionManager'))
+# VersionQuerySet was replaced by SettingsOverrideObject
 BuildManager = import_by_path(
     getattr(settings, 'BUILD_MANAGER',
             'readthedocs.privacy.backend.BuildManager'))
@@ -21,6 +19,9 @@ RelatedBuildManager = import_by_path(
 RelatedUserManager = import_by_path(
     getattr(settings, 'RELATED_USER_MANAGER',
             'readthedocs.privacy.backend.RelatedUserManager'))
+ChildRelatedProjectManager = import_by_path(
+    getattr(settings, 'CHILD_RELATED_PROJECT_MANAGER',
+            'readthedocs.privacy.backend.ChildRelatedProjectManager'))
 
 # Permissions
 AdminPermission = import_by_path(

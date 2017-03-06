@@ -1,14 +1,19 @@
 import getpass
 import logging
 import os
-
+import re
 from urlparse import urlparse
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
+from django.utils import six
+from django.utils.functional import allow_lazy
+from django.utils.safestring import SafeText, mark_safe
+from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from ..tasks import send_email_task
+
 
 log = logging.getLogger(__name__)
 
@@ -16,9 +21,7 @@ SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
 def run_on_app_servers(command):
-    """
-    A helper to copy a single file across app servers
-    """
+    """A helper to copy a single file across app servers"""
     log.info("Running %s on app servers" % command)
     ret_val = 0
     if getattr(settings, "MULTIPLE_APP_SERVERS", None):
@@ -102,7 +105,19 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
     options = {}
     if project.build_queue:
-        options['queue'] = 'build-{0}'.format(project.build_queue)
+        options['queue'] = project.build_queue
+
+    # Set per-task time limit
+    time_limit = DOCKER_LIMITS['time']
+    try:
+        if project.container_time_limit:
+            time_limit = int(project.container_time_limit)
+    except ValueError:
+        pass
+    # Add 20% overhead to task, to ensure the build can timeout and the task
+    # will cleanly finish.
+    options['soft_time_limit'] = time_limit
+    options['time_limit'] = int(time_limit * 1.2)
 
     update_docs.apply_async(kwargs=kwargs, **options)
 
@@ -111,38 +126,30 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
 def send_email(recipient, subject, template, template_html, context=None,
                request=None):
-    '''
-    Send multipart email
+    """Alter context passed in and call email send task
 
-    recipient
-        Email recipient address
+    .. seealso::
 
-    subject
-        Email subject header
+        Task :py:func:`readthedocs.core.tasks.send_email_task`
+            Task that handles templating and sending email message
+    """
+    if context is None:
+        context = {}
+    context['uri'] = '{scheme}://{host}'.format(
+        scheme='https', host=settings.PRODUCTION_DOMAIN)
+    send_email_task.delay(recipient, subject, template, template_html, context)
 
-    template
-        Plain text template to send
 
-    template_html
-        HTML template to send as new message part
+def slugify(value, *args, **kwargs):
+    """Add a DNS safe option to slugify
 
-    context
-        A dictionary to pass into the template calls
+    :param dns_safe: Remove underscores from slug as well
+    """
+    dns_safe = kwargs.pop('dns_safe', True)
+    value = slugify_base(value, *args, **kwargs)
+    if dns_safe:
+        value = mark_safe(re.sub('[-_]+', '-', value))
+    return value
 
-    request
-        Request object for determining absolute URL
-    '''
-    if request:
-        scheme = 'https' if request.is_secure() else 'http'
-        context['uri'] = '{scheme}://{host}'.format(scheme=scheme,
-                                                    host=request.get_host())
-    ctx = {}
-    ctx.update(context)
-    msg = EmailMultiAlternatives(
-        subject,
-        get_template(template).render(ctx),
-        settings.DEFAULT_FROM_EMAIL,
-        [recipient]
-    )
-    msg.attach_alternative(get_template(template_html).render(ctx), 'text/html')
-    msg.send()
+
+slugify = allow_lazy(slugify, six.text_type, SafeText)

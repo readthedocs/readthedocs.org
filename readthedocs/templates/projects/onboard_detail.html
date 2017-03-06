@@ -2,16 +2,16 @@
 {% load privacy_tags %}
 
 <!-- BEGIN onboard first build -->
-<div class="onboard onboard-detail">
 
-  {% if request.user|is_admin:project %}
+{% if request.user|is_admin:project %}
+  <div class="onboard onboard-detail">
     {% if not onboard.build %}
       <h2>{% trans "Start building your documentation" %}</h2>
       <p>
         {% blocktrans %}
           This project has not been built yet.
           Try building the latest version now,
-          or if you would like to build a specific verison,
+          or if you would like to build a specific version,
           select the version below and your documentation build will be triggered.
         {% endblocktrans %}
       </p>
@@ -32,8 +32,8 @@
             {% blocktrans %}
               Your documentation has been built.
               Ensure your documentation is kept up to date with every commit to
-              your respository, by
-              <a href="http://docs.readthedocs.org/en/latest/webhooks.html">setting up a webhook</a>.
+              your repository, by
+              <a href="http://docs.readthedocs.io/en/latest/webhooks.html">setting up a webhook</a>.
             {% endblocktrans %}
             </p>
 
@@ -49,7 +49,7 @@
               There was a problem building your documentation,
               you can see what went wrong in the build output.
               If you need more help, check out some of the
-              <a href="http://docs.readthedocs.org/en/latest/faq.html">problems frequently encountered</a>
+              <a href="http://docs.readthedocs.io/en/latest/faq.html">problems frequently encountered</a>
               during builds.
             {% endblocktrans %}
             </p>
@@ -69,7 +69,7 @@
       {% endif %}
 
   {% endif %}
+  </div>
   {% endif %}
 
-</div>
 <!-- END onboard import project -->

@@ -1,16 +1,13 @@
 Read the Docs Public API
 =========================
 
-We have a limited public API that is available for you to get data out of the site. This page will only show a few of the basic parts, please file a ticket or ping us on IRC (#readthedocs on `Freenode (chat.freenode.net) <http://webchat.freenode.net>`_) if you have feature requests.
-
+We have a limited public API that is available for you to get data out of the site. 
 This document covers only part of the API provided. We have plans to create a read/write API, so that you can easily automate interactions with your project.
-
-The API is written in Tastypie, which provides a nice ability to browse the API from your browser. If you go to http://readthedocs.org/api/v1/?format=json and just poke around, you should be able to figure out what is going on.
 
 A basic API client using slumber
 --------------------------------
 
-You can use `Slumber <http://slumber.readthedocs.org/>`_ to build basic API wrappers in python. Here is a simple example of using slumber to interact with the RTD API::
+You can use `Slumber <http://slumber.readthedocs.io/>`_ to build basic API wrappers in python. Here is a simple example of using slumber to interact with the RTD API::
 
     from __future__ import print_function
     import slumber
@@ -29,10 +26,10 @@ You can use `Slumber <http://slumber.readthedocs.org/>`_ to build basic API wrap
     
 Alternatively you can try with the following value::
 
-    # fetch project project pip without metadata.
+    # fetch project pip without metadata.
     val = api.project('pip').get()
 
-    # get a specfic build
+    # get a specific build
     val = api.build(2592228).get()
 
     # get the build of a specific project.
@@ -47,46 +44,6 @@ Alternatively you can try with the following value::
     #val = api.version('pip').highest.get()
     #val = api.version('pip').highest('0.8').get()
 
-Example of adding a user to a project
--------------------------------------
-
-You can use the api to add user to a project,
-to authenticate with `slumber`, use the following:
-
-::
-
-    from __future__ import print_function
-    import slumber
-
-    USERNAME = 'eric'
-    PASSWORD = 'test'
-    
-    user_to_add = 'coleifer'
-    project_slug = 'read-the-docs'
-
-    api = slumber.API(base_url='http://readthedocs.org/api/v1/', auth=(USERNAME,PASSWORD))
-
-
-::
-
-    from __future__ import print_function
-
-    project = api.project.get(slug=project_slug)
-    user = api.user.get(username=user_to_add)
-    project_objects = project['objects'][0]
-    user_objects = user['objects'][0]
-
-    data = {'users': project_objects['users'][:]}
-    data['users'].append(user_objects['resource_uri'])
-
-    print("Adding %s to %s" % (user_objects['username'], project_objects['slug']))
-    api.project(project_objects['id']).put(data)
-
-    project2 = api.project.get(slug=project_slug)
-    project2_objects = project2['objects'][0]
-    print("Before users: %s" % project_objects['users'])
-    print("After users: %s" % project2_objects['users'])
-
 
 API Endpoints
 -------------
@@ -96,6 +53,64 @@ Feel free to use cURL and python to look at formatted json examples. You can als
 ::
 
     curl http://readthedocs.org/api/v1/project/pip/?format=json | python -m json.tool
+
+Doc Search
+----------
+
+.. http:get:: /api/v2/docsearch/
+
+    :string project: **Required**. The slug of a project. 
+    :string version: **Required**. The slug of the version for this project.
+    :string q: **Required**. The search query
+
+    You can search a specific set of documentation using our doc search endpoint.
+    It returns data in the format of Elastic Search,
+    which requires a bit of traversing to use.
+
+    In the future we might change the format of this endpoint to make it more abstact.
+
+    An example URL: http://readthedocs.org/api/v2/docsearch/?project=docs&version=latest&q=subdomains
+
+
+    Results:
+
+   .. sourcecode:: js
+  
+
+        {
+            "results": {
+                "hits": {
+                    "hits": [
+                        {
+                            "fields": {
+                                "link": "http://localhost:9999/docs/test-docs/en/latest/history/classes/coworking",
+                                "path": [
+                                    "history/classes/coworking"
+                                ],
+                                "project": [
+                                    "test-docs"
+                                ],
+                                "title": [
+                                    "PIE coworking"
+                                ],
+                                "version": [
+                                    "latest"
+                                ]
+                            },
+                            "highlight": {
+                                "content": [
+                                    "\nhelp fund more endeavors. Beta <em>test</em>  This first iteration of PIE was a very underground project"
+                                ]
+                            }
+                        },
+                    ],
+                    "max_score": 0.47553805,
+                    "total": 2
+                }
+            }
+        }
+
+ 
 
 Root
 ----
@@ -296,7 +311,7 @@ Project
           "crate_url": "", 
           "default_branch": "", 
           "default_version": "latest", 
-          "description": "Make docs.readthedocs.org work :D", 
+          "description": "Make docs.readthedocs.io work :D", 
           "django_packages_url": "", 
           "documentation_type": "sphinx", 
           "id": "2599", 
@@ -309,7 +324,7 @@ Project
           "requirements_file": "", 
           "resource_uri": "/api/v1/project/2599/", 
           "slug": "docs", 
-          "subdomain": "http://docs.readthedocs.org/", 
+          "subdomain": "http://docs.readthedocs.io/", 
           "suffix": ".rst", 
           "theme": "default", 
           "use_virtualenv": false, 
@@ -561,7 +576,7 @@ File Search
                       "requirements_file": "", 
                       "resource_uri": "/api/v1/project/530/", 
                       "slug": "python-guide", 
-                      "subdomain": "http://python-guide.readthedocs.org/", 
+                      "subdomain": "http://python-guide.readthedocs.io/", 
                       "suffix": ".rst", 
                       "theme": "kr", 
                       "use_virtualenv": false, 
@@ -593,9 +608,9 @@ Anchor Search
 
       {
           "objects": [
-              "http//django-fab-deploy.readthedocs.org/en/latest/...", 
-              "http//dimagi-deployment-tools.readthedocs.org/en/...", 
-              "http//openblock.readthedocs.org/en/latest/install/base_install.html#virtualenv", 
+              "http//django-fab-deploy.readthedocs.io/en/latest/...", 
+              "http//dimagi-deployment-tools.readthedocs.io/en/...", 
+              "http//openblock.readthedocs.io/en/latest/install/base_install.html#virtualenv", 
               ...
           ]
       }

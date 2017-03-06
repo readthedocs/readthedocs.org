@@ -1,13 +1,19 @@
-from django.conf.urls import url, patterns, include
+from django.conf.urls import url, include
 
 from rest_framework import routers
+
+from readthedocs.constants import pattern_opts
+from readthedocs.comments.views import CommentViewSet
+from readthedocs.restapi import views
+from readthedocs.restapi.views import (
+    core_views, footer_views, search_views, task_views, integrations
+)
 
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
                                 VersionViewSet, DomainViewSet,
                                 RemoteOrganizationViewSet,
                                 RemoteRepositoryViewSet)
-from readthedocs.comments.views import CommentViewSet
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet)
@@ -20,44 +26,61 @@ router.register(r'remote/org', RemoteOrganizationViewSet)
 router.register(r'remote/repo', RemoteRepositoryViewSet)
 router.register(r'comments', CommentViewSet, base_name="comments")
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^', include(router.urls)),
-)
+]
 
-function_urls = patterns(
-    '',
-    url(r'embed/', 'readthedocs.restapi.views.core_views.embed', name='embed'),
-    url(r'docurl/', 'readthedocs.restapi.views.core_views.docurl', name='docurl'),
-    url(r'cname/', 'readthedocs.restapi.views.core_views.cname', name='cname'),
-    url(r'footer_html/', 'readthedocs.restapi.views.footer_views.footer_html', name='footer_html'),
-)
+function_urls = [
+    url(r'embed/', core_views.embed, name='embed'),
+    url(r'docurl/', core_views.docurl, name='docurl'),
+    url(r'cname/', core_views.cname, name='cname'),
+    url(r'footer_html/', footer_views.footer_html, name='footer_html'),
+]
 
-search_urls = patterns(
-    '',
+search_urls = [
     url(r'index_search/',
-        'readthedocs.restapi.views.search_views.index_search',
+        search_views.index_search,
         name='index_search'),
-    url(r'search/$', 'readthedocs.restapi.views.search_views.search', name='api_search'),
+    url(r'search/$', views.search_views.search, name='api_search'),
     url(r'search/project/$',
-        'readthedocs.restapi.views.search_views.project_search',
+        search_views.project_search,
         name='api_project_search'),
     url(r'search/section/$',
-        'readthedocs.restapi.views.search_views.section_search',
+        search_views.section_search,
         name='api_section_search'),
-)
+]
 
-task_urls = patterns(
-    '',
+task_urls = [
     url(r'jobs/status/(?P<task_id>[^/]+)/',
-        'readthedocs.restapi.views.task_views.job_status',
+        task_views.job_status,
         name='api_job_status'),
     url(r'jobs/sync-remote-repositories/',
-        'readthedocs.restapi.views.task_views.sync_remote_repositories',
+        task_views.sync_remote_repositories,
         name='api_sync_remote_repositories'),
-)
+]
 
+integration_urls = [
+    url(r'webhook/github/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.GitHubWebhookView.as_view(),
+        name='api_webhook_github'),
+    url(r'webhook/gitlab/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.GitLabWebhookView.as_view(),
+        name='api_webhook_gitlab'),
+    url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.BitbucketWebhookView.as_view(),
+        name='api_webhook_bitbucket'),
+]
 
 urlpatterns += function_urls
 urlpatterns += search_urls
 urlpatterns += task_urls
+urlpatterns += integration_urls
+
+try:
+    from readthedocsext.search.docsearch import DocSearch
+    api_search_urls = [
+        url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
+    ]
+    urlpatterns += api_search_urls
+except ImportError:
+    pass

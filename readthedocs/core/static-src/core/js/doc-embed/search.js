@@ -2,7 +2,8 @@
  * Sphinx search overrides
  */
 
-var rtddata = require('./rtd-data');
+var rtddata = require('./rtd-data'),
+    xss = require('xss/lib/index');
 
 
 function init() {
@@ -27,7 +28,7 @@ function attach_elastic_search_query(data) {
             search_url = document.createElement('a');
 
         search_url.href = api_host;
-        search_url.pathname = '/api/v2/search';
+        search_url.pathname = '/api/v2/docsearch/';
         search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
             '&version=' + version + '&language=' + language;
 
@@ -62,7 +63,7 @@ function attach_elastic_search_query(data) {
                         }
                         if (highlight.content.length) {
                             var content = $('<div class="context">')
-                                .html(highlight.content[0]);
+                                .html(xss(highlight.content[0]));
                             content.find('em').addClass('highlighted');
                             list_item.append(content);
                         }
@@ -95,6 +96,10 @@ function attach_elastic_search_query(data) {
 
         $.ajax({
             url: search_url.href,
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true,
+            },
             complete: function(resp, status_code) {
                 if (typeof(resp.responseJSON) == 'undefined' ||
                         typeof(resp.responseJSON.results) == 'undefined') {

@@ -15,13 +15,16 @@ If your project is hosted on GitHub, you can easily add a hook that will rebuild
 your docs whenever you push updates:
 
 * Go to the "Settings" page for your project
-* Click "Webhooks & Services"
+* Click "Integrations & Services"
 * In the "Services" section, click "Add service"
 * In the list of available services, click "ReadTheDocs"
-* Check "Active"
+* Leave "Active" checked
 * Click "Add service"
 
-**Note:** The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
+.. note:: The GitHub URL in your Read the Docs project must match the URL on GitHub. The URL is case-sensitive.
+
+If you ever need to manually set the webhook on GitHub,
+you can point it at ``https://readthedocs.org/github``.
 
 Bitbucket
 -----------
@@ -30,9 +33,12 @@ If your project is hosted on Bitbucket, you can easily add a hook that will rebu
 your docs whenever you push updates:
 
 * Go to the "admin" page for your project
-* Click "Hooks"
+* Click "Services"
 * In the available service hooks, select "Read the Docs"
-* Click "Add hook"
+* Click "Add service"
+
+If you ever need to manually set the webhook on Bitbucket,
+you can point it at ``https://readthedocs.org/bitbucket``.
 
 Others
 ------
@@ -41,6 +47,14 @@ Your ReadTheDocs project detail page has your post-commit hook on it; it will
 look something along the lines of ``http://readthedocs.org/build/<project_name>``.
 Regardless of which revision control system you use, you can just hit this URL
 to kick off a rebuild.
+
+The following parameters available to customize the behavior of custom webhooks:
+
+* ``'version_slug'``: The build version to trigger build for (defaults to ``'latest'``)
+
+  Example::
+  
+      $ curl -X POST --data "version_slug=$VERSION" https://readthedocs.org/build/$PROJECT_NAME
 
 You could make this part of a hook using Git_, Subversion_, Mercurial_, or
 Bazaar_, perhaps through a simple script that accesses the build URL using
