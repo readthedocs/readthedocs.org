@@ -41,6 +41,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BuildCommandResult
+        fields = ('__all__')
 
 
 class BuildSerializer(serializers.ModelSerializer):
@@ -61,6 +62,7 @@ class BuildSerializerFull(BuildSerializer):
 
     class Meta:
         model = Build
+        fields = ('__all__')
 
 
 class SearchIndexSerializer(serializers.Serializer):

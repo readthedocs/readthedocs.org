@@ -17,6 +17,7 @@ from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
 from rest_framework.renderers import JSONRenderer
+from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
@@ -401,7 +402,7 @@ class BuildEnvironment(object):
 
         if self.start_time:
             build_length = (datetime.utcnow() - self.start_time)
-            self.build['length'] = build_length.total_seconds()
+            self.build['length'] = int(build_length.total_seconds())
 
         if self.failure is not None:
             # Only surface the error message if it was a
@@ -419,9 +420,11 @@ class BuildEnvironment(object):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
         try:
-            resp = api_v2.build(self.build['id']).put(self.build)
+            api_v2.build(self.build['id']).put(self.build)
+        except HttpClientError as e:
+            log.error("Unable to post a new build: %s" % e.content)
         except Exception:
-            log.error("Unable to post a new build", exc_info=True)
+            log.error("Unknown build exception", exc_info=True)
 
 
 class LocalEnvironment(BuildEnvironment):
