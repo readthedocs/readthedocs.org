@@ -326,7 +326,8 @@ class CommunityBaseSettings(Settings):
     }
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
-        'PAGINATE_BY': 10
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+        'PAGE_SIZE': 10,
     }
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
 
