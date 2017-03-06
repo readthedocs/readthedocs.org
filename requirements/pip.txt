@@ -41,7 +41,7 @@ pyelasticsearch==0.7.1
 pyquery==1.2.2
 
 # Utils
-django-gravatar2==1.0.6
+django-gravatar2==1.4.0
 doc2dash==1.1.0
 pytz==2013b
 beautifulsoup4==4.1.3
