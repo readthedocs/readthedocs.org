@@ -65,11 +65,6 @@ admin_urls = [
     url(r'^admin/', include(admin.site.urls)),
 ]
 
-money_urls = [
-    url(r'^sustainability/', include('readthedocs.donate.urls')),
-    url(r'^accounts/gold/', include('readthedocs.gold.urls')),
-]
-
 debug_urls = add(
     [
         url('style-catalog/$',
@@ -80,8 +75,14 @@ debug_urls = add(
 
 # Export URLs
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
-          money_urls, deprecated_urls]
+          deprecated_urls]
 
+if getattr(settings, 'INCLUDE_DONATIONS', True):
+    # Include donation URL's
+    groups.append([
+        url(r'^sustainability/', include('readthedocs.donate.urls')),
+        url(r'^accounts/gold/', include('readthedocs.gold.urls')),
+    ])
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):
