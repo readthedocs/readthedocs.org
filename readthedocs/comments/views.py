@@ -160,7 +160,7 @@ class CommentViewSet(ModelViewSet):
     permission_classes = [CommentModeratorOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        qp = self.request.QUERY_PARAMS
+        qp = self.request.query_params
         if qp.get('node'):
             try:
                 node = DocumentNode.objects.from_hash(version_slug=qp['version'],
