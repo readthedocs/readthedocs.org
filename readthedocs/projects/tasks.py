@@ -178,9 +178,7 @@ class UpdateDocsTask(Task):
                 outcomes = self.build_docs()
                 build_id = self.build.get('id')
             except SoftTimeLimitExceeded:
-                raise BuildEnvironmentError(
-                    'Failing build because the maximum time to build the '
-                    'documentation was reached.')
+                raise BuildEnvironmentError(_('Build exited due to time out'))
 
             # Web Server Tasks
             if build_id:
