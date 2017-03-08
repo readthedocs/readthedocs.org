@@ -14,6 +14,7 @@ import hashlib
 from collections import defaultdict
 
 from celery import task, Task
+from celery.exceptions import SoftTimeLimitExceeded
 from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -169,12 +170,17 @@ class UpdateDocsTask(Task):
                                              build_env=self.build_env,
                                              config=self.config)
 
-            self.setup_environment()
+            try:
+                self.setup_environment()
 
-            # TODO the build object should have an idea of these states, extend
-            # the model to include an idea of these outcomes
-            outcomes = self.build_docs()
-            build_id = self.build.get('id')
+                # TODO the build object should have an idea of these states, extend
+                # the model to include an idea of these outcomes
+                outcomes = self.build_docs()
+                build_id = self.build.get('id')
+            except SoftTimeLimitExceeded:
+                raise BuildEnvironmentError(
+                    'Failing build because the maximum time to build the '
+                    'documentation was reached.')
 
             # Web Server Tasks
             if build_id:
