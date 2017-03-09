@@ -96,8 +96,6 @@ Deleting a stale or broken build environment
 
 If you're having trouble getting your version to build, try wiping out the existing build/environment files.  On your version list page ``/projects/[project]/versions`` there is a "Wipe" button that will remove all of the files associated with your documentation build, but not the documentation itself.
 
-
-
 How do I host multiple projects on one CNAME?
 ---------------------------------------------
 
@@ -151,11 +149,6 @@ How do I support multiple languages of documentation?
 
 See the section on :ref:`Localization of Documentation`.
 
-Do I need to be whitelisted?
-----------------------------
-
-No. Whitelisting has been removed as a concept in Read the Docs. You should have access to all of the features already.
-
 Does Read The Docs work well with "legible" docstrings?
 -------------------------------------------------------
 
@@ -207,3 +200,8 @@ file* field.
 
 .. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
 .. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
+
+What commit of Read the Docs is in production?
+----------------------------------------------
+
+We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/rtfd/readthedocs.org/commits/rel
