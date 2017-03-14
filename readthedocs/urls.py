@@ -77,7 +77,7 @@ debug_urls = add(
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
           deprecated_urls]
 
-if getattr(settings, 'INCLUDE_DONATIONS', True):
+if 'readthedocs.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
     groups.append([
         url(r'^sustainability/', include('readthedocs.donate.urls')),
