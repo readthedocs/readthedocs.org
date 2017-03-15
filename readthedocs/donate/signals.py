@@ -165,7 +165,7 @@ def attach_promo_data(sender, **kwargs):
         show_promo = False
 
     if PROMO_GEO_PATH:
-        from geoip2.errors import AddressNotFoundError
+        from geoip2.errors import AddressNotFoundError  # noqa
         # Get geo information from the IP, but don't record it anywhere
         ip = request.META.get('REMOTE_ADDR')
         if ip:
