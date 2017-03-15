@@ -16,14 +16,16 @@ from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 RemoteRepositoryViewSet)
 
 router = routers.DefaultRouter()
-router.register(r'build', BuildViewSet)
-router.register(r'command', BuildCommandViewSet)
-router.register(r'version', VersionViewSet)
-router.register(r'project', ProjectViewSet)
-router.register(r'notification', NotificationViewSet)
-router.register(r'domain', DomainViewSet)
-router.register(r'remote/org', RemoteOrganizationViewSet)
-router.register(r'remote/repo', RemoteRepositoryViewSet)
+router.register(r'build', BuildViewSet, base_name='build')
+router.register(r'command', BuildCommandViewSet, base_name='buildcommandresult')
+router.register(r'version', VersionViewSet, base_name='version')
+router.register(r'project', ProjectViewSet, base_name='project')
+router.register(r'notification', NotificationViewSet, base_name='emailhook')
+router.register(r'domain', DomainViewSet, base_name='domain')
+router.register(
+    r'remote/org', RemoteOrganizationViewSet, base_name='remoteorganization')
+router.register(
+    r'remote/repo', RemoteRepositoryViewSet, base_name='remoterepository')
 router.register(r'comments', CommentViewSet, base_name="comments")
 
 urlpatterns = [

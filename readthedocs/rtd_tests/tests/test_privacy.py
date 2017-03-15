@@ -282,7 +282,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
 
         # Auth'd user
         self.client.login(username='eric', password='test')
@@ -290,7 +290,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='public')
     def test_public_private_repo_downloading(self):
@@ -309,7 +309,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='public')
     def test_public_download_filename(self):
@@ -318,15 +318,15 @@ class PrivacyTests(TestCase):
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
 
         r = self.client.get('/projects/django-kong/downloads/epub/latest/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/media/epub/django-kong/latest/django-kong.epub')
+        self.assertEqual(r._headers['location'][1], '/media/epub/django-kong/latest/django-kong.epub')
 
         r = self.client.get('/projects/django-kong/downloads/htmlzip/latest/')
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], 'http://testserver/media/htmlzip/django-kong/latest/django-kong.zip')
+        self.assertEqual(r._headers['location'][1], '/media/htmlzip/django-kong/latest/django-kong.zip')
 
 # Build Filtering
 

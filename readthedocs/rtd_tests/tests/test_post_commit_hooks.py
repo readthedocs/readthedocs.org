@@ -324,8 +324,8 @@ class CorePostCommitTest(BasePostCommitTest):
         rtd.save()
         r = self.client.post('/build/%s' % rtd.pk, {'version_slug': 'master'})
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r._headers['location'][1], 'http://testserver/projects/read-the-docs/builds/')
+        self.assertEqual(r._headers['location'][1],
+                         '/projects/read-the-docs/builds/')
 
     def test_hook_state_tracking(self):
         rtd = Project.objects.get(slug='read-the-docs')
@@ -487,5 +487,3 @@ class BitBucketHookTests(BasePostCommitTest):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
             r.content, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
-
-

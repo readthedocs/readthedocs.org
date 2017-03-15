@@ -117,7 +117,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         try:
             # Update All Versions
-            data = request.DATA
+            data = request.data
             added_versions = set()
             if 'tags' in data:
                 ret_set = api_utils.sync_versions(

@@ -32,7 +32,7 @@ class TestLocalEnvironment(TestCase):
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
         self.version = Version(slug='foo', verbose_name='foobar')
-        self.project.versions.add(self.version)
+        self.project.versions.add(self.version, bulk=False)
         self.mocks = EnvironmentMockGroup()
         self.mocks.start()
 
@@ -110,7 +110,7 @@ class TestDockerEnvironment(TestCase):
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
         self.version = Version(slug='foo', verbose_name='foobar')
-        self.project.versions.add(self.version)
+        self.project.versions.add(self.version, bulk=False)
         self.mocks = EnvironmentMockGroup()
         self.mocks.start()
 

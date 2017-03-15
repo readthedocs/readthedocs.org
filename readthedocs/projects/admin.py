@@ -5,7 +5,6 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
-from readthedocs.donate.models import ProjectImpressions
 from readthedocs.notifications.views import SendNotificationView
 
 from .notifications import ResourceUsageNotification
@@ -48,18 +47,21 @@ class DomainInline(admin.TabularInline):
     model = Domain
 
 
-class ImpressionInline(admin.TabularInline):
-    model = ProjectImpressions
-    readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
-    extra = 0
-    can_delete = False
-    max_num = 15
+# Turning off to support Django 1.9's requirement
+# to not import apps that aren't in INSTALLED_APPS on rtd.com
+# class ImpressionInline(admin.TabularInline):
+#     from readthedocs.donate.models import ProjectImpressions
+#     model = ProjectImpressions
+#     readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
+#     extra = 0
+#     can_delete = False
+#     max_num = 15
 
-    def view_ratio(self, instance):
-        return instance.view_ratio * 100
+#     def view_ratio(self, instance):
+#         return instance.view_ratio * 100
 
-    def click_ratio(self, instance):
-        return instance.click_ratio * 100
+#     def click_ratio(self, instance):
+#         return instance.click_ratio * 100
 
 
 class ProjectAdmin(GuardedModelAdmin):
@@ -73,7 +75,7 @@ class ProjectAdmin(GuardedModelAdmin):
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline,
-               VersionInline, DomainInline, ImpressionInline]
+               VersionInline, DomainInline]
     raw_id_fields = ('users', 'main_language_project')
     actions = ['send_owner_email']
 
