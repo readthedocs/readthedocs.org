@@ -104,7 +104,7 @@ def divide_by_zero(request):
     return 1 / 0
 
 
-def server_error(request, template_name='500.html'):
+def server_error(request, template_name='500.html', **kwargs):
     """A simple 500 handler so we get media"""
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
@@ -112,7 +112,7 @@ def server_error(request, template_name='500.html'):
     return r
 
 
-def server_error_404(request, template_name='404.html'):
+def server_error_404(request, template_name='404.html', **kwargs):
     """A simple 404 handler so we get media"""
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
