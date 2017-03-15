@@ -5,19 +5,19 @@ Use these views instead of calling the views directly, in order to allow for
 settings override of the view class.
 """
 
-from django.utils.module_loading import import_by_path
+from django.utils.module_loading import import_string
 from django.conf import settings
 
 
 # Project Import Wizard
-ImportWizardView = import_by_path(getattr(
+ImportWizardView = import_string(getattr(
     settings,
     'PROJECT_IMPORT_VIEW',
     'readthedocs.projects.views.private.ImportWizardView'
 ))
 
 # Project demo import
-ImportDemoView = import_by_path(getattr(
+ImportDemoView = import_string(getattr(
     settings,
     'PROJECT_IMPORT_DEMO_VIEW',
     'readthedocs.projects.views.private.ImportDemoView'

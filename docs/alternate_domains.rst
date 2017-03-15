@@ -20,9 +20,12 @@ This requires two steps:
 * Add a CNAME record in your DNS that point to our servers `readthedocs.io`
 * Add a Domain object in the **Project Admin > Domains** page for your project.
 
+.. note:: The ``Domain`` that should be used is the actual subdomain that you want your docs served on.
+          Generally it will be `docs.projectname.org`.
+
 Using pip as an example, http://www.pip-installer.org resolves, but is hosted on our infrastructure.
 
-As an example, fabric's dig record looks like this::
+As another example, fabric's dig record looks like this::
 
     -> dig docs.fabfile.org
     ...

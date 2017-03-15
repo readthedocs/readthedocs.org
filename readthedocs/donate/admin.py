@@ -49,6 +49,7 @@ class SupporterPromoAdmin(admin.ModelAdmin):
     list_filter = ('live', 'display_type')
     list_editable = ('live', 'sold_impressions')
     readonly_fields = ('total_views', 'total_clicks')
+    search_fields = ('name', 'text', 'analytics_id')
     inlines = [ImpressionInline, GeoFilterInline]
     actions = [set_default_countries]
 

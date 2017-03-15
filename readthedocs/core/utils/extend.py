@@ -3,7 +3,7 @@
 import inspect
 
 from django.conf import settings
-from django.utils.module_loading import import_by_path
+from django.utils.module_loading import import_string
 
 
 def get_override_class(proxy_class, default_class=None):
@@ -24,7 +24,7 @@ def get_override_class(proxy_class, default_class=None):
     if class_path is None and proxy_class._override_setting is not None:
         class_path = getattr(settings, proxy_class._override_setting, None)
     if class_path is not None:
-        default_class = import_by_path(class_path)
+        default_class = import_string(class_path)
     return default_class
 
 

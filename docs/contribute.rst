@@ -45,6 +45,9 @@ Triaging tickets
 Here is a brief explanation on how we triage incoming tickets to get a better
 sense of what needs to be done on what end.
 
+.. note:: You will need Triage permission on the project in order to do this.
+          You can ask one of the members of the :doc:`team` to give you access.
+
 Initial triage
 ~~~~~~~~~~~~~~
 
