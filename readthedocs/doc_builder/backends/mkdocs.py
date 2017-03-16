@@ -3,6 +3,7 @@ import logging
 import json
 import yaml
 
+from urlparse import urlparse
 from django.conf import settings
 from django.template import Context, loader as template_loader
 
@@ -67,7 +68,8 @@ class BaseMkdocs(BaseBuilder):
         # Mkdocs needs a full domain here because it tries to link to local media files
         if not media_url.startswith('http'):
             domain = getattr(settings, 'PRODUCTION_DOMAIN')
-            media_url = 'http://{}{}'.format(domain, media_url)
+            scheme = urlparse(settings.PUBLIC_API_URL).scheme
+            media_url = '{}://{}{}'.format(scheme, domain, media_url)
 
         if 'extra_javascript' in user_config:
             user_config['extra_javascript'].append('readthedocs-data.js')
@@ -84,9 +86,9 @@ class BaseMkdocs(BaseBuilder):
 
         if 'extra_css' in user_config:
             user_config['extra_css'].append(
-                '%s/css/badge_only.css' % media_url)
+                '%scss/badge_only.css' % media_url)
             user_config['extra_css'].append(
-                '%s/css/readthedocs-doc-embed.css' % media_url)
+                '%scss/readthedocs-doc-embed.css' % media_url)
         else:
             user_config['extra_css'] = [
                 '%scss/badge_only.css' % media_url,
