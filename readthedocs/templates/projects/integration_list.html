@@ -21,15 +21,15 @@
     <input type="submit" value="{% trans "Resync Webhook" %}">
   </form>
 
-  <h3>Recent Transactions</h3>
+  <h3>Recent Activity</h3>
 
-  <div class="module-list-wrapper httptransactions">
+  <div class="module-list-wrapper httpexchanges">
     <ul>
-      {% for transaction in object_list %}
+      {% for exchange in object_list %}
         <li class="module-item">
-          <span class="status status-{% if transaction.failed %}fail{% else %}pass{% endif %}">{{ transaction.status_code }}</span>
-          <a href="{% url 'projects_integrations_transactions_detail' transaction_pk=transaction.pk project_slug=project.slug %}">
-            {% blocktrans with date=transaction.date|timesince %}
+          <span class="status status-{% if exchange.failed %}fail{% else %}pass{% endif %}">{{ exchange.status_code }}</span>
+          <a href="{% url 'projects_integrations_exchange_detail' exchange_pk=exchange.pk project_slug=project.slug %}">
+            {% blocktrans with date=exchange.date|timesince %}
               {{ date }} ago
             {% endblocktrans %}
           </a>
@@ -37,7 +37,7 @@
       {% empty %}
         <li class="module-item">
           <span class="quiet">
-            {% trans 'There are no recent transactions' %}
+            {% trans 'There is no recent activity' %}
           </span>
         </li>
       {% endfor %}

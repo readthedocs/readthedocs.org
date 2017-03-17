@@ -13,7 +13,7 @@ from django.http import Http404
 from readthedocs.core.views.hooks import build_branches
 from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
                                       webhook_gitlab)
-from readthedocs.integrations.models import HttpTransaction
+from readthedocs.integrations.models import HttpExchange
 from readthedocs.projects.models import Project
 
 
@@ -45,10 +45,10 @@ class WebhookMixin(object):
         return resp
 
     def finalize_response(self, req, *args, **kwargs):
-        """If the project was set on POST, store an HTTP transaction"""
+        """If the project was set on POST, store an HTTP exchange"""
         resp = super(WebhookMixin, self).finalize_response(req, *args, **kwargs)
         if hasattr(self, 'project') and self.project:
-            HttpTransaction.objects.from_transaction(
+            HttpExchange.objects.from_exchange(
                 req,
                 resp,
                 related_object=self.project,
@@ -63,7 +63,7 @@ class WebhookMixin(object):
     def get_payload(self):
         """Don't specify any special handling of the payload data
 
-        The transaction will record ``request.data`` instead of assume any
+        The exchange will record ``request.data`` instead of assume any
         special handling of the payload data
         """
         return None

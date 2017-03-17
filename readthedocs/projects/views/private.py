@@ -27,7 +27,7 @@ from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
-from readthedocs.integrations.models import HttpTransaction
+from readthedocs.integrations.models import HttpExchange
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
     ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
@@ -679,10 +679,10 @@ class DomainDelete(DomainMixin, DeleteView):
 
 class IntegrationMixin(object):
 
-    """Project transaction mixin
+    """Project external service mixin for listing webhook objects
 
-    This mixin will be used when we are listing webhook integrations on the
-    integrations page, instead of the webhook integration transactions.
+    This mixin will be used more once we have modeling around webhooks and
+    external integrations.
     """
 
     def get_success_url(self):
@@ -694,12 +694,12 @@ class IntegrationMixin(object):
         return 'projects/integration{0}.html'.format(self.template_name_suffix)
 
 
-class IntegrationTransactionMixin(ProjectAdminMixin, PrivateViewMixin):
+class IntegrationExchangeMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    """Project webhook transaction mixin"""
+    """Project webhook exchange mixin for listing exchange objects"""
 
-    model = HttpTransaction
-    lookup_url_kwarg = 'transaction_pk'
+    model = HttpExchange
+    lookup_url_kwarg = 'exchange_pk'
 
     def get_queryset(self):
         self.project = self.get_project()
@@ -712,12 +712,12 @@ class IntegrationTransactionMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class IntegrationList(IntegrationMixin, IntegrationTransactionMixin, ListView):
+class IntegrationList(IntegrationMixin, IntegrationExchangeMixin, ListView):
     pass
 
 
-class IntegrationTransactionDetail(IntegrationMixin, IntegrationTransactionMixin, DetailView):
-    template_name = 'projects/integration_transaction_detail.html'
+class IntegrationExchangeDetail(IntegrationMixin, IntegrationExchangeMixin, DetailView):
+    template_name = 'projects/integration_exchange_detail.html'
 
 
 class IntegrationWebhookSync(PrivateViewMixin, ProjectAdminMixin, GenericView):

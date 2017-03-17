@@ -15,12 +15,12 @@ from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 
 
-class HttpTransactionManager(models.Manager):
+class HttpExchangeManager(models.Manager):
 
-    """HTTP transaction manager methods"""
+    """HTTP exchange manager methods"""
 
     @transaction.atomic
-    def from_transaction(self, req, resp, related_object, payload=None):
+    def from_exchange(self, req, resp, related_object, payload=None):
         """Create object from Django request and response objects
 
         If an explicit Request ``payload`` is not specified, the payload will be
@@ -75,8 +75,9 @@ class HttpTransactionManager(models.Manager):
             'response_headers': response_headers,
         }
         fields['related_object'] = related_object
-        self.delete_limit(related_object, limit=9)
-        return self.create(**fields)
+        obj = self.create(**fields)
+        self.delete_limit(related_object)
+        return obj
 
     def delete_limit(self, related_object, limit=10):
         queryset = self.filter(
@@ -86,13 +87,13 @@ class HttpTransactionManager(models.Manager):
             ),
             object_id=related_object.pk
         )
-        for txn in queryset[limit:]:
-            txn.delete()
+        for exchange in queryset[limit:]:
+            exchange.delete()
 
 
-class HttpTransaction(models.Model):
+class HttpExchange(models.Model):
 
-    """HTTP request/response transaction"""
+    """HTTP request/response exchange"""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -112,13 +113,13 @@ class HttpTransaction(models.Model):
         _('Status code'), default=status.HTTP_200_OK
     )
 
-    objects = HttpTransactionManager()
+    objects = HttpExchangeManager()
 
     class Meta:
         ordering = ['-date']
 
     def __unicode__(self):
-        return _('Transaction {0}').format(self.pk)
+        return _('Exchange {0}').format(self.pk)
 
     @property
     def failed(self):

@@ -7,7 +7,7 @@ from readthedocs.projects.views.private import (
     ProjectDashboard, ImportView,
     ProjectUpdate, ProjectAdvancedUpdate,
     DomainList, DomainCreate, DomainDelete, DomainUpdate,
-    IntegrationList, IntegrationTransactionDetail, IntegrationWebhookSync,
+    IntegrationList, IntegrationExchangeDetail, IntegrationWebhookSync,
     ProjectAdvertisingUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
@@ -132,9 +132,9 @@ integration_urls = [
     url(r'^(?P<project_slug>[-\w]+)/integrations/$',
         IntegrationList.as_view(),
         name='projects_integrations'),
-    url(r'^(?P<project_slug>[-\w]+)/integrations/transaction/(?P<transaction_pk>[-\w]+)/$',
-        IntegrationTransactionDetail.as_view(),
-        name='projects_integrations_transactions_detail'),
+    url(r'^(?P<project_slug>[-\w]+)/integrations/exchange/(?P<exchange_pk>[-\w]+)/$',
+        IntegrationExchangeDetail.as_view(),
+        name='projects_integrations_exchange_detail'),
     url(r'^(?P<project_slug>[-\w]+)/integrations/sync/$',
         IntegrationWebhookSync.as_view(),
         name='projects_integrations_sync'),

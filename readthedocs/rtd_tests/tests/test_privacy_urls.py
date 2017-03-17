@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
 from readthedocs.comments.models import DocumentComment, NodeSnapshot
-from readthedocs.integrations.models import HttpTransaction
+from readthedocs.integrations.models import HttpExchange
 from readthedocs.projects.models import Project, Domain
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
@@ -129,7 +129,7 @@ class ProjectMixin(URLAccessMixin):
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.subproject)
         # For whatever reason, fixtures hates JSONField
-        self.webhook_transaction = HttpTransaction.objects.create(
+        self.webhook_exchange = HttpExchange.objects.create(
             related_object=self.pip,
             request_headers='{"foo": "bar"}',
             response_headers='{"foo": "bar"}',
@@ -146,7 +146,7 @@ class ProjectMixin(URLAccessMixin):
             'child_slug': self.subproject.slug,
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
-            'transaction_pk': self.webhook_transaction.pk,
+            'exchange_pk': self.webhook_exchange.pk,
         }
 
 

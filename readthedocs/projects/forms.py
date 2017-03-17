@@ -15,7 +15,6 @@ from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
-from readthedocs.integrations.models import HttpTransaction
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
