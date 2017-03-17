@@ -14,6 +14,8 @@ from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 
+from .utils import normalize_request_payload
+
 
 class HttpExchangeManager(models.Manager):
 
@@ -37,14 +39,7 @@ class HttpExchangeManager(models.Manager):
         """
         request_payload = payload
         if request_payload is None:
-            request_payload = getattr(req, 'data', None)
-            if req.content_type != 'application/json':
-                # Here, request_body can be a dict or a MergeDict. Probably best
-                # to normalize everything first
-                try:
-                    request_payload = dict(request_payload.items())
-                except AttributeError:
-                    pass
+            request_payload = normalize_request_payload(req)
         try:
             request_body = json.dumps(request_payload, sort_keys=True)
         except TypeError:

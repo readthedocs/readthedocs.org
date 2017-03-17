@@ -14,6 +14,7 @@ from readthedocs.core.views.hooks import build_branches
 from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
                                       webhook_gitlab)
 from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
 
 
@@ -116,11 +117,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return json.loads(self.request.data['payload'])
             except ValueError:
                 pass
+        return normalize_request_payload(self.request)
 
     def handle_webhook(self):
         data = self.get_payload()
-        if data is None:
-            data = self.request.data
         # Get event and trigger other webhook events
         event = self.request.META.get('HTTP_X_GITHUB_EVENT', 'push')
         webhook_github.send(Project, project=self.project,
