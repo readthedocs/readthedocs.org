@@ -12,6 +12,7 @@ PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
 
 if PROMO_GEO_PATH:
     import geoip2.database  # noqa
+    from geoip2.errors import AddressNotFoundError  # noqa
     geo_reader = geoip2.database.Reader(PROMO_GEO_PATH)
 
 
@@ -165,7 +166,6 @@ def attach_promo_data(sender, **kwargs):
         show_promo = False
 
     if PROMO_GEO_PATH:
-        from geoip2.errors import AddressNotFoundError  # noqa
         # Get geo information from the IP, but don't record it anywhere
         ip = request.META.get('REMOTE_ADDR')
         if ip:
