@@ -75,6 +75,7 @@ class HttpExchangeManager(models.Manager):
         return obj
 
     def delete_limit(self, related_object, limit=10):
+        # pylint: disable=protected-access
         queryset = self.filter(
             content_type=ContentType.objects.get(
                 app_label=related_object._meta.app_label,
