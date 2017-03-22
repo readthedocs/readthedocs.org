@@ -18,6 +18,8 @@ from django.views.generic import TemplateView
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
+from readthedocs.donate.models import SupporterPromo
+from readthedocs.donate.utils import offer_promo
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.projects.tasks import remove_dir
@@ -104,20 +106,38 @@ def divide_by_zero(request):
     return 1 / 0
 
 
-def server_error(request, exception, template_name='500.html'):
+def add_promo_data(display_type):
+    promo_queryset = SupporterPromo.objects.filter(live=True, display_type=display_type)
+    promo_obj = promo_queryset.order_by('?').first()
+    if promo_obj:
+        promo_dict = offer_promo(promo_obj=promo_obj, project=None)
+    else:
+        promo_dict = None
+    return promo_dict
+
+
+def server_error(request, template_name='500.html', **kwargs):
     """A simple 500 handler so we get media"""
+    promo_dict = add_promo_data(display_type='error')
     r = render_to_response(template_name,
-                           context_instance=RequestContext(request))
+                           context_instance=RequestContext(request),
+                           context={
+                               'promo_data': promo_dict,
+                           })
     r.status_code = 500
     return r
 
 
-def server_error_404(request, exception, template_name='404.html'):
+def server_error_404(request, template_name='404.html', **kwargs):
     """A simple 404 handler so we get media"""
+    promo_dict = add_promo_data(display_type='error')
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response
     r = render_to_response(template_name,
-                           context_instance=RequestContext(request))
+                           context_instance=RequestContext(request),
+                           context={
+                               'promo_data': promo_dict,
+                           })
     r.status_code = 404
     return r

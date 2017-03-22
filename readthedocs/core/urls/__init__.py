@@ -45,6 +45,9 @@ core_urls = [
         views.random_page,
         name='random_page'),
     url(r'^random/$', views.random_page, name='random_page'),
+    url(r'^404/$', 'readthedocs.core.views.server_error_404'),
+    # For testing the 500's with DEBUG on.
+    # url(r'^500/$', 'readthedocs.core.views.server_error'),
     url(r'^500/$', views.divide_by_zero, name='divide_by_zero'),
     url((r'^wipe/(?P<project_slug>{project_slug})/'
          r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)),
