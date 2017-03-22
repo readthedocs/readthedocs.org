@@ -4,7 +4,8 @@ from django.dispatch import receiver
 from django.conf import settings
 
 from readthedocs.restapi.signals import footer_response
-from readthedocs.donate.models import SupporterPromo, INCLUDE, EXCLUDE
+from readthedocs.donate.models import SupporterPromo
+from readthedocs.donate.constants import INCLUDE, EXCLUDE
 from readthedocs.donate.utils import offer_promo
 
 
