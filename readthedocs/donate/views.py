@@ -12,13 +12,13 @@ from django.http import Http404
 
 from vanilla import CreateView, ListView
 
-from readthedocs.donate.models import SupporterPromo
 from readthedocs.donate.utils import offer_promo
 from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Project
 from readthedocs.redirects.utils import get_redirect_response
 
-from .models import Supporter, SupporterPromo, CLICKS, VIEWS
+from .models import Supporter, SupporterPromo
+from .constants import CLICKS, VIEWS
 from .forms import SupporterForm, EthicalAdForm
 from .mixins import DonateProgressMixin
 
