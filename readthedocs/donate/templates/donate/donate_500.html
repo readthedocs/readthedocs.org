@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+    {% block title %}
+      {% trans "Server Error" %}
+    {% endblock %}
+
+    {% block header-wrapper %}
+      {% include "error_header.html" %}
+    {% endblock %}
+
+{% block content %}
+<h3>
+Server Error
+</h3>
+
+<pre style="line-height: 1.25; white-space: pre;">
+          .
+         ":"
+       ___:____     |"\/"|
+     ,'        `.    \  /
+     |  O        \___/  |
+   ~^~^~^~^~^~^~^~^~^~^~^~^~
+
+   Fail.  Check back in a bit!
+
+  </pre>
+
+<!-- Sentry JS SDK 2.1.+ required -->
+<script src="https://cdn.ravenjs.com/2.3.0/raven.min.js"></script>
+
+{% if request.sentry.id %}
+  <script>
+  Raven.showReportDialog({
+    eventId: '{{ request.sentry.id }}',
+
+    // use the public DSN (dont include your secret!)
+    dsn: 'https://48196e632bb14305ad3fe47c6570e363@sentry.io/148442'
+  });
+  </script>
+{% endif %}
+
+<p>
+Read the Docs is sponsored by <a href="{{ promo_data.link }}">Sentry</a>, which gives developers the tools to keep calm when things catch fire.
+</p>
+
+{% endblock %}

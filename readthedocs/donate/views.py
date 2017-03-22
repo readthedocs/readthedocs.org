@@ -162,7 +162,7 @@ def add_promo_data(display_type):
     return promo_dict
 
 
-def promo_500(request, template_name='500.html', **kwargs):
+def promo_500(request, template_name='donate/promo_500.html', **kwargs):
     """A simple 500 handler so we get media"""
     promo_dict = add_promo_data(display_type='error')
     r = render_to_response(template_name,
@@ -174,7 +174,7 @@ def promo_500(request, template_name='500.html', **kwargs):
     return r
 
 
-def promo_404(request, template_name='404.html', **kwargs):
+def promo_404(request, template_name='donate/promo_404.html', **kwargs):
     """A simple 404 handler so we get media"""
     promo_dict = add_promo_data(display_type='error')
     response = get_redirect_response(request, path=request.get_full_path())
