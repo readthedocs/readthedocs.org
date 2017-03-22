@@ -25,6 +25,13 @@ v1_api.register(FileResource())
 
 admin.autodiscover()
 
+if 'readthedocs.donate' in settings.INSTALLED_APPS:
+    handler404 = 'readthedocs.donate.views.promo_404'
+    handler500 = 'readthedocs.donate.views.promo_500'
+else:
+    handler404 = 'readthedocs.core.views.server_error_404'
+    handler500 = 'readthedocs.core.views.server_error_500'
+
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^support/', SupportView.as_view(), name='support'),
@@ -84,11 +91,6 @@ if 'readthedocs.donate' in settings.INSTALLED_APPS:
         url(r'^sustainability/', include('readthedocs.donate.urls')),
         url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     ])
-    handler404 = 'readthedocs.donate.views.promo_404'
-    handler500 = 'readthedocs.donate.views.promo_500'
-else:
-    handler404 = 'readthedocs.core.views.server_error_404'
-    handler500 = 'readthedocs.core.views.server_error_500'
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):

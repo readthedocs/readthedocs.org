@@ -3,9 +3,7 @@ import datetime
 
 from django.core.cache import cache
 
-OFFERS = 'offers'
-VIEWS = 'views'
-CLICKS = 'clicks'
+from readthedocs.donate.constants import OFFERS, CLICKS, VIEWS
 
 
 def get_ad_day():

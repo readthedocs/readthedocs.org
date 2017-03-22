@@ -7,34 +7,11 @@ from django.conf import settings
 from django_countries.fields import CountryField
 
 from readthedocs.donate.utils import get_ad_day
+from readthedocs.donate.constants import (
+    DISPLAY_CHOICES, FILTER_CHOICES, IMPRESSION_TYPES
+)
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
-
-
-DISPLAY_CHOICES = (
-    ('doc', 'Documentation Pages'),
-    ('site-footer', 'Site Footer'),
-    ('search', 'Search Pages'),
-    ('error', 'Error Pages'),
-)
-
-INCLUDE = 'include'
-EXCLUDE = 'exclude'
-
-FILTER_CHOICES = (
-    (EXCLUDE, 'Exclude'),
-    (INCLUDE, 'Include'),
-)
-
-OFFERS = 'offers'
-VIEWS = 'views'
-CLICKS = 'clicks'
-
-IMPRESSION_TYPES = (
-    OFFERS,
-    VIEWS,
-    CLICKS
-)
 
 
 class Supporter(models.Model):
