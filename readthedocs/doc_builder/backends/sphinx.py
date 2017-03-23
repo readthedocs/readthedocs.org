@@ -130,8 +130,8 @@ class BaseSphinx(BaseBuilder):
         # configfile visible in the build logs
         self.run(
             'cat', os.path.relpath(outfile_path,
-                                   project.checkout_path(self.version)),
-            cwd=project.checkout_path(self.version),
+                                   project.checkout_path(self.version.slug)),
+            cwd=project.checkout_path(self.version.slug),
         )
 
     def build(self, **kwargs):
