@@ -16,6 +16,7 @@ from guardian.shortcuts import assign
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
 from readthedocs.redirects.models import Redirect
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
@@ -74,6 +75,11 @@ class ProjectBasicsForm(ProjectForm):
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
+    remote_repository = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False,
+    )
+
     def __init__(self, *args, **kwargs):
         show_advanced = kwargs.pop('show_advanced', False)
         super(ProjectBasicsForm, self).__init__(*args, **kwargs)
@@ -84,6 +90,18 @@ class ProjectBasicsForm(ProjectForm):
             )
         self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
         self.fields['repo'].widget.attrs['required'] = True
+
+    def save(self, commit=True):
+        """Add remote repository relationship to the project instance"""
+        instance = super(ProjectBasicsForm, self).save(commit)
+        remote_repo = self.cleaned_data.get('remote_repository', None)
+        if remote_repo:
+            if commit:
+                remote_repo.project = self.instance
+                remote_repo.save()
+            else:
+                instance.remote_repository = remote_repo
+        return instance
 
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
@@ -104,6 +122,18 @@ class ProjectBasicsForm(ProjectForm):
                 _(u'It looks like you entered a private repo - please use the '
                   u'public (http:// or git://) clone url'))
         return repo
+
+    def clean_remote_repository(self):
+        remote_repo = self.cleaned_data.get('remote_repository', None)
+        if not remote_repo:
+            return None
+        try:
+            return RemoteRepository.objects.get(
+                pk=remote_repo,
+                users=self.user,
+            )
+        except RemoteRepository.DoesNotExist:
+            raise forms.ValidationError(_(u'Repository invalid'))
 
     def placehold_repo(self):
         return choice([
@@ -126,7 +156,8 @@ class ProjectExtraForm(ProjectForm):
         fields = (
             'description',
             'documentation_type',
-            'language', 'programming_language',
+            'language',
+            'programming_language',
             'project_url',
             'tags',
         )
