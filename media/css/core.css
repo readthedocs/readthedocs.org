@@ -1031,37 +1031,37 @@ select.dropdown { display: none; }
 .domain-canonical { font-weight: bold; }
 
 /* Integrations */
-div.module-list-wrapper.httptransactions li span.status {
+div.module-list-wrapper.httpexchanges li span.status {
     padding: .2em .4em;
     margin-right: .3em;
     border-radius: .3em;
     color: #fff;
 }
-div.module-list-wrapper.httptransactions li span.status.status-pass {
+div.module-list-wrapper.httpexchanges li span.status.status-pass {
     background: #5a5;
 }
-div.module-list-wrapper.httptransactions li span.status.status-fail {
+div.module-list-wrapper.httpexchanges li span.status.status-fail {
     background: #a55;
 }
 
-div.httptransaction dl dt {
+div.httpexchange dl dt {
   display: inline-block;
   font-weight: bold;
   font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
   font-size: .9em;
 }
 
-div.httptransaction dl dd {
+div.httpexchange dl dd {
   display: inline;
   font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
   font-size: .9em;
 }
-div.httptransaction dl dd:after {
+div.httpexchange dl dd:after {
   display: block;
   content: '';
 }
 
-div.httptransaction div.highlight pre {
+div.httpexchange div.highlight pre {
   padding: 1em;
   background: #f4f4f4;
   border: 1px solid #ccc;
