@@ -2,10 +2,11 @@ import random
 
 from django.dispatch import receiver
 from django.conf import settings
-from django.core.cache import cache
 
 from readthedocs.restapi.signals import footer_response
-from readthedocs.donate.models import SupporterPromo, VIEWS, CLICKS, OFFERS, INCLUDE, EXCLUDE
+from readthedocs.donate.models import SupporterPromo
+from readthedocs.donate.constants import INCLUDE, EXCLUDE
+from readthedocs.donate.utils import offer_promo
 
 
 PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
@@ -189,23 +190,8 @@ def attach_promo_data(sender, **kwargs):
         show_promo = False
 
     if show_promo:
-        promo_dict = promo_obj.as_dict()
+        promo_dict = offer_promo(promo_obj=promo_obj, project=project)
         resp_data['promo_data'] = promo_dict
-        promo_obj.incr(OFFERS)
-        promo_obj.incr(OFFERS, project=project)
-        # Set validation cache
-        for type in [VIEWS, CLICKS]:
-            cache.set(
-                promo_obj.cache_key(type=type, hash=promo_dict['hash']),
-                0,  # Number of times used. Make this an int so we can detect multiple uses
-                60 * 60  # hour
-            )
-            # Set project for hash key, so we can count it later.
-            cache.set(
-                promo_obj.cache_key(type='project', hash=promo_dict['hash']),
-                project.slug,
-                60 * 60  # hour
-            )
 
     # Set promo object on return JSON
     resp_data['promo'] = show_promo

@@ -25,8 +25,12 @@ v1_api.register(FileResource())
 
 admin.autodiscover()
 
-handler500 = 'readthedocs.core.views.server_error'
-handler404 = 'readthedocs.core.views.server_error_404'
+if 'readthedocs.donate' in settings.INSTALLED_APPS:
+    handler404 = 'readthedocs.donate.views.promo_404'
+    handler500 = 'readthedocs.donate.views.promo_500'
+else:
+    handler404 = 'readthedocs.core.views.server_error_404'
+    handler500 = 'readthedocs.core.views.server_error_500'
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
@@ -44,6 +48,10 @@ rtd_urls = [
     url(r'^notifications/', include('readthedocs.notifications.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
+    # For testing the 404's with DEBUG on.
+    url(r'^404/$', handler404),
+    # For testing the 500's with DEBUG on.
+    url(r'^500/$', handler500),
 ]
 
 project_urls = [
