@@ -25,6 +25,8 @@ def process_mkdocs_json(version, build_dir=True):
             html_files.append(os.path.join(root, filename))
     page_list = []
     for filename in html_files:
+        if not valid_mkdocs_json(file_path=filename):
+            continue
         relative_path = parse_path_from_file(documentation_type='mkdocs', file_path=filename)
         html = parse_content_from_file(documentation_type='mkdocs', file_path=filename)
         headers = parse_headers_from_file(documentation_type='mkdocs', file_path=filename)
@@ -50,12 +52,29 @@ def recurse_while_none(element):
         return element.text
 
 
+def valid_mkdocs_json(file_path):
+    try:
+        with codecs.open(file_path, encoding='utf-8', mode='r') as f:
+            content = f.read()
+    except IOError as e:
+        log.warning('(Search Index) Unable to index file: %s, error: %s' % (file_path, e))
+        return None
+
+    page_json = json.loads(content)
+    for to_check in ['url', 'content']:
+        if to_check not in page_json:
+            log.warning('(Search Index) Unable to index file: %s error: Invalid JSON' % (file_path))
+            return None
+
+    return True
+
+
 def parse_path_from_file(documentation_type, file_path):
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s' % (file_path, e))
+        log.warning('(Search Index) Unable to index file: %s, error: %s' % (file_path, e))
         return ''
 
     page_json = json.loads(content)
