@@ -40,6 +40,18 @@ your docs whenever you push updates:
 If you ever need to manually set the webhook on Bitbucket,
 you can point it at ``https://readthedocs.org/bitbucket``.
 
+GitLab
+---------
+
+If your project is hosted on GitLab, you can easily add a hook that will rebuild
+your docs whenever you push updates.
+
+* Go to the "Settings" page for your project
+* Click "Integrations"
+* In the "URL" section, enter ``https://readthedocs.org/gitlab``
+* Leave the default "Push events" selected
+* Click "Add Webhook"
+
 Others
 ------
 
@@ -53,7 +65,7 @@ The following parameters available to customize the behavior of custom webhooks:
 * ``'version_slug'``: The build version to trigger build for (defaults to ``'latest'``)
 
   Example::
-  
+
       $ curl -X POST --data "version_slug=$VERSION" https://readthedocs.org/build/$PROJECT_NAME
 
 You could make this part of a hook using Git_, Subversion_, Mercurial_, or
