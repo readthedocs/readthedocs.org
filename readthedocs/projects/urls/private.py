@@ -7,6 +7,7 @@ from readthedocs.projects.views.private import (
     ProjectDashboard, ImportView,
     ProjectUpdate, ProjectAdvancedUpdate,
     DomainList, DomainCreate, DomainDelete, DomainUpdate,
+    IntegrationList, IntegrationExchangeDetail, IntegrationWebhookSync,
     ProjectAdvertisingUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
@@ -105,10 +106,6 @@ urlpatterns = [
         private.project_redirects_delete,
         name='projects_redirects_delete'),
 
-    url(r'^(?P<project_slug>[-\w]+)/resync_webhook/$',
-        private.project_resync_webhook,
-        name='projects_resync_webhook'),
-
     url(r'^(?P<project_slug>[-\w]+)/advertising/$',
         ProjectAdvertisingUpdate.as_view(),
         name='projects_advertising'),
@@ -130,3 +127,17 @@ domain_urls = [
 ]
 
 urlpatterns += domain_urls
+
+integration_urls = [
+    url(r'^(?P<project_slug>[-\w]+)/integrations/$',
+        IntegrationList.as_view(),
+        name='projects_integrations'),
+    url(r'^(?P<project_slug>[-\w]+)/integrations/exchange/(?P<exchange_pk>[-\w]+)/$',
+        IntegrationExchangeDetail.as_view(),
+        name='projects_integrations_exchange_detail'),
+    url(r'^(?P<project_slug>[-\w]+)/integrations/sync/$',
+        IntegrationWebhookSync.as_view(),
+        name='projects_integrations_sync'),
+]
+
+urlpatterns += integration_urls

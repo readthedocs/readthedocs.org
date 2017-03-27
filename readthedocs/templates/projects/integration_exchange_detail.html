@@ -1,0 +1,41 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Integrations" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-integrations %}class="active"{% endblock %}
+
+{% block project-integrations-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Exchange" %}{% endblock %}
+
+{% block project_edit_content %}
+  <h4>Response</h4>
+
+  <div class="httpexchange">
+    <dl class="term-list-flat http-header">
+      <dt>Status:</dt>
+      <dd>{{ httpexchange.status_code }}</dd>
+
+      {% for header, value in httpexchange.response_headers.items %}
+        <dt>{{ header }}:</dt>
+        <dd>{{ value }}</dd>
+      {% endfor %}
+    </dl>
+    {{ httpexchange.formatted_response_body }}
+  </div>
+
+  <h4>Request</h4>
+
+  <div class="httpexchange">
+    <dl class="term-list-flat http-header">
+      {% for header, value in httpexchange.request_headers.items %}
+        <dt>{{ header }}:</dt>
+        <dd>{{ value }}</dd>
+      {% endfor %}
+    </dl>
+    {{ httpexchange.formatted_request_body }}
+  </div>
+{% endblock %}

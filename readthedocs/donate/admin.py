@@ -44,6 +44,7 @@ class ImpressionInline(admin.TabularInline):
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
     save_as = True
+    prepopulated_fields = {'analytics_id': ('name',)}
     list_display = ('name', 'live', 'click_ratio', 'sold_impressions',
                     'total_views', 'total_clicks')
     list_filter = ('live', 'display_type')

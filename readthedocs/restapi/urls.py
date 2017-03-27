@@ -71,6 +71,9 @@ integration_urls = [
     url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
         integrations.BitbucketWebhookView.as_view(),
         name='api_webhook_bitbucket'),
+    url(r'webhook/generic/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+        integrations.GenericWebhookView.as_view(),
+        name='api_webhook_generic'),
 ]
 
 urlpatterns += function_urls

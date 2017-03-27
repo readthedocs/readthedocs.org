@@ -129,8 +129,9 @@ class BaseSphinx(BaseBuilder):
         # Print the contents of conf.py in order to make the rendered
         # configfile visible in the build logs
         self.run(
-            'cat', os.path.basename(outfile_path),
-            cwd=os.path.dirname(outfile_path),
+            'cat', os.path.relpath(outfile_path,
+                                   project.checkout_path(self.version.slug)),
+            cwd=project.checkout_path(self.version.slug),
         )
 
     def build(self, **kwargs):

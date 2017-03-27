@@ -104,6 +104,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.donate',
             'readthedocs.payments',
             'readthedocs.notifications',
+            'readthedocs.integrations',
 
             # allauth
             'allauth',

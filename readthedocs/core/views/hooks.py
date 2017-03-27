@@ -139,6 +139,10 @@ def _build_url(url, projects, branches):
 def github_build(request):
     """GitHub webhook consumer
 
+    .. warning:: **DEPRECATED**
+        Use :py:cls:`readthedocs.restapi.views.intergrations.GitHubWebhookView`
+        instead of this view function
+
     This will search for projects matching either a stripped down HTTP or SSH
     URL. The search is error prone, use the API v2 webhook for new webhooks.
 
@@ -189,6 +193,10 @@ def github_build(request):
 def gitlab_build(request):
     """GitLab webhook consumer
 
+    .. warning:: **DEPRECATED**
+        Use :py:cls:`readthedocs.restapi.views.intergrations.GitLabWebhookView`
+        instead of this view function
+
     Search project repository URLs using the site URL from GitLab webhook payload.
     This search is error-prone, use the API v2 webhook view for new webhooks.
     """
@@ -219,6 +227,10 @@ def gitlab_build(request):
 @csrf_exempt
 def bitbucket_build(request):
     """Consume webhooks from multiple versions of Bitbucket's API
+
+    .. warning:: **DEPRECATED**
+        Use :py:cls:`readthedocs.restapi.views.intergrations.BitbucketWebhookView`
+        instead of this view function
 
     New webhooks are set up with v2, but v1 webhooks will still point to this
     endpoint. There are also "services" that point here and submit
@@ -277,6 +289,12 @@ def bitbucket_build(request):
 
 @csrf_exempt
 def generic_build(request, project_id_or_slug=None):
+    """Generic webhook build endpoint
+
+    .. warning:: **DEPRECATED**
+        Use :py:cls:`readthedocs.restapi.views.intergrations.GenericWebhookView`
+        instead of this view function
+    """
     try:
         project = Project.objects.get(pk=project_id_or_slug)
     # Allow slugs too
