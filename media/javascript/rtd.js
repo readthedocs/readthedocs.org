@@ -67,7 +67,7 @@
       }
     );
 
-    checkVersion(slug, version);
+    // checkVersion(slug, version);
     getVersions(slug, version);
     
     /*
