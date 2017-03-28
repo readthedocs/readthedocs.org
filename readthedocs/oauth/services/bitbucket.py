@@ -214,5 +214,5 @@ class BitbucketService(Service):
             log.error('Bitbucket webhook creation failed for project: %s',
                       project)
             log.debug('Bitbucket webhook creation failure response: %s',
-                      dict(resp))
+                      resp.content)
             return (False, resp)
