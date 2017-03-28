@@ -205,7 +205,7 @@ class GitHubService(Service):
             log.error('GitHub webhook creation failed for project: %s',
                       project)
             log.debug('GitHub webhook creation failure response: %s',
-                      dict(resp))
+                      resp.content)
             return (False, resp)
 
     @classmethod
