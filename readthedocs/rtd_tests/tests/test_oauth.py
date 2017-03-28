@@ -1,12 +1,13 @@
 from django.test import TestCase
 
 from django.contrib.auth.models import User
-from allauth.socialaccount.models import SocialToken
+from mock import Mock
 
+from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
-from readthedocs.oauth.services import GitHubService, BitbucketService
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.oauth.services import GitHubService, BitbucketService, GitLabService
 
 
 class GitHubOAuthTests(TestCase):
@@ -279,3 +280,133 @@ class BitbucketOAuthTests(TestCase):
         '''User without a Bitbucket SocialToken does not return a service'''
         services = BitbucketService.for_user(self.user)
         self.assertEqual(services, [])
+
+
+class GitLabOAuthTests(TestCase):
+
+    fixtures = ["eric", "test_data"]
+
+    repo_response_data = {
+        'forks_count': 12,
+        'container_registry_enabled': None,
+        'web_url': 'https://gitlab.com/testorga/testrepo',
+        'wiki_enabled': True,
+        'public_builds': True,
+        'id': 2,
+        'merge_requests_enabled': True,
+        'archived': False,
+        'snippets_enabled': False,
+        'http_url_to_repo': 'https://gitlab.com/testorga/testrepo.git',
+        'namespace': {
+            'share_with_group_lock': False,
+            'name': 'Test Orga',
+            'created_at': '2014-07-11T13:38:53.510Z',
+            'description': '',
+            'updated_at': '2014-07-11T13:38:53.510Z',
+            'avatar': {
+                'url': None
+            },
+            'path': 'testorga',
+            'visibility_level': 20,
+            'id': 5,
+            'owner_id': None
+        },
+        'star_count': 0,
+        'avatar_url': 'http://placekitten.com/50/50',
+        'issues_enabled': True,
+        'path_with_namespace': 'testorga/testrepo',
+        'public': True,
+        'description': 'Test Repo',
+        'default_branch': 'master',
+        'ssh_url_to_repo': 'git@gitlab.com:testorga/testrepo.git',
+        'path': 'testrepo',
+        'visibility_level': 20,
+        'permissions': {
+            'group_access': {
+                'notification_level': 3,
+                'access_level': 40
+            },
+            'project_access': None
+        },
+        'open_issues_count': 2,
+        'last_activity_at': '2016-03-01T09:22:34.344Z',
+        'name': 'testrepo',
+        'name_with_namespace': 'testorga / testrepo',
+        'created_at': '2015-11-02T13:52:42.821Z',
+        'builds_enabled': True,
+        'creator_id': 5,
+        'shared_runners_enabled': True,
+        'tag_list': []
+    }
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(pk=1)
+        self.project = Project.objects.get(slug='pip')
+        self.org = RemoteOrganization.objects.create(slug='testorga', json='')
+        self.privacy = self.project.version_privacy_level
+        self.service = GitLabService(user=self.user, account=None)
+
+    def get_private_repo_data(self):
+        """Manipulate repo response data to get private repo data."""
+        data = self.repo_response_data.copy()
+        data.update({
+            'visibility_level': 10,
+            'public': False,
+        })
+        return data
+
+    def test_make_project_pass(self):
+        repo = self.service.create_repository(
+            self.repo_response_data, organization=self.org, privacy=self.privacy)
+        self.assertIsInstance(repo, RemoteRepository)
+        self.assertEqual(repo.name, 'testrepo')
+        self.assertEqual(repo.full_name, 'testorga / testrepo')
+        self.assertEqual(repo.description, 'Test Repo')
+        self.assertEqual(repo.avatar_url, 'http://placekitten.com/50/50')
+        self.assertIn(self.user, repo.users.all())
+        self.assertEqual(repo.organization, self.org)
+        self.assertEqual(repo.clone_url, 'https://gitlab.com/testorga/testrepo.git')
+        self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
+        self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
+
+    def test_make_private_project_fail(self):
+        repo = self.service.create_repository(
+            self.get_private_repo_data(), organization=self.org, privacy=self.privacy)
+        self.assertIsNone(repo)
+
+    def test_make_private_project_success(self):
+        repo = self.service.create_repository(
+            self.get_private_repo_data(), organization=self.org, privacy=constants.PRIVATE)
+        self.assertIsInstance(repo, RemoteRepository)
+        self.assertTrue(repo.private, True)
+
+    def test_make_organization(self):
+        org = self.service.create_organization(self.repo_response_data['namespace'])
+        self.assertIsInstance(org, RemoteOrganization)
+        self.assertEqual(org.slug, 'testorga')
+        self.assertEqual(org.name, 'Test Orga')
+        self.assertEqual(org.avatar_url, '/media/images/fa-users.svg')
+        self.assertEqual(org.url, 'https://gitlab.com/testorga')
+
+    def test_sync_skip_archived_repo(self):
+        data = self.repo_response_data
+        data['archived'] = True
+        create_repo_mock = Mock()
+        create_orga_mock = Mock()
+        setattr(self.service, 'paginate', Mock(return_value=[data]))
+        setattr(self.service, 'create_repository', create_repo_mock)
+        setattr(self.service, 'create_organization', create_orga_mock)
+        self.service.sync()
+        self.assertFalse(create_repo_mock.called)
+        self.assertFalse(create_orga_mock.called)
+
+    def test_sync_create_repo_and_orga(self):
+        create_repo_mock = Mock()
+        create_orga_mock = Mock(return_value=self.org)
+        setattr(self.service, 'paginate', Mock(return_value=[self.repo_response_data]))
+        setattr(self.service, 'create_repository', create_repo_mock)
+        setattr(self.service, 'create_organization', create_orga_mock)
+        self.service.sync()
+        create_repo_mock.assert_called_once_with(self.repo_response_data, organization=self.org)
+        create_orga_mock.assert_called_once_with(self.repo_response_data['namespace'])

@@ -9,7 +9,7 @@ worked with push knows, pushing a doc update to your repo and watching it get
 updated within seconds is an awesome feeling.
 
 GitHub
----------
+------
 
 If your project is hosted on GitHub, you can easily add a hook that will rebuild
 your docs whenever you push updates:
@@ -27,7 +27,7 @@ If you ever need to manually set the webhook on GitHub,
 you can point it at ``https://readthedocs.org/github``.
 
 Bitbucket
------------
+---------
 
 If your project is hosted on Bitbucket, you can easily add a hook that will rebuild
 your docs whenever you push updates:
@@ -39,6 +39,17 @@ your docs whenever you push updates:
 
 If you ever need to manually set the webhook on Bitbucket,
 you can point it at ``https://readthedocs.org/bitbucket``.
+
+GitLab
+------
+
+If your project is hosted on GitLab.com, you can manually set the webhook on
+Gitlab.com and point it at ``https://readthedocs.org/gitlab``:
+
+* Click the settings icon for your project
+* Select "Webhooks"
+* Enter the above URL, select "Push events" and "Enable SSL verification"
+* Click "Add Webhook"
 
 Others
 ------

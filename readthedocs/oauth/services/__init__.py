@@ -10,4 +10,8 @@ BitbucketService = import_string(
     getattr(settings, 'OAUTH_BITBUCKET_SERVICE',
             'readthedocs.oauth.services.bitbucket.BitbucketService'))
 
-registry = [GitHubService, BitbucketService]
+GitLabService = import_by_path(
+    getattr(settings, 'OAUTH_GITLAB_SERVICE',
+            'readthedocs.oauth.services.gitlab.GitLabService'))
+
+registry = [GitHubService, BitbucketService, GitLabService]

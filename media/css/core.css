@@ -672,6 +672,12 @@ a.socialaccount-provider.github:before {
     content: "\f09b";
 }
 
+div.project-import-remote form.import-connect-gitlab button:before,
+a.socialaccount-provider.gitlab:before {
+    font-family: FontAwesome;
+    content: "\f1d3";
+}
+
 div.project-import-remote form.import-connect-bitbucket button:before,
 a.socialaccount-provider.bitbucket:before,
 a.socialaccount-provider.bitbucket_oauth2:before {
