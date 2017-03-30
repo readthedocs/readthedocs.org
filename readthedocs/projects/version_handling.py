@@ -1,5 +1,6 @@
 """Project version handling"""
 
+import unicodedata
 from collections import defaultdict
 from packaging.version import Version
 from packaging.version import InvalidVersion
@@ -107,8 +108,8 @@ def version_windows(versions, major=1, minor=1, point=1):
 
 def parse_version_failsafe(version_string):
     try:
-        return Version(version_string)
-    except InvalidVersion:
+        return Version(unicodedata.normalize('NFKD', version_string).encode('ascii', 'ignore'))
+    except (UnicodeError, InvalidVersion):
         return None
 
 

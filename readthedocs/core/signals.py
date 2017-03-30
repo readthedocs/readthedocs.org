@@ -26,6 +26,8 @@ def decide_if_cors(sender, request, **kwargs):
 
     Returns True when a request should be given CORS access.
     """
+    if 'HTTP_ORIGIN' not in request.META:
+        return False
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
     valid_url = False
     for url in WHITELIST_URLS:

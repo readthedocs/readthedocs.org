@@ -67,7 +67,9 @@
       }
     );
 
-    checkVersion(slug, version);
+    // This is a deprecated API and file, so removing this to reduce errors
+    // on our servers.
+    // checkVersion(slug, version);
     getVersions(slug, version);
     
     /*
@@ -78,12 +80,12 @@
     */
 
 
-    $.ajax({
-    url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
-    crossDomain: true,
-    dataType: "script",
-    cache: true,
-    });
+    // $.ajax({
+    // url: "https://api.grokthedocs.com/static/javascript/bundle-client.js",
+    // crossDomain: true,
+    // dataType: "script",
+    // cache: true,
+    // });
 
 
 
