@@ -132,27 +132,23 @@ class ProjectViewSet(viewsets.ModelViewSet):
             log.exception("Sync Versions Error: %s" % e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            old_stable = project.get_stable_version()
-            promoted_version = project.update_stable_version()
-            if promoted_version:
-                new_stable = project.get_stable_version()
-                log.info(
-                    "Triggering new stable build: {project}:{version}".format(
-                        project=project.slug,
-                        version=new_stable.identifier))
-                trigger_build(project=project, version=new_stable)
+        promoted_version = project.update_stable_version()
+        if promoted_version:
+            new_stable = project.get_stable_version()
+            log.info(
+                "Triggering new stable build: {project}:{version}".format(
+                    project=project.slug,
+                    version=new_stable.identifier))
+            trigger_build(project=project, version=new_stable)
 
-                # Marking the tag that is considered the new stable version as
-                # active and building it if it was just added.
-                if (
-                        activate_new_stable and
-                        promoted_version.slug in added_versions):
-                    promoted_version.active = True
-                    promoted_version.save()
-                    trigger_build(project=project, version=promoted_version)
-        except:
-            log.exception("Stable Version Failure", exc_info=True)
+            # Marking the tag that is considered the new stable version as
+            # active and building it if it was just added.
+            if (
+                    activate_new_stable and
+                    promoted_version.slug in added_versions):
+                promoted_version.active = True
+                promoted_version.save()
+                trigger_build(project=project, version=promoted_version)
 
         return Response({
             'added_versions': added_versions,

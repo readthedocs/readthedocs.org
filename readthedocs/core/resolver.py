@@ -56,17 +56,17 @@ class ResolverBase(object):
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
         if subdomain or cname or (self._use_subdomain()):
-            url = '/'
+            url = u'/'
         else:
-            url = '/docs/{project_slug}/'
+            url = u'/docs/{project_slug}/'
 
         if subproject_slug:
-            url += 'projects/{subproject_slug}/'
+            url += u'projects/{subproject_slug}/'
 
         if single_version:
-            url += '{filename}'
+            url += u'{filename}'
         else:
-            url += '{language}/{version_slug}/{filename}'
+            url += u'{language}/{version_slug}/{filename}'
 
         return url.format(
             project_slug=project_slug, filename=filename,
