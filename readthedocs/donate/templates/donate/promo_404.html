@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load core_tags %}
-{% load i18n %}
+{% load static i18n %}
 
 {% block title %}
   {% trans "Maze Found" %}
@@ -10,8 +10,12 @@
   {% include "error_header.html" %}
 {% endblock %}
 
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'donate/css/donate.css' %}" />
+{% endblock %}
+
 {% block content %}
-<div style="margin-left: auto; margin-right: auto; width: 900px; text-align: center">
+<div id="promo_404">
     {% if suggestion %}
       <div class="suggestions">
           <h1>You've found something that doesn't exist.</h1>
