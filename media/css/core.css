@@ -119,6 +119,12 @@ h3 > span.link-help {
     float: right;
 }
 
+form.form-wide input[type='text'],
+form.form-wide select,
+form.form-wide textarea {
+    width: 100%;
+}
+
 /* content */
 
 #content { padding-top: 50px; }
@@ -925,6 +931,22 @@ body .edit-toggle { display: none; }
 
 .navigable ul input[type=text] { width: 164px; }
 
+div.button-bar ul {
+    list-style: none;
+    text-align: right;
+}
+
+div.button-bar ul li {
+    display: inline-block;
+}
+
+div.button-bar li a.button,
+div.button-bar li input[type="submit"],
+div.button-bar li input[type="button"],
+div.button-bar li button {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
 
 select.dropdown { display: none; }
 .dropdown > a { font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }

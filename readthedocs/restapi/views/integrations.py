@@ -13,7 +13,7 @@ from django.http import Http404
 from readthedocs.core.views.hooks import build_branches
 from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
                                       webhook_gitlab)
-from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
 
@@ -29,6 +29,8 @@ class WebhookMixin(object):
 
     permission_classes = (permissions.AllowAny,)
     renderer_classes = (JSONRenderer,)
+    integration = None
+    integration_type = None
 
     def post(self, request, project_slug, format=None):
         """Set up webhook post view with request and project objects"""
@@ -36,14 +38,14 @@ class WebhookMixin(object):
         self.project = None
         try:
             self.project = Project.objects.get(slug=project_slug)
-            resp = self.handle_webhook()
-            if resp is None:
-                log.info('Unhandled webhook event')
-                resp = {'detail': 'Unhandled webhook event'}
-            resp = Response(resp)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
-        return resp
+        self.data = self.get_data()
+        resp = self.handle_webhook()
+        if resp is None:
+            log.info('Unhandled webhook event')
+            resp = {'detail': 'Unhandled webhook event'}
+        return Response(resp)
 
     def finalize_response(self, req, *args, **kwargs):
         """If the project was set on POST, store an HTTP exchange"""
@@ -52,22 +54,36 @@ class WebhookMixin(object):
             HttpExchange.objects.from_exchange(
                 req,
                 resp,
-                related_object=self.project,
-                payload=self.get_payload(),
+                related_object=self.get_integration(),
+                payload=self.data,
             )
         return resp
+
+    def get_data(self):
+        """Normalize posted data"""
+        return normalize_request_payload(self.request)
 
     def handle_webhook(self):
         """Handle webhook payload"""
         raise NotImplementedError
 
-    def get_payload(self):
-        """Don't specify any special handling of the payload data
+    def get_integration(self):
+        """Get or create an inbound webhook to track webhook requests
 
-        The exchange will record ``request.data`` instead of assume any
-        special handling of the payload data
+        We shouldn't need this, but to support legacy webhooks, we can't assume
+        that a webhook has ever been created on our side. Most providers don't
+        pass the webhook ID in either, so we default to just finding *any*
+        integration from the provider. This is not ideal, but the
+        :py:class:`WebhookView` view solves this by perfomring a lookup on the
+        integration instead of guessing.
         """
-        return None
+        if self.integration is not None:
+            return self.integration
+        integration, _ = Integration.objects.get_or_create(
+            project=self.project,
+            integration_type=self.integration_type,
+        )
+        return integration
 
     def get_response_push(self, project, branches):
         """Build branches on push events and return API response
@@ -111,24 +127,25 @@ class GitHubWebhookView(WebhookMixin, APIView):
         }
     """
 
-    def get_payload(self):
+    integration_type = Integration.GITHUB_WEBHOOK
+
+    def get_data(self):
         if self.request.content_type == 'application/x-www-form-urlencoded':
             try:
                 return json.loads(self.request.data['payload'])
-            except ValueError:
+            except (ValueError, KeyError):
                 pass
-        return normalize_request_payload(self.request)
+        return super(GitHubWebhookView, self).get_data()
 
     def handle_webhook(self):
-        data = self.get_payload()
         # Get event and trigger other webhook events
         event = self.request.META.get('HTTP_X_GITHUB_EVENT', 'push')
         webhook_github.send(Project, project=self.project,
-                            data=data, event=event)
+                            data=self.data, event=event)
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
             try:
-                branches = [data['ref'].replace('refs/heads/', '')]
+                branches = [self.data['ref'].replace('refs/heads/', '')]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
@@ -148,6 +165,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
             ...
         }
     """
+
+    integration_type = Integration.GITLAB_WEBHOOK
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
@@ -186,6 +205,8 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         }
     """
 
+    integration_type = Integration.BITBUCKET_WEBHOOK
+
     def handle_webhook(self):
         # Get event and trigger other webhook events
         event = self.request.META.get('HTTP_X_EVENT_KEY', BITBUCKET_PUSH)
@@ -202,9 +223,9 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 raise ParseError('Invalid request')
 
 
-class GenericWebhookView(WebhookMixin, APIView):
+class APIWebhookView(WebhookMixin, APIView):
 
-    """Generic webhook consumer
+    """API webhook consumer
 
     Expects the following JSON::
 
@@ -212,6 +233,8 @@ class GenericWebhookView(WebhookMixin, APIView):
             "branches": ["master"]
         }
     """
+
+    integration_type = Integration.API_WEBHOOK
 
     def handle_webhook(self):
         try:
@@ -222,3 +245,32 @@ class GenericWebhookView(WebhookMixin, APIView):
             return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')
+
+
+class WebhookView(APIView):
+
+    """This is the main webhook view for webhooks with an ID
+
+    The handling of each view is handed off to another view. This should only
+    ever get webhook requests for established webhooks on our side. The other
+    views can receive webhooks for unknown webhooks, as all legacy webhooks will
+    be.
+    """
+
+    VIEW_MAP = {
+        Integration.GITHUB_WEBHOOK: GitHubWebhookView,
+        Integration.GITLAB_WEBHOOK: GitLabWebhookView,
+        Integration.BITBUCKET_WEBHOOK: BitbucketWebhookView,
+        Integration.API_WEBHOOK: APIWebhookView,
+    }
+
+    def post(self, request, project_slug, integration_pk):
+        """Set up webhook post view with request and project objects"""
+        integration = get_object_or_404(
+            Integration,
+            project__slug=project_slug,
+            pk=integration_pk,
+        )
+        view_cls = self.VIEW_MAP[integration.integration_type]
+        view = view_cls.as_view(integration=integration)
+        return view(request, project_slug)

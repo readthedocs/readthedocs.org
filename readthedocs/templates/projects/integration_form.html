@@ -1,0 +1,23 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Integrations" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-integrations %}class="active"{% endblock %}
+
+{% block project-integrations-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Integrations" %}{% endblock %}
+
+{% block project_edit_content %}
+  <form
+      method="post"
+      class="form-wide"
+      action="{% url 'projects_integrations_create' project_slug=project.slug %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="{% trans "Add integration" %}">
+  </form>
+{% endblock %}
