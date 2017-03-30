@@ -67,6 +67,8 @@
       }
     );
 
+    // This is a deprecated API and file, so removing this to reduce errors
+    // on our servers.
     // checkVersion(slug, version);
     getVersions(slug, version);
     
