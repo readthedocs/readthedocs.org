@@ -1,3 +1,4 @@
+import errno
 import getpass
 import logging
 import os
@@ -153,3 +154,16 @@ def slugify(value, *args, **kwargs):
 
 
 slugify = allow_lazy(slugify, six.text_type, SafeText)
+
+
+def safe_makedirs(directory_name):
+    """
+    Makedirs has an issue where it has a race condition around
+    checking for a directory and then creating it.
+    This catches the exception in this case.
+    """
+
+    try:
+        os.makedirs(directory_name)
+    except OSError:
+        pass

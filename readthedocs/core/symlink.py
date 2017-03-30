@@ -62,6 +62,7 @@ from django.conf import settings
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils import safe_makedirs
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import run
@@ -100,19 +101,19 @@ class Symlink(object):
         if os.path.islink(self.project_root) and not self.project.single_version:
             self._log("Removing single version symlink")
             os.unlink(self.project_root)
-            os.makedirs(self.project_root)
+            safe_makedirs(self.project_root)
         elif (self.project.single_version and
               not os.path.islink(self.project_root) and
               os.path.exists(self.project_root)):
             shutil.rmtree(self.project_root)
         elif not os.path.lexists(self.project_root):
-            os.makedirs(self.project_root)
+            safe_makedirs(self.project_root)
 
         # CNAME root directories
         if not os.path.lexists(self.CNAME_ROOT):
-            os.makedirs(self.CNAME_ROOT)
+            safe_makedirs(self.CNAME_ROOT)
         if not os.path.lexists(self.PROJECT_CNAME_ROOT):
-            os.makedirs(self.PROJECT_CNAME_ROOT)
+            safe_makedirs(self.PROJECT_CNAME_ROOT)
 
     def run(self):
         """
@@ -177,7 +178,7 @@ class Symlink(object):
         if rels.count():
             # Don't creat the `projects/` directory unless subprojects exist.
             if not os.path.exists(self.subproject_root):
-                os.makedirs(self.subproject_root)
+                safe_makedirs(self.subproject_root)
         for rel in rels:
             # A mapping of slugs for the subproject URL to the actual built
             # documentation
@@ -194,7 +195,7 @@ class Symlink(object):
                 )
                 symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
                 if not os.path.lexists(symlink_dir):
-                    os.makedirs(symlink_dir)
+                    safe_makedirs(symlink_dir)
                 run('ln -nsf %s %s' % (docs_dir, symlink))
 
         # Remove old symlinks
@@ -219,7 +220,7 @@ class Symlink(object):
         if os.path.islink(language_dir):
             os.unlink(language_dir)
         if not os.path.lexists(language_dir):
-            os.makedirs(language_dir)
+            safe_makedirs(language_dir)
 
         for (language, slug) in translations.items():
             self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
@@ -271,7 +272,7 @@ class Symlink(object):
         version_queryset = self.get_version_queryset()
         if version_queryset.count():
             if not os.path.exists(version_dir):
-                os.makedirs(version_dir)
+                safe_makedirs(version_dir)
         for version in version_queryset:
             self._log(u"Symlinking Version: %s" % version)
             symlink = os.path.join(version_dir, version.slug)
