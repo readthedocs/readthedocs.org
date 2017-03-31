@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info("Building %s" % p)
-                    trigger_build(project=p, force=force)
+                    trigger_build(project=p, force=force, record=record)
         else:
             if version == "all":
                 log.info("Updating all versions")

@@ -79,9 +79,6 @@ class ProjectAdminMixin(object):
         kwargs['project'] = self.get_project()
         return self.form_class(data, files, **kwargs)
 
-    def get_success_url(self, **kwargs):
-        return reverse('projects_domains', args=[self.get_project().slug])
-
 
 class ProjectSpamMixin(object):
 

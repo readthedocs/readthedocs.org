@@ -19,6 +19,8 @@ from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from slumber.exceptions import HttpClientError
+
 from readthedocs_build.config import ConfigError
 
 from readthedocs.builds.constants import (LATEST,
@@ -501,8 +503,10 @@ def update_imported_docs(version_pk):
 
         try:
             api_v2.project(project.pk).sync_versions.post(version_post_data)
+        except HttpClientError as e:
+            log.error("Sync Versions Exception: %s" % e.content)
         except Exception as e:
-            print "Sync Versions Exception: %s" % e.message
+            log.error("Unknown Sync Versions Exception", exc_info=True)
     return ret_dict
 
 

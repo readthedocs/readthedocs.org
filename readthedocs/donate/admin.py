@@ -44,11 +44,13 @@ class ImpressionInline(admin.TabularInline):
 class SupporterPromoAdmin(admin.ModelAdmin):
     model = SupporterPromo
     save_as = True
+    prepopulated_fields = {'analytics_id': ('name',)}
     list_display = ('name', 'live', 'click_ratio', 'sold_impressions',
                     'total_views', 'total_clicks')
     list_filter = ('live', 'display_type')
     list_editable = ('live', 'sold_impressions')
     readonly_fields = ('total_views', 'total_clicks')
+    search_fields = ('name', 'text', 'analytics_id')
     inlines = [ImpressionInline, GeoFilterInline]
     actions = [set_default_countries]
 

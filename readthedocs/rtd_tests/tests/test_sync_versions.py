@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 
 from django.test import TestCase
@@ -344,3 +346,18 @@ class TestStableVersion(TestCase):
         version_stable = Version.objects.get(slug=STABLE)
         self.assertFalse(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.0')
+
+    def test_unicode(self):
+        version_post_data = {
+            'branches': [],
+            'tags': [
+                {'identifier': 'foo-£', 'verbose_name': 'foo-£'},
+            ]
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
