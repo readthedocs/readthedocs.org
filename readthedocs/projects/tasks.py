@@ -710,7 +710,7 @@ def _manage_imported_files(version, path, commit):
     """Update imported files for version
 
     :param version: Version instance
-    :param path: Path to search
+    :pa/oram path: Path to search
     :param commit: Commit that updated path
     """
     changed_files = set()
@@ -875,7 +875,7 @@ def remove_dir(path):
     can kill things on the build server.
     """
     log.info("Removing %s", path)
-    shutil.rmtree(path)
+    shutil.rmtree(path, ignore_errors=True)
 
 
 @task(queue='web')
