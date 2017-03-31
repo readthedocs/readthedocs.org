@@ -166,4 +166,6 @@ def safe_makedirs(directory_name):
     try:
         os.makedirs(directory_name)
     except OSError:
-        pass
+        if e.errno == errno.EEXIST
+            pass
+        raise
