@@ -160,7 +160,7 @@ def safe_makedirs(directory_name):
     """
     Makedirs has an issue where it has a race condition around
     checking for a directory and then creating it.
-    This catches the exception in this case.
+    This catches the exception in the case where the dir already exists.
     """
 
     try:
