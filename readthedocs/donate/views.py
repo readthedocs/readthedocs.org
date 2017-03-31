@@ -152,7 +152,7 @@ def view_proxy(request, promo_id, hash):
     return redirect(promo.image)
 
 
-def add_promo_data(display_type):
+def _add_promo_data(display_type):
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type=display_type)
     promo_obj = promo_queryset.order_by('?').first()
     if promo_obj:
@@ -164,7 +164,7 @@ def add_promo_data(display_type):
 
 def promo_500(request, template_name='donate/promo_500.html', **kwargs):
     """A simple 500 handler so we get media"""
-    promo_dict = add_promo_data(display_type='error')
+    promo_dict = _add_promo_data(display_type='error')
     r = render_to_response(template_name,
                            context_instance=RequestContext(request),
                            context={
@@ -176,7 +176,7 @@ def promo_500(request, template_name='donate/promo_500.html', **kwargs):
 
 def promo_404(request, template_name='donate/promo_404.html', **kwargs):
     """A simple 404 handler so we get media"""
-    promo_dict = add_promo_data(display_type='error')
+    promo_dict = _add_promo_data(display_type='error')
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response

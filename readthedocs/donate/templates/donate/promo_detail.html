@@ -15,6 +15,7 @@
 Total Clicks for all shown promos: {{ total_clicks }}
 </p>
 
+<div id="promo_detail">
 {% for promo in promos %}
 
 <h3>
@@ -22,13 +23,37 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
 </h3>
 
 <div class="example" style="width: 30%;">
-<a href="{{ promo.link }}"><img width=120 height=90 src="{{ promo.image }}"></a>
-<br>
-{{ promo.text|safe }}
+
+  <div class="filters">
+    {% if promo.programming_language %}
+      <p> 
+        <b>Filtered Language</b>: {{ promo.programming_language }}
+      </p>
+    {% endif %}
+
+    {% if promo.geo_filters.count %}
+      <p> 
+      <b>Filtered Geos</b>: 
+        {% for geo in promo.geo_filters.all %}
+          {{ geo.countries.all|join:", " }}
+        {% endfor %}
+      </p>
+    {% endif %}
+  </div>
+
+  <a href="{{ promo.link }}">
+    <img width=120 height=90 src="{{ promo.image }}">
+  </a>
+
+  <br>
+
+  <div class="promo_text">
+    {{ promo.report_html_text|safe }}
+  </div>
+
+  <br>
 
 </div>
-
-<br>
 
 <table>
   <tr>
@@ -56,6 +81,7 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
 </table>
 
 {% endfor %}
+</div>
 
 {% else %}
 
