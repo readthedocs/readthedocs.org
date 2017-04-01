@@ -90,7 +90,7 @@ class PromoDetailView(TemplateView):
 
         if promo_slug == 'live' and self.request.user.is_staff:
             promos = SupporterPromo.objects.filter(live=True)
-        elif '*' in promo_slug:
+        elif '*' in promo_slug and len(promo_slug) > 5:
             promos = SupporterPromo.objects.filter(
                 analytics_id__contains=promo_slug.replace('*', '')
             )
