@@ -56,8 +56,7 @@ As developers,
 we understand the `massive downsides`_ of the current advertising industry.
 This includes malware,
 slow site performance,
-and huge databases of your personal data being sold to the highest bidder,
-among other things...
+and huge databases of your personal data being sold to the highest bidder.
 
 The trend in advertising is to have larger and larger ads.
 They should run before your content,
