@@ -89,7 +89,7 @@ We're building the advertising model we want to exist.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
-  `talk to your marketing people <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
+  `talk to your marketing folks <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
 * **If you're a marketer**,
   vote with your dollars and support us in building the ad model we want to exist.
 
