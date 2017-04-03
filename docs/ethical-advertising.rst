@@ -4,13 +4,25 @@ Ethical Advertising
 Read the Docs is a large,
 free web service.
 There is one proven business model to support this kind of site:
-Advertising.
-We're building an advertising model that respects users while providing value to advertisers.
+**Advertising**.
+I know it's a dirty word,
+but at the end of the day we need money to keep this *crazy* ride going.
+So,
+**we're building an advertising model that respects users while providing value to advertisers.**
+We feel like this is something we can be proud of,
+and hopefully we can start leading the ad industry in the right direction.
 
 We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
+We're a community,
+and we value your feedback.
+If you ever want to reach out about this effort,
+feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 
-If you're a marketer,
+If you're a **marketer**,
 we have :ref:`information <ethical-buy-ads>` on how to get in touch with us about running ads.
+Eric,
+one of our co-founders also `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
+
 
 .. _ethical-info:
 
@@ -21,10 +33,10 @@ We're building the advertising model we want to exist:
 
 * We don't track you
 * We don't sell your data
-* We host everything ourselves, no third-party scripts
+* We host everything ourselves, no third-party scripts or images
 
-We're doing newspaper advertising,
-on the internet.
+**We're doing newspaper advertising,
+on the internet.**
 For a hundred years,
 newspapers put an ad on the page,
 some folks would see it,
@@ -38,25 +50,27 @@ showing the same ads and gathering data about them.
 Then retailers sell your purchase data to try and attribute sales to advertising.
 Now there is an industry in doing `fake ad clicks`_ and other scams,
 which leads the ad industry to track you even more intrusively to know more about you.
-The current advertising industry is a vicious downward spiral.
+The current advertising industry is in a vicious downward spiral.
 
 As developers,
 we understand the `massive downsides`_ of the current advertising industry.
-From malware,
+This includes malware,
 slow site performance,
-and huge databases of your personal data being sold to the highest bidder.
+and huge databases of your personal data being sold to the highest bidder,
+among other things...
 
 The trend in advertising is to have larger and larger ads.
 They should run before your content,
 they should take over the page,
 the bigger, weirder, or flashier the better.
 
-**We opt out.**
+We opt out.
+~~~~~~~~~~~
 
-We don't store personal information about you.
-We only keep track of views and clicks.
-We don't build a profile of your personality to sell ads against.
-We only show high quality ads from companies that are of interest to developers.
+* We don't store personal information about you.
+* We only keep track of views and clicks.
+* We don't build a profile of your personality to sell ads against.
+* We only show high quality ads from companies that are of interest to developers.
 
 We are running a single,
 small,
@@ -76,7 +90,7 @@ We're building the advertising model we want to exist.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
-  talk to your marketing people about using advertising that respects your privacy.
+  `talk to your marketing people <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
 * **If you're a marketer**,
   vote with your dollars and support us in building the ad model we want to exist.
 
