@@ -148,6 +148,15 @@ class SupporterPromo(models.Model):
             (float(self.total_clicks()) / float(self.total_views())) * 100
         )
 
+    def report_html_text(self):
+        """
+        Include the link in the html text.
+
+        Only used for reporting,
+        doesn't include any click fruad protection!
+        """
+        return self.text.replace('<a>', "<a href='%s'>" % self.link)
+
 
 class BaseImpression(models.Model):
     date = models.DateField(_('Date'))
@@ -172,24 +181,28 @@ class BaseImpression(models.Model):
     def click_ratio(self):
         if self.views == 0:
             return 0  # Don't divide by 0
-        return float(
+        return '%.3f' % float(
             float(self.clicks) / float(self.views) * 100
         )
 
 
 class PromoImpressions(BaseImpression):
-    """Track stats around how successful this promo has been.
+    """
+    Track stats around how successful this promo has been.
 
-    Indexed one per promo per day."""
+    Indexed one per promo per day.
+    """
 
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
 
 
 class ProjectImpressions(BaseImpression):
-    """Track stats for a specific project and promo.
+    """
+    Track stats for a specific project and promo.
 
-    Indexed one per project per promo per day"""
+    Indexed one per project per promo per day
+    """
 
     promo = models.ForeignKey(SupporterPromo, related_name='project_impressions',
                               blank=True, null=True)
