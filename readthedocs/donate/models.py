@@ -48,8 +48,9 @@ class SupporterPromo(models.Model):
     image = models.URLField(_('Image URL'), max_length=255, blank=True, null=True)
     display_type = models.CharField(_('Display Type'), max_length=200,
                                     choices=DISPLAY_CHOICES, default='doc')
-    sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000)
+    sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000000)
     sold_days = models.IntegerField(_('Sold Days'), default=30)
+    sold_clicks = models.IntegerField(_('Sold Clicks'), default=0)
     programming_language = models.CharField(_('Programming Language'), max_length=20,
                                             choices=PROGRAMMING_LANGUAGES, default=None,
                                             blank=True, null=True)
