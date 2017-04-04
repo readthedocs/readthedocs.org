@@ -11,9 +11,11 @@
 
 {% if promos %}
 
+{% if promos|length > 1 %}
 <p>
-Total Clicks for all shown promos: {{ total_clicks }}
+<strong>Total Clicks for all shown promos</strong>: {{ total_clicks }}
 </p>
+{% endif %}
 
 <div id="promo_detail">
 {% for promo in promos %}
@@ -27,16 +29,22 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
   <div class="filters">
     {% if promo.programming_language %}
       <p> 
-        <b>Filtered Language</b>: {{ promo.programming_language }}
+        <strong>Filtered Language</strong>: {{ promo.programming_language }}
       </p>
     {% endif %}
 
     {% if promo.geo_filters.count %}
       <p> 
-      <b>Filtered Geos</b>: 
+      <strong>Filtered Geos</strong>: 
         {% for geo in promo.geo_filters.all %}
           {{ geo.countries.all|join:", " }}
         {% endfor %}
+      </p>
+    {% endif %}
+
+    {% if promo.sold_clicks %}
+      <p> 
+        <strong>Total Clicks Sold</strong>: {{ promo.sold_clicks }}
       </p>
     {% endif %}
   </div>
@@ -55,6 +63,7 @@ Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} day
 
 </div>
 
+<h5>Promo Data</h5>
 <table>
   <tr>
     <th><strong>Day (UTC)</strong></th>
