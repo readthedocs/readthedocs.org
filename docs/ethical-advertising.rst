@@ -17,6 +17,7 @@ We're a community,
 and we value your feedback.
 If you ever want to reach out about this effort,
 feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
+You can also :ref:`opt out <opt-out>` if you prefer.
 
 If you're a **marketer**,
 we have :ref:`information <ethical-buy-ads>` on how to get in touch with us about running ads.
@@ -135,4 +136,20 @@ Fill out your information and we'll get in touch.
         <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html" />
         <input type="text" name="_gotcha" style="display:none" />
     </form>
+
+.. _opt-out:
+
+Opting Out
+----------
+
+We have added multiple ways to opt out of the advertising on Read the Docs.
+Inside the **Admin > Advertising** section of every project,
+you can see options to control or remove advertising on your project.
+
+These options include:
+
+* Supporting us `financially <https://readthedocs.org/accounts/gold/subscription/?>`_ with Read the Docs Gold.
+* Supporting us with `your time <http://docs.readthedocs.org/en/latest/contribute.html?>`_ by contributing to the project.
+* Moving to our `paid product <https://readthedocs.com/pricing/?>`_ over at readthedocs.com.
+* Opting out without doing any of the above. This will make us a little sad, but we understand not everyone has the means to contribute back.
 
