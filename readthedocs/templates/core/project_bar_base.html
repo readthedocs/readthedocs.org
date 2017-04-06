@@ -1,3 +1,10 @@
+<script type="text/javascript">
+    {% if request.user.is_authenticated %}
+
+    {% else %}
+        window.location="{% url 'homepage' %}"
+    {% endif %}
+</script>
 {% load i18n %}
 {% load core_tags %}
 {% load privacy_tags %}

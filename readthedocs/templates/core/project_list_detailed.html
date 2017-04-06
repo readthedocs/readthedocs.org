@@ -2,7 +2,17 @@
 
 {% for project in project_list %}
   <li class="module-item">
-    <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
+   
+    
+
+    
+
+    {% if request.user.is_authenticated %}
+        <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
+    {% else %}
+        <a class="module-item-title">{{ project.name }}</a>
+    {% endif %}
+
 
     {% with project.users.all as users %}
 
