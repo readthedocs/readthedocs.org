@@ -40,33 +40,20 @@
             <div class="module-wrapper">
 
               <div class="module-header">
-                <h3>{% trans "What is this place?" %}</h3>
+                
                 <p>
 {% blocktrans %}
-Read the Docs hosts documentation, making it fully searchable and easy to find.
-You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.
-We support <a href="http://docs.readthedocs.io/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
-There's also support for <a href="http://docs.readthedocs.io/en/latest/versions.html">versioning</a> so you can build docs from tags and branches of your code in your repository. 
+
 {% endblocktrans %}
                 </p>
                 <p>
 {% blocktrans %}
-  Hosting documentation is free and simple,
-  <a href="https://docs.readthedocs.io/en/latest/getting_started.html">read our guide</a>
-  to get started!
+  
 {% endblocktrans %}
                 <p>
                 <p>
 {% blocktrans %}
-Read the Docs is <b>community supported</b>. 
-It depends on users like you to contribute to development,
-support,
-and operations.
-You can learn more about how to <a href="https://docs.readthedocs.io/en/latest/contribute.html">contribute</a> in our docs.
-Thanks so much to our wonderful <a href="https://docs.readthedocs.io/en/latest/team.html">community team</a> who helps us run the site.
-Read the Docs wouldn't be possible without them.
-Please consider joining today,
-as we always need more contributors to the project.
+
 {% endblocktrans %}
                 </p>
               </div>
@@ -107,10 +94,17 @@ as we always need more contributors to the project.
               </div>
 
               <div class="module-list">
+               
+                
                 <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/project_list_detailed.html" %}
-                  </ul>
+
+                 
+                        <ul>
+                           {% include "core/project_list_detailed.html" %}
+                        </ul>
+
+                
+
                 </div>
               </div>
 
@@ -118,16 +112,6 @@ as we always need more contributors to the project.
           </div>
           <!-- END projects list -->
 
-    <div>
-        <h3>{% trans "Read the Docs is funded by the community" %}</h3>
-        <p>
-          Read the Docs is funded by readers like you.
-          Help keep the site alive and well by supporting us with a <a href="{% url "gold_detail" %}">Gold Subscription</a>.
-          You can also make one-time donations on our <a href='{% url "donate" %}'>sustainability</a> page.
-        </p>
-        <p>
-          Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
-        </p>
-    </div>
+   
 
 {% endblock %}
