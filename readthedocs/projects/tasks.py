@@ -875,7 +875,7 @@ def remove_dir(path):
     can kill things on the build server.
     """
     log.info("Removing %s", path)
-    shutil.rmtree(path)
+    shutil.rmtree(path, ignore_errors=True)
 
 
 @task(queue='web')
