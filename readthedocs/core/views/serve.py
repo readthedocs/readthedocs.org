@@ -56,17 +56,19 @@ def map_subproject_slug(view_func):
     @wraps(view_func)
     def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):
         if subproject is None and subproject_slug:
+            # Try to fetch by subproject alias first, otherwise we might end up
+            # redirected to an unrelated project.
             try:
-                subproject = Project.objects.get(slug=subproject_slug)
-            except Project.DoesNotExist:
+                # Depends on a project passed into kwargs
+                rel = ProjectRelationship.objects.get(
+                    parent=kwargs['project'],
+                    alias=subproject_slug,
+                )
+                subproject = rel.child
+            except (ProjectRelationship.DoesNotExist, KeyError):
                 try:
-                    # Depends on a project passed into kwargs
-                    rel = ProjectRelationship.objects.get(
-                        parent=kwargs['project'],
-                        alias=subproject_slug,
-                    )
-                    subproject = rel.child
-                except (ProjectRelationship.DoesNotExist, KeyError):
+                    subproject = Project.objects.get(slug=subproject_slug)
+                except Project.DoesNotExist:
                     raise Http404
         return view_func(request, subproject=subproject, *args, **kwargs)
     return inner_view
