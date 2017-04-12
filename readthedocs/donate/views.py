@@ -126,6 +126,7 @@ def click_proxy(request, promo_id, hash):
     else:
         log.warning('Duplicate click logged. {count} total clicks tried.'.format(count=count))
         cache.incr(promo.cache_key(type=CLICKS, hash=hash))
+        raise Http404('Invalid click. This has been logged.')
     return redirect(promo.link)
 
 
@@ -149,6 +150,7 @@ def view_proxy(request, promo_id, hash):
     else:
         log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
         cache.incr(promo.cache_key(type=VIEWS, hash=hash))
+        raise Http404('Invalid click. This has been logged.')
     return redirect(promo.image)
 
 
