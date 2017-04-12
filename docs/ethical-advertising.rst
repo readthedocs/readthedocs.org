@@ -26,7 +26,10 @@ You can also :ref:`opt out <opt-out>` if you prefer.
 
 If you're a **marketer**,
 we have :ref:`information <ethical-buy-ads>` on how to get in touch with us about running ads.
-Eric,
+
+We have gone into more detail about our views in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
+Also,
+Eric Holscher,
 one of our co-founders also `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
 
 
