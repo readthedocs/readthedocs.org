@@ -124,7 +124,12 @@ def click_proxy(request, promo_id, hash):
             project = Project.objects.get(slug=project_slug)
             promo.incr(CLICKS, project=project)
     else:
-        log.warning('Duplicate click logged. {count} total clicks tried.'.format(count=count))
+        agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
+        log.warning(
+            'Duplicate click logged. {count} total clicks tried. User Agent: [{agent}]'.format(
+                count=count, agent=agent
+            )
+        )
         cache.incr(promo.cache_key(type=CLICKS, hash=hash))
         raise Http404('Invalid click. This has been logged.')
     return redirect(promo.link)
@@ -148,7 +153,12 @@ def view_proxy(request, promo_id, hash):
             project = Project.objects.get(slug=project_slug)
             promo.incr(VIEWS, project=project)
     else:
-        log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
+        agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
+        log.warning(
+            'Duplicate view logged. {count} total views tried. User Agent: [{agent}]'.format(
+                count=count, agent=agent
+            )
+        )
         cache.incr(promo.cache_key(type=VIEWS, hash=hash))
         raise Http404('Invalid click. This has been logged.')
     return redirect(promo.image)
