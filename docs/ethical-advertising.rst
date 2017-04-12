@@ -5,12 +5,17 @@ Read the Docs is a large,
 free web service.
 There is one proven business model to support this kind of site:
 **Advertising**.
-I know it's a dirty word,
-but at the end of the day we need money to keep this *crazy* ride going.
-So,
-**we're building an advertising model that respects users while providing value to advertisers.**
+However,
+instead of using Google,
+we are building the advertising model that we want to exist.
+We only work with companies we like and respect,
+and offer products that are relevent to developers
+We hope that you'll discover new products and services that are relvent,
+and also new companies that care about supporting the open source community.
+
+**We're building an advertising model that respects users while providing value to advertisers.**
 We feel like this is something we can be proud of,
-and hopefully we can start leading the ad industry in the right direction.
+and we can start leading the ad industry in the right direction.
 
 We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
 We're a community,
