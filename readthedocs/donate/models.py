@@ -8,7 +8,7 @@ from django_countries.fields import CountryField
 
 from readthedocs.donate.utils import get_ad_day
 from readthedocs.donate.constants import (
-    DISPLAY_CHOICES, FILTER_CHOICES, IMPRESSION_TYPES
+    DISPLAY_CHOICES, FILTER_CHOICES, IMPRESSION_TYPES, THEMES, READTHEDOCS_THEME
 )
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
@@ -54,6 +54,9 @@ class SupporterPromo(models.Model):
     programming_language = models.CharField(_('Programming Language'), max_length=20,
                                             choices=PROGRAMMING_LANGUAGES, default=None,
                                             blank=True, null=True)
+    theme = models.CharField(_('Theme'), max_length=40,
+                             choices=THEMES, default=READTHEDOCS_THEME,
+                             blank=True, null=True)
     live = models.BooleanField(_('Live'), default=False)
 
     class Meta:

@@ -22,3 +22,13 @@ IMPRESSION_TYPES = (
     VIEWS,
     CLICKS
 )
+
+ANY = 'any'
+READTHEDOCS_THEME = 'sphinx_rtd_theme'
+ALABASTER_THEME = 'alabaster'
+
+THEMES = (
+    (ANY, 'Any'),
+    (ALABASTER_THEME, 'Alabaster Theme'),
+    (READTHEDOCS_THEME, 'Read the Docs Sphinx Theme'),
+)
