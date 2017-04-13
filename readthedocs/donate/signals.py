@@ -1,13 +1,19 @@
 import random
+import logging
 
 from django.dispatch import receiver
 from django.conf import settings
+from django.core.cache import cache
+
+import redis
 
 from readthedocs.restapi.signals import footer_response
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.donate.constants import INCLUDE, EXCLUDE
 from readthedocs.donate.utils import offer_promo
 
+
+log = logging.getLogger(__name__)
 
 PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
 
@@ -200,3 +206,25 @@ def attach_promo_data(sender, **kwargs):
 
     # Set promo object on return JSON
     resp_data['promo'] = show_promo
+
+
+@receiver(footer_response)
+def index_theme_data(sender, **kwargs):
+    """
+    Keep track of which projects are using which theme.
+
+    This is primarily used so we can send email to folks using alabaster,
+    and other themes we might want to display ads on.
+    This will allow us to give people fair warning before we put ads on their docs.
+
+    """
+    context = kwargs['context']
+
+    project = context['project']
+    theme = context['theme']
+
+    try:
+        redis_client = cache.get_client(None)
+        redis_client.sadd("readthedocs:v1:index:themes:%s" % theme, project)
+    except (AttributeError, redis.exceptions.ConnectionError):
+        log.warning('Redis theme indexing error: %s', exc_info=True)
