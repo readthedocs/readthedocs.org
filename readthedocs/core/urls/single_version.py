@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import serve
+from readthedocs.core.views import HomepageView, SupportView
 
 handler500 = 'readthedocs.core.views.server_error'
 handler404 = 'readthedocs.core.views.server_error_404'
@@ -35,7 +36,8 @@ if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
              r'(?:|projects/(?P<subproject_slug>{project_slug})/)'
              r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
             serve.serve_docs,
-            name='docs_detail')
+            name='docs_detail'),
+        url(r'^docs/$',HomepageView.as_view(), name='homepage'),
     ]
     groups.insert(1, docs_url)
 

@@ -121,16 +121,10 @@ class Project(models.Model):
     # appropriate branch. Eg 'master' for git
     default_branch = models.CharField(
         _('Default branch'), max_length=255, default=None, null=True,
-        blank=True, help_text=_('What branch "latest" points to. Leave empty '
-                                'to use the default value for your VCS (eg. '
-                                '<code>trunk</code> or <code>master</code>).'))
+        blank=True, help_text=_('What branch "latest" points to. Leave empty to use the default value for your VCS (eg. <code>trunk</code> or <code>master</code>).'))
     requirements_file = models.CharField(
         _('Requirements file'), max_length=255, default=None, null=True,
-        blank=True, help_text=_(
-            'A <a '
-            'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-            'pip requirements file</a> needed to build your documentation. '
-            'Path from the root of your project.'))
+        blank=True, help_text=_('A <a href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files"> pip requirements file</a> needed to build your documentation. Path from the root of your project.'))
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
@@ -144,9 +138,7 @@ class Project(models.Model):
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
-        help_text=_("Google Analytics Tracking ID "
-                    "(ex. <code>UA-22345342-1</code>). "
-                    "This may slow down your page loads."))
+        help_text=_("Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow down your page loads."))
     container_image = models.CharField(
         _('Alternative container image'), max_length=64, null=True, blank=True)
     container_mem_limit = models.CharField(
@@ -177,9 +169,7 @@ class Project(models.Model):
                                         "<code>conf.py</code> lives"))
     conf_py_file = models.CharField(
         _('Python configuration file'), max_length=255, default='', blank=True,
-        help_text=_('Path from project root to <code>conf.py</code> file '
-                    '(ex. <code>docs/conf.py</code>).'
-                    'Leave blank if you want us to find it for you.'))
+        help_text=_('Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</code>). Leave blank if you want us to find it for you.'))
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
@@ -231,7 +221,7 @@ class Project(models.Model):
                                 help_text=_("The language the project "
                                             "documentation is rendered in. "
                                             "Note: this affects your project's URL."),
-                                choices=constants.LANGUAGES)
+                            choices=constants.LANGUAGES)
 
     programming_language = models.CharField(
         _('Programming Language'),
@@ -887,6 +877,7 @@ class Domain(models.Model):
         default=False, help_text=_('This Domain is a CNAME for the project')
     )
     canonical = models.BooleanField(
+        _('Canonical'),
         default=False,
         help_text=_('This Domain is the primary one where the documentation is served from.')
     )

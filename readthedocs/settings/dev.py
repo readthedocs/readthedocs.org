@@ -15,9 +15,13 @@ class CommunityDevSettings(CommunityBaseSettings):
     def DATABASES(self):  # noqa
         return {
             'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
-            }
+                 'ENGINE': 'django.db.backends.mysql',
+                 'NAME': 'readthedocs',
+                 'USER':'root',
+                 'PASSWORD':'572136',
+                 'HOST':'',
+                 'PORT':'3306',
+             }
         }
 
     DONT_HIT_DB = False

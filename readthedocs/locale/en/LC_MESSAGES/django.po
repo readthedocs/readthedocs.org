@@ -433,7 +433,7 @@ msgstr ""
 
 #: donate/models.py:45 oauth/models.py:43
 msgid "Email"
-msgstr ""
+msgstr "电子邮件"
 
 #: donate/models.py:48
 msgid "Amount"
@@ -3265,4 +3265,110 @@ msgid ""
 "\n"
 "           Connect to %(provider_name)s\n"
 "         "
+msgstr ""
+
+
+msgid "Made by HAND"
+msgstr ""
+
+msgid "change language"
+msgstr ""
+
+msgid "Ready to share your documentation"
+msgstr ""
+
+msgid "import your project"
+msgstr "You don't have any projects yet, but you can start building documentation by importing one."
+
+msgid "Import a Project"
+msgstr ""
+
+msgid "Connect your Accounts"
+msgstr ""
+
+msgid "Use github account"
+msgstr "Have a GitHub account? Connect your account and import your existing projects automatically. "
+
+msgid "Connected Accounts"
+msgstr "You don't currently have any connected accounts. Connect your account to be able to easily set up projects."
+
+msgid "No remote repositories found"
+msgstr "No remote repositories found,try"
+
+msgid "refreshing your accounts"
+msgstr ""
+
+msgid "Import manually project"
+msgstr "You can import your project manually if it isn't listed here or connected to one of your accounts. "
+
+msgid "configured project"
+msgstr "To import a project, start by entering a few details about your repository. More advanced project options can be configured if you select"
+
+msgid "Set webhook"
+msgstr "This repository doesn't have a valid webhook set up, commits won't trigger new builds for this project."
+
+msgid "You can"
+msgstr ""
+
+msgid "sync your webhook"
+msgstr ""
+
+msgid "to fix this"
+msgstr ""
+
+msgid "will view documentation"
+msgstr "You'll be able to view your documentation in a minute or two, once your project is done building. "
+
+msgid "building latest version"
+msgstr "This project has not been built yet.Try building the latest version now,or if you would like to build a specific version,select the version below and your documentation build will be triggered."
+
+msgid "Ensure your documentation"
+msgstr "Your documentation has been built.Ensure your documentation is kept up to date with every commit to your repository, by"
+
+msgid "setting up a webhook"
+msgstr ""
+
+msgid "building problem"
+msgstr "There was a problem building your documentation,you can see what went wrong in the build output.If you need more help, check out some of the"
+
+msgid "problems frequently encountered"
+msgstr "problems frequently encountered during builds."
+
+msgid "Are you sure you want to delete"
+msgstr ""
+
+msgid "Integrations"
+msgstr ""
+
+msgid "Manage external integrations for project webhooks."
+msgstr ""
+
+msgid "Resync Webhook"
+msgstr ""
+
+msgid "Recent Activity"
+msgstr ""
+
+msgid "There is no recent activity"
+msgstr ""
+
+msgid "Search in this project"
+msgstr ""
+
+msgid "Wipe the build directories for a version"
+msgstr ""
+
+msgid "Your project environment has been wiped."
+msgstr ""
+
+msgid "Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation."
+msgstr ""
+
+msgid "Wipe version"
+msgstr ""
+
+msgid "Editing"
+msgstr ""
+
+msgid "Save"
 msgstr ""

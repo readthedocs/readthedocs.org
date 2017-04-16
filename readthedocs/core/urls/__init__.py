@@ -8,6 +8,7 @@ from readthedocs.core.views import hooks, serve
 from readthedocs.builds.filters import VersionFilter
 from readthedocs.projects.feeds import LatestProjectsFeed, NewProjectsFeed
 from readthedocs.projects.filters import ProjectFilter
+from readthedocs.core.views import HomepageView, SupportView
 
 
 docs_urls = [
@@ -28,6 +29,8 @@ docs_urls = [
          r'(?P<filename>{filename_slug})'.format(**pattern_opts)),
         serve.serve_docs,
         name='docs_detail'),
+
+    url(r'^docs/$',HomepageView.as_view(), name='homepage'),
 ]
 
 

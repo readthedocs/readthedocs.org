@@ -131,21 +131,22 @@ class ProjectExtraForm(ProjectForm):
             'tags',
         )
 
-    description = forms.CharField(
-        validators=[ClassifierValidator(raises=ProjectSpamError)],
-        required=False,
-        widget=forms.Textarea
-    )
+    # description = forms.CharField(
+    #     validators=[ClassifierValidator(raises=ProjectSpamError)],
+    #     required=False,
+    #     widget=forms.Textarea
+    # )
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form"""
+   
 
-    python_interpreter = forms.ChoiceField(
-        choices=constants.PYTHON_CHOICES, initial='python',
-        help_text=_("(Beta) The Python interpreter used to create the virtual "
-                    "environment."))
+    # python_interpreter = forms.ChoiceField(
+    #     choices=constants.PYTHON_CHOICES, initial='python',
+    #     help_text=_("(Beta) The Python interpreter used to create the virtual "
+    #                 "environment."))
 
     class Meta:
         model = Project
@@ -331,8 +332,8 @@ class SubprojectForm(forms.Form):
 
     """Project subproject form"""
 
-    subproject = forms.CharField()
-    alias = forms.CharField(required=False)
+    subproject = forms.CharField(label=_('subprojects'))
+    alias = forms.CharField(required=False,label=_('Alias'))
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -369,7 +370,7 @@ class UserForm(forms.Form):
 
     """Project user association form"""
 
-    user = forms.CharField()
+    user = forms.CharField(label=_("User"))
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -395,7 +396,7 @@ class EmailHookForm(forms.Form):
 
     """Project email notification form"""
 
-    email = forms.EmailField()
+    email = forms.EmailField(label=_("Email"))
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -415,7 +416,7 @@ class WebHookForm(forms.Form):
 
     """Project webhook form"""
 
-    url = forms.URLField()
+    url = forms.URLField(label=_("URL"))
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -435,7 +436,7 @@ class TranslationForm(forms.Form):
 
     """Project translation form"""
 
-    project = forms.CharField()
+    project = forms.CharField(label=_("Project"))
 
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
@@ -506,6 +507,7 @@ class DomainForm(forms.ModelForm):
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
+        
         if canonical and Domain.objects.filter(
             project=self.project, canonical=True
         ).exclude(domain=self.cleaned_data['domain']).exists():

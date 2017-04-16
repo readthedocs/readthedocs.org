@@ -29,9 +29,11 @@
 {% block project_edit_content %}
   <form method="post" action=".">{% csrf_token %}
     <p class="empty">
-      You can change how your project is built in your <a href="../advanced/">Advanced Settings</a>.
+      {% trans "You can change how your project is built in your" %} <a href="../advanced/">{% trans "Advanced Settings" %}</a>.
     </p>
+    
     {{ form.as_p }}
+    
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
       {% comment %}Translators: The 'or' here is in between 'Submit' and 'delete'.{% endcomment %}
