@@ -239,6 +239,8 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
             **self.get_form_kwargs(step)
         )
         form.full_clean()
+        print(22222222222)
+        print(form)
         return form
 
     def get_template_names(self):
@@ -253,6 +255,9 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         finish by added the members to the project and saving.
         """
         form_data = self.get_all_cleaned_data()
+
+        
+
         extra_fields = ProjectExtraForm.Meta.fields
         # expect the first form
         basics_form = form_list[0]
@@ -265,7 +270,14 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         for field, value in form_data.items():
             if field in extra_fields:
                 setattr(project, field, value)
+                
+        setattr(project,'language','zh_CN')
+        setattr(project,'enable_epub_build',0)
+        setattr(project,'enable_pdf_build',0)
         basic_only = True
+        
+        
+
         project.save()
         project_import.send(sender=project, request=self.request)
         trigger_build(project, basic=basic_only)
@@ -370,6 +382,9 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
+
+        
+
         for key in ['name', 'repo', 'repo_type']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}

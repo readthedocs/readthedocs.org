@@ -1,16 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Wipe the build directories for a version {% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Wipe the build directories for a version" %}{% endblock %}
 
 {% block content %}
 
 {% if deleted %}
-Your project environment has been wiped.<br><br>
+{% trans "Your project environment has been wiped." %}<br><br>
 {% else %}
-Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
+{% trans "Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation." %}
 
 <form method="post" action="#">
-  <input type="submit" value="Wipe version">
+  <input type="submit" value="{% trans 'Wipe version' %}">
 </form>
 {% endif %}
 

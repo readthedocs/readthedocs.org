@@ -3640,3 +3640,6 @@ msgstr ""
 #~ "are spelled correctly and that you've selected enough categories."
 #~ msgstr ""
 #~ "您的搜索未匹配任何文檔。請確保所有的單詞都拼寫正確並且選中了足夠多的分類。"
+
+msgid "Made by HAND"
+msgstr "由上海汉得信息技术股份有限公司提供"

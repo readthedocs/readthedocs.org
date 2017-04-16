@@ -19,11 +19,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='project',
             name='requirements_file',
-            field=models.CharField(default=None, max_length=255, blank=True, help_text='A <a href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">pip requirements file</a> needed to build your documentation. Path from the root of your project.', null=True, verbose_name='Requirements file'),
+            field=models.CharField(default=None, max_length=255, blank=True, help_text='A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files\">pip requirements file</a> needed to build your documentation. Path from the root of your project.', null=True, verbose_name='Requirements file'),
         ),
         migrations.AlterField(
             model_name='project',
             name='single_version',
-            field=models.BooleanField(default=False, help_text='A single version site has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions of your docs.', verbose_name='Single version'),
+            field=models.BooleanField(default=False, help_text='A single version site has no translations and only your \"latest\" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions of your docs.', verbose_name='Single version'),
         ),
     ]

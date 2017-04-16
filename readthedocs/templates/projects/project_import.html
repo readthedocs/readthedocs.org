@@ -81,16 +81,13 @@ $(document).ready(function() {
                   {% if has_connected_accounts %}
                     {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
                       <p>
-                        No remote repositories found,
-                        try <a href="#" {{ binding }}>refreshing your accounts</a>.
+                         No remote repositories found,
+                         try <a href="#" {{ binding }}>refreshing your accounts"</a>.
                       </p>
                     {% endblocktrans %}
                   {% else %}
                     <p>
-                      {% blocktrans trimmed %}
-                        You don't currently have any connected accounts.
-                        Connect your account to be able to easily set up projects.
-                      {% endblocktrans %}
+                        {% trans "Connected Accounts" %}
                     </p>
 
                     <div class="project-import-providers">
@@ -215,14 +212,15 @@ $(document).ready(function() {
       {% block manual-import %}
         <div class="import-manual">
           <p>
-            {% blocktrans trimmed %}
-              You can import your project manually if it isn't listed here or
-              connected to one of your accounts.
-            {% endblocktrans %}
+              {% trans "Import manually project" %}
+               <!-- You can import your project manually if it isn't listed here or
+              }
+              connected to one of your accounts. -->
+            
           </p>
 
           <form action="{% url "projects_import_manual" %}" method="get" class="import-manual">
-            <input type="submit" value="{% trans "Import Manually" %}"/>
+            <input type="submit" value="{% trans 'Import Manually' %}"/>
           </form>
         </div>
       {% endblock %}

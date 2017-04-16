@@ -68,6 +68,12 @@ class BuildCommand(BuildCommandResultMixin):
             cwd = os.getcwd()
         self.cwd = cwd
         self.environment = os.environ.copy()
+        print(1111111111111111111);
+        print(environment);
+
+        print(1111111111111111111);
+        print(self.environment);
+
         if environment is not None:
             assert 'PATH' not in environment, "PATH can't be set"
             self.environment.update(environment)
@@ -79,6 +85,9 @@ class BuildCommand(BuildCommandResultMixin):
         self.error = None
         self.start_time = None
         self.end_time = None
+         
+        print(1111111111111111111);
+        print(self);
 
         self.bin_path = bin_path
         self.description = ''
@@ -125,7 +134,8 @@ class BuildCommand(BuildCommandResultMixin):
             env_paths = environment.get('PATH', '').split(':')
             env_paths.insert(0, self.bin_path)
             environment['PATH'] = ':'.join(env_paths)
-
+        print(1111111111111111111);
+        print(environment);
         try:
             proc = subprocess.Popen(
                 self.command,

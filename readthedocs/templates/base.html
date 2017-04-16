@@ -89,12 +89,12 @@
 
 
         {% block footer-content %}
-        <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.io">{%  trans "Docs" %}</a>.
+        
 
-        {% url "gold_detail" as gold_detail %}
-        {% blocktrans %}
-        Made by <a href="https://docs.readthedocs.io/en/latest/team.html">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
-        {% endblocktrans %}
+         
+         
+         {%  trans "Made by HAND" %}        
+        
         </p>
         {% endblock %}
 
@@ -104,15 +104,22 @@
             {% csrf_token %}
             <select style="float: left; height: 33px;" name="language">
               {% for lang in LANGUAGES %}
+                
+
+
                 {% if lang.0 == current_lang %}
                 <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
                 {% else %}
-                <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+
+                   {% if lang.1 == "English" or lang.1 == "Chinese" %}
+                       <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                    {% endif %}
+
                 {% endif %}
                 }
               {% endfor %}
             </select>
-            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit" id="change-language-input">
+            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="{%  trans 'change language' %}" name="submit" id="change-language-input">
         </form>
 
         <br>
@@ -130,7 +137,6 @@
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', '{{ GLOBAL_ANALYTICS_CODE }}']);
   _gaq.push(['_trackPageview']);
-
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';

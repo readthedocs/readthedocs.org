@@ -50,7 +50,7 @@
           <div class="module-header">
             {% block project_import_button %}
             <form method="get" action="{{ projects_import_url }}">
-              <input type="submit" value="Import a Project" />
+              <input type="submit" value="{% trans 'Import a Project' %}" />
             </form>
             {% endblock %}
             <h3>{% trans "Projects" %}</h3>
@@ -131,30 +131,27 @@
     {% get_social_accounts request.user as accounts %}
     {% if not accounts.github.0 %}
       <div class="module onboard onboard-accounts">
-        <h3>Connect your Accounts</h3>
+        <h3>{% trans "Connect your Accounts" %}</h3>
 
         <p>
-          {% blocktrans %}
-            Have a GitHub account? Connect your account and import your existing projects automatically.
-          {% endblocktrans %}
+         
+            {% trans "Use github account" %}
+            <!-- Have a GitHub account? Connect your account and import your existing projects automatically. -->
+         
         </p>
 
         <form method="get" action="{{ social_accounts }}">
-          <input type="submit" value="Connect your Accounts" />
+          <input type="submit" value="{% trans 'Connect your Accounts' %}" />
         </form>
       </div>
     {% endif %}
-    <!-- END social account onboard -->
-
-    {% block dashboard-onboard-extra %}
-    {% endblock %}
-
+    
     <div class="module info info-docs">
-      <h3>Learn More</h3>
-      <p>
+      <!-- <h3>{% trans "Learn More" %}</h3> -->
+      <!-- <p>
         Check out the <a href="http://docs.readthedocs.io/en/latest/index.html">documentation for Read the Docs</a>.
         It contains lots of information about how to get the most out of RTD.
-      </p>
+      </p> -->
     </div>
   </div>
   <!-- END project side bar -->

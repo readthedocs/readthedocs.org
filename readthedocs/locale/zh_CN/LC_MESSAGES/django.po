@@ -33,8 +33,7 @@ msgstr "抱歉，在那个页面上没有结果。"
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "提供了无效的资源查找数据（类型不匹配）：%(error)s"
 
-#: bookmarks/models.py:10 core/models.py:16 donate/models.py:46
-#: gold/models.py:24 projects/models.py:84
+
 msgid "User"
 msgstr "用户"
 
@@ -272,10 +271,6 @@ msgstr "构建"
 msgid "Command"
 msgstr "提交"
 
-#: builds/models.py:392 oauth/models.py:89 projects/models.py:88
-#: templates/core/project_details.html:87
-msgid "Description"
-msgstr "说明"
 
 #: builds/models.py:393
 msgid "Command output"
@@ -508,7 +503,7 @@ msgstr ""
 
 #: donate/models.py:75 projects/models.py:237
 msgid "Programming Language"
-msgstr ""
+msgstr "程序语言"
 
 #: donate/models.py:78 projects/constants.py:68
 msgid "Live"
@@ -517,12 +512,6 @@ msgstr "Live"
 #: donate/models.py:163
 msgid "Offer"
 msgstr ""
-
-#: donate/models.py:164 templates/projects/project_import.html:166
-#, fuzzy
-#| msgid "View Docs"
-msgid "View"
-msgstr "阅读文档"
 
 #: donate/models.py:165
 msgid "Clicks"
@@ -640,10 +629,8 @@ msgid "Remove"
 msgstr "移除"
 
 #: gold/templates/gold/projects.html:44
-#, fuzzy
-#| msgid "Edit Project"
 msgid "Add a project"
-msgstr "编辑项目"
+msgstr "添加项目"
 
 #: gold/templates/gold/projects.html:46
 #, fuzzy
@@ -673,15 +660,11 @@ msgid ""
 msgstr ""
 
 #: gold/templates/gold/subscription_confirm_delete.html:19
-#, fuzzy
-#| msgid "Description"
 msgid "Cancel subscription"
 msgstr "说明"
 
 #: gold/templates/gold/subscription_detail.html:7
 #: gold/templates/gold/subscription_detail.html:31
-#, fuzzy
-#| msgid "Description"
 msgid "Gold Subscription"
 msgstr "说明"
 
@@ -698,14 +681,10 @@ msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:50
 #: gold/templates/gold/subscription_form.html:135
-#, fuzzy
-#| msgid "Description"
 msgid "Update Subscription"
 msgstr "说明"
 
 #: gold/templates/gold/subscription_detail.html:54
-#, fuzzy
-#| msgid "Description"
 msgid "Cancel Subscription"
 msgstr "说明"
 
@@ -847,8 +826,6 @@ msgid "Full Name"
 msgstr "全名"
 
 #: oauth/models.py:90
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Description of the project"
 msgstr "reStructuredText 格式的项目说明"
 
@@ -890,7 +867,7 @@ msgstr ""
 
 #: oauth/utils.py:33
 msgid "Webhook activation failed. Make sure you have permissions to set it."
-msgstr ""
+msgstr "webhook激活失败。确保你有权限设置。"
 
 #: oauth/utils.py:38
 #, python-brace-format
@@ -1008,11 +985,6 @@ msgstr "代码库地址"
 msgid "Repository Type"
 msgstr "代码库类型"
 
-#: projects/forms.py:83
-#, fuzzy
-#| msgid "Edit Advanced Project Settings"
-msgid "Edit advanced project options"
-msgstr "编辑项目的高级设置"
 
 #: projects/forms.py:94
 msgid "Invalid project name, a project already exists with that name"
@@ -1089,8 +1061,6 @@ msgid "Child"
 msgstr "子"
 
 #: projects/models.py:58
-#, fuzzy
-#| msgid "Aliases"
 msgid "Alias"
 msgstr "别名"
 
@@ -1100,15 +1070,13 @@ msgstr "reStructuredText 格式的项目说明"
 
 #: projects/models.py:92
 msgid "Hosted documentation repository URL"
-msgstr ""
+msgstr "托管文档存储库URL"
 
 #: projects/models.py:93
 msgid "Repository type"
 msgstr "代码库类型"
 
 #: projects/models.py:95
-#, fuzzy
-#| msgid "The project's homepage"
 msgid "Project homepage"
 msgstr "项目的主页"
 
@@ -1119,6 +1087,9 @@ msgstr "项目的主页"
 #: projects/models.py:97
 msgid "Canonical URL"
 msgstr "官方网址"
+
+msgid "Canonical"
+msgstr "规范"
 
 #: projects/models.py:98
 msgid "URL that documentation is expected to serve from"
@@ -1174,7 +1145,6 @@ msgid "Default branch"
 msgstr "默认分支"
 
 #: projects/models.py:124
-#, fuzzy
 #| msgid ""
 #| "What branch \"latest\" points to. Leave empty to use the default value "
 #| "for your VCS (eg. trunk or master)."
@@ -1190,19 +1160,8 @@ msgid "Requirements file"
 msgstr "所需求的文件"
 
 #: projects/models.py:130
-#, fuzzy
-#| msgid ""
-#| "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
-#| "cookbook.html#requirements-files\">pip requirements file</a> needed to "
-#| "build your documentation. Path from the root of your project."
-msgid ""
-"A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
-"\">pip requirements file</a> needed to build your documentation. Path from "
-"the root of your project."
-msgstr ""
-"需要 Virtualenv。需要一个 <a href=\"http://www.pip-installer.org/en/latest/"
-"cookbook.html#requirements-files\">pip requirements 文件</a> 用来构建您的文"
-"档。路径为您的项目的根目录。"
+msgid "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files\"> pip requirements file</a> needed to build your documentation. Path from the root of your project."
+msgstr "需要 Virtualenv。需要一个 <a href=\"http://www.pip-installer.org/en/latest/cookbook.html#requirements-files\">pip requirements 文件</a> 用来构建您的文档。路径为您的项目的根目录。"
 
 #: projects/models.py:135
 msgid "Documentation type"
@@ -1233,13 +1192,8 @@ msgid "Analytics code"
 msgstr "分析代码"
 
 #: projects/models.py:147
-#, fuzzy
-#| msgid ""
-#| "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
-#| "page loads."
-msgid ""
-"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
-"down your page loads."
+
+msgid "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow down your page loads."
 msgstr "Google 分析追踪 ID（如：UA-22345342-1）。这可能导致您的页面加载变慢。"
 
 #: projects/models.py:151
@@ -1274,19 +1228,19 @@ msgstr ""
 
 #: projects/models.py:166
 msgid "Enable EPUB build"
-msgstr ""
+msgstr "允许构建EPUB"
 
 #: projects/models.py:168
 msgid "Create a EPUB version of your documentation with each build."
-msgstr ""
+msgstr "每次构建时创建一个EPUB版本的文档"
 
 #: projects/models.py:170
 msgid "Enable PDF build"
-msgstr ""
+msgstr "允许构建PDF"
 
 #: projects/models.py:172
 msgid "Create a PDF version of your documentation with each build."
-msgstr ""
+msgstr "每次构建时创建一个PDF版本的文档"
 
 #: projects/models.py:176
 #, fuzzy
@@ -1299,15 +1253,8 @@ msgid "Python configuration file"
 msgstr "Python 配置文件"
 
 #: projects/models.py:180
-#, fuzzy
-#| msgid ""
-#| "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
-#| "you want us to find it for you."
-msgid ""
-"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
-"code>).Leave blank if you want us to find it for you."
-msgstr ""
-"相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
+msgid "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</code>). Leave blank if you want us to find it for you."
+msgstr "相对项目根目录的 conf.py 文件路径（如：docs/conf.py）。留空则自动查找。"
 
 #: projects/models.py:184
 msgid "Featured"
@@ -1322,21 +1269,16 @@ msgid "Mirror"
 msgstr "镜像"
 
 #: projects/models.py:188
-#, fuzzy
-#| msgid "(All Projects)"
 msgid "Install Project"
 msgstr "（所有项目）"
 
 #: projects/models.py:189
-#, fuzzy
-#| msgid "Install your project inside a virtualenv using setup.py install"
-msgid ""
-"Install your project inside a virtualenv using <code>setup.py install</code>"
+msgid "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr "在 virtualenv 中使用 setup.py install 来安装你的项目"
 
 #: projects/models.py:197
 msgid "Python Interpreter"
-msgstr "Python 解释器"
+msgstr "Python 解释器:"
 
 #: projects/models.py:205
 msgid "Use system packages"
@@ -1381,7 +1323,7 @@ msgstr "该项目的文档所呈现的语言。注意：这影响您的项目的
 
 #: projects/models.py:240
 msgid "The primary programming language the project is written in."
-msgstr ""
+msgstr "该项目的主要编程语言是写在这里"
 
 #: projects/models.py:250
 msgid "Number of Major versions"
@@ -1435,7 +1377,7 @@ msgstr "发送 webhook 到"
 
 #: projects/models.py:881
 msgid "Domain"
-msgstr ""
+msgstr "域"
 
 #: projects/models.py:884
 msgid "This Domain was auto-created"
@@ -1449,7 +1391,7 @@ msgstr "本项目尚无构建"
 
 #: projects/models.py:891
 msgid "This Domain is the primary one where the documentation is served from."
-msgstr ""
+msgstr "此域是文档提供服务的主要区域。"
 
 #: projects/models.py:894
 msgid "Use HTTPS"
@@ -1688,7 +1630,7 @@ msgstr "服务器错误"
 #: templates/account/email.html:6 templates/account/email.html.py:10
 #: templates/profiles/base_profile_edit.html:51
 msgid "Change Email"
-msgstr ""
+msgstr "更改电子邮"
 
 #: templates/account/email.html:14
 msgid "The following e-mail addresses are associated with your account:"
@@ -1733,8 +1675,6 @@ msgid "Add E-mail Address"
 msgstr "添加一个要被通知的电子邮件地址"
 
 #: templates/account/email.html:57
-#, fuzzy
-#| msgid "Email"
 msgid "Add E-mail"
 msgstr "电子邮件"
 
@@ -2094,8 +2034,6 @@ msgstr "登录"
 #: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
 #: templates/projects/project_version_list.html:63
-msgid "View Docs"
-msgstr "阅读文档"
 
 #: templates/core/project_bar_base.html:32
 #, python-format
@@ -2274,11 +2212,6 @@ msgstr "未找到项目"
 msgid "Add tags"
 msgstr "添加标签"
 
-#: templates/core/widesearchbar.html:4
-#, fuzzy
-#| msgid "Search all the docs."
-msgid "Search all the docs"
-msgstr "搜索所有文档。"
 
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
@@ -2398,19 +2331,11 @@ msgstr ""
 msgid "Featured Projects"
 msgstr "精选项目"
 
-#: templates/homepage.html:106
-#, fuzzy
-#| msgid "Recently Updated Projects"
-msgid "Recently updated projects"
-msgstr "最近更新的项目"
-
 #: templates/homepage.html:122
 msgid "Read the Docs is funded by the community"
 msgstr ""
 
 #: templates/notifications/send_notification_form.html:6
-#, fuzzy
-#| msgid "Email"
 msgid "Send Email"
 msgstr "电子邮件"
 
@@ -2484,13 +2409,13 @@ msgstr "个人资料"
 
 #: templates/profiles/base_profile_edit.html:48
 msgid "Details"
-msgstr ""
+msgstr "详细"
 
 #: templates/profiles/base_profile_edit.html:49
 #: templates/socialaccount/connections.html:6
 #: templates/socialaccount/connections.html:8
 msgid "Connected Services"
-msgstr ""
+msgstr "连接服务器"
 
 #: templates/profiles/base_profile_edit.html:52
 msgid "Gold"
@@ -2575,19 +2500,11 @@ msgstr "创建日期"
 #: templates/projects/domain_list.html:12
 #: templates/projects/project_edit_base.html:20
 msgid "Domains"
-msgstr ""
+msgstr "域"
 
 #: templates/projects/domain_list.html:16
-#, fuzzy
-#| msgid ""
-#| "This allows you to add subprojects to your project. This allows them to "
-#| "live in the same namespace in the URLConf for a subdomain or CNAME."
-msgid ""
-"This allows you to add domains to your project. This allows them to live in "
-"the same namespace in the URLConf for a subdomain or CNAME."
-msgstr ""
-"它允许您为您的项目增加子项目。这将允许它们在 URLConf 中使用相同的命名空间，用"
-"于子域名或 CNAME。"
+msgid "This allows you to add domains to your project. This allows them to live in the same namespace in the URLConf for a subdomain or CNAME."
+msgstr "它允许您为您的项目增加子项目。这将允许它们在 URLConf 中使用相同的命名空间，用于子域名或 CNAME。"
 
 #: templates/projects/domain_list.html:20
 #, fuzzy
@@ -2597,7 +2514,7 @@ msgstr "现有的通知"
 
 #: templates/projects/domain_list.html:34
 msgid "Add new Domain"
-msgstr ""
+msgstr "添加一个新域"
 
 #: templates/projects/import_base.html:4
 #, fuzzy
@@ -2629,11 +2546,6 @@ msgstr "已完成"
 msgid "Previous"
 msgstr "上一页"
 
-#: templates/projects/import_basics.html:5
-#, fuzzy
-#| msgid "Project Alias"
-msgid "Project Details"
-msgstr "项目别名"
 
 #: templates/projects/import_basics.html:8
 msgid ""
@@ -2734,7 +2646,7 @@ msgstr "reStructuredText Primer"
 
 #: templates/projects/onboard_detail.html:9
 msgid "Start building your documentation"
-msgstr ""
+msgstr "开始构建你的项目"
 
 #: templates/projects/onboard_detail.html:11
 msgid ""
@@ -2755,7 +2667,7 @@ msgstr "构建一个版本"
 
 #: templates/projects/onboard_detail.html:29
 msgid "Your documentation is ready to use"
-msgstr ""
+msgstr "您的文档已准备好"
 
 #: templates/projects/onboard_detail.html:33
 msgid ""
@@ -2771,7 +2683,7 @@ msgstr ""
 
 #: templates/projects/onboard_detail.html:46
 msgid "Your documentation failed to build"
-msgstr ""
+msgstr "您的文档构建失败"
 
 #: templates/projects/onboard_detail.html:50
 msgid ""
@@ -2787,7 +2699,7 @@ msgstr ""
 
 #: templates/projects/onboard_detail.html:63
 msgid "Your documentation is building"
-msgstr ""
+msgstr "您的文档正在构建中"
 
 #: templates/projects/onboard_detail.html:66
 msgid ""
@@ -3077,6 +2989,12 @@ msgstr "重定向"
 msgid "Subprojects"
 msgstr "子项目"
 
+msgid "subprojects"
+msgstr "子项目"
+
+msgid "Subproject"
+msgstr "子项目"
+
 #: templates/projects/project_edit_base.html:25
 #: templates/projects/project_notifications.html:12
 msgid "Notifications"
@@ -3103,11 +3021,11 @@ msgstr "文件"
 msgid "Select a File"
 msgstr ""
 
-#: templates/projects/project_embed.html:64
-#, fuzzy
-#| msgid "Description"
-msgid "Section"
+msgid "Description"
 msgstr "说明"
+
+msgid "Section"
+msgstr "部分"
 
 #: templates/projects/project_embed.html:72
 msgid "Show content"
@@ -3131,32 +3049,27 @@ msgstr ""
 msgid "Refresh your accounts"
 msgstr ""
 
-#: templates/projects/project_import.html:71
-#, fuzzy
-#| msgid "Repository"
-msgid "Import a Repository"
-msgstr "代码库"
 
 #: templates/projects/project_import.html:82
 #, python-format
 msgid ""
 "<p> No remote repositories found, try <a href=\"#\" %(binding)s>refreshing "
 "your accounts</a>. </p>"
-msgstr ""
+msgstr "<p>没有发现远程存储库，尝试 <a href=\"#\" %(binding)s>刷新你的账户</p>"
 
 #: templates/projects/project_import.html:90
 msgid ""
 "You don't currently have any connected accounts. Connect your account to be "
 "able to easily set up projects."
-msgstr ""
+msgstr "您目前没有任何连接的帐户。连接你的账户能够轻松地设置项目。"
 
 #: templates/projects/project_import.html:102
 msgid "Connect to GitHub"
-msgstr ""
+msgstr "连接到GitHub"
 
 #: templates/projects/project_import.html:113
 msgid "Connect to Bitbucket"
-msgstr ""
+msgstr "连接到Bitbucket"
 
 #: templates/projects/project_import.html:147
 msgid "This repository requires admin access to import"
@@ -3178,11 +3091,11 @@ msgstr "添加"
 msgid ""
 "You can import your project manually if it isn't listed here or connected to "
 "one of your accounts."
-msgstr ""
+msgstr "如果你的项目没有列在这里你可以手动导入或者链接到你的账户"
 
 #: templates/projects/project_import.html:225
 msgid "Import Manually"
-msgstr ""
+msgstr "手动导入"
 
 #: templates/projects/project_import.html:232
 #, fuzzy
@@ -3326,21 +3239,18 @@ msgid "%(version_name)s"
 msgstr "%(version_name)s"
 
 #: templates/projects/project_version_list.html:37
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Active Versions"
-msgstr "选择激活的版本"
+msgstr "激活的版本"
+
 
 #: templates/projects/project_version_list.html:58
 #: templates/projects/project_version_list.html:111
 msgid "Wipe"
-msgstr ""
+msgstr "消除"
 
 #: templates/projects/project_version_list.html:85
-#, fuzzy
-#| msgid "Choose Active Versions"
 msgid "Inactive Versions"
-msgstr "选择激活的版本"
+msgstr "没激活的版本"
 
 #: templates/projects/project_version_list.html:109
 msgid "Clean"
@@ -3416,7 +3326,7 @@ msgstr "搜索：%(query)s"
 msgid "Go crazy."
 msgstr "搜索"
 
-#: templates/search/base_search.html:9 templates/search/faceted_results.html:49
+
 msgid "Project:"
 msgstr "项目："
 
@@ -3492,44 +3402,30 @@ msgid ""
 msgstr ""
 
 #: templates/socialaccount/connections.html:17
-msgid ""
-"\n"
-"          The following services are currently connected to your account:\n"
-"        "
-msgstr ""
+msgid "The following services are currently connected to your account:"
+msgstr "以下服务目前连接到您的帐户："
 
 #: templates/socialaccount/connections.html:44
 msgid "Disconnect"
-msgstr ""
+msgstr "断开连接"
 
 #: templates/socialaccount/connections.html:51
-msgid ""
-"\n"
-"                        The API version this connection uses is no longer\n"
-"                        supported, please reconnect your Bitbucket account.\n"
-"                      "
-msgstr ""
+msgid "The API version this connection uses is no longer supported, please reconnect your Bitbucket account."
+msgstr "此连接使用的API版本不再受支持，请重新连接您的Bitbucket帐户。"
 
 #: templates/socialaccount/connections.html:67
-msgid ""
-"You currently have no social network accounts connected to this account."
+msgid "You currently have no social network accounts connected to this account."
 msgstr "您当前没有连接社会化网络账号到此账户。"
 
 #: templates/socialaccount/snippets/provider_list.html:14
 #, python-format
-msgid ""
-"\n"
-"             Connect to %(brand_name)s\n"
-"           "
-msgstr ""
+msgid "Connect to %(brand_name)s"
+msgstr "连接到 %(brand_name)s"
 
 #: templates/socialaccount/snippets/provider_list.html:27
 #, python-format
-msgid ""
-"\n"
-"           Connect to %(provider_name)s\n"
-"         "
-msgstr ""
+msgid "Connect to %(provider_name)s"
+msgstr "连接到 %(provider_name)s"
 
 #~ msgid "Please enter a valid URL on %s"
 #~ msgstr "请在 %s 上输入一个有效的 URL"
@@ -3865,3 +3761,136 @@ msgstr ""
 #~ "are spelled correctly and that you've selected enough categories."
 #~ msgstr ""
 #~ "您的搜索未匹配任何文档。请确保所有的单词都拼写正确并且选中了足够多的分类。"
+
+msgid "Made by HAND"
+msgstr "由上海汉得信息技术股份有限公司提供"
+
+msgid "View Docs"
+msgstr "阅读文档"
+
+#: templates/core/widesearchbar.html:4
+msgid "Search all the docs"
+msgstr "搜索所有文档"
+
+#: templates/homepage.html:106
+msgid "Recently updated projects"
+msgstr "最近更新的项目"
+
+msgid "change language"
+msgstr "切换语言"
+
+msgid "Ready to share your documentation"
+msgstr "是否愿意分享你的文档"
+
+msgid "import your project"
+msgstr "你还没有任何项目,但你可以通过导入构建文档。"
+
+msgid "Import a Project"
+msgstr "导入文档"
+
+msgid "Connect your Accounts"
+msgstr "连接你的账户"
+
+msgid "Use github account"
+msgstr "有一个GitHub帐户吗？连接您的帐户自动导入现有的项目。"
+
+#: templates/projects/project_import.html:71
+msgid "Import a Repository"
+msgstr "代码库"
+
+msgid "Connected Accounts"
+msgstr "您目前没有任何连接的帐户。连接你的账户能够轻松地设置项目。"
+
+msgid "No remote repositories found"
+msgstr "没有发现远程存储库，尝试"
+
+msgid "refreshing your accounts"
+msgstr "刷新你的账户"
+
+msgid "Import manually project"
+msgstr "如果你的项目没有列在这里你可以手动导入或者链接到你的账户"
+
+#: templates/projects/import_basics.html:5
+msgid "Project Details"
+msgstr "项目详细"
+
+msgid "configured project"
+msgstr "导入一个项目,首先需要设置几个关于仓库的细节。更高级的项目配置选项您可以选择"
+
+msgid "Edit advanced project options"
+msgstr "编辑项目高级选项设置"
+
+msgid "Set webhook"
+msgstr "这个仓库没有有效的webhook设置,提交不会为这个项目触发一个新的构建。"
+
+msgid "You can"
+msgstr "你可以"
+
+msgid "sync your webhook"
+msgstr "同步你的webhook"
+
+msgid "to fix this"
+msgstr "解决这个问题"
+
+msgid "will view documentation"
+msgstr "一旦你的项目完成了构建，你可以在一两分钟内查看你的文档。"
+
+msgid "building latest version"
+msgstr "该项目尚未构建。请尝试构建latest版本，或者如果您想建立特定版本，选择下面的版本，您的文档构建将被触发。"
+
+msgid "Ensure your documentation"
+msgstr "您的文档已经构建。确保您的文档保持与你每次提交的仓库一至，通过"
+
+msgid "setting up a webhook"
+msgstr "设置webhook"
+
+msgid "building problem"
+msgstr "构建文档时出现问题，你可以在构建输出中看到错误原因。如果您需要更多的帮助，"
+
+msgid "problems frequently encountered"
+msgstr "请检查在构建过程中经常遇到的一些问题。"
+
+msgid "Are you sure you want to delete"
+msgstr "你确定要删除吗"
+
+msgid "You can change how your project is built in your"
+msgstr "您可以重新构建您的项目通过"
+
+msgid "A comma-separated list of tags."
+msgstr "逗号分隔的标签列表。"
+
+msgid "Integrations"
+msgstr "集成"
+
+msgid "Manage external integrations for project webhooks."
+msgstr "管理项目webhooks外整合。"
+
+msgid "Resync Webhook"
+msgstr "同步webhook"
+
+msgid "Recent Activity"
+msgstr "最近的活动"
+
+msgid "There is no recent activity"
+msgstr "近期没有活动"
+
+msgid "Search in this project"
+msgstr "在这个项目中搜索"
+
+msgid "Wipe the build directories for a version"
+msgstr "擦除版本的构建目录"
+
+msgid "Your project environment has been wiped."
+msgstr "您的项目环境已被擦除。"
+
+msgid "Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation."
+msgstr "无法使您的文档构建完成？ 通过点击下面的按钮，您将清除您的构建检出和环境，而不是您生成的文档。"
+
+msgid "Wipe version"
+msgstr "擦除版本"
+
+msgid "Editing"
+msgstr "编辑"
+
+msgid "Save"
+msgstr "保存"
