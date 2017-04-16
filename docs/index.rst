@@ -1,4 +1,4 @@
-Welcome to Read The Docs
+Welcome to Read The Docs2
 ========================
 
 `Read the Docs`_ hosts documentation for the open source community.
