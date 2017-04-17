@@ -3,4 +3,13 @@
     margin-right: auto;
     width: 900px;
     text-align: center
+
+.promo {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    width: 240px;
+}
+
+.filters dt {
+    font-weight: bold;
 }

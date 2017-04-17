@@ -5,6 +5,10 @@
 
 {% block title %}{% trans "Promo Detail" %}{% endblock %}
 
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'donate/css/donate.css' %}" />
+{% endblock %}
+
 {% block content %}
 
 <h1> Promo Results </h1>
@@ -24,42 +28,49 @@
 Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} days.
 </h3>
 
-<div class="example" style="width: 30%;">
+<div class="example">
 
   <div class="filters">
     {% if promo.programming_language %}
-      <p> 
-        <strong>Filtered Language</strong>: {{ promo.programming_language }}
-      </p>
+      <dl>
+        <dt>Filtered Language</dt>
+        <dd>{{ promo.programming_language }}</dd>
+      </dl>
     {% endif %}
 
     {% if promo.geo_filters.count %}
-      <p> 
-      <strong>Filtered Geos</strong>: 
+      <dl>
+        <dt>Filtered Geos</dt>
         {% for geo in promo.geo_filters.all %}
-          {{ geo.countries.all|join:", " }}
+          <dd>
+          {{ geo.get_filter_type_display }}: {{ geo.countries.all|join:", " }}
+          </dd>
         {% endfor %}
-      </p>
+      </dl>
     {% endif %}
 
     {% if promo.sold_clicks %}
-      <p> 
-        <strong>Total Clicks Sold</strong>: {{ promo.sold_clicks }}
-      </p>
+      <dl>
+        <dt>Total Clicks Sold</dt>
+        <dd>
+        {{ promo.sold_clicks }}
+        </dd>
+      </dl>
     {% endif %}
   </div>
 
-  <a href="{{ promo.link }}">
-    <img width=120 height=90 src="{{ promo.image }}">
-  </a>
 
-  <br>
+  <div class="promo">
+    <div id="promo_image">
+      <a href="{{ promo.link }}">
+        <img width=120 height=90 src="{{ promo.image }}">
+      </a>
+    </div>
 
-  <div class="promo_text">
-    {{ promo.report_html_text|safe }}
+    <div id="promo_text">
+      {{ promo.report_html_text|safe }}
+    </div>
   </div>
-
-  <br>
 
 </div>
 
