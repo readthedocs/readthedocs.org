@@ -1,1 +1,2297 @@
-!function t(e,r,n){function i(a,s){if(!r[a]){if(!e[a]){var l="function"==typeof require&&require;if(!s&&l)return l(a,!0);if(o)return o(a,!0);var c=new Error("Cannot find module '"+a+"'");throw c.code="MODULE_NOT_FOUND",c}var u=r[a]={exports:{}};e[a][0].call(u.exports,function(t){var r=e[a][1][t];return i(r?r:t)},u,u.exports,t,e,r,n)}return r[a].exports}for(var o="function"==typeof require&&require,a=0;a<n.length;a++)i(n[a]);return i}({1:[function(t,e,r){function n(){var t={navBar:null,win:null,winScroll:!1,winResize:!1,linkScroll:!1,winPosition:0,winHeight:null,docHeight:null,isRunning:null};return t.enable=function(){var t=this;i(function(e){t.init(e),t.reset(),t.win.on("hashchange",t.reset),t.win.on("scroll",function(){t.linkScroll||(t.winScroll=!0)}),setInterval(function(){t.winScroll&&t.onScroll()},25),t.win.on("resize",function(){t.winResize=!0}),setInterval(function(){t.winResize&&t.onResize()},25),t.onResize()})},t.init=function(t){var e=(t(document),this);this.navBar=t("div.wy-side-scroll:first"),this.win=t(window),t(document).on("click","[data-toggle='wy-nav-top']",function(){t("[data-toggle='wy-nav-shift']").toggleClass("shift"),t("[data-toggle='rst-versions']").toggleClass("shift")}).on("click",".wy-menu-vertical .current ul li a",function(){var r=t(this);t("[data-toggle='wy-nav-shift']").removeClass("shift"),t("[data-toggle='rst-versions']").toggleClass("shift"),e.toggleCurrent(r),e.hashChange()}).on("click","[data-toggle='rst-current-version']",function(){t("[data-toggle='rst-versions']").toggleClass("shift-up")}),t("table.docutils:not(.field-list)").wrap("<div class='wy-table-responsive'></div>"),t(".wy-menu-vertical ul").not(".simple").siblings("a").each(function(){var r=t(this);expand=t('<span class="toctree-expand"></span>'),expand.on("click",function(t){return e.toggleCurrent(r),t.stopPropagation(),!1}),r.prepend(expand)})},t.reset=function(){var t=encodeURI(window.location.hash);if(t)try{var e=$(".wy-menu-vertical").find('[href="'+t+'"]');$(".wy-menu-vertical li.toctree-l1 li.current").removeClass("current"),e.closest("li.toctree-l2").addClass("current"),e.closest("li.toctree-l3").addClass("current"),e.closest("li.toctree-l4").addClass("current")}catch(r){console.log("Error expanding nav for anchor",r)}},t.onScroll=function(){this.winScroll=!1;var t=this.win.scrollTop(),e=t+this.winHeight,r=this.navBar.scrollTop(),n=r+(t-this.winPosition);t<0||e>this.docHeight||(this.navBar.scrollTop(n),this.winPosition=t)},t.onResize=function(){this.winResize=!1,this.winHeight=this.win.height(),this.docHeight=$(document).height()},t.hashChange=function(){this.linkScroll=!0,this.win.one("hashchange",function(){this.linkScroll=!1})},t.toggleCurrent=function(t){var e=t.closest("li");e.siblings("li.current").removeClass("current"),e.siblings().find("li.current").removeClass("current"),e.find("> ul li.current").removeClass("current"),e.toggleClass("current")},t}var i="undefined"!=typeof window?window.jQuery:t("jquery");e.exports.ThemeNav=n(),"undefined"!=typeof window&&(window.SphinxRtdTheme={StickyNav:e.exports.ThemeNav})},{jquery:"jquery"}],2:[function(t,e,r){function n(){return{a:["target","href","title"],abbr:["title"],address:[],area:["shape","coords","href","alt"],article:[],aside:[],audio:["autoplay","controls","loop","preload","src"],b:[],bdi:["dir"],bdo:["dir"],big:[],blockquote:["cite"],br:[],caption:[],center:[],cite:[],code:[],col:["align","valign","span","width"],colgroup:["align","valign","span","width"],dd:[],del:["datetime"],details:["open"],div:[],dl:[],dt:[],em:[],font:["color","size","face"],footer:[],h1:[],h2:[],h3:[],h4:[],h5:[],h6:[],header:[],hr:[],i:[],img:["src","alt","title","width","height"],ins:["datetime"],li:[],mark:[],nav:[],ol:[],p:[],pre:[],s:[],section:[],small:[],span:[],sub:[],sup:[],strong:[],table:["width","border","align","valign"],tbody:["align","valign"],td:["width","rowspan","colspan","align","valign"],tfoot:["align","valign"],th:["width","rowspan","colspan","align","valign"],thead:["align","valign"],tr:["rowspan","align","valign"],tt:[],u:[],ul:[],video:["autoplay","controls","loop","preload","src","height","width"]}}function i(t,e,r){}function o(t,e,r){}function a(t,e,r){}function s(t,e,r){}function l(t){return t.replace(S,"&lt;").replace(A,"&gt;")}function c(t,e,r,n){if(r=g(r),"href"===e||"src"===e){if(r=_.trim(r),"#"===r)return"#";if("http://"!==r.substr(0,7)&&"https://"!==r.substr(0,8)&&"mailto:"!==r.substr(0,7)&&"#"!==r[0]&&"/"!==r[0])return""}else if("background"===e){if(q.lastIndex=0,q.test(r))return""}else if("style"===e){if(E.lastIndex=0,E.test(r))return"";if(z.lastIndex=0,z.test(r)&&(q.lastIndex=0,q.test(r)))return"";n!==!1&&(n=n||T,r=n.process(r))}return r=m(r)}function u(t){return t.replace(C,"&quot;")}function d(t){return t.replace($,'"')}function f(t){return t.replace(j,function(t,e){return"x"===e[0]||"X"===e[0]?String.fromCharCode(parseInt(e.substr(1),16)):String.fromCharCode(parseInt(e,10))})}function p(t){return t.replace(I,":").replace(O," ")}function h(t){for(var e="",r=0,n=t.length;r<n;r++)e+=t.charCodeAt(r)<32?" ":t.charAt(r);return _.trim(e)}function g(t){return t=d(t),t=f(t),t=p(t),t=h(t)}function m(t){return t=u(t),t=l(t)}function v(){return""}function b(t,e){function r(e){return!!n||_.indexOf(t,e)!==-1}"function"!=typeof e&&(e=function(){});var n=!Array.isArray(t),i=[],o=!1;return{onIgnoreTag:function(t,n,a){if(r(t)){if(a.isClosing){var s="[/removed]",l=a.position+s.length;return i.push([o!==!1?o:a.position,l]),o=!1,s}return o||(o=a.position),"[removed]"}return e(t,n,a)},remove:function(t){var e="",r=0;return _.forEach(i,function(n){e+=t.slice(r,n[0]),r=n[1]}),e+=t.slice(r)}}}function w(t){return t.replace(R,"")}function y(t){var e=t.split("");return e=e.filter(function(t){var e=t.charCodeAt(0);return 127!==e&&(!(e<=31)||(10===e||13===e))}),e.join("")}var x=t("cssfilter").FilterCSS,k=t("cssfilter").getDefaultWhiteList,_=t("./util"),T=new x,S=/</g,A=/>/g,C=/"/g,$=/&quot;/g,j=/&#([a-zA-Z0-9]*);?/gim,I=/&colon;?/gim,O=/&newline;?/gim,q=/((j\s*a\s*v\s*a|v\s*b|l\s*i\s*v\s*e)\s*s\s*c\s*r\s*i\s*p\s*t\s*|m\s*o\s*c\s*h\s*a)\:/gi,E=/e\s*x\s*p\s*r\s*e\s*s\s*s\s*i\s*o\s*n\s*\(.*/gi,z=/u\s*r\s*l\s*\(.*/gi,R=/<!--[\s\S]*?-->/g;r.whiteList=n(),r.getDefaultWhiteList=n,r.onTag=i,r.onIgnoreTag=o,r.onTagAttr=a,r.onIgnoreTagAttr=s,r.safeAttrValue=c,r.escapeHtml=l,r.escapeQuote=u,r.unescapeQuote=d,r.escapeHtmlEntities=f,r.escapeDangerHtml5Entities=p,r.clearNonPrintableCharacter=h,r.friendlyAttrValue=g,r.escapeAttrValue=m,r.onIgnoreTagStripAll=v,r.StripTagBody=b,r.stripCommentTag=w,r.stripBlankChar=y,r.cssFilter=T,r.getDefaultCSSWhiteList=k},{"./util":5,cssfilter:9}],3:[function(t,e,r){function n(t,e){var r=new a(e);return r.process(t)}var i=t("./default"),o=t("./parser"),a=t("./xss");r=e.exports=n,r.FilterXSS=a;for(var s in i)r[s]=i[s];for(var s in o)r[s]=o[s];"undefined"!=typeof window&&(window.filterXSS=e.exports)},{"./default":2,"./parser":4,"./xss":6}],4:[function(t,e,r){function n(t){var e=t.indexOf(" ");if(e===-1)var r=t.slice(1,-1);else var r=t.slice(1,e+1);return r=d.trim(r).toLowerCase(),"/"===r.slice(0,1)&&(r=r.slice(1)),"/"===r.slice(-1)&&(r=r.slice(0,-1)),r}function i(t){return"</"===t.slice(0,2)}function o(t,e,r){"user strict";var o="",a=0,s=!1,l=!1,c=0,u=t.length,d="",f="";for(c=0;c<u;c++){var p=t.charAt(c);if(s===!1){if("<"===p){s=c;continue}}else if(l===!1){if("<"===p){o+=r(t.slice(a,c)),s=c,a=c;continue}if(">"===p){o+=r(t.slice(a,s)),d=t.slice(s,c+1),f=n(d),o+=e(s,o.length,f,d,i(d)),a=c+1,s=!1;continue}if(('"'===p||"'"===p)&&"="===t.charAt(c-1)){l=p;continue}}else if(p===l){l=!1;continue}}return a<t.length&&(o+=r(t.substr(a))),o}function a(t,e){"user strict";function r(t,r){if(t=d.trim(t),t=t.replace(f,"").toLowerCase(),!(t.length<1)){var n=e(t,r||"");n&&i.push(n)}}for(var n=0,i=[],o=!1,a=t.length,c=0;c<a;c++){var p,h,g=t.charAt(c);if(o!==!1||"="!==g)if(o===!1||c!==n||'"'!==g&&"'"!==g||"="!==t.charAt(c-1))if(" "!==g);else{if(o===!1){if(h=s(t,c),h===-1){p=d.trim(t.slice(n,c)),r(p),o=!1,n=c+1;continue}c=h-1;continue}if(h=l(t,c-1),h===-1){p=d.trim(t.slice(n,c)),p=u(p),r(o,p),o=!1,n=c+1;continue}}else{if(h=t.indexOf(g,c+1),h===-1)break;p=d.trim(t.slice(n+1,h)),r(o,p),o=!1,c=h,n=c+1}else o=t.slice(n,c),n=c+1}return n<t.length&&(o===!1?r(t.slice(n)):r(o,u(d.trim(t.slice(n))))),d.trim(i.join(" "))}function s(t,e){for(;e<t.length;e++){var r=t[e];if(" "!==r)return"="===r?e:-1}}function l(t,e){for(;e>0;e--){var r=t[e];if(" "!==r)return"="===r?e:-1}}function c(t){return'"'===t[0]&&'"'===t[t.length-1]||"'"===t[0]&&"'"===t[t.length-1]}function u(t){return c(t)?t.substr(1,t.length-2):t}var d=t("./util"),f=/[^a-zA-Z0-9_:\.\-]/gim;r.parseTag=o,r.parseAttr=a},{"./util":5}],5:[function(t,e,r){e.exports={indexOf:function(t,e){var r,n;if(Array.prototype.indexOf)return t.indexOf(e);for(r=0,n=t.length;r<n;r++)if(t[r]===e)return r;return-1},forEach:function(t,e,r){var n,i;if(Array.prototype.forEach)return t.forEach(e,r);for(n=0,i=t.length;n<i;n++)e.call(r,t[n],n,t)},trim:function(t){return String.prototype.trim?t.trim():t.replace(/(^\s*)|(\s*$)/g,"")}}},{}],6:[function(t,e,r){function n(t){return void 0===t||null===t}function i(t){var e=t.indexOf(" ");if(e===-1)return{html:"",closing:"/"===t[t.length-2]};t=f.trim(t.slice(e+1,-1));var r="/"===t[t.length-1];return r&&(t=f.trim(t.slice(0,-1))),{html:t,closing:r}}function o(t){var e={};for(var r in t)e[r]=t[r];return e}function a(t){t=o(t||{}),t.stripIgnoreTag&&(t.onIgnoreTag&&console.error('Notes: cannot use these two options "stripIgnoreTag" and "onIgnoreTag" at the same time'),t.onIgnoreTag=l.onIgnoreTagStripAll),t.whiteList=t.whiteList||l.whiteList,t.onTag=t.onTag||l.onTag,t.onTagAttr=t.onTagAttr||l.onTagAttr,t.onIgnoreTag=t.onIgnoreTag||l.onIgnoreTag,t.onIgnoreTagAttr=t.onIgnoreTagAttr||l.onIgnoreTagAttr,t.safeAttrValue=t.safeAttrValue||l.safeAttrValue,t.escapeHtml=t.escapeHtml||l.escapeHtml,this.options=t,t.css===!1?this.cssFilter=!1:(t.css=t.css||{},this.cssFilter=new s(t.css))}var s=t("cssfilter").FilterCSS,l=t("./default"),c=t("./parser"),u=c.parseTag,d=c.parseAttr,f=t("./util");a.prototype.process=function(t){if(t=t||"",t=t.toString(),!t)return"";var e=this,r=e.options,o=r.whiteList,a=r.onTag,s=r.onIgnoreTag,c=r.onTagAttr,p=r.onIgnoreTagAttr,h=r.safeAttrValue,g=r.escapeHtml,m=e.cssFilter;r.stripBlankChar&&(t=l.stripBlankChar(t)),r.allowCommentTag||(t=l.stripCommentTag(t));var v=!1;if(r.stripIgnoreTagBody){var v=l.StripTagBody(r.stripIgnoreTagBody,s);s=v.onIgnoreTag}var b=u(t,function(t,e,r,l,u){var v={sourcePosition:t,position:e,isClosing:u,isWhite:r in o},b=a(r,l,v);if(!n(b))return b;if(v.isWhite){if(v.isClosing)return"</"+r+">";var w=i(l),y=o[r],x=d(w.html,function(t,e){var i=f.indexOf(y,t)!==-1,o=c(r,t,e,i);if(!n(o))return o;if(i)return e=h(r,t,e,m),e?t+'="'+e+'"':t;var o=p(r,t,e,i);return n(o)?void 0:o}),l="<"+r;return x&&(l+=" "+x),w.closing&&(l+=" /"),l+=">"}var b=s(r,l,v);return n(b)?g(l):b},g);return v&&(b=v.remove(b)),b},e.exports=a},{"./default":2,"./parser":4,"./util":5,cssfilter:9}],7:[function(t,e,r){function n(t){return void 0===t||null===t}function i(t){t=t||{},t.whiteList=t.whiteList||o.whiteList,t.onAttr=t.onAttr||o.onAttr,t.onIgnoreAttr=t.onIgnoreAttr||o.onIgnoreAttr,this.options=t}var o=t("./default"),a=t("./parser");t("./util");i.prototype.process=function(t){if(t=t||"",t=t.toString(),!t)return"";var e=this,r=e.options,i=r.whiteList,o=r.onAttr,s=r.onIgnoreAttr,l=a(t,function(t,e,r,a,l){var c=i[r],u=!1;c===!0?u=c:"function"==typeof c?u=c(a):c instanceof RegExp&&(u=c.test(a)),u!==!0&&(u=!1);var d={position:e,sourcePosition:t,source:l,isWhite:u};if(u){var f=o(r,a,d);return n(f)?r+":"+a:f}var f=s(r,a,d);if(!n(f))return f});return l},e.exports=i},{"./default":8,"./parser":10,"./util":11}],8:[function(t,e,r){function n(){var t={};return t["align-content"]=!1,t["align-items"]=!1,t["align-self"]=!1,t["alignment-adjust"]=!1,t["alignment-baseline"]=!1,t.all=!1,t["anchor-point"]=!1,t.animation=!1,t["animation-delay"]=!1,t["animation-direction"]=!1,t["animation-duration"]=!1,t["animation-fill-mode"]=!1,t["animation-iteration-count"]=!1,t["animation-name"]=!1,t["animation-play-state"]=!1,t["animation-timing-function"]=!1,t.azimuth=!1,t["backface-visibility"]=!1,t.background=!0,t["background-attachment"]=!0,t["background-clip"]=!0,t["background-color"]=!0,t["background-image"]=!0,t["background-origin"]=!0,t["background-position"]=!0,t["background-repeat"]=!0,t["background-size"]=!0,t["baseline-shift"]=!1,t.binding=!1,t.bleed=!1,t["bookmark-label"]=!1,t["bookmark-level"]=!1,t["bookmark-state"]=!1,t.border=!0,t["border-bottom"]=!0,t["border-bottom-color"]=!0,t["border-bottom-left-radius"]=!0,t["border-bottom-right-radius"]=!0,t["border-bottom-style"]=!0,t["border-bottom-width"]=!0,t["border-collapse"]=!0,t["border-color"]=!0,t["border-image"]=!0,t["border-image-outset"]=!0,t["border-image-repeat"]=!0,t["border-image-slice"]=!0,t["border-image-source"]=!0,t["border-image-width"]=!0,t["border-left"]=!0,t["border-left-color"]=!0,t["border-left-style"]=!0,t["border-left-width"]=!0,t["border-radius"]=!0,t["border-right"]=!0,t["border-right-color"]=!0,t["border-right-style"]=!0,t["border-right-width"]=!0,t["border-spacing"]=!0,t["border-style"]=!0,t["border-top"]=!0,t["border-top-color"]=!0,t["border-top-left-radius"]=!0,t["border-top-right-radius"]=!0,t["border-top-style"]=!0,t["border-top-width"]=!0,t["border-width"]=!0,t.bottom=!1,t["box-decoration-break"]=!0,t["box-shadow"]=!0,t["box-sizing"]=!0,t["box-snap"]=!0,t["box-suppress"]=!0,t["break-after"]=!0,t["break-before"]=!0,t["break-inside"]=!0,t["caption-side"]=!1,t.chains=!1,t.clear=!0,t.clip=!1,t["clip-path"]=!1,t["clip-rule"]=!1,t.color=!0,t["color-interpolation-filters"]=!0,t["column-count"]=!1,t["column-fill"]=!1,t["column-gap"]=!1,t["column-rule"]=!1,t["column-rule-color"]=!1,t["column-rule-style"]=!1,t["column-rule-width"]=!1,t["column-span"]=!1,t["column-width"]=!1,t.columns=!1,t.contain=!1,t.content=!1,t["counter-increment"]=!1,t["counter-reset"]=!1,t["counter-set"]=!1,t.crop=!1,t.cue=!1,t["cue-after"]=!1,t["cue-before"]=!1,t.cursor=!1,t.direction=!1,t.display=!0,t["display-inside"]=!0,t["display-list"]=!0,t["display-outside"]=!0,t["dominant-baseline"]=!1,t.elevation=!1,t["empty-cells"]=!1,t.filter=!1,t.flex=!1,t["flex-basis"]=!1,t["flex-direction"]=!1,t["flex-flow"]=!1,t["flex-grow"]=!1,t["flex-shrink"]=!1,t["flex-wrap"]=!1,t["float"]=!1,t["float-offset"]=!1,t["flood-color"]=!1,t["flood-opacity"]=!1,t["flow-from"]=!1,t["flow-into"]=!1,t.font=!0,t["font-family"]=!0,t["font-feature-settings"]=!0,t["font-kerning"]=!0,t["font-language-override"]=!0,t["font-size"]=!0,t["font-size-adjust"]=!0,t["font-stretch"]=!0,t["font-style"]=!0,t["font-synthesis"]=!0,t["font-variant"]=!0,t["font-variant-alternates"]=!0,t["font-variant-caps"]=!0,t["font-variant-east-asian"]=!0,t["font-variant-ligatures"]=!0,t["font-variant-numeric"]=!0,t["font-variant-position"]=!0,t["font-weight"]=!0,t.grid=!1,t["grid-area"]=!1,t["grid-auto-columns"]=!1,t["grid-auto-flow"]=!1,t["grid-auto-rows"]=!1,t["grid-column"]=!1,t["grid-column-end"]=!1,t["grid-column-start"]=!1,t["grid-row"]=!1,t["grid-row-end"]=!1,t["grid-row-start"]=!1,t["grid-template"]=!1,t["grid-template-areas"]=!1,t["grid-template-columns"]=!1,t["grid-template-rows"]=!1,t["hanging-punctuation"]=!1,t.height=!0,t.hyphens=!1,t.icon=!1,t["image-orientation"]=!1,t["image-resolution"]=!1,t["ime-mode"]=!1,t["initial-letters"]=!1,t["inline-box-align"]=!1,t["justify-content"]=!1,t["justify-items"]=!1,t["justify-self"]=!1,t.left=!1,t["letter-spacing"]=!0,t["lighting-color"]=!0,t["line-box-contain"]=!1,t["line-break"]=!1,t["line-grid"]=!1,t["line-height"]=!1,t["line-snap"]=!1,t["line-stacking"]=!1,t["line-stacking-ruby"]=!1,t["line-stacking-shift"]=!1,t["line-stacking-strategy"]=!1,t["list-style"]=!0,t["list-style-image"]=!0,t["list-style-position"]=!0,t["list-style-type"]=!0,t.margin=!0,t["margin-bottom"]=!0,t["margin-left"]=!0,t["margin-right"]=!0,t["margin-top"]=!0,t["marker-offset"]=!1,t["marker-side"]=!1,t.marks=!1,t.mask=!1,t["mask-box"]=!1,t["mask-box-outset"]=!1,t["mask-box-repeat"]=!1,t["mask-box-slice"]=!1,t["mask-box-source"]=!1,t["mask-box-width"]=!1,t["mask-clip"]=!1,t["mask-image"]=!1,t["mask-origin"]=!1,t["mask-position"]=!1,t["mask-repeat"]=!1,t["mask-size"]=!1,t["mask-source-type"]=!1,t["mask-type"]=!1,t["max-height"]=!0,t["max-lines"]=!1,t["max-width"]=!0,t["min-height"]=!0,t["min-width"]=!0,t["move-to"]=!1,t["nav-down"]=!1,t["nav-index"]=!1,t["nav-left"]=!1,t["nav-right"]=!1,t["nav-up"]=!1,t["object-fit"]=!1,t["object-position"]=!1,t.opacity=!1,t.order=!1,t.orphans=!1,t.outline=!1,t["outline-color"]=!1,t["outline-offset"]=!1,t["outline-style"]=!1,t["outline-width"]=!1,t.overflow=!1,t["overflow-wrap"]=!1,t["overflow-x"]=!1,t["overflow-y"]=!1,t.padding=!0,t["padding-bottom"]=!0,t["padding-left"]=!0,t["padding-right"]=!0,t["padding-top"]=!0,t.page=!1,t["page-break-after"]=!1,t["page-break-before"]=!1,t["page-break-inside"]=!1,t["page-policy"]=!1,t.pause=!1,t["pause-after"]=!1,t["pause-before"]=!1,t.perspective=!1,t["perspective-origin"]=!1,t.pitch=!1,t["pitch-range"]=!1,t["play-during"]=!1,t.position=!1,t["presentation-level"]=!1,t.quotes=!1,t["region-fragment"]=!1,t.resize=!1,t.rest=!1,t["rest-after"]=!1,t["rest-before"]=!1,t.richness=!1,t.right=!1,t.rotation=!1,t["rotation-point"]=!1,t["ruby-align"]=!1,t["ruby-merge"]=!1,t["ruby-position"]=!1,t["shape-image-threshold"]=!1,t["shape-outside"]=!1,t["shape-margin"]=!1,t.size=!1,t.speak=!1,t["speak-as"]=!1,t["speak-header"]=!1,t["speak-numeral"]=!1,t["speak-punctuation"]=!1,t["speech-rate"]=!1,t.stress=!1,t["string-set"]=!1,t["tab-size"]=!1,t["table-layout"]=!1,t["text-align"]=!0,t["text-align-last"]=!0,t["text-combine-upright"]=!0,t["text-decoration"]=!0,t["text-decoration-color"]=!0,t["text-decoration-line"]=!0,t["text-decoration-skip"]=!0,t["text-decoration-style"]=!0,t["text-emphasis"]=!0,t["text-emphasis-color"]=!0,t["text-emphasis-position"]=!0,t["text-emphasis-style"]=!0,t["text-height"]=!0,t["text-indent"]=!0,t["text-justify"]=!0,t["text-orientation"]=!0,t["text-overflow"]=!0,t["text-shadow"]=!0,t["text-space-collapse"]=!0,t["text-transform"]=!0,t["text-underline-position"]=!0,t["text-wrap"]=!0,t.top=!1,t.transform=!1,t["transform-origin"]=!1,t["transform-style"]=!1,t.transition=!1,t["transition-delay"]=!1,t["transition-duration"]=!1,t["transition-property"]=!1,t["transition-timing-function"]=!1,t["unicode-bidi"]=!1,t["vertical-align"]=!1,t.visibility=!1,t["voice-balance"]=!1,t["voice-duration"]=!1,t["voice-family"]=!1,t["voice-pitch"]=!1,t["voice-range"]=!1,t["voice-rate"]=!1,t["voice-stress"]=!1,t["voice-volume"]=!1,t.volume=!1,t["white-space"]=!1,t.widows=!1,t.width=!0,t["will-change"]=!1,t["word-break"]=!0,t["word-spacing"]=!0,t["word-wrap"]=!0,t["wrap-flow"]=!1,t["wrap-through"]=!1,t["writing-mode"]=!1,t["z-index"]=!1,t}function i(t,e,r){}function o(t,e,r){}r.whiteList=n(),r.getDefaultWhiteList=n,r.onAttr=i,r.onIgnoreAttr=o},{}],9:[function(t,e,r){function n(t,e){var r=new o(e);return r.process(t)}var i=t("./default"),o=t("./css");r=e.exports=n,r.FilterCSS=o;for(var a in i)r[a]=i[a];"undefined"!=typeof window&&(window.filterCSS=e.exports)},{"./css":7,"./default":8}],10:[function(t,e,r){function n(t,e){function r(){if(!o){var r=i.trim(t.slice(a,s)),n=r.indexOf(":");if(n!==-1){var c=i.trim(r.slice(0,n)),u=i.trim(r.slice(n+1));if(c){var d=e(a,l.length,c,u,r);d&&(l+=d+"; ")}}}a=s+1}t=i.trimRight(t),";"!==t[t.length-1]&&(t+=";");for(var n=t.length,o=!1,a=0,s=0,l="";s<n;s++){var c=t[s];if("/"===c&&"*"===t[s+1]){var u=t.indexOf("*/",s+2);if(u===-1)break;s=u+1,a=s+1,o=!1}else"("===c?o=!0:")"===c?o=!1:";"===c?o||r():"\n"===c&&r()}return i.trim(l)}var i=t("./util");e.exports=n},{"./util":11}],11:[function(t,e,r){e.exports={indexOf:function(t,e){var r,n;if(Array.prototype.indexOf)return t.indexOf(e);for(r=0,n=t.length;r<n;r++)if(t[r]===e)return r;return-1},forEach:function(t,e,r){var n,i;if(Array.prototype.forEach)return t.forEach(e,r);for(n=0,i=t.length;n<i;n++)e.call(r,t[n],n,t)},trim:function(t){return String.prototype.trim?t.trim():t.replace(/(^\s*)|(\s*$)/g,"")},trimRight:function(t){return String.prototype.trimRight?t.trimRight():t.replace(/(\s*$)/g,"")}}},{}],12:[function(t,e,r){function n(){var t=a.get(),e={project:t.project,version:t.version,page:t.page,theme:t.get_theme_name(),format:"jsonp"};"docroot"in t&&(e.docroot=t.docroot),"source_suffix"in t&&(e.source_suffix=t.source_suffix),0===window.location.pathname.indexOf("/projects/")&&(e.subproject=!0),$.ajax({url:t.api_host+"/api/v2/footer_html/",crossDomain:!0,xhrFields:{withCredentials:!0},dataType:"jsonp",data:e,success:function(t){s.init(t.version_compare),i(t),o()},error:function(){console.error("Error loading Read the Docs footer")}})}function i(t){var e=a.get();if(e.is_rtd_theme()?$("div.rst-other-versions").html(t.html):$("body").append(t.html),t.version_active?!t.version_supported:$(".rst-current-version").addClass("rst-out-of-date"),t.promo&&e.show_promo()){var r=new l.Promo(t.promo_data.id,t.promo_data.text,t.promo_data.link,t.promo_data.image);r&&r.display()}}function o(){function t(t){return/^(GET|HEAD|OPTIONS|TRACE)$/.test(t)}$.ajaxSetup({beforeSend:function(e,r){t(r.type)||e.setRequestHeader("X-CSRFToken",$("a.bookmark[token]").attr("token"))}})}var a=t("./rtd-data"),s=t("./version-compare"),l=t("../sponsorship");e.exports={init:n}},{"../sponsorship":19,"./rtd-data":14,"./version-compare":17}],13:[function(t,e,r){function n(){var t=i.get();if("builder"in t&&"mkdocs"==t.builder){$("<input>").attr({type:"hidden",name:"project",value:t.project}).appendTo("#rtd-search-form"),$("<input>").attr({type:"hidden",name:"version",value:t.version}).appendTo("#rtd-search-form"),$("<input>").attr({type:"hidden",name:"type",value:"file"}).appendTo("#rtd-search-form"),$("#rtd-search-form").prop("action",t.api_host+"/search/");var e=$("nav.wy-nav-side:first"),r=$(window),n="stickynav",o=function(){e.height()<=r.height()?e.addClass(n):e.removeClass(n)};r.on("resize",o),o()}}var i=t("./rtd-data");e.exports={init:n}},{"./rtd-data":14}],14:[function(t,e,r){function n(){var t=Object.create(i),e={api_host:"https://readthedocs.org"};return $.extend(t,e,window.READTHEDOCS_DATA),t}var i={is_rtd_theme:function(){return"sphinx_rtd_theme"===this.get_theme_name()},is_sphinx_builder:function(){return!("builder"in this)||"mkdocs"!=this.builder},get_theme_name:function(){return"sphinx_rtd_theme"!==this.theme&&1===$("div.rst-other-versions").length?"sphinx_rtd_theme":this.theme},show_promo:function(){return"https://readthedocs.com"!==this.api_host&&this.is_sphinx_builder()&&this.is_rtd_theme()}};e.exports={get:n}},{}],15:[function(t,e,r){function n(){var t=o.get();i(t)}function i(t){var e=t.project,r=t.version,n=t.language||"en",i=t.api_host,o=function(t){var o=$.Deferred(),s=document.createElement("a");s.href=i,s.pathname="/api/v2/docsearch/",s.search="?q="+$.urlencode(t)+"&project="+e+"&version="+r+"&language="+n,o.then(function(r){var n=r.hits||{},i=n.hits||[];if(i.length)for(var o in i){var s=i[o],l=s.fields||{},c=$('<li style="display: none;"></li>'),u=document.createElement("a"),d=s.highlight;if(u.href+=l.link+DOCUMENTATION_OPTIONS.FILE_SUFFIX,u.search="?highlight="+$.urlencode(t),c.append($("<a />").attr("href",u).html(l.title)),l.project!=e&&c.append($("<span>").text(" (from project "+l.project+")")),d.content.length){var f=$('<div class="context">').html(a(d.content[0]));f.find("em").addClass("highlighted"),c.append(f)}Search.output.append(c),c.slideDown(5)}i.length?Search.status.text(_("Search finished, found %s page(s) matching the search query.").replace("%s",i.length)):Search.query_fallback(t)}).fail(function(e){Search.query_fallback(t)}).always(function(){$("#search-progress").empty(),Search.stopPulse(),Search.title.text(_("Search Results")),Search.status.fadeIn(500)}),$.ajax({url:s.href,crossDomain:!0,xhrFields:{withCredentials:!0},complete:function(t,e){return"undefined"==typeof t.responseJSON||"undefined"==typeof t.responseJSON.results?o.reject():o.resolve(t.responseJSON.results)}}).error(function(t,e,r){return o.reject()})};if("undefined"!=typeof Search&&e&&r){var s=Search.query;Search.query_fallback=s,Search.query=o}$(document).ready(function(){"undefined"!=typeof Search&&Search.init()})}var o=t("./rtd-data"),a=t("./../../../../../../bower_components/xss/lib/index");e.exports={init:n}},{"./../../../../../../bower_components/xss/lib/index":3,"./rtd-data":14}],16:[function(t,e,r){function n(){var t=i.get();if($(document).on("click","[data-toggle='rst-current-version']",function(){var t=$("[data-toggle='rst-versions']").hasClass("shift-up")?"was_open":"was_closed";_gaq&&_gaq.push(["rtfd._setAccount","UA-17997319-1"],["rtfd._trackEvent","Flyout","Click",t])}),!("builder"in t)||"builder"in t&&"mkdocs"!=t.builder){var e=o.ThemeNav;if($(document).ready(function(){setTimeout(function(){e.navBar||e.enable()},1e3)}),t.is_rtd_theme()){var r=jquery("div.wy-side-scroll:first");if(!r.length){var n=jquery("nav.wy-nav-side:first"),a=$("<div />").addClass("wy-side-scroll");n.children().detach().appendTo(a),a.prependTo(n),e.navBar=a}}}}var i=t("./rtd-data"),o=t("./../../../../../../bower_components/sphinx-rtd-theme/js/theme.js");e.exports={init:n}},{"./../../../../../../bower_components/sphinx-rtd-theme/js/theme.js":1,"./rtd-data":14}],17:[function(t,e,r){function n(t){var e=i.get();if(!t.is_highest){var r=window.location.pathname.replace(e.version,t.slug),n=$('<div class="admonition warning"> <p class="first admonition-title">Note</p> <p class="last"> You are not using the most up to date version of the library. <a href="#"></a> is the newest version.</p></div>');n.find("a").attr("href",r).text(t.version);var o=$("div.body");o.length||(o=$("div.document")),o.prepend(n)}}var i=t("./rtd-data");e.exports={init:n}},{"./rtd-data":14}],18:[function(t,e,r){var n=(t("./sponsorship"),t("./doc-embed/footer.js")),i=t("./doc-embed/mkdocs"),o=(t("./doc-embed/rtd-data"),t("./doc-embed/sphinx")),a=t("./doc-embed/search");$(document).ready(function(){n.init(),o.init(),i.init(),a.init()})},{"./doc-embed/footer.js":12,"./doc-embed/mkdocs":13,"./doc-embed/rtd-data":14,"./doc-embed/search":15,"./doc-embed/sphinx":16,"./sponsorship":19}],19:[function(t,e,r){function n(t,e,r,n){this.id=t,this.text=e,this.link=r,this.image=n,this.promo=null}e.exports={Promo:n},n.prototype.create=function(){function t(){_gaq&&_gaq.push(["rtfd._setAccount","UA-17997319-1"],["rtfd._trackEvent","Promo","Click",e.id])}var e=this,r=$("nav.wy-nav-side > div.wy-side-scroll");if(r.length){promo=$("<div />").attr("class","wy-menu rst-pro");var n=$("<div />").attr("class","rst-pro-about"),i=$("<a />").attr("href","http://docs.readthedocs.io/en/latest/ethical-advertising.html").appendTo(n);$("<i />").attr("class","fa fa-info-circle").appendTo(i);if(n.appendTo(promo),e.image){var o=$("<a />").attr("class","rst-pro-image-wrapper").attr("href",e.link).attr("target","_blank").on("click",t);$("<img />").attr("class","rst-pro-image").attr("src",e.image).appendTo(o);promo.append(o)}var a=$("<span />").html(e.text);return $(a).find("a").each(function(){$(this).attr("class","rst-pro-link").attr("href",e.link).attr("target","_blank").on("click",t)}),promo.append(a),promo.appendTo(r),promo.wrapper=$("<div />").attr("class","rst-pro-wrapper").appendTo(r),promo}},n.prototype.display=function(){var t=this.promo;t||(t=this.promo=this.create()),t&&t.show()},n.prototype.disable=function(){},n.from_variants=function(t){if(0==t.length)return null;var e=Math.floor(Math.random()*t.length),r=t[e],i=r.text,o=r.link,a=r.image,s=r.id;return new n(s,i,o,a)}},{}]},{},[18]);
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var jQuery = (typeof(window) != 'undefined') ? window.jQuery : require('jquery');
+
+// Sphinx theme nav state
+function ThemeNav () {
+
+    var nav = {
+        navBar: null,
+        win: null,
+        winScroll: false,
+        winResize: false,
+        linkScroll: false,
+        winPosition: 0,
+        winHeight: null,
+        docHeight: null,
+        isRunning: null
+    };
+
+    nav.enable = function () {
+        var self = this;
+
+        jQuery(function ($) {
+            self.init($);
+
+            self.reset();
+            self.win.on('hashchange', self.reset);
+
+            // Set scroll monitor
+            self.win.on('scroll', function () {
+                if (!self.linkScroll) {
+                    self.winScroll = true;
+                }
+            });
+            setInterval(function () { if (self.winScroll) self.onScroll(); }, 25);
+
+            // Set resize monitor
+            self.win.on('resize', function () {
+                self.winResize = true;
+            });
+            setInterval(function () { if (self.winResize) self.onResize(); }, 25);
+            self.onResize();
+        });
+    };
+
+    nav.init = function ($) {
+        var doc = $(document),
+            self = this;
+
+        this.navBar = $('div.wy-side-scroll:first');
+        this.win = $(window);
+
+        // Set up javascript UX bits
+        $(document)
+            // Shift nav in mobile when clicking the menu.
+            .on('click', "[data-toggle='wy-nav-top']", function() {
+                $("[data-toggle='wy-nav-shift']").toggleClass("shift");
+                $("[data-toggle='rst-versions']").toggleClass("shift");
+            })
+
+            // Nav menu link click operations
+            .on('click', ".wy-menu-vertical .current ul li a", function() {
+                var target = $(this);
+                // Close menu when you click a link.
+                $("[data-toggle='wy-nav-shift']").removeClass("shift");
+                $("[data-toggle='rst-versions']").toggleClass("shift");
+                // Handle dynamic display of l3 and l4 nav lists
+                self.toggleCurrent(target);
+                self.hashChange();
+            })
+            .on('click', "[data-toggle='rst-current-version']", function() {
+                $("[data-toggle='rst-versions']").toggleClass("shift-up");
+            })
+
+        // Make tables responsive
+        $("table.docutils:not(.field-list)")
+            .wrap("<div class='wy-table-responsive'></div>");
+
+        // Add expand links to all parents of nested ul
+        $('.wy-menu-vertical ul').not('.simple').siblings('a').each(function () {
+            var link = $(this);
+                expand = $('<span class="toctree-expand"></span>');
+            expand.on('click', function (ev) {
+                self.toggleCurrent(link);
+                ev.stopPropagation();
+                return false;
+            });
+            link.prepend(expand);
+        });
+    };
+
+    nav.reset = function () {
+        // Get anchor from URL and open up nested nav
+        var anchor = encodeURI(window.location.hash);
+        if (anchor) {
+            try {
+                var link = $('.wy-menu-vertical')
+                    .find('[href="' + anchor + '"]');
+                $('.wy-menu-vertical li.toctree-l1 li.current')
+                    .removeClass('current');
+                link.closest('li.toctree-l2').addClass('current');
+                link.closest('li.toctree-l3').addClass('current');
+                link.closest('li.toctree-l4').addClass('current');
+            }
+            catch (err) {
+                console.log("Error expanding nav for anchor", err);
+            }
+        }
+    };
+
+    nav.onScroll = function () {
+        this.winScroll = false;
+        var newWinPosition = this.win.scrollTop(),
+            winBottom = newWinPosition + this.winHeight,
+            navPosition = this.navBar.scrollTop(),
+            newNavPosition = navPosition + (newWinPosition - this.winPosition);
+        if (newWinPosition < 0 || winBottom > this.docHeight) {
+            return;
+        }
+        this.navBar.scrollTop(newNavPosition);
+        this.winPosition = newWinPosition;
+    };
+
+    nav.onResize = function () {
+        this.winResize = false;
+        this.winHeight = this.win.height();
+        this.docHeight = $(document).height();
+    };
+
+    nav.hashChange = function () {
+        this.linkScroll = true;
+        this.win.one('hashchange', function () {
+            this.linkScroll = false;
+        });
+    };
+
+    nav.toggleCurrent = function (elem) {
+        var parent_li = elem.closest('li');
+        parent_li.siblings('li.current').removeClass('current');
+        parent_li.siblings().find('li.current').removeClass('current');
+        parent_li.find('> ul li.current').removeClass('current');
+        parent_li.toggleClass('current');
+    }
+
+    return nav;
+};
+
+module.exports.ThemeNav = ThemeNav();
+
+if (typeof(window) != 'undefined') {
+    window.SphinxRtdTheme = { StickyNav: module.exports.ThemeNav };
+}
+
+},{"jquery":"jquery"}],2:[function(require,module,exports){
+/**
+ * 默认配置
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var FilterCSS = require('cssfilter').FilterCSS;
+var getDefaultCSSWhiteList = require('cssfilter').getDefaultWhiteList;
+var _ = require('./util');
+
+// 默认白名单
+function getDefaultWhiteList () {
+  return {
+    a:      ['target', 'href', 'title'],
+    abbr:   ['title'],
+    address: [],
+    area:   ['shape', 'coords', 'href', 'alt'],
+    article: [],
+    aside:  [],
+    audio:  ['autoplay', 'controls', 'loop', 'preload', 'src'],
+    b:      [],
+    bdi:    ['dir'],
+    bdo:    ['dir'],
+    big:    [],
+    blockquote: ['cite'],
+    br:     [],
+    caption: [],
+    center: [],
+    cite:   [],
+    code:   [],
+    col:    ['align', 'valign', 'span', 'width'],
+    colgroup: ['align', 'valign', 'span', 'width'],
+    dd:     [],
+    del:    ['datetime'],
+    details: ['open'],
+    div:    [],
+    dl:     [],
+    dt:     [],
+    em:     [],
+    font:   ['color', 'size', 'face'],
+    footer: [],
+    h1:     [],
+    h2:     [],
+    h3:     [],
+    h4:     [],
+    h5:     [],
+    h6:     [],
+    header: [],
+    hr:     [],
+    i:      [],
+    img:    ['src', 'alt', 'title', 'width', 'height'],
+    ins:    ['datetime'],
+    li:     [],
+    mark:   [],
+    nav:    [],
+    ol:     [],
+    p:      [],
+    pre:    [],
+    s:      [],
+    section:[],
+    small:  [],
+    span:   [],
+    sub:    [],
+    sup:    [],
+    strong: [],
+    table:  ['width', 'border', 'align', 'valign'],
+    tbody:  ['align', 'valign'],
+    td:     ['width', 'rowspan', 'colspan', 'align', 'valign'],
+    tfoot:  ['align', 'valign'],
+    th:     ['width', 'rowspan', 'colspan', 'align', 'valign'],
+    thead:  ['align', 'valign'],
+    tr:     ['rowspan', 'align', 'valign'],
+    tt:     [],
+    u:      [],
+    ul:     [],
+    video:  ['autoplay', 'controls', 'loop', 'preload', 'src', 'height', 'width']
+  };
+}
+
+// 默认CSS Filter
+var defaultCSSFilter = new FilterCSS();
+
+/**
+ * 匹配到标签时的处理方法
+ *
+ * @param {String} tag
+ * @param {String} html
+ * @param {Object} options
+ * @return {String}
+ */
+function onTag (tag, html, options) {
+  // do nothing
+}
+
+/**
+ * 匹配到不在白名单上的标签时的处理方法
+ *
+ * @param {String} tag
+ * @param {String} html
+ * @param {Object} options
+ * @return {String}
+ */
+function onIgnoreTag (tag, html, options) {
+  // do nothing
+}
+
+/**
+ * 匹配到标签属性时的处理方法
+ *
+ * @param {String} tag
+ * @param {String} name
+ * @param {String} value
+ * @return {String}
+ */
+function onTagAttr (tag, name, value) {
+  // do nothing
+}
+
+/**
+ * 匹配到不在白名单上的标签属性时的处理方法
+ *
+ * @param {String} tag
+ * @param {String} name
+ * @param {String} value
+ * @return {String}
+ */
+function onIgnoreTagAttr (tag, name, value) {
+  // do nothing
+}
+
+/**
+ * HTML转义
+ *
+ * @param {String} html
+ */
+function escapeHtml (html) {
+  return html.replace(REGEXP_LT, '&lt;').replace(REGEXP_GT, '&gt;');
+}
+
+/**
+ * 安全的标签属性值
+ *
+ * @param {String} tag
+ * @param {String} name
+ * @param {String} value
+ * @param {Object} cssFilter
+ * @return {String}
+ */
+function safeAttrValue (tag, name, value, cssFilter) {
+  // 转换为友好的属性值，再做判断
+  value = friendlyAttrValue(value);
+
+  if (name === 'href' || name === 'src') {
+    // 过滤 href 和 src 属性
+    // 仅允许 http:// | https:// | mailto: | / | # 开头的地址
+    value = _.trim(value);
+    if (value === '#') return '#';
+    if (!(value.substr(0, 7) === 'http://' ||
+         value.substr(0, 8) === 'https://' ||
+         value.substr(0, 7) === 'mailto:' ||
+         value[0] === '#' ||
+         value[0] === '/')) {
+      return '';
+    }
+  } else if (name === 'background') {
+    // 过滤 background 属性 （这个xss漏洞较老了，可能已经不适用）
+    // javascript:
+    REGEXP_DEFAULT_ON_TAG_ATTR_4.lastIndex = 0;
+    if (REGEXP_DEFAULT_ON_TAG_ATTR_4.test(value)) {
+      return '';
+    }
+  } else if (name === 'style') {
+    // /*注释*/
+    /*REGEXP_DEFAULT_ON_TAG_ATTR_3.lastIndex = 0;
+    if (REGEXP_DEFAULT_ON_TAG_ATTR_3.test(value)) {
+      return '';
+    }*/
+    // expression()
+    REGEXP_DEFAULT_ON_TAG_ATTR_7.lastIndex = 0;
+    if (REGEXP_DEFAULT_ON_TAG_ATTR_7.test(value)) {
+      return '';
+    }
+    // url()
+    REGEXP_DEFAULT_ON_TAG_ATTR_8.lastIndex = 0;
+    if (REGEXP_DEFAULT_ON_TAG_ATTR_8.test(value)) {
+      REGEXP_DEFAULT_ON_TAG_ATTR_4.lastIndex = 0;
+      if (REGEXP_DEFAULT_ON_TAG_ATTR_4.test(value)) {
+        return '';
+      }
+    }
+    if (cssFilter !== false) {
+      cssFilter = cssFilter || defaultCSSFilter;
+      value = cssFilter.process(value);
+    }
+  }
+
+  // 输出时需要转义<>"
+  value = escapeAttrValue(value);
+  return value;
+}
+
+// 正则表达式
+var REGEXP_LT = /</g;
+var REGEXP_GT = />/g;
+var REGEXP_QUOTE = /"/g;
+var REGEXP_QUOTE_2 = /&quot;/g;
+var REGEXP_ATTR_VALUE_1 = /&#([a-zA-Z0-9]*);?/img;
+var REGEXP_ATTR_VALUE_COLON = /&colon;?/img;
+var REGEXP_ATTR_VALUE_NEWLINE = /&newline;?/img;
+var REGEXP_DEFAULT_ON_TAG_ATTR_3 = /\/\*|\*\//mg;
+var REGEXP_DEFAULT_ON_TAG_ATTR_4 = /((j\s*a\s*v\s*a|v\s*b|l\s*i\s*v\s*e)\s*s\s*c\s*r\s*i\s*p\s*t\s*|m\s*o\s*c\s*h\s*a)\:/ig;
+var REGEXP_DEFAULT_ON_TAG_ATTR_5 = /^[\s"'`]*(d\s*a\s*t\s*a\s*)\:/ig;
+var REGEXP_DEFAULT_ON_TAG_ATTR_6 = /^[\s"'`]*(d\s*a\s*t\s*a\s*)\:\s*image\//ig;
+var REGEXP_DEFAULT_ON_TAG_ATTR_7 = /e\s*x\s*p\s*r\s*e\s*s\s*s\s*i\s*o\s*n\s*\(.*/ig;
+var REGEXP_DEFAULT_ON_TAG_ATTR_8 = /u\s*r\s*l\s*\(.*/ig;
+
+/**
+ * 对双引号进行转义
+ *
+ * @param {String} str
+ * @return {String} str
+ */
+function escapeQuote (str) {
+  return str.replace(REGEXP_QUOTE, '&quot;');
+}
+
+/**
+ * 对双引号进行转义
+ *
+ * @param {String} str
+ * @return {String} str
+ */
+function unescapeQuote (str) {
+  return str.replace(REGEXP_QUOTE_2, '"');
+}
+
+/**
+ * 对html实体编码进行转义
+ *
+ * @param {String} str
+ * @return {String}
+ */
+function escapeHtmlEntities (str) {
+  return str.replace(REGEXP_ATTR_VALUE_1, function replaceUnicode (str, code) {
+    return (code[0] === 'x' || code[0] === 'X')
+            ? String.fromCharCode(parseInt(code.substr(1), 16))
+            : String.fromCharCode(parseInt(code, 10));
+  });
+}
+
+/**
+ * 对html5新增的危险实体编码进行转义
+ *
+ * @param {String} str
+ * @return {String}
+ */
+function escapeDangerHtml5Entities (str) {
+  return str.replace(REGEXP_ATTR_VALUE_COLON, ':')
+            .replace(REGEXP_ATTR_VALUE_NEWLINE, ' ');
+}
+
+/**
+ * 清除不可见字符
+ *
+ * @param {String} str
+ * @return {String}
+ */
+function clearNonPrintableCharacter (str) {
+  var str2 = '';
+  for (var i = 0, len = str.length; i < len; i++) {
+    str2 += str.charCodeAt(i) < 32 ? ' ' : str.charAt(i);
+  }
+  return _.trim(str2);
+}
+
+/**
+ * 将标签的属性值转换成一般字符，便于分析
+ *
+ * @param {String} str
+ * @return {String}
+ */
+function friendlyAttrValue (str) {
+  str = unescapeQuote(str);             // 双引号
+  str = escapeHtmlEntities(str);         // 转换HTML实体编码
+  str = escapeDangerHtml5Entities(str);  // 转换危险的HTML5新增实体编码
+  str = clearNonPrintableCharacter(str); // 清除不可见字符
+  return str;
+}
+
+/**
+ * 转义用于输出的标签属性值
+ *
+ * @param {String} str
+ * @return {String}
+ */
+function escapeAttrValue (str) {
+  str = escapeQuote(str);
+  str = escapeHtml(str);
+  return str;
+}
+
+/**
+ * 去掉不在白名单中的标签onIgnoreTag处理方法
+ */
+function onIgnoreTagStripAll () {
+  return '';
+}
+
+/**
+ * 删除标签体
+ *
+ * @param {array} tags 要删除的标签列表
+ * @param {function} next 对不在列表中的标签的处理函数，可选
+ */
+function StripTagBody (tags, next) {
+  if (typeof(next) !== 'function') {
+    next = function () {};
+  }
+
+  var isRemoveAllTag = !Array.isArray(tags);
+  function isRemoveTag (tag) {
+    if (isRemoveAllTag) return true;
+    return (_.indexOf(tags, tag) !== -1);
+  }
+
+  var removeList = [];   // 要删除的位置范围列表
+  var posStart = false;  // 当前标签开始位置
+
+  return {
+    onIgnoreTag: function (tag, html, options) {
+      if (isRemoveTag(tag)) {
+        if (options.isClosing) {
+          var ret = '[/removed]';
+          var end = options.position + ret.length;
+          removeList.push([posStart !== false ? posStart : options.position, end]);
+          posStart = false;
+          return ret;
+        } else {
+          if (!posStart) {
+            posStart = options.position;
+          }
+          return '[removed]';
+        }
+      } else {
+        return next(tag, html, options);
+      }
+    },
+    remove: function (html) {
+      var rethtml = '';
+      var lastPos = 0;
+      _.forEach(removeList, function (pos) {
+        rethtml += html.slice(lastPos, pos[0]);
+        lastPos = pos[1];
+      });
+      rethtml += html.slice(lastPos);
+      return rethtml;
+    }
+  };
+}
+
+/**
+ * 去除备注标签
+ *
+ * @param {String} html
+ * @return {String}
+ */
+function stripCommentTag (html) {
+  return html.replace(STRIP_COMMENT_TAG_REGEXP, '');
+}
+var STRIP_COMMENT_TAG_REGEXP = /<!--[\s\S]*?-->/g;
+
+/**
+ * 去除不可见字符
+ *
+ * @param {String} html
+ * @return {String}
+ */
+function stripBlankChar (html) {
+  var chars = html.split('');
+  chars = chars.filter(function (char) {
+    var c = char.charCodeAt(0);
+    if (c === 127) return false;
+    if (c <= 31) {
+      if (c === 10 || c === 13) return true;
+      return false;
+    }
+    return true;
+  });
+  return chars.join('');
+}
+
+
+exports.whiteList = getDefaultWhiteList();
+exports.getDefaultWhiteList = getDefaultWhiteList;
+exports.onTag = onTag;
+exports.onIgnoreTag = onIgnoreTag;
+exports.onTagAttr = onTagAttr;
+exports.onIgnoreTagAttr = onIgnoreTagAttr;
+exports.safeAttrValue = safeAttrValue;
+exports.escapeHtml = escapeHtml;
+exports.escapeQuote = escapeQuote;
+exports.unescapeQuote = unescapeQuote;
+exports.escapeHtmlEntities = escapeHtmlEntities;
+exports.escapeDangerHtml5Entities = escapeDangerHtml5Entities;
+exports.clearNonPrintableCharacter = clearNonPrintableCharacter;
+exports.friendlyAttrValue = friendlyAttrValue;
+exports.escapeAttrValue = escapeAttrValue;
+exports.onIgnoreTagStripAll = onIgnoreTagStripAll;
+exports.StripTagBody = StripTagBody;
+exports.stripCommentTag = stripCommentTag;
+exports.stripBlankChar = stripBlankChar;
+exports.cssFilter = defaultCSSFilter;
+exports.getDefaultCSSWhiteList = getDefaultCSSWhiteList;
+
+},{"./util":5,"cssfilter":9}],3:[function(require,module,exports){
+/**
+ * 模块入口
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var DEFAULT = require('./default');
+var parser = require('./parser');
+var FilterXSS = require('./xss');
+
+
+/**
+ * XSS过滤
+ *
+ * @param {String} html 要过滤的HTML代码
+ * @param {Object} options 选项：whiteList, onTag, onTagAttr, onIgnoreTag, onIgnoreTagAttr, safeAttrValue, escapeHtml
+ * @return {String}
+ */
+function filterXSS (html, options) {
+  var xss = new FilterXSS(options);
+  return xss.process(html);
+}
+
+
+// 输出
+exports = module.exports = filterXSS;
+exports.FilterXSS = FilterXSS;
+for (var i in DEFAULT) exports[i] = DEFAULT[i];
+for (var i in parser) exports[i] = parser[i];
+
+
+// 在浏览器端使用
+if (typeof window !== 'undefined') {
+  window.filterXSS = module.exports;
+}
+
+},{"./default":2,"./parser":4,"./xss":6}],4:[function(require,module,exports){
+/**
+ * 简单 HTML Parser
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var _ = require('./util');
+
+/**
+ * 获取标签的名称
+ *
+ * @param {String} html 如：'<a hef="#">'
+ * @return {String}
+ */
+function getTagName (html) {
+  var i = html.indexOf(' ');
+  if (i === -1) {
+    var tagName = html.slice(1, -1);
+  } else {
+    var tagName = html.slice(1, i + 1);
+  }
+  tagName = _.trim(tagName).toLowerCase();
+  if (tagName.slice(0, 1) === '/') tagName = tagName.slice(1);
+  if (tagName.slice(-1) === '/') tagName = tagName.slice(0, -1);
+  return tagName;
+}
+
+/**
+ * 是否为闭合标签
+ *
+ * @param {String} html 如：'<a hef="#">'
+ * @return {Boolean}
+ */
+function isClosing (html) {
+  return (html.slice(0, 2) === '</');
+}
+
+/**
+ * 分析HTML代码，调用相应的函数处理，返回处理后的HTML
+ *
+ * @param {String} html
+ * @param {Function} onTag 处理标签的函数
+ *   参数格式： function (sourcePosition, position, tag, html, isClosing)
+ * @param {Function} escapeHtml 对HTML进行转义的函数
+ * @return {String}
+ */
+function parseTag (html, onTag, escapeHtml) {
+  'user strict';
+
+  var rethtml = '';        // 待返回的HTML
+  var lastPos = 0;         // 上一个标签结束位置
+  var tagStart = false;    // 当前标签开始位置
+  var quoteStart = false;  // 引号开始位置
+  var currentPos = 0;      // 当前位置
+  var len = html.length;   // HTML长度
+  var currentHtml = '';    // 当前标签的HTML代码
+  var currentTagName = ''; // 当前标签的名称
+
+  // 逐个分析字符
+  for (currentPos = 0; currentPos < len; currentPos++) {
+    var c = html.charAt(currentPos);
+    if (tagStart === false) {
+      if (c === '<') {
+        tagStart = currentPos;
+        continue;
+      }
+    } else {
+      if (quoteStart === false) {
+        if (c === '<') {
+          rethtml += escapeHtml(html.slice(lastPos, currentPos));
+          tagStart = currentPos;
+          lastPos = currentPos;
+          continue;
+        }
+        if (c === '>') {
+          rethtml += escapeHtml(html.slice(lastPos, tagStart));
+          currentHtml = html.slice(tagStart, currentPos + 1);
+          currentTagName = getTagName(currentHtml);
+          rethtml += onTag(tagStart,
+                           rethtml.length,
+                           currentTagName,
+                           currentHtml,
+                           isClosing(currentHtml));
+          lastPos = currentPos + 1;
+          tagStart = false;
+          continue;
+        }
+        // HTML标签内的引号仅当前一个字符是等于号时才有效
+        if ((c === '"' || c === "'") && html.charAt(currentPos - 1) === '=') {
+          quoteStart = c;
+          continue;
+        }
+      } else {
+        if (c === quoteStart) {
+          quoteStart = false;
+          continue;
+        }
+      }
+    }
+  }
+  if (lastPos < html.length) {
+    rethtml += escapeHtml(html.substr(lastPos));
+  }
+
+  return rethtml;
+}
+
+// 不符合属性名称规则的正则表达式
+var REGEXP_ATTR_NAME = /[^a-zA-Z0-9_:\.\-]/img;
+
+/**
+ * 分析标签HTML代码，调用相应的函数处理，返回HTML
+ *
+ * @param {String} html 如标签'<a href="#" target="_blank">' 则为 'href="#" target="_blank"'
+ * @param {Function} onAttr 处理属性值的函数
+ *   函数格式： function (name, value)
+ * @return {String}
+ */
+function parseAttr (html, onAttr) {
+  'user strict';
+
+  var lastPos = 0;        // 当前位置
+  var retAttrs = [];      // 待返回的属性列表
+  var tmpName = false;    // 临时属性名称
+  var len = html.length;  // HTML代码长度
+
+  function addAttr (name, value) {
+    name = _.trim(name);
+    name = name.replace(REGEXP_ATTR_NAME, '').toLowerCase();
+    if (name.length < 1) return;
+    var ret = onAttr(name, value || '');
+    if (ret) retAttrs.push(ret);
+  };
+
+  // 逐个分析字符
+  for (var i = 0; i < len; i++) {
+    var c = html.charAt(i);
+    var v, j;
+    if (tmpName === false && c === '=') {
+      tmpName = html.slice(lastPos, i);
+      lastPos = i + 1;
+      continue;
+    }
+    if (tmpName !== false) {
+      // HTML标签内的引号仅当前一个字符是等于号时才有效
+      if (i === lastPos && (c === '"' || c === "'") && html.charAt(i - 1) === '=') {
+        j = html.indexOf(c, i + 1);
+        if (j === -1) {
+          break;
+        } else {
+          v = _.trim(html.slice(lastPos + 1, j));
+          addAttr(tmpName, v);
+          tmpName = false;
+          i = j;
+          lastPos = i + 1;
+          continue;
+        }
+      }
+    }
+    if (c === ' ') {
+      if (tmpName === false) {
+        j = findNextEqual(html, i);
+        if (j === -1) {
+          v = _.trim(html.slice(lastPos, i));
+          addAttr(v);
+          tmpName = false;
+          lastPos = i + 1;
+          continue;
+        } else {
+          i = j - 1;
+          continue;
+        }
+      } else {
+        j = findBeforeEqual(html, i - 1);
+        if (j === -1) {
+          v = _.trim(html.slice(lastPos, i));
+          v = stripQuoteWrap(v);
+          addAttr(tmpName, v);
+          tmpName = false;
+          lastPos = i + 1;
+          continue;
+        } else {
+          continue;
+        }
+      }
+    }
+  }
+
+  if (lastPos < html.length) {
+    if (tmpName === false) {
+      addAttr(html.slice(lastPos));
+    } else {
+      addAttr(tmpName, stripQuoteWrap(_.trim(html.slice(lastPos))));
+    }
+  }
+
+  return _.trim(retAttrs.join(' '));
+}
+
+function findNextEqual (str, i) {
+  for (; i < str.length; i++) {
+    var c = str[i];
+    if (c === ' ') continue;
+    if (c === '=') return i;
+    return -1;
+  }
+}
+
+function findBeforeEqual (str, i) {
+  for (; i > 0; i--) {
+    var c = str[i];
+    if (c === ' ') continue;
+    if (c === '=') return i;
+    return -1;
+  }
+}
+
+function isQuoteWrapString (text) {
+  if ((text[0] === '"' && text[text.length - 1] === '"') ||
+      (text[0] === '\'' && text[text.length - 1] === '\'')) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+function stripQuoteWrap (text) {
+  if (isQuoteWrapString(text)) {
+    return text.substr(1, text.length - 2);
+  } else {
+    return text;
+  }
+};
+
+
+exports.parseTag = parseTag;
+exports.parseAttr = parseAttr;
+
+},{"./util":5}],5:[function(require,module,exports){
+module.exports = {
+  indexOf: function (arr, item) {
+    var i, j;
+    if (Array.prototype.indexOf) {
+      return arr.indexOf(item);
+    }
+    for (i = 0, j = arr.length; i < j; i++) {
+      if (arr[i] === item) {
+        return i;
+      }
+    }
+    return -1;
+  },
+  forEach: function (arr, fn, scope) {
+    var i, j;
+    if (Array.prototype.forEach) {
+      return arr.forEach(fn, scope);
+    }
+    for (i = 0, j = arr.length; i < j; i++) {
+      fn.call(scope, arr[i], i, arr);
+    }
+  },
+  trim: function (str) {
+    if (String.prototype.trim) {
+      return str.trim();
+    }
+    return str.replace(/(^\s*)|(\s*$)/g, '');
+  }
+};
+
+},{}],6:[function(require,module,exports){
+/**
+ * 过滤XSS
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var FilterCSS = require('cssfilter').FilterCSS;
+var DEFAULT = require('./default');
+var parser = require('./parser');
+var parseTag = parser.parseTag;
+var parseAttr = parser.parseAttr;
+var _ = require('./util');
+
+
+/**
+ * 返回值是否为空
+ *
+ * @param {Object} obj
+ * @return {Boolean}
+ */
+function isNull (obj) {
+  return (obj === undefined || obj === null);
+}
+
+/**
+ * 取标签内的属性列表字符串
+ *
+ * @param {String} html
+ * @return {Object}
+ *   - {String} html
+ *   - {Boolean} closing
+ */
+function getAttrs (html) {
+  var i = html.indexOf(' ');
+  if (i === -1) {
+    return {
+      html:    '',
+      closing: (html[html.length - 2] === '/')
+    };
+  }
+  html = _.trim(html.slice(i + 1, -1));
+  var isClosing = (html[html.length - 1] === '/');
+  if (isClosing) html = _.trim(html.slice(0, -1));
+  return {
+    html:    html,
+    closing: isClosing
+  };
+}
+
+/**
+ * 浅拷贝对象
+ *
+ * @param {Object} obj
+ * @return {Object}
+ */
+function shallowCopyObject (obj) {
+  var ret = {};
+  for (var i in obj) {
+    ret[i] = obj[i];
+  }
+  return ret;
+}
+
+/**
+ * XSS过滤对象
+ *
+ * @param {Object} options
+ *   选项：whiteList, onTag, onTagAttr, onIgnoreTag,
+ *        onIgnoreTagAttr, safeAttrValue, escapeHtml
+ *        stripIgnoreTagBody, allowCommentTag, stripBlankChar
+ *        css{whiteList, onAttr, onIgnoreAttr} css=false表示禁用cssfilter
+ */
+function FilterXSS (options) {
+  options = shallowCopyObject(options || {});
+
+  if (options.stripIgnoreTag) {
+    if (options.onIgnoreTag) {
+      console.error('Notes: cannot use these two options "stripIgnoreTag" and "onIgnoreTag" at the same time');
+    }
+    options.onIgnoreTag = DEFAULT.onIgnoreTagStripAll;
+  }
+
+  options.whiteList = options.whiteList || DEFAULT.whiteList;
+  options.onTag = options.onTag || DEFAULT.onTag;
+  options.onTagAttr = options.onTagAttr || DEFAULT.onTagAttr;
+  options.onIgnoreTag = options.onIgnoreTag || DEFAULT.onIgnoreTag;
+  options.onIgnoreTagAttr = options.onIgnoreTagAttr || DEFAULT.onIgnoreTagAttr;
+  options.safeAttrValue = options.safeAttrValue || DEFAULT.safeAttrValue;
+  options.escapeHtml = options.escapeHtml || DEFAULT.escapeHtml;
+  this.options = options;
+
+  if (options.css === false) {
+    this.cssFilter = false;
+  } else {
+    options.css = options.css || {};
+    this.cssFilter = new FilterCSS(options.css);
+  }
+}
+
+/**
+ * 开始处理
+ *
+ * @param {String} html
+ * @return {String}
+ */
+FilterXSS.prototype.process = function (html) {
+  // 兼容各种奇葩输入
+  html = html || '';
+  html = html.toString();
+  if (!html) return '';
+
+  var me = this;
+  var options = me.options;
+  var whiteList = options.whiteList;
+  var onTag = options.onTag;
+  var onIgnoreTag = options.onIgnoreTag;
+  var onTagAttr = options.onTagAttr;
+  var onIgnoreTagAttr = options.onIgnoreTagAttr;
+  var safeAttrValue = options.safeAttrValue;
+  var escapeHtml = options.escapeHtml;
+  var cssFilter = me.cssFilter;
+
+  // 是否清除不可见字符
+  if (options.stripBlankChar) {
+    html = DEFAULT.stripBlankChar(html);
+  }
+
+  // 是否禁止备注标签
+  if (!options.allowCommentTag) {
+    html = DEFAULT.stripCommentTag(html);
+  }
+
+  // 如果开启了stripIgnoreTagBody
+  var stripIgnoreTagBody = false;
+  if (options.stripIgnoreTagBody) {
+    var stripIgnoreTagBody = DEFAULT.StripTagBody(options.stripIgnoreTagBody, onIgnoreTag);
+    onIgnoreTag = stripIgnoreTagBody.onIgnoreTag;
+  }
+
+  var retHtml = parseTag(html, function (sourcePosition, position, tag, html, isClosing) {
+    var info = {
+      sourcePosition: sourcePosition,
+      position:       position,
+      isClosing:      isClosing,
+      isWhite:        (tag in whiteList)
+    };
+
+    // 调用onTag处理
+    var ret = onTag(tag, html, info);
+    if (!isNull(ret)) return ret;
+
+    // 默认标签处理方法
+    if (info.isWhite) {
+      // 白名单标签，解析标签属性
+      // 如果是闭合标签，则不需要解析属性
+      if (info.isClosing) {
+        return '</' + tag + '>';
+      }
+
+      var attrs = getAttrs(html);
+      var whiteAttrList = whiteList[tag];
+      var attrsHtml = parseAttr(attrs.html, function (name, value) {
+
+        // 调用onTagAttr处理
+        var isWhiteAttr = (_.indexOf(whiteAttrList, name) !== -1);
+        var ret = onTagAttr(tag, name, value, isWhiteAttr);
+        if (!isNull(ret)) return ret;
+
+        // 默认的属性处理方法
+        if (isWhiteAttr) {
+          // 白名单属性，调用safeAttrValue过滤属性值
+          value = safeAttrValue(tag, name, value, cssFilter);
+          if (value) {
+            return name + '="' + value + '"';
+          } else {
+            return name;
+          }
+        } else {
+          // 非白名单属性，调用onIgnoreTagAttr处理
+          var ret = onIgnoreTagAttr(tag, name, value, isWhiteAttr);
+          if (!isNull(ret)) return ret;
+          return;
+        }
+      });
+
+      // 构造新的标签代码
+      var html = '<' + tag;
+      if (attrsHtml) html += ' ' + attrsHtml;
+      if (attrs.closing) html += ' /';
+      html += '>';
+      return html;
+
+    } else {
+      // 非白名单标签，调用onIgnoreTag处理
+      var ret = onIgnoreTag(tag, html, info);
+      if (!isNull(ret)) return ret;
+      return escapeHtml(html);
+    }
+
+  }, escapeHtml);
+
+  // 如果开启了stripIgnoreTagBody，需要对结果再进行处理
+  if (stripIgnoreTagBody) {
+    retHtml = stripIgnoreTagBody.remove(retHtml);
+  }
+
+  return retHtml;
+};
+
+
+module.exports = FilterXSS;
+
+},{"./default":2,"./parser":4,"./util":5,"cssfilter":9}],7:[function(require,module,exports){
+/**
+ * cssfilter
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var DEFAULT = require('./default');
+var parseStyle = require('./parser');
+var _ = require('./util');
+
+
+/**
+ * 返回值是否为空
+ *
+ * @param {Object} obj
+ * @return {Boolean}
+ */
+function isNull (obj) {
+  return (obj === undefined || obj === null);
+}
+
+
+/**
+ * 创建CSS过滤器
+ *
+ * @param {Object} options
+ *   - {Object} whiteList
+ *   - {Object} onAttr
+ *   - {Object} onIgnoreAttr
+ */
+function FilterCSS (options) {
+  options = options || {};
+  options.whiteList = options.whiteList || DEFAULT.whiteList;
+  options.onAttr = options.onAttr || DEFAULT.onAttr;
+  options.onIgnoreAttr = options.onIgnoreAttr || DEFAULT.onIgnoreAttr;
+  this.options = options;
+}
+
+FilterCSS.prototype.process = function (css) {
+  // 兼容各种奇葩输入
+  css = css || '';
+  css = css.toString();
+  if (!css) return '';
+
+  var me = this;
+  var options = me.options;
+  var whiteList = options.whiteList;
+  var onAttr = options.onAttr;
+  var onIgnoreAttr = options.onIgnoreAttr;
+
+  var retCSS = parseStyle(css, function (sourcePosition, position, name, value, source) {
+
+    var check = whiteList[name];
+    var isWhite = false;
+    if (check === true) isWhite = check;
+    else if (typeof check === 'function') isWhite = check(value);
+    else if (check instanceof RegExp) isWhite = check.test(value);
+    if (isWhite !== true) isWhite = false;
+
+    var opts = {
+      position: position,
+      sourcePosition: sourcePosition,
+      source: source,
+      isWhite: isWhite
+    };
+
+    if (isWhite) {
+
+      var ret = onAttr(name, value, opts);
+      if (isNull(ret)) {
+        return name + ':' + value;
+      } else {
+        return ret;
+      }
+
+    } else {
+
+      var ret = onIgnoreAttr(name, value, opts);
+      if (!isNull(ret)) {
+        return ret;
+      }
+
+    }
+  });
+
+  return retCSS;
+};
+
+
+module.exports = FilterCSS;
+
+},{"./default":8,"./parser":10,"./util":11}],8:[function(require,module,exports){
+/**
+ * cssfilter
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+function getDefaultWhiteList () {
+  // 白名单值说明：
+  // true: 允许该属性
+  // Function: function (val) { } 返回true表示允许该属性，其他值均表示不允许
+  // RegExp: regexp.test(val) 返回true表示允许该属性，其他值均表示不允许
+  // 除上面列出的值外均表示不允许
+  var whiteList = {};
+
+  whiteList['align-content'] = false; // default: auto
+  whiteList['align-items'] = false; // default: auto
+  whiteList['align-self'] = false; // default: auto
+  whiteList['alignment-adjust'] = false; // default: auto
+  whiteList['alignment-baseline'] = false; // default: baseline
+  whiteList['all'] = false; // default: depending on individual properties
+  whiteList['anchor-point'] = false; // default: none
+  whiteList['animation'] = false; // default: depending on individual properties
+  whiteList['animation-delay'] = false; // default: 0
+  whiteList['animation-direction'] = false; // default: normal
+  whiteList['animation-duration'] = false; // default: 0
+  whiteList['animation-fill-mode'] = false; // default: none
+  whiteList['animation-iteration-count'] = false; // default: 1
+  whiteList['animation-name'] = false; // default: none
+  whiteList['animation-play-state'] = false; // default: running
+  whiteList['animation-timing-function'] = false; // default: ease
+  whiteList['azimuth'] = false; // default: center
+  whiteList['backface-visibility'] = false; // default: visible
+  whiteList['background'] = true; // default: depending on individual properties
+  whiteList['background-attachment'] = true; // default: scroll
+  whiteList['background-clip'] = true; // default: border-box
+  whiteList['background-color'] = true; // default: transparent
+  whiteList['background-image'] = true; // default: none
+  whiteList['background-origin'] = true; // default: padding-box
+  whiteList['background-position'] = true; // default: 0% 0%
+  whiteList['background-repeat'] = true; // default: repeat
+  whiteList['background-size'] = true; // default: auto
+  whiteList['baseline-shift'] = false; // default: baseline
+  whiteList['binding'] = false; // default: none
+  whiteList['bleed'] = false; // default: 6pt
+  whiteList['bookmark-label'] = false; // default: content()
+  whiteList['bookmark-level'] = false; // default: none
+  whiteList['bookmark-state'] = false; // default: open
+  whiteList['border'] = true; // default: depending on individual properties
+  whiteList['border-bottom'] = true; // default: depending on individual properties
+  whiteList['border-bottom-color'] = true; // default: current color
+  whiteList['border-bottom-left-radius'] = true; // default: 0
+  whiteList['border-bottom-right-radius'] = true; // default: 0
+  whiteList['border-bottom-style'] = true; // default: none
+  whiteList['border-bottom-width'] = true; // default: medium
+  whiteList['border-collapse'] = true; // default: separate
+  whiteList['border-color'] = true; // default: depending on individual properties
+  whiteList['border-image'] = true; // default: none
+  whiteList['border-image-outset'] = true; // default: 0
+  whiteList['border-image-repeat'] = true; // default: stretch
+  whiteList['border-image-slice'] = true; // default: 100%
+  whiteList['border-image-source'] = true; // default: none
+  whiteList['border-image-width'] = true; // default: 1
+  whiteList['border-left'] = true; // default: depending on individual properties
+  whiteList['border-left-color'] = true; // default: current color
+  whiteList['border-left-style'] = true; // default: none
+  whiteList['border-left-width'] = true; // default: medium
+  whiteList['border-radius'] = true; // default: 0
+  whiteList['border-right'] = true; // default: depending on individual properties
+  whiteList['border-right-color'] = true; // default: current color
+  whiteList['border-right-style'] = true; // default: none
+  whiteList['border-right-width'] = true; // default: medium
+  whiteList['border-spacing'] = true; // default: 0
+  whiteList['border-style'] = true; // default: depending on individual properties
+  whiteList['border-top'] = true; // default: depending on individual properties
+  whiteList['border-top-color'] = true; // default: current color
+  whiteList['border-top-left-radius'] = true; // default: 0
+  whiteList['border-top-right-radius'] = true; // default: 0
+  whiteList['border-top-style'] = true; // default: none
+  whiteList['border-top-width'] = true; // default: medium
+  whiteList['border-width'] = true; // default: depending on individual properties
+  whiteList['bottom'] = false; // default: auto
+  whiteList['box-decoration-break'] = true; // default: slice
+  whiteList['box-shadow'] = true; // default: none
+  whiteList['box-sizing'] = true; // default: content-box
+  whiteList['box-snap'] = true; // default: none
+  whiteList['box-suppress'] = true; // default: show
+  whiteList['break-after'] = true; // default: auto
+  whiteList['break-before'] = true; // default: auto
+  whiteList['break-inside'] = true; // default: auto
+  whiteList['caption-side'] = false; // default: top
+  whiteList['chains'] = false; // default: none
+  whiteList['clear'] = true; // default: none
+  whiteList['clip'] = false; // default: auto
+  whiteList['clip-path'] = false; // default: none
+  whiteList['clip-rule'] = false; // default: nonzero
+  whiteList['color'] = true; // default: implementation dependent
+  whiteList['color-interpolation-filters'] = true; // default: auto
+  whiteList['column-count'] = false; // default: auto
+  whiteList['column-fill'] = false; // default: balance
+  whiteList['column-gap'] = false; // default: normal
+  whiteList['column-rule'] = false; // default: depending on individual properties
+  whiteList['column-rule-color'] = false; // default: current color
+  whiteList['column-rule-style'] = false; // default: medium
+  whiteList['column-rule-width'] = false; // default: medium
+  whiteList['column-span'] = false; // default: none
+  whiteList['column-width'] = false; // default: auto
+  whiteList['columns'] = false; // default: depending on individual properties
+  whiteList['contain'] = false; // default: none
+  whiteList['content'] = false; // default: normal
+  whiteList['counter-increment'] = false; // default: none
+  whiteList['counter-reset'] = false; // default: none
+  whiteList['counter-set'] = false; // default: none
+  whiteList['crop'] = false; // default: auto
+  whiteList['cue'] = false; // default: depending on individual properties
+  whiteList['cue-after'] = false; // default: none
+  whiteList['cue-before'] = false; // default: none
+  whiteList['cursor'] = false; // default: auto
+  whiteList['direction'] = false; // default: ltr
+  whiteList['display'] = true; // default: depending on individual properties
+  whiteList['display-inside'] = true; // default: auto
+  whiteList['display-list'] = true; // default: none
+  whiteList['display-outside'] = true; // default: inline-level
+  whiteList['dominant-baseline'] = false; // default: auto
+  whiteList['elevation'] = false; // default: level
+  whiteList['empty-cells'] = false; // default: show
+  whiteList['filter'] = false; // default: none
+  whiteList['flex'] = false; // default: depending on individual properties
+  whiteList['flex-basis'] = false; // default: auto
+  whiteList['flex-direction'] = false; // default: row
+  whiteList['flex-flow'] = false; // default: depending on individual properties
+  whiteList['flex-grow'] = false; // default: 0
+  whiteList['flex-shrink'] = false; // default: 1
+  whiteList['flex-wrap'] = false; // default: nowrap
+  whiteList['float'] = false; // default: none
+  whiteList['float-offset'] = false; // default: 0 0
+  whiteList['flood-color'] = false; // default: black
+  whiteList['flood-opacity'] = false; // default: 1
+  whiteList['flow-from'] = false; // default: none
+  whiteList['flow-into'] = false; // default: none
+  whiteList['font'] = true; // default: depending on individual properties
+  whiteList['font-family'] = true; // default: implementation dependent
+  whiteList['font-feature-settings'] = true; // default: normal
+  whiteList['font-kerning'] = true; // default: auto
+  whiteList['font-language-override'] = true; // default: normal
+  whiteList['font-size'] = true; // default: medium
+  whiteList['font-size-adjust'] = true; // default: none
+  whiteList['font-stretch'] = true; // default: normal
+  whiteList['font-style'] = true; // default: normal
+  whiteList['font-synthesis'] = true; // default: weight style
+  whiteList['font-variant'] = true; // default: normal
+  whiteList['font-variant-alternates'] = true; // default: normal
+  whiteList['font-variant-caps'] = true; // default: normal
+  whiteList['font-variant-east-asian'] = true; // default: normal
+  whiteList['font-variant-ligatures'] = true; // default: normal
+  whiteList['font-variant-numeric'] = true; // default: normal
+  whiteList['font-variant-position'] = true; // default: normal
+  whiteList['font-weight'] = true; // default: normal
+  whiteList['grid'] = false; // default: depending on individual properties
+  whiteList['grid-area'] = false; // default: depending on individual properties
+  whiteList['grid-auto-columns'] = false; // default: auto
+  whiteList['grid-auto-flow'] = false; // default: none
+  whiteList['grid-auto-rows'] = false; // default: auto
+  whiteList['grid-column'] = false; // default: depending on individual properties
+  whiteList['grid-column-end'] = false; // default: auto
+  whiteList['grid-column-start'] = false; // default: auto
+  whiteList['grid-row'] = false; // default: depending on individual properties
+  whiteList['grid-row-end'] = false; // default: auto
+  whiteList['grid-row-start'] = false; // default: auto
+  whiteList['grid-template'] = false; // default: depending on individual properties
+  whiteList['grid-template-areas'] = false; // default: none
+  whiteList['grid-template-columns'] = false; // default: none
+  whiteList['grid-template-rows'] = false; // default: none
+  whiteList['hanging-punctuation'] = false; // default: none
+  whiteList['height'] = true; // default: auto
+  whiteList['hyphens'] = false; // default: manual
+  whiteList['icon'] = false; // default: auto
+  whiteList['image-orientation'] = false; // default: auto
+  whiteList['image-resolution'] = false; // default: normal
+  whiteList['ime-mode'] = false; // default: auto
+  whiteList['initial-letters'] = false; // default: normal
+  whiteList['inline-box-align'] = false; // default: last
+  whiteList['justify-content'] = false; // default: auto
+  whiteList['justify-items'] = false; // default: auto
+  whiteList['justify-self'] = false; // default: auto
+  whiteList['left'] = false; // default: auto
+  whiteList['letter-spacing'] = true; // default: normal
+  whiteList['lighting-color'] = true; // default: white
+  whiteList['line-box-contain'] = false; // default: block inline replaced
+  whiteList['line-break'] = false; // default: auto
+  whiteList['line-grid'] = false; // default: match-parent
+  whiteList['line-height'] = false; // default: normal
+  whiteList['line-snap'] = false; // default: none
+  whiteList['line-stacking'] = false; // default: depending on individual properties
+  whiteList['line-stacking-ruby'] = false; // default: exclude-ruby
+  whiteList['line-stacking-shift'] = false; // default: consider-shifts
+  whiteList['line-stacking-strategy'] = false; // default: inline-line-height
+  whiteList['list-style'] = true; // default: depending on individual properties
+  whiteList['list-style-image'] = true; // default: none
+  whiteList['list-style-position'] = true; // default: outside
+  whiteList['list-style-type'] = true; // default: disc
+  whiteList['margin'] = true; // default: depending on individual properties
+  whiteList['margin-bottom'] = true; // default: 0
+  whiteList['margin-left'] = true; // default: 0
+  whiteList['margin-right'] = true; // default: 0
+  whiteList['margin-top'] = true; // default: 0
+  whiteList['marker-offset'] = false; // default: auto
+  whiteList['marker-side'] = false; // default: list-item
+  whiteList['marks'] = false; // default: none
+  whiteList['mask'] = false; // default: border-box
+  whiteList['mask-box'] = false; // default: see individual properties
+  whiteList['mask-box-outset'] = false; // default: 0
+  whiteList['mask-box-repeat'] = false; // default: stretch
+  whiteList['mask-box-slice'] = false; // default: 0 fill
+  whiteList['mask-box-source'] = false; // default: none
+  whiteList['mask-box-width'] = false; // default: auto
+  whiteList['mask-clip'] = false; // default: border-box
+  whiteList['mask-image'] = false; // default: none
+  whiteList['mask-origin'] = false; // default: border-box
+  whiteList['mask-position'] = false; // default: center
+  whiteList['mask-repeat'] = false; // default: no-repeat
+  whiteList['mask-size'] = false; // default: border-box
+  whiteList['mask-source-type'] = false; // default: auto
+  whiteList['mask-type'] = false; // default: luminance
+  whiteList['max-height'] = true; // default: none
+  whiteList['max-lines'] = false; // default: none
+  whiteList['max-width'] = true; // default: none
+  whiteList['min-height'] = true; // default: 0
+  whiteList['min-width'] = true; // default: 0
+  whiteList['move-to'] = false; // default: normal
+  whiteList['nav-down'] = false; // default: auto
+  whiteList['nav-index'] = false; // default: auto
+  whiteList['nav-left'] = false; // default: auto
+  whiteList['nav-right'] = false; // default: auto
+  whiteList['nav-up'] = false; // default: auto
+  whiteList['object-fit'] = false; // default: fill
+  whiteList['object-position'] = false; // default: 50% 50%
+  whiteList['opacity'] = false; // default: 1
+  whiteList['order'] = false; // default: 0
+  whiteList['orphans'] = false; // default: 2
+  whiteList['outline'] = false; // default: depending on individual properties
+  whiteList['outline-color'] = false; // default: invert
+  whiteList['outline-offset'] = false; // default: 0
+  whiteList['outline-style'] = false; // default: none
+  whiteList['outline-width'] = false; // default: medium
+  whiteList['overflow'] = false; // default: depending on individual properties
+  whiteList['overflow-wrap'] = false; // default: normal
+  whiteList['overflow-x'] = false; // default: visible
+  whiteList['overflow-y'] = false; // default: visible
+  whiteList['padding'] = true; // default: depending on individual properties
+  whiteList['padding-bottom'] = true; // default: 0
+  whiteList['padding-left'] = true; // default: 0
+  whiteList['padding-right'] = true; // default: 0
+  whiteList['padding-top'] = true; // default: 0
+  whiteList['page'] = false; // default: auto
+  whiteList['page-break-after'] = false; // default: auto
+  whiteList['page-break-before'] = false; // default: auto
+  whiteList['page-break-inside'] = false; // default: auto
+  whiteList['page-policy'] = false; // default: start
+  whiteList['pause'] = false; // default: implementation dependent
+  whiteList['pause-after'] = false; // default: implementation dependent
+  whiteList['pause-before'] = false; // default: implementation dependent
+  whiteList['perspective'] = false; // default: none
+  whiteList['perspective-origin'] = false; // default: 50% 50%
+  whiteList['pitch'] = false; // default: medium
+  whiteList['pitch-range'] = false; // default: 50
+  whiteList['play-during'] = false; // default: auto
+  whiteList['position'] = false; // default: static
+  whiteList['presentation-level'] = false; // default: 0
+  whiteList['quotes'] = false; // default: text
+  whiteList['region-fragment'] = false; // default: auto
+  whiteList['resize'] = false; // default: none
+  whiteList['rest'] = false; // default: depending on individual properties
+  whiteList['rest-after'] = false; // default: none
+  whiteList['rest-before'] = false; // default: none
+  whiteList['richness'] = false; // default: 50
+  whiteList['right'] = false; // default: auto
+  whiteList['rotation'] = false; // default: 0
+  whiteList['rotation-point'] = false; // default: 50% 50%
+  whiteList['ruby-align'] = false; // default: auto
+  whiteList['ruby-merge'] = false; // default: separate
+  whiteList['ruby-position'] = false; // default: before
+  whiteList['shape-image-threshold'] = false; // default: 0.0
+  whiteList['shape-outside'] = false; // default: none
+  whiteList['shape-margin'] = false; // default: 0
+  whiteList['size'] = false; // default: auto
+  whiteList['speak'] = false; // default: auto
+  whiteList['speak-as'] = false; // default: normal
+  whiteList['speak-header'] = false; // default: once
+  whiteList['speak-numeral'] = false; // default: continuous
+  whiteList['speak-punctuation'] = false; // default: none
+  whiteList['speech-rate'] = false; // default: medium
+  whiteList['stress'] = false; // default: 50
+  whiteList['string-set'] = false; // default: none
+  whiteList['tab-size'] = false; // default: 8
+  whiteList['table-layout'] = false; // default: auto
+  whiteList['text-align'] = true; // default: start
+  whiteList['text-align-last'] = true; // default: auto
+  whiteList['text-combine-upright'] = true; // default: none
+  whiteList['text-decoration'] = true; // default: none
+  whiteList['text-decoration-color'] = true; // default: currentColor
+  whiteList['text-decoration-line'] = true; // default: none
+  whiteList['text-decoration-skip'] = true; // default: objects
+  whiteList['text-decoration-style'] = true; // default: solid
+  whiteList['text-emphasis'] = true; // default: depending on individual properties
+  whiteList['text-emphasis-color'] = true; // default: currentColor
+  whiteList['text-emphasis-position'] = true; // default: over right
+  whiteList['text-emphasis-style'] = true; // default: none
+  whiteList['text-height'] = true; // default: auto
+  whiteList['text-indent'] = true; // default: 0
+  whiteList['text-justify'] = true; // default: auto
+  whiteList['text-orientation'] = true; // default: mixed
+  whiteList['text-overflow'] = true; // default: clip
+  whiteList['text-shadow'] = true; // default: none
+  whiteList['text-space-collapse'] = true; // default: collapse
+  whiteList['text-transform'] = true; // default: none
+  whiteList['text-underline-position'] = true; // default: auto
+  whiteList['text-wrap'] = true; // default: normal
+  whiteList['top'] = false; // default: auto
+  whiteList['transform'] = false; // default: none
+  whiteList['transform-origin'] = false; // default: 50% 50% 0
+  whiteList['transform-style'] = false; // default: flat
+  whiteList['transition'] = false; // default: depending on individual properties
+  whiteList['transition-delay'] = false; // default: 0s
+  whiteList['transition-duration'] = false; // default: 0s
+  whiteList['transition-property'] = false; // default: all
+  whiteList['transition-timing-function'] = false; // default: ease
+  whiteList['unicode-bidi'] = false; // default: normal
+  whiteList['vertical-align'] = false; // default: baseline
+  whiteList['visibility'] = false; // default: visible
+  whiteList['voice-balance'] = false; // default: center
+  whiteList['voice-duration'] = false; // default: auto
+  whiteList['voice-family'] = false; // default: implementation dependent
+  whiteList['voice-pitch'] = false; // default: medium
+  whiteList['voice-range'] = false; // default: medium
+  whiteList['voice-rate'] = false; // default: normal
+  whiteList['voice-stress'] = false; // default: normal
+  whiteList['voice-volume'] = false; // default: medium
+  whiteList['volume'] = false; // default: medium
+  whiteList['white-space'] = false; // default: normal
+  whiteList['widows'] = false; // default: 2
+  whiteList['width'] = true; // default: auto
+  whiteList['will-change'] = false; // default: auto
+  whiteList['word-break'] = true; // default: normal
+  whiteList['word-spacing'] = true; // default: normal
+  whiteList['word-wrap'] = true; // default: normal
+  whiteList['wrap-flow'] = false; // default: auto
+  whiteList['wrap-through'] = false; // default: wrap
+  whiteList['writing-mode'] = false; // default: horizontal-tb
+  whiteList['z-index'] = false; // default: auto
+
+  return whiteList;
+}
+
+
+/**
+ * 匹配到白名单上的一个属性时
+ *
+ * @param {String} name
+ * @param {String} value
+ * @param {Object} options
+ * @return {String}
+ */
+function onAttr (name, value, options) {
+  // do nothing
+}
+
+/**
+ * 匹配到不在白名单上的一个属性时
+ *
+ * @param {String} name
+ * @param {String} value
+ * @param {Object} options
+ * @return {String}
+ */
+function onIgnoreAttr (name, value, options) {
+  // do nothing
+}
+
+
+exports.whiteList = getDefaultWhiteList();
+exports.getDefaultWhiteList = getDefaultWhiteList;
+exports.onAttr = onAttr;
+exports.onIgnoreAttr = onIgnoreAttr;
+
+},{}],9:[function(require,module,exports){
+/**
+ * cssfilter
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var DEFAULT = require('./default');
+var FilterCSS = require('./css');
+
+
+/**
+ * XSS过滤
+ *
+ * @param {String} css 要过滤的CSS代码
+ * @param {Object} options 选项：whiteList, onAttr, onIgnoreAttr
+ * @return {String}
+ */
+function filterCSS (html, options) {
+  var xss = new FilterCSS(options);
+  return xss.process(html);
+}
+
+
+// 输出
+exports = module.exports = filterCSS;
+exports.FilterCSS = FilterCSS;
+for (var i in DEFAULT) exports[i] = DEFAULT[i];
+
+// 在浏览器端使用
+if (typeof window !== 'undefined') {
+  window.filterCSS = module.exports;
+}
+
+},{"./css":7,"./default":8}],10:[function(require,module,exports){
+/**
+ * cssfilter
+ *
+ * @author 老雷<leizongmin@gmail.com>
+ */
+
+var _ = require('./util');
+
+
+/**
+ * 解析style
+ *
+ * @param {String} css
+ * @param {Function} onAttr 处理属性的函数
+ *   参数格式： function (sourcePosition, position, name, value, source)
+ * @return {String}
+ */
+function parseStyle (css, onAttr) {
+  css = _.trimRight(css);
+  if (css[css.length - 1] !== ';') css += ';';
+  var cssLength = css.length;
+  var isParenthesisOpen = false;
+  var lastPos = 0;
+  var i = 0;
+  var retCSS = '';
+
+  function addNewAttr () {
+    // 如果没有正常的闭合圆括号，则直接忽略当前属性
+    if (!isParenthesisOpen) {
+      var source = _.trim(css.slice(lastPos, i));
+      var j = source.indexOf(':');
+      if (j !== -1) {
+        var name = _.trim(source.slice(0, j));
+        var value = _.trim(source.slice(j + 1));
+        // 必须有属性名称
+        if (name) {
+          var ret = onAttr(lastPos, retCSS.length, name, value, source);
+          if (ret) retCSS += ret + '; ';
+        }
+      }
+    }
+    lastPos = i + 1;
+  }
+
+  for (; i < cssLength; i++) {
+    var c = css[i];
+    if (c === '/' && css[i + 1] === '*') {
+      // 备注开始
+      var j = css.indexOf('*/', i + 2);
+      // 如果没有正常的备注结束，则后面的部分全部跳过
+      if (j === -1) break;
+      // 直接将当前位置调到备注结尾，并且初始化状态
+      i = j + 1;
+      lastPos = i + 1;
+      isParenthesisOpen = false;
+    } else if (c === '(') {
+      isParenthesisOpen = true;
+    } else if (c === ')') {
+      isParenthesisOpen = false;
+    } else if (c === ';') {
+      if (isParenthesisOpen) {
+        // 在圆括号里面，忽略
+      } else {
+        addNewAttr();
+      }
+    } else if (c === '\n') {
+      addNewAttr();
+    }
+  }
+
+  return _.trim(retCSS);
+}
+
+module.exports = parseStyle;
+
+},{"./util":11}],11:[function(require,module,exports){
+module.exports = {
+  indexOf: function (arr, item) {
+    var i, j;
+    if (Array.prototype.indexOf) {
+      return arr.indexOf(item);
+    }
+    for (i = 0, j = arr.length; i < j; i++) {
+      if (arr[i] === item) {
+        return i;
+      }
+    }
+    return -1;
+  },
+  forEach: function (arr, fn, scope) {
+    var i, j;
+    if (Array.prototype.forEach) {
+      return arr.forEach(fn, scope);
+    }
+    for (i = 0, j = arr.length; i < j; i++) {
+      fn.call(scope, arr[i], i, arr);
+    }
+  },
+  trim: function (str) {
+    if (String.prototype.trim) {
+      return str.trim();
+    }
+    return str.replace(/(^\s*)|(\s*$)/g, '');
+  },
+  trimRight: function (str) {
+    if (String.prototype.trimRight) {
+      return str.trimRight();
+    }
+    return str.replace(/(\s*$)/g, '');
+  }
+};
+
+},{}],12:[function(require,module,exports){
+var rtddata = require('./rtd-data'),
+    versionCompare = require('./version-compare'),
+    sponsorship = require('../sponsorship');
+
+
+function init() {
+    var rtd = rtddata.get();
+
+    var get_data = {
+        project: rtd['project'],
+        version: rtd['version'],
+        page: rtd['page'],
+        theme: rtd.get_theme_name(),
+        format: "jsonp",
+    };
+
+    // Crappy heuristic, but people change the theme name on us.
+    // So we have to do some duck typing.
+    if ("docroot" in rtd) {
+        get_data['docroot'] = rtd['docroot'];
+    }
+
+    if ("source_suffix" in rtd) {
+        get_data['source_suffix'] = rtd['source_suffix'];
+    }
+
+    if (window.location.pathname.indexOf('/projects/') === 0) {
+        get_data['subproject'] = true;
+    }
+
+    // Get footer HTML from API and inject it into the page.
+    $.ajax({
+        url: rtd.api_host + "/api/v2/footer_html/",
+        crossDomain: true,
+        xhrFields: {
+            withCredentials: true,
+        },
+        dataType: "jsonp",
+        data: get_data,
+        success: function (data) {
+            versionCompare.init(data.version_compare);
+            injectFooter(data);
+            setupBookmarkCSRFToken();
+        },
+        error: function () {
+            console.error('Error loading Read the Docs footer');
+        }
+    });
+}
+
+
+function injectFooter(data) {
+    var config = rtddata.get();
+
+    // If the theme looks like ours, update the existing badge
+    // otherwise throw a a full one into the page.
+    if (config.is_rtd_theme()) {
+        $("div.rst-other-versions").html(data['html']);
+    } else {
+        $("body").append(data['html']);
+    }
+
+    if (!data['version_active']) {
+        $('.rst-current-version').addClass('rst-out-of-date');
+    } else if (!data['version_supported']) {
+        //$('.rst-current-version').addClass('rst-active-old-version')
+    }
+
+    // Show promo selectively
+    if (data.promo && config.show_promo()) {
+        var promo = new sponsorship.Promo(
+            data.promo_data.id,
+            data.promo_data.text,
+            data.promo_data.link,
+            data.promo_data.image
+        )
+        if (promo) {
+            promo.display();
+        }
+    }
+}
+
+
+function setupBookmarkCSRFToken() {
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
+            }
+        }
+    });
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"../sponsorship":18,"./rtd-data":14,"./version-compare":17}],13:[function(require,module,exports){
+/*
+ * Mkdocs specific JS code.
+ */
+
+
+var rtddata = require('./rtd-data');
+
+
+function init() {
+    var rtd = rtddata.get();
+
+    // Override MkDocs styles
+    if ("builder" in rtd && rtd["builder"] == "mkdocs") {
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'project',
+          value: rtd["project"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'version',
+          value: rtd["version"]
+      }).appendTo('#rtd-search-form');
+      $('<input>').attr({
+          type: 'hidden',
+          name: 'type',
+          value: 'file'
+      }).appendTo('#rtd-search-form');
+
+      $("#rtd-search-form").prop("action", rtd.api_host + "/search/");
+
+      // Apply stickynav to mkdocs builds
+      var nav_bar = $('nav.wy-nav-side:first'),
+          win = $(window),
+          sticky_nav_class = 'stickynav',
+          apply_stickynav = function () {
+              if (nav_bar.height() <= win.height()) {
+                  nav_bar.addClass(sticky_nav_class);
+              } else {
+                  nav_bar.removeClass(sticky_nav_class);
+              }
+          };
+      win.on('resize', apply_stickynav);
+      apply_stickynav();
+    }
+
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":14}],14:[function(require,module,exports){
+/*
+ * This exposes data injected during the RTD build into the template. It's
+ * provided via the global READTHEDOCS_DATA variable and is exposed here as a
+ * module for cleaner usage.
+ */
+
+
+var configMethods = {
+    is_rtd_theme: function () {
+        return this.get_theme_name() === 'sphinx_rtd_theme';
+    },
+
+    is_sphinx_builder: function () {
+        return (!('builder' in this) || this.builder != 'mkdocs');
+    },
+
+    get_theme_name: function () {
+        // Crappy heuristic, but people change the theme name on us.  So we have to
+        // do some duck typing.
+        if (this.theme !== 'sphinx_rtd_theme') {
+            if ($('div.rst-other-versions').length === 1) {
+                return 'sphinx_rtd_theme';
+            }
+        }
+        return this.theme;
+    },
+
+    show_promo: function () {
+        return (
+            this.api_host !== 'https://readthedocs.com' &&
+            this.is_sphinx_builder() &&
+            this.is_rtd_theme());
+    }
+};
+
+
+/*
+ * Access READTHEDOCS_DATA on call, not on module load. The reason is that the
+ * READTHEDOCS_DATA might not be available during script load time.
+ */
+function get() {
+    // Make `methods` the prototype.
+    var config = Object.create(configMethods);
+
+    var defaults = {
+        api_host: 'https://readthedocs.org'
+    };
+
+    $.extend(config, defaults, window.READTHEDOCS_DATA);
+
+    return config;
+}
+
+
+module.exports = {
+    get: get
+};
+
+},{}],15:[function(require,module,exports){
+/*
+ * Sphinx search overrides
+ */
+
+var rtddata = require('./rtd-data'),
+    xss = require("./../../../../../../bower_components/xss/lib/index");
+
+
+function init() {
+    var data = rtddata.get();
+    attach_elastic_search_query(data);
+}
+
+
+/*
+ * Search query override for hitting our local API instead of the standard
+ * Sphinx indexer. This will fall back to the standard indexer on an API
+ * failure,
+ */
+function attach_elastic_search_query(data) {
+    var project = data.project,
+        version = data.version,
+        language = data.language || 'en',
+        api_host = data.api_host;
+
+    var query_override = function (query) {
+        var search_def = $.Deferred(),
+            search_url = document.createElement('a');
+
+        search_url.href = api_host;
+        search_url.pathname = '/api/v2/docsearch/';
+        search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
+            '&version=' + version + '&language=' + language;
+
+        search_def
+            .then(function (results) {
+                var hits = results.hits || {},
+                    hit_list = hits.hits || [];
+
+                if (hit_list.length) {
+                    for (var n in hit_list) {
+                        var hit = hit_list[n],
+                            fields = hit.fields || {},
+                            list_item = $('<li style="display: none;"></li>'),
+                            item_url = document.createElement('a'),
+                            highlight = hit.highlight;
+
+                        item_url.href += fields.link +
+                            DOCUMENTATION_OPTIONS.FILE_SUFFIX;
+                        item_url.search = '?highlight=' + $.urlencode(query);
+
+                        // Result list elements
+                        list_item.append(
+                            $('<a />')
+                            .attr('href', item_url)
+                            .html(fields.title)
+                        );
+                        if (fields.project != project) {
+                            list_item.append(
+                                $('<span>')
+                                .text(" (from project " + fields.project + ")")
+                            );
+                        }
+                        if (highlight.content.length) {
+                            var content = $('<div class="context">')
+                                .html(xss(highlight.content[0]));
+                            content.find('em').addClass('highlighted');
+                            list_item.append(content);
+                        }
+
+                        Search.output.append(list_item);
+                        list_item.slideDown(5);
+                    }
+                }
+
+                if (!hit_list.length) {
+                    // Fallback to Sphinx's indexes
+                    Search.query_fallback(query);
+                }
+                else {
+                    Search.status.text(
+                        _('Search finished, found %s page(s) matching the search query.').replace('%s', hit_list.length)
+                    );
+                }
+            })
+            .fail(function (error) {
+                // Fallback to Sphinx's indexes
+                Search.query_fallback(query);
+            })
+            .always(function () {
+                $('#search-progress').empty();
+                Search.stopPulse();
+                Search.title.text(_('Search Results'));
+                Search.status.fadeIn(500);
+            });
+
+        $.ajax({
+            url: search_url.href,
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true,
+            },
+            complete: function(resp, status_code) {
+                if (typeof(resp.responseJSON) == 'undefined' ||
+                        typeof(resp.responseJSON.results) == 'undefined') {
+                    return search_def.reject();
+                }
+                return search_def.resolve(resp.responseJSON.results);
+            }
+        })
+        .error(function (resp, status_code, error) {
+            return search_def.reject();
+        });
+    };
+
+    if (typeof Search !== 'undefined' && project && version) {
+        var query_fallback = Search.query;
+        Search.query_fallback = query_fallback;
+        Search.query = query_override;
+    }
+    $(document).ready(function () {
+        if (typeof Search !== 'undefined') {
+            Search.init();
+        }
+    });
+}
+
+module.exports = {
+    init: init
+};
+
+},{"./../../../../../../bower_components/xss/lib/index":3,"./rtd-data":14}],16:[function(require,module,exports){
+/*
+ * Sphinx builder specific JS code.
+ */
+
+
+var rtddata = require('./rtd-data'),
+    sphinx_theme = require("./../../../../../../bower_components/sphinx-rtd-theme/js/theme.js");
+
+
+function init() {
+    var rtd = rtddata.get();
+
+    /// Click tracking on flyout
+    $(document).on('click', "[data-toggle='rst-current-version']", function() {
+      var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed'
+      if (_gaq) {
+        _gaq.push(
+            ['rtfd._setAccount', 'UA-17997319-1'],
+            ['rtfd._trackEvent', 'Flyout', 'Click', flyout_state]
+        );
+      }
+    });
+
+    /// Read the Docs Sphinx theme code
+    if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] != "mkdocs") {
+        var theme = sphinx_theme.ThemeNav;
+
+        // TODO dont do this, the theme should explicitly check when it has be
+        // already enabled. See:
+        // https://github.com/snide/sphinx_rtd_theme/issues/250
+        $(document).ready(function () {
+            setTimeout(function() {
+                if (!theme.navBar) {
+                    theme.enable();
+                }
+            }, 1000);
+        });
+
+        if (rtd.is_rtd_theme()) {
+            // Because generated HTML will not immediately have the new
+            // scroll element, gracefully handle failover by adding it
+            // dynamically.
+            var navBar = jquery('div.wy-side-scroll:first');
+            if (! navBar.length) {
+                var navInner = jquery('nav.wy-nav-side:first'),
+                    navScroll = $('<div />')
+                        .addClass('wy-side-scroll');
+
+                navInner
+                    .children()
+                    .detach()
+                    .appendTo(navScroll);
+                navScroll.prependTo(navInner);
+
+                theme.navBar = navScroll;
+            }
+        }
+    }
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./../../../../../../bower_components/sphinx-rtd-theme/js/theme.js":1,"./rtd-data":14}],17:[function(require,module,exports){
+var rtddata = require('./rtd-data');
+
+
+function init(data) {
+    var rtd = rtddata.get();
+
+    /// Out of date message
+
+    if (data.is_highest) {
+        return;
+    }
+
+    var currentURL = window.location.pathname.replace(rtd['version'], data.slug);
+    var warning = $(
+        '<div class="admonition warning"> ' +
+        '<p class="first admonition-title">Note</p> ' +
+        '<p class="last"> ' +
+        'You are not using the most up to date version of the library. ' +
+        '<a href="#"></a> is the newest version.' +
+        '</p>' +
+        '</div>');
+
+    warning
+      .find('a')
+      .attr('href', currentURL)
+      .text(data.version);
+
+    var body = $("div.body");
+    if (!body.length) {
+        body = $("div.document");
+    }
+    body.prepend(warning);
+}
+
+
+module.exports = {
+    init: init
+};
+
+},{"./rtd-data":14}],18:[function(require,module,exports){
+/* Read the Docs - Documentation promotions */
+
+module.exports = {
+    Promo: Promo
+};
+
+function Promo (id, text, link, image) {
+    this.id = id;
+    this.text = text;
+    this.link = link;
+    this.image = image;
+    this.promo = null;
+}
+
+Promo.prototype.create = function () {
+    var self = this,
+        nav_side = $('nav.wy-nav-side > div.wy-side-scroll');
+
+    if (nav_side.length) {
+        // Add elements
+        promo = $('<div />')
+            .attr('class', 'wy-menu rst-pro');
+
+        // Promo info
+        var promo_about = $('<div />')
+            .attr('class', 'rst-pro-about');
+        var promo_about_link = $('<a />')
+            .attr('href', 'http://docs.readthedocs.io/en/latest/ethical-advertising.html')
+            .appendTo(promo_about);
+        var promo_about_icon = $('<i />')
+            .attr('class', 'fa fa-info-circle')
+            .appendTo(promo_about_link);
+        promo_about.appendTo(promo);
+
+        // On Click handler
+        function promo_click() {
+            if (_gaq) {
+                _gaq.push(
+                    ['rtfd._setAccount', 'UA-17997319-1'],
+                    ['rtfd._trackEvent', 'Promo', 'Click', self.id]
+                );
+            }
+        }
+
+        // Promo image
+        if (self.image) {
+            var promo_image_link = $('<a />')
+                .attr('class', 'rst-pro-image-wrapper')
+                .attr('href', self.link)
+                .attr('target', '_blank')
+                .on('click', promo_click);
+            var promo_image = $('<img />')
+                .attr('class', 'rst-pro-image')
+                .attr('src', self.image)
+                .appendTo(promo_image_link);
+            promo.append(promo_image_link);
+        }
+
+        // Create link with callback
+        var promo_text = $('<span />')
+            .html(self.text);
+        $(promo_text).find('a').each(function () {
+            $(this)
+                .attr('class', 'rst-pro-link')
+                .attr('href', self.link)
+                .attr('target', '_blank')
+                .on('click', promo_click);
+        });
+        promo.append(promo_text);
+
+        promo.appendTo(nav_side);
+
+        promo.wrapper = $('<div />')
+            .attr('class', 'rst-pro-wrapper')
+            .appendTo(nav_side);
+
+        return promo;
+    }
+}
+
+// Position promo
+Promo.prototype.display = function () {
+    var promo = this.promo,
+        self = this;
+
+    if (! promo) {
+        promo = this.promo = this.create();
+    }
+
+    // Promo still might not exist yet
+    if (promo) {
+        promo.show();
+    }
+}
+
+Promo.prototype.disable = function () {
+}
+
+// Variant factory method
+Promo.from_variants = function (variants) {
+    if (variants.length == 0) {
+        return null;
+    }
+    var chosen = Math.floor(Math.random() * variants.length),
+        variant = variants[chosen],
+        text = variant.text,
+        link = variant.link,
+        image = variant.image,
+        id = variant.id;
+    return new Promo(id, text, link, image);
+};
+
+},{}],"core/readthedocs-doc-embed":[function(require,module,exports){
+var sponsorship = require('./sponsorship'),
+    footer = require('./doc-embed/footer.js'),
+    // grokthedocs = require('./doc-embed/grokthedocs-client'),
+    mkdocs = require('./doc-embed/mkdocs'),
+    rtddata = require('./doc-embed/rtd-data'),
+    sphinx = require('./doc-embed/sphinx'),
+    search = require('./doc-embed/search');
+
+$(document).ready(function () {
+    footer.init();
+    sphinx.init();
+    // grokthedocs.init();
+    mkdocs.init();
+    search.init();
+});
+
+},{"./doc-embed/footer.js":12,"./doc-embed/mkdocs":13,"./doc-embed/rtd-data":14,"./doc-embed/search":15,"./doc-embed/sphinx":16,"./sponsorship":18}]},{},[]);

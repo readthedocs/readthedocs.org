@@ -1,1 +1,102 @@
-require=function e(t,o,r){function n(i,u){if(!o[i]){if(!t[i]){var a="function"==typeof require&&require;if(!u&&a)return a(i,!0);if(s)return s(i,!0);var c=new Error("Cannot find module '"+i+"'");throw c.code="MODULE_NOT_FOUND",c}var d=o[i]={exports:{}};t[i][0].call(d.exports,function(e){var o=t[i][1][e];return n(o?o:e)},d,d.exports,e,t,o,r)}return o[i].exports}for(var s="function"==typeof require&&require,i=0;i<r.length;i++)n(r[i]);return n}({"builds/detail":[function(e,t,o){function r(e){var t=this;t.id=i.observable(e.id),t.command=i.observable(e.command),t.output=i.observable(e.output),t.exit_code=i.observable(e.exit_code||0),t.successful=i.observable(0==t.exit_code()),t.run_time=i.observable(e.run_time),t.is_showing=i.observable(!t.successful()),t.toggleCommand=function(){t.is_showing(!t.is_showing())},t.command_status=i.computed(function(){return t.successful()?"build-command-successful":"build-command-failed"})}function s(e){function t(){o.finished()||(u.getJSON("/api/v2/build/"+e.id+"/",function(e){o.state(e.state),o.state_display(e.state_display),o.date(e.date),o.success(e.success),o.error(e.error),o.length(e.length),o.commit(e.commit);for(n in e.commands){var t=e.commands[n],r=i.utils.arrayFirst(o.commands(),function(e){return e.id==t.id});r||o.commands.push(t)}}),setTimeout(t,2e3))}var o=this,e=e||{};o.state=i.observable(e.state),o.state_display=i.observable(e.state_display),o.finished=i.computed(function(){return"finished"==o.state()}),o.date=i.observable(e.date),o.success=i.observable(e.success),o.error=i.observable(e.error),o.length=i.observable(e.length),o.commands=i.observableArray(e.commands),o.display_commands=i.computed(function(){var e=[],t=o.commands();for(n in t){var s=new r(t[n]);e.push(s)}return e}),o.commit=i.observable(e.commit),o.legacy_output=i.observable(!1),o.show_legacy_output=function(){o.legacy_output(!0)},t()}var i=e("knockout"),u=e("jquery");s.init=function(e,t){var o=new s(e),t=t||u("#build-detail")[0];return i.applyBindings(o,t),o},t.exports.BuildDetailView=s},{jquery:"jquery",knockout:"knockout"}]},{},[]);
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"builds/detail":[function(require,module,exports){
+// Build detail view
+
+var ko = require('knockout'),
+    $ = require('jquery');
+
+
+function BuildCommand (data) {
+    var self = this;
+    self.id = ko.observable(data.id);
+    self.command = ko.observable(data.command);
+    self.output = ko.observable(data.output);
+    self.exit_code = ko.observable(data.exit_code || 0);
+    self.successful = ko.observable(self.exit_code() == 0);
+    self.run_time = ko.observable(data.run_time);
+    self.is_showing = ko.observable(!self.successful());
+
+    self.toggleCommand = function () {
+        self.is_showing(!self.is_showing());
+    };
+
+    self.command_status = ko.computed(function () {
+        return self.successful() ?
+            'build-command-successful' :
+            'build-command-failed';
+    });
+}
+
+function BuildDetailView (instance) {
+    var self = this,
+        instance = instance || {};
+
+    /* Instance variables */
+    self.state = ko.observable(instance.state);
+    self.state_display = ko.observable(instance.state_display);
+    self.finished = ko.computed(function () {
+        return self.state() == 'finished';
+    });
+    self.date = ko.observable(instance.date);
+    self.success = ko.observable(instance.success);
+    self.error = ko.observable(instance.error);
+    self.length = ko.observable(instance.length);
+    self.commands = ko.observableArray(instance.commands);
+    self.display_commands = ko.computed(function () {
+        var commands_display = [],
+            commands_raw = self.commands();
+        for (n in commands_raw) {
+            var command = new BuildCommand(commands_raw[n]);
+            commands_display.push(command)
+        }
+        return commands_display;
+    });
+    self.commit = ko.observable(instance.commit);
+
+    /* Others */
+    self.legacy_output = ko.observable(false);
+    self.show_legacy_output = function () {
+        self.legacy_output(true);
+    };
+
+    function poll_api () {
+        if (self.finished()) {
+            return;
+        }
+        $.getJSON('/api/v2/build/' + instance.id + '/', function (data) {
+            self.state(data.state);
+            self.state_display(data.state_display);
+            self.date(data.date);
+            self.success(data.success);
+            self.error(data.error);
+            self.length(data.length);
+            self.commit(data.commit);
+            for (n in data.commands) {
+                var command = data.commands[n];
+                var match = ko.utils.arrayFirst(
+                    self.commands(),
+                    function(command_cmp) {
+                        return (command_cmp.id == command.id);
+                    }
+                );
+                if (!match) {
+                    self.commands.push(command);
+                }
+            }
+        });
+
+        setTimeout(poll_api, 2000);
+    }
+
+    poll_api();
+}
+
+BuildDetailView.init = function (instance, domobj) {
+    var view = new BuildDetailView(instance),
+        domobj = domobj || $('#build-detail')[0];
+    ko.applyBindings(view, domobj);
+    return view;
+};
+
+module.exports.BuildDetailView = BuildDetailView;
+
+},{"jquery":"jquery","knockout":"knockout"}]},{},[]);

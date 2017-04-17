@@ -1,1 +1,981 @@
-require=function e(t,n,r){function s(i,a){if(!n[i]){if(!t[i]){var l="function"==typeof require&&require;if(!a&&l)return l(i,!0);if(o)return o(i,!0);var c=new Error("Cannot find module '"+i+"'");throw c.code="MODULE_NOT_FOUND",c}var u=n[i]={exports:{}};t[i][0].call(u.exports,function(e){var n=t[i][1][e];return s(n?n:e)},u,u.exports,e,t,n,r)}return n[i].exports}for(var o="function"==typeof require&&require,i=0;i<r.length;i++)s(r[i]);return s}({1:[function(e,t,n){var r=function(e,t,n){this.project=e,this.version=t,this.doc=n,this.url=null,this.sections=[]};r.prototype.section=function(e){return new s(this.project,this.version,this.doc,e)};var s=function(e,t,n,r){this.project=e,this.version=t,this.doc=n,this.section=r,this.url=null,this.content=null,this.wrapped=null};s.prototype.insertContent=function(e){var t=document.createElement("iframe");if(t.style.display="none",window.jQuery&&e instanceof window.jQuery&&(e=e.get(0)),"undefined"!=typeof e){for(;e.children.length>0;)e.firstChild.remove();e.appendChild(t)}var n=t.contentWindow;n.document.open(),n.document.write(this.content),n.document.close();var r=n.document.head,s=(n.document.body,null);if(r){s=n.document.createElement("base"),s.target="_parent",s.href=this.url,r.appendChild(s);for(var o=document.head.getElementsByTagName("link"),i=0;i<o.length;i++){var a=o[i];"stylesheet"==a.rel&&r.appendChild(a.cloneNode())}}return n.onload=function(){t.style.display="inline-block"},t},n.Section=s,n.Page=r},{}],2:[function(e,t,n){var r=e("./doc"),s=r.Section,o=r.Page,i=function(e){this._api_host="https://api.grokthedocs.com","object"==typeof e&&"api_host"in e&&(this._api_host=e.api_host)};i.prototype.section=function(e,t,n,r,o,i){o=o||function(){},i=i||function(){};var a={project:e,version:t,doc:n,section:r};this._getObject(a,function(i){var a=new s(e,t,n,r);a.url=i.url,a.content=i.content,a.wrapped=i.wrapped,o(a)},function(e,t){i(e)})},i.prototype.page=function(e,t,n,r,s){var i={project:e,version:t,doc:n};this._getObject(i,function(s){var i=new o(e,t,n);i.url=s.url,i.sections=s.headers,r(i)},function(e,t){s(e)})},i.prototype._getObject=function(t,n,r){var s=e("./../../reqwest/reqwest.js");return n=n||function(){},r=r||function(){},s({url:this._api_host+"/api/v1/embed/",method:"get",contentType:"application/json",crossDomain:!0,headers:{Accept:"application/json"},data:t,success:n,error:r})},n.Embed=i},{"./../../reqwest/reqwest.js":4,"./doc":1}],3:[function(e,t,n){var r=e("./embed");n.Embed=r.Embed,"undefined"!=typeof window&&(window.Embed=r.Embed)},{"./embed":2}],4:[function(require,module,exports){!function(e,t,n){"undefined"!=typeof module&&module.exports?module.exports=n():"function"==typeof define&&define.amd?define(n):t[e]=n()}("reqwest",this,function(){function succeed(e){var t=protocolRe.exec(e.url);return t=t&&t[1]||window.location.protocol,httpsRe.test(t)?twoHundo.test(e.request.status):!!e.request.response}function handleReadyState(e,t,n){return function(){return e._aborted?n(e.request):e._timedOut?n(e.request,"Request is aborted: timeout"):void(e.request&&4==e.request[readyState]&&(e.request.onreadystatechange=noop,succeed(e)?t(e.request):n(e.request)))}}function setHeaders(e,t){var n,r=t.headers||{};r.Accept=r.Accept||defaultHeaders.accept[t.type]||defaultHeaders.accept["*"];var s="function"==typeof FormData&&t.data instanceof FormData;t.crossOrigin||r[requestedWith]||(r[requestedWith]=defaultHeaders.requestedWith),r[contentType]||s||(r[contentType]=t.contentType||defaultHeaders.contentType);for(n in r)r.hasOwnProperty(n)&&"setRequestHeader"in e&&e.setRequestHeader(n,r[n])}function setCredentials(e,t){"undefined"!=typeof t.withCredentials&&"undefined"!=typeof e.withCredentials&&(e.withCredentials=!!t.withCredentials)}function generalCallback(e){lastValue=e}function urlappend(e,t){return e+(/\?/.test(e)?"&":"?")+t}function handleJsonp(e,t,n,r){var s=uniqid++,o=e.jsonpCallback||"callback",i=e.jsonpCallbackName||reqwest.getcallbackPrefix(s),a=new RegExp("((^|\\?|&)"+o+")=([^&]+)"),l=r.match(a),c=doc.createElement("script"),u=0,p=navigator.userAgent.indexOf("MSIE 10.0")!==-1;return l?"?"===l[3]?r=r.replace(a,"$1="+i):i=l[3]:r=urlappend(r,o+"="+i),win[i]=generalCallback,c.type="text/javascript",c.src=r,c.async=!0,"undefined"==typeof c.onreadystatechange||p||(c.htmlFor=c.id="_reqwest_"+s),c.onload=c.onreadystatechange=function(){return!(c[readyState]&&"complete"!==c[readyState]&&"loaded"!==c[readyState]||u)&&(c.onload=c.onreadystatechange=null,c.onclick&&c.onclick(),t(lastValue),lastValue=void 0,head.removeChild(c),void(u=1))},head.appendChild(c),{abort:function(){c.onload=c.onreadystatechange=null,n({},"Request is aborted: timeout",{}),lastValue=void 0,head.removeChild(c),u=1}}}function getRequest(e,t){var n,r=this.o,s=(r.method||"GET").toUpperCase(),o="string"==typeof r?r:r.url,i=r.processData!==!1&&r.data&&"string"!=typeof r.data?reqwest.toQueryString(r.data):r.data||null,a=!1;return"jsonp"!=r.type&&"GET"!=s||!i||(o=urlappend(o,i),i=null),"jsonp"==r.type?handleJsonp(r,e,t,o):(n=r.xhr&&r.xhr(r)||xhr(r),n.open(s,o,r.async!==!1),setHeaders(n,r),setCredentials(n,r),win[xDomainRequest]&&n instanceof win[xDomainRequest]?(n.onload=e,n.onerror=t,n.onprogress=function(){},a=!0):n.onreadystatechange=handleReadyState(this,e,t),r.before&&r.before(n),a?setTimeout(function(){n.send(i)},200):n.send(i),n)}function Reqwest(e,t){this.o=e,this.fn=t,init.apply(this,arguments)}function setType(e){return e.match("json")?"json":e.match("javascript")?"js":e.match("text")?"html":e.match("xml")?"xml":void 0}function init(o,fn){function complete(e){for(o.timeout&&clearTimeout(self.timeout),self.timeout=null;self._completeHandlers.length>0;)self._completeHandlers.shift()(e)}function success(resp){var type=o.type||resp&&setType(resp.getResponseHeader("Content-Type"));resp="jsonp"!==type?self.request:resp;var filteredResponse=globalSetupOptions.dataFilter(resp.responseText,type),r=filteredResponse;try{resp.responseText=r}catch(e){}if(r)switch(type){case"json":try{resp=win.JSON?win.JSON.parse(r):eval("("+r+")")}catch(err){return error(resp,"Could not parse JSON in response",err)}break;case"js":resp=eval(r);break;case"html":resp=r;break;case"xml":resp=resp.responseXML&&resp.responseXML.parseError&&resp.responseXML.parseError.errorCode&&resp.responseXML.parseError.reason?null:resp.responseXML}for(self._responseArgs.resp=resp,self._fulfilled=!0,fn(resp),self._successHandler(resp);self._fulfillmentHandlers.length>0;)resp=self._fulfillmentHandlers.shift()(resp);complete(resp)}function timedOut(){self._timedOut=!0,self.request.abort()}function error(e,t,n){for(e=self.request,self._responseArgs.resp=e,self._responseArgs.msg=t,self._responseArgs.t=n,self._erred=!0;self._errorHandlers.length>0;)self._errorHandlers.shift()(e,t,n);complete(e)}this.url="string"==typeof o?o:o.url,this.timeout=null,this._fulfilled=!1,this._successHandler=function(){},this._fulfillmentHandlers=[],this._errorHandlers=[],this._completeHandlers=[],this._erred=!1,this._responseArgs={};var self=this;fn=fn||function(){},o.timeout&&(this.timeout=setTimeout(function(){timedOut()},o.timeout)),o.success&&(this._successHandler=function(){o.success.apply(o,arguments)}),o.error&&this._errorHandlers.push(function(){o.error.apply(o,arguments)}),o.complete&&this._completeHandlers.push(function(){o.complete.apply(o,arguments)}),this.request=getRequest.call(this,success,error)}function reqwest(e,t){return new Reqwest(e,t)}function normalize(e){return e?e.replace(/\r?\n/g,"\r\n"):""}function serial(e,t){var n,r,s,o,i=e.name,a=e.tagName.toLowerCase(),l=function(e){e&&!e.disabled&&t(i,normalize(e.attributes.value&&e.attributes.value.specified?e.value:e.text))};if(!e.disabled&&i)switch(a){case"input":/reset|button|image|file/i.test(e.type)||(n=/checkbox/i.test(e.type),r=/radio/i.test(e.type),s=e.value,(!(n||r)||e.checked)&&t(i,normalize(n&&""===s?"on":s)));break;case"textarea":t(i,normalize(e.value));break;case"select":if("select-one"===e.type.toLowerCase())l(e.selectedIndex>=0?e.options[e.selectedIndex]:null);else for(o=0;e.length&&o<e.length;o++)e.options[o].selected&&l(e.options[o])}}function eachFormElement(){var e,t,n=this,r=function(e,t){var r,s,o;for(r=0;r<t.length;r++)for(o=e[byTag](t[r]),s=0;s<o.length;s++)serial(o[s],n)};for(t=0;t<arguments.length;t++)e=arguments[t],/input|select|textarea/i.test(e.tagName)&&serial(e,n),r(e,["input","select","textarea"])}function serializeQueryString(){return reqwest.toQueryString(reqwest.serializeArray.apply(null,arguments))}function serializeHash(){var e={};return eachFormElement.apply(function(t,n){t in e?(e[t]&&!isArray(e[t])&&(e[t]=[e[t]]),e[t].push(n)):e[t]=n},arguments),e}function buildParams(e,t,n,r){var s,o,i,a=/\[\]$/;if(isArray(t))for(o=0;t&&o<t.length;o++)i=t[o],n||a.test(e)?r(e,i):buildParams(e+"["+("object"==typeof i?o:"")+"]",i,n,r);else if(t&&"[object Object]"===t.toString())for(s in t)buildParams(e+"["+s+"]",t[s],n,r);else r(e,t)}var win=window,doc=document,httpsRe=/^http/,protocolRe=/(^\w+):\/\//,twoHundo=/^(20\d|1223)$/,byTag="getElementsByTagName",readyState="readyState",contentType="Content-Type",requestedWith="X-Requested-With",head=doc[byTag]("head")[0],uniqid=0,callbackPrefix="reqwest_"+ +new Date,lastValue,xmlHttpRequest="XMLHttpRequest",xDomainRequest="XDomainRequest",noop=function(){},isArray="function"==typeof Array.isArray?Array.isArray:function(e){return e instanceof Array},defaultHeaders={contentType:"application/x-www-form-urlencoded",requestedWith:xmlHttpRequest,accept:{"*":"text/javascript, text/html, application/xml, text/xml, */*",xml:"application/xml, text/xml",html:"text/html",text:"text/plain",json:"application/json, text/javascript",js:"application/javascript, text/javascript"}},xhr=function(e){if(e.crossOrigin===!0){var t=win[xmlHttpRequest]?new XMLHttpRequest:null;if(t&&"withCredentials"in t)return t;if(win[xDomainRequest])return new XDomainRequest;throw new Error("Browser does not support cross-origin requests")}return win[xmlHttpRequest]?new XMLHttpRequest:new ActiveXObject("Microsoft.XMLHTTP")},globalSetupOptions={dataFilter:function(e){return e}};return Reqwest.prototype={abort:function(){this._aborted=!0,this.request.abort()},retry:function(){init.call(this,this.o,this.fn)},then:function(e,t){return e=e||function(){},t=t||function(){},this._fulfilled?this._responseArgs.resp=e(this._responseArgs.resp):this._erred?t(this._responseArgs.resp,this._responseArgs.msg,this._responseArgs.t):(this._fulfillmentHandlers.push(e),this._errorHandlers.push(t)),this},always:function(e){return this._fulfilled||this._erred?e(this._responseArgs.resp):this._completeHandlers.push(e),this},fail:function(e){return this._erred?e(this._responseArgs.resp,this._responseArgs.msg,this._responseArgs.t):this._errorHandlers.push(e),this},"catch":function(e){return this.fail(e)}},reqwest.serializeArray=function(){var e=[];return eachFormElement.apply(function(t,n){e.push({name:t,value:n})},arguments),e},reqwest.serialize=function(){if(0===arguments.length)return"";var e,t,n=Array.prototype.slice.call(arguments,0);return e=n.pop(),e&&e.nodeType&&n.push(e)&&(e=null),e&&(e=e.type),t="map"==e?serializeHash:"array"==e?reqwest.serializeArray:serializeQueryString,t.apply(null,n)},reqwest.toQueryString=function(e,t){var n,r,s=t||!1,o=[],i=encodeURIComponent,a=function(e,t){t="function"==typeof t?t():null==t?"":t,o[o.length]=i(e)+"="+i(t)};if(isArray(e))for(r=0;e&&r<e.length;r++)a(e[r].name,e[r].value);else for(n in e)e.hasOwnProperty(n)&&buildParams(n,e[n],s,a);return o.join("&").replace(/%20/g,"+")},reqwest.getcallbackPrefix=function(){return callbackPrefix},reqwest.compat=function(e,t){return e&&(e.type&&(e.method=e.type)&&delete e.type,e.dataType&&(e.type=e.dataType),e.jsonpCallback&&(e.jsonpCallbackName=e.jsonpCallback)&&delete e.jsonpCallback,e.jsonp&&(e.jsonpCallback=e.jsonp)),new Reqwest(e,t)},reqwest.ajaxSetup=function(e){e=e||{};for(var t in e)globalSetupOptions[t]=e[t]},reqwest})},{}],"projects/tools":[function(e,t,r){function s(e){var t=this;t.config=e||{},"undefined"==typeof t.config.api_host&&(t.config.api_host="https://readthedocs.org"),t.help=l.observable(null),t.error=l.observable(null),t.project=l.observable(t.config.project),t.file=l.observable(null),t.sections=l.observableArray(),l.computed(function(){var e=t.file();if(t.sections.removeAll(),e){t.help("Loading..."),t.error(null),t.section(null);var r=new a.Embed(t.config);r.page(t.project(),"latest",t.file(),function(e){t.sections.removeAll(),t.help(null),t.error(null);var r=[];for(n in e.sections){var s=e.sections[n];u.each(s,function(e,t){r.push({title:e,id:e})})}t.sections(r)},function(e){t.help(null),t.error("There was a problem retrieving data from the API")})}}),t.has_sections=l.computed(function(){return t.sections().length>0}),t.section=l.observable(null),t.has_section=l.computed(function(){return null!=t.section()&&""!=t.section()}),t.response=l.observable(null),l.computed(function(){var e=t.file(),n=t.section();if(null==e||null==n)return t.response(null);t.help("Loading..."),t.error(null),t.response(null),t.api_example(null);var r=new a.Embed(t.config);r.section(t.project(),"latest",t.file(),t.section(),function(e){t.help(null),t.error(null),t.api_example("var embed = Embed();\nembed.section(\n    '"+t.project()+"', 'latest', '"+t.file()+"', '"+t.section()+"',\n    function (section) {\n        section.insertContent($('#help'));\n    }\n);\n"),t.response(e)},function(e){t.help(null),t.error("There was a problem retrieving data from the API")})}),t.has_response=l.computed(function(){return null!=t.response()}),t.api_example=l.observable(null),t.show_help=function(){var e=new a.Embed;e.section("docs","latest","features/embed","Content Embedding",i)},t.show_embed=function(){new a.Embed;i(t.response())}}function o(e){var t=this;t.config=e||{},"undefined"==typeof t.config.api_host&&(t.config.api_host="https://readthedocs.org"),t.show_help=function(){var e=new a.Embed;e.section("docs","latest","business/analytics","Analytics",i)}}function i(e){var t=u("#embed-container");t.length||(t=u('<div id="embed-container" class="modal modal-help" />'),u("body").append(t));var n=e.insertContent(t);u(n).show(),t.show(),u(document).click(function(e){u(e.target).closest("#embed-container").length||(u(n).remove(),t.remove())})}var a=e("./../../../../../bower_components/readthedocs-client/lib/readthedocs.js"),l=e("knockout"),c=e("jquery"),u=c;t.exports.init_embed=function(e){var t=new s(e);l.applyBindings(t,u("#tool-embed")[0])},t.exports.init_analytics=function(e){var t=new o(e);l.applyBindings(t,u("#tool-analytics")[0])}},{"./../../../../../bower_components/readthedocs-client/lib/readthedocs.js":3,jquery:"jquery",knockout:"knockout"}]},{},[]);
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+// Document response
+
+// Page
+var Page = function (project, version, doc) {
+    this.project = project;
+    this.version = version;
+    this.doc = doc;
+
+    this.url = null;
+    this.sections = [];
+};
+
+Page.prototype.section = function (section) {
+    return new Section(this.project, this.version, this.doc, section);
+};
+
+// Section
+var Section = function (project, version, doc, section) {
+    this.project = project;
+    this.version = version;
+    this.doc = doc;
+    this.section = section;
+
+    this.url = null;
+    this.content = null;
+    this.wrapped = null;
+}
+
+// Add iframe with returned content to page
+Section.prototype.insertContent = function (elem) {
+    var iframe = document.createElement('iframe'),
+        self = this;
+
+    iframe.style.display = 'none';
+
+    if (window.jQuery && elem instanceof window.jQuery) {
+        elem = elem.get(0);
+    }
+
+    if (typeof(elem) != 'undefined') {
+        while (elem.children.length > 0) {
+            elem.firstChild.remove();
+        }
+        elem.appendChild(iframe);
+    }
+
+    var win = iframe.contentWindow;
+
+    win.document.open();
+    win.document.write(this.content);
+    win.document.close();
+
+    var head = win.document.head,
+        body = win.document.body,
+        base = null;
+
+    if (head) {
+        base = win.document.createElement('base');
+        base.target = '_parent';
+        base.href = this.url;
+        head.appendChild(base);
+
+        // Copy linked stylesheets from parent
+        var link_elems = document.head.getElementsByTagName('link');
+        for (var n = 0; n < link_elems.length; n++) {
+            var link = link_elems[n];
+            if (link.rel == 'stylesheet') {
+                head.appendChild(link.cloneNode());
+            }
+        }
+    }
+
+    win.onload = function () {
+        iframe.style.display = 'inline-block';
+    };
+
+    return iframe;
+};
+
+
+exports.Section = Section;
+exports.Page = Page;
+
+},{}],2:[function(require,module,exports){
+/* Read the Docs Embed functions */
+
+var doc = require('./doc'),
+    Section = doc.Section,
+    Page = doc.Page;
+
+
+var Embed = function (config) {
+    this._api_host = 'https://api.grokthedocs.com';
+    if (typeof config == 'object') {
+        if ('api_host' in config) {
+            this._api_host = config['api_host'];
+        }
+    }
+};
+
+Embed.prototype.section = function (project, version, doc, section,
+        callback, error_callback) {
+    callback = callback || function () {};
+    error_callback = error_callback || function () {};
+
+    var self = this,
+        data = {
+            'project': project,
+            'version': version,
+            'doc': doc,
+            'section': section
+        };
+
+    this._getObject(
+        data,
+        function (resp) {
+            var section_ret = new Section(project, version, doc, section);
+            section_ret.url = resp.url;
+            section_ret.content = resp.content;
+            section_ret.wrapped = resp.wrapped;
+            callback(section_ret);
+        },
+        function (error, msg) {
+            error_callback(error);
+        }
+    );
+};
+
+Embed.prototype.page = function (project, version, doc, callback,
+        error_callback) {
+
+    var self = this,
+        data = {
+            'project': project,
+            'version': version,
+            'doc': doc,
+        };
+
+    this._getObject(
+        data,
+        function (resp) {
+            var page = new Page(project, version, doc);
+            page.url = resp.url;
+            // TODO headers is misleading here, rename it on the API
+            page.sections = resp.headers;
+            callback(page);
+        },
+        function (error, msg) {
+            error_callback(error);
+        }
+    )
+};
+
+Embed.prototype._getObject = function (data, callback, error_callback) {
+    var self = this,
+        reqwest = require("./../../reqwest/reqwest.js");
+    callback = callback || function () {};
+    error_callback = error_callback || function () {};
+
+    return reqwest({
+        url: this._api_host + '/api/v1/embed/',
+        method: 'get',
+        contentType: 'application/json',
+        crossDomain: true,
+        headers: {'Accept': 'application/json'},
+        data: data,
+        success: callback,
+        error: error_callback
+    });
+};
+
+exports.Embed = Embed;
+
+},{"./../../reqwest/reqwest.js":4,"./doc":1}],3:[function(require,module,exports){
+/* Read the Docs Client */
+
+var embed = require('./embed');
+
+
+exports.Embed = embed.Embed;
+
+if (typeof window != 'undefined') {
+    window.Embed = embed.Embed;
+}
+
+},{"./embed":2}],4:[function(require,module,exports){
+/*!
+  * Reqwest! A general purpose XHR connection manager
+  * license MIT (c) Dustin Diaz 2014
+  * https://github.com/ded/reqwest
+  */
+
+!function (name, context, definition) {
+  if (typeof module != 'undefined' && module.exports) module.exports = definition()
+  else if (typeof define == 'function' && define.amd) define(definition)
+  else context[name] = definition()
+}('reqwest', this, function () {
+
+  var win = window
+    , doc = document
+    , httpsRe = /^http/
+    , protocolRe = /(^\w+):\/\//
+    , twoHundo = /^(20\d|1223)$/ //http://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
+    , byTag = 'getElementsByTagName'
+    , readyState = 'readyState'
+    , contentType = 'Content-Type'
+    , requestedWith = 'X-Requested-With'
+    , head = doc[byTag]('head')[0]
+    , uniqid = 0
+    , callbackPrefix = 'reqwest_' + (+new Date())
+    , lastValue // data stored by the most recent JSONP callback
+    , xmlHttpRequest = 'XMLHttpRequest'
+    , xDomainRequest = 'XDomainRequest'
+    , noop = function () {}
+
+    , isArray = typeof Array.isArray == 'function'
+        ? Array.isArray
+        : function (a) {
+            return a instanceof Array
+          }
+
+    , defaultHeaders = {
+          'contentType': 'application/x-www-form-urlencoded'
+        , 'requestedWith': xmlHttpRequest
+        , 'accept': {
+              '*':  'text/javascript, text/html, application/xml, text/xml, */*'
+            , 'xml':  'application/xml, text/xml'
+            , 'html': 'text/html'
+            , 'text': 'text/plain'
+            , 'json': 'application/json, text/javascript'
+            , 'js':   'application/javascript, text/javascript'
+          }
+      }
+
+    , xhr = function(o) {
+        // is it x-domain
+        if (o['crossOrigin'] === true) {
+          var xhr = win[xmlHttpRequest] ? new XMLHttpRequest() : null
+          if (xhr && 'withCredentials' in xhr) {
+            return xhr
+          } else if (win[xDomainRequest]) {
+            return new XDomainRequest()
+          } else {
+            throw new Error('Browser does not support cross-origin requests')
+          }
+        } else if (win[xmlHttpRequest]) {
+          return new XMLHttpRequest()
+        } else {
+          return new ActiveXObject('Microsoft.XMLHTTP')
+        }
+      }
+    , globalSetupOptions = {
+        dataFilter: function (data) {
+          return data
+        }
+      }
+
+  function succeed(r) {
+    var protocol = protocolRe.exec(r.url);
+    protocol = (protocol && protocol[1]) || window.location.protocol;
+    return httpsRe.test(protocol) ? twoHundo.test(r.request.status) : !!r.request.response;
+  }
+
+  function handleReadyState(r, success, error) {
+    return function () {
+      // use _aborted to mitigate against IE err c00c023f
+      // (can't read props on aborted request objects)
+      if (r._aborted) return error(r.request)
+      if (r._timedOut) return error(r.request, 'Request is aborted: timeout')
+      if (r.request && r.request[readyState] == 4) {
+        r.request.onreadystatechange = noop
+        if (succeed(r)) success(r.request)
+        else
+          error(r.request)
+      }
+    }
+  }
+
+  function setHeaders(http, o) {
+    var headers = o['headers'] || {}
+      , h
+
+    headers['Accept'] = headers['Accept']
+      || defaultHeaders['accept'][o['type']]
+      || defaultHeaders['accept']['*']
+
+    var isAFormData = typeof FormData === 'function' && (o['data'] instanceof FormData);
+    // breaks cross-origin requests with legacy browsers
+    if (!o['crossOrigin'] && !headers[requestedWith]) headers[requestedWith] = defaultHeaders['requestedWith']
+    if (!headers[contentType] && !isAFormData) headers[contentType] = o['contentType'] || defaultHeaders['contentType']
+    for (h in headers)
+      headers.hasOwnProperty(h) && 'setRequestHeader' in http && http.setRequestHeader(h, headers[h])
+  }
+
+  function setCredentials(http, o) {
+    if (typeof o['withCredentials'] !== 'undefined' && typeof http.withCredentials !== 'undefined') {
+      http.withCredentials = !!o['withCredentials']
+    }
+  }
+
+  function generalCallback(data) {
+    lastValue = data
+  }
+
+  function urlappend (url, s) {
+    return url + (/\?/.test(url) ? '&' : '?') + s
+  }
+
+  function handleJsonp(o, fn, err, url) {
+    var reqId = uniqid++
+      , cbkey = o['jsonpCallback'] || 'callback' // the 'callback' key
+      , cbval = o['jsonpCallbackName'] || reqwest.getcallbackPrefix(reqId)
+      , cbreg = new RegExp('((^|\\?|&)' + cbkey + ')=([^&]+)')
+      , match = url.match(cbreg)
+      , script = doc.createElement('script')
+      , loaded = 0
+      , isIE10 = navigator.userAgent.indexOf('MSIE 10.0') !== -1
+
+    if (match) {
+      if (match[3] === '?') {
+        url = url.replace(cbreg, '$1=' + cbval) // wildcard callback func name
+      } else {
+        cbval = match[3] // provided callback func name
+      }
+    } else {
+      url = urlappend(url, cbkey + '=' + cbval) // no callback details, add 'em
+    }
+
+    win[cbval] = generalCallback
+
+    script.type = 'text/javascript'
+    script.src = url
+    script.async = true
+    if (typeof script.onreadystatechange !== 'undefined' && !isIE10) {
+      // need this for IE due to out-of-order onreadystatechange(), binding script
+      // execution to an event listener gives us control over when the script
+      // is executed. See http://jaubourg.net/2010/07/loading-script-as-onclick-handler-of.html
+      script.htmlFor = script.id = '_reqwest_' + reqId
+    }
+
+    script.onload = script.onreadystatechange = function () {
+      if ((script[readyState] && script[readyState] !== 'complete' && script[readyState] !== 'loaded') || loaded) {
+        return false
+      }
+      script.onload = script.onreadystatechange = null
+      script.onclick && script.onclick()
+      // Call the user callback with the last value stored and clean up values and scripts.
+      fn(lastValue)
+      lastValue = undefined
+      head.removeChild(script)
+      loaded = 1
+    }
+
+    // Add the script to the DOM head
+    head.appendChild(script)
+
+    // Enable JSONP timeout
+    return {
+      abort: function () {
+        script.onload = script.onreadystatechange = null
+        err({}, 'Request is aborted: timeout', {})
+        lastValue = undefined
+        head.removeChild(script)
+        loaded = 1
+      }
+    }
+  }
+
+  function getRequest(fn, err) {
+    var o = this.o
+      , method = (o['method'] || 'GET').toUpperCase()
+      , url = typeof o === 'string' ? o : o['url']
+      // convert non-string objects to query-string form unless o['processData'] is false
+      , data = (o['processData'] !== false && o['data'] && typeof o['data'] !== 'string')
+        ? reqwest.toQueryString(o['data'])
+        : (o['data'] || null)
+      , http
+      , sendWait = false
+
+    // if we're working on a GET request and we have data then we should append
+    // query string to end of URL and not post data
+    if ((o['type'] == 'jsonp' || method == 'GET') && data) {
+      url = urlappend(url, data)
+      data = null
+    }
+
+    if (o['type'] == 'jsonp') return handleJsonp(o, fn, err, url)
+
+    // get the xhr from the factory if passed
+    // if the factory returns null, fall-back to ours
+    http = (o.xhr && o.xhr(o)) || xhr(o)
+
+    http.open(method, url, o['async'] === false ? false : true)
+    setHeaders(http, o)
+    setCredentials(http, o)
+    if (win[xDomainRequest] && http instanceof win[xDomainRequest]) {
+        http.onload = fn
+        http.onerror = err
+        // NOTE: see
+        // http://social.msdn.microsoft.com/Forums/en-US/iewebdevelopment/thread/30ef3add-767c-4436-b8a9-f1ca19b4812e
+        http.onprogress = function() {}
+        sendWait = true
+    } else {
+      http.onreadystatechange = handleReadyState(this, fn, err)
+    }
+    o['before'] && o['before'](http)
+    if (sendWait) {
+      setTimeout(function () {
+        http.send(data)
+      }, 200)
+    } else {
+      http.send(data)
+    }
+    return http
+  }
+
+  function Reqwest(o, fn) {
+    this.o = o
+    this.fn = fn
+
+    init.apply(this, arguments)
+  }
+
+  function setType(header) {
+    // json, javascript, text/plain, text/html, xml
+    if (header.match('json')) return 'json'
+    if (header.match('javascript')) return 'js'
+    if (header.match('text')) return 'html'
+    if (header.match('xml')) return 'xml'
+  }
+
+  function init(o, fn) {
+
+    this.url = typeof o == 'string' ? o : o['url']
+    this.timeout = null
+
+    // whether request has been fulfilled for purpose
+    // of tracking the Promises
+    this._fulfilled = false
+    // success handlers
+    this._successHandler = function(){}
+    this._fulfillmentHandlers = []
+    // error handlers
+    this._errorHandlers = []
+    // complete (both success and fail) handlers
+    this._completeHandlers = []
+    this._erred = false
+    this._responseArgs = {}
+
+    var self = this
+
+    fn = fn || function () {}
+
+    if (o['timeout']) {
+      this.timeout = setTimeout(function () {
+        timedOut()
+      }, o['timeout'])
+    }
+
+    if (o['success']) {
+      this._successHandler = function () {
+        o['success'].apply(o, arguments)
+      }
+    }
+
+    if (o['error']) {
+      this._errorHandlers.push(function () {
+        o['error'].apply(o, arguments)
+      })
+    }
+
+    if (o['complete']) {
+      this._completeHandlers.push(function () {
+        o['complete'].apply(o, arguments)
+      })
+    }
+
+    function complete (resp) {
+      o['timeout'] && clearTimeout(self.timeout)
+      self.timeout = null
+      while (self._completeHandlers.length > 0) {
+        self._completeHandlers.shift()(resp)
+      }
+    }
+
+    function success (resp) {
+      var type = o['type'] || resp && setType(resp.getResponseHeader('Content-Type')) // resp can be undefined in IE
+      resp = (type !== 'jsonp') ? self.request : resp
+      // use global data filter on response text
+      var filteredResponse = globalSetupOptions.dataFilter(resp.responseText, type)
+        , r = filteredResponse
+      try {
+        resp.responseText = r
+      } catch (e) {
+        // can't assign this in IE<=8, just ignore
+      }
+      if (r) {
+        switch (type) {
+        case 'json':
+          try {
+            resp = win.JSON ? win.JSON.parse(r) : eval('(' + r + ')')
+          } catch (err) {
+            return error(resp, 'Could not parse JSON in response', err)
+          }
+          break
+        case 'js':
+          resp = eval(r)
+          break
+        case 'html':
+          resp = r
+          break
+        case 'xml':
+          resp = resp.responseXML
+              && resp.responseXML.parseError // IE trololo
+              && resp.responseXML.parseError.errorCode
+              && resp.responseXML.parseError.reason
+            ? null
+            : resp.responseXML
+          break
+        }
+      }
+
+      self._responseArgs.resp = resp
+      self._fulfilled = true
+      fn(resp)
+      self._successHandler(resp)
+      while (self._fulfillmentHandlers.length > 0) {
+        resp = self._fulfillmentHandlers.shift()(resp)
+      }
+
+      complete(resp)
+    }
+
+    function timedOut() {
+      self._timedOut = true
+      self.request.abort()      
+    }
+
+    function error(resp, msg, t) {
+      resp = self.request
+      self._responseArgs.resp = resp
+      self._responseArgs.msg = msg
+      self._responseArgs.t = t
+      self._erred = true
+      while (self._errorHandlers.length > 0) {
+        self._errorHandlers.shift()(resp, msg, t)
+      }
+      complete(resp)
+    }
+
+    this.request = getRequest.call(this, success, error)
+  }
+
+  Reqwest.prototype = {
+    abort: function () {
+      this._aborted = true
+      this.request.abort()
+    }
+
+  , retry: function () {
+      init.call(this, this.o, this.fn)
+    }
+
+    /**
+     * Small deviation from the Promises A CommonJs specification
+     * http://wiki.commonjs.org/wiki/Promises/A
+     */
+
+    /**
+     * `then` will execute upon successful requests
+     */
+  , then: function (success, fail) {
+      success = success || function () {}
+      fail = fail || function () {}
+      if (this._fulfilled) {
+        this._responseArgs.resp = success(this._responseArgs.resp)
+      } else if (this._erred) {
+        fail(this._responseArgs.resp, this._responseArgs.msg, this._responseArgs.t)
+      } else {
+        this._fulfillmentHandlers.push(success)
+        this._errorHandlers.push(fail)
+      }
+      return this
+    }
+
+    /**
+     * `always` will execute whether the request succeeds or fails
+     */
+  , always: function (fn) {
+      if (this._fulfilled || this._erred) {
+        fn(this._responseArgs.resp)
+      } else {
+        this._completeHandlers.push(fn)
+      }
+      return this
+    }
+
+    /**
+     * `fail` will execute when the request fails
+     */
+  , fail: function (fn) {
+      if (this._erred) {
+        fn(this._responseArgs.resp, this._responseArgs.msg, this._responseArgs.t)
+      } else {
+        this._errorHandlers.push(fn)
+      }
+      return this
+    }
+  , 'catch': function (fn) {
+      return this.fail(fn)
+    }
+  }
+
+  function reqwest(o, fn) {
+    return new Reqwest(o, fn)
+  }
+
+  // normalize newline variants according to spec -> CRLF
+  function normalize(s) {
+    return s ? s.replace(/\r?\n/g, '\r\n') : ''
+  }
+
+  function serial(el, cb) {
+    var n = el.name
+      , t = el.tagName.toLowerCase()
+      , optCb = function (o) {
+          // IE gives value="" even where there is no value attribute
+          // 'specified' ref: http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-862529273
+          if (o && !o['disabled'])
+            cb(n, normalize(o['attributes']['value'] && o['attributes']['value']['specified'] ? o['value'] : o['text']))
+        }
+      , ch, ra, val, i
+
+    // don't serialize elements that are disabled or without a name
+    if (el.disabled || !n) return
+
+    switch (t) {
+    case 'input':
+      if (!/reset|button|image|file/i.test(el.type)) {
+        ch = /checkbox/i.test(el.type)
+        ra = /radio/i.test(el.type)
+        val = el.value
+        // WebKit gives us "" instead of "on" if a checkbox has no value, so correct it here
+        ;(!(ch || ra) || el.checked) && cb(n, normalize(ch && val === '' ? 'on' : val))
+      }
+      break
+    case 'textarea':
+      cb(n, normalize(el.value))
+      break
+    case 'select':
+      if (el.type.toLowerCase() === 'select-one') {
+        optCb(el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null)
+      } else {
+        for (i = 0; el.length && i < el.length; i++) {
+          el.options[i].selected && optCb(el.options[i])
+        }
+      }
+      break
+    }
+  }
+
+  // collect up all form elements found from the passed argument elements all
+  // the way down to child elements; pass a '<form>' or form fields.
+  // called with 'this'=callback to use for serial() on each element
+  function eachFormElement() {
+    var cb = this
+      , e, i
+      , serializeSubtags = function (e, tags) {
+          var i, j, fa
+          for (i = 0; i < tags.length; i++) {
+            fa = e[byTag](tags[i])
+            for (j = 0; j < fa.length; j++) serial(fa[j], cb)
+          }
+        }
+
+    for (i = 0; i < arguments.length; i++) {
+      e = arguments[i]
+      if (/input|select|textarea/i.test(e.tagName)) serial(e, cb)
+      serializeSubtags(e, [ 'input', 'select', 'textarea' ])
+    }
+  }
+
+  // standard query string style serialization
+  function serializeQueryString() {
+    return reqwest.toQueryString(reqwest.serializeArray.apply(null, arguments))
+  }
+
+  // { 'name': 'value', ... } style serialization
+  function serializeHash() {
+    var hash = {}
+    eachFormElement.apply(function (name, value) {
+      if (name in hash) {
+        hash[name] && !isArray(hash[name]) && (hash[name] = [hash[name]])
+        hash[name].push(value)
+      } else hash[name] = value
+    }, arguments)
+    return hash
+  }
+
+  // [ { name: 'name', value: 'value' }, ... ] style serialization
+  reqwest.serializeArray = function () {
+    var arr = []
+    eachFormElement.apply(function (name, value) {
+      arr.push({name: name, value: value})
+    }, arguments)
+    return arr
+  }
+
+  reqwest.serialize = function () {
+    if (arguments.length === 0) return ''
+    var opt, fn
+      , args = Array.prototype.slice.call(arguments, 0)
+
+    opt = args.pop()
+    opt && opt.nodeType && args.push(opt) && (opt = null)
+    opt && (opt = opt.type)
+
+    if (opt == 'map') fn = serializeHash
+    else if (opt == 'array') fn = reqwest.serializeArray
+    else fn = serializeQueryString
+
+    return fn.apply(null, args)
+  }
+
+  reqwest.toQueryString = function (o, trad) {
+    var prefix, i
+      , traditional = trad || false
+      , s = []
+      , enc = encodeURIComponent
+      , add = function (key, value) {
+          // If value is a function, invoke it and return its value
+          value = ('function' === typeof value) ? value() : (value == null ? '' : value)
+          s[s.length] = enc(key) + '=' + enc(value)
+        }
+    // If an array was passed in, assume that it is an array of form elements.
+    if (isArray(o)) {
+      for (i = 0; o && i < o.length; i++) add(o[i]['name'], o[i]['value'])
+    } else {
+      // If traditional, encode the "old" way (the way 1.3.2 or older
+      // did it), otherwise encode params recursively.
+      for (prefix in o) {
+        if (o.hasOwnProperty(prefix)) buildParams(prefix, o[prefix], traditional, add)
+      }
+    }
+
+    // spaces should be + according to spec
+    return s.join('&').replace(/%20/g, '+')
+  }
+
+  function buildParams(prefix, obj, traditional, add) {
+    var name, i, v
+      , rbracket = /\[\]$/
+
+    if (isArray(obj)) {
+      // Serialize array item.
+      for (i = 0; obj && i < obj.length; i++) {
+        v = obj[i]
+        if (traditional || rbracket.test(prefix)) {
+          // Treat each array item as a scalar.
+          add(prefix, v)
+        } else {
+          buildParams(prefix + '[' + (typeof v === 'object' ? i : '') + ']', v, traditional, add)
+        }
+      }
+    } else if (obj && obj.toString() === '[object Object]') {
+      // Serialize object item.
+      for (name in obj) {
+        buildParams(prefix + '[' + name + ']', obj[name], traditional, add)
+      }
+
+    } else {
+      // Serialize scalar item.
+      add(prefix, obj)
+    }
+  }
+
+  reqwest.getcallbackPrefix = function () {
+    return callbackPrefix
+  }
+
+  // jQuery and Zepto compatibility, differences can be remapped here so you can call
+  // .ajax.compat(options, callback)
+  reqwest.compat = function (o, fn) {
+    if (o) {
+      o['type'] && (o['method'] = o['type']) && delete o['type']
+      o['dataType'] && (o['type'] = o['dataType'])
+      o['jsonpCallback'] && (o['jsonpCallbackName'] = o['jsonpCallback']) && delete o['jsonpCallback']
+      o['jsonp'] && (o['jsonpCallback'] = o['jsonp'])
+    }
+    return new Reqwest(o, fn)
+  }
+
+  reqwest.ajaxSetup = function (options) {
+    options = options || {}
+    for (var k in options) {
+      globalSetupOptions[k] = options[k]
+    }
+  }
+
+  return reqwest
+});
+
+},{}],"projects/tools":[function(require,module,exports){
+
+var rtd = require("./../../../../../bower_components/readthedocs-client/lib/readthedocs.js"),
+    ko = require('knockout'),
+    jquery = require('jquery'),
+    $ = jquery;
+
+
+function EmbedView (config) {
+    var self = this;
+
+    // Normalize config
+    self.config = config || {};
+    if (typeof(self.config.api_host) == 'undefined') {
+        self.config.api_host = 'https://readthedocs.org'
+    }
+
+    self.help = ko.observable(null);
+    self.error = ko.observable(null);
+
+    self.project = ko.observable(self.config.project);
+    self.file = ko.observable(null);
+
+    self.sections = ko.observableArray();
+    ko.computed(function () {
+        var file = self.file();
+        self.sections.removeAll();
+        if (! file) {
+            return;
+        }
+        self.help('Loading...');
+        self.error(null);
+        self.section(null);
+
+        var embed = new rtd.Embed(self.config);
+        embed.page(
+            self.project(), 'latest', self.file(),
+            function (page) {
+                self.sections.removeAll();
+                self.help(null);
+                self.error(null);
+                var sections_data = [];
+                for (n in page.sections) {
+                    var section = page.sections[n];
+                    $.each(section, function (title, id) {
+                        sections_data.push({
+                            title: title,
+                            id: title
+                        });
+                    });
+                }
+                self.sections(sections_data);
+            },
+            function (error) {
+                self.help(null);
+                self.error('There was a problem retrieving data from the API');
+            }
+        );
+    });
+
+    self.has_sections = ko.computed(function () {
+        return (self.sections().length > 0);
+    });
+
+    self.section = ko.observable(null);
+
+    self.has_section = ko.computed(function () {
+        return (self.section() != null && self.section() != '');
+    });
+
+    self.response = ko.observable(null);
+    ko.computed(function () {
+        var file = self.file(),
+            section = self.section();
+        if (file == null || section == null) {
+            return self.response(null);
+        }
+        self.help('Loading...');
+        self.error(null);
+        self.response(null);
+        self.api_example(null);
+
+        var embed = new rtd.Embed(self.config);
+        embed.section(
+            self.project(), 'latest', self.file(), self.section(),
+            function (section) {
+                self.help(null);
+                self.error(null);
+                self.api_example(
+                    "var embed = Embed();\n" +
+                    "embed.section(\n" +
+                    "    '" + self.project() + "', 'latest', '" + self.file() + "', '" + self.section() + "',\n" +
+                    "    function (section) {\n" +
+                    "        section.insertContent($('#help'));\n" +
+                    "    }\n" +
+                    ");\n"
+                );
+                self.response(section);
+            },
+            function (error) {
+                self.help(null);
+                self.error('There was a problem retrieving data from the API');
+            }
+        );
+    });
+
+    self.has_response = ko.computed(function () {
+        return (self.response() != null);
+    });
+
+    self.api_example = ko.observable(null);
+
+    self.show_help = function () {
+        var embed = new rtd.Embed();
+        embed.section(
+            'docs', 'latest', 'features/embed', 'Content Embedding',
+            _show_modal
+        );
+    };
+
+    self.show_embed = function () {
+        var embed = new rtd.Embed();
+        _show_modal(self.response());
+    };
+}
+
+module.exports.init_embed = function (config) {
+    var view = new EmbedView(config);
+    ko.applyBindings(view, $('#tool-embed')[0]);
+}
+
+// Analytics
+function AnalyticsView (config) {
+    var self = this;
+
+    // Normalize config
+    self.config = config || {};
+    if (typeof(self.config.api_host) == 'undefined') {
+        self.config.api_host = 'https://readthedocs.org'
+    }
+
+    self.show_help = function () {
+        var embed = new rtd.Embed();
+        embed.section(
+            'docs', 'latest', 'business/analytics', 'Analytics',
+            _show_modal
+        );
+    };
+}
+
+module.exports.init_analytics = function (config) {
+    var view = new AnalyticsView(config);
+    ko.applyBindings(view, $('#tool-analytics')[0]);
+}
+
+// Modal display
+function _show_modal (section) {
+    var embed_container = $('#embed-container');
+    if (!embed_container.length) {
+        embed_container = $('<div id="embed-container" class="modal modal-help" />');
+        $('body').append(embed_container);
+    }
+
+    // Add iframe
+    var iframe = section.insertContent(embed_container);
+    $(iframe).show();
+    embed_container.show();
+
+    // Handle click out of modal
+    $(document).click(function (ev) {
+        if(!$(ev.target).closest('#embed-container').length) {
+            $(iframe).remove();
+            embed_container.remove();
+        }
+    });
+}
+
+},{"./../../../../../bower_components/readthedocs-client/lib/readthedocs.js":3,"jquery":"jquery","knockout":"knockout"}]},{},[]);

@@ -1,1 +1,342 @@
-require=function e(r,t,n){function a(s,i){if(!t[s]){if(!r[s]){var u="function"==typeof require&&require;if(!i&&u)return u(s,!0);if(o)return o(s,!0);var c=new Error("Cannot find module '"+s+"'");throw c.code="MODULE_NOT_FOUND",c}var l=t[s]={exports:{}};r[s][0].call(l.exports,function(e){var t=r[s][1][e];return a(t?t:e)},l,l.exports,e,r,t,n)}return t[s].exports}for(var o="function"==typeof require&&require,s=0;s<n.length;s++)a(n[s]);return a}({1:[function(e,r,t){function n(e){function r(){o.getJSON(e.url).success(function(e){e.finished?e.success?t.resolve():t.reject({message:e.error}):setTimeout(r,2e3)}).error(function(e){if(console.error("Error polling task:",e),n-=1,n>0)setTimeout(r,2e3);else{var a=e.responseJSON.detail||e.statusText;t.reject({message:a})}})}var t=o.Deferred(),n=5;return setTimeout(r,2e3),t}function a(e){var r=o.Deferred(),t=e.url,a=e.token,s={csrfmiddlewaretoken:a};return $.ajax({method:"POST",url:t,data:s,success:function(e){n(e).then(function(){r.resolve()}).fail(function(e){r.reject(e)})},error:function(e){var t=e.responseJSON.detail||e.statusText;r.reject({message:t})}}),r}var o=e("jquery");r.exports={poll_task:n,trigger_task:a}},{jquery:"jquery"}],"projects/import":[function(e,r,t){function a(e,r){var t=this;t.id=u.observable(e.id),t.name=u.observable(e.name),t.slug=u.observable(e.slug),t.active=u.observable(e.active),t.avatar_url=u.observable(i(e.avatar_url,{size:32})),t.display_name=u.computed(function(){return t.name()||t.slug()}),t.filtered=u.computed(function(){var e=r.filter_org();return e&&e!=t.id()})}function o(e,r){var t=this;t.id=u.observable(e.id),t.name=u.observable(e.name),t.full_name=u.observable(e.full_name),t.description=u.observable(e.description),t.vcs=u.observable(e.vcs),t.organization=u.observable(),t.html_url=u.observable(e.html_url),t.clone_url=u.observable(e.clone_url),t.ssh_url=u.observable(e.ssh_url),t.matches=u.observable(e.matches),t.match=u.computed(function(){var e=t.matches();if(e&&e.length>0)return e[0]}),t["private"]=u.observable(e["private"]),t.active=u.observable(e.active),t.admin=u.observable(e.admin),t.is_locked=u.computed(function(){return t["private"]()&&!t.admin()}),t.avatar_url=u.observable(i(e.avatar_url,{size:32})),t.import_repo=function(){var e={name:t.name(),repo:t.clone_url(),repo_type:t.vcs(),description:t.description(),project_url:t.html_url()},n=c("<form />");n.attr("action",r.urls.projects_import).attr("method","POST").hide(),Object.keys(e).map(function(r){var t=c("<input>").attr("type","hidden").attr("name",r).attr("value",e[r]);n.append(t)});var a=c("<input>").attr("type","hidden").attr("name","csrfmiddlewaretoken").attr("value",r.csrf_token);n.append(a);var o=c("<input>").attr("type","submit");n.append(o),c("body").append(n),n.submit()}}function s(e,r){var t=this;t.config=r||{},t.urls=r.urls||{},t.csrf_token=r.csrf_token||"",t.error=u.observable(null),t.is_syncing=u.observable(!1),t.is_ready=u.observable(!1),t.page_count=u.observable(null),t.page_current=u.observable(null),t.page_next=u.observable(null),t.page_previous=u.observable(null),t.filter_org=u.observable(null),t.organizations_raw=u.observableArray(),t.organizations=u.computed(function(){var e=[],r=t.organizations_raw();for(n in r){var o=new a(r[n],t);e.push(o)}return e}),t.projects=u.observableArray(),u.computed(function(){var e=t.filter_org(),r=(t.organizations(),t.page_current()||t.urls["remoterepository-list"]);e&&(r=i(t.urls["remoterepository-list"],{org:e})),t.error(null),c.getJSON(r).success(function(e){var r=[];t.page_next(e.next),t.page_previous(e.previous);for(n in e.results){var a=new o(e.results[n],t);r.push(a)}t.projects(r)}).error(function(e){var r=e.responseJSON.detail||e.statusText;t.error({message:r})}).always(function(){t.is_ready(!0)})}),t.get_organizations=function(){c.getJSON(t.urls["remoteorganization-list"]).success(function(e){t.organizations_raw(e.results)}).error(function(e){var r=e.responseJSON.detail||e.statusText;t.error({message:r})})},t.sync_projects=function(){var e=t.urls.api_sync_remote_repositories;t.error(null),t.is_syncing(!0),l.trigger_task({url:e,token:t.csrf_token}).then(function(e){t.get_organizations()}).fail(function(e){t.error(e)}).always(function(){t.is_syncing(!1)})},t.has_projects=u.computed(function(){return t.projects().length>0}),t.next_page=function(){t.page_current(t.page_next())},t.previous_page=function(){t.page_current(t.page_previous())},t.set_filter_org=function(e){var r=t.filter_org();r==e&&(e=null),t.filter_org(e)}}function i(e,r){var t=c("<a>").attr("href",e).get(0);return Object.keys(r).map(function(e){t.search&&(t.search+="&"),t.search+=e+"="+r[e]}),t.href}var u=e("knockout"),c=e("jquery"),l=e("readthedocs/core/static-src/core/js/tasks");c(function(){var e=c("#id_repo"),r=c("#id_repo_type");e.blur(function(){var t,n=e.val();switch(!0){case/^hg/.test(n):t="hg";break;case/^bzr/.test(n):case/launchpad/.test(n):t="bzr";break;case/trunk/.test(n):case/^svn/.test(n):t="svn";break;default:case/github/.test(n):case/(^git|\.git$)/.test(n):t="git"}r.val(t)})}),s.init=function(e,r,t){var n=new s(r,t);return n.get_organizations(),u.applyBindings(n,e),n},r.exports.ProjectImportView=s},{jquery:"jquery",knockout:"knockout","readthedocs/core/static-src/core/js/tasks":1}]},{},[]);
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/* Public task tracking */
+
+var jquery = require('jquery');
+
+function poll_task (data) {
+    var defer = jquery.Deferred(),
+        tries = 5;
+
+    function poll_task_loop () {
+        jquery
+            .getJSON(data.url)
+            .success(function (task) {
+                if (task.finished) {
+                    if (task.success) {
+                        defer.resolve();
+                    }
+                    else {
+                        defer.reject({message: task.error});
+                    }
+                }
+                else {
+                    setTimeout(poll_task_loop, 2000);
+                }
+            })
+            .error(function (error) {
+                console.error('Error polling task:', error);
+                tries -= 1;
+                if (tries > 0) {
+                    setTimeout(poll_task_loop, 2000);
+                }
+                else {
+                    var error_msg = error.responseJSON.detail || error.statusText;
+                    defer.reject({message: error_msg});
+                }
+            });
+    }
+
+    setTimeout(poll_task_loop, 2000);
+
+    return defer;
+}
+
+function trigger_task (config) {
+    var defer = jquery.Deferred(),
+        url = config.url,
+        token = config.token,
+        data = {csrfmiddlewaretoken: token};
+
+    $.ajax({
+        method: 'POST',
+        url: url,
+        data: data,
+        success: function (data) {
+            poll_task(data)
+                .then(function () {
+                    defer.resolve();
+                })
+                .fail(function (error) {
+                    // The poll_task function defer will only reject with
+                    // normalized error objects
+                    defer.reject(error);
+                });
+        },
+        error: function (error) {
+            var error_msg = error.responseJSON.detail || error.statusText;
+            defer.reject({message: error_msg});
+        }
+    });
+
+    return defer;
+}
+
+module.exports = {
+    poll_task: poll_task,
+    trigger_task: trigger_task
+};
+
+},{"jquery":"jquery"}],"projects/import":[function(require,module,exports){
+var ko = require('knockout'),
+    $ = require('jquery'),
+    tasks = require('readthedocs/core/static-src/core/js/tasks');
+
+
+$(function() {
+  var input = $('#id_repo'),
+      repo = $('#id_repo_type');
+
+  input.blur(function () {
+    var val = input.val(),
+        type;
+
+    switch(true) {
+      case /^hg/.test(val):
+        type = 'hg';
+      break;
+
+      case /^bzr/.test(val):
+      case /launchpad/.test(val):
+        type = 'bzr';
+      break;
+
+      case /trunk/.test(val):
+      case /^svn/.test(val):
+        type = 'svn';
+      break;
+
+      default:
+      case /github/.test(val):
+      case /(^git|\.git$)/.test(val):
+        type = 'git';
+      break;
+    }
+
+    repo.val(type);
+  });
+});
+
+function Organization (instance, view) {
+    var self = this;
+    self.id = ko.observable(instance.id);
+    self.name = ko.observable(instance.name);
+    self.slug = ko.observable(instance.slug);
+    self.active = ko.observable(instance.active);
+    self.avatar_url = ko.observable(
+        append_url_params(instance.avatar_url, {size: 32})
+    );
+    self.display_name = ko.computed(function () {
+        return self.name() || self.slug();
+    });
+    self.filtered = ko.computed(function () {
+        var id = view.filter_org();
+        return id && id != self.id();
+    });
+}
+
+function Project (instance, view) {
+    var self = this;
+    self.id = ko.observable(instance.id);
+    self.name = ko.observable(instance.name);
+    self.full_name = ko.observable(instance.full_name);
+    self.description = ko.observable(instance.description);
+    self.vcs = ko.observable(instance.vcs);
+    self.organization = ko.observable();
+    self.html_url = ko.observable(instance.html_url);
+    self.clone_url = ko.observable(instance.clone_url);
+    self.ssh_url = ko.observable(instance.ssh_url);
+    self.matches = ko.observable(instance.matches);
+    self.match = ko.computed(function () {
+        var matches = self.matches();
+        if (matches && matches.length > 0) {
+            return matches[0];
+        }
+    });
+    self.private = ko.observable(instance.private);
+    self.active = ko.observable(instance.active);
+    self.admin = ko.observable(instance.admin);
+    self.is_locked = ko.computed(function () {
+        return (self.private() && !self.admin());
+    });
+    self.avatar_url = ko.observable(
+        append_url_params(instance.avatar_url, {size: 32})
+    );
+
+    self.import_repo = function () {
+        var data = {
+                name: self.name(),
+                repo: self.clone_url(),
+                repo_type: self.vcs(),
+                description: self.description(),
+                project_url: self.html_url(),
+            },
+            form = $('<form />');
+
+        form
+            .attr('action', view.urls.projects_import)
+            .attr('method', 'POST')
+            .hide();
+
+        Object.keys(data).map(function (attr) {
+            var field = $('<input>')
+                .attr('type', 'hidden')
+                .attr('name', attr)
+                .attr('value', data[attr]);
+            form.append(field);
+        });
+
+        var csrf_field = $('<input>')
+            .attr('type', 'hidden')
+            .attr('name', 'csrfmiddlewaretoken')
+            .attr('value', view.csrf_token);
+        form.append(csrf_field);
+
+        // Add a button and add the form to body to satisfy Firefox
+        var button = $('<input>')
+            .attr('type', 'submit');
+        form.append(button);
+        $('body').append(form);
+
+        form.submit();
+    };
+}
+
+function ProjectImportView (instance, config) {
+    var self = this,
+        instance = instance || {};
+
+    self.config = config || {};
+    self.urls = config.urls || {};
+    self.csrf_token = config.csrf_token || '';
+
+    // For task display
+    self.error = ko.observable(null);
+    self.is_syncing = ko.observable(false);
+    self.is_ready = ko.observable(false);
+
+    // For filtering
+    self.page_count = ko.observable(null);
+    self.page_current = ko.observable(null);
+    self.page_next = ko.observable(null);
+    self.page_previous = ko.observable(null);
+    self.filter_org = ko.observable(null);
+
+    self.organizations_raw = ko.observableArray();
+    self.organizations = ko.computed(function () {
+        var organizations = [],
+            organizations_raw = self.organizations_raw();
+        for (n in organizations_raw) {
+            var organization = new Organization(organizations_raw[n], self);
+            organizations.push(organization);
+        }
+        return organizations;
+    });
+    self.projects = ko.observableArray();
+
+    ko.computed(function () {
+        var org = self.filter_org(),
+            orgs = self.organizations(),
+            url = self.page_current() || self.urls['remoterepository-list'];
+
+        if (org) {
+            url = append_url_params(
+                self.urls['remoterepository-list'],
+                {org: org}
+            );
+        }
+
+        self.error(null);
+
+        $.getJSON(url)
+            .success(function (projects_list) {
+                var projects = [];
+                self.page_next(projects_list.next);
+                self.page_previous(projects_list.previous);
+
+                for (n in projects_list.results) {
+                    var project = new Project(projects_list.results[n], self);
+                    projects.push(project);
+                }
+                self.projects(projects);
+            })
+            .error(function (error) {
+                var error_msg = error.responseJSON.detail || error.statusText;
+                self.error({message: error_msg});
+            })
+            .always(function () {
+                self.is_ready(true);
+            });
+    });
+
+    self.get_organizations = function () {
+        $.getJSON(self.urls['remoteorganization-list'])
+            .success(function (organizations) {
+                self.organizations_raw(organizations.results);
+            })
+            .error(function (error) {
+                var error_msg = error.responseJSON.detail || error.statusText;
+                self.error({message: error_msg});
+            });
+    };
+
+    self.sync_projects = function () {
+        var url = self.urls.api_sync_remote_repositories;
+
+        self.error(null);
+        self.is_syncing(true);
+
+        tasks.trigger_task({url: url, token: self.csrf_token})
+            .then(function (data) {
+                self.get_organizations();
+            })
+            .fail(function (error) {
+                self.error(error);
+            })
+            .always(function () {
+                self.is_syncing(false);
+            })
+    };
+
+    self.has_projects = ko.computed(function () {
+        return self.projects().length > 0;
+    });
+
+    self.next_page = function () {
+        self.page_current(self.page_next());
+    };
+
+    self.previous_page = function () {
+        self.page_current(self.page_previous());
+    };
+
+    self.set_filter_org = function (id) {
+        var current_id = self.filter_org();
+        if (current_id == id) {
+            id = null;
+        }
+        self.filter_org(id);
+    };
+}
+
+function append_url_params (url, params) {
+    var link = $('<a>').attr('href', url).get(0);
+
+    Object.keys(params).map(function (key) {
+        if (link.search) {
+            link.search += '&';
+        }
+        link.search += key + '=' + params[key];
+    });
+    return link.href;
+}
+
+ProjectImportView.init = function (domobj, instance, config) {
+    var view = new ProjectImportView(instance, config);
+    view.get_organizations();
+    ko.applyBindings(view, domobj);
+    return view;
+};
+
+module.exports.ProjectImportView = ProjectImportView;
+
+},{"jquery":"jquery","knockout":"knockout","readthedocs/core/static-src/core/js/tasks":1}]},{},[]);

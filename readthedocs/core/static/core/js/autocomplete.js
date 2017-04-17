@@ -1,1 +1,16 @@
-require=function e(r,t,o){function u(i,c){if(!t[i]){if(!r[i]){var p="function"==typeof require&&require;if(!c&&p)return p(i,!0);if(n)return n(i,!0);var f=new Error("Cannot find module '"+i+"'");throw f.code="MODULE_NOT_FOUND",f}var a=t[i]={exports:{}};r[i][0].call(a.exports,function(e){var t=r[i][1][e];return u(t?t:e)},a,a.exports,e,r,t,o)}return t[i].exports}for(var n="function"==typeof require&&require,i=0;i<o.length;i++)u(o[i]);return u}({"core/autocomplete":[function(e,r,t){var o=e("jquery");e("jquery-ui");r.exports=function(e,r){o(e).autocomplete({source:r,minLength:2,open:function(e,r){ac_top=o(".ui-autocomplete").css("top"),o(".ui-autocomplete").css({width:"233px",top:ac_top+10})}})}},{jquery:"jquery","jquery-ui":"jquery-ui"}]},{},[]);
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"core/autocomplete":[function(require,module,exports){
+var $ = require('jquery'),
+    jqueryui = require('jquery-ui');
+
+module.exports = function (selector, url) {
+  $(selector).autocomplete({
+    source: url,
+    minLength: 2,
+    open: function(event, ui) {
+      ac_top = $('.ui-autocomplete').css('top');
+      $('.ui-autocomplete').css({'width': '233px', 'top': ac_top + 10 });
+    }
+  });
+}
+
+},{"jquery":"jquery","jquery-ui":"jquery-ui"}]},{},[]);
