@@ -194,7 +194,7 @@ class CommunityBaseSettings(Settings):
 
     # I18n
     TIME_ZONE = 'America/Chicago'
-    LANGUAGE_CODE = 'zh-CN'
+    LANGUAGE_CODE = 'zh-cn'
     LANGUAGES = (
         ('ca', gettext('Catalan')),
         ('en', gettext('English')),

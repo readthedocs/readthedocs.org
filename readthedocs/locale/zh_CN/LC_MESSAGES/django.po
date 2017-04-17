@@ -869,12 +869,13 @@ msgstr ""
 msgid "Webhook activation failed. Make sure you have permissions to set it."
 msgstr "webhook激活失败。确保你有权限设置。"
 
+msgid "Webhook activation failed.There are no connected services for this project."
+msgstr "Webhook激活失败。此项目没有连接的服务。"
+
 #: oauth/utils.py:38
 #, python-brace-format
-msgid ""
-"No accounts available to set webhook on. Please connect your {network} "
-"account."
-msgstr ""
+msgid "No accounts available to set webhook on.Please connect your {network} account."
+msgstr "没有帐户可以设置webhook。请连接你的 {network} 账户。"
 
 #: payments/forms.py:82
 msgid "Card number"
@@ -2139,9 +2140,6 @@ msgstr "标签"
 msgid "No tags"
 msgstr "无标签"
 
-#: templates/core/project_detail_right.html:77
-msgid "Project Privacy Level"
-msgstr "项目隐私级别"
 
 #: templates/core/project_detail_right.html:86
 msgid "Short URLs"
@@ -2531,20 +2529,8 @@ msgstr "编辑项目"
 msgid "Next"
 msgstr "下一页"
 
-#: templates/projects/import_base.html:29
-#, fuzzy
-#| msgid "Finished"
 msgid "Finish"
-msgstr "已完成"
-
-#: templates/projects/import_base.html:33
-#: templates/search/elastic_project_search.html:117
-#: templates/search/elastic_project_search.html:119
-#: templates/search/elastic_search.html:190
-#: templates/search/elastic_search.html:192 templates/search/search.html:52
-#: templates/search/search.html.py:54
-msgid "Previous"
-msgstr "上一页"
+msgstr "完成"
 
 
 #: templates/projects/import_basics.html:8
@@ -2558,17 +2544,15 @@ msgid ""
 msgstr ""
 
 #: templates/projects/import_extra.html:20
-#, fuzzy
-#| msgid "Project Privacy Level"
-msgid "Project Extra Details"
+msgid "Project Privacy Level"
 msgstr "项目隐私级别"
 
+msgid "Project Extra Details"
+msgstr "项目细节补充"
+
 #: templates/projects/import_extra.html:23
-msgid ""
-"\n"
-"      Here are a few more project options that you may need to configure.\n"
-"    "
-msgstr ""
+msgid "Here are a few more project options that you may need to configure."
+msgstr "以下是您可能需要配置的几个项目选项。"
 
 #. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
 #: templates/projects/includes/flagging.html:7

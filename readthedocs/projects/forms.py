@@ -131,11 +131,11 @@ class ProjectExtraForm(ProjectForm):
             'tags',
         )
 
-    # description = forms.CharField(
-    #     validators=[ClassifierValidator(raises=ProjectSpamError)],
-    #     required=False,
-    #     widget=forms.Textarea
-    # )
+     # description = forms.CharField(
+     #     validators=[ClassifierValidator(raises=ProjectSpamError)],
+     #     required=False,
+     #     widget=forms.Textarea
+     # )
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
@@ -143,10 +143,10 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     """Advanced project option form"""
    
 
-    # python_interpreter = forms.ChoiceField(
-    #     choices=constants.PYTHON_CHOICES, initial='python',
-    #     help_text=_("(Beta) The Python interpreter used to create the virtual "
-    #                 "environment."))
+     # python_interpreter = forms.ChoiceField(
+     #     choices=constants.PYTHON_CHOICES, initial='python',
+     #     help_text=_("(Beta) The Python interpreter used to create the virtual "
+     #                 "environment."))
 
     class Meta:
         model = Project

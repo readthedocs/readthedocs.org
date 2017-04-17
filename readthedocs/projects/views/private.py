@@ -239,8 +239,6 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
             **self.get_form_kwargs(step)
         )
         form.full_clean()
-        print(22222222222)
-        print(form)
         return form
 
     def get_template_names(self):

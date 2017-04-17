@@ -18,8 +18,7 @@ def attach_webhook(project, request=None):
     else:
         messages.error(
             request,
-            _('Webhook activation failed. '
-              'There are no connected services for this project.')
+            _('Webhook activation failed.There are no connected services for this project.')
         )
         return None
 
@@ -40,8 +39,7 @@ def attach_webhook(project, request=None):
     else:
         messages.error(
             request,
-            _('No accounts available to set webhook on. '
-                'Please connect your {network} account.'.format(
+            _('No accounts available to set webhook on.Please connect your {network} account.'.format(
                     network=service.adapter().get_provider().name
                 ))
         )
