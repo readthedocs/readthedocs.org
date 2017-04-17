@@ -90,7 +90,7 @@ class PromoDetailView(TemplateView):
 
         if promo_slug == 'live' and self.request.user.is_staff:
             promos = SupporterPromo.objects.filter(live=True)
-        elif '*' in promo_slug:
+        elif promo_slug[-1] == '*' and '-' in promo_slug:
             promos = SupporterPromo.objects.filter(
                 analytics_id__contains=promo_slug.replace('*', '')
             )
@@ -124,8 +124,14 @@ def click_proxy(request, promo_id, hash):
             project = Project.objects.get(slug=project_slug)
             promo.incr(CLICKS, project=project)
     else:
-        log.warning('Duplicate click logged. {count} total clicks tried.'.format(count=count))
+        agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
+        log.warning(
+            'Duplicate click logged. {count} total clicks tried. User Agent: [{agent}]'.format(
+                count=count, agent=agent
+            )
+        )
         cache.incr(promo.cache_key(type=CLICKS, hash=hash))
+        raise Http404('Invalid click. This has been logged.')
     return redirect(promo.link)
 
 
@@ -147,12 +153,18 @@ def view_proxy(request, promo_id, hash):
             project = Project.objects.get(slug=project_slug)
             promo.incr(VIEWS, project=project)
     else:
-        log.warning('Duplicate view logged. {count} total clicks tried.'.format(count=count))
+        agent = request.META.get('HTTP_USER_AGENT', 'Unknown')
+        log.warning(
+            'Duplicate view logged. {count} total views tried. User Agent: [{agent}]'.format(
+                count=count, agent=agent
+            )
+        )
         cache.incr(promo.cache_key(type=VIEWS, hash=hash))
+        raise Http404('Invalid click. This has been logged.')
     return redirect(promo.image)
 
 
-def add_promo_data(display_type):
+def _add_promo_data(display_type):
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type=display_type)
     promo_obj = promo_queryset.order_by('?').first()
     if promo_obj:
@@ -164,7 +176,7 @@ def add_promo_data(display_type):
 
 def promo_500(request, template_name='donate/promo_500.html', **kwargs):
     """A simple 500 handler so we get media"""
-    promo_dict = add_promo_data(display_type='error')
+    promo_dict = _add_promo_data(display_type='error')
     r = render_to_response(template_name,
                            context_instance=RequestContext(request),
                            context={
@@ -176,7 +188,7 @@ def promo_500(request, template_name='donate/promo_500.html', **kwargs):
 
 def promo_404(request, template_name='donate/promo_404.html', **kwargs):
     """A simple 404 handler so we get media"""
-    promo_dict = add_promo_data(display_type='error')
+    promo_dict = _add_promo_data(display_type='error')
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response

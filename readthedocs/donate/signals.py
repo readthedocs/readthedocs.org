@@ -1,13 +1,19 @@
 import random
+import logging
 
 from django.dispatch import receiver
 from django.conf import settings
+from django.core.cache import cache
+
+import redis
 
 from readthedocs.restapi.signals import footer_response
 from readthedocs.donate.models import SupporterPromo
 from readthedocs.donate.constants import INCLUDE, EXCLUDE
 from readthedocs.donate.utils import offer_promo
 
+
+log = logging.getLogger(__name__)
 
 PROMO_GEO_PATH = getattr(settings, 'PROMO_GEO_PATH', None)
 
@@ -82,7 +88,7 @@ def choose_promo(promo_list):
     return None
 
 
-def get_promo(country_code, programming_language, gold_project=False, gold_user=False):
+def get_promo(country_code, programming_language, theme, gold_project=False, gold_user=False):
     """
     Get a proper promo.
 
@@ -97,15 +103,18 @@ def get_promo(country_code, programming_language, gold_project=False, gold_user=
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
 
     filtered_promos = []
-    for obj in promo_queryset:
+    for promo in promo_queryset:
         # Break out if we aren't meant to show to this language
-        if obj.programming_language and not show_to_programming_language(obj, programming_language):
+        if promo.programming_language and not show_to_programming_language(promo, programming_language):  # noqa
             continue
         # Break out if we aren't meant to show to this country
-        if country_code and not show_to_geo(obj, country_code):
+        if country_code and not show_to_geo(promo, country_code):
+            continue
+        # Don't show if the theme doesn't match
+        if promo.theme not in ['any', theme]:
             continue
         # If we haven't bailed because of language or country, possibly show the promo
-        filtered_promos.append(obj)
+        filtered_promos.append(promo)
 
     promo_obj = choose_promo(filtered_promos)
 
@@ -140,6 +149,7 @@ def attach_promo_data(sender, **kwargs):
     resp_data = kwargs['resp_data']
 
     project = context['project']
+    theme = context['theme']
 
     # Bail out early if promo's are disabled.
     use_promo = getattr(settings, 'USE_PROMOS', True)
@@ -181,6 +191,7 @@ def attach_promo_data(sender, **kwargs):
         promo_obj = get_promo(
             country_code=country_code,
             programming_language=project.programming_language,
+            theme=theme,
             gold_project=gold_project,
             gold_user=gold_user,
         )
@@ -195,3 +206,25 @@ def attach_promo_data(sender, **kwargs):
 
     # Set promo object on return JSON
     resp_data['promo'] = show_promo
+
+
+@receiver(footer_response)
+def index_theme_data(sender, **kwargs):
+    """
+    Keep track of which projects are using which theme.
+
+    This is primarily used so we can send email to folks using alabaster,
+    and other themes we might want to display ads on.
+    This will allow us to give people fair warning before we put ads on their docs.
+
+    """
+    context = kwargs['context']
+
+    project = context['project']
+    theme = context['theme']
+
+    try:
+        redis_client = cache.get_client(None)
+        redis_client.sadd("readthedocs:v1:index:themes:%s" % theme, project)
+    except (AttributeError, redis.exceptions.ConnectionError):
+        log.warning('Redis theme indexing error: %s', exc_info=True)
