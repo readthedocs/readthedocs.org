@@ -19,7 +19,7 @@ Adding a Subproject
 -------------------
 
 In the admin dashboard for your project, select "Subprojects" from the menu.
-From this page you can add a subproject by typing in the id of the project.
+From this page you can add a subproject by typing in the project slug.
 
 Sharing a Custom Domain
 -----------------------
@@ -38,5 +38,6 @@ Search
 ------
 
 Projects that are configured as subprojects will share a search index with their
-parent and sibling projects. This is the only way to share search indexes, they
-are not shared between arbitrary projects.
+parent and sibling projects. This is currently the only way to share search
+indexes between projects, we do not yet support sharing search indexes between
+arbitrary projects.
