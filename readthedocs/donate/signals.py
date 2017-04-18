@@ -225,6 +225,6 @@ def index_theme_data(sender, **kwargs):
 
     try:
         redis_client = cache.get_client(None)
-        redis_client.sadd("readthedocs:v1:index:themes:%s" % theme, project)
+        redis_client.sadd("readthedocs:v1:index:themes:%s" % theme, project.slug)
     except (AttributeError, redis.exceptions.ConnectionError):
         log.warning('Redis theme indexing error: %s', exc_info=True)
