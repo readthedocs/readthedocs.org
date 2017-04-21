@@ -84,7 +84,7 @@ class RemoteRepository(models.Model):
         related_name='repositories', null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
 
-    project = models.OneToOneField(Project, on_delete=models.CASCADE,
+    project = models.OneToOneField(Project, on_delete=models.SET_NULL,
                                    related_name='remote_repository', null=True,
                                    blank=True)
     name = models.CharField(_('Name'), max_length=255)
