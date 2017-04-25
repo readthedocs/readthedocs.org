@@ -90,6 +90,7 @@ function Project (instance, view) {
                 repo_type: self.vcs(),
                 description: self.description(),
                 project_url: self.html_url(),
+                remote_repository: self.id(),
             },
             form = $('<form />');
 

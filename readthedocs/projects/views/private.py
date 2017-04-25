@@ -227,19 +227,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         kwargs['user'] = self.request.user
         if step == 'basics':
             kwargs['show_advanced'] = True
-        if step == 'extra':
-            extra_form = self.get_form_from_step('basics')
-            project = extra_form.save(commit=False)
-            kwargs['instance'] = project
         return kwargs
-
-    def get_form_from_step(self, step):
-        form = self.form_list[step](
-            data=self.get_cleaned_data_for_step(step),
-            **self.get_form_kwargs(step)
-        )
-        form.full_clean()
-        return form
 
     def get_template_names(self):
         """Return template names based on step name"""
@@ -370,7 +358,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type']:
+        for key in ['name', 'repo', 'repo_type', 'remote_repository']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
         for key in ['description', 'project_url']:
