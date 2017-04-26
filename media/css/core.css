@@ -1066,28 +1066,40 @@ div.module-list-wrapper.httpexchanges li span.status.status-fail {
     background: #a55;
 }
 
-div.httpexchange dl dt {
-  display: inline-block;
-  font-weight: bold;
-  font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
-  font-size: .9em;
+div.integration-details {
+    margin: 1em;
 }
 
-div.httpexchange dl dd {
-  display: inline;
-  font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
-  font-size: .9em;
+div.integration-details dl dt,
+div.httpexchange dl dt {
+    display: inline-block;
+    font-weight: bold;
 }
+div.httpexchange dl dt {
+    font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
+    font-size: .9em;
+}
+
+div.integration-details dl dd,
+div.httpexchange dl dd {
+    display: inline;
+    font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
+}
+div.httpexchange dl dd {
+    font-size: .9em;
+}
+
+div.integration-details dl dd:after,
 div.httpexchange dl dd:after {
-  display: block;
-  content: '';
+    display: block;
+    content: '';
 }
 
 div.httpexchange div.highlight pre {
-  padding: 1em;
-  background: #f4f4f4;
-  border: 1px solid #ccc;
-  font-size: .9em;
+    padding: 1em;
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    font-size: .9em;
 }
 
 /* Pygments */

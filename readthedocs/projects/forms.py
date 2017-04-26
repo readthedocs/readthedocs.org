@@ -567,6 +567,10 @@ class IntegrationForm(forms.ModelForm):
     def clean_project(self):
         return self.project
 
+    def save(self, commit=True):
+        self.instance = Integration.objects.subclass(self.instance)
+        return super(IntegrationForm, self).save(commit)
+
 
 class ProjectAdvertisingForm(forms.ModelForm):
 

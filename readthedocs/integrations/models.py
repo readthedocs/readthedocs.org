@@ -5,16 +5,17 @@ import uuid
 import re
 
 from django.db import models, transaction
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from jsonfield import JSONField
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 
+from readthedocs.core.fields import default_token
 from readthedocs.projects.models import Project
 from .utils import normalize_request_payload
 
@@ -167,27 +168,51 @@ class IntegrationQuerySet(models.QuerySet):
         This doesn't affect queries currently, only fetching of an object
     """
 
-    def get(self, *args, **kwargs):
-        """Replace model instance on Integration subclasses
-
-        This is based on the ``integration_type`` field, and is used to provide
-        specific functionality to and integration via a proxy subclass of the
-        Integration model.
-        """
-        old = super(IntegrationQuerySet, self).get(*args, **kwargs)
+    def _get_subclass(self, integration_type):
         # Build a mapping of integration_type -> class dynamically
         class_map = dict(
             (cls.integration_type_id, cls)
             for cls in self.model.__subclasses__()
             if hasattr(cls, 'integration_type_id')
         )
-        cls_replace = class_map.get(old.integration_type)
+        return class_map.get(integration_type)
+
+    def _get_subclass_replacement(self, original):
+        """Replace model instance on Integration subclasses
+
+        This is based on the ``integration_type`` field, and is used to provide
+        specific functionality to and integration via a proxy subclass of the
+        Integration model.
+        """
+        cls_replace = self._get_subclass(original.integration_type)
         if cls_replace is None:
-            return old
+            return original
         new = cls_replace()
-        for k, v in old.__dict__.items():
+        for k, v in original.__dict__.items():
             new.__dict__[k] = v
         return new
+
+    def get(self, *args, **kwargs):
+        original = super(IntegrationQuerySet, self).get(*args, **kwargs)
+        return self._get_subclass_replacement(original)
+
+    def subclass(self, instance):
+        return self._get_subclass_replacement(instance)
+
+    def create(self, *args, **kwargs):
+        """Override of create method to use subclass instance instead
+
+        Instead of using the underlying Integration model to create this
+        instance, we get the correct subclass to use instead. This allows for
+        overrides to ``save`` and other model functions on object creation.
+        """
+        model_cls = self._get_subclass(kwargs.get('integration_type'))
+        if model_cls is None:
+            model_cls = self.model
+        obj = model_cls(**kwargs)
+        self._for_write = True
+        obj.save(force_insert=True, using=self.db)
+        return obj
 
 
 class Integration(models.Model):
@@ -260,3 +285,29 @@ class BitbucketWebhook(Integration):
             return all((k in self.provider_data) for k in ['id', 'url'])
         except (ValueError, TypeError):
             return False
+
+
+class GenericAPIWebhook(Integration):
+
+    integration_type_id = Integration.API_WEBHOOK
+    has_sync = False
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        """Ensure model has token data before saving"""
+        try:
+            token = self.provider_data.get('token')
+        except (AttributeError, TypeError):
+            token = None
+        finally:
+            if token is None:
+                token = default_token()
+                self.provider_data = {'token': token}
+        super(GenericAPIWebhook, self).save(*args, **kwargs)
+
+    @property
+    def token(self):
+        """Get or generate a secret token for authentication"""
+        return self.provider_data.get('token')

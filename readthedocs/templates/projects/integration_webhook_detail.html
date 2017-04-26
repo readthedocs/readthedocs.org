@@ -60,6 +60,8 @@
       <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
     </p>
 
+    {% block integration_details %}{% endblock %}
+
     <p>
       {% blocktrans %}
         For more information on manually configuring a webhook, refer to

@@ -37,7 +37,7 @@ class WebhookMixin(object):
         self.request = request
         self.project = None
         try:
-            self.project = Project.objects.get(slug=project_slug)
+            self.project = self.get_project(slug=project_slug)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
         self.data = self.get_data()
@@ -46,6 +46,9 @@ class WebhookMixin(object):
             log.info('Unhandled webhook event')
             resp = {'detail': 'Unhandled webhook event'}
         return Response(resp)
+
+    def get_project(self, **kwargs):
+        return Project.objects.get(**kwargs)
 
     def finalize_response(self, req, *args, **kwargs):
         """If the project was set on POST, store an HTTP exchange"""
@@ -77,6 +80,8 @@ class WebhookMixin(object):
         :py:class:`WebhookView` view solves this by perfomring a lookup on the
         integration instead of guessing.
         """
+        # `integration` can be passed in as an argument to `as_view`, as it is
+        # in `WebhookView`
         if self.integration is not None:
             return self.integration
         integration, _ = Integration.objects.get_or_create(
@@ -223,6 +228,20 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 raise ParseError('Invalid request')
 
 
+class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
+
+    """Allow authenticated users and requests with token auth through
+
+    This does not check for instance-level permissions, as the check uses
+    methods from the view to determine if the token matches.
+    """
+
+    def has_permission(self, request, view):
+        has_perm = (super(IsAuthenticatedOrHasToken, self)
+                    .has_permission(request, view))
+        return has_perm or 'token' in request.data
+
+
 class APIWebhookView(WebhookMixin, APIView):
 
     """API webhook consumer
@@ -235,13 +254,40 @@ class APIWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.API_WEBHOOK
+    permission_classes = [IsAuthenticatedOrHasToken]
+
+    def get_project(self, **kwargs):
+        """Get authenticated user projects, or token authed projects
+
+        Allow for a user to either be authed to receive a project, or require
+        the integration token to be specified as a POST argument.
+        """
+        # If the user is not an admin of the project, fall back to token auth
+        if self.request.user.is_authenticated():
+            try:
+                return (Project.objects
+                        .for_admin_user(self.request.user)
+                        .get(**kwargs))
+            except Project.DoesNotExist:
+                pass
+        # Recheck project and integration relationship during token auth check
+        token = self.request.data.get('token')
+        if token:
+            integration = self.get_integration()
+            obj = Project.objects.get(**kwargs)
+            if (integration.project == obj and
+                token == getattr(integration, 'token', None)):
+                return obj
+        raise Project.DoesNotExist()
 
     def handle_webhook(self):
         try:
-            branches = list(self.request.data.get(
+            branches = self.request.data.get(
                 'branches',
                 [self.project.get_default_branch()]
-            ))
+            )
+            if isinstance(branches, basestring):
+                branches = [branches]
             return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')

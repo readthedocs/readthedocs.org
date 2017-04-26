@@ -718,7 +718,7 @@ class IntegrationDetail(IntegrationMixin, DetailView):
         Integration.GITHUB_WEBHOOK: 'webhook',
         Integration.GITLAB_WEBHOOK: 'webhook',
         Integration.BITBUCKET_WEBHOOK: 'webhook',
-        Integration.API_WEBHOOK: 'webhook',
+        Integration.API_WEBHOOK: 'generic_webhook',
     }
 
     def get_template_names(self):
