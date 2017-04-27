@@ -201,8 +201,7 @@ class BitbucketService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        # TODO is this really what we want to do here?
-        integration = Integration.objects.get_or_create(
+        integration, _ = Integration.objects.get_or_create(
             project=project,
             integration_type=Integration.BITBUCKET_WEBHOOK,
         )
@@ -248,16 +247,16 @@ class BitbucketService(Service):
         """
         session = self.get_session()
         data = self.get_webhook_data(project, integration)
-        # TODO test this is correct
-        url = integration.provider_data.get('url')
         resp = None
         try:
-            resp = session.post(
+            # Expect to throw KeyError here if provider_data is invalid
+            url = integration.provider_data['links']['self']['href']
+            resp = session.put(
                 url,
                 data=data,
                 headers={'content-type': 'application/json'}
             )
-            if resp.status_code == 201:
+            if resp.status_code == 200:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
@@ -265,7 +264,7 @@ class BitbucketService(Service):
                          project)
                 return (True, resp)
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except (KeyError, RequestException, ValueError):
             log.error('Bitbucket webhook update failed for project: %s',
                       project, exc_info=True)
         else:

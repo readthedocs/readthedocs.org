@@ -282,7 +282,7 @@ class BitbucketWebhook(Integration):
     @property
     def can_sync(self):
         try:
-            return all((k in self.provider_data) for k in ['id', 'url'])
+            return all((k in self.provider_data) for k in ['uuid', 'url'])
         except (ValueError, TypeError):
             return False
 
