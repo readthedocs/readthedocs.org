@@ -199,7 +199,7 @@ class IntegrationQuerySet(models.QuerySet):
     def subclass(self, instance):
         return self._get_subclass_replacement(instance)
 
-    def create(self, *args, **kwargs):
+    def create(self, *args, **kwargs):  # pylint: disable=unused-argument
         """Override of create method to use subclass instance instead
 
         Instead of using the underlying Integration model to create this

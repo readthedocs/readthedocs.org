@@ -275,8 +275,11 @@ class APIWebhookView(WebhookMixin, APIView):
         if token:
             integration = self.get_integration()
             obj = Project.objects.get(**kwargs)
-            if (integration.project == obj and
-                token == getattr(integration, 'token', None)):
+            is_valid = (
+                integration.project == obj and
+                token == getattr(integration, 'token', None)
+            )
+            if is_valid:
                 return obj
         raise Project.DoesNotExist()
 

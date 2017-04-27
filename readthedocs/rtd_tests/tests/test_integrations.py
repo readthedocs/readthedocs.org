@@ -5,7 +5,9 @@ from rest_framework.test import APIClient
 from rest_framework.test import APIRequestFactory
 from rest_framework.response import Response
 
-from readthedocs.integrations.models import HttpExchange, Integration
+from readthedocs.integrations.models import (
+    HttpExchange, Integration, GitHubWebhook
+)
 from readthedocs.projects.models import Project
 
 
@@ -143,3 +145,40 @@ class HttpExchangeTests(TestCase):
              u'Cookie': u'',
              u'X-Foo': u'bar'}
         )
+
+
+class IntegrationModelTests(TestCase):
+
+    def test_subclass_is_replaced_on_get(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK
+        )
+        integration = Integration.objects.get(pk=integration.pk)
+        self.assertIsInstance(integration, GitHubWebhook)
+
+    def test_subclass_is_replaced_on_subclass(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK
+        )
+        integration = Integration.objects.subclass(integration)
+        self.assertIsInstance(integration, GitHubWebhook)
+
+    def test_subclass_is_replaced_on_create(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            integration_type=Integration.GITHUB_WEBHOOK,
+            project=project,
+        )
+        self.assertIsInstance(integration, GitHubWebhook)
+
+    def test_generic_token(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            integration_type=Integration.API_WEBHOOK,
+            project=project,
+        )
+        self.assertIsNotNone(integration.token)

@@ -68,9 +68,12 @@ generic API endpoint for triggering project builds. Similar to webhook
 integrations, this integration has a specific URL, found on the integration
 detail page. This integration can either be added manually or may be created
 automatically if you had previously set up a webhook with your provider
-manually. A username and password are required to use this endpoint. The
-username used to access this endpoint must have admin privileges for the
-specified project.
+manually.
+
+Authentication is required to use the generic endpoint. Either token-based
+authentication or basic authentication using your username and password can be
+used. Token-based authentication is recommended, you will find this token on the
+integration details page.
 
 Parameters
 ~~~~~~~~~~
@@ -83,29 +86,30 @@ branches
 
     Default: **latest**
 
-For example, to build the ``dev`` branch, an example cURL command would be::
+token
+    The integration token. You'll find this value on the integration detail
+    page.
 
-    curl -X POST -u username -d "branches=dev" https://readthedocs.org/api/v2/webhook/example-project/1/
+For example, the cURL command to build the ``dev`` branch, using the token
+``1234``, would be::
 
-Authentication
-~~~~~~~~~~~~~~
+    curl -X POST -d "branches=dev" -d "token=1234" https://readthedocs.org/api/v2/webhook/example-project/1/
 
-This endpoint requires authentication. An authorization check will determine if
-the authenticated user has permission to build the specified project.
-Currently, we support Basic Auth, using your username and password.
-
-Executing cURL with a username and password specified is not recommended, the
-following will prompt for your password::
-
-      curl -X POST -u "$username" https://readthedocs.org/api/v2/webhook/example-project/1/
-
-To execute this command from a cron job or a hook inside Git_, Subversion_,
-Mercurial_, or Bazaar_, consider using a secure method of storing this login.
+A command like the one above could be called from a cron job or from a hook
+inside Git_, Subversion_, Mercurial_, or Bazaar_.
 
 .. _Git: http://www.kernel.org/pub/software/scm/git/docs/githooks.html
 .. _Subversion: http://mikewest.org/2006/06/subversion-post-commit-hooks-101
 .. _Mercurial: http://hgbook.red-bean.com/read/handling-repository-events-with-hooks.html
 .. _Bazaar: http://wiki.bazaar.canonical.com/BzrHooks
+
+Authentication
+~~~~~~~~~~~~~~
+
+This endpoint requires authentication. If authenticating with an integration
+token, a check will determine if the token is valid and matches the given
+project. If instead an authenticated user is used to make this request, a check
+will be performed to ensure the authenticated user is an owner of the project.
 
 Debugging webhooks
 ------------------

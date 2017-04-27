@@ -11,6 +11,7 @@ from rest_framework.test import APIClient
 from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
@@ -414,3 +415,69 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
+    def test_generic_api_fails_without_auth(self, trigger_build):
+        client = APIClient()
+        resp = client.post(
+            '/api/v2/webhook/generic/{0}/'.format(self.project.slug),
+            {},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(
+            resp.data['detail'],
+            'Authentication credentials were not provided.'
+        )
+
+    def test_generic_api_respects_token_auth(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK
+        )
+        self.assertIsNotNone(integration.token)
+        resp = client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(self.project.slug, integration.pk),
+            {'token': integration.token},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        # Test nonexistent branch
+        resp = client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(self.project.slug, integration.pk),
+            {'token': integration.token, 'branches': 'nonexistent'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.data['build_triggered'])
+
+    def test_generic_api_respects_basic_auth(self, trigger_build):
+        client = APIClient()
+        user = get(User)
+        self.project.users.add(user)
+        client.force_authenticate(user=user)
+        resp = client.post(
+            '/api/v2/webhook/generic/{0}/'.format(self.project.slug),
+            {},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+
+    def test_generic_api_falls_back_to_token_auth(self, trigger_build):
+        client = APIClient()
+        user = get(User)
+        client.force_authenticate(user=user)
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK
+        )
+        self.assertIsNotNone(integration.token)
+        resp = client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(self.project.slug, integration.pk),
+            {'token': integration.token},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
