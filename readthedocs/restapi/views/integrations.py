@@ -77,7 +77,7 @@ class WebhookMixin(object):
         that a webhook has ever been created on our side. Most providers don't
         pass the webhook ID in either, so we default to just finding *any*
         integration from the provider. This is not ideal, but the
-        :py:class:`WebhookView` view solves this by perfomring a lookup on the
+        :py:class:`WebhookView` view solves this by performing a lookup on the
         integration instead of guessing.
         """
         # `integration` can be passed in as an argument to `as_view`, as it is

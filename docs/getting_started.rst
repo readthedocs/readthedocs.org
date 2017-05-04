@@ -83,33 +83,66 @@ Then in your ``conf.py``:
 
 .. _this blog post: http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
+.. _connect-account:
+
+Sign Up and Connect an External Account
+---------------------------------------
+
+.. TODO Update this with GitLab support later
+
+If you are going to import a repository from GitHub or Bitbucket, you should
+connect your account to your provider first. Connecting your account allows for
+easier importing and enables Read the Docs to configure your repository webhooks
+automatically.
+
+To connect your account, got to your *Settings* dashboard and select *Connected
+Services*. From here, you'll be able to connect to your GitHub or Bitbucket
+account. This process will ask you to authorize a connection to Read the Docs,
+that allows us to read information about and clone your repositories.
+
 .. _import-docs:
 
 Import Your Docs
 ----------------
 
-`Sign up`_ for an account on RTD, then `log in`_. Visit your dashboard_ and click
-Import_ to add your project to the site. Fill in the name and description, then
-specify where your repository is located. This is normally the URL or path name
-you'd use to checkout, clone, or branch your code. Some examples:
+To import a repository, visit your dashboard_ and click Import_.
+
+If you have a connected account, you will see a list of your repositories that
+we are able to import. To import one of these projects, just click the import
+icon next to the repository you'd like to import. This will bring up a form that
+is already filled with your project's information. Feel free to edit any of
+these properties, and the click **Next** to build your documentation.
+
+Manually Import Your Docs
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you do not have a connected account, you will need select **Import Manually**
+and enter the information for your repository yourself. You will also need to
+manually configure the webhook for your repository as well. When importing your
+project, you will be asked for the repository URL, along with some other
+information for you new project. The URL is normally the URL or path name you'd
+use to checkout, clone, or branch your repository. Some examples:
 
 * Git: ``http://github.com/ericholscher/django-kong.git``
-* Subversion: ``http://varnish-cache.org/svn/trunk``
 * Mercurial: ``https://bitbucket.org/ianb/pip``
+* Subversion: ``http://varnish-cache.org/svn/trunk``
 * Bazaar: ``lp:pasta``
 
-Add an optional homepage URL and some tags, then click "Create".
+Add an optional homepage URL and some tags, and then click **Next**.
+
+Once your project is created, you'll need to manually configure the repository
+webhook if you would like to have new changesets to trigger builds for your
+project on Read the Docs. Go to your project's **Integrations** page to
+configure a new webhook, or see :ref:`our steps for webhook creation
+<webhook-creation>` for more information on this process.
 
 Within a few seconds your code will automatically be fetched from your public repository,
 and the documentation will be built.
 Check out our :doc:`builds` page to learn more about how we build your docs,
 and to troubleshoot any issues that arise.
 
-If you want to keep your code updated as you commit,
-configure your code repository to hit our `Post Commit Hooks`_.
-This will rebuild your docs every time you push your code.
-
-We support multiple versions of your code. You can read more about how to use this well on our :doc:`versions` page.
+Read the Docs will host multiple versions of your code. You can read more about
+how to use this well on our :doc:`versions` page.
 
 If you have any more trouble, don't hesitate to reach out to us. The :doc:`support` page has more information on getting in touch.
 
@@ -126,4 +159,3 @@ If you have any more trouble, don't hesitate to reach out to us. The :doc:`suppo
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard
 .. _Import: http://readthedocs.org/dashboard/import
-.. _Post Commit Hooks: http://readthedocs.org/docs/read-the-docs/en/latest/webhooks.html

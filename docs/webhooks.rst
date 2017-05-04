@@ -3,18 +3,21 @@ Webhooks
 
 The primary method that Read the Docs uses to detect changes to your
 documentation is through the use of *webhooks*. Webhooks are configured with
-your repository provider and with each commit, merge, or other change to your
-repository, Read the Docs is notified. When this happens, we determine if the
-change is related to an active version for your project, and if it is, a build
-is triggered for that version.
+your repository provider, such as GitHub or Bitbucket, and with each commit,
+merge, or other change to your repository, Read the Docs is notified. When we
+receive a webhook notification, we determine if the change is related to an
+active version for your project, and if it is, a build is triggered for that
+version.
+
+.. _webhook-creation:
 
 Webhook creation
 ----------------
 
-If you import a project using a connected account, a webhook will be set up
-automatically for your repository. However, if your project was not imported
-through a connected account, you may need to manually configure a webhook for
-your project.
+If you import a project using a :ref:`connected account <connect-account>`, a
+webhook will be set up automatically for your repository. However, if your
+project was not imported through a connected account, you may need to
+manually configure a webhook for your project.
 
 To manually set up a webhook, you must first create the corresponding
 *integration* on your project's **Integrations** admin page. On this page, you
@@ -70,10 +73,9 @@ detail page. This integration can either be added manually or may be created
 automatically if you had previously set up a webhook with your provider
 manually.
 
-Authentication is required to use the generic endpoint. Either token-based
-authentication or basic authentication using your username and password can be
-used. Token-based authentication is recommended, you will find this token on the
-integration details page.
+Token authentication is required to use the generic endpoint, you will find this
+token on the integration details page. The token should be passed in as a
+request parameter, either as form data or as part of JSON data input.
 
 Parameters
 ~~~~~~~~~~
