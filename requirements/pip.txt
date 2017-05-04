@@ -68,7 +68,6 @@ commonmark==0.5.5
 recommonmark==0.4.0
 
 # Version comparison stuff
-Distutils2==1.0a3
 packaging==16.8
 
 # Commenting stuff
