@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from os.path import exists
 
 from django.contrib.auth.models import User

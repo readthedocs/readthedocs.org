@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.contrib.messages.storage.base import Message
 from django.utils.safestring import mark_safe
 from messages_extends.storages import FallbackStorage

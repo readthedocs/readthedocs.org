@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import django_dynamic_fixture as fixture
 from django.test import TestCase, RequestFactory
 from django.contrib.contenttypes.models import ContentType

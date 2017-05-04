@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings

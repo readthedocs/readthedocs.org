@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.conf import settings
 from django.template import Template, Context
 from django.template.loader import render_to_string

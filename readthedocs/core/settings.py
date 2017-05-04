@@ -1,4 +1,5 @@
 """Class based settings for complex settings inheritance"""
+from __future__ import absolute_import, division, print_function
 
 import inspect
 import sys

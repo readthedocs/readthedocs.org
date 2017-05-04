@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django import forms
 
 from readthedocs.builds.models import VersionAlias, Version

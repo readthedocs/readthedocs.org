@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.db.models import Manager
 from django.db.models.query import QuerySet
 

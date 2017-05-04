@@ -15,6 +15,7 @@ starting with ``a``. We keep increasing that letter until we have a unique
 slug. This is used since using numbers in tags is too common and appending
 another number would be confusing.
 """
+from __future__ import absolute_import, division, print_function
 
 import math
 import re

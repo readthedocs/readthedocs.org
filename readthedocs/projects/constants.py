@@ -3,6 +3,7 @@
 Default values and other various configuration for projects, including available
 theme names and repository types.
 """
+from __future__ import absolute_import, division, print_function
 
 import re
 

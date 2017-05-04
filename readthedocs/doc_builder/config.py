@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
 

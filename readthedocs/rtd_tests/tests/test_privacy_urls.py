@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import re
 
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
@@ -86,10 +88,10 @@ class URLAccessMixin(object):
             for not_obj in self.context_data:
                 if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
                     self.assertNotIn(not_obj, obj)
-                    print "%s not in %s" % (not_obj, obj)
+                    print("%s not in %s" % (not_obj, obj))
                 else:
                     self.assertNotEqual(not_obj, obj)
-                    print "%s is not %s" % (not_obj, obj)
+                    print("%s is not %s" % (not_obj, obj))
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)

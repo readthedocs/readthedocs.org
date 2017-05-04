@@ -14,6 +14,8 @@ Django settings that should be defined:
 TODO: Handle page removal case in Page.
 
 """
+from __future__ import absolute_import, division, print_function
+
 import datetime
 
 from elasticsearch import Elasticsearch, exceptions

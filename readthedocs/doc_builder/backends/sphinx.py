@@ -1,9 +1,12 @@
-import os
+from __future__ import absolute_import, division, print_function
+
 import sys
 import codecs
 from glob import glob
 import logging
 import zipfile
+
+import six
 
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
@@ -70,7 +73,7 @@ class BaseSphinx(BaseBuilder):
             outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
         except (ProjectImportError, IOError):
             trace = sys.exc_info()[2]
-            raise ProjectImportError('Conf file not found'), None, trace
+            six.reraise(ProjectImportError('Conf file not found'), None, trace)
         try:
             outfile.write("\n")
             # TODO this should be handled better in the theme

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function
+
 #
 # sample documentation build configuration file, created by
 # sphinx-quickstart on Sat Jun 18 07:17:29 2011.

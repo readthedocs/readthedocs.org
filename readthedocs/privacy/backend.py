@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
