@@ -708,7 +708,15 @@ class IntegrationList(IntegrationMixin, ListView):
 
 
 class IntegrationCreate(IntegrationMixin, CreateView):
-    pass
+
+    def get_success_url(self):
+        return reverse(
+            'projects_integrations_detail',
+            kwargs={
+                'project_slug': self.get_project().slug,
+                'integration_pk': self.object.id,
+            }
+        )
 
 
 class IntegrationDetail(IntegrationMixin, DetailView):
