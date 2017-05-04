@@ -7,11 +7,7 @@ import readthedocs.core.validators
 
 import sys
 
-if sys.version_info > (3,):
-    import urllib.parse as urlparse
-else:
-    import urlparse
-
+from six.moves.urllib import parse as urlparse
 
 def migrate_url(apps, schema_editor):
     Domain = apps.get_model("projects", "Domain")

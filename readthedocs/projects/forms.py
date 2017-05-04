@@ -2,7 +2,7 @@
 from __future__ import absolute_import, division, print_function
 
 from random import choice
-from urlparse import urlparse
+from six.moves.urllib import parse as urlparse
 
 from django import forms
 from django.conf import settings
