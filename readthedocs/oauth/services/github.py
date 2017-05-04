@@ -218,11 +218,13 @@ class GitHubService(Service):
         else:
             log.error('GitHub webhook creation failed for project: %s',
                       project)
+            # Response data should always be JSON, still try to log if not though
             try:
-                log.debug('GitHub webhook creation failure response: %s',
-                          resp.json())
+                debug_data = resp.json()
             except ValueError:
-                pass
+                debug_data = resp.content
+            log.debug('GitHub webhook creation failure response: %s',
+                      resp.json())
             return (False, resp)
 
     def update_webhook(self, project, integration):

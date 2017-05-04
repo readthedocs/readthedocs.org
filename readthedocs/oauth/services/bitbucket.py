@@ -270,9 +270,10 @@ class BitbucketService(Service):
         else:
             log.error('Bitbucket webhook update failed for project: %s',
                       project)
+            # Response data should always be JSON, still try to log if not though
             try:
-                log.debug('Bitbucket webhook update failure response: %s',
-                          resp.json())
+                debug_data = resp.json()
             except ValueError:
-                pass
+                debug_data = resp.content
+            log.debug('Bitbucket webhook update failure response: %s', debug_data)
             return (False, resp)
