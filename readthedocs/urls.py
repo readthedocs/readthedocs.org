@@ -9,6 +9,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 
+from six.moves import reduce
+
 from tastypie.api import Api
 
 from readthedocs.api.base import (ProjectResource, UserResource,
