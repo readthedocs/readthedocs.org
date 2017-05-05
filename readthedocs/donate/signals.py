@@ -45,7 +45,6 @@ def show_to_programming_language(promo, programming_language):
     Return True if we haven't set a specific language,
     which means show to all languages.
     """
-
     if promo.programming_language:
         return programming_language == promo.programming_language
     return True
@@ -70,8 +69,8 @@ def choose_promo(promo_list):
     (The number of views from this day last week)
     Then we can scale the "total ads sold" against that "expected views",
     and that will give us more spread throughout the day.
-    """
 
+    """
     promo_range = []
     total_views_needed = 0
     for promo in promo_list:
@@ -98,8 +97,8 @@ def get_promo(country_code, programming_language, theme, gold_project=False, gol
     * Gold Project status
     * Geo
     * Programming Language
-    """
 
+    """
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
 
     filtered_promos = []
