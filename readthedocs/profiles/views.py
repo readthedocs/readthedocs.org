@@ -1,7 +1,4 @@
-"""
-Views for creating, editing and viewing site-specific user profiles.
-
-"""
+"""Views for creating, editing and viewing site-specific user profiles."""
 from __future__ import absolute_import, division, print_function
 
 from django.contrib.auth.decorators import login_required
@@ -19,8 +16,7 @@ def create_profile(request, form_class, success_url=None,
                    template_name='profiles/private/create_profile.html',
                    extra_context=None):
     """
-    Create a profile for the current user, if one doesn't already
-    exist.
+    Create a profile for the current user, if one doesn't already exist.
 
     If the user already has a profile, a redirect will be issued to the
     :view:`profiles.views.edit_profile` view.

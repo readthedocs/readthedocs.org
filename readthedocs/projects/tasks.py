@@ -261,9 +261,7 @@ class UpdateDocsTask(Task):
                                         status_code=404)
 
     def get_env_vars(self):
-        """
-        Get bash environment variables used for all builder commands.
-        """
+        """Get bash environment variables used for all builder commands."""
         env = {
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
@@ -913,9 +911,7 @@ def clear_html_artifacts(version):
 
 @task(queue='web')
 def remove_path_from_web(path):
-    """
-    Remove the given path from the web servers file system.
-    """
+    """Remove the given path from the web servers file system."""
     # Santity check  for spaces in the path since spaces would result in
     # deleting unpredictable paths with "rm -rf".
     assert ' ' not in path, "No spaces allowed in path"

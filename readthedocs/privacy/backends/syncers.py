@@ -14,9 +14,7 @@ class LocalSyncer(object):
 
     @classmethod
     def copy(cls, path, target, file=False, **kwargs):
-        """
-        A copy command that works with files or directories.
-        """
+        """A copy command that works with files or directories."""
         log.info("Local Copy %s to %s" % (path, target))
         if file:
             if path == target:

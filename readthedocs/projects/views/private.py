@@ -333,11 +333,11 @@ class ImportView(PrivateViewMixin, TemplateView):
     wizard_class = ImportWizardView
 
     def get(self, request, *args, **kwargs):
-        '''Display list of repositories to import
+        """Display list of repositories to import
 
         Adds a warning to the listing if any of the accounts connected for the
         user are not supported accounts.
-        '''
+        """
         deprecated_accounts = (
             SocialAccount.objects
             .filter(user=self.request.user)
