@@ -71,7 +71,7 @@ class SupporterPromo(models.Model):
         return self.name
 
     def as_dict(self):
-        "A dict respresentation of this for JSON encoding"
+        """A dict respresentation of this for JSON encoding"""
         hash = get_random_string()
         domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
         if self.image:
@@ -197,6 +197,7 @@ class BaseImpression(models.Model):
 
 
 class PromoImpressions(BaseImpression):
+
     """
     Track stats around how successful this promo has been.
 
@@ -208,6 +209,7 @@ class PromoImpressions(BaseImpression):
 
 
 class ProjectImpressions(BaseImpression):
+
     """
     Track stats for a specific project and promo.
 
