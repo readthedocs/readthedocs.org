@@ -61,6 +61,7 @@ def get_options(request):
 def get_metadata(request):
     """
     Check for get_metadata
+
     GET: page
     """
     document = request.GET.get('page', '')
@@ -108,6 +109,7 @@ def serve_file(request, file):
 def has_node(request):
     """
     Checks to see if a node exists.
+
     GET: node_id - The node's ID to check
     """
     node_id = request.GET.get('node_id', '')

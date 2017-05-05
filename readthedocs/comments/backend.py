@@ -8,9 +8,9 @@ from readthedocs.comments.models import NodeSnapshot
 
 
 class DjangoStorage(StorageBackend):
-    """
-    A Sphinx StorageBackend using Django.
-    """
+
+    """A Sphinx StorageBackend using Django."""
+
     def get_metadata(self, docname, moderator=None):
         ret_dict = {}
         for node in DocumentNode.objects.filter(page=docname):
