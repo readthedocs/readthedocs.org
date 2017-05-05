@@ -35,7 +35,7 @@ from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
-from six.moves.urllib import parse as urlparse
+from six.moves.urllib.parse import urlparse
 
 
 log = logging.getLogger(__name__)

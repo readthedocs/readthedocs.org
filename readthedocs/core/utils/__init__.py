@@ -5,7 +5,7 @@ import getpass
 import logging
 import os
 import re
-from six.moves.urllib import parse as urlparse
+from six.moves.urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils import six

@@ -7,7 +7,7 @@ import readthedocs.core.validators
 
 import sys
 
-from six.moves.urllib import parse as urlparse
+from six.moves.urllib.parse import urlparse
 
 def migrate_url(apps, schema_editor):
     Domain = apps.get_model("projects", "Domain")
