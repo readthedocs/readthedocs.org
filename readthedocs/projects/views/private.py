@@ -234,7 +234,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         """Return template names based on step name"""
         return 'projects/import_{0}.html'.format(self.steps.current)
 
-    def done(self, form_list, **kwargs):
+    def done(self, forms, **kwargs):
         """Save form data as object instance
 
         Don't save form data directly, instead bypass documentation building and
@@ -243,8 +243,9 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         """
         form_data = self.get_all_cleaned_data()
         extra_fields = ProjectExtraForm.Meta.fields
-        # expect the first form
-        basics_form = form_list[0]
+        # expect the first form; manually wrap in a list in case it's a
+        # View Object, as it is in Python 3.
+        basics_form = list(forms)[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
