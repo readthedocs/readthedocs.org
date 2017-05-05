@@ -53,7 +53,7 @@ and advertisers would pay for this.
 This is our model.
 
 So much ad tech has been built to track users.
-Following them across them web,
+Following them across the web,
 from site to site,
 showing the same ads and gathering data about them.
 Then retailers sell your purchase data to try and attribute sales to advertising.
