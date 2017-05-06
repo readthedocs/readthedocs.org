@@ -112,7 +112,7 @@ def version_windows(versions, major=1, minor=1, point=1):
 def parse_version_failsafe(version_string):
     try:
         return Version(
-            unicodedata.normalize('NFKD', text_type(version_string)).encode('ascii', 'ignore')
+            text_type(unicodedata.normalize('NFKD', text_type(version_string)).encode('ascii', 'ignore'))
         )
     except (UnicodeError, InvalidVersion):
         return None
