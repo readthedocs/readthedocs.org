@@ -9,6 +9,8 @@ from packaging.version import InvalidVersion
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 
+from six import text_type
+
 
 def get_major(version):
     # pylint: disable=protected-access
@@ -110,7 +112,7 @@ def version_windows(versions, major=1, minor=1, point=1):
 def parse_version_failsafe(version_string):
     try:
         return Version(
-            unicodedata.normalize('NFKD', unicode(version_string)).encode('ascii', 'ignore')
+            unicodedata.normalize('NFKD', text_type(version_string)).encode('ascii', 'ignore')
         )
     except (UnicodeError, InvalidVersion):
         return None
