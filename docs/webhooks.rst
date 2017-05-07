@@ -9,6 +9,16 @@ receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
 version.
 
+.. _integration-detail:
+
+Webhook Integrations
+--------------------
+
+You'll find a list of configured webhook integrations on your project's admin
+dashboard, under **Integrations**. You can select any of these integrations to
+see the *integration detail page*. This page has additional configuration
+details and a list of HTTP exchanges that have taken place for the integration.
+
 .. _webhook-creation:
 
 Webhook creation
@@ -19,15 +29,12 @@ webhook will be set up automatically for your repository. However, if your
 project was not imported through a connected account, you may need to
 manually configure a webhook for your project.
 
-To manually set up a webhook, you must first create the corresponding
-*integration* on your project's **Integrations** admin page. On this page, you
-can click **Add integration** and select the integration type you'd like to add.
-In order to set up a new webhook with your provider, you'll need the *webhook
-URL*. You can get this URL by selecting the integration you just added on the
-list of integrations.
-
-The steps you need to take to manually set up a webhook vary depending on the
-provider:
+To manually set up a webhook, click **Add integration** on your project's
+**Integrations** admin dashboard page and select the integration type you'd like
+to add. After you have added the integration, you'll see a URL for the
+integration on the :ref:`integration detail page <integration-detail>`. Use this
+URL when setting up a new webhook with your provider -- these steps vary
+depending on the provider:
 
 GitHub
 ~~~~~~
@@ -35,7 +42,7 @@ GitHub
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **Payload URL**, use the URL of the integration on Read the Docs, found on
-  the integration detail page
+  the :ref:`integration detail page <integration-detail>` page
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
 * Select **Just the push event**
@@ -49,7 +56,7 @@ Bitbucket
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
-  integration detail page
+  :ref:`integration detail page <integration-detail>` page
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
@@ -59,7 +66,7 @@ GitLab
 * Go to the **Settings** page for your project
 * Click **Integrations**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
-  integration detail page
+  :ref:`integration detail page <integration-detail>` page
 * Leave the default **Push events** selected
 * Finish by clicking **Add Webhook**
 
@@ -68,10 +75,8 @@ Using the generic API integration
 
 For repositories that are not hosted with a supported provider, we also offer a
 generic API endpoint for triggering project builds. Similar to webhook
-integrations, this integration has a specific URL, found on the integration
-detail page. This integration can either be added manually or may be created
-automatically if you had previously set up a webhook with your provider
-manually.
+integrations, this integration has a specific URL, found on the
+:ref:`integration detail page <integration-detail>`.
 
 Token authentication is required to use the generic endpoint, you will find this
 token on the integration details page. The token should be passed in as a
@@ -89,8 +94,8 @@ branches
     Default: **latest**
 
 token
-    The integration token. You'll find this value on the integration detail
-    page.
+    The integration token. You'll find this value on the
+    :ref:`integration detail page <integration-detail>` page.
 
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::
