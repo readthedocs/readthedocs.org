@@ -11,8 +11,8 @@ readthedocs-build==2.0.6
 django==1.9.12
 
 django-tastypie==0.13.0
-django-haystack==2.5.0
-celery-haystack==0.7.2
+django-haystack==2.6.0
+celery-haystack==0.10
 django-guardian==1.4.6
 django-extensions==1.7.4
 djangorestframework==3.5.4
