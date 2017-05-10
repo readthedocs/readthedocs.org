@@ -17,9 +17,8 @@ OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.S
 
 class BaseMkdocs(BaseBuilder):
 
-    """
-    Mkdocs builder
-    """
+    """Mkdocs builder"""
+
     use_theme = True
 
     def __init__(self, *args, **kwargs):
@@ -30,10 +29,7 @@ class BaseMkdocs(BaseBuilder):
         self.root_path = self.version.project.checkout_path(self.version.slug)
 
     def append_conf(self, **kwargs):
-        """
-        Set mkdocs config values
-        """
-
+        """Set mkdocs config values"""
         # Pull mkdocs config data
         try:
             user_config = yaml.safe_load(
