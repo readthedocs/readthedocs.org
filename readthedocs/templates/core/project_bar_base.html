@@ -28,12 +28,12 @@
 
     {% if not project.has_valid_webhook and request.user|is_admin:project %}
       <p class="build-failure">
-        {% url "projects_integrations_sync" project.slug as sync_url %}
+        {% url "projects_integrations" project.slug as integrations_url %}
         {% blocktrans %}
-        This repository doesn't have a valid webhook set up,
-        commits won't trigger new builds for this project.
-        <br>
-        You can <a href='{{ sync_url }}'>sync your webhook</a> to fix this.
+          This repository doesn't have a valid webhook set up,
+          commits won't trigger new builds for this project.
+          <br>
+          See <a href='{{ integrations_url }}'>your project integrations</a> for more information.
         {% endblocktrans %}
       </p>
     {% endif %}

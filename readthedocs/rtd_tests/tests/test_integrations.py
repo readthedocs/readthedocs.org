@@ -7,7 +7,9 @@ from rest_framework.test import APIClient
 from rest_framework.test import APIRequestFactory
 from rest_framework.response import Response
 
-from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import (
+    HttpExchange, Integration, GitHubWebhook
+)
 from readthedocs.projects.models import Project
 
 
@@ -23,18 +25,15 @@ class HttpExchangeTests(TestCase):
         client = APIClient()
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
+        integration = fixture.get(Integration, project=project,
+                                  integration_type=Integration.GITHUB_WEBHOOK,
+                                  provider_data='')
         resp = client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
             {'ref': 'exchange_json'},
             format='json'
         )
-        exchange = HttpExchange.objects.get(
-            content_type=ContentType.objects.filter(
-                app_label='projects',
-                model='project'
-            ),
-            object_id=project.pk
-        )
+        exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
             exchange.request_body,
             '{"ref": "exchange_json"}'
@@ -59,18 +58,15 @@ class HttpExchangeTests(TestCase):
         client = APIClient()
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
+        integration = fixture.get(Integration, project=project,
+                                  integration_type=Integration.GITHUB_WEBHOOK,
+                                  provider_data='')
         resp = client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
             'payload=%7B%22ref%22%3A+%22exchange_form%22%7D',
             content_type='application/x-www-form-urlencoded',
         )
-        exchange = HttpExchange.objects.get(
-            content_type=ContentType.objects.filter(
-                app_label='projects',
-                model='project'
-            ),
-            object_id=project.pk
-        )
+        exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
             exchange.request_body,
             '{"ref": "exchange_form"}'
@@ -95,15 +91,12 @@ class HttpExchangeTests(TestCase):
         client = APIClient()
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
+        integration = fixture.get(Integration, project=project,
+                                  integration_type=Integration.GITHUB_WEBHOOK,
+                                  provider_data='')
 
         self.assertEqual(
-            HttpExchange.objects.filter(
-                content_type=ContentType.objects.get(
-                    app_label='projects',
-                    model='project',
-                ),
-                object_id=project.pk
-            ).count(),
+            HttpExchange.objects.filter(integrations=integration).count(),
             0
         )
 
@@ -121,23 +114,73 @@ class HttpExchangeTests(TestCase):
             )
 
         self.assertEqual(
-            HttpExchange.objects.filter(
-                content_type=ContentType.objects.get(
-                    app_label='projects',
-                    model='project',
-                ),
-                object_id=project.pk
-            ).count(),
+            HttpExchange.objects.filter(integrations=integration).count(),
             10
         )
         self.assertEqual(
             HttpExchange.objects.filter(
-                content_type=ContentType.objects.get(
-                    app_label='projects',
-                    model='project',
-                ),
-                object_id=project.pk,
+                integrations=integration,
                 request_body='{"ref": "preserved"}',
             ).count(),
             10
         )
+
+    def test_request_headers_are_removed(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = fixture.get(Project, main_language_project=None)
+        integration = fixture.get(Integration, project=project,
+                                  integration_type=Integration.GITHUB_WEBHOOK,
+                                  provider_data='')
+        resp = client.post(
+            '/api/v2/webhook/github/{0}/'.format(project.slug),
+            {'ref': 'exchange_json'},
+            format='json',
+            HTTP_X_FORWARDED_FOR='1.2.3.4',
+            HTTP_X_REAL_IP='5.6.7.8',
+            HTTP_X_FOO='bar',
+        )
+        exchange = HttpExchange.objects.get(integrations=integration)
+        self.assertEqual(
+            exchange.request_headers,
+            {u'Content-Type': u'application/json; charset=None',
+             u'Cookie': u'',
+             u'X-Foo': u'bar'}
+        )
+
+
+class IntegrationModelTests(TestCase):
+
+    def test_subclass_is_replaced_on_get(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK
+        )
+        integration = Integration.objects.get(pk=integration.pk)
+        self.assertIsInstance(integration, GitHubWebhook)
+
+    def test_subclass_is_replaced_on_subclass(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK
+        )
+        integration = Integration.objects.subclass(integration)
+        self.assertIsInstance(integration, GitHubWebhook)
+
+    def test_subclass_is_replaced_on_create(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            integration_type=Integration.GITHUB_WEBHOOK,
+            project=project,
+        )
+        self.assertIsInstance(integration, GitHubWebhook)
+
+    def test_generic_token(self):
+        project = fixture.get(Project, main_language_project=None)
+        integration = Integration.objects.create(
+            integration_type=Integration.API_WEBHOOK,
+            project=project,
+        )
+        self.assertIsNotNone(integration.token)

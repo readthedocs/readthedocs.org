@@ -16,12 +16,13 @@ from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
-from readthedocs.redirects.models import Redirect
+from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
+from readthedocs.redirects.models import Redirect
 
 
 class ProjectForm(forms.ModelForm):
@@ -543,6 +544,33 @@ class DomainForm(forms.ModelForm):
         ).exclude(domain=self.cleaned_data['domain']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
+
+
+class IntegrationForm(forms.ModelForm):
+
+    """Form to add an integration
+
+    This limits the choices of the integration type to webhook integration types
+    """
+
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = Integration
+        exclude = ['provider_data', 'exchanges']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(IntegrationForm, self).__init__(*args, **kwargs)
+        # Alter the integration type choices to only provider webhooks
+        self.fields['integration_type'].choices = Integration.WEBHOOK_INTEGRATIONS
+
+    def clean_project(self):
+        return self.project
+
+    def save(self, commit=True):
+        self.instance = Integration.objects.subclass(self.instance)
+        return super(IntegrationForm, self).save(commit)
 
 
 class ProjectAdvertisingForm(forms.ModelForm):
