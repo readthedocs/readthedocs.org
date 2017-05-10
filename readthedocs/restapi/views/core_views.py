@@ -24,6 +24,7 @@ from readthedocs.core.templatetags.core_tags import make_document_url
 def cname(request):
     """
     Get the slug that a particular hostname resolves to.
+
     This is useful for debugging your DNS settings,
     or for getting the backing project name on Read the Docs for a URL.
 

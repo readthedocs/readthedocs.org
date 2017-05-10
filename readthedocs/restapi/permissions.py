@@ -6,9 +6,7 @@ from readthedocs.privacy.backend import AdminPermission
 
 class IsOwner(permissions.BasePermission):
 
-    """
-    Custom permission to only allow owners of an object to edit it.
-    """
+    """Custom permission to only allow owners of an object to edit it."""
 
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet
@@ -26,9 +24,7 @@ class CommentModeratorOrReadOnly(permissions.BasePermission):
 
 class RelatedProjectIsOwner(permissions.BasePermission):
 
-    """
-    Custom permission to only allow owners of an object to edit it.
-    """
+    """Custom permission to only allow owners of an object to edit it."""
 
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS)
@@ -43,12 +39,14 @@ class RelatedProjectIsOwner(permissions.BasePermission):
 
 class APIPermission(permissions.IsAuthenticatedOrReadOnly):
 
-    '''
+    """
+    Control users access to the API.
+
     This permission should allow authenticated users readonly access to the API,
     and allow admin users write access. This should be used on API resources
     that need to implement write operations to resources that were based on the
     ReadOnlyViewSet
-    '''
+    """
 
     def has_permission(self, request, view):
         has_perm = super(APIPermission, self).has_permission(request, view)

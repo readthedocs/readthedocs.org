@@ -13,9 +13,7 @@ log = logging.getLogger(__name__)
 
 
 def sync_versions(project, versions, type):
-    """
-    Update the database with the current versions from the repository.
-    """
+    """Update the database with the current versions from the repository."""
     # Bookkeeping for keeping tag/branch identifies correct
     verbose_names = [v['verbose_name'] for v in versions]
     project.versions.filter(verbose_name__in=verbose_names).update(type=type)
@@ -60,9 +58,7 @@ def sync_versions(project, versions, type):
 
 
 def delete_versions(project, version_data):
-    """
-    Delete all versions not in the current repo.
-    """
+    """Delete all versions not in the current repo."""
     current_versions = []
     if 'tags' in version_data:
         for version in version_data['tags']:
