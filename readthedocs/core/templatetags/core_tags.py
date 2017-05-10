@@ -17,7 +17,7 @@ register = template.Library()
 @register.filter
 def gravatar(email, size=48):
     """
-    hacked from djangosnippets.org, but basically given an email address
+    Hacked from djangosnippets.org, but basically given an email address
 
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading

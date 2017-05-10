@@ -160,11 +160,12 @@ slugify = allow_lazy(slugify, six.text_type, SafeText)
 
 def safe_makedirs(directory_name):
     """
+    Safely create a directory.
+
     Makedirs has an issue where it has a race condition around
     checking for a directory and then creating it.
     This catches the exception in the case where the dir already exists.
     """
-
     try:
         os.makedirs(directory_name)
     except OSError as e:
