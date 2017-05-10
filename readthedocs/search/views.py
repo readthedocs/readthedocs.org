@@ -15,9 +15,7 @@ LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language
 
 
 def elastic_search(request):
-    """
-    Use elastic search for global search
-    """
+    """Use Elasticsearch for global search"""
 
     query = request.GET.get('q')
     type = request.GET.get('type', 'project')
