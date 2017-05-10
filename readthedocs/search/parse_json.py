@@ -13,9 +13,7 @@ log = logging.getLogger(__name__)
 
 
 def process_all_json_files(version, build_dir=True):
-    """
-    Return a list of pages to index
-    """
+    """Return a list of pages to index"""
     if build_dir:
         full_path = version.project.full_json_path(version.slug)
     else:
