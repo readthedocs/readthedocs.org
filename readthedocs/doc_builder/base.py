@@ -19,6 +19,7 @@ def restoring_chdir(fn):
 
 
 class BaseBuilder(object):
+
     """
     The Base for all Builders. Defines the API for subclasses.
 
@@ -41,21 +42,18 @@ class BaseBuilder(object):
         )
 
     def force(self, **kwargs):
-        """
-        An optional step to force a build even when nothing has changed.
-        """
+        """An optional step to force a build even when nothing has changed."""
         log.info("Forcing a build")
         self._force = True
 
     def build(self, id=None, **kwargs):
-        """
-        Do the actual building of the documentation.
-        """
+        """Do the actual building of the documentation."""
         raise NotImplementedError
 
     def move(self, **kwargs):
         """
-        Move the documentation from it's generated place to its artifact directory.
+        Move the documentation from where it was generated to
+        its artifact directory.
         """
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
@@ -66,17 +64,13 @@ class BaseBuilder(object):
             log.warning("Not moving docs, because the build dir is unknown.")
 
     def clean(self, **kwargs):
-        """
-        Clean the path where documentation will be built
-        """
+        """Clean the path where documentation will be built"""
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
             log.info("Removing old artifact path: %s" % self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **kwargs):
-        """
-        Handle creating a custom docs_dir if it doesn't exist.
-        """
+        """Handle creating a custom docs_dir if it doesn't exist."""
         checkout_path = self.project.checkout_path(self.version.slug)
         if not docs_dir:
             for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
@@ -89,10 +83,7 @@ class BaseBuilder(object):
         return docs_dir
 
     def create_index(self, extension='md', **kwargs):
-        """
-        Create an index file if it needs it.
-        """
-
+        """Create an index file if it needs it."""
         docs_dir = self.docs_dir()
 
         index_filename = os.path.join(docs_dir, 'index.{ext}'.format(ext=extension))
@@ -119,5 +110,5 @@ If you want to use another markup, choose a different builder in your settings.
         return 'index'
 
     def run(self, *args, **kwargs):
-        '''Proxy run to build environment'''
+        """Proxy run to build environment"""
         return self.build_env.run(*args, **kwargs)

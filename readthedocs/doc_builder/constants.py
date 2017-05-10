@@ -1,4 +1,4 @@
-'''Doc build constants'''
+"""Doc build constants"""
 
 import os
 import re
