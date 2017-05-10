@@ -128,7 +128,6 @@ def load_yaml_config(version):
     This uses the configuration logic from `readthedocs-build`,
     which will keep parsing consistent between projects.
     """
-
     checkout_path = version.project.checkout_path(version.slug)
     env_config = {}
 

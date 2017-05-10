@@ -27,9 +27,7 @@ log = logging.getLogger(__name__)
 
 class BaseSphinx(BaseBuilder):
 
-    """
-    The parent for most sphinx builders.
-    """
+    """The parent for most sphinx builders."""
 
     def __init__(self, *args, **kwargs):
         super(BaseSphinx, self).__init__(*args, **kwargs)
@@ -42,9 +40,7 @@ class BaseSphinx(BaseBuilder):
             self.old_artifact_path = os.path.join(docs_dir, self.sphinx_build_dir)
 
     def _write_config(self, master_doc='index'):
-        """
-        Create ``conf.py`` if it doesn't exist.
-        """
+        """Create ``conf.py`` if it doesn't exist."""
         docs_dir = self.docs_dir()
         conf_template = render_to_string('sphinx/conf.py.conf',
                                          {'project': self.project,
@@ -56,9 +52,7 @@ class BaseSphinx(BaseBuilder):
         safe_write(conf_file, conf_template)
 
     def append_conf(self, **kwargs):
-        """Modify the given ``conf.py`` file from a whitelisted user's project.
-        """
-
+        """Modify given ``conf.py`` file from a whitelisted user's project."""
         # Pull config data
         try:
             conf_py_path = self.version.get_conf_py_path()
@@ -245,7 +239,7 @@ class EpubBuilder(BaseSphinx):
 
 class LatexBuildCommand(BuildCommand):
 
-    '''Ignore LaTeX exit code if there was file output'''
+    """Ignore LaTeX exit code if there was file output"""
 
     def run(self):
         super(LatexBuildCommand, self).run()
@@ -257,7 +251,7 @@ class LatexBuildCommand(BuildCommand):
 
 class DockerLatexBuildCommand(DockerBuildCommand):
 
-    '''Ignore LaTeX exit code if there was file output'''
+    """Ignore LaTeX exit code if there was file output"""
 
     def run(self):
         super(DockerLatexBuildCommand, self).run()
