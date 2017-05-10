@@ -136,8 +136,9 @@ def _build_url(url, projects, branches):
 
 
 @csrf_exempt
-def github_build(request):
-    """GitHub webhook consumer
+def github_build(request):  # noqa: D205
+    """
+    GitHub webhook consumer
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.intergrations.GitHubWebhookView`
@@ -190,7 +191,7 @@ def github_build(request):
 
 
 @csrf_exempt
-def gitlab_build(request):
+def gitlab_build(request):  # noqa: D205
     """GitLab webhook consumer
 
     .. warning:: **DEPRECATED**
