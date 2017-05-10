@@ -109,8 +109,7 @@ class Virtualenv(PythonEnvironment):
             'mkdocs==0.15.0',
             'mock==1.0.1',
             'pillow==2.6.1',
-            ('git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
-             '@0.6-alpha#egg=readthedocs-sphinx-ext'),
+            'readthedocs-sphinx-ext<0.6',
             'sphinx-rtd-theme<0.3',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
@@ -217,8 +216,7 @@ class Conda(PythonEnvironment):
         # Install pip-only things.
         pip_requirements = [
             'mkdocs==0.15.0',
-            ('git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
-             '@0.6-alpha#egg=readthedocs-sphinx-ext'),
+            'readthedocs-sphinx-ext<0.6',
             'commonmark==0.5.4',
             'recommonmark==0.1.1',
         ]
