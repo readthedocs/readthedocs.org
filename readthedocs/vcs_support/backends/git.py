@@ -133,7 +133,10 @@ class Backend(BaseVCS):
 
     def parse_branches(self, data):
         """
-        Parse output of git branch -r, eg:
+        Parse output of git branch -r
+
+        e.g.:
+
               origin/2.0.X
               origin/HEAD -> origin/master
               origin/develop
