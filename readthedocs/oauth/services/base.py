@@ -103,7 +103,6 @@ class Service(object):
                 u'expires_at': 1449218652.558185
             }
         """
-
         def _updater(data):
             token.token = data['access_token']
             token.expires_at = datetime.fromtimestamp(data['expires_at'])

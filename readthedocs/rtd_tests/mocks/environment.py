@@ -4,7 +4,8 @@ from readthedocs.doc_builder.environments import BuildEnvironment
 
 
 class EnvironmentMockGroup(object):
-    '''Mock out necessary environment pieces'''
+
+    """Mock out necessary environment pieces"""
 
     def __init__(self):
         self.patches = {
@@ -43,7 +44,7 @@ class EnvironmentMockGroup(object):
         self.mocks = {}
 
     def start(self):
-        '''Create a patch object for class patches'''
+        """Create a patch object for class patches"""
         for patch in self.patches:
             self.mocks[patch] = self.patches[patch].start()
         self.mocks['process'].communicate.return_value = ('', '')
@@ -61,7 +62,7 @@ class EnvironmentMockGroup(object):
                 pass
 
     def configure_mock(self, mock, kwargs):
-        '''Configure object mocks'''
+        """Configure object mocks"""
         self.mocks[mock].configure_mock(**kwargs)
 
     def __getattr__(self, name):
