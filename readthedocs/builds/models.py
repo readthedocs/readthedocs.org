@@ -96,7 +96,6 @@ class Version(models.Model):
         The result could be used as ref in a git repo, e.g. for linking to
         GitHub or Bitbucket.
         """
-
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
         if self.slug == LATEST:
@@ -141,9 +140,7 @@ class Version(models.Model):
         return self.project.get_docs_url(version_slug=self.slug, private=private)
 
     def save(self, *args, **kwargs):
-        """
-        Add permissions to the Version for all owners on save.
-        """
+        """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super(Version, self).save(*args, **kwargs)
         for owner in self.project.users.all():
@@ -164,7 +161,7 @@ class Version(models.Model):
 
     @property
     def identifier_friendly(self):
-        '''Return display friendly identifier'''
+        """Return display friendly identifier"""
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
@@ -201,18 +198,18 @@ class Version(models.Model):
         return conf_py_path
 
     def get_build_path(self):
-        '''Return version build path if path exists, otherwise `None`'''
+        """Return version build path if path exists, otherwise `None`"""
         path = self.project.checkout_path(version=self.slug)
         if os.path.exists(path):
             return path
         return None
 
     def clean_build_path(self):
-        '''Clean build path for project version
+        """Clean build path for project version
 
         Ensure build path is clean for project version. Used to ensure stale
         build checkouts for each project version are removed.
-        '''
+        """
         try:
             path = self.get_build_path()
             if path is not None:
@@ -349,28 +346,29 @@ class Build(models.Model):
 
     @property
     def finished(self):
-        '''Return if build has a finished state'''
+        """Return if build has a finished state"""
         return self.state == BUILD_STATE_FINISHED
 
 
 class BuildCommandResultMixin(object):
 
-    '''Mixin for common command result methods/properties
+    """Mixin for common command result methods/properties
 
     Shared methods between the database model :py:class:`BuildCommandResult` and
     non-model respresentations of build command results from the API
-    '''
+    """
 
     @property
     def successful(self):
-        '''Did the command exit with a successful exit code'''
+        """Did the command exit with a successful exit code"""
         return self.exit_code == 0
 
     @property
     def failed(self):
-        '''Did the command exit with a failing exit code
+        """Did the command exit with a failing exit code
 
-        Helper for inverse of :py:meth:`successful`'''
+        Helper for inverse of :py:meth:`successful`
+        """
         return not self.successful
 
 
