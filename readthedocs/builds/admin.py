@@ -1,6 +1,4 @@
-"""Django admin interface for `~builds.models.Build` and related models.
-
-"""
+"""Django admin interface for `~builds.models.Build` and related models."""
 from __future__ import absolute_import, division, print_function
 
 from django.contrib import admin
