@@ -125,6 +125,9 @@ class Service(object):
     def setup_webhook(self, project):
         raise NotImplementedError
 
+    def update_webhook(self, project, integration):
+        raise NotImplementedError
+
     @classmethod
     def is_project_service(cls, project):
         """Determine if this is the service the project is using

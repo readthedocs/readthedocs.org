@@ -11,6 +11,7 @@ from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
+from readthedocs.integrations.models import Integration
 from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -159,6 +160,25 @@ class GitHubService(Service):
             result.extend(self.paginate(next_url))
         return result
 
+    def get_webhook_data(self, project, integration):
+        """Get webhook JSON data to post to the API"""
+        return json.dumps({
+            'name': 'web',
+            'active': True,
+            'config': {
+                'url': 'https://{domain}{path}'.format(
+                    domain=settings.PRODUCTION_DOMAIN,
+                    path=reverse(
+                        'api_webhook',
+                        kwargs={'project_slug': project.slug,
+                                'integration_pk': integration.pk}
+                    )
+                ),
+                'content_type': 'json',
+            },
+            'events': ['push', 'pull_request'],
+        })
+
     def setup_webhook(self, project):
         """Set up GitHub project webhook for project
 
@@ -169,21 +189,11 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        data = json.dumps({
-            'name': 'web',
-            'active': True,
-            'config': {
-                'url': 'https://{domain}{path}'.format(
-                    domain=settings.PRODUCTION_DOMAIN,
-                    path=reverse(
-                        'api_webhook_github',
-                        kwargs={'project_slug': project.slug}
-                    )
-                ),
-                'content_type': 'json',
-            },
-            'events': ['push', 'pull_request'],
-        })
+        integration, _ = Integration.objects.get_or_create(
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        data = self.get_webhook_data(project, integration)
         resp = None
         try:
             resp = session.post(
@@ -194,18 +204,70 @@ class GitHubService(Service):
             )
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
+                recv_data = resp.json()
+                integration.provider_data = recv_data
+                integration.save()
                 log.info('GitHub webhook creation successful for project: %s',
                          project)
                 return (True, resp)
-        except RequestException:
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
             log.error('GitHub webhook creation failed for project: %s',
                       project, exc_info=True)
             pass
         else:
             log.error('GitHub webhook creation failed for project: %s',
                       project)
+            # Response data should always be JSON, still try to log if not though
+            try:
+                debug_data = resp.json()
+            except ValueError:
+                debug_data = resp.content
             log.debug('GitHub webhook creation failure response: %s',
-                      resp.content)
+                      resp.json())
+            return (False, resp)
+
+    def update_webhook(self, project, integration):
+        """Update webhook integration
+
+        :param project: project to set up webhook for
+        :type project: Project
+        :param integration: Webhook integration to update
+        :type integration: Integration
+        :returns: boolean based on webhook update success, and requests Response object
+        :rtype: (Bool, Response)
+        """
+        session = self.get_session()
+        data = self.get_webhook_data(project, integration)
+        url = integration.provider_data.get('url')
+        resp = None
+        try:
+            resp = session.patch(
+                url,
+                data=data,
+                headers={'content-type': 'application/json'}
+            )
+            # GitHub will return 200 if already synced
+            if resp.status_code in [200, 201]:
+                recv_data = resp.json()
+                integration.provider_data = recv_data
+                integration.save()
+                log.info('GitHub webhook creation successful for project: %s',
+                         project)
+                return (True, resp)
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            log.error('GitHub webhook update failed for project: %s',
+                      project, exc_info=True)
+            pass
+        else:
+            log.error('GitHub webhook update failed for project: %s',
+                      project)
+            try:
+                log.debug('GitHub webhook creation failure response: %s',
+                          resp.json())
+            except ValueError:
+                pass
             return (False, resp)
 
     @classmethod
