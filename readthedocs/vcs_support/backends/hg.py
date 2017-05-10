@@ -49,11 +49,7 @@ class Backend(BaseVCS):
         return self.parse_branches(stdout)
 
     def parse_branches(self, data):
-        """
-        stable
-        default
-        """
-
+        """Stable / default"""
         names = [name.lstrip() for name in data.splitlines()]
         return [VCSVersion(self, name, name) for name in names if name]
 

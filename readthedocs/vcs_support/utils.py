@@ -11,6 +11,7 @@ class LockTimeout(Exception):
 
 
 class Lock(object):
+
     """
     A simple file based lock with timeout
 
@@ -58,6 +59,7 @@ class Lock(object):
 
 
 class NonBlockingLock(object):
+
     """
     Instead of waiting for a lock, depending on the lock file age, either
     acquire it immediately or throw LockTimeout
