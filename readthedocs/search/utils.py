@@ -114,6 +114,7 @@ def parse_content_from_file(documentation_type, file_path):
 def parse_content(documentation_type, content):
     """
     Prepare the text of the html file.
+
     Returns the body text of a document
     """
     try:

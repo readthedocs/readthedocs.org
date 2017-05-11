@@ -34,9 +34,8 @@ VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
 
 
 class VersionSlugField(models.CharField):
-    """
-    Implementation inspired by ``django_extensions.db.fields.AutoSlugField``.
-    """
+
+    """Inspired by ``django_extensions.db.fields.AutoSlugField``."""
 
     invalid_chars_re = re.compile('[^-._a-z0-9]')
     leading_punctuation_re = re.compile('^[-._]+')

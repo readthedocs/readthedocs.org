@@ -24,7 +24,6 @@ def offer_promo(promo_obj, project=None):
     This generated a hash as part of the return dict,
     so that must be used throughout the processing pipeline in order to dedupe clicks.
     """
-
     promo_dict = promo_obj.as_dict()
     promo_obj.incr(OFFERS)
     # Set validation cache

@@ -45,9 +45,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
-        """
-        Maintain state of versions that are wanted.
-        """
+        """Maintain state of versions that are wanted."""
         project = get_object_or_404(
             Project.objects.api(self.request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:

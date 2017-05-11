@@ -27,17 +27,18 @@ from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
-from readthedocs.integrations.models import HttpExchange
+from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
     ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
-    RedirectForm, WebHookForm, DomainForm, ProjectAdvertisingForm)
+    RedirectForm, WebHookForm, DomainForm, IntegrationForm,
+    ProjectAdvertisingForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
 from readthedocs.oauth.services import registry
-from readthedocs.oauth.utils import attach_webhook
+from readthedocs.oauth.utils import attach_webhook, update_webhook
 
 from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
@@ -227,19 +228,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         kwargs['user'] = self.request.user
         if step == 'basics':
             kwargs['show_advanced'] = True
-        if step == 'extra':
-            extra_form = self.get_form_from_step('basics')
-            project = extra_form.save(commit=False)
-            kwargs['instance'] = project
         return kwargs
-
-    def get_form_from_step(self, step):
-        form = self.form_list[step](
-            data=self.get_cleaned_data_for_step(step),
-            **self.get_form_kwargs(step)
-        )
-        form.full_clean()
-        return form
 
     def get_template_names(self):
         """Return template names based on step name"""
@@ -343,11 +332,11 @@ class ImportView(PrivateViewMixin, TemplateView):
     wizard_class = ImportWizardView
 
     def get(self, request, *args, **kwargs):
-        '''Display list of repositories to import
+        """Display list of repositories to import
 
         Adds a warning to the listing if any of the accounts connected for the
         user are not supported accounts.
-        '''
+        """
         deprecated_accounts = (
             SocialAccount.objects
             .filter(user=self.request.user)
@@ -370,7 +359,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type']:
+        for key in ['name', 'repo', 'repo_type', 'remote_repository']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
         for key in ['description', 'project_url']:
@@ -677,13 +666,33 @@ class DomainDelete(DomainMixin, DeleteView):
     pass
 
 
-class IntegrationMixin(object):
+class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    """Project external service mixin for listing webhook objects
+    """Project external service mixin for listing webhook objects"""
 
-    This mixin will be used more once we have modeling around webhooks and
-    external integrations.
-    """
+    model = Integration
+    integration_url_field = 'integration_pk'
+    form_class = IntegrationForm
+
+    def get_queryset(self):
+        return self.get_integration_queryset()
+
+    def get_object(self):
+        return self.get_integration()
+
+    def get_integration_queryset(self):
+        self.project = self.get_project()
+        return self.model.objects.filter(project=self.project)
+
+    def get_integration(self):
+        """Return project integration determined by url kwarg"""
+        if self.integration_url_field not in self.kwargs:
+            return None
+        return get_object_or_404(
+            Integration,
+            pk=self.kwargs[self.integration_url_field],
+            project=self.get_project(),
+        )
 
     def get_success_url(self):
         return reverse('projects_integrations', args=[self.get_project().slug])
@@ -694,33 +703,63 @@ class IntegrationMixin(object):
         return 'projects/integration{0}.html'.format(self.template_name_suffix)
 
 
-class IntegrationExchangeMixin(ProjectAdminMixin, PrivateViewMixin):
-
-    """Project webhook exchange mixin for listing exchange objects"""
-
-    model = HttpExchange
-    lookup_url_kwarg = 'exchange_pk'
-
-    def get_queryset(self):
-        self.project = self.get_project()
-        return self.model.objects.filter(
-            content_type=ContentType.objects.filter(
-                app_label='projects',
-                model='project'
-            ),
-            object_id=self.project.pk
-        )
-
-
-class IntegrationList(IntegrationMixin, IntegrationExchangeMixin, ListView):
+class IntegrationList(IntegrationMixin, ListView):
     pass
 
 
-class IntegrationExchangeDetail(IntegrationMixin, IntegrationExchangeMixin, DetailView):
+class IntegrationCreate(IntegrationMixin, CreateView):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_integrations_detail',
+            kwargs={
+                'project_slug': self.get_project().slug,
+                'integration_pk': self.object.id,
+            }
+        )
+
+
+class IntegrationDetail(IntegrationMixin, DetailView):
+
+    # Some of the templates can be combined, we'll avoid duplicating templates
+    SUFFIX_MAP = {
+        Integration.GITHUB_WEBHOOK: 'webhook',
+        Integration.GITLAB_WEBHOOK: 'webhook',
+        Integration.BITBUCKET_WEBHOOK: 'webhook',
+        Integration.API_WEBHOOK: 'generic_webhook',
+    }
+
+    def get_template_names(self):
+        if self.template_name:
+            return self.template_name
+        integration_type = self.get_integration().integration_type
+        suffix = self.SUFFIX_MAP.get(integration_type, integration_type)
+        return ('projects/integration_{0}{1}.html'
+                .format(suffix, self.template_name_suffix))
+
+
+class IntegrationDelete(IntegrationMixin, DeleteView):
+
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
+
+
+class IntegrationExchangeDetail(IntegrationMixin, DetailView):
+
+    model = HttpExchange
+    lookup_url_kwarg = 'exchange_pk'
     template_name = 'projects/integration_exchange_detail.html'
 
+    def get_queryset(self):
+        return self.model.objects.filter(
+            integrations=self.get_integration()
+        )
 
-class IntegrationWebhookSync(PrivateViewMixin, ProjectAdminMixin, GenericView):
+    def get_object(self):
+        return DetailView.get_object(self)
+
+
+class IntegrationWebhookSync(IntegrationMixin, GenericView):
 
     """Resync a project webhook
 
@@ -729,7 +768,14 @@ class IntegrationWebhookSync(PrivateViewMixin, ProjectAdminMixin, GenericView):
 
     def post(self, request, *args, **kwargs):
         # pylint: disable=unused-argument
-        attach_webhook(project=self.get_project(), request=request)
+        if 'integration_pk' in kwargs:
+            integration = self.get_integration()
+            update_webhook(self.get_project(), integration, request=request)
+        else:
+            # This is a brute force form of the webhook sync, if a project has a
+            # webhook or a remote repository object, the user should be using
+            # the per-integration sync instead.
+            attach_webhook(project=self.get_project(), request=request)
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

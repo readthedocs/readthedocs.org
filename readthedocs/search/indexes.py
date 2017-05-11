@@ -23,9 +23,9 @@ from django.conf import settings
 
 
 class Index(object):
-    """
-    Base class to define some common methods across indexes.
-    """
+
+    """Base class to define some common methods across indexes."""
+
     # The _index and _type define the URL path to Elasticsearch, e.g.:
     #   http://localhost:9200/{_index}/{_type}/_search
     _index = 'readthedocs'
@@ -166,15 +166,11 @@ class Index(object):
         return self.es.delete_by_query(**kwargs)
 
     def get_mapping(self):
-        """
-        Returns the mapping for this _index and _type.
-        """
+        """Returns the mapping for this _index and _type."""
         raise NotImplementedError()
 
     def extract_document(self, data):
-        """
-        Extracts the Elasticsearch document for this object instance.
-        """
+        """Extracts the Elasticsearch document for this object instance."""
         raise NotImplementedError()
 
     def update_aliases(self, new_index, delete=True):
