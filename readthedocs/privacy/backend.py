@@ -17,9 +17,7 @@ from readthedocs.projects import constants
 
 class ProjectManager(models.Manager):
 
-    """
-    Projects take into account their own privacy_level setting.
-    """
+    """Projects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
 
@@ -32,9 +30,7 @@ class ProjectManager(models.Manager):
         return queryset.distinct()
 
     def for_user_and_viewer(self, user, viewer):
-        """
-        Show projects that a user owns, that another user can see.
-        """
+        """Show projects that a user owns, that another user can see."""
         queryset = self.filter(privacy_level=constants.PUBLIC)
         queryset = self._add_user_repos(queryset, viewer)
         queryset = queryset.filter(users__in=[user])
@@ -122,9 +118,7 @@ class VersionManager(models.Manager):
 
 class VersionQuerySetBase(models.QuerySet):
 
-    """
-    Versions take into account their own privacy_level setting.
-    """
+    """Versions take into account their own privacy_level setting."""
 
     use_for_related_fields = True
 
@@ -185,7 +179,8 @@ class VersionQuerySet(SettingsOverrideObject):
 class BuildManager(models.Manager):
 
     """
-    Build objects take into account the privacy of the Version they relate to.
+    Build objects that take into account the privacy of the Version
+    that they relate to.
     """
 
     use_for_related_fields = True
@@ -218,6 +213,7 @@ class RelatedProjectManager(models.Manager):
 
     This shouldn't be used as a subclass.
     """
+
     use_for_related_fields = True
     project_field = 'project'
 
@@ -280,7 +276,7 @@ class ChildRelatedProjectManager(RelatedProjectManager):
 
 class RelatedBuildManager(models.Manager):
 
-    '''For models with association to a project through :py:class:`Build`'''
+    """For models with association to a project through :py:class:`Build`"""
 
     use_for_related_fields = True
 

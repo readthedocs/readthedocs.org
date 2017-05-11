@@ -143,6 +143,7 @@ class BookmarkAddView(View):
 class BookmarkRemoveView(View):
     """
     Deletes a user's bookmark in response to a POST request.
+
     Renders a delete? confirmation page in response to a GET request.
     """
 

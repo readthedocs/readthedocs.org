@@ -33,7 +33,9 @@ class RTDTestCase(TestCase):
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
 class MockBuildTestCase(TestCase):
-    '''Mock build triggers for test cases'''
+
+    """Mock build triggers for test cases"""
+
     pass
 
 

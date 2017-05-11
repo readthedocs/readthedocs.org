@@ -1,5 +1,4 @@
-"""Django admin interface for `~bookmarks.models.Bookmark`.
-"""
+"""Django admin interface for `~bookmarks.models.Bookmark`."""
 from __future__ import absolute_import, division, print_function
 
 from django.contrib import admin

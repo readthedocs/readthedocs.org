@@ -82,10 +82,11 @@ class Redirect(models.Model):
 
     def get_full_path(self, filename, language=None, version_slug=None):
         """
-        Return a full path for a given filename. This will include version and
-        language information. No protocol/domain is returned.
-        """
+        Return a full path for a given filename.
 
+        This will include version and language information. No protocol/domain
+        is returned.
+        """
         # Handle explicit http redirects
         if re.match('^https?://', filename):
             return filename
