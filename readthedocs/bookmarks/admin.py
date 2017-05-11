@@ -1,5 +1,4 @@
-"""Django admin interface for `~bookmarks.models.Bookmark`.
-"""
+"""Django admin interface for `~bookmarks.models.Bookmark`."""
 
 from django.contrib import admin
 from readthedocs.bookmarks.models import Bookmark
