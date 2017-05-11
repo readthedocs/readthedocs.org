@@ -15,6 +15,10 @@ Our current build limits are:
 We can increase build limits on a per-project basis,
 if you provide a good reason your documentation needs more resources.
 
+You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_. `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
+
+Currently in production we're using the ``readthedocs/build:2.0`` docker image as our default image.
+
 How we build documentation
 --------------------------
 

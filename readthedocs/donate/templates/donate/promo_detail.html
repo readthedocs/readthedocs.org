@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Promo Detail" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'donate/css/donate.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<h1> Promo Results </h1>
+
+{% if promos %}
+
+{% if promos|length > 1 %}
+<p>
+<strong>Total Clicks for all shown promos</strong>: {{ total_clicks }}
+</p>
+{% endif %}
+
+<div id="promo_detail">
+{% for promo in promos %}
+
+<h3>
+Results for {{ promo.name }} ({{ promo.analytics_id }}) over last {{ days }} days.
+</h3>
+
+<div class="example">
+
+  <div class="filters">
+    {% if promo.programming_language %}
+      <dl>
+        <dt>Filtered Language</dt>
+        <dd>{{ promo.programming_language }}</dd>
+      </dl>
+    {% endif %}
+
+    {% if promo.geo_filters.count %}
+      <dl>
+        <dt>Filtered Geos</dt>
+        {% for geo in promo.geo_filters.all %}
+          <dd>
+          {{ geo.get_filter_type_display }}: {{ geo.countries.all|join:", " }}
+          </dd>
+        {% endfor %}
+      </dl>
+    {% endif %}
+
+    {% if promo.sold_clicks %}
+      <dl>
+        <dt>Total Clicks Sold</dt>
+        <dd>
+        {{ promo.sold_clicks }}
+        </dd>
+      </dl>
+    {% endif %}
+  </div>
+
+
+  <div class="promo">
+    <div id="promo_image">
+      <a href="{{ promo.link }}">
+        <img width=120 height=90 src="{{ promo.image }}">
+      </a>
+    </div>
+
+    <div id="promo_text">
+      {{ promo.report_html_text|safe }}
+    </div>
+  </div>
+
+</div>
+
+<h5>Promo Data</h5>
+<table>
+  <tr>
+    <th><strong>Day (UTC)</strong></th>
+    <th><strong>Views</strong></th> 
+    <th><strong>Clicks</strong></th>
+    <th><strong>CTR</strong></th>
+  </tr>
+  {% for day in promo.impressions.all|slice:days_slice %}
+  {% if day.views > 0 %}
+  <tr>
+    <td>{{ day.date }}</td>
+    <td><code>{{ day.views }}</code></td> 
+    <td><code>{{ day.clicks }}</code></td>
+    <td><code>{{ day.click_ratio }}%</code></td>
+  </tr>
+  {% endif %}
+  {% endfor %}
+  <tr>
+    <td><strong>Total (over all time)</strong> </td>
+    <td><strong>{{ promo.total_views }}</strong></td> 
+    <td><strong>{{ promo.total_clicks }}</strong></td>
+    <td><strong>{{ promo.total_click_ratio }}%</strong></td>
+  </tr>
+</table>
+
+{% endfor %}
+</div>
+
+{% else %}
+
+No promos match this query.
+
+{% endif %}
+
+{% endblock %}

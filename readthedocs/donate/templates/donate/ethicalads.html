@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Pay for your ad" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'payments/css/form.css' %}" />
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
+  <script type="text/javascript" src="{% static 'vendor/knockout.js' %}"></script>
+  <script type="text/javascript" src="{% static 'donate/js/donate.js' %}"></script>
+  <script type="text/javascript">
+var donate_views = require('donate/donate');
+$(document).ready(function () {
+    var key;
+    //<![CDATA[
+    key = '{{ stripe_publishable }}';
+    //]]>
+
+    var view = donate_views.DonateView.init({
+      key: key,
+      form: $('form#donate-payment')
+    });
+});
+  </script>
+{% endblock %}
+
+
+{% block content %}
+  <h2>Pay for your Sponsorship</h2>
+
+  <p>
+    This form can be used to pay for your sponsorship of Read the Docs.
+    We think that our <a href="http://docs.readthedocs.io/en/latest/ethical-advertising.html">Ethical Advertising</a> campaign is a wonderful step forward for running ads on open source projects.
+    You can pay for these ads below.
+  </p>
+
+  <form action="" method="post" id="donate-payment" class="payment">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    {% for field in form.fields_with_cc_group %}
+      {% if field.is_cc_group %}
+        <div class="subscription-card">
+          {% for groupfield in field.fields %}
+            {% include 'core/ko_form_field.html' with field=groupfield %}
+          {% endfor %}
+        </div>
+      {% elif field.name == 'dollars' %}
+        {{ field.errors }}
+        <p>
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <input
+              type="hidden"
+              name="{{ field.name }}"
+              id="{{ field.id_for_label }}"
+              data-bind="value: dollars" />
+          <input
+              type="number"
+              data-bind="textInput: dollars_input, visible: dollars_select() == 'custom'"
+              value="50"
+              id="id_dollars_input"
+              style="display: none;" />
+          <select data-bind="value: dollars_select, visible: dollars_select() != 'custom'">
+            <option value="custom">{% trans "Custom amount" %}</option>
+            <option value="2000">$2,000</option>
+            <option value="3000">$3,000</option>
+            <option value="5000" selected>$5,000</option>
+            <option value="10000">$10,000</option>
+          </select>
+          {% if field.help_text %}
+            <span class="helptext">{{ field.help_text }}</span>
+          {% endif %}
+        </p>
+      {% else %}
+        {% include 'core/ko_form_field.html' with field=field %}
+      {% endif %}
+    {% endfor %}
+
+    {% trans "Pay" as form_submit_text %}
+    <input type="submit" value="{{ form_submit_text }}" data-bind="click: process_form" />
+    <p>
+    We do not store your credit card details,
+    payment is processed directly through <a href="https://stripe.com">Stripe</a>.
+    </p>
+  </form>
+{% endblock %}

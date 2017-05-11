@@ -14,10 +14,13 @@ import hashlib
 from collections import defaultdict
 
 from celery import task, Task
+from celery.exceptions import SoftTimeLimitExceeded
 from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from slumber.exceptions import HttpClientError
+
 from readthedocs_build.config import ConfigError
 
 from readthedocs.builds.constants import (LATEST,
@@ -169,12 +172,15 @@ class UpdateDocsTask(Task):
                                              build_env=self.build_env,
                                              config=self.config)
 
-            self.setup_environment()
+            try:
+                self.setup_environment()
 
-            # TODO the build object should have an idea of these states, extend
-            # the model to include an idea of these outcomes
-            outcomes = self.build_docs()
-            build_id = self.build.get('id')
+                # TODO the build object should have an idea of these states, extend
+                # the model to include an idea of these outcomes
+                outcomes = self.build_docs()
+                build_id = self.build.get('id')
+            except SoftTimeLimitExceeded:
+                raise BuildEnvironmentError(_('Build exited due to time out'))
 
             # Web Server Tasks
             if build_id:
@@ -254,9 +260,7 @@ class UpdateDocsTask(Task):
                                         status_code=404)
 
     def get_env_vars(self):
-        """
-        Get bash environment variables used for all builder commands.
-        """
+        """Get bash environment variables used for all builder commands."""
         env = {
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
@@ -497,8 +501,10 @@ def update_imported_docs(version_pk):
 
         try:
             api_v2.project(project.pk).sync_versions.post(version_post_data)
+        except HttpClientError as e:
+            log.error("Sync Versions Exception: %s" % e.content)
         except Exception as e:
-            print "Sync Versions Exception: %s" % e.message
+            log.error("Unknown Sync Versions Exception", exc_info=True)
     return ret_dict
 
 
@@ -867,7 +873,7 @@ def remove_dir(path):
     can kill things on the build server.
     """
     log.info("Removing %s", path)
-    shutil.rmtree(path)
+    shutil.rmtree(path, ignore_errors=True)
 
 
 @task(queue='web')
@@ -904,9 +910,7 @@ def clear_html_artifacts(version):
 
 @task(queue='web')
 def remove_path_from_web(path):
-    """
-    Remove the given path from the web servers file system.
-    """
+    """Remove the given path from the web servers file system."""
     # Santity check  for spaces in the path since spaces would result in
     # deleting unpredictable paths with "rm -rf".
     assert ' ' not in path, "No spaces allowed in path"

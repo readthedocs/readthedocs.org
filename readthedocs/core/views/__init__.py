@@ -18,7 +18,6 @@ from django.views.generic import TemplateView
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
-from readthedocs.donate.mixins import DonateProgressMixin
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.projects.tasks import remove_dir
@@ -31,7 +30,7 @@ class NoProjectException(Exception):
     pass
 
 
-class HomepageView(DonateProgressMixin, TemplateView):
+class HomepageView(TemplateView):
 
     template_name = 'homepage.html'
 
@@ -105,7 +104,7 @@ def divide_by_zero(request):
     return 1 / 0
 
 
-def server_error(request, template_name='500.html'):
+def server_error_500(request, exception, template_name='500.html'):
     """A simple 500 handler so we get media"""
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
@@ -113,7 +112,7 @@ def server_error(request, template_name='500.html'):
     return r
 
 
-def server_error_404(request, template_name='404.html'):
+def server_error_404(request, exception, template_name='404.html'):
     """A simple 404 handler so we get media"""
     response = get_redirect_response(request, path=request.get_full_path())
     if response:

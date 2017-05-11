@@ -56,6 +56,7 @@ Information about development is also available:
 
    contribute
    team
+   code-of-conduct
    ethical-advertising
    sponsors
    open-source-philosophy
@@ -75,6 +76,7 @@ Information about development is also available:
    alternate_domains
    localization
    vcs
+   subprojects
    conda
    canonical
    single_version

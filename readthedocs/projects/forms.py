@@ -15,11 +15,13 @@ from guardian.shortcuts import assign
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
-from readthedocs.redirects.models import Redirect
+from readthedocs.integrations.models import Integration
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
+from readthedocs.redirects.models import Redirect
 
 
 class ProjectForm(forms.ModelForm):
@@ -74,6 +76,11 @@ class ProjectBasicsForm(ProjectForm):
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
+    remote_repository = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False,
+    )
+
     def __init__(self, *args, **kwargs):
         show_advanced = kwargs.pop('show_advanced', False)
         super(ProjectBasicsForm, self).__init__(*args, **kwargs)
@@ -84,6 +91,18 @@ class ProjectBasicsForm(ProjectForm):
             )
         self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
         self.fields['repo'].widget.attrs['required'] = True
+
+    def save(self, commit=True):
+        """Add remote repository relationship to the project instance"""
+        instance = super(ProjectBasicsForm, self).save(commit)
+        remote_repo = self.cleaned_data.get('remote_repository', None)
+        if remote_repo:
+            if commit:
+                remote_repo.project = self.instance
+                remote_repo.save()
+            else:
+                instance.remote_repository = remote_repo
+        return instance
 
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
@@ -104,6 +123,18 @@ class ProjectBasicsForm(ProjectForm):
                 _(u'It looks like you entered a private repo - please use the '
                   u'public (http:// or git://) clone url'))
         return repo
+
+    def clean_remote_repository(self):
+        remote_repo = self.cleaned_data.get('remote_repository', None)
+        if not remote_repo:
+            return None
+        try:
+            return RemoteRepository.objects.get(
+                pk=remote_repo,
+                users=self.user,
+            )
+        except RemoteRepository.DoesNotExist:
+            raise forms.ValidationError(_(u'Repository invalid'))
 
     def placehold_repo(self):
         return choice([
@@ -126,7 +157,8 @@ class ProjectExtraForm(ProjectForm):
         fields = (
             'description',
             'documentation_type',
-            'language', 'programming_language',
+            'language',
+            'programming_language',
             'project_url',
             'tags',
         )
@@ -511,6 +543,33 @@ class DomainForm(forms.ModelForm):
         ).exclude(domain=self.cleaned_data['domain']).exists():
             raise forms.ValidationError(_(u'Only 1 Domain can be canonical at a time.'))
         return canonical
+
+
+class IntegrationForm(forms.ModelForm):
+
+    """Form to add an integration
+
+    This limits the choices of the integration type to webhook integration types
+    """
+
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = Integration
+        exclude = ['provider_data', 'exchanges']
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(IntegrationForm, self).__init__(*args, **kwargs)
+        # Alter the integration type choices to only provider webhooks
+        self.fields['integration_type'].choices = Integration.WEBHOOK_INTEGRATIONS
+
+    def clean_project(self):
+        return self.project
+
+    def save(self, commit=True):
+        self.instance = Integration.objects.subclass(self.instance)
+        return super(IntegrationForm, self).save(commit)
 
 
 class ProjectAdvertisingForm(forms.ModelForm):

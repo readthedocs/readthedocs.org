@@ -4,8 +4,9 @@ from django.conf import settings
 
 
 from rest_framework import decorators, permissions
-from rest_framework.renderers import JSONPRenderer, JSONRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework_jsonp.renderers import JSONPRenderer
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
@@ -104,6 +105,7 @@ def footer_html(request):
         'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
         'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
+        'theme': theme,
     }
 
     request_context = RequestContext(request, context)
@@ -115,7 +117,8 @@ def footer_html(request):
         'version_supported': version.supported,
     }
 
-    # Allow folks to hook onto the footer response for various information usage.
+    # Allow folks to hook onto the footer response for various information collection,
+    # or to modify the resp_data.
     footer_response.send(sender=None, request=request, context=context, resp_data=resp_data)
 
     return Response(resp_data)

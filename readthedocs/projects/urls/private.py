@@ -2,12 +2,14 @@
 
 from django.conf.urls import url
 
+from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
     ProjectDashboard, ImportView,
     ProjectUpdate, ProjectAdvancedUpdate,
     DomainList, DomainCreate, DomainDelete, DomainUpdate,
-    ProjectAdvertisingUpdate)
+    IntegrationList, IntegrationCreate, IntegrationDetail, IntegrationDelete,
+    IntegrationExchangeDetail, IntegrationWebhookSync, ProjectAdvertisingUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
 
@@ -105,10 +107,6 @@ urlpatterns = [
         private.project_redirects_delete,
         name='projects_redirects_delete'),
 
-    url(r'^(?P<project_slug>[-\w]+)/resync_webhook/$',
-        private.project_resync_webhook,
-        name='projects_resync_webhook'),
-
     url(r'^(?P<project_slug>[-\w]+)/advertising/$',
         ProjectAdvertisingUpdate.as_view(),
         name='projects_advertising'),
@@ -130,3 +128,39 @@ domain_urls = [
 ]
 
 urlpatterns += domain_urls
+
+integration_urls = [
+    url(r'^(?P<project_slug>{project_slug})/integrations/$'.format(**pattern_opts),
+        IntegrationList.as_view(),
+        name='projects_integrations'),
+    url(r'^(?P<project_slug>{project_slug})/integrations/sync/$'.format(**pattern_opts),
+        IntegrationWebhookSync.as_view(),
+        name='projects_integrations_webhooks_sync'),
+    url((r'^(?P<project_slug>{project_slug})/integrations/create/$'
+         .format(**pattern_opts)),
+        IntegrationCreate.as_view(),
+        name='projects_integrations_create'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/$'
+         .format(**pattern_opts)),
+        IntegrationDetail.as_view(),
+        name='projects_integrations_detail'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/'
+         r'exchange/(?P<exchange_pk>[-\w]+)/$'
+         .format(**pattern_opts)),
+        IntegrationExchangeDetail.as_view(),
+        name='projects_integrations_exchanges_detail'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/sync/$'
+         .format(**pattern_opts)),
+        IntegrationWebhookSync.as_view(),
+        name='projects_integrations_webhooks_sync'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/delete/$'
+         .format(**pattern_opts)),
+        IntegrationDelete.as_view(),
+        name='projects_integrations_delete'),
+]
+
+urlpatterns += integration_urls

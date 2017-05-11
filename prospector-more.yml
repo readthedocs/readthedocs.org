@@ -1,0 +1,47 @@
+inherits: prospector
+
+strictness: medium
+
+ignore-paths:
+  - docs/
+  - acl/
+  - api/
+  - betterversion/
+  - bookmarks/
+  - builds/
+  - cdn/
+  - comments/
+  - core/
+  - djangome/
+  - doc_builder/
+  - donate/
+  - gold/
+  - locale/
+  - notifications/
+  - oauth/
+  - payments/
+  - privacy/
+  - profiles/
+  - projects/
+  - redirects/
+  - restapi/
+  - rtd/
+  - rtd_tests/
+  - search/
+  - settings/
+  - static/
+  - tastyapi/
+  - templates/
+  - vcs_support/
+
+pylint:
+  options:
+    docstring-min-length: 20
+    dummy-variables-rgx: '_$|__$|dummy'
+    max-line-length: 100
+  disable:
+    - logging-format-interpolation
+    - too-many-arguments
+
+pep257:
+  run: true

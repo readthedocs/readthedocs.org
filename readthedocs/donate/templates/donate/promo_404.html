@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% load static i18n %}
+
+{% block title %}
+  {% trans "Maze Found" %}
+{% endblock %}
+
+{% block header-wrapper %}
+  {% include "error_header.html" %}
+{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'donate/css/donate.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div id="promo_404">
+    {% if suggestion %}
+      <div class="suggestions">
+          <h1>You've found something that doesn't exist.</h1>
+          <p>{{ suggestion.message }}</p>
+          {% ifequal suggestion.type 'top' %}
+          <p>
+              <a href="{{ suggestion.href }}">Go to the top of the documentation.</a>
+          </p>
+          {% endifequal %}
+          {% ifequal suggestion.type 'list' %}
+          <ul>
+            {% for item in suggestion.list %}
+              <li><a href="{% doc_url item.project item.version_slug item.pagename %}">{{ item.label }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endifequal %}
+      </div>
+    {% endif %}
+
+<h1>
+Page Not Found!
+</h1>
+
+<a href="{{ promo_data.link }}">
+  <img src="{{ promo_data.image }}" width="75%" />
+</a>
+
+<p>
+Read the Docs is sponsored by <a href="{{ promo_data.link }}">Sentry</a>, which gives developers the tools to keep calm when things catch fire.
+</p>
+</div>
+{% endblock %}

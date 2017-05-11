@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
 from readthedocs.comments.models import DocumentComment, NodeSnapshot
+from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project, Domain
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
@@ -59,7 +60,15 @@ class URLAccessMixin(object):
         if self.context_data and getattr(response, 'context'):
             self._test_context(response)
         for (key, val) in response_attrs.items():
-            self.assertEqual(getattr(response, key), val)
+            resp_val = getattr(response, key)
+            self.assertEqual(
+                resp_val,
+                val,
+                ('Attribute mismatch for view {view} ({path}): '
+                 '{key} != {expected} (got {value})'
+                 .format(view=name, path=path, key=key, expected=val,
+                         value=resp_val))
+            )
         return response
 
     def _test_context(self, response):
@@ -95,17 +104,17 @@ class URLAccessMixin(object):
                     raise Exception('URL argument not in test kwargs. Please add `%s`' % key)
                 added_kwargs[key] = self.default_kwargs[key]
             path = reverse(name, kwargs=added_kwargs)
-            print "Tested %s (%s)" % (name, path)
             self.assertResponse(path=path, name=name)
-            print "Passed %s (%s)" % (name, path)
             added_kwargs = {}
 
     def setUp(self):
         # Previous Fixtures
         self.owner = create_user(username='owner', password='test')
         self.tester = create_user(username='tester', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner], privacy_level='public')
-        self.private = get(Project, slug='private', privacy_level='private')
+        self.pip = get(Project, slug='pip', users=[self.owner],
+                       privacy_level='public', main_language_project=None)
+        self.private = get(Project, slug='private', privacy_level='private',
+                           main_language_project=None)
 
 
 class ProjectMixin(URLAccessMixin):
@@ -115,9 +124,18 @@ class ProjectMixin(URLAccessMixin):
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
         self.alias = get(VersionAlias, slug='that_alias', project=self.pip)
-        self.subproject = get(Project, slug='sub', language='ja', users=[self.owner])
+        self.subproject = get(Project, slug='sub', language='ja',
+                              users=[self.owner], main_language_project=None)
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.subproject)
+        self.integration = get(Integration, project=self.pip, provider_data='')
+        # For whatever reason, fixtures hates JSONField
+        self.webhook_exchange = HttpExchange.objects.create(
+            related_object=self.integration,
+            request_headers='{"foo": "bar"}',
+            response_headers='{"foo": "bar"}',
+            status_code=200,
+        )
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.default_kwargs = {
             'project_slug': self.pip.slug,
@@ -129,6 +147,8 @@ class ProjectMixin(URLAccessMixin):
             'child_slug': self.subproject.slug,
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
+            'integration_pk': self.integration.pk,
+            'exchange_pk': self.webhook_exchange.pk,
         }
 
 
@@ -204,6 +224,9 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
+        '/dashboard/pip/integrations/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
     }
 
     def login(self):
@@ -229,6 +252,9 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
+        '/dashboard/pip/integrations/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -264,6 +290,7 @@ class APIMixin(URLAccessMixin):
         self.snapshot = get(NodeSnapshot, node=self.comment.node)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
+        self.integration = get(Integration, project=self.pip, provider_data='')
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'version_slug': self.pip.versions.all()[0].slug,
@@ -280,6 +307,7 @@ class APIMixin(URLAccessMixin):
             'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
             'remoteorganization-detail': {'pk': self.remote_org.pk},
             'remoterepository-detail': {'pk': self.remote_repo.pk},
+            'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
             'project-sync-versions': {'status_code': 403},
@@ -295,9 +323,11 @@ class APIMixin(URLAccessMixin):
             'api_project_search': {'status_code': 400},
             'api_section_search': {'status_code': 400},
             'api_sync_remote_repositories': {'status_code': 403},
+            'api_webhook': {'status_code': 405},
             'api_webhook_github': {'status_code': 405},
             'api_webhook_gitlab': {'status_code': 405},
             'api_webhook_bitbucket': {'status_code': 405},
+            'api_webhook_generic': {'status_code': 403},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
         }

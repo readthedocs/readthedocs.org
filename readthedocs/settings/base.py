@@ -67,7 +67,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'pagination',
+            'linaro_django_pagination',
             'taggit',
             'djangosecure',
             'guardian',
@@ -104,6 +104,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.donate',
             'readthedocs.payments',
             'readthedocs.notifications',
+            'readthedocs.integrations',
 
             # allauth
             'allauth',
@@ -129,7 +130,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'pagination.middleware.PaginationMiddleware',
+        'linaro_django_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
@@ -325,8 +326,9 @@ class CommunityBaseSettings(Settings):
         'field_name_limit': 50,
     }
     REST_FRAMEWORK = {
-        'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
-        'PAGINATE_BY': 10
+        'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+        'PAGE_SIZE': 10,
     }
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
 
@@ -349,7 +351,7 @@ class CommunityBaseSettings(Settings):
         'handlers': {
             'null': {
                 'level': 'DEBUG',
-                'class': 'django.utils.log.NullHandler',
+                'class': 'logging.NullHandler',
             },
             'exceptionlog': {
                 'level': 'DEBUG',

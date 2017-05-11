@@ -16,14 +16,16 @@ from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 RemoteRepositoryViewSet)
 
 router = routers.DefaultRouter()
-router.register(r'build', BuildViewSet)
-router.register(r'command', BuildCommandViewSet)
-router.register(r'version', VersionViewSet)
-router.register(r'project', ProjectViewSet)
-router.register(r'notification', NotificationViewSet)
-router.register(r'domain', DomainViewSet)
-router.register(r'remote/org', RemoteOrganizationViewSet)
-router.register(r'remote/repo', RemoteRepositoryViewSet)
+router.register(r'build', BuildViewSet, base_name='build')
+router.register(r'command', BuildCommandViewSet, base_name='buildcommandresult')
+router.register(r'version', VersionViewSet, base_name='version')
+router.register(r'project', ProjectViewSet, base_name='project')
+router.register(r'notification', NotificationViewSet, base_name='emailhook')
+router.register(r'domain', DomainViewSet, base_name='domain')
+router.register(
+    r'remote/org', RemoteOrganizationViewSet, base_name='remoteorganization')
+router.register(
+    r'remote/repo', RemoteRepositoryViewSet, base_name='remoterepository')
 router.register(r'comments', CommentViewSet, base_name="comments")
 
 urlpatterns = [
@@ -60,15 +62,22 @@ task_urls = [
 ]
 
 integration_urls = [
-    url(r'webhook/github/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+    url(r'webhook/github/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         integrations.GitHubWebhookView.as_view(),
         name='api_webhook_github'),
-    url(r'webhook/gitlab/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+    url(r'webhook/gitlab/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         integrations.GitLabWebhookView.as_view(),
         name='api_webhook_gitlab'),
-    url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+    url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         integrations.BitbucketWebhookView.as_view(),
         name='api_webhook_bitbucket'),
+    url(r'webhook/generic/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
+        integrations.APIWebhookView.as_view(),
+        name='api_webhook_generic'),
+    url((r'webhook/(?P<project_slug>{project_slug})/'
+         r'(?P<integration_pk>{integer_pk})/$'.format(**pattern_opts)),
+        integrations.WebhookView.as_view(),
+        name='api_webhook'),
 ]
 
 urlpatterns += function_urls

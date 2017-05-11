@@ -111,6 +111,7 @@ class DocumentNodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DocumentNode
+        exclude = ('')
 
 
 class NodeSnapshot(models.Model):
@@ -197,7 +198,6 @@ class DocumentCommentSerializer(serializers.ModelSerializer):
 class ModerationActionManager(models.Model):
 
     def current_approvals(self):
-
         most_recent_change = self.comment.node.snapshots.latest().date
 
 
@@ -222,4 +222,4 @@ class ModerationActionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ModerationAction
-    pass
+        exclude = ()

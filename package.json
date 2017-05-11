@@ -21,7 +21,7 @@
     "gulp-watch": "^4.3.3",
     "less": "*",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "git+https://github.com/phestermcs/vinyl-source-stream.git#ae1b4e9c75bb4420a0a22e75c985952c37406567"
+    "vinyl-source-stream": "git+https://github.com/hughsk/vinyl-source-stream.git#ae1b4e9c75bb4420a0a22e75c985952c37406567"
   },
   "private": true,
   "license": "MIT"

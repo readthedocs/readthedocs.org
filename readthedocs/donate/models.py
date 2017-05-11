@@ -7,33 +7,11 @@ from django.conf import settings
 from django_countries.fields import CountryField
 
 from readthedocs.donate.utils import get_ad_day
+from readthedocs.donate.constants import (
+    DISPLAY_CHOICES, FILTER_CHOICES, IMPRESSION_TYPES, THEMES, READTHEDOCS_THEME
+)
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
-
-
-DISPLAY_CHOICES = (
-    ('doc', 'Documentation Pages'),
-    ('site-footer', 'Site Footer'),
-    ('search', 'Search Pages'),
-)
-
-INCLUDE = 'include'
-EXCLUDE = 'exclude'
-
-FILTER_CHOICES = (
-    (EXCLUDE, 'Exclude'),
-    (INCLUDE, 'Include'),
-)
-
-OFFERS = 'offers'
-VIEWS = 'views'
-CLICKS = 'clicks'
-
-IMPRESSION_TYPES = (
-    OFFERS,
-    VIEWS,
-    CLICKS
-)
 
 
 class Supporter(models.Model):
@@ -70,21 +48,25 @@ class SupporterPromo(models.Model):
     image = models.URLField(_('Image URL'), max_length=255, blank=True, null=True)
     display_type = models.CharField(_('Display Type'), max_length=200,
                                     choices=DISPLAY_CHOICES, default='doc')
-    sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000)
+    sold_impressions = models.IntegerField(_('Sold Impressions'), default=1000000)
     sold_days = models.IntegerField(_('Sold Days'), default=30)
+    sold_clicks = models.IntegerField(_('Sold Clicks'), default=0)
     programming_language = models.CharField(_('Programming Language'), max_length=20,
                                             choices=PROGRAMMING_LANGUAGES, default=None,
                                             blank=True, null=True)
+    theme = models.CharField(_('Theme'), max_length=40,
+                             choices=THEMES, default=READTHEDOCS_THEME,
+                             blank=True, null=True)
     live = models.BooleanField(_('Live'), default=False)
 
     class Meta:
-        ordering = ('-live',)
+        ordering = ('analytics_id', '-live')
 
     def __str__(self):
         return self.name
 
     def as_dict(self):
-        "A dict respresentation of this for JSON encoding"
+        """A dict respresentation of this for JSON encoding"""
         hash = get_random_string()
         domain = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
         if self.image:
@@ -157,6 +139,28 @@ class SupporterPromo(models.Model):
             return 0
         return ret
 
+    def total_views(self):
+        return sum(imp.views for imp in self.impressions.all())
+
+    def total_clicks(self):
+        return sum(imp.clicks for imp in self.impressions.all())
+
+    def total_click_ratio(self):
+        if self.total_views() == 0:
+            return float(0)
+        return '%.4f' % float(
+            (float(self.total_clicks()) / float(self.total_views())) * 100
+        )
+
+    def report_html_text(self):
+        """
+        Include the link in the html text.
+
+        Only used for reporting,
+        doesn't include any click fruad protection!
+        """
+        return self.text.replace('<a>', "<a href='%s'>" % self.link)
+
 
 class BaseImpression(models.Model):
     date = models.DateField(_('Date'))
@@ -173,28 +177,38 @@ class BaseImpression(models.Model):
     def view_ratio(self):
         if self.offers == 0:
             return 0  # Don't divide by 0
-        return float(self.views) / float(self.offers)
+        return float(
+            float(self.views) / float(self.offers) * 100
+        )
 
     @property
     def click_ratio(self):
         if self.views == 0:
             return 0  # Don't divide by 0
-        return float(self.clicks) / float(self.views)
+        return '%.3f' % float(
+            float(self.clicks) / float(self.views) * 100
+        )
 
 
 class PromoImpressions(BaseImpression):
-    """Track stats around how successful this promo has been.
 
-    Indexed one per promo per day."""
+    """
+    Track stats around how successful this promo has been.
+
+    Indexed one per promo per day.
+    """
 
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
 
 
 class ProjectImpressions(BaseImpression):
-    """Track stats for a specific project and promo.
 
-    Indexed one per project per promo per day"""
+    """
+    Track stats for a specific project and promo.
+
+    Indexed one per project per promo per day
+    """
 
     promo = models.ForeignKey(SupporterPromo, related_name='project_impressions',
                               blank=True, null=True)

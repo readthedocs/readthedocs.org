@@ -5,8 +5,8 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
                          Http404, HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render_to_response, render
@@ -18,7 +18,7 @@ from django.middleware.csrf import get_token
 from formtools.wizard.views import SessionWizardView
 from allauth.socialaccount.models import SocialAccount
 
-from vanilla import CreateView, DeleteView, UpdateView
+from vanilla import CreateView, DeleteView, UpdateView, DetailView, GenericView
 
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.models import Version
@@ -27,16 +27,18 @@ from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
+from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.forms import (
     ProjectBasicsForm, ProjectExtraForm,
     ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
-    RedirectForm, WebHookForm, DomainForm, ProjectAdvertisingForm)
+    RedirectForm, WebHookForm, DomainForm, IntegrationForm,
+    ProjectAdvertisingForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import constants, tasks
 from readthedocs.oauth.services import registry
-from readthedocs.oauth.utils import attach_webhook
+from readthedocs.oauth.utils import attach_webhook, update_webhook
 
 from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.projects.signals import project_import
@@ -226,19 +228,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         kwargs['user'] = self.request.user
         if step == 'basics':
             kwargs['show_advanced'] = True
-        if step == 'extra':
-            extra_form = self.get_form_from_step('basics')
-            project = extra_form.save(commit=False)
-            kwargs['instance'] = project
         return kwargs
-
-    def get_form_from_step(self, step):
-        form = self.form_list[step](
-            data=self.get_cleaned_data_for_step(step),
-            **self.get_form_kwargs(step)
-        )
-        form.full_clean()
-        return form
 
     def get_template_names(self):
         """Return template names based on step name"""
@@ -342,11 +332,11 @@ class ImportView(PrivateViewMixin, TemplateView):
     wizard_class = ImportWizardView
 
     def get(self, request, *args, **kwargs):
-        '''Display list of repositories to import
+        """Display list of repositories to import
 
         Adds a warning to the listing if any of the accounts connected for the
         user are not supported accounts.
-        '''
+        """
         deprecated_accounts = (
             SocialAccount.objects
             .filter(user=self.request.user)
@@ -369,7 +359,7 @@ class ImportView(PrivateViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         initial_data = {}
         initial_data['basics'] = {}
-        for key in ['name', 'repo', 'repo_type']:
+        for key in ['name', 'repo', 'repo_type', 'remote_repository']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
         for key in ['description', 'project_url']:
@@ -656,6 +646,9 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     form_class = DomainForm
     lookup_url_kwarg = 'domain_pk'
 
+    def get_success_url(self):
+        return reverse('projects_domains', args=[self.get_project().slug])
+
 
 class DomainList(DomainMixin, ListViewWithForm):
     pass
@@ -673,25 +666,120 @@ class DomainDelete(DomainMixin, DeleteView):
     pass
 
 
-@login_required
-def project_resync_webhook(request, project_slug):
-    """
-    Resync a project webhook.
+class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    """Project external service mixin for listing webhook objects"""
+
+    model = Integration
+    integration_url_field = 'integration_pk'
+    form_class = IntegrationForm
+
+    def get_queryset(self):
+        return self.get_integration_queryset()
+
+    def get_object(self):
+        return self.get_integration()
+
+    def get_integration_queryset(self):
+        self.project = self.get_project()
+        return self.model.objects.filter(project=self.project)
+
+    def get_integration(self):
+        """Return project integration determined by url kwarg"""
+        if self.integration_url_field not in self.kwargs:
+            return None
+        return get_object_or_404(
+            Integration,
+            pk=self.kwargs[self.integration_url_field],
+            project=self.get_project(),
+        )
+
+    def get_success_url(self):
+        return reverse('projects_integrations', args=[self.get_project().slug])
+
+    def get_template_names(self):
+        if self.template_name:
+            return self.template_name
+        return 'projects/integration{0}.html'.format(self.template_name_suffix)
+
+
+class IntegrationList(IntegrationMixin, ListView):
+    pass
+
+
+class IntegrationCreate(IntegrationMixin, CreateView):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_integrations_detail',
+            kwargs={
+                'project_slug': self.get_project().slug,
+                'integration_pk': self.object.id,
+            }
+        )
+
+
+class IntegrationDetail(IntegrationMixin, DetailView):
+
+    # Some of the templates can be combined, we'll avoid duplicating templates
+    SUFFIX_MAP = {
+        Integration.GITHUB_WEBHOOK: 'webhook',
+        Integration.GITLAB_WEBHOOK: 'webhook',
+        Integration.BITBUCKET_WEBHOOK: 'webhook',
+        Integration.API_WEBHOOK: 'generic_webhook',
+    }
+
+    def get_template_names(self):
+        if self.template_name:
+            return self.template_name
+        integration_type = self.get_integration().integration_type
+        suffix = self.SUFFIX_MAP.get(integration_type, integration_type)
+        return ('projects/integration_{0}{1}.html'
+                .format(suffix, self.template_name_suffix))
+
+
+class IntegrationDelete(IntegrationMixin, DeleteView):
+
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
+
+
+class IntegrationExchangeDetail(IntegrationMixin, DetailView):
+
+    model = HttpExchange
+    lookup_url_kwarg = 'exchange_pk'
+    template_name = 'projects/integration_exchange_detail.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(
+            integrations=self.get_integration()
+        )
+
+    def get_object(self):
+        return DetailView.get_object(self)
+
+
+class IntegrationWebhookSync(IntegrationMixin, GenericView):
+
+    """Resync a project webhook
 
     The signal will add a success/failure message on the request.
     """
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
-    if request.method == 'POST':
-        attach_webhook(project=project, request=request)
-        return HttpResponseRedirect(reverse('projects_detail',
-                                            args=[project.slug]))
 
-    return render_to_response(
-        'projects/project_resync_webhook.html',
-        {'project': project},
-        context_instance=RequestContext(request)
-    )
+    def post(self, request, *args, **kwargs):
+        # pylint: disable=unused-argument
+        if 'integration_pk' in kwargs:
+            integration = self.get_integration()
+            update_webhook(self.get_project(), integration, request=request)
+        else:
+            # This is a brute force form of the webhook sync, if a project has a
+            # webhook or a remote repository object, the user should be using
+            # the per-integration sync instead.
+            attach_webhook(project=self.get_project(), request=request)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('projects_integrations', args=[self.get_project().slug])
 
 
 class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
