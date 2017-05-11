@@ -111,7 +111,7 @@ class Virtualenv(PythonEnvironment):
             'pillow==2.6.1',
             ('git+https://github.com/rtfd/readthedocs-sphinx-ext.git'
              '@0.6-alpha#egg=readthedocs-sphinx-ext'),
-            'sphinx-rtd-theme<0.3',
+            'sphinx_rtd_theme<0.3',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
@@ -193,12 +193,12 @@ class Conda(PythonEnvironment):
 
         # Use conda for requirements it packages
         requirements = [
-            'sphinx==1.3.5',
+            'sphinx==1.5.3',
             'Pygments==2.2.0',
-            'docutils==0.12',
+            'docutils==0.13.1',
             'mock',
             'pillow>=3.0.0',
-            'sphinx_rtd_theme==0.1.7',
+            'sphinx-rtd-theme<0.3',
             'alabaster>=0.7,<0.8,!=0.7.5',
         ]
 
