@@ -51,10 +51,7 @@ class BaseBuilder(object):
         raise NotImplementedError
 
     def move(self, **kwargs):
-        """
-        Move the documentation from where it was generated to
-        its artifact directory.
-        """
+        """Move the generated documentation to its artifact directory."""
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
