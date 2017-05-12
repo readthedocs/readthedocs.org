@@ -29,7 +29,7 @@ mccabe:
   run: false
 
 pep257:
-  run: false
+  run: true
   disable:
     - D105
     - D211
