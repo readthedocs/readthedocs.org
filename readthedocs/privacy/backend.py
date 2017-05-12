@@ -179,8 +179,9 @@ class VersionQuerySet(SettingsOverrideObject):
 class BuildManager(models.Manager):
 
     """
-    Build objects that take into account the privacy of the Version
-    that they relate to.
+    Build objects that are privacy aware.
+
+    i.e. they take into account the privacy of the Version that they relate to.
     """
 
     use_for_related_fields = True

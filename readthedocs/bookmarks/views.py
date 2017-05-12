@@ -39,6 +39,7 @@ class BookmarkExistsView(View):
     def post(self, request, *args, **kwargs):
         """
         Returns:
+
             200 response with exists = True in json if bookmark exists.
             404 with exists = False in json if no matching bookmark is found.
             400 if json data is missing any one of: project, version, page.
@@ -73,7 +74,9 @@ class BookmarkExistsView(View):
 
 
 class BookmarkListView(ListView):
-    """ Displays all of a logged-in user's bookmarks """
+
+    """Displays all of a logged-in user's bookmarks"""
+
     model = Bookmark
 
     @method_decorator(login_required)
@@ -85,7 +88,8 @@ class BookmarkListView(ListView):
 
 
 class BookmarkAddView(View):
-    """ Adds bookmarks in response to POST requests """
+
+    """Adds bookmarks in response to POST requests"""
 
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
@@ -102,8 +106,10 @@ class BookmarkAddView(View):
         )
 
     def post(self, request, *args, **kwargs):
-        """Add a new bookmark for the current user to point at
-        ``project``, ``version``, ``page``, and ``url``.
+        """
+        Add a new bookmark for the current user.
+
+        Points at ``project``, ``version``, ``page``, and ``url``.
         """
         post_json = json.loads(request.body)
         try:
@@ -141,6 +147,7 @@ class BookmarkAddView(View):
 
 
 class BookmarkRemoveView(View):
+
     """
     Deletes a user's bookmark in response to a POST request.
 
@@ -160,8 +167,9 @@ class BookmarkRemoveView(View):
 
     def post(self, request, *args, **kwargs):
         """
-        Will delete bookmark with a primary key from the url
-        or using json data in request.
+        Delete a bookmark.
+
+        Uses the primary key from the URL or JSON data from the request.
         """
         if 'bookmark_pk' in kwargs:
             bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
