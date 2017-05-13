@@ -148,11 +148,11 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
         body['facets']['taxonomy']['facet_filter'] = final_filter
 
     if settings.DEBUG:
-        print "Before Signal"
+        print("Before Signal")
         pprint(body)
     before_file_search.send(request=request, sender=PageIndex, body=body)
     if settings.DEBUG:
-        print "After Signal"
+        print("After Signal")
         pprint(body)
 
     return PageIndex().search(body, **kwargs)
