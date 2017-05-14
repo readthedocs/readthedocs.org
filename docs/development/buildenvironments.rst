@@ -42,10 +42,10 @@ Configuration
 
 There are several settings used to configure usage of virtual machines:
 
-DOCKER_ENABLED
+DOCKER_ENABLE
     True/False value used to enable the Docker build environment.
 
-    Default: :djangosetting:`DOCKER_ENABLED`
+    Default: :djangosetting:`DOCKER_ENABLE`
 
 DOCKER_LIMITS
     A dictionary of limits to virtual machines. These limits include:
