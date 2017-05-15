@@ -30,7 +30,6 @@ class CommunityBaseSettings(Settings):
     DEBUG = True
     TEMPLATE_DEBUG = DEBUG
     TASTYPIE_FULL_DEBUG = True
-    LOG_DEBUG = False
 
     # Domains and URLs
     PRODUCTION_DOMAIN = 'readthedocs.org'
