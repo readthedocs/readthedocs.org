@@ -70,13 +70,13 @@ def process_file(filename):
             h1_title = h1_section.text().replace(u'¶', '').strip()
             h1_id = div.attr('id')
             h1_content = ""
-            next_p = next(body('h1'))
+            next_p = body('h1').next()
             while next_p:
                 if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
                     if 'section' in next_p[0].attrib['class']:
                         break
                 h1_content += "\n%s\n" % next_p.html()
-                next_p = next(next_p)
+                next_p = next_p.next()
             if h1_content:
                 sections.append({
                     'id': h1_id,
