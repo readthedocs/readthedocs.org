@@ -62,8 +62,8 @@ class PromoTests(TestCase):
             self.promo.incr(VIEWS)
         for x in range(3):
             self.promo.incr(CLICKS)
-        self.assertEqual(self.promo.view_ratio(), 0.4)
-        self.assertEqual(self.promo.click_ratio(), 0.15)
+        self.assertEqual(self.promo.view_ratio(), 40.0)
+        self.assertEqual(self.promo.click_ratio(), 15.0)
 
     def test_multiple_hash_usage(self):
         cache.set(self.promo.cache_key(type=VIEWS, hash='random_hash'), 0)

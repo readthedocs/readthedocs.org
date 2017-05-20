@@ -229,7 +229,7 @@ class CommentModerationViewsTests(TestCase):
         request.META = {}
         response = project_comments_moderation(request, self.moderated_project.slug)
 
-        self.assertIn(self.moderated_comment.text, response.content)
+        self.assertContains(response, self.moderated_comment.text)
 
 
 class CommentAPIViewsTests(APITestCase):

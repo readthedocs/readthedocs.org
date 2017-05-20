@@ -139,9 +139,9 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
             self.assertIsNotNone(response.context_data['wizard'])
             self.assertEqual(wizard['steps'].current, step)
             response.render()
-            self.assertIn(
-                b'name="{0}-current_step"'.format(self.wizard_class_slug),
-                response.content
+            self.assertContains(
+                response,
+                'name="{0}-current_step"'.format(self.wizard_class_slug)
             )
 
     # We use camelCase on purpose here to conform with unittest's naming

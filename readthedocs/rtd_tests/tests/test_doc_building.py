@@ -370,7 +370,7 @@ class TestDockerBuildCommand(TestCase):
         '''Unicode output from command'''
         self.mocks.configure_mock('docker_client', {
             'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': b'HérÉ îß sömê ünïçó∂é',
+            'exec_start.return_value': u'HérÉ îß sömê ünïçó∂é',
             'exec_inspect.return_value': {'ExitCode': 0},
         })
         cmd = DockerBuildCommand(['echo', 'test'], cwd='/tmp/foobar')
