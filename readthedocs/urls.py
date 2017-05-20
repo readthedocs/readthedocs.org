@@ -18,6 +18,7 @@ from readthedocs.api.base import (ProjectResource, UserResource,
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
 from readthedocs.core.views import HomepageView, SupportView
 from readthedocs.search import views as search_views
+from functools import reduce
 
 
 v1_api = Api(api_name='v1')

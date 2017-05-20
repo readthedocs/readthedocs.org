@@ -99,7 +99,7 @@ class URLAccessMixin(object):
         for (view, regex, namespace, name) in deconstructed_urls:
             request_data = self.request_data.get(name, {}).copy()
             for key in re.compile(regex).groupindex.keys():
-                if key in request_data.keys():
+                if key in list(request_data.keys()):
                     added_kwargs[key] = request_data[key]
                     continue
                 if key not in self.default_kwargs:

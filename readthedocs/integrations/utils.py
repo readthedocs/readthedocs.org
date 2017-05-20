@@ -17,7 +17,7 @@ def normalize_request_payload(request):
         # Here, request_body can be a dict or a MergeDict. Probably best to
         # normalize everything first
         try:
-            request_payload = dict(request_payload.items())
+            request_payload = dict(list(request_payload.items()))
         except AttributeError:
             pass
     return request_payload

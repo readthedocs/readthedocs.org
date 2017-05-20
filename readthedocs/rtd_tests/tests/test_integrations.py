@@ -11,6 +11,7 @@ from readthedocs.integrations.models import (
     HttpExchange, Integration, GitHubWebhook
 )
 from readthedocs.projects.models import Project
+from six.moves import range
 
 
 class HttpExchangeTests(TestCase):

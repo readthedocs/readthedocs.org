@@ -18,6 +18,7 @@ from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
+import six
 
 
 log = logging.getLogger(__name__)
@@ -291,7 +292,7 @@ class APIWebhookView(WebhookMixin, APIView):
                 'branches',
                 [self.project.get_default_branch()]
             )
-            if isinstance(branches, basestring):
+            if isinstance(branches, six.string_types):
                 branches = [branches]
             return self.get_response_push(self.project, branches)
         except TypeError:

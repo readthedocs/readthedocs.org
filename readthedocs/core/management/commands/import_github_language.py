@@ -63,7 +63,7 @@ class Command(BaseCommand):
                 languages = resp.json()
                 if not languages:
                     continue
-                sorted_langs = sorted(languages.items(), key=lambda x: x[1], reverse=True)
+                sorted_langs = sorted(list(languages.items()), key=lambda x: x[1], reverse=True)
                 print('Sorted langs: %s ' % sorted_langs)
                 top_lang = sorted_langs[0][0]
             else:

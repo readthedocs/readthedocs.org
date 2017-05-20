@@ -5,6 +5,7 @@ import inspect
 
 from django.conf import settings
 from django.utils.module_loading import import_string
+import six
 
 
 def get_override_class(proxy_class, default_class=None):
@@ -38,7 +39,7 @@ class SettingsOverrideMeta(type):
         return getattr(proxy_class, attr)
 
 
-class SettingsOverrideObject(object):
+class SettingsOverrideObject(six.with_metaclass(SettingsOverrideMeta, object)):
 
     """Base class for creating class that can be overridden
 
@@ -61,8 +62,6 @@ class SettingsOverrideObject(object):
     attempt to pull the key :py:cvar:`_override_setting` from ``settings``. This
     matches the pattern we've been using previously.
     """
-
-    __metaclass__ = SettingsOverrideMeta
 
     _default_class = None
     _override_setting = None

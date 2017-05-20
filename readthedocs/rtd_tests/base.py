@@ -11,6 +11,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
+import six
 
 log = logging.getLogger(__name__)
 
@@ -163,4 +164,4 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         self.assertIn(field, response.context_data['wizard']['form'].errors)
         if match is not None:
             error = response.context_data['wizard']['form'].errors[field]
-            self.assertRegexpMatches(unicode(error), match)
+            self.assertRegexpMatches(six.text_type(error), match)

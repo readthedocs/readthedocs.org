@@ -186,8 +186,8 @@ class Index(object):
         # Get current alias, if any.
         try:
             aliases = self.es.indices.get_alias(name=self._index)
-            if aliases and aliases.keys():
-                old_index = aliases.keys()[0]
+            if aliases and list(aliases.keys()):
+                old_index = list(aliases.keys())[0]
         except exceptions.NotFoundError:
             pass
 

@@ -10,6 +10,7 @@ from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
 
 from six import text_type
+from six.moves import range
 
 
 def get_major(version):

@@ -9,6 +9,7 @@ from django.conf.urls.static import static
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import serve
+from functools import reduce
 
 handler500 = 'readthedocs.core.views.server_error'
 handler404 = 'readthedocs.core.views.server_error_404'
