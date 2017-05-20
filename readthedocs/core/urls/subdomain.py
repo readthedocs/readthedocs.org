@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 from operator import add
+from six.moves import reduce
 
 from django.conf.urls import url, patterns
 from django.conf import settings
