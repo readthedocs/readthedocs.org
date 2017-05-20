@@ -66,7 +66,7 @@ class HttpExchangeManager(models.Manager):
         request_headers['Content-Type'] = req.content_type
         # Remove unwanted headers
         for filter_rule in self.REQ_FILTER_RULES:
-            for key in request_headers.keys():
+            for key in list(request_headers.keys()):
                 if filter_rule.match(key):
                     del request_headers[key]
 
