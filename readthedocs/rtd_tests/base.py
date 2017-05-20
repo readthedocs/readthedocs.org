@@ -139,7 +139,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
             self.assertEqual(wizard['steps'].current, step)
             response.render()
             self.assertIn(
-                'name="{0}-current_step"'.format(self.wizard_class_slug),
+                b'name="{0}-current_step"'.format(self.wizard_class_slug),
                 response.content
             )
 
