@@ -4,15 +4,12 @@ strictness: medium
 
 ignore-paths:
   - api/
-  - bookmarks/
   - cdn/
   - comments/
   - core/
   - doc_builder/
   - donate/
-  - gold/
   - notifications/
-  - oauth/
   - payments/
   - privacy/
   - profiles/
@@ -22,7 +19,6 @@ ignore-paths:
   - rtd_tests/
   - search/
   - settings/
-  - vcs_support/
 
 pylint:
   options:
