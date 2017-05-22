@@ -5,7 +5,6 @@ strictness: medium
 ignore-paths:
   - api/
   - bookmarks/
-  - builds/
   - cdn/
   - comments/
   - core/

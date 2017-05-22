@@ -1,3 +1,5 @@
+"""Views for builds app."""
+
 import logging
 
 from django.shortcuts import get_object_or_404
@@ -35,14 +37,14 @@ class BuildList(BuildBase, ListView):
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
 
-        filter = BuildFilter(self.request.GET, queryset=self.get_queryset())
+        filterset = BuildFilter(self.request.GET, queryset=self.get_queryset())
         active_builds = self.get_queryset().exclude(state="finished").values('id')
 
         context['project'] = self.project
-        context['filter'] = filter
+        context['filter'] = filterset
         context['active_builds'] = active_builds
         context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
-        context['build_qs'] = filter.qs
+        context['build_qs'] = filterset.qs
 
         try:
             redis = Redis.from_url(settings.BROKER_URL)
@@ -64,9 +66,9 @@ class BuildDetail(BuildBase, DetailView):
 
 # Old build view redirects
 
-def builds_redirect_list(request, project_slug):
+def builds_redirect_list(request, project_slug):  # pylint: disable=unused-argument
     return HttpResponsePermanentRedirect(reverse('builds_project_list', args=[project_slug]))
 
 
-def builds_redirect_detail(request, project_slug, pk):
+def builds_redirect_detail(request, project_slug, pk):  # pylint: disable=unused-argument
     return HttpResponsePermanentRedirect(reverse('builds_detail', args=[project_slug, pk]))
