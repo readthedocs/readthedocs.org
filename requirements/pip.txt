@@ -43,7 +43,6 @@ pyquery==1.2.2
 
 # Utils
 django-gravatar2==1.4.0
-doc2dash==1.1.0
 pytz==2013b
 beautifulsoup4==4.1.3
 Unipath==0.2.1
