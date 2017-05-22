@@ -9,7 +9,6 @@ ignore-paths:
   - doc_builder/
   - donate/
   - notifications/
-  - payments/
   - privacy/
   - profiles/
   - projects/
