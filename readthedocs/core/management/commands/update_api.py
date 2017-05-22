@@ -27,5 +27,5 @@ class Command(BaseCommand):
         for slug in options['projects']:
             project_data = api.project(slug).get()
             p = tasks.make_api_project(project_data)
-            log.info("Building %s" % p)
+            log.info("Building %s", p)
             tasks.update_docs.run(pk=p.pk, docker=docker)

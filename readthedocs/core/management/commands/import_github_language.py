@@ -26,6 +26,7 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
+        # pylint: disable=too-many-locals
         token = os.environ.get('GITHUB_AUTH_TOKEN')
         if not token:
             print 'Invalid GitHub token, exiting'

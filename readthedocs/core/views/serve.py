@@ -95,14 +95,14 @@ def map_project_slug(view_func):
 
 @map_project_slug
 @map_subproject_slug
-def redirect_project_slug(request, project, subproject):
+def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains"""
     return HttpResponseRedirect(resolve(subproject or project))
 
 
 @map_project_slug
 @map_subproject_slug
-def redirect_page_with_filename(request, project, subproject, filename):
+def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
     return HttpResponseRedirect(resolve(subproject or project, filename=filename))
 
@@ -170,7 +170,7 @@ def serve_docs(request, project, subproject,
 
 @map_project_slug
 def _serve_symlink_docs(request, project, privacy_level, filename=''):
-
+    """Serve a file by symlink, or a 404 if not found."""
     # Handle indexes
     if filename == '' or filename[-1] == '/':
         filename += 'index.html'
@@ -179,7 +179,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
     if filename[0] == '/':
         filename = filename[1:]
 
-    log.info('Serving %s for %s' % (filename, project))
+    log.info('Serving %s for %s', filename, project)
 
     files_tried = []
 
