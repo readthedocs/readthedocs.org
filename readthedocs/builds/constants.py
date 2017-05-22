@@ -1,3 +1,5 @@
+"""Constants for the builds app."""
+
 from django.utils.translation import ugettext_lazy as _
 
 BUILD_STATE_TRIGGERED = 'triggered'

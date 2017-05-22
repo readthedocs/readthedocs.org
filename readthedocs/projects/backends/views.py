@@ -5,20 +5,17 @@ Use these views instead of calling the views directly, in order to allow for
 settings override of the view class.
 """
 
-from django.utils.module_loading import import_string
-from django.conf import settings
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.views import private
 
 
 # Project Import Wizard
-ImportWizardView = import_string(getattr(
-    settings,
-    'PROJECT_IMPORT_VIEW',
-    'readthedocs.projects.views.private.ImportWizardView'
-))
+class ImportWizardView(SettingsOverrideObject):
+    _default_class = private.ImportWizardView
+    _override_setting = 'PROJECT_IMPORT_VIEW'
+
 
 # Project demo import
-ImportDemoView = import_string(getattr(
-    settings,
-    'PROJECT_IMPORT_DEMO_VIEW',
-    'readthedocs.projects.views.private.ImportDemoView'
-))
+class ImportDemoView(SettingsOverrideObject):
+    _default_class = private.ImportDemoView
+    _override_setting = 'PROJECT_IMPORT_DEMO_VIEW'

@@ -1,3 +1,5 @@
+"""FilterSets for the builds app."""
+
 from django.utils.translation import ugettext_lazy as _
 
 import django_filters
