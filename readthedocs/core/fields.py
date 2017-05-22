@@ -1,5 +1,4 @@
 """Shared model fields and defaults"""
-
 from __future__ import absolute_import
 import binascii
 import os
