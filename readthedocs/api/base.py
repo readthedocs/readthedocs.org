@@ -216,7 +216,7 @@ class FileResource(ModelResource, SearchMixin):
                 name="api_get_anchor"),
         ]
 
-    def get_anchor(self, request):
+    def get_anchor(self, request, **__):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)

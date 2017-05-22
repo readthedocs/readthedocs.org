@@ -71,8 +71,9 @@ class SearchMixin(object):
         })
         return url_template + '?' + query_string
 
-    def _search(self, request, model, facets=None, page_size=20,  # pylint: disable=too-many-locals
+    def _search(self, request, model, facets=None, page_size=20,
                 highlight=True):
+        # pylint: disable=too-many-locals
         """
         Return a paginated list of objects for a request.
 
@@ -159,7 +160,7 @@ class PostAuthentication(BasicAuthentication):
 
 
 class EnhancedModelResource(ModelResource):
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, request=None, *_, **kwargs):
         """
         A ORM-specific implementation of ``obj_get_list``.
 
