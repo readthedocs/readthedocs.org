@@ -67,7 +67,7 @@ class PublicTask(Task):
         result = self.run_public(*args, **kwargs)
         if result is not None:
             self.set_public_data(result)
-        state, info = self.get_task_data()
+        _, info = self.get_task_data()
         return info
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
