@@ -189,59 +189,11 @@ class Conda(PythonEnvironment):
         )
 
     def install_core_requirements(self):
-
-        # Use conda for requirements it packages
-        requirements = [
-            'sphinx==1.3.5',
-            'Pygments==2.2.0',
-            'docutils==0.12',
-            'mock',
-            'pillow>=3.0.0',
-            'sphinx_rtd_theme==0.1.7',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-        ]
-
-        cmd = [
-            'conda',
-            'install',
-            '--yes',
-            '--name',
-            self.version.slug,
-        ]
-        cmd.extend(requirements)
-        self.build_env.run(
-            *cmd
-        )
-
-        # Install pip-only things.
-        pip_requirements = [
-            'mkdocs==0.15.0',
-            'readthedocs-sphinx-ext<0.6',
-            'commonmark==0.5.4',
-            'recommonmark==0.1.1',
-        ]
-
-        pip_cmd = [
-            'python',
-            self.venv_bin(filename='pip'),
-            'install',
-            '-U',
-            '--cache-dir',
-            self.project.pip_cache_path,
-        ]
-        pip_cmd.extend(pip_requirements)
-        self.build_env.run(
-            *pip_cmd,
-            bin_path=self.venv_bin()
-        )
+        # we do not force the conda environments to install anything by default
+        # and we rely in the ``environment.yml`` defined by the user.
+        pass
 
     def install_user_requirements(self):
-        self.build_env.run(
-            'conda',
-            'env',
-            'update',
-            '--name',
-            self.version.slug,
-            '--file',
-            self.config.conda_file,
-        )
+        # as the conda environment was created by using the ``environment.yml``
+        # defined by the user, there is nothing to update at this point.
+        pass
