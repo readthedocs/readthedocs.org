@@ -15,26 +15,32 @@ log = logging.getLogger(__name__)
 LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}"
 
 
+UserInput = collections.namedtuple(
+    'UserInput', ('query', 'type', 'project', 'version', 'taxonomy', 'language'))
+
+
 def elastic_search(request):
     """Use Elasticsearch for global search"""
-    query = request.GET.get('q')
-    type_ = request.GET.get('type', 'project')
-    # File Facets
-    project = request.GET.get('project')
-    version = request.GET.get('version', LATEST)
-    taxonomy = request.GET.get('taxonomy')
-    language = request.GET.get('language')
+    user_input = UserInput(
+        query=request.GET.get('q'),
+        type=request.GET.get('type', 'project'),
+        project=request.GET.get('project'),
+        version=request.GET.get('version', LATEST),
+        taxonomy=request.GET.get('taxonomy'),
+        language=request.GET.get('language')
+    )
     results = ""
 
     facets = {}
 
-    if query:
-        if type_ == 'project':
-            results = search_lib.search_project(request, query, language=language)
-        elif type_ == 'file':
-            results = search_lib.search_file(request, query, project_slug=project,
-                                             version_slug=version,
-                                             taxonomy=taxonomy)
+    if user_input.query:
+        if user_input.type == 'project':
+            results = search_lib.search_project(
+                request, user_input.query, language=user_input.language)
+        elif user_input.type == 'file':
+            results = search_lib.search_file(
+                request, user_input.query, project_slug=user_input.project,
+                version_slug=user_input.version, taxonomy=user_input.taxonomy)
 
     if results:
         # pre and post 1.0 compat
@@ -54,32 +60,26 @@ def elastic_search(request):
         print pprint(results)
         print pprint(facets)
 
-    if query:
+    if user_input.query:
         user = ''
         if request.user.is_authenticated():
             user = request.user
         log.info(LOG_TEMPLATE.format(
             user=user,
-            project=project or '',
-            type=type_ or '',
-            version=version or '',
-            language=language or '',
-            msg=query or '',
+            project=user_input.project or '',
+            type=user_input.type or '',
+            version=user_input.version or '',
+            language=user_input.language or '',
+            msg=user_input.query or '',
         ))
 
+    template_vars = user_input._asdict()
+    template_vars.update({
+        'results': results,
+        'facets': facets,
+    })
     return render_to_response(
         'search/elastic_search.html',
-        {
-            # Input
-            'query': query,
-            'type': type_,
-            'project': project,
-            'version': version,
-            'taxonomy': taxonomy,
-            'language': language,
-            # Results
-            'results': results,
-            'facets': facets,
-        },
+        template_vars,
         context_instance=RequestContext(request),
     )
