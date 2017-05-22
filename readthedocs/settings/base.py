@@ -70,7 +70,6 @@ class CommunityBaseSettings(Settings):
             # third party apps
             'linaro_django_pagination',
             'taggit',
-            'djangosecure',
             'guardian',
             'django_gravatar',
             'rest_framework',
@@ -127,7 +126,6 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
-        'djangosecure.middleware.SecurityMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
