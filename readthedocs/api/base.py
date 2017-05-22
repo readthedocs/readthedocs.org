@@ -19,7 +19,6 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.restapi.views.footer_views import get_version_compare_data
 
 from .utils import SearchMixin, PostAuthentication
 
@@ -133,18 +132,6 @@ class VersionResource(ModelResource):
         self._meta.queryset = Version.objects.api(user=request.user)
         return super(VersionResource, self).get_object_list(request)
 
-    def version_compare(self, request, project_slug, base=None, **kwargs):
-        project = get_object_or_404(Project, slug=project_slug)
-        if base and base != LATEST:
-            try:
-                base_version = project.versions.get(slug=base)
-            except (Version.DoesNotExist, TypeError):
-                base_version = None
-        else:
-            base_version = None
-        ret_val = get_version_compare_data(project, base_version)
-        return self.create_response(request, ret_val)
-
     def build_version(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
         version = kwargs.get('version_slug', LATEST)
@@ -158,15 +145,6 @@ class VersionResource(ModelResource):
                 % self._meta.resource_name,
                 self.wrap_view('get_schema'),
                 name="api_get_schema"),
-            url((r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/highest/"
-                 r"(?P<base>.+)/$")
-                % self._meta.resource_name,
-                self.wrap_view('version_compare'),
-                name="version_compare"),
-            url(r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/highest/$"
-                % self._meta.resource_name,
-                self.wrap_view('version_compare'),
-                name="version_compare"),
             url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+[a-z0-9-_]+)/$"  # noqa
                 % self._meta.resource_name,
                 self.wrap_view('dispatch_list'),
