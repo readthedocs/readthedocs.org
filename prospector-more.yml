@@ -3,20 +3,15 @@ inherits: prospector
 strictness: medium
 
 ignore-paths:
-  - docs/
-  - acl/
   - api/
-  - betterversion/
   - bookmarks/
   - builds/
   - cdn/
   - comments/
   - core/
-  - djangome/
   - doc_builder/
   - donate/
   - gold/
-  - locale/
   - notifications/
   - oauth/
   - payments/
@@ -25,13 +20,9 @@ ignore-paths:
   - projects/
   - redirects/
   - restapi/
-  - rtd/
   - rtd_tests/
   - search/
   - settings/
-  - static/
-  - tastyapi/
-  - templates/
   - vcs_support/
 
 pylint:
