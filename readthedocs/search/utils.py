@@ -29,8 +29,8 @@ def process_mkdocs_json(version, build_dir=True):
     for filename in html_files:
         if not valid_mkdocs_json(file_path=filename):
             continue
-        relative_path = parse_path_from_file(documentation_type='mkdocs', file_path=filename)
-        html = parse_content_from_file(documentation_type='mkdocs', file_path=filename)
+        relative_path = parse_path_from_file(file_path=filename)
+        html = parse_content_from_file(file_path=filename)
         headers = parse_headers_from_file(documentation_type='mkdocs', file_path=filename)
         sections = parse_sections_from_file(documentation_type='mkdocs', file_path=filename)
         try:
@@ -71,7 +71,7 @@ def valid_mkdocs_json(file_path):
     return True
 
 
-def parse_path_from_file(documentation_type, file_path):
+def parse_path_from_file(file_path):
     """Retrieve path information from a json-encoded file on disk."""
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
@@ -95,7 +95,7 @@ def parse_path_from_file(documentation_type, file_path):
     return path
 
 
-def parse_content_from_file(documentation_type, file_path):
+def parse_content_from_file(file_path):
     """Retrieve content from a json-encoded file on disk."""
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
@@ -106,7 +106,7 @@ def parse_content_from_file(documentation_type, file_path):
 
     page_json = json.loads(content)
     page_content = page_json['content']
-    content = parse_content(documentation_type, page_content)
+    content = parse_content(page_content)
 
     if not content:
         log.info('(Search Index) Unable to index file: %s, empty file', file_path)
@@ -115,7 +115,7 @@ def parse_content_from_file(documentation_type, file_path):
     return content
 
 
-def parse_content(documentation_type, content):
+def parse_content(content):
     """
     Prepare the text of the html file.
 
