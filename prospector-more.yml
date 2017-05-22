@@ -11,7 +11,6 @@ ignore-paths:
   - core/
   - doc_builder/
   - donate/
-  - gold/
   - notifications/
   - oauth/
   - payments/
