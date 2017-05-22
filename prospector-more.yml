@@ -6,7 +6,6 @@ ignore-paths:
   - api/
   - cdn/
   - comments/
-  - core/
   - doc_builder/
   - donate/
   - notifications/

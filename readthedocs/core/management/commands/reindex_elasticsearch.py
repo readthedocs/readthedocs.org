@@ -32,12 +32,12 @@ class Command(BaseCommand):
             if not queryset.exists():
                 raise CommandError(
                     'No project with slug: {slug}'.format(slug=project))
-            log.info("Building all versions for %s" % project)
+            log.info("Building all versions for %s", project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = queryset.filter(slug=LATEST)
 
         for version in queryset:
-            log.info("Reindexing %s" % version)
+            log.info("Reindexing %s", version)
             try:
                 commit = version.project.vcs_repo(version.slug).commit
             except:
@@ -48,4 +48,4 @@ class Command(BaseCommand):
                 update_search(version.pk, commit,
                               delete_non_commit_files=False)
             except Exception:
-                log.error('Reindex failed for %s' % version, exc_info=True)
+                log.error('Reindex failed for %s', version, exc_info=True)

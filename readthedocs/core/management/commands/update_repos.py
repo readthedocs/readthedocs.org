@@ -42,11 +42,11 @@ class Command(BaseCommand):
         if len(args):
             for slug in args:
                 if version and version != "all":
-                    log.info("Updating version %s for %s" % (version, slug))
+                    log.info("Updating version %s for %s", version, slug)
                     for version in Version.objects.filter(project__slug=slug, slug=version):
                         trigger_build(project=version.project, version=version)
                 elif version == "all":
-                    log.info("Updating all versions for %s" % slug)
+                    log.info("Updating all versions for %s", slug)
                     for version in Version.objects.filter(project__slug=slug,
                                                           active=True,
                                                           uploaded=False):
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                                               version_pk=version.pk)
                 else:
                     p = Project.all_objects.get(slug=slug)
-                    log.info("Building %s" % p)
+                    log.info("Building %s", p)
                     trigger_build(project=p, force=force, record=record)
         else:
             if version == "all":

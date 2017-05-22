@@ -1,3 +1,5 @@
+"""URL configuration for core app."""
+
 from django.conf.urls import url
 
 from django_filters import views as django_filters_views

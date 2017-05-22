@@ -1,3 +1,5 @@
+"""Forms for core app."""
+
 import logging
 
 from haystack.forms import SearchForm

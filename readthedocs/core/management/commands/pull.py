@@ -1,7 +1,6 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import tasks, utils
