@@ -4,7 +4,6 @@ strictness: medium
 
 ignore-paths:
   - cdn/
-  - comments/
   - core/
   - doc_builder/
   - donate/

@@ -1,3 +1,5 @@
+"""ModelAdmin configurations for comments app."""
+
 from django.contrib import admin
 from .models import DocumentNode, DocumentComment, NodeSnapshot
 
