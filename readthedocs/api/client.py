@@ -1,6 +1,7 @@
+"""Slumber API client"""
 import logging
 
-from slumber import API, serialize
+from slumber import API
 from requests import Session
 from django.conf import settings
 
@@ -21,7 +22,7 @@ def setup_api():
         'session': session,
     }
     if USER and PASS:
-        log.debug("Using slumber with user %s, pointed at %s" % (USER, API_HOST))
+        log.debug("Using slumber with user %s, pointed at %s", USER, API_HOST)
         session.auth = (USER, PASS)
     else:
         log.warning("SLUMBER_USERNAME/PASSWORD settings are not set")

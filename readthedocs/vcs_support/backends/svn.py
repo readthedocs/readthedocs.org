@@ -1,3 +1,4 @@
+"""Subversion-related utilities."""
 import csv
 import sys
 
@@ -11,6 +12,9 @@ else:
 
 
 class Backend(BaseVCS):
+
+    """Subversion VCS backend."""
+
     supports_tags = False
     fallback_branch = '/trunk/'
 
@@ -96,7 +100,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        retcode, stdout = self.run('svnversion')[:2]
+        _, stdout = self.run('svnversion')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):

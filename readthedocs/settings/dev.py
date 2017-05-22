@@ -1,6 +1,6 @@
+"""Local development settings, including local_settings, if present."""
 import os
 
-from readthedocs.core.settings import Settings
 from .base import CommunityBaseSettings
 
 

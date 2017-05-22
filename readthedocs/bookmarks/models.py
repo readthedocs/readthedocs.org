@@ -1,3 +1,5 @@
+"""Models for the bookmarks app."""
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -7,6 +9,9 @@ from readthedocs.projects.models import Project
 
 
 class Bookmark(models.Model):
+
+    """A user's bookmark of a ``Project``, ``Version``, and page."""
+
     user = models.ForeignKey(User, verbose_name=_('User'),
                              related_name='bookmarks')
     project = models.ForeignKey(Project, verbose_name=_('Project'),

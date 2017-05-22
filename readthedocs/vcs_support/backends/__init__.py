@@ -1,3 +1,4 @@
+"""Listing of all the VCS backends."""
 from . import bzr, hg, git, svn
 
 backend_cls = {
