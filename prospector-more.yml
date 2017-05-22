@@ -23,7 +23,6 @@ ignore-paths:
   - rtd_tests/
   - search/
   - settings/
-  - vcs_support/
 
 pylint:
   options:
