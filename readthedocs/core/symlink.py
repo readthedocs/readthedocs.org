@@ -52,6 +52,7 @@ Example layout
         fabric -> rtd-builds/fabric/en/latest/ # single version
 
 """
+from __future__ import absolute_import, division, print_function
 
 import os
 import shutil

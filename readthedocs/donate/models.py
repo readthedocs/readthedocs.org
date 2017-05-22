@@ -1,5 +1,8 @@
+from __future__ import absolute_import, division, print_function
+
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -14,6 +17,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
 
 
+@python_2_unicode_compatible
 class Supporter(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -37,6 +41,7 @@ class Supporter(models.Model):
         return self.name
 
 
+@python_2_unicode_compatible
 class SupporterPromo(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -162,6 +167,7 @@ class SupporterPromo(models.Model):
         return self.text.replace('<a>', "<a href='%s'>" % self.link)
 
 
+@python_2_unicode_compatible
 class BaseImpression(models.Model):
     date = models.DateField(_('Date'))
     offers = models.IntegerField(_('Offer'), default=0)
@@ -219,13 +225,15 @@ class ProjectImpressions(BaseImpression):
         unique_together = ('project', 'promo', 'date')
 
 
+@python_2_unicode_compatible
 class Country(models.Model):
     country = CountryField(unique=True)
 
-    def __unicode__(self):
-        return unicode(self.country.name)
+    def __str__(self):
+        return self.country.name
 
 
+@python_2_unicode_compatible
 class GeoFilter(models.Model):
     promo = models.ForeignKey(SupporterPromo, related_name='geo_filters',
                               blank=True, null=True)
@@ -240,6 +248,7 @@ class GeoFilter(models.Model):
             ret.append(wrapped_code[0])
         return ret
 
-    def __unicode__(self):
+    @python_2_unicode_compatible
+    def __str__(self):
         return "Filter for {promo} that {type}s: {countries}".format(
             promo=self.promo.name, type=self.filter_type, countries=self.codes)

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import smtplib
 
 from django.core.mail.utils import DNS_NAME

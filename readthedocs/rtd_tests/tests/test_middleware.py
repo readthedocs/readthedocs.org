@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.http import Http404
 from django.core.cache import cache
 from django.test import TestCase

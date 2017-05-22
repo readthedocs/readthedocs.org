@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from djcelery import celery as celery_app
 from celery.result import AsyncResult
 

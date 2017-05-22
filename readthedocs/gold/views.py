@@ -1,4 +1,5 @@
 """Gold subscription views"""
+from __future__ import absolute_import, division, print_function
 
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings

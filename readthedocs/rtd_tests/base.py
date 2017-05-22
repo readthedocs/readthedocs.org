@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import os
 import shutil
 import logging
@@ -9,6 +11,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
+import six
 
 log = logging.getLogger(__name__)
 
@@ -136,9 +139,9 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
             self.assertIsNotNone(response.context_data['wizard'])
             self.assertEqual(wizard['steps'].current, step)
             response.render()
-            self.assertIn(
-                'name="{0}-current_step"'.format(self.wizard_class_slug),
-                response.content
+            self.assertContains(
+                response,
+                'name="{0}-current_step"'.format(self.wizard_class_slug)
             )
 
     # We use camelCase on purpose here to conform with unittest's naming
@@ -161,4 +164,4 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         self.assertIn(field, response.context_data['wizard']['form'].errors)
         if match is not None:
             error = response.context_data['wizard']['form'].errors[field]
-            self.assertRegexpMatches(unicode(error), match)
+            self.assertRegexpMatches(six.text_type(error), match)

@@ -1,4 +1,7 @@
+from __future__ import absolute_import, division, print_function
+
 from operator import add
+from six.moves import reduce
 
 from django.conf.urls import url
 from django.conf import settings
@@ -6,6 +9,7 @@ from django.conf.urls.static import static
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import serve
+from functools import reduce
 
 handler500 = 'readthedocs.core.views.server_error'
 handler404 = 'readthedocs.core.views.server_error_404'

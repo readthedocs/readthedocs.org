@@ -230,7 +230,7 @@ internationalize these strings, you need to use the ``_lazy`` versions of the
 above methods, :func:`~django.utils.translation.ugettext_lazy` and
 :func:`~django.utils.translation.ungettext_lazy`. The result doesn't get
 translated until it is evaluated as a string, for example by being output or
-passed to ``unicode()``::
+passed to ``unicode()/str()``::
 
     from django.utils.translation import ugettext_lazy as _
 

@@ -1,4 +1,5 @@
 """Renames for messages_extends URLs"""
+from __future__ import absolute_import, division, print_function
 
 from django.conf.urls import url
 

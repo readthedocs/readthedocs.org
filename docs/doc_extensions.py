@@ -7,6 +7,7 @@ djangosetting
     Output an inline literal of the corresponding setting value. Useful for
     keeping documentation up to date without editing on settings changes.
 """
+from __future__ import absolute_import, division, print_function
 
 from docutils import nodes, utils
 

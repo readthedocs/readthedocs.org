@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import shutil
 import os
 
@@ -11,11 +13,11 @@ for slug in build_projects:
     if slug not in slugs and slug.replace('_', '-') not in slugs:
         final.append(slug)
 
-print "To delete: %s" % len(final)
+print("To delete: %s" % len(final))
 
 for to_del in final:
     root = '/home/docs/checkouts/readthedocs.org'
-    print "Deleting " + to_del
+    print("Deleting " + to_del)
     shutil.rmtree('{root}/user_builds/{slug}'.format(root=root, slug=to_del), ignore_errors=True)
     shutil.rmtree('{root}/media/pdf/{slug}'.format(root=root, slug=to_del), ignore_errors=True)
     shutil.rmtree('{root}/media/epub/{slug}'.format(root=root, slug=to_del), ignore_errors=True)

@@ -1,4 +1,5 @@
 """Project version handling"""
+from __future__ import absolute_import, division, print_function
 
 import unicodedata
 from collections import defaultdict
@@ -7,6 +8,9 @@ from packaging.version import InvalidVersion
 
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+
+from six import text_type
+from six.moves import range
 
 
 def get_major(version):
@@ -109,7 +113,7 @@ def version_windows(versions, major=1, minor=1, point=1):
 def parse_version_failsafe(version_string):
     try:
         return Version(
-            unicodedata.normalize('NFKD', unicode(version_string)).encode('ascii', 'ignore')
+            text_type(unicodedata.normalize('NFKD', text_type(version_string)).encode('ascii', 'ignore'))
         )
     except (UnicodeError, InvalidVersion):
         return None

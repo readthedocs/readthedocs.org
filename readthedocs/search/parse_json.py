@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function
 
 import codecs
 import fnmatch
@@ -8,6 +9,7 @@ import os
 from pyquery import PyQuery
 
 import logging
+from six.moves import range
 log = logging.getLogger(__name__)
 
 

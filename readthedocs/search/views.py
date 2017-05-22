@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from pprint import pprint
 import collections
 import logging
@@ -50,8 +52,8 @@ def elastic_search(request):
                         facets[facet_type][term['term']] = term['count']
 
     if settings.DEBUG:
-        print pprint(results)
-        print pprint(facets)
+        print(pprint(results))
+        print(pprint(facets))
 
     if query:
         user = ''

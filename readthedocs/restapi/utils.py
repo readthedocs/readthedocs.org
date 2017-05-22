@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import hashlib
 import logging
 
@@ -26,7 +28,7 @@ def sync_versions(project, versions, type):
     for version in versions:
         version_id = version['identifier']
         version_name = version['verbose_name']
-        if version_name in old_versions.keys():
+        if version_name in list(old_versions.keys()):
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue

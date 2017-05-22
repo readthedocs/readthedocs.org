@@ -7,6 +7,7 @@ Project search indexes
     Read the Docs no longer uses Haystack in production and the core team does
     not maintain this code. Use at your own risk, this may go away soon.
 """
+from __future__ import absolute_import, division, print_function
 
 import codecs
 import os

@@ -1,4 +1,6 @@
-import urllib
+from __future__ import absolute_import, division, print_function
+
+from six.moves.urllib.parse import urlencode
 import hashlib
 
 from django import template
@@ -20,7 +22,7 @@ def gravatar(email, size=48):
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading
     """
-    url = "http://www.gravatar.com/avatar.php?%s" % urllib.urlencode({
+    url = "http://www.gravatar.com/avatar.php?%s" % urlencode({
         'gravatar_id': hashlib.md5(email).hexdigest(),
         'size': str(size)
     })

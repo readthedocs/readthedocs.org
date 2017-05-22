@@ -1,4 +1,5 @@
 """Integration models for external services"""
+from __future__ import absolute_import, division, print_function
 
 import json
 import uuid
@@ -65,7 +66,7 @@ class HttpExchangeManager(models.Manager):
         request_headers['Content-Type'] = req.content_type
         # Remove unwanted headers
         for filter_rule in self.REQ_FILTER_RULES:
-            for key in request_headers.keys():
+            for key in list(request_headers.keys()):
                 if filter_rule.match(key):
                     del request_headers[key]
 
@@ -74,7 +75,7 @@ class HttpExchangeManager(models.Manager):
             response_body = json.dumps(response_payload, sort_keys=True)
         except TypeError:
             response_body = str(response_payload)
-        response_headers = dict(resp.items())
+        response_headers = dict(list(resp.items()))
 
         fields = {
             'status_code': resp.status_code,

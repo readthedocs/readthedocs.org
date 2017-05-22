@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from datetime import datetime, timedelta
 
 from mock import patch
@@ -18,6 +20,8 @@ from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.mixins import ProjectRelationMixin
+
+import six
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
@@ -154,7 +158,7 @@ class TestAdvancedForm(TestBasicsForm):
         """Test all forms pass validation"""
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -164,10 +168,9 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         del self.step_data['extra']['tags']
-        self.assertItemsEqual(
-            [tag.name for tag in proj.tags.all()],
-            [u'bar', u'baz', u'foo']
-        )
+        six.assertCountEqual(self,
+                             [tag.name for tag in proj.tags.all()],
+                             [u'bar', u'baz', u'foo'])
         data.update(self.step_data['extra'])
         for (key, val) in data.items():
             self.assertEqual(getattr(proj, key), val)
@@ -179,7 +182,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
@@ -189,7 +192,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -211,7 +214,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')
@@ -233,7 +236,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')

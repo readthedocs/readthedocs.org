@@ -1,4 +1,5 @@
 """Mixin classes for project views"""
+from __future__ import absolute_import, division, print_function
 
 from django.shortcuts import get_object_or_404
 

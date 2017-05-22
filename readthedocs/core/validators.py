@@ -1,4 +1,6 @@
 # From https://github.com/django/django/pull/3477/files
+from __future__ import absolute_import, division, print_function
+
 import re
 
 from django.core.exceptions import ValidationError

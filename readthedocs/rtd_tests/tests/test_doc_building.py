@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function
 
 import os.path
 import shutil
@@ -325,7 +326,7 @@ class TestBuildCommand(TestCase):
     def test_unicode_output(self, mock_subprocess):
         '''Unicode output from command'''
         mock_process = Mock(**{
-            'communicate.return_value': (b'HérÉ îß sömê ünïçó∂é', ''),
+            'communicate.return_value': (u'HérÉ îß sömê ünïçó∂é', ''),
         })
         mock_subprocess.return_value = mock_process
 
@@ -369,7 +370,7 @@ class TestDockerBuildCommand(TestCase):
         '''Unicode output from command'''
         self.mocks.configure_mock('docker_client', {
             'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': b'HérÉ îß sömê ünïçó∂é',
+            'exec_start.return_value': u'HérÉ îß sömê ünïçó∂é',
             'exec_inspect.return_value': {'ExitCode': 0},
         })
         cmd = DockerBuildCommand(['echo', 'test'], cwd='/tmp/foobar')

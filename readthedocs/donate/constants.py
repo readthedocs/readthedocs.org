@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 DISPLAY_CHOICES = (
     ('doc', 'Documentation Pages'),
     ('site-footer', 'Site Footer'),

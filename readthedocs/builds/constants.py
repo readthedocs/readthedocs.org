@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from django.utils.translation import ugettext_lazy as _
 
 BUILD_STATE_TRIGGERED = 'triggered'

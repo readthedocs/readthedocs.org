@@ -1,9 +1,11 @@
+from __future__ import absolute_import, division, print_function
+
 import errno
 import getpass
 import logging
 import os
 import re
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils import six

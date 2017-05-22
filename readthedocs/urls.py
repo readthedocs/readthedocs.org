@@ -1,3 +1,4 @@
+from __future__ import absolute_import, division, print_function
 # pylint: disable=missing-docstring
 
 from operator import add
@@ -8,6 +9,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
 
+from six.moves import reduce
+
 from tastypie.api import Api
 
 from readthedocs.api.base import (ProjectResource, UserResource,
@@ -15,6 +18,7 @@ from readthedocs.api.base import (ProjectResource, UserResource,
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
 from readthedocs.core.views import HomepageView, SupportView
 from readthedocs.search import views as search_views
+from functools import reduce
 
 
 v1_api = Api(api_name='v1')

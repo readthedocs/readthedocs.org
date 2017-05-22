@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+from __future__ import absolute_import, division, print_function
+from __future__ import unicode_literals
 
 from django.db import models, migrations
 import readthedocs.core.validators
 
 import sys
 
-if sys.version_info > (3,):
-    import urllib.parse as urlparse
-else:
-    import urlparse
-
+from six.moves.urllib.parse import urlparse
 
 def migrate_url(apps, schema_editor):
     Domain = apps.get_model("projects", "Domain")
@@ -29,10 +26,10 @@ def migrate_url(apps, schema_editor):
         try:
             domain.domain = domain_string
             domain.save()
-            print(u"Added {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print("Added {domain} from {url}".format(url=domain.url, domain=domain_string))
         except Exception as e:
             print(e)
-            print(u"Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print("Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
 
         dms = Domain.objects.filter(domain=domain_string).order_by('-count')
         if dms.count() > 1:

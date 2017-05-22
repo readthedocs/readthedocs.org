@@ -1,4 +1,5 @@
 """Project RSS feeds"""
+from __future__ import absolute_import, division, print_function
 
 from django.contrib.syndication.views import Feed
 

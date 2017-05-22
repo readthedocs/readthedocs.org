@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import json
 import mock
 
@@ -10,11 +12,12 @@ from readthedocs.core.middleware import FooterNoSessionMiddleware
 
 from django_dynamic_fixture import get
 
-from .models import SupporterPromo, GeoFilter, Country,
+from .models import SupporterPromo, GeoFilter, Country
 from .constants import (CLICKS, VIEWS, OFFERS,
                         INCLUDE, EXCLUDE)
 from .signals import show_to_geo, get_promo, choose_promo, show_to_programming_language
 from readthedocs.projects.models import Project
+from six.moves import range
 
 
 class PromoTests(TestCase):
@@ -59,8 +62,8 @@ class PromoTests(TestCase):
             self.promo.incr(VIEWS)
         for x in range(3):
             self.promo.incr(CLICKS)
-        self.assertEqual(self.promo.view_ratio(), 0.4)
-        self.assertEqual(self.promo.click_ratio(), 0.15)
+        self.assertEqual(self.promo.view_ratio(), 40.0)
+        self.assertEqual(self.promo.click_ratio(), 15.0)
 
     def test_multiple_hash_usage(self):
         cache.set(self.promo.cache_key(type=VIEWS, hash='random_hash'), 0)

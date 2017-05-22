@@ -1,5 +1,7 @@
+from __future__ import absolute_import, division, print_function
+
 import logging
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from django.dispatch import Signal
 from corsheaders import signals

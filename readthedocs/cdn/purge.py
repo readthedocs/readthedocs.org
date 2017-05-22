@@ -1,6 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import logging
 
 from django.conf import settings
+from six.moves import range
 
 log = logging.getLogger(__name__)
 
@@ -12,7 +15,7 @@ CDN_SECRET = getattr(settings, 'CDN_SECRET', None)
 
 def chunks(in_list, chunk_size):
     """Yield successive n-sized chunks from l."""
-    for i in xrange(0, len(in_list), chunk_size):
+    for i in range(0, len(in_list), chunk_size):
         yield in_list[i:i + chunk_size]
 
 if CDN_USERNAME and CDN_KEY and CDN_SECRET and CDN_SERVICE == 'maxcdn':

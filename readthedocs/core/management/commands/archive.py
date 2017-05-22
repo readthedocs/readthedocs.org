@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 from glob import glob
 import os
 import logging
@@ -33,4 +35,4 @@ class Command(BaseCommand):
             'MEDIA_URL': settings.MEDIA_URL,
         }
         html = template_loader.get_template('archive/index.html').render(context)
-        print html
+        print(html)

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import json
 import base64
 import datetime
@@ -16,8 +18,8 @@ from readthedocs.projects.models import Project
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
-super_auth = base64.b64encode('super:test')
-eric_auth = base64.b64encode('eric:test')
+super_auth = base64.b64encode(b'super:test')
+eric_auth = base64.b64encode(b'eric:test')
 
 
 class APIBuildTests(TestCase):
