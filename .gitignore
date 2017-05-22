@@ -3,6 +3,7 @@
 *.pyc
 *.swp
 .DS_Store
+.cache
 .coverage
 .idea
 .vagrant
