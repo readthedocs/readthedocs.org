@@ -4,7 +4,6 @@ strictness: medium
 
 ignore-paths:
   - api/
-  - builds/
   - cdn/
   - comments/
   - core/

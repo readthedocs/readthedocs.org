@@ -1,3 +1,5 @@
+"""Django forms for the builds app."""
+
 from django import forms
 
 from readthedocs.builds.models import VersionAlias, Version
