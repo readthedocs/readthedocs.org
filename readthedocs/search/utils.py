@@ -173,99 +173,112 @@ def parse_sections_from_file(documentation_type, file_path):
     return sections
 
 
+def parse_sphinx_sections(content):
+    """Generate a list of sections from sphinx-style html."""
+    body = PyQuery(content)
+    h1_section = body('.section > h1')
+    if h1_section:
+        div = h1_section.parent()
+        h1_title = h1_section.text().replace(u'¶', '').strip()
+        h1_id = div.attr('id')
+        h1_content = ""
+        next_p = body('h1').next()
+        while next_p:
+            if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
+                if 'section' in next_p[0].attrib['class']:
+                    break
+            h1_content += "\n%s\n" % next_p.html()
+            next_p = next_p.next()
+        if h1_content:
+            yield {
+                'id': h1_id,
+                'title': h1_title,
+                'content': h1_content,
+            }
+
+    # Capture text inside h2's
+    section_list = body('.section > h2')
+    for num in range(len(section_list)):
+        div = section_list.eq(num).parent()
+        header = section_list.eq(num)
+        title = header.text().replace(u'¶', '').strip()
+        section_id = div.attr('id')
+        content = div.html()
+        yield {
+            'id': section_id,
+            'title': title,
+            'content': content,
+        }
+        log.debug("(Search Index) Section [%s:%s]: %s",
+                  section_id, title, content)
+
+
+def parse_mkdocs_sections(content):
+    """Generate a list of sections from mkdocs-style html.
+
+    May raise a ValueError
+    """
+    body = PyQuery(content)
+
+    try:
+        # H1 content
+        h1 = body('h1')
+        h1_id = h1.attr('id')
+        h1_title = h1.text().strip()
+        h1_content = ""
+        next_p = body('h1').next()
+        while next_p:
+            if next_p[0].tag == 'h2':
+                break
+            h1_html = next_p.html()
+            if h1_html:
+                h1_content += "\n%s\n" % h1_html
+            next_p = next_p.next()
+        if h1_content:
+            yield {
+                'id': h1_id,
+                'title': h1_title,
+                'content': h1_content,
+            }
+
+        # H2 content
+        section_list = body('h2')
+        for num in range(len(section_list)):
+            h2 = section_list.eq(num)
+            h2_title = h2.text().strip()
+            section_id = h2.attr('id')
+            h2_content = ""
+            next_p = body('h2').next()
+            while next_p:
+                if next_p[0].tag == 'h2':
+                    break
+                h2_html = next_p.html()
+                if h2_html:
+                    h2_content += "\n%s\n" % h2_html
+                next_p = next_p.next()
+            if h2_content:
+                yield {
+                    'id': section_id,
+                    'title': h2_title,
+                    'content': h2_content,
+                }
+            log.debug("(Search Index) Section [%s:%s]: %s",
+                      section_id, h2_title, h2_content)
+    # we're unsure which exceptions can be raised
+    # pylint: disable=bare-except
+    except:
+        log.error('Failed indexing', exc_info=True)
+
+
 def parse_sections(documentation_type, content):
     """Retrieve a list of section dicts from a string of html."""
     sections = []
     if 'sphinx' in documentation_type:
-        body = PyQuery(content)
-        h1_section = body('.section > h1')
-        if h1_section:
-            div = h1_section.parent()
-            h1_title = h1_section.text().replace(u'¶', '').strip()
-            h1_id = div.attr('id')
-            h1_content = ""
-            next_p = body('h1').next()
-            while next_p:
-                if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
-                    if 'section' in next_p[0].attrib['class']:
-                        break
-                h1_content += "\n%s\n" % next_p.html()
-                next_p = next_p.next()
-            if h1_content:
-                sections.append({
-                    'id': h1_id,
-                    'title': h1_title,
-                    'content': h1_content,
-                })
-
-        # Capture text inside h2's
-        section_list = body('.section > h2')
-        for num in range(len(section_list)):
-            div = section_list.eq(num).parent()
-            header = section_list.eq(num)
-            title = header.text().replace(u'¶', '').strip()
-            section_id = div.attr('id')
-            content = div.html()
-            sections.append({
-                'id': section_id,
-                'title': title,
-                'content': content,
-            })
-            log.debug("(Search Index) Section [%s:%s]: %s",
-                      section_id, title, content)
+        sections.extend(parse_sphinx_sections(content))
     if 'mkdocs' in documentation_type:
         try:
-            body = PyQuery(content)
+            sections.extend(parse_mkdocs_sections(content))
         except ValueError:
             return ''
-
-        try:
-            # H1 content
-            h1 = body('h1')
-            h1_id = h1.attr('id')
-            h1_title = h1.text().strip()
-            h1_content = ""
-            next_p = body('h1').next()
-            while next_p:
-                if next_p[0].tag == 'h2':
-                    break
-                h1_html = next_p.html()
-                if h1_html:
-                    h1_content += "\n%s\n" % h1_html
-                next_p = next_p.next()
-            if h1_content:
-                sections.append({
-                    'id': h1_id,
-                    'title': h1_title,
-                    'content': h1_content,
-                })
-
-            # H2 content
-            section_list = body('h2')
-            for num in range(len(section_list)):
-                h2 = section_list.eq(num)
-                h2_title = h2.text().strip()
-                section_id = h2.attr('id')
-                h2_content = ""
-                next_p = body('h2').next()
-                while next_p:
-                    if next_p[0].tag == 'h2':
-                        break
-                    h2_html = next_p.html()
-                    if h2_html:
-                        h2_content += "\n%s\n" % h2_html
-                    next_p = next_p.next()
-                if h2_content:
-                    sections.append({
-                        'id': section_id,
-                        'title': h2_title,
-                        'content': h2_content,
-                    })
-                log.debug("(Search Index) Section [%s:%s]: %s",
-                          section_id, h2_title, h2_content)
-        # we're unsure which exceptions can be raised
-        # pylint: disable=bare-except
-        except:
-            log.error('Failed indexing', exc_info=True)
 
     return sections
