@@ -22,7 +22,6 @@ ignore-paths:
   - restapi/
   - rtd_tests/
   - search/
-  - settings/
   - vcs_support/
 
 pylint:
