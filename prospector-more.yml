@@ -12,7 +12,6 @@ ignore-paths:
   - doc_builder/
   - donate/
   - gold/
-  - notifications/
   - oauth/
   - payments/
   - privacy/
