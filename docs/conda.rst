@@ -19,15 +19,33 @@ You can enable it by creating a `readthedocs.yml` file in the root of your repos
 
 .. code-block:: yaml
 
-	conda:
-	    file: environment.yml
+        conda:
+            file: environment.yml
 
-This Conda environment will also have Sphinx and other build time dependencies installed.
-It will use the same order of operations that we support currently:
+When using Conda environments you will need to define all the
+dependencies to build the documention in your `environment.yml` file
+since Read The Docs won't install them. So, as a reference, these are
+the dependencies you may need:
 
-* Environment Creation (``conda create``)
-* Dependency Installation (Sphinx)
-* User Package Installation (``conda env update``)
+From ``conda-forge`` channel:
+
+* sphinx
+* pygments
+* docutils
+* mock
+* pillow
+* sphinx-rtd-theme
+* alabaster
+
+From regular ``pypi`` (must be inside the ``pip`` option):
+
+* mkdocs
+* readthedocs-sphinx-ext
+* commonmark
+* recommonmark
+
+The environment is created by running ``conda create env --name {version.slug} --file environment.yml``
+after cloning the repository.
 
 Custom Installs
 ---------------
@@ -42,4 +60,3 @@ we can't safely install it as a normal dependency into the normal Python virtual
 
 .. _issue: https://github.com/rtfd/readthedocs.org/issues
 .. _Clinical Graphics: https://www.clinicalgraphics.com/
-
