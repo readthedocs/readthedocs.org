@@ -14,7 +14,6 @@ ignore-paths:
   - gold/
   - notifications/
   - oauth/
-  - payments/
   - privacy/
   - profiles/
   - projects/
