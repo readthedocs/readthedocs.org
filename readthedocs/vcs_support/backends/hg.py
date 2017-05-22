@@ -1,8 +1,12 @@
+"""Mercurial-related utilities."""
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
+
+    """Mercurial VCS backend."""
+
     supports_tags = True
     supports_branches = True
     fallback_branch = 'default'
@@ -85,13 +89,13 @@ class Backend(BaseVCS):
             name, commit = row
             if name == 'tip':
                 continue
-            revision, commit_hash = commit.split(':')
+            _, commit_hash = commit.split(':')
             vcs_tags.append(VCSVersion(self, commit_hash, name))
         return vcs_tags
 
     @property
     def commit(self):
-        retcode, stdout = self.run('hg', 'id', '-i')[:2]
+        _, stdout = self.run('hg', 'id', '-i')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):

@@ -13,7 +13,6 @@ ignore-paths:
   - donate/
   - gold/
   - notifications/
-  - oauth/
   - payments/
   - privacy/
   - profiles/
@@ -22,7 +21,6 @@ ignore-paths:
   - restapi/
   - rtd_tests/
   - search/
-  - vcs_support/
 
 pylint:
   options:

@@ -1,3 +1,4 @@
+"""Bazaar-related utilities."""
 import csv
 import re
 import sys
@@ -12,6 +13,9 @@ else:
 
 
 class Backend(BaseVCS):
+
+    """Bazaar VCS backend."""
+
     supports_tags = True
     fallback_branch = ''
 
@@ -83,7 +87,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        retcode, stdout = self.run('bzr', 'revno')[:2]
+        _, stdout = self.run('bzr', 'revno')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
