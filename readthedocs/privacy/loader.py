@@ -1,3 +1,10 @@
+"""A namespace of privacy classes configured by settings.
+
+Importing classes from this module allows the classes used to be overridden
+using Django settings.
+
+"""
+
 from django.utils.module_loading import import_string
 from django.conf import settings
 

@@ -1,3 +1,9 @@
+"""Classes allowing copying files around.
+
+"Syncers" copy files from the local machine, while "Pullers" copy files to
+the local machine.
+
+"""
 import getpass
 import logging
 import os
@@ -8,12 +14,17 @@ from django.conf import settings
 log = logging.getLogger(__name__)
 
 
+# The file builting was removed in Python 3, so we should not use it
+# Setting to None here to silence pylint for this builtin only
+file = None  # pylint: disable=redefined-builtin
+
+
 class LocalSyncer(object):
 
     @classmethod
-    def copy(cls, path, target, file=False, **kwargs):
+    def copy(cls, path, target, file=False, **__):
         """A copy command that works with files or directories."""
-        log.info("Local Copy %s to %s" % (path, target))
+        log.info("Local Copy %s to %s", path, target)
         if file:
             if path == target:
                 # Don't copy the same file over itself
@@ -30,7 +41,7 @@ class LocalSyncer(object):
 class RemoteSyncer(object):
 
     @classmethod
-    def copy(cls, path, target, file=False, **kwargs):
+    def copy(cls, path, target, file=False, **__):
         """
         A better copy command that works with files or directories.
 
@@ -39,7 +50,7 @@ class RemoteSyncer(object):
         sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
         app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
         if app_servers:
-            log.info("Remote Copy %s to %s" % (path, target))
+            log.info("Remote Copy %s to %s on %s", path, target, app_servers)
             for server in app_servers:
                 mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (sync_user, server, target))
                 ret = os.system(mkdir_cmd)
@@ -68,7 +79,7 @@ class RemoteSyncer(object):
 class DoubleRemotePuller(object):
 
     @classmethod
-    def copy(cls, path, target, host, file=False, **kwargs):
+    def copy(cls, path, target, host, file=False, **__):
         """
         A better copy command that works from the webs.
 
@@ -78,7 +89,7 @@ class DoubleRemotePuller(object):
         app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
         if not file:
             path += "/"
-        log.info("Remote Copy %s to %s" % (path, target))
+        log.info("Remote Copy %s to %s", path, target)
         for server in app_servers:
             if not file:
                 mkdir_cmd = "ssh {user}@{server} mkdir -p {target}".format(
@@ -106,7 +117,7 @@ class DoubleRemotePuller(object):
 class RemotePuller(object):
 
     @classmethod
-    def copy(cls, path, target, host, file=False, **kwargs):
+    def copy(cls, path, target, host, file=False, **__):
         """
         A better copy command that works from the webs.
 
@@ -115,7 +126,7 @@ class RemotePuller(object):
         sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
         if not file:
             path += "/"
-        log.info("Local Copy %s to %s" % (path, target))
+        log.info("Local Copy %s to %s", path, target)
         os.makedirs(target)
         # Add a slash when copying directories
         sync_cmd = "rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
