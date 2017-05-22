@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Utilities related to reading and generating indexable search content."""
 
 import os
 import fnmatch
@@ -13,6 +14,7 @@ log = logging.getLogger(__name__)
 
 
 def process_mkdocs_json(version, build_dir=True):
+    """Given a version object, return a list of page dicts from disk content"""
     if build_dir:
         full_path = version.project.full_json_path(version.slug)
     else:
@@ -20,7 +22,7 @@ def process_mkdocs_json(version, build_dir=True):
             type_='json', version_slug=version.slug, include_file=False)
 
     html_files = []
-    for root, dirs, files in os.walk(full_path):
+    for root, _, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.json'):
             html_files.append(os.path.join(root, filename))
     page_list = []
@@ -57,24 +59,25 @@ def valid_mkdocs_json(file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s' % (file_path, e))
+        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
         return None
 
     page_json = json.loads(content)
     for to_check in ['url', 'content']:
         if to_check not in page_json:
-            log.warning('(Search Index) Unable to index file: %s error: Invalid JSON' % (file_path))
+            log.warning('(Search Index) Unable to index file: %s error: Invalid JSON', file_path)
             return None
 
     return True
 
 
 def parse_path_from_file(documentation_type, file_path):
+    """Retrieve path information from a json-encoded file on disk."""
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s' % (file_path, e))
+        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
         return ''
 
     page_json = json.loads(content)
@@ -93,11 +96,12 @@ def parse_path_from_file(documentation_type, file_path):
 
 
 def parse_content_from_file(documentation_type, file_path):
+    """Retrieve content from a json-encoded file on disk."""
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s' % (file_path, e))
+        log.info('(Search Index) Unable to index file: %s, error :%s', file_path, e)
         return ''
 
     page_json = json.loads(content)
@@ -105,9 +109,9 @@ def parse_content_from_file(documentation_type, file_path):
     content = parse_content(documentation_type, page_content)
 
     if not content:
-        log.info('(Search Index) Unable to index file: %s, empty file' % (file_path))
+        log.info('(Search Index) Unable to index file: %s, empty file', file_path)
     else:
-        log.debug('(Search Index) %s length: %s' % (file_path, len(content)))
+        log.debug('(Search Index) %s length: %s', file_path, len(content))
     return content
 
 
@@ -125,12 +129,13 @@ def parse_content(documentation_type, content):
 
 
 def parse_headers_from_file(documentation_type, file_path):
-    log.debug('(Search Index) Parsing headers for %s' % (file_path))
+    log.debug('(Search Index) Parsing headers for %s', file_path)
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s' % (file_path, e))
+        log.info('(Search Index) Unable to index file: %s, error :%s',
+                 file_path, e)
         return ''
 
     page_json = json.loads(content)
@@ -138,7 +143,7 @@ def parse_headers_from_file(documentation_type, file_path):
     headers = parse_headers(documentation_type, page_content)
 
     if not headers:
-        log.error('Unable to index file headers for: %s' % file_path)
+        log.error('Unable to index file headers for: %s', file_path)
     return headers
 
 
@@ -151,12 +156,12 @@ def parse_headers(documentation_type, content):
 
 
 def parse_sections_from_file(documentation_type, file_path):
-    log.debug('(Search Index) Parsing sections for %s' % (file_path))
+    log.debug('(Search Index) Parsing sections for %s', file_path)
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s' % (file_path, e))
+        log.info('(Search Index) Unable to index file: %s, error :%s', file_path, e)
         return ''
 
     page_json = json.loads(content)
@@ -164,11 +169,12 @@ def parse_sections_from_file(documentation_type, file_path):
     sections = parse_sections(documentation_type, page_content)
 
     if not sections:
-        log.error('Unable to index file sections for: %s' % file_path)
+        log.error('Unable to index file sections for: %s', file_path)
     return sections
 
 
 def parse_sections(documentation_type, content):
+    """Retrieve a list of section dicts from a string of html."""
     sections = []
     if 'sphinx' in documentation_type:
         body = PyQuery(content)
@@ -205,7 +211,8 @@ def parse_sections(documentation_type, content):
                 'title': title,
                 'content': content,
             })
-            log.debug("(Search Index) Section [%s:%s]: %s" % (section_id, title, content))
+            log.debug("(Search Index) Section [%s:%s]: %s",
+                      section_id, title, content)
     if 'mkdocs' in documentation_type:
         try:
             body = PyQuery(content)
@@ -254,7 +261,10 @@ def parse_sections(documentation_type, content):
                         'title': h2_title,
                         'content': h2_content,
                     })
-                log.debug("(Search Index) Section [%s:%s]: %s" % (section_id, h2_title, h2_content))
+                log.debug("(Search Index) Section [%s:%s]: %s",
+                          section_id, h2_title, h2_content)
+        # we're unsure which exceptions can be raised
+        # pylint: disable=bare-except
         except:
             log.error('Failed indexing', exc_info=True)
 

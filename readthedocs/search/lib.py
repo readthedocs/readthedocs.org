@@ -1,3 +1,4 @@
+"""Utilities related to searching Elastic."""
 from pprint import pprint
 
 from django.conf import settings
@@ -12,7 +13,7 @@ from readthedocs.search.signals import (before_project_search,
 
 
 def search_project(request, query, language=None):
-
+    """Search index for projects matching query"""
     body = {
         "query": {
             "bool": {

@@ -1,3 +1,4 @@
+"""Search views."""
 from pprint import pprint
 import collections
 import logging
@@ -17,7 +18,7 @@ LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language
 def elastic_search(request):
     """Use Elasticsearch for global search"""
     query = request.GET.get('q')
-    type = request.GET.get('type', 'project')
+    type_ = request.GET.get('type', 'project')
     # File Facets
     project = request.GET.get('project')
     version = request.GET.get('version', LATEST)
@@ -28,9 +29,9 @@ def elastic_search(request):
     facets = {}
 
     if query:
-        if type == 'project':
+        if type_ == 'project':
             results = search_lib.search_project(request, query, language=language)
-        elif type == 'file':
+        elif type_ == 'file':
             results = search_lib.search_file(request, query, project_slug=project,
                                              version_slug=version,
                                              taxonomy=taxonomy)
@@ -60,7 +61,7 @@ def elastic_search(request):
         log.info(LOG_TEMPLATE.format(
             user=user,
             project=project or '',
-            type=type or '',
+            type=type_ or '',
             version=version or '',
             language=language or '',
             msg=query or '',
@@ -71,7 +72,7 @@ def elastic_search(request):
         {
             # Input
             'query': query,
-            'type': type,
+            'type': type_,
             'project': project,
             'version': version,
             'taxonomy': taxonomy,

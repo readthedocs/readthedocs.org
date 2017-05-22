@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Functions related to converting content into dict/JSON structures."""
 
 import codecs
 import fnmatch
@@ -19,7 +20,7 @@ def process_all_json_files(version, build_dir=True):
         full_path = version.project.get_production_media_path(
             type_='json', version_slug=version.slug, include_file=False)
     html_files = []
-    for root, dirs, files in os.walk(full_path):
+    for root, _, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.fjson'):
             if filename in ['search.fjson', 'genindex.fjson', 'py-modindex.fjson']:
                 continue
@@ -30,17 +31,20 @@ def process_all_json_files(version, build_dir=True):
             result = process_file(filename)
             if result:
                 page_list.append(result)
+        # we're unsure which exceptions can be raised
+        # pylint: disable=bare-except
         except:
             pass
     return page_list
 
 
 def process_file(filename):
+    """Read a file from disk and parse it into a structured dict."""
     try:
         with codecs.open(filename, encoding='utf-8', mode='r') as f:
             file_contents = f.read()
     except IOError as e:
-        log.info('Unable to index file: %s, error :%s' % (filename, e))
+        log.info('Unable to index file: %s, error :%s', filename, e)
         return
     data = json.loads(file_contents)
     headers = []
@@ -51,13 +55,13 @@ def process_file(filename):
     if 'current_page_name' in data:
         path = data['current_page_name']
     else:
-        log.info('Unable to index file due to no name %s' % filename)
+        log.info('Unable to index file due to no name %s', filename)
         return None
     if 'toc' in data:
         for element in PyQuery(data['toc'])('a'):
             headers.append(recurse_while_none(element))
         if None in headers:
-            log.info('Unable to index file headers for: %s' % filename)
+            log.info('Unable to index file headers for: %s', filename)
     if 'body' in data and len(data['body']):
         body = PyQuery(data['body'])
         body_content = body.text().replace(u'¶', '')
@@ -95,16 +99,17 @@ def process_file(filename):
                 'title': title,
                 'content': content,
             })
-            log.debug("(Search Index) Section [%s:%s]: %s" % (section_id, title, content))
+            log.debug("(Search Index) Section [%s:%s]: %s",
+                      section_id, title, content)
 
     else:
-        log.info('Unable to index content for: %s' % filename)
+        log.info('Unable to index content for: %s', filename)
     if 'title' in data:
         title = data['title']
         if title.startswith('<'):
             title = PyQuery(data['title']).text()
     else:
-        log.info('Unable to index title for: %s' % filename)
+        log.info('Unable to index title for: %s', filename)
 
     return {'headers': headers, 'content': body_content, 'path': path,
             'title': title, 'sections': sections}
