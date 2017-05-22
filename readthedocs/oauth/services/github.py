@@ -94,7 +94,7 @@ class GitHubService(Service):
                 )
                 repo.users.add(self.user)
             if repo.organization and repo.organization != organization:
-                log.debug('Not importing %s because mismatched orgs' %
+                log.debug('Not importing %s because mismatched orgs',
                           fields['name'])
                 return None
             else:
@@ -116,7 +116,7 @@ class GitHubService(Service):
             repo.save()
             return repo
         else:
-            log.debug('Not importing %s because mismatched type' %
+            log.debug('Not importing %s because mismatched type',
                       fields['name'])
 
     def create_organization(self, fields):
@@ -214,7 +214,6 @@ class GitHubService(Service):
         except (RequestException, ValueError):
             log.error('GitHub webhook creation failed for project: %s',
                       project, exc_info=True)
-            pass
         else:
             log.error('GitHub webhook creation failed for project: %s',
                       project)
@@ -224,7 +223,7 @@ class GitHubService(Service):
             except ValueError:
                 debug_data = resp.content
             log.debug('GitHub webhook creation failure response: %s',
-                      resp.json())
+                      debug_data)
             return (False, resp)
 
     def update_webhook(self, project, integration):
@@ -259,15 +258,15 @@ class GitHubService(Service):
         except (RequestException, ValueError):
             log.error('GitHub webhook update failed for project: %s',
                       project, exc_info=True)
-            pass
         else:
             log.error('GitHub webhook update failed for project: %s',
                       project)
             try:
-                log.debug('GitHub webhook creation failure response: %s',
-                          resp.json())
+                debug_data = resp.json()
             except ValueError:
-                pass
+                debug_data = resp.content
+            log.debug('GitHub webhook creation failure response: %s',
+                      debug_data)
             return (False, resp)
 
     @classmethod

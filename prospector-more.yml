@@ -13,7 +13,6 @@ ignore-paths:
   - donate/
   - gold/
   - notifications/
-  - oauth/
   - payments/
   - privacy/
   - profiles/
