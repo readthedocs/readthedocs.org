@@ -22,7 +22,7 @@ class LocalSyncer(object):
         log.info("Local Copy %s to %s", path, target)
         if is_file:
             if path == target:
-                # Don't copy the same is_file over itself
+                # Don't copy the same file over itself
                 return
             if os.path.exists(target):
                 os.remove(target)
