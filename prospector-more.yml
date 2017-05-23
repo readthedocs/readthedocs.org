@@ -7,7 +7,6 @@ ignore-paths:
   - doc_builder/
   - donate/
   - projects/
-  - redirects/
   - restapi/
   - search/
 
