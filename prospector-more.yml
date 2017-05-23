@@ -6,7 +6,6 @@ ignore-paths:
   - core/
   - doc_builder/
   - donate/
-  - notifications/
   - privacy/
   - projects/
   - redirects/
