@@ -50,38 +50,29 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-@decorators.api_view(['GET'])
-@decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer, JSONPRenderer))
-def footer_html(request):
-    """Render and return footer markup."""
-    project_slug = request.GET.get('project', None)
-    version_slug = request.GET.get('version', None)
-    page_slug = request.GET.get('page', None)
-    theme = request.GET.get('theme', False)
-    docroot = request.GET.get('docroot', '')
-    subproject = request.GET.get('subproject', False)
-    source_suffix = request.GET.get('source_suffix', '.rst')
+def footer_path(main_project, page_slug):
+    if page_slug and page_slug != "index":
+        if main_project.documentation_type in ("sphinx_htmldir", "mkdocs"):
+            return page_slug + "/"
+        elif main_project.documentation_type == "sphinx_singlehtml":
+            return "index.html#document-" + page_slug
+        else:
+            return page_slug + ".html"
+    else:
+        return ""
 
-    new_theme = (theme == "sphinx_rtd_theme")
-    using_theme = (theme == "default")
-    project = get_object_or_404(Project, slug=project_slug)
+
+def version_context(project, request):
+    """Derive extra footer context by looking up the requested version."""
+    page_slug = request.GET.get('page')
+    version_slug = request.GET.get('version')
+    docroot = request.GET.get('docroot', '')
+    source_suffix = request.GET.get('source_suffix', '.rst')
+    main_project = project.main_language_project or project
+
     version = get_object_or_404(
         Version.objects.public(request.user, project=project, only_active=False),
         slug=version_slug)
-    main_project = project.main_language_project or project
-
-    if page_slug and page_slug != "index":
-        if (
-                main_project.documentation_type == "sphinx_htmldir" or
-                main_project.documentation_type == "mkdocs"):
-            path = page_slug + "/"
-        elif main_project.documentation_type == "sphinx_singlehtml":
-            path = "index.html#document-" + page_slug
-        else:
-            path = page_slug + ".html"
-    else:
-        path = ""
 
     if version.type == TAG and version.project.has_pdf(version.slug):
         print_url = (
@@ -92,35 +83,52 @@ def footer_html(request):
     else:
         print_url = None
 
-    version_compare_data = get_version_compare_data(project, version)
+    return {
+        'version': version,
+        'path': footer_path(main_project, page_slug),
+        'downloads': version.get_downloads(pretty=True),
+        'main_project': main_project,
+        'translations': main_project.translations.all(),
+        'current_version': version.verbose_name,
+        'print_url': print_url,
+        'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
+        'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
+        'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
+    }
+
+
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny,))
+@decorators.renderer_classes((JSONRenderer, JSONPRenderer))
+def footer_html(request):
+    """Render and return footer markup."""
+    project_slug = request.GET.get('project', None)
+    theme = request.GET.get('theme', False)
+    subproject = request.GET.get('subproject', False)
+
+    new_theme = (theme == "sphinx_rtd_theme")
+    using_theme = (theme == "default")
+    project = get_object_or_404(Project, slug=project_slug)
 
     context = {
         'project': project,
-        'version': version,
-        'path': path,
-        'downloads': version.get_downloads(pretty=True),
-        'current_version': version.verbose_name,
         'versions': project.ordered_active_versions(user=request.user),
-        'main_project': main_project,
-        'translations': main_project.translations.all(),
         'current_language': project.language,
         'using_theme': using_theme,
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
-        'print_url': print_url,
-        'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
-        'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
-        'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
         'theme': theme,
     }
+    context.update(version_context(project, request))
 
     request_context = RequestContext(request, context)
     html = template_loader.get_template('restapi/footer.html').render(request_context)
+    version = context['version']
     resp_data = {
         'html': html,
         'version_active': version.active,
-        'version_compare': version_compare_data,
+        'version_compare': get_version_compare_data(project, version),
         'version_supported': version.supported,
     }
 
