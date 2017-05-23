@@ -33,7 +33,7 @@ class NotificationTests(TestCase):
 
         build = fixture.get(Build)
         req = mock.MagicMock()
-        notify = TestNotification(object=build, request=req)
+        notify = TestNotification(context_object=build, request=req)
 
         self.assertEqual(notify.get_template_names('email'),
                          ['builds/notifications/foo_email.html'])
@@ -69,7 +69,7 @@ class NotificationBackendTests(TestCase):
         build = fixture.get(Build)
         req = mock.MagicMock()
         user = fixture.get(User)
-        notify = TestNotification(object=build, request=req, user=user)
+        notify = TestNotification(context_object=build, request=req, user=user)
         backend = EmailBackend(request=req)
         backend.send(notify)
 
@@ -96,7 +96,7 @@ class NotificationBackendTests(TestCase):
         build = fixture.get(Build)
         user = fixture.get(User)
         req = mock.MagicMock()
-        notify = TestNotification(object=build, request=req, user=user)
+        notify = TestNotification(context_object=build, request=req, user=user)
         backend = SiteBackend(request=req)
         backend.send(notify)
 
@@ -118,7 +118,7 @@ class NotificationBackendTests(TestCase):
         build = fixture.get(Build)
         user = AnonymousUser()
         req = mock.MagicMock()
-        notify = TestNotification(object=build, request=req, user=user)
+        notify = TestNotification(context_object=build, request=req, user=user)
         backend = SiteBackend(request=req)
 
         self.assertEqual(PersistentMessage.objects.count(), 0)

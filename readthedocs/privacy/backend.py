@@ -1,3 +1,4 @@
+"""Django Managers and Querysets to apply project privacy restrictions."""
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
@@ -85,7 +86,7 @@ class VersionManager(models.Manager):
         # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
-            VersionQuerySet._default_class
+            VersionQuerySet._default_class  # pylint: disable=protected-access
         )
         return super(VersionManager, cls).from_queryset(queryset_class, class_name)
 

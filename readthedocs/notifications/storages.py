@@ -1,3 +1,5 @@
+"""Customised storage for notifications."""
+
 from django.contrib.messages.storage.base import Message
 from django.utils.safestring import mark_safe
 from messages_extends.storages import FallbackStorage
