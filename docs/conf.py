@@ -3,6 +3,7 @@
 import os
 import sys
 
+import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath('..'))
@@ -31,7 +32,7 @@ source_parsers = {
 }
 
 master_doc = 'index'
-project = u'Read The Docs'
+project = u'Read the Docs'
 copyright = u'2010-2017, Read the Docs, Inc & contributors'
 version = '1.0'
 release = '1.0'
@@ -43,15 +44,13 @@ intersphinx_mapping = {
     'django': ('http://django.readthedocs.io/en/1.8.x/', None),
     'sphinx': ('http://sphinx.readthedocs.io/en/latest/', None),
 }
-# This doesn't exist since we aren't shipping any static files ourselves.
-#html_static_path = ['_static']
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
-    ('index', 'ReadTheDocs.tex', u'Read The Docs Documentation',
+    ('index', 'ReadTheDocs.tex', u'Read the Docs Documentation',
      u'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
 ]
 man_pages = [
-    ('index', 'read-the-docs', u'Read The Docs Documentation',
+    ('index', 'read-the-docs', u'Read the Docs Documentation',
      [u'Eric Holscher, Charlie Leifer, Bobby Grace'], 1)
 ]
 
@@ -66,9 +65,15 @@ locale_dirs = [
 ]
 gettext_compact = False
 
+html_theme = 'sphinx_rtd_theme'
+html_static_path = ['_static']
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_logo = 'img/logo.png'
+html_theme_options = {
+    'logo_only': True,
+    'display_version': False,
+}
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if not on_rtd:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
+def setup(app):
+    app.add_stylesheet('custom.css')
