@@ -247,7 +247,6 @@ class GeoFilter(models.Model):
             ret.append(wrapped_code[0])
         return ret
 
-    @python_2_unicode_compatible
     def __str__(self):
         return "Filter for {promo} that {type}s: {countries}".format(
             promo=self.promo.name, type=self.filter_type, countries=self.codes)
