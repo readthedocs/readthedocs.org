@@ -1,6 +1,5 @@
+# pylint: disable=missing-docstring
 import mock
-
-from readthedocs.doc_builder.environments import BuildEnvironment
 
 
 class EnvironmentMockGroup(object):
