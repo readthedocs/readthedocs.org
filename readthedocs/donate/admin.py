@@ -1,3 +1,5 @@
+"""Django admin configuration for the donate app."""
+
 from django.contrib import admin
 from .models import (Supporter, SupporterPromo, Country,
                      PromoImpressions, GeoFilter)
@@ -8,10 +10,11 @@ DEFAULT_EXCLUDES = ['BD', 'CN', 'TF', 'GT', 'IN', 'ID',
 
 
 def set_default_countries(modeladmin, request, queryset):
+    del modeladmin, request  # unused arguments
     for project in queryset:
-        filter = project.geo_filters.create(filter_type='exclude')
+        geo_filter = project.geo_filters.create(filter_type='exclude')
         for country in Country.objects.filter(country__in=DEFAULT_EXCLUDES):
-            filter.countries.add(country)
+            geo_filter.countries.add(country)
 set_default_countries.short_description = "Add default exclude countries to this Promo"
 
 

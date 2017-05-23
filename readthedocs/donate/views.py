@@ -1,4 +1,6 @@
 """Donation views"""
+# We use 'hash' heavily in the API here.
+# pylint: disable=redefined-builtin
 
 import logging
 
@@ -109,6 +111,7 @@ class PromoDetailView(TemplateView):
 
 
 def click_proxy(request, promo_id, hash):
+    """Track a click on a promotion and redirect to the link."""
     promo = get_object_or_404(SupporterPromo, pk=promo_id)
     count = cache.get(promo.cache_key(type=CLICKS, hash=hash), None)
     if count is None:
@@ -136,6 +139,7 @@ def click_proxy(request, promo_id, hash):
 
 
 def view_proxy(request, promo_id, hash):
+    """Track a view of a promotion and redirect to the image."""
     promo = get_object_or_404(SupporterPromo, pk=promo_id)
     if not promo.image:
         raise Http404('No image defined for this promo.')
@@ -174,7 +178,7 @@ def _add_promo_data(display_type):
     return promo_dict
 
 
-def promo_500(request, template_name='donate/promo_500.html', **kwargs):
+def promo_500(request, template_name='donate/promo_500.html', **__):
     """A simple 500 handler so we get media"""
     promo_dict = _add_promo_data(display_type='error')
     r = render_to_response(template_name,
@@ -186,7 +190,7 @@ def promo_500(request, template_name='donate/promo_500.html', **kwargs):
     return r
 
 
-def promo_404(request, template_name='donate/promo_404.html', **kwargs):
+def promo_404(request, template_name='donate/promo_404.html', **__):
     """A simple 404 handler so we get media"""
     promo_dict = _add_promo_data(display_type='error')
     response = get_redirect_response(request, path=request.get_full_path())

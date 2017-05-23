@@ -1,4 +1,6 @@
-from django.conf.urls import url, include
+"""Django URL patterns for the donate app."""
+
+from django.conf.urls import url
 
 from .views import DonateCreateView, DonateListView, DonateSuccessView
 from .views import PayAdsView, PaySuccess, PromoDetailView
