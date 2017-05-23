@@ -47,7 +47,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def valid_versions(self, request, **kwargs):
         """Maintain state of versions that are wanted."""
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
             return Response(
                 {'error': 'Project does not support point version control'},
@@ -62,7 +62,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
     @detail_route()
-    def translations(self, request, pk, **kwargs):
+    def translations(self, _, **__):
         translations = self.get_object().translations.all()
         return Response({
             'translations': ProjectSerializer(translations, many=True).data
@@ -71,7 +71,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @detail_route()
     def subprojects(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -81,7 +81,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         token = GitHubService.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
@@ -90,7 +90,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @decorators.detail_route()
     def canonical_url(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         return Response({
             'url': project.get_docs_url()
         })
@@ -103,7 +103,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         Returns the identifiers for the versions that have been deleted.
         """
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
