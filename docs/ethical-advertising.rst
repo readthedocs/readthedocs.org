@@ -9,8 +9,8 @@ However,
 instead of using Google,
 we are building the advertising model that we want to exist.
 We only work with companies we like and respect,
-and offer products that are relevent to developers
-We hope that you'll discover new products and services that are relvent,
+and offer products that are relevant to developers.
+We hope that you'll discover new products and services that are relevant,
 and also new companies that care about supporting the open source community.
 
 **We're building an advertising model that respects users while providing value to advertisers.**
