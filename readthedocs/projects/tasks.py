@@ -146,8 +146,8 @@ class UpdateDocsTask(Task):
         if self.setup_env.failure or self.config is None:
             self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
 
-            # send notification to users only if the build didn't failed because of
-            # LockTimeout: this exception ocurrs when a build is triggered before the previous
+            # Send notification to users only if the build didn't fail because of
+            # LockTimeout: this exception occurs when a build is triggered before the previous
             # one has finished (e.g. two webhooks, one after the other)
             if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
                 self.send_notifications()
