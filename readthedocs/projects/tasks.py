@@ -854,7 +854,7 @@ def update_static_metadata(project_pk, path=None):
         fh = open(path, 'w+')
         json.dump(metadata, fh)
         fh.close()
-        Syncer.copy(path, path, host=socket.gethostname(), file=True)
+        Syncer.copy(path, path, host=socket.gethostname(), is_file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
