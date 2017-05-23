@@ -4,7 +4,6 @@ import os
 import re
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
 
 
 SPHINX_TEMPLATE_DIR = os.path.join(settings.SITE_ROOT, 'readthedocs',

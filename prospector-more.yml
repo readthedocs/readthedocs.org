@@ -4,7 +4,6 @@ strictness: medium
 
 ignore-paths:
   - core/
-  - doc_builder/
   - donate/
   - projects/
   - redirects/
