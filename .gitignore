@@ -38,3 +38,4 @@ xml_output
 public_*
 private_*
 .rope_project/
+readthedocs/htmlcov
