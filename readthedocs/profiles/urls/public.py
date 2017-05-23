@@ -1,3 +1,5 @@
+"""URL patterns to view user profiles."""
+
 from django.conf.urls import url
 
 from readthedocs.profiles import views
