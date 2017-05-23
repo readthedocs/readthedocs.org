@@ -1,3 +1,5 @@
+"""Utility to purge MaxCDN files, if configured."""
+
 import logging
 
 from django.conf import settings
@@ -19,10 +21,12 @@ if CDN_USERNAME and CDN_KEY and CDN_SECRET and CDN_SERVICE == 'maxcdn':
     from maxcdn import MaxCDN
     api = MaxCDN(CDN_USERNAME, CDN_KEY, CDN_SECRET)
 
+    # pylint: disable=redefined-builtin
+
     def purge(id, files):
         # We can only purge up to 250 files per request
         for chunk in chunks(files, 200):
             return api.purge(id, chunk)
 else:
-    def purge(id, files):
+    def purge(*__):
         log.error("CDN not configured, can't purge files")

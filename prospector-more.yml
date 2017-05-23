@@ -3,12 +3,9 @@ inherits: prospector
 strictness: medium
 
 ignore-paths:
-  - cdn/
   - core/
   - doc_builder/
   - donate/
-  - notifications/
-  - profiles/
   - projects/
   - redirects/
   - restapi/

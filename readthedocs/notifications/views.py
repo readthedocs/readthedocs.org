@@ -1,3 +1,4 @@
+"""Django views for the notifications app."""
 from django.views.generic import FormView
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
@@ -51,7 +52,7 @@ class SendNotificationView(FormView):
         notification_cls = form.cleaned_data['source']
         for obj in self.get_queryset().all():
             for recipient in self.get_object_recipients(obj):
-                notification = notification_cls(object=obj,
+                notification = notification_cls(context_object=obj,
                                                 request=self.request,
                                                 user=recipient)
                 notification.send()
