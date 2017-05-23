@@ -1,3 +1,4 @@
+"""Endpoints relating to task/job status, etc."""
 import logging
 
 from django.core.urlresolvers import reverse

@@ -1,3 +1,4 @@
+"""Endpoints for listing Projects, Versions, Builds, etc."""
 import logging
 
 from django.shortcuts import get_object_or_404
@@ -12,7 +13,6 @@ from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.builds.constants import STABLE
 from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -29,6 +29,9 @@ log = logging.getLogger(__name__)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
+
+    """List, filter, etc. Projects."""
+
     permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
@@ -124,7 +127,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception, e:
-            log.exception("Sync Versions Error: %s" % e.message)
+            log.exception("Sync Versions Error: %s", e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
         promoted_version = project.update_stable_version()

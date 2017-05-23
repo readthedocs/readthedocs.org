@@ -1,3 +1,4 @@
+"""Utility endpoints relating to canonical urls, embedded content, etc."""
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response

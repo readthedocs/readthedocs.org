@@ -1,3 +1,4 @@
+"""Simple client to access our API with SLUMBER credentials."""
 import logging
 
 from slumber import API, serialize

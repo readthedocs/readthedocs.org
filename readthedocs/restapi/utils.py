@@ -1,7 +1,6 @@
+"""Utility functions that are used by both views and celery tasks."""
 import hashlib
 import logging
-
-import requests
 
 from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
 from readthedocs.builds.models import Version
@@ -10,7 +9,7 @@ from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
 log = logging.getLogger(__name__)
 
 
-def sync_versions(project, versions, type):
+def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
     # Bookkeeping for keeping tag/branch identifies correct
     verbose_names = [v['verbose_name'] for v in versions]
@@ -39,8 +38,8 @@ def sync_versions(project, versions, type):
                     type=type,
                     machine=False,
                 )
-                log.info("(Sync Versions) Updated Version: [%s=%s] " % (
-                    version['verbose_name'], version['identifier']))
+                log.info("(Sync Versions) Updated Version: [%s=%s] ",
+                         version['verbose_name'], version['identifier'])
         else:
             # New Version
             created_version = Version.objects.create(
@@ -51,7 +50,7 @@ def sync_versions(project, versions, type):
             )
             added.add(created_version.slug)
     if added:
-        log.info("(Sync Versions) Added Versions: [%s] " % ' '.join(added))
+        log.info("(Sync Versions) Added Versions: [%s] ", ' '.join(added))
     return added
 
 
@@ -72,7 +71,7 @@ def delete_versions(project, version_data):
 
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
-        log.info("(Sync Versions) Deleted Versions: [%s]" % ' '.join(ret_val))
+        log.info("(Sync Versions) Deleted Versions: [%s]", ' '.join(ret_val))
         to_delete_qs.delete()
         return ret_val
     else:
@@ -112,7 +111,7 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
     routes = [project.slug]
     routes.extend([p.parent.slug for p in project.superprojects.all()])
     for page in page_list:
-        log.debug("Indexing page: %s:%s" % (project.slug, page['path']))
+        log.debug("Indexing page: %s:%s", project.slug, page['path'])
         page_id = (hashlib
                    .md5('-'.join([project.slug, version.slug, page['path']]))
                    .hexdigest())

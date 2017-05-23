@@ -1,3 +1,4 @@
+"""Endpoints related to searching through projects, sections, etc."""
 import logging
 
 from rest_framework import decorators, permissions, status
