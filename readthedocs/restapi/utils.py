@@ -78,19 +78,13 @@ def delete_versions(project, version_data):
         return set()
 
 
-def index_search_request(version, page_list, commit, project_scale, page_scale,
-                         section=True, delete=True):
-    """Update search indexes with build output JSON
-
-    In order to keep sub-projects all indexed on the same shard, indexes will be
-    updated using the parent project's slug as the routing value.
-    """
-    project = version.project
-
-    log_msg = ' '.join([page['path'] for page in page_list])
+def log_page_list(project, page_list):
+    log_msg = ' '.join(page['path'] for page in page_list)
     log.info("Updating search index: project=%s pages=[%s]",
              project.slug, log_msg)
 
+
+def index_project(project, project_scale):
     project_obj = ProjectIndex()
     project_obj.index_document(data={
         'id': project.pk,
@@ -104,18 +98,76 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
         'weight': project_scale,
     })
 
+
+def index_pages(routes, index_list, project):
     page_obj = PageIndex()
-    section_obj = SectionIndex()
-    index_list = []
-    section_index_list = []
-    routes = [project.slug]
-    routes.extend([p.parent.slug for p in project.superprojects.all()])
+    for route in routes:
+        page_obj.bulk_index(index_list, parent=project.slug, routing=route)
+
+
+def delete_pages(version, commit, project):
+    page_obj = PageIndex()
+    log.info("Deleting files not in commit: %s", commit)
+    # TODO: AK Make sure this works
+    delete_query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"term": {"project": project.slug, }},
+                    {"term": {"version": version.slug, }},
+                ],
+                "must_not": {
+                    "term": {
+                        "commit": commit
+                    }
+                }
+            }
+        }
+    }
+    page_obj.delete_document(body=delete_query)
+
+
+class SectionIndexer(object):
+
+    """Stores section metadata. Wraps state between calls."""
+
+    def __init__(self):
+        self.section_index_list = []
+        self.section_obj = SectionIndex()
+
+    def __call__(self, page, project, version, page_scale, page_id, routes):
+        for section in page['sections']:
+            self.section_index_list.append({
+                'id': (hashlib
+                       .md5('-'.join([project.slug, version.slug,
+                                     page['path'], section['id']]))
+                       .hexdigest()),
+                'project': project.slug,
+                'version': version.slug,
+                'path': page['path'],
+                'page_id': section['id'],
+                'title': section['title'],
+                'content': section['content'],
+                'weight': page_scale,
+            })
+        for route in routes:
+            self.section_obj.bulk_index(self.section_index_list, parent=page_id,
+                                        routing=route)
+
+
+def generate_index_list(version, project, page_list, commit, project_scale,
+                        page_scale, routes, index_sections):
+    """Generate an index dict per page.
+
+    If requested, also index the relevant page sections.
+    """
+    section_indexer = SectionIndexer()
     for page in page_list:
         log.debug("Indexing page: %s:%s", project.slug, page['path'])
         page_id = (hashlib
                    .md5('-'.join([project.slug, version.slug, page['path']]))
                    .hexdigest())
-        index_list.append({
+        yield {
             'id': page_id,
             'project': project.slug,
             'version': version.slug,
@@ -126,45 +178,29 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
             'taxonomy': None,
             'commit': commit,
             'weight': page_scale + project_scale,
-        })
-        if section:
-            for sect in page['sections']:
-                section_index_list.append({
-                    'id': (hashlib
-                           .md5('-'.join([project.slug, version.slug,
-                                         page['path'], sect['id']]))
-                           .hexdigest()),
-                    'project': project.slug,
-                    'version': version.slug,
-                    'path': page['path'],
-                    'page_id': sect['id'],
-                    'title': sect['title'],
-                    'content': sect['content'],
-                    'weight': page_scale,
-                })
-            for route in routes:
-                section_obj.bulk_index(section_index_list, parent=page_id,
-                                       routing=route)
+        }
+        if index_sections:
+            section_indexer(page, project, version, page_scale, routes, page_id)
 
-    for route in routes:
-        page_obj.bulk_index(index_list, parent=project.slug, routing=route)
+
+def index_search_request(version, page_list, commit, project_scale, page_scale,
+                         section=True, delete=True):
+    """Update search indexes with build output JSON
+
+    In order to keep sub-projects all indexed on the same shard, indexes will be
+    updated using the parent project's slug as the routing value.
+    """
+    project = version.project
+    log_page_list(project, page_list)
+    routes = [project.slug]
+    routes.extend(p.parent.slug for p in project.superprojects.all())
+
+    index_project(project, project_scale)
+    index_list = list(generate_index_list(
+        version, project, page_list, commit, project_scale, page_scale,
+        routes, index_sections=section
+    ))
+    index_pages(routes, index_list, project)
 
     if delete:
-        log.info("Deleting files not in commit: %s", commit)
-        # TODO: AK Make sure this works
-        delete_query = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {"term": {"project": project.slug, }},
-                        {"term": {"version": version.slug, }},
-                    ],
-                    "must_not": {
-                        "term": {
-                            "commit": commit
-                        }
-                    }
-                }
-            }
-        }
-        page_obj.delete_document(body=delete_query)
+        delete_pages(version, commit, project)
