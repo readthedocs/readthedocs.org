@@ -17,7 +17,6 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import cache_control
 from django.views.generic import ListView, DetailView
-from django.views.decorators.cache import cache_page
 
 from taggit.models import Tag
 import requests

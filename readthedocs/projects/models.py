@@ -7,7 +7,6 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import MultipleObjectsReturned
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -877,6 +876,9 @@ class WebHook(Notification):
 
 
 class Domain(models.Model):
+
+    """A custom domain name for a project."""
+
     project = models.ForeignKey(Project, related_name='domains')
     domain = models.CharField(_('Domain'), unique=True, max_length=255,
                               validators=[validate_domain_name])
