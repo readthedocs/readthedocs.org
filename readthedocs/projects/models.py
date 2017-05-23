@@ -18,8 +18,8 @@ from readthedocs.api.client import api
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
-from readthedocs.privacy.loader import (RelatedProjectManager, ProjectManager,
-                                        ChildRelatedProjectManager)
+from readthedocs.privacy.loader import (RelatedProjectQuerySet, ProjectQuerySet,
+                                        ChildRelatedProjectQuerySet)
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -56,7 +56,7 @@ class ProjectRelationship(models.Model):
                               related_name='superprojects')
     alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
 
-    objects = ChildRelatedProjectManager()
+    objects = ChildRelatedProjectQuerySet.as_manager()
 
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
@@ -275,7 +275,7 @@ class Project(models.Model):
     )
 
     tags = TaggableManager(blank=True)
-    objects = ProjectManager()
+    objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
 
     class Meta:
@@ -854,7 +854,7 @@ class ImportedFile(models.Model):
 class Notification(models.Model):
     project = models.ForeignKey(Project,
                                 related_name='%(class)s_notifications')
-    objects = RelatedProjectManager()
+    objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
         abstract = True
@@ -899,7 +899,7 @@ class Domain(models.Model):
     )
     count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
 
-    objects = RelatedProjectManager()
+    objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
         ordering = ('-canonical', '-machine', 'domain')
