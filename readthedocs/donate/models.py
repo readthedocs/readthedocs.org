@@ -167,7 +167,6 @@ class SupporterPromo(models.Model):
         return self.text.replace('<a>', "<a href='%s'>" % self.link)
 
 
-@python_2_unicode_compatible
 class BaseImpression(models.Model):
     date = models.DateField(_('Date'))
     offers = models.IntegerField(_('Offer'), default=0)
