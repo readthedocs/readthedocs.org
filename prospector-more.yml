@@ -10,7 +10,6 @@ ignore-paths:
   - notifications/
   - privacy/
   - profiles/
-  - projects/
   - redirects/
   - restapi/
   - search/

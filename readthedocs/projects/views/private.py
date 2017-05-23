@@ -5,7 +5,6 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
                          Http404, HttpResponseBadRequest)
@@ -176,7 +175,7 @@ def project_version_detail(request, project_slug, version_slug):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version %s' % version.slug)
+                log.info('Removing files for version %s', version.slug)
                 broadcast(type='app', task=tasks.clear_artifacts, args=[version.pk])
                 version.built = False
                 version.save()
