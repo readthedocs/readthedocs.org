@@ -1,3 +1,4 @@
+"""Mock versions of many API-related classes."""
 from contextlib import contextmanager
 import json
 import mock
@@ -14,6 +15,7 @@ class ProjectData(object):
 
 
 def mock_version(repo):
+    """Construct and return a class implementing the Version interface."""
     class MockVersion(object):
         def __init__(self, x=None):
             pass
@@ -22,6 +24,7 @@ def mock_version(repo):
             return x
 
         def get(self, **kwargs):
+            """Returns mock data to emulate real Version objects."""
             # SCIENTIST DOG
             version = json.loads("""
                 {
@@ -76,13 +79,13 @@ class MockApi(object):
     def __init__(self, repo):
         self.version = mock_version(repo)
 
-    def project(self, x):
+    def project(self, _):
         return ProjectData()
 
-    def build(self, x):
+    def build(self, _):
         return mock.Mock(**{'get.return_value': {'id': 123, 'state': 'triggered'}})
 
-    def command(self, x):
+    def command(self, _):
         return mock.Mock(**{'get.return_value': {}})
 
 
