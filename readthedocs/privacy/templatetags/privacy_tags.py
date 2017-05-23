@@ -1,3 +1,5 @@
+"""Template tags to query projects by privacy."""
+
 from django import template
 
 from ..loader import AdminPermission
