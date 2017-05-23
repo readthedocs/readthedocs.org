@@ -9,7 +9,6 @@ ignore-paths:
   - donate/
   - notifications/
   - privacy/
-  - profiles/
   - redirects/
   - restapi/
   - search/
