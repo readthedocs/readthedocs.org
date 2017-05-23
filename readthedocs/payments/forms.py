@@ -5,7 +5,6 @@ import logging
 from stripe.resource import Customer, Charge
 from stripe.error import InvalidRequestError
 from django import forms
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from .utils import stripe
