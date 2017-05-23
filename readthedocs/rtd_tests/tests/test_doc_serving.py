@@ -63,8 +63,8 @@ class TestPrivateDocs(BaseDocServing):
         request = self.request(self.private_url, user=self.eric)
         with self.assertRaises(Http404) as exc:
             _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
-        self.assertTrue('private_web_root' in exc.exception.message)
-        self.assertTrue('public_web_root' not in exc.exception.message)
+        self.assertTrue('private_web_root' in str(exc.exception))
+        self.assertTrue('public_web_root' not in str(exc.exception))
 
 
 @override_settings(SERVE_DOCS=[constants.PRIVATE, constants.PUBLIC])
@@ -97,5 +97,5 @@ class TestPublicDocs(BaseDocServing):
         request = self.request(self.private_url, user=self.eric)
         with self.assertRaises(Http404) as exc:
             _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='public')
-        self.assertTrue('private_web_root' not in exc.exception.message)
-        self.assertTrue('public_web_root' in exc.exception.message)
+        self.assertTrue('private_web_root' not in str(exc.exception))
+        self.assertTrue('public_web_root' in str(exc.exception))
