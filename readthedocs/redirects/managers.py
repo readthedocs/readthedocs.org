@@ -1,3 +1,5 @@
+"""Manager and queryset for the redirects app."""
+
 from django.db.models import Manager
 from django.db.models.query import QuerySet
 
