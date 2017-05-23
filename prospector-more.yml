@@ -13,7 +13,6 @@ ignore-paths:
   - projects/
   - redirects/
   - restapi/
-  - rtd_tests/
   - search/
 
 pylint:

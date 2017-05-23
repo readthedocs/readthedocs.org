@@ -1,3 +1,4 @@
+"""Utility functions for use in tests."""
 import logging
 from os import chdir, environ, getcwd
 from os.path import abspath, join as pjoin
