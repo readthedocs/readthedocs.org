@@ -12,7 +12,6 @@ ignore-paths:
   - profiles/
   - projects/
   - redirects/
-  - restapi/
   - search/
 
 pylint:

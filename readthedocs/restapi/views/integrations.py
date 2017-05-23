@@ -1,3 +1,4 @@
+"""Endpoints integrating with Github, Bitbucket, and other webhooks."""
 import json
 import logging
 
@@ -5,10 +6,9 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException, ParseError, NotFound
+from rest_framework.exceptions import ParseError, NotFound
 
 from django.shortcuts import get_object_or_404
-from django.http import Http404
 
 from readthedocs.core.views.hooks import build_branches
 from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
@@ -27,12 +27,14 @@ BITBUCKET_PUSH = 'repo:push'
 
 class WebhookMixin(object):
 
+    """Base class for Webhook mixins."""
+
     permission_classes = (permissions.AllowAny,)
     renderer_classes = (JSONRenderer,)
     integration = None
     integration_type = None
 
-    def post(self, request, project_slug, format=None):
+    def post(self, request, project_slug):
         """Set up webhook post view with request and project objects"""
         self.request = request
         self.project = None

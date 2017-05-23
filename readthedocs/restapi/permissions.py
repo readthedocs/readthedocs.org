@@ -1,3 +1,4 @@
+"""Defines access permissions for the API."""
 from rest_framework import permissions
 from readthedocs.privacy.backend import AdminPermission
 
