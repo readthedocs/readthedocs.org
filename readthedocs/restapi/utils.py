@@ -128,18 +128,18 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
             'weight': page_scale + project_scale,
         })
         if section:
-            for section in page['sections']:
+            for sect in page['sections']:
                 section_index_list.append({
                     'id': (hashlib
                            .md5('-'.join([project.slug, version.slug,
-                                         page['path'], section['id']]))
+                                         page['path'], sect['id']]))
                            .hexdigest()),
                     'project': project.slug,
                     'version': version.slug,
                     'path': page['path'],
-                    'page_id': section['id'],
-                    'title': section['title'],
-                    'content': section['content'],
+                    'page_id': sect['id'],
+                    'title': sect['title'],
+                    'content': sect['content'],
                     'weight': page_scale,
                 })
             for route in routes:
