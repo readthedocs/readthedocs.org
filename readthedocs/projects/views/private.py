@@ -34,7 +34,7 @@ from readthedocs.projects.forms import (
     ProjectAdvertisingForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects import constants, tasks
+from readthedocs.projects import tasks
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
 
