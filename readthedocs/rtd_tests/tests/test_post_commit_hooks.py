@@ -447,12 +447,12 @@ class BitBucketHookTests(BasePostCommitTest):
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
         self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Commits/Banches not found')
+        self.assertEqual(r.content, 'Commit/branch not found')
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
         self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Commits/Banches not found')
+        self.assertEqual(r.content, 'Commit/branch not found')
 
 
     def test_bitbucket_post_commit_non_existent_url(self):

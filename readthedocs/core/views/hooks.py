@@ -283,11 +283,11 @@ def bitbucket_build(request):
             return _build_url(search_url, projects, branches)
         elif not branches:
             log.error(
-                'Commits/Banches not found url=%s branches=%s',
+                'Commit/branch not found url=%s branches=%s',
                 search_url,
                 branches
             )
-            return HttpResponseNotFound('Commits/Banches not found')
+            return HttpResponseNotFound('Commit/branch not found')
         else:
             log.error('Project match not found: url=%s', search_url)
             return HttpResponseNotFound('Project match not found')
