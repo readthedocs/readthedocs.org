@@ -160,7 +160,7 @@ class StripeModelForm(forms.ModelForm):
             error_field = field_lookup.get(e.param, None)
             self.add_error(
                 error_field,
-                forms.ValidationError(e.message),
+                forms.ValidationError(str(e)),
             )
         except stripe.error.StripeError as e:
             log.error('There was a problem communicating with Stripe: %s',

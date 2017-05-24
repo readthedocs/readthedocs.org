@@ -31,7 +31,7 @@ def get_status_data(task_name, state, data, error=None):
         'success': state in SUCCESS_STATES,
     }
     if error is not None and isinstance(error, Exception):
-        data['error'] = error.message
+        data['error'] = str(error)
     return data
 
 

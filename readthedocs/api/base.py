@@ -95,7 +95,7 @@ class ProjectResource(ModelResource, SearchMixin):
         except Exception as e:
             return self.create_response(
                 request,
-                {'exception': e.message},
+                {'exception': str(e)},
                 response_class=HttpApplicationError,
             )
         return self.create_response(request, deleted_versions)
