@@ -25,9 +25,8 @@ You can enable it by creating a `readthedocs.yml` file in the root of your repos
 This Conda environment will also have Sphinx and other build time dependencies installed.
 It will use the same order of operations that we support currently:
 
-* Environment Creation (``conda create``)
+* Environment Creation (``conda env create``)
 * Dependency Installation (Sphinx)
-* User Package Installation (``conda env update``)
 
 Custom Installs
 ---------------

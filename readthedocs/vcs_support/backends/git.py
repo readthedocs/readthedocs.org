@@ -1,3 +1,4 @@
+"""Git-related utilities."""
 import re
 import logging
 import csv
@@ -17,6 +18,9 @@ log = logging.getLogger(__name__)
 
 
 class Backend(BaseVCS):
+
+    """Git VCS backend."""
+
     supports_tags = True
     supports_branches = True
     fallback_branch = 'master'  # default branch
@@ -48,11 +52,11 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, out, err = self.run('git', 'status')
+        code, _, _ = self.run('git', 'status')
         return code == 0
 
     def fetch(self):
-        code, out, err = self.run('git', 'fetch', '--tags', '--prune')
+        code, _, err = self.run('git', 'fetch', '--tags', '--prune')
         if code != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s\n\nStderr:\n\n%s\n\n" % (
@@ -67,13 +71,13 @@ class Backend(BaseVCS):
         code, out, err = self.run('git', 'checkout',
                                   '--force', '--quiet', revision)
         if code != 0:
-            log.warning("Failed to checkout revision '%s': %s" % (
-                revision, code))
+            log.warning("Failed to checkout revision '%s': %s",
+                        revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, out, err = self.run('git', 'clone', '--recursive', '--quiet',
-                                  self.repo_url, '.')
+        code, _, err = self.run('git', 'clone', '--recursive', '--quiet',
+                                self.repo_url, '.')
         if code != 0:
             raise ProjectImportError(
                 (
@@ -88,7 +92,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, err = self.run('git', 'show-ref', '--tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -123,7 +127,7 @@ class Backend(BaseVCS):
     @property
     def branches(self):
         # Only show remote branches
-        retcode, stdout, err = self.run('git', 'branch', '-r')
+        retcode, stdout, _ = self.run('git', 'branch', '-r')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -163,7 +167,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        retcode, stdout, err = self.run('git', 'rev-parse', 'HEAD')
+        _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
         return stdout.strip()
 
     def checkout(self, identifier=None):
@@ -210,7 +214,7 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, out, err = self.run('git', 'show-ref', ref)
+        code, _, _ = self.run('git', 'show-ref', ref)
         return code == 0
 
     @property

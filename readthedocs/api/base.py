@@ -1,9 +1,9 @@
+"""API resources"""
 import logging
 import json
 import redis
 
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.conf.urls import url
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
@@ -16,7 +16,7 @@ from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project, ImportedFile
 
@@ -26,6 +26,9 @@ log = logging.getLogger(__name__)
 
 
 class ProjectResource(ModelResource, SearchMixin):
+
+    """API resource for Project model."""
+
     users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
 
     class Meta(object):
@@ -114,6 +117,9 @@ class ProjectResource(ModelResource, SearchMixin):
 
 
 class VersionResource(ModelResource):
+
+    """API resource for Version model."""
+
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta(object):
@@ -158,6 +164,9 @@ class VersionResource(ModelResource):
 
 
 class FileResource(ModelResource, SearchMixin):
+
+    """API resource for ImportedFile model."""
+
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
     class Meta(object):
@@ -185,7 +194,7 @@ class FileResource(ModelResource, SearchMixin):
                 name="api_get_anchor"),
         ]
 
-    def get_anchor(self, request, **kwargs):
+    def get_anchor(self, request, **__):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)
@@ -206,6 +215,8 @@ class FileResource(ModelResource, SearchMixin):
 
 
 class UserResource(ModelResource):
+
+    """Read-only API resource for User model."""
 
     class Meta(object):
         allowed_methods = ['get']

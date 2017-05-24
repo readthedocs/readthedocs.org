@@ -107,8 +107,8 @@ class UpdateDocsTask(Task):
                          version=self.version.slug,
                          msg=msg))
 
-    def run(self, pk, version_pk=None, build_pk=None, record=True, docker=False,
-            search=True, force=False, localmedia=True, **kwargs):
+    def run(self, pk, version_pk=None, build_pk=None, record=True,
+            docker=False, search=True, force=False, localmedia=True, **__):
 
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
@@ -118,9 +118,22 @@ class UpdateDocsTask(Task):
         self.build_force = force
         self.config = None
 
-        env_cls = LocalEnvironment
-        self.setup_env = env_cls(project=self.project, version=self.version,
-                                 build=self.build, record=record)
+        setup_successful = self.run_setup(record=record)
+        if setup_successful:
+            self.run_build(record=record, docker=docker)
+
+    def run_setup(self, record=True):
+        """Run setup in the local environment.
+
+        Return True if successful.
+
+        """
+        self.setup_env = LocalEnvironment(
+            project=self.project,
+            version=self.version,
+            build=self.build,
+            record=record
+        )
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
@@ -145,16 +158,34 @@ class UpdateDocsTask(Task):
 
         if self.setup_env.failure or self.config is None:
             self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
-            self.send_notifications()
+
+            # Send notification to users only if the build didn't fail because of
+            # LockTimeout: this exception occurs when a build is triggered before the previous
+            # one has finished (e.g. two webhooks, one after the other)
+            if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
+                self.send_notifications()
+
             self.setup_env.update_build(state=BUILD_STATE_FINISHED)
-            return None
+            return False
 
         if self.setup_env.successful and not self.project.has_valid_clone:
             self.set_valid_clone()
 
+        return True
+
+    def run_build(self, docker=False, record=True):
+        """Build the docs in an environment.
+
+        If `docker` is True, or Docker is enabled by the settings.DOCKER_ENABLE
+        setting, then build in a Docker environment. Otherwise build locally.
+
+        """
         env_vars = self.get_env_vars()
+
         if docker or settings.DOCKER_ENABLE:
             env_cls = DockerEnvironment
+        else:
+            env_cls = LocalEnvironment
         self.build_env = env_cls(project=self.project, version=self.version,
                                  build=self.build, record=record, environment=env_vars)
 
@@ -502,7 +533,7 @@ def update_imported_docs(version_pk):
         try:
             api_v2.project(project.pk).sync_versions.post(version_post_data)
         except HttpClientError as e:
-            log.error("Sync Versions Exception: %s" % e.content)
+            log.error("Sync Versions Exception: %s", e.content)
         except Exception as e:
             log.error("Unknown Sync Versions Exception", exc_info=True)
     return ret_dict
@@ -740,8 +771,8 @@ def _manage_imported_files(version, path, commit):
                                 ).exclude(commit=commit).delete()
     # Purge Cache
     changed_files = [resolve_path(
-        version.project, filename=file, version_slug=version.slug,
-    ) for file in changed_files]
+        version.project, filename=fname, version_slug=version.slug,
+    ) for fname in changed_files]
     cdn_ids = getattr(settings, 'CDN_IDS', None)
     if cdn_ids:
         if version.project.slug in cdn_ids:
@@ -854,7 +885,7 @@ def update_static_metadata(project_pk, path=None):
         fh = open(path, 'w+')
         json.dump(metadata, fh)
         fh.close()
-        Syncer.copy(path, path, host=socket.gethostname(), file=True)
+        Syncer.copy(path, path, host=socket.gethostname(), is_file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,

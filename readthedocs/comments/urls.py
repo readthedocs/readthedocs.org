@@ -1,4 +1,6 @@
-from django.conf.urls import url, include
+"""URL configuration for comments app."""
+
+from django.conf.urls import url
 
 from readthedocs.comments import views
 

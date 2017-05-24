@@ -3,6 +3,7 @@
 *.pyc
 *.swp
 .DS_Store
+.cache
 .coverage
 .idea
 .vagrant
@@ -37,3 +38,4 @@ xml_output
 public_*
 private_*
 .rope_project/
+readthedocs/htmlcov
