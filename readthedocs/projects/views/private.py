@@ -179,6 +179,7 @@ def project_version_detail(request, project_slug, version_slug):
                 log.info('Removing files for version %s' % version.slug)
                 broadcast(type='app', task=tasks.clear_artifacts, args=[version.pk])
                 version.built = False
+                version.machine = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
