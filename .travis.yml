@@ -6,6 +6,7 @@ env:
  - TOX_ENV=py27
  - TOX_ENV=docs
  - TOX_ENV=lint
+ - TOX_ENV=eslint
 cache:
   directories:
     - ~/.cache/pip
@@ -20,7 +21,6 @@ install:
  - bower install
 script:
  - tox -e $TOX_ENV
- - gulp lint
 notifications:
   slack:
     rooms:
