@@ -333,14 +333,14 @@ class CommunityBaseSettings(Settings):
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
 
     # Logging
-    LOG_FORMAT = '%(name)s[%(process)d]: %(levelname)s %(message)s [%(name)s:%(lineno)s]'
+    LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': True,
         'formatters': {
             'default': {
                 'format': LOG_FORMAT,
-                'datefmt': "%d/%b/%Y %H:%M:%S"
+                'datefmt': '%d/%b/%Y %H:%M:%S',
             },
         },
         'handlers': {

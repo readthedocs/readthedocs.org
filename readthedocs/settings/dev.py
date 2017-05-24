@@ -51,6 +51,12 @@ class CommunityDevSettings(CommunityBaseSettings):
         'test:8000',
     )
 
+    @property
+    def LOGGING(self):
+        logging = super(CommunityDevSettings, self).LOGGING
+        logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        return logging
+
 
 CommunityDevSettings.load_settings(__name__)
 
