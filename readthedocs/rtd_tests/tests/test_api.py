@@ -18,8 +18,8 @@ from readthedocs.projects.models import Project
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
-super_auth = base64.b64encode(b'super:test')
-eric_auth = base64.b64encode(b'eric:test')
+super_auth = base64.b64encode(b'super:test').decode('utf-8')
+eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 
 
 class APIBuildTests(TestCase):
@@ -179,7 +179,7 @@ class APITests(TestCase):
         resp = self.client.post(
             '/api/v1/project/', data=json.dumps(post_data),
             content_type='application/json',
-            HTTP_AUTHORIZATION=u'Basic %s' % base64.b64encode(b'tester:notapass')
+            HTTP_AUTHORIZATION=u'Basic %s' % base64.b64encode(b'tester:notapass').decode('utf-8')
         )
         self.assertEqual(resp.status_code, 401)
 
@@ -197,7 +197,7 @@ class APITests(TestCase):
             '/api/v1/project/',
             data=json.dumps(post_data),
             content_type='application/json',
-            HTTP_AUTHORIZATION=u'Basic %s' % base64.b64encode(b'tester:test')
+            HTTP_AUTHORIZATION=u'Basic %s' % base64.b64encode(b'tester:test').decode('utf-8')
         )
         self.assertEqual(resp.status_code, 401)
 
