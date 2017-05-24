@@ -7,7 +7,6 @@ Sphinx==1.5.3
 sphinx_rtd_theme==0.2.4
 Pygments==2.2.0
 mkdocs==0.14.0
-readthedocs-build==2.0.6
 django==1.9.12
 
 django-tastypie==0.13.0
@@ -76,3 +75,5 @@ nilsimsa==0.3.7
 # Pegged git requirements
 git+https://github.com/zyga/django-pagination.git@86caf15#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
+# readthedocs-build is only pegged until the next release comes out
+git+https://github.com/rtfd/readthedocs-build.git@864892c17c370c72865c3717c18370368e3e0635#egg=readthedocs-build
