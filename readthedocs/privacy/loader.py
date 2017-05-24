@@ -13,8 +13,8 @@ from readthedocs.privacy import backend
 from readthedocs.privacy.backends import syncers
 
 
-class ProjectManager(SettingsOverrideObject):
-    _default_class = backend.ProjectManager
+class ProjectQuerySet(SettingsOverrideObject):
+    _default_class = backend.ProjectQuerySet
     _override_setting = 'PROJECT_MANAGER'
 
 
@@ -24,28 +24,28 @@ class VersionManager(SettingsOverrideObject):
     _override_setting = 'VERSION_MANAGER'
 
 
-class BuildManager(SettingsOverrideObject):
-    _default_class = backend.BuildManager
+class BuildQuerySet(SettingsOverrideObject):
+    _default_class = backend.BuildQuerySet
     _override_setting = 'BUILD_MANAGER'
 
 
-class RelatedProjectManager(SettingsOverrideObject):
-    _default_class = backend.RelatedProjectManager
+class RelatedProjectQuerySet(SettingsOverrideObject):
+    _default_class = backend.RelatedProjectQuerySet
     _override_setting = 'RELATED_PROJECT_MANAGER'
 
 
-class RelatedBuildManager(SettingsOverrideObject):
-    _default_class = backend.RelatedBuildManager
+class RelatedBuildQuerySet(SettingsOverrideObject):
+    _default_class = backend.RelatedBuildQuerySet
     _override_setting = 'RELATED_BUILD_MANAGER'
 
 
-class RelatedUserManager(SettingsOverrideObject):
-    _default_class = backend.RelatedUserManager
+class RelatedUserQuerySet(SettingsOverrideObject):
+    _default_class = backend.RelatedUserQuerySet
     _override_setting = 'RELATED_USER_MANAGER'
 
 
-class ChildRelatedProjectManager(SettingsOverrideObject):
-    _default_class = backend.ChildRelatedProjectManager
+class ChildRelatedProjectQuerySet(SettingsOverrideObject):
+    _default_class = backend.ChildRelatedProjectQuerySet
     _override_setting = 'CHILD_RELATED_PROJECT_MANAGER'
 
 
