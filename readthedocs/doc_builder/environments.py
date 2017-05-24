@@ -416,7 +416,7 @@ class BuildEnvironment(object):
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
-            if isinstance(val, six.string_types):
+            if isinstance(val, six.binary_type):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
         try:
