@@ -1,3 +1,5 @@
+"""Permission checks for tasks"""
+
 __all__ = ('user_id_matches',)
 
 

@@ -62,8 +62,7 @@ def restructuredtext(value, short=False):
                 out = out.split("\n")[0]
         except IndexError:
             pass
-        finally:
-            return mark_safe(out)
+        return mark_safe(out)
 
 
 @register.filter

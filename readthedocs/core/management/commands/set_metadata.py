@@ -1,3 +1,5 @@
+"""Generate metadata for all projects"""
+
 import logging
 
 from django.core.management.base import BaseCommand
@@ -9,6 +11,9 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
+    help = __doc__
+
     def handle(self, *args, **options):
         queryset = Project.objects.all()
         for p in queryset:

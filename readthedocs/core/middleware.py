@@ -29,7 +29,15 @@ SINGLE_VERSION_URLCONF = getattr(
 
 class SubdomainMiddleware(object):
 
+    """Middleware to display docs for non-dashboard domains"""
+
     def process_request(self, request):
+        """Process requests for unhandled domains
+
+        If the request is not for our ``PUBLIC_DOMAIN``, or if ``PUBLIC_DOMAIN``
+        is not set and the request is for a subdomain on ``PRODUCTION_DOMAIN``,
+        process the request as a request a documentation project.
+        """
         if not getattr(settings, 'USE_SUBDOMAIN', False):
             return None
 

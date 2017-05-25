@@ -1,3 +1,11 @@
+"""
+Build documentation using the API and not hitting a database.
+
+Usage::
+
+    ./manage.py update_api <slug>
+"""
+
 import logging
 
 from django.core.management.base import BaseCommand
@@ -10,13 +18,7 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
-    """
-    Build documentation using the API and not hitting a database.
-
-    Usage::
-
-        ./manage.py update_api <slug>
-    """
+    help = __doc__
 
     def add_arguments(self, parser):
         parser.add_argument('--docker', action='store_true', default=False)

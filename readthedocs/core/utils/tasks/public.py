@@ -1,3 +1,5 @@
+"""Celery tasks with publicly viewable status"""
+
 from celery import Task, states
 from django.conf import settings
 
@@ -26,6 +28,7 @@ class PublicTask(Task):
     @classmethod
     def check_permission(cls, request, state, context):
         """Override this method to define who can monitor this task."""
+        # pylint: disable=unused-argument
         return False
 
     def get_task_data(self):

@@ -27,7 +27,7 @@ class UserProfileForm(forms.ModelForm):
         try:
             self.fields['first_name'].initial = self.instance.user.first_name
             self.fields['last_name'].initial = self.instance.user.last_name
-        except:
+        except AttributeError:
             pass
 
     def save(self, *args, **kwargs):

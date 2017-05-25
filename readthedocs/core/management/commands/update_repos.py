@@ -1,3 +1,9 @@
+"""
+Custom management command to rebuild documentation for all projects.
+
+Invoked via ``./manage.py update_repos``.
+"""
+
 import logging
 from optparse import make_option
 
@@ -12,12 +18,9 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
-    """
-    Custom management command to rebuild documentation for all projects.
+    """Management command for rebuilding documentation on projects"""
 
-    Invoked via ``./manage.py update_repos``.
-    """
-
+    help = __doc__
     option_list = BaseCommand.option_list + (
         make_option('-r',
                     action='store_true',
@@ -71,7 +74,3 @@ class Command(BaseCommand):
                 for project in Project.objects.all():
                     tasks.update_docs.run(pk=project.pk, record=record,
                                           force=force)
-
-    @property
-    def help(self):
-        return Command.__doc__
