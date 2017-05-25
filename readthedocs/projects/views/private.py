@@ -22,7 +22,6 @@ from vanilla import CreateView, DeleteView, UpdateView, DetailView, GenericView
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.models import Version
 from readthedocs.builds.forms import AliasForm, VersionForm
-from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
@@ -35,7 +34,7 @@ from readthedocs.projects.forms import (
     ProjectAdvertisingForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects import constants, tasks
+from readthedocs.projects import tasks
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
 
@@ -61,9 +60,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
-        version_filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS,
-                                       queryset=self.get_queryset())
-        context['filter'] = version_filter
 
         bookmarks = Bookmark.objects.filter(user=self.request.user)
 
