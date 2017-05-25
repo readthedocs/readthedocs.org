@@ -1,3 +1,6 @@
+"""Exceptions raised when building documentation."""
+
+
 class BuildEnvironmentException(Exception):
 
     def __init__(self, *args, **kwargs):

@@ -1,9 +1,10 @@
+"""An API to load config from a readthedocs.yml file."""
+
 from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
 
 
 from .constants import BUILD_IMAGES, DOCKER_IMAGE
-from readthedocs.projects.exceptions import ProjectImportError
 
 
 class ConfigWrapper(object):

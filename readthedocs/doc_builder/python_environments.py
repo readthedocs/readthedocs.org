@@ -1,3 +1,5 @@
+"""An abstraction over virtualenv and Conda environments."""
+
 import logging
 import os
 import shutil
@@ -12,6 +14,8 @@ log = logging.getLogger(__name__)
 
 
 class PythonEnvironment(object):
+
+    """An isolated environment into which Python packages can be installed."""
 
     def __init__(self, version, build_env, config=None):
         self.version = version
@@ -83,6 +87,12 @@ class PythonEnvironment(object):
 
 class Virtualenv(PythonEnvironment):
 
+    """A virtualenv_ environment.
+
+    .. _virtualenv: https://virtualenv.pypa.io/
+
+    """
+
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
@@ -101,6 +111,7 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_core_requirements(self):
+        """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
             'sphinx==1.5.3',
             'Pygments==2.2.0',
@@ -166,6 +177,12 @@ class Virtualenv(PythonEnvironment):
 
 class Conda(PythonEnvironment):
 
+    """A Conda_ environment.
+
+    .. _Conda: https://conda.io/docs/
+
+    """
+
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
@@ -189,7 +206,7 @@ class Conda(PythonEnvironment):
         )
 
     def install_core_requirements(self):
-
+        """Install basic Read the Docs requirements into the Conda env."""
         # Use conda for requirements it packages
         requirements = [
             'sphinx',
