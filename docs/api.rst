@@ -44,9 +44,6 @@ Alternatively you can try with the following value::
     #val = api.version('pip').get()
     #val = api.version('pip').get(slug='1.0.1')
 
-    #val = api.version('pip').highest.get()
-    #val = api.version('pip').highest('0.8').get()
-
 
 API Endpoints
 -------------
@@ -484,59 +481,6 @@ Version
 Filtering Examples
 ------------------
 
-Find Highest Version
-~~~~~~~~~~~~~~~~~~~~
-::
-
-    http://readthedocs.org/api/v1/version/pip/highest/?format=json
-    
-.. http:get::  /api/v1/version/{id}/highest/
-
-   :arg id: A Version id.
-
-    Retrieve highest version.
-
-   .. sourcecode:: js
-
-      {
-          "is_highest": true, 
-          "project": "Version 1.0.1 of pip (5476)", 
-          "slug": [
-              "1.0.1"
-          ], 
-          "url": "/docs/pip/en/1.0.1/", 
-          "version": "1.0.1"
-      }
-
-
-Compare Highest Version
-~~~~~~~~~~~~~~~~~~~~~~~
-
-This will allow you to compare whether a certain version is the highest version of a specific project. The below query should return a `'is_highest': false` in the returned dictionary.
-
-::
-
-    http://readthedocs.org/api/v1/version/pip/highest/0.8/?format=json 
-
-.. http:get::  /api/v1/version/{id}/highest/{version}
-
-   :arg id: A Version id.
-   :arg version: A Version number or string.
-
-    Retrieve highest version.
-
-   .. sourcecode:: js
-
-      {
-          "is_highest": false, 
-          "project": "Version 1.0.1 of pip (5476)", 
-          "slug": [
-              "1.0.1"
-          ], 
-          "url": "/docs/pip/en/1.0.1/", 
-          "version": "1.0.1"
-      }
- 
 
 File Search
 ~~~~~~~~~~~

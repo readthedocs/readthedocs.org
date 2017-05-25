@@ -207,33 +207,6 @@ class APITests(TestCase):
         resp = self.client.get("/api/v1/project/", data={"format": "json"})
         self.assertEqual(resp.status_code, 200)
 
-    def test_not_highest(self):
-        resp = self.client.get(
-            "http://testserver/api/v1/version/read-the-docs/highest/0.2.1/",
-            data={"format": "json"}
-        )
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['is_highest'], False)
-
-    def test_latest_version_highest(self):
-        resp = self.client.get(
-            "http://testserver/api/v1/version/read-the-docs/highest/latest/",
-            data={"format": "json"}
-        )
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['is_highest'], True)
-
-    def test_real_highest(self):
-        resp = self.client.get(
-            "http://testserver/api/v1/version/read-the-docs/highest/0.2.2/",
-            data={"format": "json"}
-        )
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['is_highest'], True)
-
 
 class APIImportTests(TestCase):
 

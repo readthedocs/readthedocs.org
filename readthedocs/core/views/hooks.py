@@ -281,8 +281,15 @@ def bitbucket_build(request):
         )
         log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
         projects = get_project_from_url(search_url)
-        if projects:
+        if projects and branches:
             return _build_url(search_url, projects, branches)
+        elif not branches:
+            log.error(
+                'Commit/branch not found url=%s branches=%s',
+                search_url,
+                branches
+            )
+            return HttpResponseNotFound('Commit/branch not found')
         else:
             log.error('Project match not found: url=%s', search_url)
             return HttpResponseNotFound('Project match not found')

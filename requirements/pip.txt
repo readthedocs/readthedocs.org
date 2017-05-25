@@ -18,7 +18,6 @@ django-extensions==1.7.4
 djangorestframework==3.5.4
 django-vanilla-views==1.0.4
 jsonfield==1.0.3
-pytest-django==2.8.0
 
 requests==2.3.0
 slumber==0.6.0
@@ -58,7 +57,6 @@ docker-py==1.3.1
 django-textclassifier==1.0
 django-annoying==0.10.1
 django-messages-extends==0.5
-django-filter==1.0.1
 djangorestframework-jsonp==1.0.2
 
 # Docs

@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext_noop
 from docker import Client
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
-from rest_framework.renderers import JSONRenderer
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
@@ -22,7 +21,6 @@ from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
-from readthedocs.restapi.serializers import BuildCommandSerializer
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
@@ -32,6 +30,13 @@ from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         MKDOCS_TEMPLATE_DIR, DOCKER_HOSTNAME_MAX_LEN)
 
 log = logging.getLogger(__name__)
+
+
+__all__ = (
+    'api_v1', 'api_v2',
+    'BuildCommand', 'DockerBuildCommand',
+    'BuildEnvironment', 'LocalEnvironment', 'DockerEnvironment',
+)
 
 
 class BuildCommand(BuildCommandResultMixin):
@@ -420,7 +425,7 @@ class BuildEnvironment(object):
         try:
             api_v2.build(self.build['id']).put(self.build)
         except HttpClientError as e:
-            log.error("Unable to post a new build: %s" % e.content)
+            log.error("Unable to post a new build: %s", e.content)
         except Exception:
             log.error("Unknown build exception", exc_info=True)
 

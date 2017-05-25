@@ -3,19 +3,8 @@ inherits: prospector
 strictness: medium
 
 ignore-paths:
-  - api/
-  - cdn/
-  - comments/
-  - doc_builder/
   - donate/
-  - notifications/
-  - payments/
-  - privacy/
-  - profiles/
-  - projects/
-  - redirects/
   - restapi/
-  - rtd_tests/
   - search/
 
 pylint:

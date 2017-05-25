@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get, new
 
 from corsheaders.middleware import CorsMiddleware
+from mock import patch
 
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Project, Domain
@@ -95,10 +96,12 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
 
     @override_settings(USE_SUBDOMAIN=True)
+    # no need to do a real dns query so patch cname_to_slug
+    @patch('readthedocs.core.middleware.cname_to_slug', new=lambda x: 'doesnt')
     def test_use_subdomain_on(self):
         request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
         ret_val = self.middleware.process_request(request)
-        self.assertEqual(ret_val, None)
+        self.assertIsNone(ret_val, None)
 
 
 class TestCORSMiddleware(TestCase):

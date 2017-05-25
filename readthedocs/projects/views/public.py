@@ -17,14 +17,12 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import cache_control
 from django.views.generic import ListView, DetailView
-from django.views.decorators.cache import cache_page
 
 from taggit.models import Tag
 import requests
 
 from .base import ProjectOnboardMixin
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.filters import VersionSlugFilter
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.search.indexes import PageIndex
@@ -83,8 +81,6 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         project = self.get_object()
         context['versions'] = Version.objects.public(
             user=self.request.user, project=project)
-        context['filter'] = VersionSlugFilter(self.request.GET,
-                                              queryset=context['versions'])
 
         protocol = 'http'
         if self.request.is_secure():
@@ -235,11 +231,10 @@ def version_filter_autocomplete(request, project_slug):
     queryset = Project.objects.public(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
-    version_filter = VersionSlugFilter(request.GET, queryset=versions)
     resp_format = request.GET.get('format', 'json')
 
     if resp_format == 'json':
-        names = version_filter.qs.values_list('slug', flat=True)
+        names = versions.values_list('slug', flat=True)
         json_response = json.dumps(list(names))
         return HttpResponse(json_response, content_type='text/javascript')
     elif resp_format == 'html':
@@ -248,7 +243,6 @@ def version_filter_autocomplete(request, project_slug):
             {
                 'project': project,
                 'versions': versions,
-                'filter': version_filter,
             },
             context_instance=RequestContext(request),
         )
@@ -360,8 +354,6 @@ def project_versions(request, project_slug):
     versions = Version.objects.public(user=request.user, project=project, only_active=False)
     active_versions = versions.filter(active=True)
     inactive_versions = versions.filter(active=False)
-    inactive_filter = VersionSlugFilter(request.GET, queryset=inactive_versions)
-    active_filter = VersionSlugFilter(request.GET, queryset=active_versions)
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
@@ -374,8 +366,8 @@ def project_versions(request, project_slug):
     return render_to_response(
         'projects/project_version_list.html',
         {
-            'inactive_filter': inactive_filter,
-            'active_filter': active_filter,
+            'inactive_versions': inactive_versions,
+            'active_versions': active_versions,
             'project': project,
         },
         context_instance=RequestContext(request)

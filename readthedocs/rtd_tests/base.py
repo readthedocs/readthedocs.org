@@ -1,6 +1,8 @@
+"""Base classes and mixins for unit tests."""
 import os
 import shutil
 import logging
+import tempfile
 from collections import OrderedDict
 
 from mock import patch
@@ -17,8 +19,8 @@ class RTDTestCase(TestCase):
     def setUp(self):
         self.original_DOCROOT = settings.DOCROOT
         self.cwd = os.path.dirname(__file__)
-        self.build_dir = os.path.join(self.cwd, 'builds')
-        log.info("build dir: %s" % self.build_dir)
+        self.build_dir = tempfile.mkdtemp()
+        log.info("build dir: %s", self.build_dir)
         if not os.path.exists(self.build_dir):
             os.makedirs(self.build_dir)
         settings.DOCROOT = self.build_dir

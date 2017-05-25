@@ -1,3 +1,5 @@
+"""An abstraction over virtualenv and Conda environments."""
+
 import logging
 import os
 import shutil
@@ -12,6 +14,8 @@ log = logging.getLogger(__name__)
 
 
 class PythonEnvironment(object):
+
+    """An isolated environment into which Python packages can be installed."""
 
     def __init__(self, version, build_env, config=None):
         self.version = version
@@ -83,6 +87,12 @@ class PythonEnvironment(object):
 
 class Virtualenv(PythonEnvironment):
 
+    """A virtualenv_ environment.
+
+    .. _virtualenv: https://virtualenv.pypa.io/
+
+    """
+
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
@@ -101,6 +111,7 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_core_requirements(self):
+        """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
             'sphinx==1.5.3',
             'Pygments==2.2.0',
@@ -166,6 +177,12 @@ class Virtualenv(PythonEnvironment):
 
 class Conda(PythonEnvironment):
 
+    """A Conda_ environment.
+
+    .. _Conda: https://conda.io/docs/
+
+    """
+
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
@@ -189,16 +206,14 @@ class Conda(PythonEnvironment):
         )
 
     def install_core_requirements(self):
-
+        """Install basic Read the Docs requirements into the Conda env."""
         # Use conda for requirements it packages
         requirements = [
-            'sphinx==1.3.5',
-            'Pygments==2.2.0',
-            'docutils==0.12',
+            'sphinx',
             'mock',
-            'pillow>=3.0.0',
-            'sphinx_rtd_theme==0.1.7',
-            'alabaster>=0.7,<0.8,!=0.7.5',
+            'pillow',
+            'sphinx_rtd_theme',
+            'mkdocs',
         ]
 
         cmd = [
@@ -215,10 +230,8 @@ class Conda(PythonEnvironment):
 
         # Install pip-only things.
         pip_requirements = [
-            'mkdocs==0.15.0',
-            'readthedocs-sphinx-ext<0.6',
-            'commonmark==0.5.4',
-            'recommonmark==0.1.1',
+            'readthedocs-sphinx-ext',
+            'recommonmark',
         ]
 
         pip_cmd = [
@@ -236,12 +249,6 @@ class Conda(PythonEnvironment):
         )
 
     def install_user_requirements(self):
-        self.build_env.run(
-            'conda',
-            'env',
-            'update',
-            '--name',
-            self.version.slug,
-            '--file',
-            self.config.conda_file,
-        )
+        # as the conda environment was created by using the ``environment.yml``
+        # defined by the user, there is nothing to update at this point
+        pass
