@@ -17,7 +17,7 @@ def redirect_front():
 
     SUBDOMAIN = CNAME = False
 
-    print "Got request {host}".format(host=request.host)
+    print("Got request {host}".format(host=request.host))
     if PRODUCTION_DOMAIN in request.host:
         SUBDOMAIN = True
         slug = request.host.split('.')[0]
@@ -35,19 +35,19 @@ def redirect_front():
         version = json_obj['version']
         language = json_obj['language']
         single_version = json_obj['single_version']
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
 
     if single_version:
         if SUBDOMAIN:
             sendfile = "/user_builds/{slug}/translations/{language}/{version}/".format(slug=slug, language=language, version=version)
         elif CNAME:
             sendfile = "/public_cname_root/{cname}/".format(cname=cname, language=language, version=version)
-        print "Redirecting {host} to {sendfile}".format(host=request.host, sendfile=sendfile)
+        print("Redirecting {host} to {sendfile}".format(host=request.host, sendfile=sendfile))
         return make_response('', 303, {'X-Accel-Redirect': sendfile})
     else:
         url = '/{language}/{version}/'.format(language=language, version=version)
-        print "Redirecting {host} to {url}".format(host=request.host, url=url)
+        print("Redirecting {host} to {url}".format(host=request.host, url=url))
         return redirect(url)
 
 
