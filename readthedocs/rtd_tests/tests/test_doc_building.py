@@ -181,7 +181,7 @@ class TestDockerEnvironment(TestCase):
             stdout=True
         )
         self.assertEqual(build_env.commands[0].exit_code, 1)
-        self.assertEqual(build_env.commands[0].output, 'This is the return')
+        self.assertEqual(build_env.commands[0].output, u'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
         self.assertTrue(build_env.failed)
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -304,7 +304,7 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(['/bin/bash',
                             '-c', 'echo -n FOOBAR'])
         cmd.run()
-        self.assertEqual(cmd.output, "FOOBAR")
+        self.assertEqual(cmd.output, u"FOOBAR")
 
     def test_error_output(self):
         '''Test error output from command'''
@@ -312,21 +312,24 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(['/bin/bash',
                             '-c', 'echo -n FOOBAR 1>&2'])
         cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
+        self.assertEqual(cmd.output, u'FOOBAR')
         self.assertIsNone(cmd.error)
         # Test non-combined streams
         cmd = BuildCommand(['/bin/bash',
                             '-c', 'echo -n FOOBAR 1>&2'],
                            combine_output=False)
         cmd.run()
-        self.assertEqual(cmd.output, '')
-        self.assertEqual(cmd.error, 'FOOBAR')
+        self.assertEqual(cmd.output, u'')
+        self.assertEqual(cmd.error, u'FOOBAR')
 
     @patch('subprocess.Popen')
     def test_unicode_output(self, mock_subprocess):
         '''Unicode output from command'''
         mock_process = Mock(**{
-            'communicate.return_value': (u'HérÉ îß sömê ünïçó∂é', ''),
+            'communicate.return_value': (
+                u'HérÉ îß sömê ünïçó∂é'.encode('utf-8'),
+                b''
+            ),
         })
         mock_subprocess.return_value = mock_process
 
@@ -398,5 +401,5 @@ class TestDockerBuildCommand(TestCase):
         type(cmd.build_env).container_id = PropertyMock(return_value='foo')
         cmd.run()
         self.assertEqual(
-            str(cmd.output),
+            cmd.output,
             u'Command killed due to excessive memory consumption\n')
