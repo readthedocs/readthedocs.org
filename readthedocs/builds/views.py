@@ -9,7 +9,6 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.builds.filters import BuildFilter
 from readthedocs.projects.models import Project
 
 from redis import Redis, ConnectionError
@@ -37,14 +36,12 @@ class BuildList(BuildBase, ListView):
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
 
-        filterset = BuildFilter(self.request.GET, queryset=self.get_queryset())
         active_builds = self.get_queryset().exclude(state="finished").values('id')
 
         context['project'] = self.project
-        context['filter'] = filterset
         context['active_builds'] = active_builds
         context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
-        context['build_qs'] = filterset.qs
+        context['build_qs'] = self.get_queryset()
 
         try:
             redis = Redis.from_url(settings.BROKER_URL)

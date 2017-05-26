@@ -515,6 +515,9 @@ class RedirectForm(forms.ModelForm):
 
 
 class DomainForm(forms.ModelForm):
+
+    """Form to configure a custom domain name for a project."""
+
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:

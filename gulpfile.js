@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     vinyl_buffer = require('vinyl-buffer'),
     es = require('event-stream'),
     path = require('path'),
+    eslint = require('gulp-eslint'),
     pkg_config = require('./package.json');
 
 // Applications with primary static sources. We define these here to avoid
@@ -252,6 +253,17 @@ gulp.task('dev', function (done) {
         .pipe(es.wait(function (err, body) {
             done(null);
         }));
+});
+
+gulp.task('lint', function (done) {
+    var paths = Object.keys(sources).map(function(application) {
+      return path.join(pkg_config.name, application, 'static-src', '**', '*.js');
+    });
+    return gulp
+        .src(paths)
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
 });
 
 gulp.task('default', ['build']);

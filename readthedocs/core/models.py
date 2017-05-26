@@ -1,3 +1,5 @@
+"""Models for the core app."""
+
 import logging
 
 from django.db import models

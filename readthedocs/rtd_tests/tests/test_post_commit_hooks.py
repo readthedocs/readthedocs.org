@@ -352,7 +352,7 @@ class BitBucketHookTests(BasePostCommitTest):
                             "type": "modified"
                         }
                     ],
-                    "message": "Added some featureA things",
+                    "message": "Added some feature things",
                     "node": "d14d26a93fd2",
                     "parents": [
                             "1b458191f31a"
@@ -439,6 +439,36 @@ class BitBucketHookTests(BasePostCommitTest):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
             r.content, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
+
+    def test_bitbucket_post_commit_empty_commit_list(self):
+        self.hg_payload['commits'] = []
+        self.git_payload['commits'] = []
+
+        r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.content, 'Commit/branch not found')
+
+        r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.content, 'Commit/branch not found')
+
+
+    def test_bitbucket_post_commit_non_existent_url(self):
+        self.hg_payload['repository']['absolute_url'] = '/invalid/repository'
+        self.git_payload['repository']['absolute_url'] = '/invalid/repository'
+
+        r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.content, 'Project match not found')
+
+        r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
+                             content_type='application/json')
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.content, 'Project match not found')
+
 
     def test_bitbucket_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
