@@ -3,7 +3,6 @@ inherits: prospector
 strictness: medium
 
 ignore-paths:
-  - core/
   - donate/
   - restapi/
 

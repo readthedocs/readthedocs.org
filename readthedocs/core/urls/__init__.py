@@ -1,3 +1,5 @@
+"""URL configuration for core app."""
+
 from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
