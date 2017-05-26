@@ -3,10 +3,6 @@ inherits: prospector
 strictness: medium
 
 ignore-paths:
-  - core/
-  - doc_builder/
-  - projects/
-  - redirects/
   - restapi/
 
 pylint:
