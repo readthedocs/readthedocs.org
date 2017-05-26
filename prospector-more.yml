@@ -6,7 +6,6 @@ ignore-paths:
   - core/
   - donate/
   - restapi/
-  - search/
 
 pylint:
   options:

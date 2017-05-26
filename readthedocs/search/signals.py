@@ -1,3 +1,4 @@
+"""We define custom Django signals to trigger before executing searches."""
 import django.dispatch
 
 before_project_search = django.dispatch.Signal(providing_args=["body"])
