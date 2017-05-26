@@ -1,3 +1,5 @@
+"""Django signal plumbing for the donate app."""
+
 import random
 import logging
 
@@ -25,14 +27,14 @@ if PROMO_GEO_PATH:
 
 def show_to_geo(promo, country_code):
     # Remove promo's that exclude this country.
-    for filter in promo.geo_filters.all():
-        if filter.filter_type == INCLUDE:
-            if country_code in filter.codes:
+    for geo_filter in promo.geo_geo_filters.all():
+        if geo_filter.geo_filter_type == INCLUDE:
+            if country_code in geo_filter.codes:
                 continue
             else:
                 return False
-        if filter.filter_type == EXCLUDE:
-            if country_code in filter.codes:
+        if geo_filter.geo_filter_type == EXCLUDE:
+            if country_code in geo_filter.codes:
                 return False
 
     return True
@@ -141,70 +143,89 @@ def get_promo(country_code, programming_language, theme, gold_project=False, gol
     return promo_obj
 
 
+def is_gold_user(user):
+    """Return True if the user is a Gold supporter."""
+    return user.is_authenticated() and (
+        user.gold.count() or
+        user.goldonce.count()
+    )
+
+
+def is_gold_project(project):
+    """Return True if the project has been mapped by a Gold supporter."""
+    return project.gold_owners.count()
+
+
+def get_user_country(request):
+    """Return the ISO country code from geo-IP data, or None if not found."""
+    if not PROMO_GEO_PATH:
+        return None
+    ip = request.META.get('REMOTE_ADDR')
+    if not ip:
+        return None
+    try:
+        geo_response = geo_reader.city(ip)
+        return geo_response.country.iso_code
+    except (AddressNotFoundError, ValueError):  # Invalid IP
+        return None
+
+
 @receiver(footer_response)
-def attach_promo_data(sender, **kwargs):
-    request = kwargs['request']
-    context = kwargs['context']
-    resp_data = kwargs['resp_data']
+def attach_promo_data(sender, request, context, resp_data, **__):
+    """Insert promotion data keys into the footer API response."""
+    del sender  # unused
 
     project = context['project']
     theme = context['theme']
 
-    # Bail out early if promo's are disabled.
-    use_promo = getattr(settings, 'USE_PROMOS', True)
-    if not use_promo:
+    if getattr(settings, 'USE_PROMOS', True):
+        promo = lookup_promo(request, project, theme)
+    else:
+        promo = None
+
+    if promo:
+        resp_data.update({
+            'promo': True,
+            'promo_data': promo,
+        })
+    else:
         resp_data['promo'] = False
-        return
 
-    gold_user = gold_project = False
-    promo_obj = country_code = None
 
-    show_promo = project.allow_promos
+def lookup_promo(request, project, theme):
+    """Look up a promo to show for the given project.
 
-    # The request is by a GoldUser
-    if request.user.is_authenticated():
-        if request.user.gold.count() or request.user.goldonce.count():
-            gold_user = True
+    Return a dict of promo_data for inclusion in the footer response, or None
+    if no promo should be shown.
 
-    # A GoldUser has mapped this project
-    if project.gold_owners.count():
-        gold_project = True
+    """
+    if not project.allow_promos:
+        return None
 
-    # Don't show gold users promos.
-    # This will get overridden if we have specific promos for them below.
+    gold_user = is_gold_user(request.user)
+    gold_project = is_gold_project(project)
+
+    # Don't show promos to gold users or on gold projects for now
+    # (Some day we may show them something customised for them)
     if gold_user or gold_project:
-        show_promo = False
+        return None
 
-    if PROMO_GEO_PATH:
-        # Get geo information from the IP, but don't record it anywhere
-        ip = request.META.get('REMOTE_ADDR')
-        if ip:
-            try:
-                geo_response = geo_reader.city(ip)
-                country_code = geo_response.country.iso_code
-            except (AddressNotFoundError, ValueError):  # Invalid IP
-                country_code = None
-
-    # Try to get a promo if we should be using one.
-    if show_promo:
-        promo_obj = get_promo(
-            country_code=country_code,
-            programming_language=project.programming_language,
-            theme=theme,
-            gold_project=gold_project,
-            gold_user=gold_user,
-        )
+    promo_obj = get_promo(
+        country_code=get_user_country(request),
+        programming_language=project.programming_language,
+        theme=theme,
+        gold_project=gold_project,
+        gold_user=gold_user,
+    )
 
     # If we don't have anything to show, don't show it.
     if not promo_obj:
-        show_promo = False
+        return None
 
-    if show_promo:
-        promo_dict = offer_promo(promo_obj=promo_obj, project=project)
-        resp_data['promo_data'] = promo_dict
-
-    # Set promo object on return JSON
-    resp_data['promo'] = show_promo
+    return offer_promo(
+        promo_obj=promo_obj,
+        project=project
+    )
 
 
 @receiver(footer_response)
@@ -217,6 +238,7 @@ def index_theme_data(sender, **kwargs):
     This will allow us to give people fair warning before we put ads on their docs.
 
     """
+    del sender  # unused
     context = kwargs['context']
 
     project = context['project']
