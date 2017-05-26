@@ -17,6 +17,6 @@ class SSLEmailBackend(EmailBackend):
             if self.username and self.password:
                 self.connection.login(self.username, self.password)
             return True
-        except Exception as e:
+        except Exception:
             if not self.fail_silently:
-                raise e
+                raise
