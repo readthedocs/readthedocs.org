@@ -22,7 +22,7 @@ def get_version_compare_data(project, base_version=None):
     """Retrieve metadata about the highest version available for this project.
 
     :param base_version: We assert whether or not the base_version is also the
-    highest version in the resulting "is_highest" value.
+                         highest version in the resulting "is_highest" value.
     """
     highest_version_obj, highest_version_comparable = highest_version(
         project.versions.public().filter(active=True))
