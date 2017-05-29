@@ -33,6 +33,8 @@ from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
+from readthedocs.doc_builder.config import load_yaml_config
+
 if sys.version_info > (3,):
     # pylint: disable=import-error
     from urllib.parse import urlparse
@@ -569,8 +571,15 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
+        version = self.versions.filter(slug=version_slug).first()
         if not self.enable_pdf_build:
-            return False
+            try:
+                config = load_yaml_config(version)
+            except AttributeError:
+                return False
+            else:
+                if 'pdf' not in config.formats:
+                    return False
         return os.path.exists(self.get_production_media_path(
             type_='pdf', version_slug=version_slug))
 
