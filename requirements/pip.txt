@@ -20,7 +20,7 @@ django-vanilla-views==1.0.4
 jsonfield==1.0.3
 
 requests==2.3.0
-slumber==0.6.0
+slumber==0.7.0
 lxml==3.3.5
 
 django-countries==3.4.1
