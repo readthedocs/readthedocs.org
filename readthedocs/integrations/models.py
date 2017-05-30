@@ -1,6 +1,10 @@
 """Integration models for external services"""
 
 from __future__ import absolute_import
+from __future__ import division
+from builtins import str
+from past.utils import old_div
+from builtins import object
 import json
 import uuid
 import re
@@ -60,13 +64,13 @@ class HttpExchangeManager(models.Manager):
         # title case-y hyphen separated values.
         request_headers = dict(
             (key[5:].title().replace('_', '-'), str(val))
-            for (key, val) in req.META.items()
+            for (key, val) in list(req.META.items())
             if key.startswith('HTTP_')
         )
         request_headers['Content-Type'] = req.content_type
         # Remove unwanted headers
         for filter_rule in self.REQ_FILTER_RULES:
-            for key in request_headers.keys():
+            for key in list(request_headers.keys()):
                 if filter_rule.match(key):
                     del request_headers[key]
 
@@ -128,7 +132,7 @@ class HttpExchange(models.Model):
 
     objects = HttpExchangeManager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
 
     def __unicode__(self):
@@ -137,7 +141,7 @@ class HttpExchange(models.Model):
     @property
     def failed(self):
         # Assume anything that isn't 2xx level status code is an error
-        return int(self.status_code / 100) != 2
+        return int(old_div(self.status_code, 100)) != 2
 
     def formatted_json(self, field):
         """Try to return pretty printed and Pygment highlighted code"""
@@ -189,7 +193,7 @@ class IntegrationQuerySet(models.QuerySet):
         if cls_replace is None:
             return original
         new = cls_replace()
-        for k, v in original.__dict__.items():
+        for k, v in list(original.__dict__.items()):
             new.__dict__[k] = v
         return new
 
@@ -261,7 +265,7 @@ class GitHubWebhook(Integration):
     integration_type_id = Integration.GITHUB_WEBHOOK
     has_sync = True
 
-    class Meta:
+    class Meta(object):
         proxy = True
 
     @property
@@ -277,7 +281,7 @@ class BitbucketWebhook(Integration):
     integration_type_id = Integration.BITBUCKET_WEBHOOK
     has_sync = True
 
-    class Meta:
+    class Meta(object):
         proxy = True
 
     @property
@@ -293,7 +297,7 @@ class GenericAPIWebhook(Integration):
     integration_type_id = Integration.API_WEBHOOK
     has_sync = False
 
-    class Meta:
+    class Meta(object):
         proxy = True
 
     def save(self, *args, **kwargs):

@@ -248,7 +248,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         tags = form_data.pop('tags', [])
         for tag in tags:
             project.tags.add(tag)
-        for field, value in form_data.items():
+        for field, value in list(form_data.items()):
             if field in extra_fields:
                 setattr(project, field, value)
         basic_only = True
@@ -295,7 +295,7 @@ class ImportDemoView(PrivateViewMixin, View):
                 messages.success(
                     request, _('Your demo project is currently being imported'))
             else:
-                for (__, msg) in form.errors.items():
+                for (__, msg) in list(form.errors.items()):
                     log.error(msg)
                 messages.error(request,
                                _('There was a problem adding the demo project'))

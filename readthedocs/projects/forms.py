@@ -1,8 +1,11 @@
 """Project forms"""
 
 from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 from random import choice
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -73,7 +76,7 @@ class ProjectBasicsForm(ProjectForm):
 
     """Form for basic project fields"""
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
@@ -153,7 +156,7 @@ class ProjectExtraForm(ProjectForm):
 
     """Additional project information form"""
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = (
             'description',
@@ -180,7 +183,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         help_text=_("(Beta) The Python interpreter used to create the virtual "
                     "environment."))
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = (
             # Standard build edits
@@ -216,7 +219,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
                         ProjectExtraForm):
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = (
             # Basics
@@ -497,7 +500,7 @@ class RedirectForm(forms.ModelForm):
 
     """Form for project redirects"""
 
-    class Meta:
+    class Meta(object):
         model = Redirect
         fields = ['redirect_type', 'from_url', 'to_url']
 
@@ -521,7 +524,7 @@ class DomainForm(forms.ModelForm):
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta:
+    class Meta(object):
         model = Domain
         exclude = ['machine', 'cname', 'count', 'https']
 
@@ -558,7 +561,7 @@ class IntegrationForm(forms.ModelForm):
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta:
+    class Meta(object):
         model = Integration
         exclude = ['provider_data', 'exchanges']
 
@@ -580,7 +583,7 @@ class ProjectAdvertisingForm(forms.ModelForm):
 
     """Project promotion opt-out form"""
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = ['allow_promos']
 

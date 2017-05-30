@@ -2,6 +2,8 @@
 """Functions related to converting content into dict/JSON structures."""
 
 from __future__ import absolute_import
+from builtins import next
+from builtins import range
 import codecs
 import fnmatch
 import json

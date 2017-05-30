@@ -7,6 +7,7 @@ displayed on the site.
 """
 
 from __future__ import absolute_import
+from builtins import object
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.module_loading import import_string

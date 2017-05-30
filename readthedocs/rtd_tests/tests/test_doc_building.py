@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+from builtins import str
 import os.path
 import shutil
 import uuid
@@ -271,7 +272,7 @@ class TestBuildCommand(TestCase):
         env = {'FOOBAR': 'foobar',
                'BIN_PATH': 'foobar'}
         cmd = BuildCommand('echo', environment=env)
-        for key in env.keys():
+        for key in list(env.keys()):
             self.assertEqual(cmd.environment[key], env[key])
 
     def test_result(self):

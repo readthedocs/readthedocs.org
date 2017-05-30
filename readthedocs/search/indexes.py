@@ -15,6 +15,7 @@ TODO: Handle page removal case in Page.
 
 """
 from __future__ import absolute_import
+from builtins import object
 import datetime
 
 from elasticsearch import Elasticsearch, exceptions

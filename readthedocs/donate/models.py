@@ -3,6 +3,9 @@
 # pylint: disable=redefined-builtin
 
 from __future__ import absolute_import
+from __future__ import division
+from past.utils import old_div
+from builtins import object
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
@@ -68,7 +71,7 @@ class SupporterPromo(models.Model):
                              blank=True, null=True)
     live = models.BooleanField(_('Live'), default=False)
 
-    class Meta:
+    class Meta(object):
         ordering = ('analytics_id', '-live')
 
     def __unicode__(self):
@@ -136,7 +139,7 @@ class SupporterPromo(models.Model):
         return impression.click_ratio
 
     def views_per_day(self):
-        return int(float(self.sold_impressions) / float(self.sold_days))
+        return int(old_div(float(self.sold_impressions), float(self.sold_days)))
 
     def views_shown_today(self, day=None):
         if not day:
@@ -160,7 +163,7 @@ class SupporterPromo(models.Model):
         if self.total_views() == 0:
             return float(0)
         return '%.4f' % float(
-            (float(self.total_clicks()) / float(self.total_views())) * 100
+            (old_div(float(self.total_clicks()), float(self.total_views()))) * 100
         )
 
     def report_html_text(self):
@@ -179,7 +182,7 @@ class BaseImpression(models.Model):
     views = models.IntegerField(_('View'), default=0)
     clicks = models.IntegerField(_('Clicks'), default=0)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-date',)
         unique_together = ('promo', 'date')
         abstract = True
@@ -229,7 +232,7 @@ class ProjectImpressions(BaseImpression):
     project = models.ForeignKey(Project, related_name='impressions',
                                 blank=True, null=True)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('project', 'promo', 'date')
 
     def __unicode__(self):

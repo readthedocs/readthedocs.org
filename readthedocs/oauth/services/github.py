@@ -1,6 +1,7 @@
 """OAuth utility functions"""
 
 from __future__ import absolute_import
+from builtins import str
 import logging
 import json
 import re

@@ -17,6 +17,7 @@ another number would be confusing.
 """
 
 from __future__ import absolute_import
+from builtins import range
 import math
 import re
 import string

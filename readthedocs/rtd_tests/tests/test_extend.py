@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import object
 from django.test import TestCase, override_settings
 
 from readthedocs.core.utils.extend import (SettingsOverrideObject,

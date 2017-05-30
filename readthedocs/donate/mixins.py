@@ -1,6 +1,9 @@
 """Mixin classes for donation views"""
 
 from __future__ import absolute_import
+from __future__ import division
+from builtins import object
+from past.utils import old_div
 from django.db.models import Avg, Sum
 
 from .models import Supporter
@@ -19,7 +22,7 @@ class DonateProgressMixin(object):
         dollars = sums.get('dollars', None) or 0
         avg = int(avgs.get('dollars', None) or 0)
         count = Supporter.objects.count()
-        percent = int((float(dollars) / 24000.0) * 100.0)
+        percent = int((old_div(float(dollars), 24000.0)) * 100.0)
         context.update({
             'donate_amount': dollars,
             'donate_avg': avg,

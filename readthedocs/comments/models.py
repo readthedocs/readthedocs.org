@@ -1,6 +1,8 @@
 """Models for the comments app."""
 
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -110,7 +112,7 @@ class DocumentNodeSerializer(serializers.ModelSerializer):
     last_commit = serializers.CharField(source='latest_commit')
     snapshots_count = serializers.CharField(source='snapshots.count')
 
-    class Meta:
+    class Meta(object):
         model = DocumentNode
         exclude = ('')
 
@@ -121,7 +123,7 @@ class NodeSnapshot(models.Model):
     node = models.ForeignKey(DocumentNode, related_name="snapshots")
     commit = models.CharField(max_length=255)
 
-    class Meta:
+    class Meta(object):
         get_latest_by = 'date'
         # Snapshots are *almost* unique_together just for node and hash,
         # but for the possibility that a node's hash might change and then change back
@@ -194,7 +196,7 @@ class DocumentComment(models.Model):
 class DocumentCommentSerializer(serializers.ModelSerializer):
     node = DocumentNodeSerializer()
 
-    class Meta:
+    class Meta(object):
         model = DocumentComment
         fields = ('date', 'user', 'text', 'node')
 
@@ -225,7 +227,7 @@ class ModerationAction(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.user_id, self.get_decision_display())
 
-    class Meta:
+    class Meta(object):
         get_latest_by = 'date'
 
     def approved(self):
@@ -234,6 +236,6 @@ class ModerationAction(models.Model):
 
 class ModerationActionSerializer(serializers.ModelSerializer):
 
-    class Meta:
+    class Meta(object):
         model = ModerationAction
         exclude = ()

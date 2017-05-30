@@ -1,6 +1,7 @@
 """Models for the builds app."""
 
 from __future__ import absolute_import
+from builtins import object
 import logging
 import re
 import os.path
@@ -78,7 +79,7 @@ class Version(models.Model):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
 
-    class Meta:
+    class Meta(object):
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
@@ -349,7 +350,7 @@ class Build(models.Model):
 
     objects = BuildQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [
@@ -411,7 +412,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     start_time = models.DateTimeField(_('Start time'))
     end_time = models.DateTimeField(_('End time'))
 
-    class Meta:
+    class Meta(object):
         ordering = ['start_time']
         get_latest_by = 'start_time'
 

@@ -1,5 +1,7 @@
 """Bazaar-related utilities."""
 from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
 import csv
 import re
 import sys
@@ -10,7 +12,7 @@ from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 if sys.version_info > (3,):
     from io import StringIO
 else:
-    from StringIO import StringIO
+    from io import StringIO
 
 
 class Backend(BaseVCS):

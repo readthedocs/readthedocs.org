@@ -1,6 +1,7 @@
 """URL resolver for documentation"""
 
 from __future__ import absolute_import
+from builtins import object
 import re
 
 from django.conf import settings

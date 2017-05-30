@@ -5,6 +5,7 @@ rebuilding documentation.
 """
 
 from __future__ import absolute_import
+from builtins import str
 import os
 import shutil
 import json
@@ -261,7 +262,7 @@ class UpdateDocsTask(Task):
         build = {}
         if build_pk:
             build = api_v2.build(build_pk).get()
-        return dict((key, val) for (key, val) in build.items()
+        return dict((key, val) for (key, val) in list(build.items())
                     if key not in ['project', 'version', 'resource_uri',
                                    'absolute_uri'])
 

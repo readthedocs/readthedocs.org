@@ -1,6 +1,9 @@
 """Project models"""
 
 from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import fnmatch
 import logging
 import sys
@@ -39,7 +42,7 @@ if sys.version_info > (3,):
     from urllib.parse import urlparse
     # pylint: enable=import-error
 else:
-    from urlparse import urlparse
+    from urllib.parse import urlparse
 
 log = logging.getLogger(__name__)
 
@@ -279,7 +282,7 @@ class Project(models.Model):
     objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ('slug',)
         permissions = (
             # Translators: Permission around whether a user can view the
@@ -857,7 +860,7 @@ class Notification(models.Model):
                                 related_name='%(class)s_notifications')
     objects = RelatedProjectQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
 
@@ -902,7 +905,7 @@ class Domain(models.Model):
 
     objects = RelatedProjectQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ('-canonical', '-machine', 'domain')
 
     def __unicode__(self):

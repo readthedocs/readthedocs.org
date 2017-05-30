@@ -1,6 +1,7 @@
 """Models for the bookmarks app."""
 
 from __future__ import absolute_import
+from builtins import object
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -24,7 +25,7 @@ class Bookmark(models.Model):
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     url = models.CharField(_('URL'), max_length=255, null=True, blank=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
         unique_together = ('user', 'project', 'version', 'page')
 

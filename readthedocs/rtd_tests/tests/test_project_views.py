@@ -44,7 +44,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.data = {}
         for key in data:
             self.data.update({('{0}-{1}'.format(key, k), v)
-                              for (k, v) in data[key].items()})
+                              for (k, v) in list(data[key].items())})
         self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
     def test_profile_middleware_no_profile(self):
@@ -108,7 +108,7 @@ class TestBasicsForm(WizardTestCase):
 
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
-        for (key, val) in self.step_data['basics'].items():
+        for (key, val) in list(self.step_data['basics'].items()):
             self.assertEqual(getattr(proj, key), val)
         self.assertEqual(proj.documentation_type, 'sphinx')
 
@@ -170,7 +170,7 @@ class TestAdvancedForm(TestBasicsForm):
             [u'bar', u'baz', u'foo']
         )
         data.update(self.step_data['extra'])
-        for (key, val) in data.items():
+        for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)
 
     def test_form_missing_extra(self):

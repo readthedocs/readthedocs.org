@@ -1,6 +1,8 @@
 """Project version handling"""
 
 from __future__ import absolute_import
+from builtins import range
+from builtins import object
 import unicodedata
 from collections import defaultdict
 from packaging.version import Version
@@ -45,7 +47,7 @@ class VersionManager(object):
             del self._state[to_remove]
 
     def prune_minor(self, num_latest):
-        for major, minors in self._state.items():
+        for major, minors in list(self._state.items()):
             all_keys = sorted(set(minors.keys()))
             minor_keep = []
             for __ in range(num_latest):
@@ -55,8 +57,8 @@ class VersionManager(object):
                 del self._state[major][to_remove]
 
     def prune_point(self, num_latest):
-        for major, minors in self._state.items():
-            for minor in minors.keys():
+        for major, minors in list(self._state.items()):
+            for minor in list(minors.keys()):
                 try:
                     self._state[major][minor] = sorted(
                         set(self._state[major][minor]))[-num_latest:]
@@ -66,8 +68,8 @@ class VersionManager(object):
 
     def get_version_list(self):
         versions = []
-        for major_val in self._state.values():
-            for version_list in major_val.values():
+        for major_val in list(self._state.values()):
+            for version_list in list(major_val.values()):
                 versions.extend(version_list)
         versions = sorted(versions)
         return [

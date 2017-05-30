@@ -1,6 +1,8 @@
 """Documentation Builder Environments"""
 
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import re
 import sys
@@ -420,7 +422,7 @@ class BuildEnvironment(object):
                     "An unexpected error occurred")
 
         # Attempt to stop unicode errors on build reporting
-        for key, val in self.build.items():
+        for key, val in list(self.build.items()):
             if isinstance(val, six.string_types):
                 self.build[key] = val.decode('utf-8', 'ignore')
 

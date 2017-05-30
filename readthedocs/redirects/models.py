@@ -1,6 +1,7 @@
 """Django models for the redirects app."""
 
 from __future__ import absolute_import
+from builtins import object
 from django.db import models
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
@@ -69,7 +70,7 @@ class Redirect(models.Model):
 
     objects = RedirectManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('redirect')
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)

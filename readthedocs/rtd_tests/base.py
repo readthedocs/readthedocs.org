@@ -1,5 +1,6 @@
 """Base classes and mixins for unit tests."""
 from __future__ import absolute_import
+from builtins import object
 import os
 import shutil
 import logging
@@ -105,7 +106,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         try:
             data = dict(
                 ('{0}-{1}'.format(step, k), v)
-                for (k, v) in self.step_data[step].items()
+                for (k, v) in list(self.step_data[step].items())
             )
         except KeyError:
             pass

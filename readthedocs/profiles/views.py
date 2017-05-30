@@ -95,7 +95,7 @@ def create_profile(request, form_class, success_url=None,
     if extra_context is None:
         extra_context = {}
     context = RequestContext(request)
-    for key, value in extra_context.items():
+    for key, value in list(extra_context.items()):
         context[key] = callable(value) and value() or value
 
     return render_to_response(template_name,
@@ -172,7 +172,7 @@ def edit_profile(request, form_class, success_url=None,
     if extra_context is None:
         extra_context = {}
     context = RequestContext(request)
-    for key, value in extra_context.items():
+    for key, value in list(extra_context.items()):
         context[key] = callable(value) and value() or value
 
     return render_to_response(template_name, {
@@ -244,7 +244,7 @@ def profile_detail(request, username, public_profile_field=None,
     if extra_context is None:
         extra_context = {}
     context = RequestContext(request)
-    for key, value in extra_context.items():
+    for key, value in list(extra_context.items()):
         context[key] = callable(value) and value() or value
 
     return render_to_response(template_name,

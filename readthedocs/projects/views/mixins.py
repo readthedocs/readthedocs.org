@@ -1,6 +1,7 @@
 """Mixin classes for project views"""
 
 from __future__ import absolute_import
+from builtins import object
 from django.shortcuts import get_object_or_404
 
 from readthedocs.projects.models import Project

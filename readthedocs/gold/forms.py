@@ -1,6 +1,7 @@
 """Gold subscription forms"""
 
 from __future__ import absolute_import
+from builtins import object
 from django import forms
 
 from stripe.error import InvalidRequestError
@@ -19,7 +20,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
     :py:class:`StripeResourceMixin` for common operations against the Stripe API.
     """
 
-    class Meta:
+    class Meta(object):
         model = GoldUser
         fields = ['last_4_digits', 'level']
 

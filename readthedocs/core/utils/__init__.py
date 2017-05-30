@@ -1,12 +1,14 @@
 """Common utilty functions"""
 
 from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
 import errno
 import getpass
 import logging
 import os
 import re
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils import six

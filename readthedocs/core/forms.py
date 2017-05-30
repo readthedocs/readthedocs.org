@@ -1,6 +1,7 @@
 """Forms for core app."""
 
 from __future__ import absolute_import
+from builtins import object
 import logging
 
 from haystack.forms import SearchForm
@@ -18,7 +19,7 @@ class UserProfileForm(forms.ModelForm):
     first_name = CharField(label=_('First name'), required=False)
     last_name = CharField(label=_('Last name'), required=False)
 
-    class Meta:
+    class Meta(object):
         model = UserProfile
         # Don't allow users edit someone else's user page,
         fields = ['first_name', 'last_name', 'homepage']

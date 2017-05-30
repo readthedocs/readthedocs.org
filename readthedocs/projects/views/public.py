@@ -329,7 +329,7 @@ def elastic_project_search(request, project_slug):
     if results:
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
-            for key, val in hit['fields'].items():
+            for key, val in list(hit['fields'].items()):
                 if isinstance(val, list):
                     results['hits']['hits'][num]['fields'][key] = val[0]
 

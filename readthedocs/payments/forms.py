@@ -1,6 +1,8 @@
 """Payment forms"""
 
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import logging
 
 from stripe.resource import Customer, Charge
@@ -27,7 +29,7 @@ class StripeResourceMixin(object):
                 pass
             return resource.create(**attrs)
         else:
-            for (key, val) in attrs.items():
+            for (key, val) in list(attrs.items()):
                 setattr(instance, key, val)
             instance.save()
             return instance

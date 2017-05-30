@@ -1,6 +1,7 @@
 """OAuth service models"""
 
 from __future__ import absolute_import
+from builtins import object
 import json
 
 from django.db import models
@@ -114,7 +115,7 @@ class RemoteRepository(models.Model):
 
     objects = RemoteRepositoryQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['organization__name', 'name']
         verbose_name_plural = 'remote repositories'
 
