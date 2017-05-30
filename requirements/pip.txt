@@ -29,7 +29,7 @@ django-countries==3.4.1
 redis==2.10.3
 celery==3.1.23
 django-celery==3.2.1
-git+https://github.com/pennersr/django-allauth.git@d869aff9#egg=django-allauth
+django-allauth==0.32.0
 dnspython==1.15.0
 
 # VCS
