@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response

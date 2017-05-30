@@ -4,6 +4,7 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+from __future__ import absolute_import
 import os
 import shutil
 import json

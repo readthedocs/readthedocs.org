@@ -4,6 +4,7 @@ Core views, including the main homepage,
 documentation and header rendering, and server errors.
 """
 
+from __future__ import absolute_import
 import os
 import logging
 

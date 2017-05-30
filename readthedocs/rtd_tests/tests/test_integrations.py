@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import django_dynamic_fixture as fixture
 from django.test import TestCase, RequestFactory
 from django.contrib.contenttypes.models import ContentType
@@ -9,6 +10,7 @@ from readthedocs.integrations.models import (
     HttpExchange, Integration, GitHubWebhook
 )
 from readthedocs.projects.models import Project
+from six.moves import range
 
 
 class HttpExchangeTests(TestCase):

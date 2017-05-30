@@ -1,4 +1,5 @@
 """Mercurial-related utilities."""
+from __future__ import absolute_import
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 

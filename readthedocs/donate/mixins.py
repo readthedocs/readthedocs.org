@@ -1,5 +1,6 @@
 """Mixin classes for donation views"""
 
+from __future__ import absolute_import
 from django.db.models import Avg, Sum
 
 from .models import Supporter

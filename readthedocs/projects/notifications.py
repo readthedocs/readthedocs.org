@@ -1,5 +1,6 @@
 """Project notifications"""
 
+from __future__ import absolute_import
 from readthedocs.notifications import Notification
 from readthedocs.notifications.constants import REQUIREMENT
 

@@ -16,12 +16,14 @@ slug. This is used since using numbers in tags is too common and appending
 another number would be confusing.
 """
 
+from __future__ import absolute_import
 import math
 import re
 import string
 from operator import truediv
 from django.db import models
 from django.utils.encoding import force_text
+from six.moves import range
 
 
 # Regex breakdown:
@@ -97,7 +99,7 @@ class VersionSlugField(models.CharField):
             power = int(math.log(iteration, length))
         current = iteration
         suffix = ''
-        for exp in reversed(range(0, power + 1)):
+        for exp in reversed(list(range(0, power + 1))):
             digit = int(truediv(current, length ** exp))
             suffix += alphabet[digit]
             current = current % length ** exp

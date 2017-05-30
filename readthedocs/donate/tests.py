@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 import mock
 
@@ -15,6 +16,7 @@ from .constants import (CLICKS, VIEWS, OFFERS,
                         INCLUDE, EXCLUDE)
 from .signals import show_to_geo, get_promo, choose_promo, show_to_programming_language
 from readthedocs.projects.models import Project
+from six.moves import range
 
 
 class PromoTests(TestCase):

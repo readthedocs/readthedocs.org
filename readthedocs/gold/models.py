@@ -1,4 +1,5 @@
 """Django models for recurring donations aka Gold Membership."""
+from __future__ import absolute_import
 import math
 
 from django.db import models

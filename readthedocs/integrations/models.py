@@ -1,5 +1,6 @@
 """Integration models for external services"""
 
+from __future__ import absolute_import
 import json
 import uuid
 import re
@@ -74,7 +75,7 @@ class HttpExchangeManager(models.Manager):
             response_body = json.dumps(response_payload, sort_keys=True)
         except TypeError:
             response_body = str(response_payload)
-        response_headers = dict(resp.items())
+        response_headers = dict(list(resp.items()))
 
         fields = {
             'status_code': resp.status_code,

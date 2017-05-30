@@ -1,5 +1,6 @@
 """Forms for RTD donations"""
 
+from __future__ import absolute_import
 import logging
 
 from django import forms

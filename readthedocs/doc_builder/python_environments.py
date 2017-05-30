@@ -1,5 +1,6 @@
 """An abstraction over virtualenv and Conda environments."""
 
+from __future__ import absolute_import
 import logging
 import os
 import shutil

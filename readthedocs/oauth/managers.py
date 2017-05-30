@@ -1,5 +1,6 @@
 """Managers for OAuth models"""
 
+from __future__ import absolute_import
 from readthedocs.privacy.loader import RelatedUserQuerySet
 
 

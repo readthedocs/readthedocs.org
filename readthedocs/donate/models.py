@@ -2,6 +2,7 @@
 # We use 'type' and 'hash' heavily in the API here.
 # pylint: disable=redefined-builtin
 
+from __future__ import absolute_import
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
@@ -16,6 +17,7 @@ from readthedocs.donate.constants import (
 )
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
+import six
 
 
 class Supporter(models.Model):
@@ -238,7 +240,7 @@ class Country(models.Model):
     country = CountryField(unique=True)
 
     def __unicode__(self):
-        return unicode(self.country.name)
+        return six.text_type(self.country.name)
 
 
 class GeoFilter(models.Model):

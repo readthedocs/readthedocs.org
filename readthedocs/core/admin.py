@@ -1,5 +1,6 @@
 """Django admin interface for core models"""
 
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 
 from django.contrib import admin

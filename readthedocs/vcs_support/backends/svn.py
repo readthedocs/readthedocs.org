@@ -1,4 +1,5 @@
 """Subversion-related utilities."""
+from __future__ import absolute_import
 import csv
 import sys
 

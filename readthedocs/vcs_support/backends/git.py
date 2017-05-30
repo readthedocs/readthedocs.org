@@ -1,4 +1,5 @@
 """Git-related utilities."""
+from __future__ import absolute_import
 import re
 import logging
 import csv
@@ -116,7 +117,7 @@ class Backend(BaseVCS):
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
         for row in raw_tags:
-            row = filter(lambda f: f != '', row)
+            row = [f for f in row if f != '']
             if row == []:
                 continue
             commit_hash, name = row
@@ -149,7 +150,7 @@ class Backend(BaseVCS):
         clean_branches = []
         raw_branches = csv.reader(StringIO(data), delimiter=' ')
         for branch in raw_branches:
-            branch = filter(lambda f: f != '' and f != '*', branch)
+            branch = [f for f in branch if f != '' and f != '*']
             # Handle empty branches
             if len(branch):
                 branch = branch[0]

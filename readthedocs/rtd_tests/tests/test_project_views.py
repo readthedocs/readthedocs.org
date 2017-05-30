@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 
 from mock import patch
@@ -154,7 +155,7 @@ class TestAdvancedForm(TestBasicsForm):
         """Test all forms pass validation"""
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -179,7 +180,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
@@ -189,7 +190,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -211,7 +212,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')
@@ -233,7 +234,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')

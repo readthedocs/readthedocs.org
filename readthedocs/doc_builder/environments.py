@@ -1,5 +1,6 @@
 """Documentation Builder Environments"""
 
+from __future__ import absolute_import
 import os
 import re
 import sys
@@ -28,6 +29,7 @@ from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
                         DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
                         MKDOCS_TEMPLATE_DIR, DOCKER_HOSTNAME_MAX_LEN)
+import six
 
 log = logging.getLogger(__name__)
 
@@ -419,7 +421,7 @@ class BuildEnvironment(object):
 
         # Attempt to stop unicode errors on build reporting
         for key, val in self.build.items():
-            if isinstance(val, basestring):
+            if isinstance(val, six.string_types):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
         try:

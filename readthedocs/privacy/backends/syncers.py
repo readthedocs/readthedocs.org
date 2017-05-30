@@ -4,6 +4,7 @@
 the local machine.
 
 """
+from __future__ import absolute_import
 import getpass
 import logging
 import os

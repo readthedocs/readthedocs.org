@@ -1,5 +1,6 @@
 """Payment forms"""
 
+from __future__ import absolute_import
 import logging
 
 from stripe.resource import Customer, Charge

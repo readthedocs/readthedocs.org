@@ -1,4 +1,5 @@
 """Utility classes for api module"""
+from __future__ import absolute_import
 import logging
 
 from django.core.paginator import Paginator, InvalidPage

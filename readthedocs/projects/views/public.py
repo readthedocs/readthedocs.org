@@ -1,5 +1,6 @@
 """Public project views"""
 
+from __future__ import absolute_import
 from collections import OrderedDict
 import operator
 import os
@@ -393,9 +394,9 @@ def project_analytics(request, project_slug):
             analytics = None
 
     if analytics:
-        page_list = list(reversed(sorted(analytics['page'].items(),
+        page_list = list(reversed(sorted(list(analytics['page'].items()),
                                          key=operator.itemgetter(1))))
-        version_list = list(reversed(sorted(analytics['version'].items(),
+        version_list = list(reversed(sorted(list(analytics['version'].items()),
                                             key=operator.itemgetter(1))))
     else:
         page_list = []

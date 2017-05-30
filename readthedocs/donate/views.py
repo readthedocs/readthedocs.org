@@ -2,6 +2,7 @@
 # We use 'hash' heavily in the API here.
 # pylint: disable=redefined-builtin
 
+from __future__ import absolute_import
 import logging
 
 from django.views.generic import TemplateView

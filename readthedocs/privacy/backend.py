@@ -1,4 +1,5 @@
 """Django Managers and Querysets to apply project privacy restrictions."""
+from __future__ import absolute_import
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from functools import partial
 from mock import Mock
 from unittest import TestCase

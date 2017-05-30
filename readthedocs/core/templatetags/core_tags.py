@@ -1,5 +1,6 @@
 """Template tags for core app."""
 
+from __future__ import absolute_import
 import urllib
 import hashlib
 

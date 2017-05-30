@@ -1,5 +1,6 @@
 """Storage backends for the comments app."""
 
+from __future__ import absolute_import
 import json
 
 from django.core import serializers
