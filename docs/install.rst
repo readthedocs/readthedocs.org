@@ -139,6 +139,156 @@ with the name of any added project::
 
    python manage.py update_repos pip
 
+Serving RTD with Apache2 and WSGI
+=================================
+
+.. note::
+
+    The following assumes Ubuntu 16.04 Server and Apache >= 2.4.
+
+Serving **Read the Docs** using `Apache`_ and `mod_wsgi`_ starts off similar to running a
+local instance. Follow the instructions above, but instead place your virtualenv somewhere
+nice (perhaps ``/usr/local/pythonenvs/rtfd``) and clone the repo into ``/var/www/rtfd``::
+
+    cd /usr/local/
+    sudo mkdir pythonenvs
+    sudo virutalenv rtfd
+    cd /var/www
+    sudo git clone https://github.com/rtfd/readthedocs.org.git rtfd
+    
+.. note::
+
+    You'll likely need to prepend sudo on all of the commands, since ``/var/www`` is owned by the
+    ``root`` user by default.
+    
+After performing all of the above steps, change the owner of the ``/var/www/rtfd`` directory to
+``www-data`` so that mod_wsgi can do its thing.
+
+::
+
+    sudo chown -R www-data:www-data /var/www/rtfd
+
+.. _Apache: https://httpd.apache.org/
+.. _mod_wsgi: https://modwsgi.readthedocs.io/en/develop/
+
+Getting a externally-visuble server up an running requires:
+
+1. Installing Apache and mod_wsgi.
+2. Creating a Django settings file.
+3. Updating ``readthedocs/wsgi.py`` with the virtualenv information.
+4. Creating an Apache .conf file for your site.
+
+1. Installing Apache and mod_wsgi
+---------------------------------
+
+::
+
+    sudo apt install apache2
+    sudo apt install libapache2-mod-wsgi
+
+2. Creating a Django settings file
+----------------------------------
+
+This settings file should contain all of your Django settings. The example below simply
+takes the default settings from Read the Docs and adds a missing item.
+
+.. code:: python
+
+    # readthedocs/settings/mysite.py
+    import os
+
+    from .base import CommunityBaseSettings
+    
+    CommunityBaseSettings.load_settings(__name__)
+
+    DATABASES = {
+      'default': {
+          'ENGINE': 'django.db.backends.sqlite3',
+          'NAME': '/var/www/rtfd/dev.db',
+          'USER': 'username',       # from the `python manage.py createsuperuser` step
+          'PASSWORD': 'password',   # from the `python manage.py createsuperuser` step
+          }
+    }
+    
+    SECRET_KEY = 'replace_me'
+
+    if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
+        try:
+            from .local_settings import *       # noqa
+        except ImportError:
+            pass
+            
+.. note::
+
+    Make sure to also set ``SECRET_KEY`` to, well, a secret!
+
+3. Updating ``readthedocs/wsgi.py`` with the virtualenv information
+-------------------------------------------------------------------
+
+Modify ``readthedocs\wsgi.py`` so that it looks like so:
+
+.. code:: python
+
+    import os
+    import site
+    import system
+    
+    # Add our virtualenv to the site-dirs.
+    site.addsitedir('/path/to/virtualenv/lib/python2.7/site-packages')
+    sys.path.insert(0, 'var/www/rtfd')
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'readthedocs.settings.mysite')
+    
+    # This application object is used by any WSGI server configured to use this
+    # file. This includes Django's development server, if the WSGI_APPLICATION
+    # setting points here.
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+    
+    # Apply WSGI middleware here.
+    # from helloworld.wsgi import HelloWorldApplication
+    # application = HelloWorldApplication(application)
+
+4. Creating an Apache .conf file for your site
+----------------------------------------------
+
+The last thing to do is set up the Apache config. Create the following file:
+``/etc/apache2/sites-available/rtfd.conf``. Note that the file name, ``rtfd.conf`` does not need
+to match anything - you can name it anything you'd like. In fact, if you're already hosting
+other sites on your chosen server, you can just add to your primary VirtualHost in your Apache
+``.conf`` file. Populate the new file with::
+
+    <VirtualHost *:80>
+        # General server information
+        ServerName myserver
+        ServerAlias myalias
+        ServerAdmin admin@email.com
+        
+        # App: Read the Docs
+        WSGIDaemonProcess rtfd user=www-data group=www-data
+        WSGIScriptAlias / /var/www/rtfd/readthedocs/wsgi.py
+        <Location />
+            WSGIProcessGroup rtfd
+        </Location>
+        <Directory /var/www/rtfd/readthedocs>
+            <Files wsgi.py>
+                Require all granted
+            </Files>
+        </Directory>
+        
+        # Server Logging
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+
+Finally, we need to restart the apache server::
+
+    sudo service apache2 restart
+
+On another machine, navigate to your server's IP address in your web browser and verify
+that you see the Read the Docs homepage. You should be all set up at this point, but you'll
+probably want to update your DNS so that you don't have to use an IP address all the time.
+
 What's available
 ----------------
 
