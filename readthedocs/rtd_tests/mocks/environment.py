@@ -13,7 +13,7 @@ class EnvironmentMockGroup(object):
             'popen': mock.patch('subprocess.Popen'),
             'process': mock.Mock(),
             'api': mock.patch('slumber.Resource'),
-
+            'api_v2.command': mock.patch('readthedocs.doc_builder.environments.api_v2.command', mock.Mock(**{'get.return_value': {}})),
             'api_versions': mock.patch(
                 'readthedocs.projects.models.Project.api_versions'),
             'non_blocking_lock': mock.patch(
