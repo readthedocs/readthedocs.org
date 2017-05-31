@@ -39,3 +39,4 @@ public_*
 private_*
 .rope_project/
 readthedocs/htmlcov
+tags
