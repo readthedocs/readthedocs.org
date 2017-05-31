@@ -328,7 +328,7 @@ class TestBuildCommand(TestCase):
     def test_unicode_output(self, mock_subprocess):
         '''Unicode output from command'''
         mock_process = Mock(**{
-            'communicate.return_value': (SAMPLE_UTF8_BYTES, ''),
+            'communicate.return_value': (SAMPLE_UTF8_BYTES, b''),
         })
         mock_subprocess.return_value = mock_process
 
