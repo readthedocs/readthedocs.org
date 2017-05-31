@@ -10,6 +10,8 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
 
+import six
+
 from readthedocs.core.models import UserProfile
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
                                         RequestFactoryTestMixin)
@@ -165,10 +167,10 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         del self.step_data['extra']['tags']
-        self.assertItemsEqual(
+        six.assertCountEqual(
+            self,
             [tag.name for tag in proj.tags.all()],
-            [u'bar', u'baz', u'foo']
-        )
+            [u'bar', u'baz', u'foo'])
         data.update(self.step_data['extra'])
         for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)
