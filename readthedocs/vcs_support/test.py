@@ -41,7 +41,7 @@ class TestNonBlockingLock(unittest.TestCase):
         with utils.NonBlockingLock(project=self.project_mock,
                                    version=self.version_mock) as f_lock:
             lock_path = f_lock.fpath
-        self.assertTrueok_(lock_path is not None and not os.path.exists(lock_path))
+        self.assertTrue(lock_path is not None and not os.path.exists(lock_path))
 
     def test_nonreentrant(self):
         with utils.NonBlockingLock(project=self.project_mock,
