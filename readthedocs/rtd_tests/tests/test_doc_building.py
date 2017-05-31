@@ -25,7 +25,8 @@ from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 
 DUMMY_BUILD_ID = 123
-
+SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
+SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 
 class TestLocalEnvironment(TestCase):
     '''Test execution and exception handling in environment'''
@@ -44,7 +45,7 @@ class TestLocalEnvironment(TestCase):
     def test_normal_execution(self):
         '''Normal build in passing state'''
         self.mocks.configure_mock('process', {
-            'communicate.return_value': ('This is okay', '')})
+            'communicate.return_value': (b'This is okay', '')})
         type(self.mocks.process).returncode = PropertyMock(return_value=0)
 
         build_env = LocalEnvironment(version=self.version, project=self.project,
@@ -327,7 +328,7 @@ class TestBuildCommand(TestCase):
     def test_unicode_output(self, mock_subprocess):
         '''Unicode output from command'''
         mock_process = Mock(**{
-            'communicate.return_value': (b'HérÉ îß sömê ünïçó∂é', ''),
+            'communicate.return_value': (SAMPLE_UTF8_BYTES, ''),
         })
         mock_subprocess.return_value = mock_process
 
@@ -371,7 +372,7 @@ class TestDockerBuildCommand(TestCase):
         '''Unicode output from command'''
         self.mocks.configure_mock('docker_client', {
             'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': b'HérÉ îß sömê ünïçó∂é',
+            'exec_start.return_value': SAMPLE_UTF8_BYTES,
             'exec_inspect.return_value': {'ExitCode': 0},
         })
         cmd = DockerBuildCommand(['echo', 'test'], cwd='/tmp/foobar')
