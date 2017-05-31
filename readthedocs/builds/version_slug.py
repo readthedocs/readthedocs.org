@@ -92,7 +92,7 @@ class VersionSlugField(models.CharField):
             uniquifying_suffix(26) == '_ba'
             uniquifying_suffix(52) == '_ca'
         """
-        alphabet = string.lowercase
+        alphabet = string.ascii_lowercase
         length = len(alphabet)
         if iteration == 0:
             power = 0
