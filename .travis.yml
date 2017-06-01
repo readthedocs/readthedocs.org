@@ -1,10 +1,10 @@
 language: python
 python:
  - 2.7
- - 3.6
 sudo: false
 env:
- - TOX_ENV=py27,py36
+ - TOX_ENV=py27
+ - TOX_ENV=py36
  - TOX_ENV=docs
  - TOX_ENV=lint
  - TOX_ENV=eslint
