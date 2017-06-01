@@ -82,7 +82,7 @@ class PrivacyTests(TestCase):
 
         self.client.login(username='tester', password='test')
         r = self.client.get('/')
-        self.assertTrue('Django Kong' not in r.content)
+        self.assertNotContains(r, 'Django Kong')
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 404)
         r = self.client.get('/projects/django-kong/builds/')
@@ -122,16 +122,16 @@ class PrivacyTests(TestCase):
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'private')
         r = self.client.get('/projects/django-kong/')
-        self.assertTrue('test-slug' in r.content)
+        self.assertContains(r, 'test-slug')
         r = self.client.get('/projects/django-kong/builds/')
-        self.assertTrue('test-slug' in r.content)
+        self.assertContains(r, 'test-slug')
 
         # Make sure it doesn't show up as tester
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/')
-        self.assertTrue('test-slug' not in r.content)
+        self.assertNotContains(r, 'test-slug')
         r = self.client.get('/projects/django-kong/builds/')
-        self.assertTrue('test-slug' not in r.content)
+        self.assertNotContains(r, 'test-slug')
 
     def test_public_branch(self):
         kong = self._create_kong('public', 'public')
@@ -142,12 +142,12 @@ class PrivacyTests(TestCase):
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.all()[0].privacy_level, 'public')
         r = self.client.get('/projects/django-kong/')
-        self.assertTrue('test-slug' in r.content)
+        self.assertContains(r, 'test-slug')
 
         # Make sure it doesn't show up as tester
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/')
-        self.assertTrue('test-slug' in r.content)
+        self.assertContains(r, 'test-slug')
 
     def test_public_repo_api(self):
         self._create_kong('public', 'public')
@@ -155,6 +155,7 @@ class PrivacyTests(TestCase):
         resp = self.client.get("http://testserver/api/v1/project/django-kong/",
                                data={"format": "json"})
         self.assertEqual(resp.status_code, 200)
+
         resp = self.client.get("http://testserver/api/v1/project/",
                                data={"format": "json"})
         self.assertEqual(resp.status_code, 200)
@@ -339,15 +340,16 @@ class PrivacyTests(TestCase):
                                      verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
 
         r = self.client.get('/projects/django-kong/builds/')
-        self.assertTrue(r.content.count('test-slug', 1))
+        self.assertContains(r, 'test-slug')
+
         Build.objects.create(project=kong, version=ver)
         r = self.client.get('/projects/django-kong/builds/')
-        self.assertTrue(r.content.count('test-slug', 2))
+        self.assertContains(r, 'test-slug')
 
         # Make sure it doesn't show up as tester
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/builds/')
-        self.assertTrue('test-slug' not in r.content)
+        self.assertNotContains(r, 'test-slug')
 
     def test_queryset_chaining(self):
         """

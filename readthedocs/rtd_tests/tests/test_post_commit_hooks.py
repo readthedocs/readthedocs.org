@@ -112,20 +112,17 @@ class GitLabWebHookTest(BasePostCommitTest):
         """GitLab webhook should only build active versions"""
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.assertContains(r, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) No known branches were pushed to.')
+        self.assertContains(r, '(URL Build) No known branches were pushed to.')
 
     def test_gitlab_post_commit_knows_default_branches(self):
         """
@@ -140,9 +137,7 @@ class GitLabWebHookTest(BasePostCommitTest):
 
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
@@ -234,11 +229,7 @@ class GitHubPostCommitTest(BasePostCommitTest):
         payload['repository']['url'] = payload['repository']['url'].upper()
         r = self.client.post('/github/', data=json.dumps(payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content,
-            '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]'
-        )
+        self.assertContains(r, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
 
     def test_400_on_no_ref(self):
@@ -267,9 +258,7 @@ class GitHubPostCommitTest(BasePostCommitTest):
         payload = self.payload.copy()
         r = self.client.post('/github/', data=json.dumps(payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
 
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
@@ -279,20 +268,17 @@ class GitHubPostCommitTest(BasePostCommitTest):
         """
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.assertContains(r, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.content, '(URL Build) No known branches were pushed to.')
+        self.assertContains(r, '(URL Build) No known branches were pushed to.')
 
     def test_github_post_commit_knows_default_branches(self):
         """
@@ -307,9 +293,7 @@ class GitHubPostCommitTest(BasePostCommitTest):
 
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
@@ -433,15 +417,11 @@ class BitBucketHookTests(BasePostCommitTest):
     def test_bitbucket_post_commit(self):
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
+        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
 
     def test_bitbucket_post_commit_empty_commit_list(self):
         self.hg_payload['commits'] = []
@@ -449,14 +429,11 @@ class BitBucketHookTests(BasePostCommitTest):
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Commit/branch not found')
+        self.assertContains(r, 'Commit/branch not found', status_code=404)
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Commit/branch not found')
-
+        self.assertContains(r, 'Commit/branch not found', status_code=404)
 
     def test_bitbucket_post_commit_non_existent_url(self):
         self.hg_payload['repository']['absolute_url'] = '/invalid/repository'
@@ -464,13 +441,11 @@ class BitBucketHookTests(BasePostCommitTest):
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Project match not found')
+        self.assertContains(r, 'Project match not found', status_code=404)
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 404)
-        self.assertEqual(r.content, 'Project match not found')
+        self.assertContains(r, 'Project match not found', status_code=404)
 
 
     def test_bitbucket_post_commit_hook_builds_branch_docs_if_it_should(self):
@@ -481,26 +456,21 @@ class BitBucketHookTests(BasePostCommitTest):
         """
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
 
         self.hg_payload['commits'] = [{
             "branch": "not_ok",
         }]
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertEqual(
-            r.content, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
+        self.assertContains(r, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
 
         self.hg_payload['commits'] = [{
             "branch": "unknown",
         }]
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) No known branches were pushed to.')
+        self.assertContains(r, '(URL Build) No known branches were pushed to.')
 
     def test_bitbucket_default_branch(self):
         self.test_project = get(
@@ -517,6 +487,4 @@ class BitBucketHookTests(BasePostCommitTest):
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r.content, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
+        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
