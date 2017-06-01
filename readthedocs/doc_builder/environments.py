@@ -147,7 +147,11 @@ class BuildCommand(BuildCommandResultMixin):
             if self.input_data is not None:
                 cmd_input = self.input_data
 
-            cmd_output = proc.communicate(input=cmd_input)
+            if isinstance(cmd_input, six.string_types):
+                cmd_input_bytes = cmd_input.encode('utf-8')
+            else:
+                cmd_input_bytes = cmd_input
+            cmd_output = proc.communicate(input=cmd_input_bytes)
             (cmd_stdout, cmd_stderr) = cmd_output
             try:
                 self.output = cmd_stdout.decode('utf-8', 'replace')
