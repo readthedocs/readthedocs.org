@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Things to know:
 
+   * raw subprocess calls like .communicate expects bytes
+   * the Command wrappers encapsulate the bytes and expose unicode
+"""
 from __future__ import absolute_import
 from builtins import str
 import os.path
@@ -62,7 +66,7 @@ class TestLocalEnvironment(TestCase):
     def test_failing_execution(self):
         '''Build in failing state'''
         self.mocks.configure_mock('process', {
-            'communicate.return_value': ('This is not okay', '')})
+            'communicate.return_value': (b'This is not okay', '')})
         type(self.mocks.process).returncode = PropertyMock(return_value=1)
 
         build_env = LocalEnvironment(version=self.version, project=self.project,
@@ -166,8 +170,8 @@ class TestDockerEnvironment(TestCase):
     def test_command_execution(self):
         '''Command execution through Docker'''
         self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': 'This is the return',
+            'exec_create.return_value': {'Id': b'container-foobar'},
+            'exec_start.return_value': b'This is the return',
             'exec_inspect.return_value': {'ExitCode': 1},
         })
 
@@ -183,7 +187,7 @@ class TestDockerEnvironment(TestCase):
             stdout=True
         )
         self.assertEqual(build_env.commands[0].exit_code, 1)
-        self.assertEqual(build_env.commands[0].output, 'This is the return')
+        self.assertEqual(build_env.commands[0].output, u'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
         self.assertTrue(build_env.failed)
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
@@ -192,8 +196,8 @@ class TestDockerEnvironment(TestCase):
         '''Command execution through Docker, catch exception during cleanup'''
         response = Mock(status_code=500, reason='Because')
         self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': 'This is the return',
+            'exec_create.return_value': {'Id': b'container-foobar'},
+            'exec_start.return_value': b'This is the return',
             'exec_inspect.return_value': {'ExitCode': 0},
             'kill.side_effect': DockerAPIError(
                 'Failure killing container',
@@ -216,8 +220,8 @@ class TestDockerEnvironment(TestCase):
         '''Docker container already exists'''
         self.mocks.configure_mock('docker_client', {
             'inspect_container.return_value': {'State': {'Running': True}},
-            'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': 'This is the return',
+            'exec_create.return_value': {'Id': b'container-foobar'},
+            'exec_start.return_value': b'This is the return',
             'exec_inspect.return_value': {'ExitCode': 0},
         })
 
@@ -247,8 +251,8 @@ class TestDockerEnvironment(TestCase):
                 ),
                 {'State': {'Running': False, 'ExitCode': 42}},
             ],
-            'exec_create.return_value': {'Id': 'container-foobar'},
-            'exec_start.return_value': 'This is the return',
+            'exec_create.return_value': {'Id': b'container-foobar'},
+            'exec_start.return_value': b'This is the return',
             'exec_inspect.return_value': {'ExitCode': 0},
         })
 
@@ -371,7 +375,7 @@ class TestDockerBuildCommand(TestCase):
     def test_unicode_output(self):
         '''Unicode output from command'''
         self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': 'container-foobar'},
+            'exec_create.return_value': {'Id': b'container-foobar'},
             'exec_start.return_value': SAMPLE_UTF8_BYTES,
             'exec_inspect.return_value': {'ExitCode': 0},
         })
@@ -390,7 +394,7 @@ class TestDockerBuildCommand(TestCase):
     def test_command_oom_kill(self):
         '''Command is OOM killed'''
         self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': 'container-foobar'},
+            'exec_create.return_value': {'Id': b'container-foobar'},
             'exec_start.return_value': b'Killed\n',
             'exec_inspect.return_value': {'ExitCode': 137},
         })
