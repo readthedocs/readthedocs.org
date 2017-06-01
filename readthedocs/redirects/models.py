@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 from builtins import object
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 import logging
@@ -44,6 +45,7 @@ to_url_helptext = _('Absolute or relative url. Examples: '
 redirect_type_helptext = _('The type of redirect you wish to use.')
 
 
+@python_2_unicode_compatible
 class Redirect(models.Model):
 
     """A HTTP redirect associated with a Project."""
@@ -75,7 +77,7 @@ class Redirect(models.Model):
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.redirect_type == 'prefix':
             return ugettext('Prefix Redirect: %s ->' % self.from_url)
         elif self.redirect_type == 'page':

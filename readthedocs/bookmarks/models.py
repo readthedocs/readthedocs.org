@@ -4,12 +4,14 @@ from __future__ import absolute_import
 from builtins import object
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
+@python_2_unicode_compatible
 class Bookmark(models.Model):
 
     """A user's bookmark of a ``Project``, ``Version``, and page."""
@@ -29,7 +31,7 @@ class Bookmark(models.Model):
         ordering = ['-date']
         unique_together = ('user', 'project', 'version', 'page')
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Bookmark %(url)s for %(user)s (%(pk)s)") % {
             'url': self.url,
             'user': self.user,

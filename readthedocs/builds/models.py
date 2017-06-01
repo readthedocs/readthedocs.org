@@ -10,6 +10,7 @@ from shutil import rmtree
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from guardian.shortcuts import assign
@@ -35,6 +36,7 @@ DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL
 log = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class Version(models.Model):
 
     """Version of a ``Project``."""
@@ -88,7 +90,7 @@ class Version(models.Model):
             ('view_version', _('View Version')),
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Version %(version)s of %(project)s (%(pk)s)" % {
             'version': self.verbose_name,
             'project': self.project,
@@ -301,6 +303,7 @@ class Version(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class VersionAlias(models.Model):
 
     """Alias for a ``Version``."""
@@ -312,7 +315,7 @@ class VersionAlias(models.Model):
                                blank=True)
     largest = models.BooleanField(_('Largest'), default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Alias for %(project)s: %(from)s -> %(to)s" % {
             'project': self.project,
             'from': self.from_slug,
@@ -320,6 +323,7 @@ class VersionAlias(models.Model):
         })
 
 
+@python_2_unicode_compatible
 class Build(models.Model):
 
     """Build data."""
@@ -357,7 +361,7 @@ class Build(models.Model):
             ['version', 'state', 'type']
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Build %(project)s for %(usernames)s (%(pk)s)" % {
             'project': self.project,
             'usernames': ' '.join(self.project.users.all()
@@ -397,6 +401,7 @@ class BuildCommandResultMixin(object):
         return not self.successful
 
 
+@python_2_unicode_compatible
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     """Build command for a ``Build``."""
@@ -418,7 +423,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     objects = RelatedBuildQuerySet.as_manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return (ugettext(u'Build command {pk} for build {build}')
                 .format(pk=self.pk, build=self.build))
 

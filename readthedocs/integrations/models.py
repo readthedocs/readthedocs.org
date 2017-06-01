@@ -12,6 +12,7 @@ import re
 from django.db import models, transaction
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
@@ -108,6 +109,7 @@ class HttpExchangeManager(models.Manager):
             exchange.delete()
 
 
+@python_2_unicode_compatible
 class HttpExchange(models.Model):
 
     """HTTP request/response exchange"""
@@ -135,7 +137,7 @@ class HttpExchange(models.Model):
     class Meta(object):
         ordering = ['-date']
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Exchange {0}').format(self.pk)
 
     @property
@@ -220,6 +222,7 @@ class IntegrationQuerySet(models.QuerySet):
         return obj
 
 
+@python_2_unicode_compatible
 class Integration(models.Model):
 
     """Inbound webhook integration for projects"""
@@ -255,7 +258,7 @@ class Integration(models.Model):
     # Integration attributes
     has_sync = False
 
-    def __unicode__(self):
+    def __str__(self):
         return (_('{0} for {1}')
                 .format(self.get_integration_type_display(), self.project.name))
 

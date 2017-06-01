@@ -5,6 +5,7 @@ from builtins import str
 from builtins import object
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -61,6 +62,7 @@ class DocumentNodeManager(models.Manager):
         return node
 
 
+@python_2_unicode_compatible
 class DocumentNode(models.Model):
 
     """Document node."""
@@ -75,7 +77,7 @@ class DocumentNode(models.Model):
 
     raw_source = models.TextField(_('Raw Source'))
 
-    def __unicode__(self):
+    def __str__(self):
         return "node %s on %s for %s" % (self.id, self.page, self.project)
 
     def latest_hash(self):
@@ -117,6 +119,7 @@ class DocumentNodeSerializer(serializers.ModelSerializer):
         exclude = ('')
 
 
+@python_2_unicode_compatible
 class NodeSnapshot(models.Model):
     date = models.DateTimeField('Publication date', auto_now_add=True)
     hash = models.CharField(_('Hash'), max_length=255)
@@ -130,7 +133,7 @@ class NodeSnapshot(models.Model):
         # in a later commit.
         unique_together = ("hash", "node", "commit")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.hash
 
 
@@ -154,6 +157,7 @@ class NodeSnapshot(models.Model):
 #             return valid_comments
 
 
+@python_2_unicode_compatible
 class DocumentComment(models.Model):
 
     """Comment on a ``DocumentNode`` by a user."""
@@ -164,7 +168,7 @@ class DocumentComment(models.Model):
     user = models.ForeignKey(User)
     node = models.ForeignKey(DocumentNode, related_name='comments')
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s - %s" % (self.text, self.node)
 
     def get_absolute_url(self):
@@ -204,9 +208,10 @@ class DocumentCommentSerializer(serializers.ModelSerializer):
         pass
 
 
+@python_2_unicode_compatible
 class ModerationActionManager(models.Model):
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.id)
 
     def current_approvals(self):
@@ -214,6 +219,7 @@ class ModerationActionManager(models.Model):
         most_recent_change = self.comment.node.snapshots.latest().date  # noqa
 
 
+@python_2_unicode_compatible
 class ModerationAction(models.Model):
     user = models.ForeignKey(User)
     comment = models.ForeignKey(DocumentComment, related_name="moderation_actions")
@@ -224,7 +230,7 @@ class ModerationAction(models.Model):
     ))
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s - %s" % (self.user_id, self.get_decision_display())
 
     class Meta(object):

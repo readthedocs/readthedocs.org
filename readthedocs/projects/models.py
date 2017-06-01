@@ -6,13 +6,14 @@ standard_library.install_aliases()
 from builtins import object
 import fnmatch
 import logging
-import sys
 import os
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign
@@ -37,16 +38,10 @@ from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
-if sys.version_info > (3,):
-    # pylint: disable=import-error
-    from urllib.parse import urlparse
-    # pylint: enable=import-error
-else:
-    from urllib.parse import urlparse
-
 log = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class ProjectRelationship(models.Model):
 
     """Project to project relationship
@@ -62,7 +57,7 @@ class ProjectRelationship(models.Model):
 
     objects = ChildRelatedProjectQuerySet.as_manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s -> %s" % (self.parent, self.child)
 
     def save(self, *args, **kwargs):
@@ -75,6 +70,7 @@ class ProjectRelationship(models.Model):
         return resolve(self.child)
 
 
+@python_2_unicode_compatible
 class Project(models.Model):
 
     """Project model"""
@@ -290,7 +286,7 @@ class Project(models.Model):
             ('view_project', _('View Project')),
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def sync_supported_versions(self):
@@ -830,6 +826,7 @@ class Project(models.Model):
         return node.comments.create(user=user, text=text)
 
 
+@python_2_unicode_compatible
 class ImportedFile(models.Model):
 
     """Imported files model
@@ -851,7 +848,7 @@ class ImportedFile(models.Model):
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s: %s' % (self.name, self.project)
 
 
@@ -864,21 +861,24 @@ class Notification(models.Model):
         abstract = True
 
 
+@python_2_unicode_compatible
 class EmailHook(Notification):
     email = models.EmailField()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.email
 
 
+@python_2_unicode_compatible
 class WebHook(Notification):
     url = models.URLField(blank=True,
                           help_text=_('URL to send the webhook to'))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.url
 
 
+@python_2_unicode_compatible
 class Domain(models.Model):
 
     """A custom domain name for a project."""
@@ -908,7 +908,7 @@ class Domain(models.Model):
     class Meta(object):
         ordering = ('-canonical', '-machine', 'domain')
 
-    def __unicode__(self):
+    def __str__(self):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
     def save(self, *args, **kwargs):
