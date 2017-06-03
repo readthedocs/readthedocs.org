@@ -47,6 +47,7 @@ class BaseMkdocs(BaseBuilder):
             self.version.project.checkout_path(self.version.slug),
             self.build_dir)
         self.root_path = self.version.project.checkout_path(self.version.slug)
+        self.theme = 'readthedocs'
 
     def load_yaml_config(self):
         """Load a YAML config.
@@ -99,6 +100,9 @@ class BaseMkdocs(BaseBuilder):
         if 'theme_dir' not in user_config and self.use_theme:
             user_config['theme_dir'] = TEMPLATE_DIR
 
+        if 'theme' in user_config:
+            self.theme = user_config['theme']
+
         yaml.dump(
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
@@ -123,7 +127,7 @@ class BaseMkdocs(BaseBuilder):
             'version': self.version.slug,
             'language': self.version.project.language,
             'page': None,
-            'theme': "readthedocs",
+            'theme': self.theme,
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
@@ -159,7 +163,7 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir', self.build_dir,
         ]
         if self.use_theme:
-            build_command.extend(['--theme', 'readthedocs'])
+            build_command.extend(['--theme', self.theme])
         cmd_ret = self.run(
             *build_command,
             cwd=checkout_path,
