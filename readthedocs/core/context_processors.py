@@ -1,8 +1,10 @@
+"""Template context processors for core app."""
+
 from django.conf import settings
 
 
 def readthedocs_processor(request):
-
+    # pylint: disable=unused-argument
     exports = {
         'PUBLIC_DOMAIN': getattr(settings, 'PUBLIC_DOMAIN', None),
         'PRODUCTION_DOMAIN': getattr(settings, 'PRODUCTION_DOMAIN', None),

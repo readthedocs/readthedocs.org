@@ -35,7 +35,7 @@ class AccountAdapter(DefaultAccountAdapter):
         removed_keys = []
         for key in context.keys():
             try:
-                _ = pickle.dumps(context[key])
+                _ = pickle.dumps(context[key])  # noqa for F841
             except (pickle.PickleError, TypeError):
                 removed_keys.append(key)
                 del context[key]

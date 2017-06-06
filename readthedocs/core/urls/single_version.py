@@ -1,3 +1,5 @@
+"""URL configuration for a single version."""
+
 from operator import add
 
 from django.conf.urls import url

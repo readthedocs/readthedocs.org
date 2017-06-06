@@ -1,3 +1,5 @@
+"""Validators for core app."""
+
 # From https://github.com/django/django/pull/3477/files
 import re
 

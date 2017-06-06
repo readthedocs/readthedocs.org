@@ -1,3 +1,5 @@
+"""Utilities for retrieving task data."""
+
 from djcelery import celery as celery_app
 from celery.result import AsyncResult
 

@@ -1,3 +1,5 @@
+"""URL configurations for subdomains."""
+
 from operator import add
 
 from django.conf.urls import url, patterns

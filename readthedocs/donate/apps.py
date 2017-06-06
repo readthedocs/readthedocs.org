@@ -1,3 +1,5 @@
+"""Django app config for the donate app."""
+
 from django.apps import AppConfig
 
 

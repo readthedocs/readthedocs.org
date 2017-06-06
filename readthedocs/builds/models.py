@@ -15,7 +15,7 @@ from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.privacy.backend import VersionQuerySet, VersionManager
-from readthedocs.privacy.loader import RelatedBuildManager, BuildManager
+from readthedocs.privacy.loader import RelatedBuildQuerySet, BuildQuerySet
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
@@ -346,7 +346,7 @@ class Build(models.Model):
 
     # Manager
 
-    objects = BuildManager()
+    objects = BuildQuerySet.as_manager()
 
     class Meta:
         ordering = ['-date']
@@ -414,7 +414,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         ordering = ['start_time']
         get_latest_by = 'start_time'
 
-    objects = RelatedBuildManager()
+    objects = RelatedBuildQuerySet.as_manager()
 
     def __unicode__(self):
         return (ugettext(u'Build command {pk} for build {build}')

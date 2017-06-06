@@ -1,3 +1,5 @@
+"""Views pertaining to builds."""
+
 import json
 import re
 
@@ -36,26 +38,26 @@ def _build_version(project, slug, already_built=()):
         # active
         latest_version = project.versions.get(slug=LATEST)
         trigger_build(project=project, version=latest_version, force=True)
-        log.info(("(Version build) Building %s:%s"
-                  % (project.slug, latest_version.slug)))
+        log.info("(Version build) Building %s:%s",
+                 project.slug, latest_version.slug)
         if project.versions.exclude(active=False).filter(slug=slug).exists():
             # Handle the case where we want to build the custom branch too
             slug_version = project.versions.get(slug=slug)
             trigger_build(project=project, version=slug_version, force=True)
-            log.info(("(Version build) Building %s:%s"
-                      % (project.slug, slug_version.slug)))
+            log.info("(Version build) Building %s:%s",
+                     project.slug, slug_version.slug)
         return LATEST
     elif project.versions.exclude(active=True).filter(slug=slug).exists():
-        log.info(("(Version build) Not Building %s" % slug))
+        log.info("(Version build) Not Building %s", slug)
         return None
     elif slug not in already_built:
         version = project.versions.get(slug=slug)
         trigger_build(project=project, version=version, force=True)
-        log.info(("(Version build) Building %s:%s"
-                  % (project.slug, version.slug)))
+        log.info("(Version build) Building %s:%s",
+                 project.slug, version.slug)
         return slug
     else:
-        log.info(("(Version build) Not Building %s" % slug))
+        log.info("(Version build) Not Building %s", slug)
         return None
 
 
@@ -72,8 +74,8 @@ def build_branches(project, branch_list):
         to_build = set()
         not_building = set()
         for version in versions:
-            log.info(("(Branch Build) Processing %s:%s"
-                      % (project.slug, version.slug)))
+            log.info("(Branch Build) Processing %s:%s",
+                     project.slug, version.slug)
             ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
                 to_build.add(ret)
@@ -279,8 +281,15 @@ def bitbucket_build(request):
         )
         log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
         projects = get_project_from_url(search_url)
-        if projects:
+        if projects and branches:
             return _build_url(search_url, projects, branches)
+        elif not branches:
+            log.error(
+                'Commit/branch not found url=%s branches=%s',
+                search_url,
+                branches
+            )
+            return HttpResponseNotFound('Commit/branch not found')
         else:
             log.error('Project match not found: url=%s', search_url)
             return HttpResponseNotFound('Project match not found')
@@ -304,14 +313,14 @@ def generic_build(request, project_id_or_slug=None):
             project = Project.objects.get(slug=project_id_or_slug)
         except (Project.DoesNotExist, ValueError):
             log.error(
-                "(Incoming Generic Build) Repo not found:  %s" % (
-                    project_id_or_slug))
+                "(Incoming Generic Build) Repo not found:  %s",
+                project_id_or_slug)
             return HttpResponseNotFound(
                 'Repo not found: %s' % project_id_or_slug)
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(
-            "(Incoming Generic Build) %s [%s]" % (project.slug, slug))
+            "(Incoming Generic Build) %s [%s]", project.slug, slug)
         _build_version(project, slug)
     else:
         return HttpResponse("You must POST to this resource.")

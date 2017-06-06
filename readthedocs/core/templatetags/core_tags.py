@@ -1,3 +1,5 @@
+"""Template tags for core app."""
+
 import urllib
 import hashlib
 
@@ -60,15 +62,14 @@ def restructuredtext(value, short=False):
                 out = out.split("\n")[0]
         except IndexError:
             pass
-        finally:
-            return mark_safe(out)
+        return mark_safe(out)
 
 
 @register.filter
 def get_project(slug):
     try:
         return Project.objects.get(slug=slug)
-    except:
+    except Project.DoesNotExist:
         return None
 
 
@@ -76,7 +77,7 @@ def get_project(slug):
 def get_version(slug):
     try:
         return Project.objects.get(slug=slug)
-    except:
+    except Project.DoesNotExist:
         return None
 
 

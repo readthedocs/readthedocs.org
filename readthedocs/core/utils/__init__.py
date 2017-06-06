@@ -1,3 +1,5 @@
+"""Common utilty functions"""
+
 import errno
 import getpass
 import logging
@@ -23,7 +25,7 @@ SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 def run_on_app_servers(command):
     """A helper to copy a single file across app servers"""
-    log.info("Running %s on app servers" % command)
+    log.info("Running %s on app servers", command)
     ret_val = 0
     if getattr(settings, "MULTIPLE_APP_SERVERS", None):
         for server in settings.MULTIPLE_APP_SERVERS:
@@ -36,7 +38,7 @@ def run_on_app_servers(command):
         return ret
 
 
-def broadcast(type, task, args):
+def broadcast(type, task, args):  # pylint: disable=redefined-builtin
     assert type in ['web', 'app', 'build']
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
@@ -52,13 +54,10 @@ def broadcast(type, task, args):
 
 def clean_url(url):
     parsed = urlparse(url)
-    if parsed.scheme:
-        scheme, netloc = parsed.scheme, parsed.netloc
-    elif parsed.netloc:
-        scheme, netloc = "http", parsed.netloc
+    if parsed.scheme or parsed.netloc:
+        return parsed.netloc
     else:
-        scheme, netloc = "http", parsed.path
-    return netloc
+        return parsed.path
 
 
 def cname_to_slug(host):
@@ -126,7 +125,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
 
 def send_email(recipient, subject, template, template_html, context=None,
-               request=None):
+               request=None):  # pylint: disable=unused-argument
     """Alter context passed in and call email send task
 
     .. seealso::

@@ -1,3 +1,5 @@
+"""Support functions for donations."""
+
 import pytz
 import datetime
 

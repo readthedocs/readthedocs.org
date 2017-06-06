@@ -13,6 +13,9 @@ class CommunityTestSettings(CommunityDevSettings):
     PRODUCTION_DOMAIN = 'readthedocs.org'
     GROK_API_HOST = 'http://localhost:8888'
 
+    DEBUG = False
+    TEMPLATE_DEBUG = False
+
 
 CommunityTestSettings.load_settings(__name__)
 

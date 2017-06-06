@@ -14,7 +14,7 @@ from allauth.socialaccount.models import SocialAccount
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
-from .managers import RemoteRepositoryManager, RemoteOrganizationManager
+from .managers import RemoteRepositoryQuerySet, RemoteOrganizationQuerySet
 
 
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
@@ -47,7 +47,7 @@ class RemoteOrganization(models.Model):
 
     json = models.TextField(_('Serialized API response'))
 
-    objects = RemoteOrganizationManager()
+    objects = RemoteOrganizationQuerySet.as_manager()
 
     def __unicode__(self):
         return 'Remote organization: {name}'.format(name=self.slug)
@@ -111,7 +111,7 @@ class RemoteRepository(models.Model):
 
     json = models.TextField(_('Serialized API response'))
 
-    objects = RemoteRepositoryManager()
+    objects = RemoteRepositoryQuerySet.as_manager()
 
     class Meta:
         ordering = ['organization__name', 'name']
