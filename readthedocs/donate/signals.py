@@ -27,7 +27,7 @@ if PROMO_GEO_PATH:
 
 def show_to_geo(promo, country_code):
     # Remove promo's that exclude this country.
-    for geo_filter in promo.geo_geo_filters.all():
+    for geo_filter in promo.geo_filters.all():
         if geo_filter.geo_filter_type == INCLUDE:
             if country_code in geo_filter.codes:
                 continue
