@@ -5,12 +5,11 @@ using Django settings.
 
 """
 
+from django.conf import settings
+from django.utils.module_loading import import_string
+
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.privacy import backend
-
-
-# Managers
-from readthedocs.privacy.backends import syncers
 
 
 class ProjectQuerySet(SettingsOverrideObject):
@@ -56,6 +55,5 @@ class AdminPermission(SettingsOverrideObject):
 
 
 # Syncers
-class Syncer(SettingsOverrideObject):
-    _default_class = syncers.LocalSyncer
-    _override_setting = 'FILE_SYNCER'
+Syncer = import_string(getattr(settings, 'FILE_SYNCER',
+                               'readthedocs.privacy.backends.syncers.LocalSyncer'))
