@@ -2,9 +2,6 @@ inherits: prospector
 
 strictness: medium
 
-ignore-paths:
-  - restapi/
-
 pylint:
   options:
     docstring-min-length: 20
