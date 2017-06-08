@@ -1,16 +1,16 @@
 """Project version handling"""
-
 from __future__ import absolute_import
-from builtins import range
-from builtins import object
+
 import unicodedata
 from collections import defaultdict
+
+from builtins import (object, range)
 from packaging.version import Version
 from packaging.version import InvalidVersion
+import six
 
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME
 from readthedocs.builds.constants import STABLE_VERBOSE_NAME
-import six
 
 
 def get_major(version):

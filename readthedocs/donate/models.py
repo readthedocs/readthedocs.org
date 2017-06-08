@@ -1,9 +1,8 @@
 """Django models for the donate app."""
 # We use 'type' and 'hash' heavily in the API here.
 # pylint: disable=redefined-builtin
+from __future__ import (absolute_import, division)
 
-from __future__ import absolute_import
-from __future__ import division
 from past.utils import old_div
 from builtins import object
 from django.db import models
@@ -12,9 +11,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.conf import settings
-
-
 from django_countries.fields import CountryField
+import six
 
 from readthedocs.donate.utils import get_ad_day
 from readthedocs.donate.constants import (
@@ -22,7 +20,6 @@ from readthedocs.donate.constants import (
 )
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
-import six
 
 
 @python_2_unicode_compatible

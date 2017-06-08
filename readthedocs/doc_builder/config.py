@@ -1,14 +1,11 @@
 """An API to load config from a readthedocs.yml file."""
-
 from __future__ import absolute_import
-from builtins import filter
-from builtins import object
+
+from builtins import (filter, object)
+
 from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
-
-
 from .constants import BUILD_IMAGES, DOCKER_IMAGE
-from six.moves import filter
 
 
 class ConfigWrapper(object):

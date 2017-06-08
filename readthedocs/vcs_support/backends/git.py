@@ -1,18 +1,19 @@
 """Git-related utilities."""
 from __future__ import absolute_import
-from builtins import bytes, str
+
 from future import standard_library
 standard_library.install_aliases()
+
 import re
 import logging
 import csv
 import os
-import sys
+from io import StringIO
+
+from builtins import bytes, str
 
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-from io import StringIO
 
 
 log = logging.getLogger(__name__)

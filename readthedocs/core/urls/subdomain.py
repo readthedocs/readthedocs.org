@@ -1,6 +1,7 @@
 """URL configurations for subdomains."""
-
 from __future__ import absolute_import
+
+from functools import reduce
 from operator import add
 
 from django.conf.urls import url, patterns
@@ -8,7 +9,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from readthedocs.constants import pattern_opts
-from functools import reduce
 
 handler500 = 'readthedocs.core.views.server_error'
 handler404 = 'readthedocs.core.views.server_error_404'
