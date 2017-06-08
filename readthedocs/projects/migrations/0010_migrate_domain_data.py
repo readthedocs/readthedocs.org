@@ -20,7 +20,7 @@ def migrate_url(apps, schema_editor):
                 project=domain.project.slug))
             domain.delete()
             continue
-        parsed = urlparse(domain.url)
+        parsed = urllib.parse(domain.url)
         if parsed.scheme or parsed.netloc:
             domain_string = parsed.netloc
         else:
