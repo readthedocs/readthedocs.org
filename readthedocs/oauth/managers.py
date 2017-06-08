@@ -1,11 +1,11 @@
 """Managers for OAuth models"""
 
-from readthedocs.privacy.loader import RelatedUserManager
+from readthedocs.privacy.loader import RelatedUserQuerySet
 
 
-class RemoteRepositoryManager(RelatedUserManager):
+class RemoteRepositoryQuerySet(RelatedUserQuerySet):
     pass
 
 
-class RemoteOrganizationManager(RelatedUserManager):
+class RemoteOrganizationQuerySet(RelatedUserQuerySet):
     pass

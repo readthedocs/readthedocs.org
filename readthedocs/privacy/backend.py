@@ -1,3 +1,4 @@
+"""Django Managers and Querysets to apply project privacy restrictions."""
 from django.db import models
 
 from guardian.shortcuts import get_objects_for_user
@@ -13,7 +14,7 @@ from readthedocs.core.utils.extend import (SettingsOverrideObject,
 from readthedocs.projects import constants
 
 
-class ProjectManager(models.Manager):
+class ProjectQuerySet(models.QuerySet):
 
     """Projects take into account their own privacy_level setting."""
 
@@ -21,7 +22,7 @@ class ProjectManager(models.Manager):
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
-            return self.get_queryset().all().distinct()
+            return self.all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
@@ -85,7 +86,7 @@ class VersionManager(models.Manager):
         # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
-            VersionQuerySet._default_class
+            VersionQuerySet._default_class  # pylint: disable=protected-access
         )
         return super(VersionManager, cls).from_queryset(queryset_class, class_name)
 
@@ -174,22 +175,23 @@ class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
 
 
-class BuildManager(models.Manager):
+class BuildQuerySet(models.QuerySet):
 
     """
-    Build objects that take into account the privacy of the Version
-    that they relate to.
+    Build objects that are privacy aware.
+
+    i.e. they take into account the privacy of the Version that they relate to.
     """
 
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
-            return self.get_queryset().all().distinct()
+            return self.all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             pks = [p.pk for p in user_queryset]
-            queryset = self.get_queryset().filter(version__pk__in=pks) | queryset
+            queryset = self.filter(version__pk__in=pks) | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):
@@ -204,7 +206,7 @@ class BuildManager(models.Manager):
         return self.public(user)
 
 
-class RelatedProjectManager(models.Manager):
+class RelatedProjectQuerySet(models.QuerySet):
 
     """
     A manager for things that relate to Project and need to get their perms from the project.
@@ -218,13 +220,13 @@ class RelatedProjectManager(models.Manager):
     def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
-            return self.get_queryset().all().distinct()
+            return self.all().distinct()
         if user.is_authenticated():
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
             pks = [p.pk for p in project_qs]
             kwargs = {'%s__pk__in' % self.project_field: pks}
-            queryset = self.get_queryset().filter(**kwargs) | queryset
+            queryset = self.filter(**kwargs) | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):
@@ -262,17 +264,17 @@ class RelatedProjectManager(models.Manager):
         return self.public(user)
 
 
-class ParentRelatedProjectManager(RelatedProjectManager):
+class ParentRelatedProjectQuerySet(RelatedProjectQuerySet):
     project_field = 'parent'
     use_for_related_fields = True
 
 
-class ChildRelatedProjectManager(RelatedProjectManager):
+class ChildRelatedProjectQuerySet(RelatedProjectQuerySet):
     project_field = 'child'
     use_for_related_fields = True
 
 
-class RelatedBuildManager(models.Manager):
+class RelatedBuildQuerySet(models.QuerySet):
 
     """For models with association to a project through :py:class:`Build`"""
 
@@ -280,11 +282,11 @@ class RelatedBuildManager(models.Manager):
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
-            return self.get_queryset().all().distinct()
+            return self.all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             pks = [p.pk for p in user_queryset]
-            queryset = self.get_queryset().filter(
+            queryset = self.filter(
                 build__version__pk__in=pks) | queryset
         return queryset.distinct()
 
@@ -300,7 +302,7 @@ class RelatedBuildManager(models.Manager):
         return self.public(user)
 
 
-class RelatedUserManager(models.Manager):
+class RelatedUserQuerySet(models.QuerySet):
 
     """For models with relations through :py:class:`User`"""
 

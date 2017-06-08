@@ -54,6 +54,7 @@ class VersionSlugField(models.CharField):
         super(VersionSlugField, self).__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
+        # pylint: disable=protected-access
         for field, model in model_cls._meta.get_fields_with_model():
             if model and field == slug_field:
                 return model._default_manager.all()
@@ -73,6 +74,8 @@ class VersionSlugField(models.CharField):
 
     def uniquifying_suffix(self, iteration):
         """
+        Create a unique suffix.
+
         This creates a suffix based on the number given as ``iteration``. It
         will return a value encoded as lowercase ascii letter. So we have an
         alphabet of 26 letters. The returned suffix will be for example ``_yh``
@@ -101,11 +104,14 @@ class VersionSlugField(models.CharField):
         return '_{suffix}'.format(suffix=suffix)
 
     def create_slug(self, model_instance):
+        """Generate a unique slug for a model instance."""
+        # pylint: disable=protected-access
+
         # get fields to populate from and slug field to set
         slug_field = model_instance._meta.get_field(self.attname)
 
         slug = self.slugify(getattr(model_instance, self._populate_from))
-        next = 0
+        count = 0
 
         # strip slug depending on max_length attribute of the slug field
         # and clean-up
@@ -132,13 +138,13 @@ class VersionSlugField(models.CharField):
         # depending on the given slug, clean-up
         while not slug or queryset.filter(**kwargs):
             slug = original_slug
-            end = self.uniquifying_suffix(next)
+            end = self.uniquifying_suffix(count)
             end_len = len(end)
             if slug_len and len(slug) + end_len > slug_len:
                 slug = slug[:slug_len - end_len]
             slug = slug + end
             kwargs[self.attname] = slug
-            next += 1
+            count += 1
 
         assert self.test_pattern.match(slug), (
             'Invalid generated slug: {slug}'.format(slug=slug))

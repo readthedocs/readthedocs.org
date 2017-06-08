@@ -68,7 +68,7 @@ class SupportView(TemplateView):
         return context
 
 
-def random_page(request, project_slug=None):
+def random_page(request, project_slug=None):  # pylint: disable=unused-argument
     imported_file = ImportedFile.objects.order_by('?')
     if project_slug:
         imported_file = imported_file.filter(project__slug=project_slug)
@@ -100,11 +100,11 @@ def wipe_version(request, project_slug, version_slug):
                                   context_instance=RequestContext(request))
 
 
-def divide_by_zero(request):
+def divide_by_zero(request):  # pylint: disable=unused-argument
     return 1 / 0
 
 
-def server_error_500(request, exception, template_name='500.html'):
+def server_error_500(request, exception, template_name='500.html'):  # pylint: disable=unused-argument  # noqa
     """A simple 500 handler so we get media"""
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
@@ -112,7 +112,7 @@ def server_error_500(request, exception, template_name='500.html'):
     return r
 
 
-def server_error_404(request, exception, template_name='404.html'):
+def server_error_404(request, exception, template_name='404.html'):  # pylint: disable=unused-argument  # noqa
     """A simple 404 handler so we get media"""
     response = get_redirect_response(request, path=request.get_full_path())
     if response:

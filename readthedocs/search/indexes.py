@@ -208,6 +208,8 @@ class Index(object):
 
 class ProjectIndex(Index):
 
+    """Search index configuration for Projects"""
+
     _type = 'project'
 
     def get_mapping(self):
@@ -258,6 +260,8 @@ class ProjectIndex(Index):
 
 class PageIndex(Index):
 
+    """Search index configuration for Pages"""
+
     _type = 'page'
     _parent = 'project'
 
@@ -303,6 +307,8 @@ class PageIndex(Index):
 
 
 class SectionIndex(Index):
+
+    """Search index configuration for Sections"""
 
     _type = 'section'
     _parent = 'page'

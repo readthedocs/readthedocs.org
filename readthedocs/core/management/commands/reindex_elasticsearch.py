@@ -1,3 +1,5 @@
+"""Reindex Elastic Search indexes"""
+
 import logging
 from optparse import make_option
 
@@ -14,6 +16,7 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
+    help = __doc__
     option_list = BaseCommand.option_list + (
         make_option('-p',
                     dest='project',
@@ -32,20 +35,21 @@ class Command(BaseCommand):
             if not queryset.exists():
                 raise CommandError(
                     'No project with slug: {slug}'.format(slug=project))
-            log.info("Building all versions for %s" % project)
+            log.info("Building all versions for %s", project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = queryset.filter(slug=LATEST)
 
         for version in queryset:
-            log.info("Reindexing %s" % version)
+            log.info("Reindexing %s", version)
             try:
                 commit = version.project.vcs_repo(version.slug).commit
-            except:
-                # This will happen on prod
+            except:  # pylint: disable=bare-except
+                # An exception can be thrown here in production, but it's not
+                # documented what the exception here is
                 commit = None
 
             try:
                 update_search(version.pk, commit,
                               delete_non_commit_files=False)
             except Exception:
-                log.error('Reindex failed for %s' % version, exc_info=True)
+                log.error('Reindex failed for %s', version, exc_info=True)

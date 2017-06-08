@@ -5,7 +5,6 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
                          Http404, HttpResponseBadRequest)
@@ -23,7 +22,6 @@ from vanilla import CreateView, DeleteView, UpdateView, DetailView, GenericView
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.models import Version
 from readthedocs.builds.forms import AliasForm, VersionForm
-from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
@@ -36,7 +34,7 @@ from readthedocs.projects.forms import (
     ProjectAdvertisingForm)
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects import constants, tasks
+from readthedocs.projects import tasks
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
 
@@ -62,9 +60,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
-        version_filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS,
-                                       queryset=self.get_queryset())
-        context['filter'] = version_filter
 
         bookmarks = Bookmark.objects.filter(user=self.request.user)
 
@@ -176,9 +171,10 @@ def project_version_detail(request, project_slug, version_slug):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version %s' % version.slug)
+                log.info('Removing files for version %s', version.slug)
                 broadcast(type='app', task=tasks.clear_artifacts, args=[version.pk])
                 version.built = False
+                version.machine = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)

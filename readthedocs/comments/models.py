@@ -1,9 +1,10 @@
+"""Models for the comments app."""
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from readthedocs.privacy.backend import AdminPermission, AdminNotAuthorized
 from readthedocs.restapi.serializers import VersionSerializer
 
 
@@ -23,6 +24,7 @@ class DocumentNodeManager(models.Manager):
         return node
 
     def from_hash(self, version_slug, page, node_hash, project_slug=None):
+        """Return a node matching a given hash."""
         snapshots = NodeSnapshot.objects.filter(hash=node_hash,
                                                 node__version__slug=version_slug,
                                                 node__page=page)
@@ -58,6 +60,8 @@ class DocumentNodeManager(models.Manager):
 
 class DocumentNode(models.Model):
 
+    """Document node."""
+
     objects = DocumentNodeManager()
 
     project = models.ForeignKey('projects.Project', verbose_name=_('Project'),
@@ -70,10 +74,6 @@ class DocumentNode(models.Model):
 
     def __unicode__(self):
         return "node %s on %s for %s" % (self.id, self.page, self.project)
-
-    def save(self, *args, **kwargs):
-        pass
-        super(DocumentNode, self).save(*args, **kwargs)
 
     def latest_hash(self):
         return self.snapshots.latest().hash
@@ -127,6 +127,9 @@ class NodeSnapshot(models.Model):
         # in a later commit.
         unique_together = ("hash", "node", "commit")
 
+    def __unicode__(self):
+        return self.hash
+
 
 # class DocumentCommentManager(models.Manager):
 #
@@ -149,6 +152,9 @@ class NodeSnapshot(models.Model):
 
 
 class DocumentComment(models.Model):
+
+    """Comment on a ``DocumentNode`` by a user."""
+
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     rating = models.IntegerField(_('Rating'), default=0)
     text = models.TextField(_('Text'))
@@ -197,8 +203,12 @@ class DocumentCommentSerializer(serializers.ModelSerializer):
 
 class ModerationActionManager(models.Model):
 
+    def __unicode__(self):
+        return str(self.id)
+
     def current_approvals(self):
-        most_recent_change = self.comment.node.snapshots.latest().date
+        # pylint: disable=unused-variable
+        most_recent_change = self.comment.node.snapshots.latest().date  # noqa
 
 
 class ModerationAction(models.Model):
@@ -210,6 +220,9 @@ class ModerationAction(models.Model):
         (2, 'Hide'),
     ))
     date = models.DateTimeField(_('Date'), auto_now_add=True)
+
+    def __unicode__(self):
+        return "%s - %s" % (self.user_id, self.get_decision_display())
 
     class Meta:
         get_latest_by = 'date'

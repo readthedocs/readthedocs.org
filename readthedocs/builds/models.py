@@ -1,3 +1,5 @@
+"""Models for the builds app."""
+
 import logging
 import re
 import os.path
@@ -13,7 +15,7 @@ from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.privacy.backend import VersionQuerySet, VersionManager
-from readthedocs.privacy.loader import RelatedBuildManager, BuildManager
+from readthedocs.privacy.loader import RelatedBuildQuerySet, BuildQuerySet
 from readthedocs.projects.models import Project
 from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
@@ -32,6 +34,9 @@ log = logging.getLogger(__name__)
 
 
 class Version(models.Model):
+
+    """Version of a ``Project``."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='versions')
     type = models.CharField(
@@ -154,7 +159,7 @@ class Version(models.Model):
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects import tasks
-        log.info('Removing files for version %s' % self.slug)
+        log.info('Removing files for version %s', self.slug)
         tasks.clear_artifacts.delay(version_pk=self.pk)
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         super(Version, self).delete(*args, **kwargs)
@@ -220,6 +225,18 @@ class Version(models.Model):
             log.error('Build path cleanup failed', exc_info=True)
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
+        """
+        Return a GitHub URL for a given filename.
+
+        `docroot`
+            Location of documentation in repository
+        `filename`
+            Name of file
+        `source_suffix`
+            File suffix of documentation format
+        `action`
+            `view` (default) or `edit`
+        """
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
@@ -283,6 +300,9 @@ class Version(models.Model):
 
 
 class VersionAlias(models.Model):
+
+    """Alias for a ``Version``."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='aliases')
     from_slug = models.CharField(_('From slug'), max_length=255, default='')
@@ -299,6 +319,9 @@ class VersionAlias(models.Model):
 
 
 class Build(models.Model):
+
+    """Build data."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='builds')
     version = models.ForeignKey(Version, verbose_name=_('Version'), null=True,
@@ -323,7 +346,7 @@ class Build(models.Model):
 
     # Manager
 
-    objects = BuildManager()
+    objects = BuildQuerySet.as_manager()
 
     class Meta:
         ordering = ['-date']
@@ -373,6 +396,9 @@ class BuildCommandResultMixin(object):
 
 
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
+
+    """Build command for a ``Build``."""
+
     build = models.ForeignKey(Build, verbose_name=_('Build'),
                               related_name='commands')
 
@@ -388,7 +414,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         ordering = ['start_time']
         get_latest_by = 'start_time'
 
-    objects = RelatedBuildManager()
+    objects = RelatedBuildQuerySet.as_manager()
 
     def __unicode__(self):
         return (ugettext(u'Build command {pk} for build {build}')

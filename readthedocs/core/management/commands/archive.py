@@ -1,3 +1,5 @@
+"""Rebuild documentation for all projects"""
+
 from glob import glob
 import os
 import logging
@@ -11,11 +13,7 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
-    """
-    Custom management command to rebuild documentation for all projects.
-
-    Invoked via ``./manage.py update_repos``.
-    """
+    help = __doc__
 
     def handle(self, *args, **options):
         doc_index = {}

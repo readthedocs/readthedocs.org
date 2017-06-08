@@ -1,3 +1,4 @@
+"""Mix-in classes for project views."""
 import logging
 from datetime import datetime, timedelta
 

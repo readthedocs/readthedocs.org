@@ -1,6 +1,6 @@
+"""Local development settings, including local_settings, if present."""
 import os
 
-from readthedocs.core.settings import Settings
 from .base import CommunityBaseSettings
 
 
@@ -50,6 +50,12 @@ class CommunityDevSettings(CommunityBaseSettings):
     CORS_ORIGIN_WHITELIST = (
         'test:8000',
     )
+
+    @property
+    def LOGGING(self):  # noqa - avoid pep8 N802
+        logging = super(CommunityDevSettings, self).LOGGING
+        logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        return logging
 
 
 CommunityDevSettings.load_settings(__name__)

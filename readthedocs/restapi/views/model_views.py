@@ -8,13 +8,11 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import TAG
-from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.builds.constants import STABLE
-from readthedocs.projects.filters import ProjectFilter, DomainFilter
 from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -34,7 +32,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
-    filter_class = ProjectFilter
     model = Project
     paginate_by = 100
     paginate_by_param = 'page_size'
@@ -158,7 +155,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
-    filter_class = VersionFilter
     model = Version
 
     def get_queryset(self):
@@ -207,7 +203,6 @@ class DomainViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
-    filter_class = DomainFilter
     model = Domain
 
     def get_queryset(self):

@@ -1,3 +1,5 @@
+"""Signal handling for core app."""
+
 import logging
 from urlparse import urlparse
 
@@ -16,7 +18,7 @@ webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
 webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
 
 
-def decide_if_cors(sender, request, **kwargs):
+def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
     """
     Decide whether a request should be given CORS access.
 

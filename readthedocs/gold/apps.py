@@ -1,3 +1,5 @@
+"""Django app configuration for the Gold Membership app."""
+
 from django.apps import AppConfig
 
 

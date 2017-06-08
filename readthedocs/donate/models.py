@@ -1,3 +1,7 @@
+"""Django models for the donate app."""
+# We use 'type' and 'hash' heavily in the API here.
+# pylint: disable=redefined-builtin
+
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
@@ -33,11 +37,14 @@ class Supporter(models.Model):
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
 
 class SupporterPromo(models.Model):
+
+    """A banner advertisement."""
+
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
@@ -62,7 +69,7 @@ class SupporterPromo(models.Model):
     class Meta:
         ordering = ('analytics_id', '-live')
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
     def as_dict(self):
@@ -110,7 +117,9 @@ class SupporterPromo(models.Model):
         impression.save()
 
         # TODO: Support redis, more info on this PR
-        # github.com/rtfd/readthedocs.org/pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
+        #
+        # https://github.com/rtfd/readthedocs.org
+        #     /pull/2105/files/1b5f8568ae0a7760f7247149bcff481efc000f32#r58253051
 
     def view_ratio(self, day=None):
         if not day:
@@ -201,6 +210,9 @@ class PromoImpressions(BaseImpression):
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
 
+    def __unicode__(self):
+        return u'%s on %s' % (self.promo, self.date)
+
 
 class ProjectImpressions(BaseImpression):
 
@@ -217,6 +229,9 @@ class ProjectImpressions(BaseImpression):
 
     class Meta:
         unique_together = ('project', 'promo', 'date')
+
+    def __unicode__(self):
+        return u'%s / %s on %s' % (self.promo, self.project, self.date)
 
 
 class Country(models.Model):

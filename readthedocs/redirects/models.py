@@ -1,3 +1,5 @@
+"""Django models for the redirects app."""
+
 from django.db import models
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
@@ -41,6 +43,9 @@ redirect_type_helptext = _('The type of redirect you wish to use.')
 
 
 class Redirect(models.Model):
+
+    """A HTTP redirect associated with a Project."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='redirects')
 
@@ -101,7 +106,7 @@ class Redirect(models.Model):
 
     def redirect_prefix(self, path, language=None, version_slug=None):
         if path.startswith(self.from_url):
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             cut_path = re.sub('^%s' % self.from_url, '', path)
             to = self.get_full_path(
                 filename=cut_path,
@@ -111,16 +116,16 @@ class Redirect(models.Model):
 
     def redirect_page(self, path, language=None, version_slug=None):
         if path == self.from_url:
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             to = self.get_full_path(
                 filename=self.to_url.lstrip('/'),
                 language=language,
                 version_slug=version_slug)
             return to
 
-    def redirect_exact(self, path, language=None, version_slug=None):
+    def redirect_exact(self, path, **__):
         if path == self.from_url:
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             return self.to_url
         # Handle full sub-level redirects
         if '$rest' in self.from_url:
@@ -132,7 +137,7 @@ class Redirect(models.Model):
     def redirect_sphinx_html(self, path, language=None, version_slug=None):
         for ending in ['/', '/index.html']:
             if path.endswith(ending):
-                log.debug('Redirecting %s' % self)
+                log.debug('Redirecting %s', self)
                 path = path[1:]  # Strip leading slash.
                 to = re.sub(ending + '$', '.html', path)
                 return self.get_full_path(
@@ -142,7 +147,7 @@ class Redirect(models.Model):
 
     def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
         if path.endswith('.html'):
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('.html$', '/', path)
             return self.get_full_path(

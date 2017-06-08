@@ -1,3 +1,5 @@
+"""Base classes for Builders."""
+
 from functools import wraps
 import os
 import logging
@@ -41,35 +43,32 @@ class BaseBuilder(object):
             type_=self.type
         )
 
-    def force(self, **kwargs):
+    def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
         log.info("Forcing a build")
         self._force = True
 
-    def build(self, id=None, **kwargs):
+    def build(self, id=None, **__):  # pylint: disable=redefined-builtin
         """Do the actual building of the documentation."""
         raise NotImplementedError
 
-    def move(self, **kwargs):
-        """
-        Move the documentation from where it was generated to
-        its artifact directory.
-        """
+    def move(self, **__):
+        """Move the generated documentation to its artifact directory."""
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info("Copying %s on the local filesystem" % self.type)
+            log.info("Copying %s on the local filesystem", self.type)
             shutil.copytree(self.old_artifact_path, self.target)
         else:
             log.warning("Not moving docs, because the build dir is unknown.")
 
-    def clean(self, **kwargs):
+    def clean(self, **__):
         """Clean the path where documentation will be built"""
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
-            log.info("Removing old artifact path: %s" % self.old_artifact_path)
+            log.info("Removing old artifact path: %s", self.old_artifact_path)
 
-    def docs_dir(self, docs_dir=None, **kwargs):
+    def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
         checkout_path = self.project.checkout_path(self.version.slug)
         if not docs_dir:
@@ -82,7 +81,7 @@ class BaseBuilder(object):
             docs_dir = checkout_path
         return docs_dir
 
-    def create_index(self, extension='md', **kwargs):
+    def create_index(self, extension='md', **__):
         """Create an index file if it needs it."""
         docs_dir = self.docs_dir()
 
