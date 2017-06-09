@@ -1,3 +1,4 @@
+"""Defines serializers for each of our models."""
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
