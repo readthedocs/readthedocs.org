@@ -64,6 +64,7 @@ Members
 
 * `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
 * `Anthony Johnson <https://github.com/agjohnson>`_ (Pacific Time)
+* `Matt Robenolt <https://github.com/mattrobenolt>`_ (Pacific Time)
 * Your Name Here
 
 Feel free to ask any of us if you have questions or want to join!
