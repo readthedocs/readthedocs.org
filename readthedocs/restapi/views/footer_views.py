@@ -55,6 +55,8 @@ def get_version_compare_data(project, base_version=None):
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer))
 def footer_html(request):
     """Render and return footer markup."""
+    # TODO refactor this function
+    # pylint: disable=too-many-locals
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
     page_slug = request.GET.get('page', None)

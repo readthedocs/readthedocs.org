@@ -85,6 +85,8 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
     In order to keep sub-projects all indexed on the same shard, indexes will be
     updated using the parent project's slug as the routing value.
     """
+    # TODO refactor this function
+    # pylint: disable=too-many-locals
     project = version.project
 
     log_msg = ' '.join([page['path'] for page in page_list])
