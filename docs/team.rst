@@ -34,7 +34,7 @@ Members
 
 * `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
 * `Anthony Johnson <https://github.com/agjohnson>`_ (Pacific Time)
-* `edunham <https://github.com/edunham>`_
+* `Manuel Kaufmann <https://github.com/humitos>`_ (Central Time)
 * Your Name Here
 
 Feel free to ask any of us if you have questions or want to join!
