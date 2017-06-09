@@ -62,7 +62,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
     @detail_route()
-    def translations(self, _, **__):
+    def translations(self, *_, **__):
         translations = self.get_object().translations.all()
         return Response({
             'translations': ProjectSerializer(translations, many=True).data
