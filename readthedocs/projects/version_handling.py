@@ -111,10 +111,16 @@ def version_windows(versions, major=1, minor=1, point=1):
 
 
 def parse_version_failsafe(version_string):
+    if not isinstance(version_string, six.text_type):
+        uni_version = version_string.decode('utf-8')
+    else:
+        uni_version = version_string
+
     try:
-        return Version(
-            unicodedata.normalize('NFKD', six.text_type(version_string))
-        )
+        normalized_version = unicodedata.normalize('NFKD', uni_version)
+        ascii_version = normalized_version.encode('ascii', 'ignore')
+        final_form = ascii_version.decode('ascii')
+        return Version(final_form)
     except (UnicodeError, InvalidVersion):
         return None
 
