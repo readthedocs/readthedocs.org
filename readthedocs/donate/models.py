@@ -4,7 +4,7 @@
 
 from django.db import models
 from django.utils.crypto import get_random_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
@@ -172,9 +172,13 @@ class SupporterPromo(models.Model):
 
 
 class BaseImpression(models.Model):
+
+    """Statistics for tracking."""
+
     date = models.DateField(_('Date'))
     offers = models.IntegerField(_('Offer'), default=0)
-    views = models.IntegerField(_('View'), default=0)
+    views = models.IntegerField(
+        pgettext('View', 'Number of display on a screen that were sold'), default=0)
     clicks = models.IntegerField(_('Clicks'), default=0)
 
     class Meta:

@@ -163,7 +163,7 @@ $(document).ready(function() {
                           data-bind="attr: {href: url}"
                           class="remote-repo-view"
                           title="{% trans "This repository has already been imported" %}">
-                        <span>{% trans "View" %}</span>
+                        <span>{% blocktrans context "verb, action to see in detail" %}"View"{% endblocktrans %}</span>
                       </a>
                     </li>
                     <li data-bind="visible: !match() && !is_locked()" style="display: none;">
