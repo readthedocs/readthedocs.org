@@ -139,7 +139,7 @@ class Project(models.Model):
 
     # Project features
     allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
+    comment_moderation = models.BooleanField(_('Comment Moderation'), default=False)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -177,7 +177,7 @@ class Project(models.Model):
     conf_py_file = models.CharField(
         _('Python configuration file'), max_length=255, default='', blank=True,
         help_text=_('Path from project root to <code>conf.py</code> file '
-                    '(ex. <code>docs/conf.py</code>).'
+                    '(ex. <code>docs/conf.py</code>). '
                     'Leave blank if you want us to find it for you.'))
 
     featured = models.BooleanField(_('Featured'), default=False)
