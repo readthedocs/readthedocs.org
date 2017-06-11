@@ -79,12 +79,12 @@ $(document).ready(function() {
                   class="remote-repos-empty">
                 <li class="module-item">
                   {% if has_connected_accounts %}
-                    {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
-                      <p>
+                    <p>
+                      {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
                         No remote repositories found,
                         try <a href="#" {{ binding }}>refreshing your accounts</a>.
-                      </p>
-                    {% endblocktrans %}
+                      {% endblocktrans %}
+                    </p>
                   {% else %}
                     <p>
                       {% blocktrans trimmed %}
