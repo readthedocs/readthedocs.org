@@ -890,14 +890,14 @@ class Domain(models.Model):
     )
     canonical = models.BooleanField(
         default=False,
-        help_text=_('This Domain is the primary one where the documentation is served from.')
+        help_text=_('This Domain is the primary one where the documentation is served from')
     )
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
         help_text=_('SSL is enabled for this domain')
     )
-    count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
+    count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit'))
 
     objects = RelatedProjectQuerySet.as_manager()
 
