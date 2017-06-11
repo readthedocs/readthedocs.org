@@ -343,7 +343,7 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None, lang_slug=None, private=None):
-        """Return a url for the docs
+        """Return a URL for the docs
 
         Always use http for now, to avoid content warnings.
         """
