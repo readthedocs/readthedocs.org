@@ -25,7 +25,7 @@ from readthedocs.privacy.loader import (RelatedProjectQuerySet, ProjectQuerySet,
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import make_api_version, update_static_metadata
+from readthedocs.projects.utils import make_api_version
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from readthedocs.core.resolver import resolve, resolve_domain
@@ -330,7 +330,8 @@ class Project(models.Model):
         except Exception:
             log.error('failed to symlink project', exc_info=True)
         try:
-            update_static_metadata(project_pk=self.pk)
+            if not first_save:
+                broadcast(type='app', task=tasks.update_static_metadata, args=[self.pk])
         except Exception:
             log.error('failed to update static metadata', exc_info=True)
         try:

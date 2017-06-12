@@ -558,6 +558,7 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
     if not epub:
         clear_epub_artifacts(version)
 
+    # Sync files to the web servers
     broadcast(type='app', task=move_files, args=[version_pk, hostname],
               kwargs=dict(
                   html=html,
@@ -570,8 +571,10 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
     # Symlink project on every web
     broadcast(type='app', task=symlink_project, args=[version.project.pk])
 
+    # Update metadata
+    broadcast(type='app', task=update_static_metadata, args=[version.project.pk])
+
     # Delayed tasks
-    update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
 
@@ -885,7 +888,6 @@ def update_static_metadata(project_pk, path=None):
         fh = open(path, 'w+')
         json.dump(metadata, fh)
         fh.close()
-        Syncer.copy(path, path, host=socket.gethostname(), is_file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
