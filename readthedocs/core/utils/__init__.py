@@ -30,6 +30,8 @@ SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
     assert type in ['web', 'app', 'build']
+    if kwargs is None:
+        kwargs = {}
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
         servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
