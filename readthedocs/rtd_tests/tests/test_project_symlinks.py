@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+from builtins import object
 import os
 import shutil
 import tempfile
@@ -92,7 +94,7 @@ class TempSiterootCase(object):
                 new_callable=mock.PropertyMock
             ),
         }
-        self.patches = dict((key, mock.start()) for (key, mock) in self.mocks.items())
+        self.patches = dict((key, mock.start()) for (key, mock) in list(self.mocks.items()))
         self.patches['PublicSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
             settings.SITE_ROOT, 'public_cname_root'
         )

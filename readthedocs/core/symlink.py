@@ -53,6 +53,8 @@ Example layout
 
 """
 
+from __future__ import absolute_import
+from builtins import object
 import os
 import shutil
 import logging
@@ -187,7 +189,7 @@ class Symlink(object):
             if rel.alias:
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
-            for from_slug, to_slug in from_to.items():
+            for from_slug, to_slug in list(from_to.items()):
                 self._log(u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
@@ -222,7 +224,7 @@ class Symlink(object):
         if not os.path.lexists(language_dir):
             safe_makedirs(language_dir)
 
-        for (language, slug) in translations.items():
+        for (language, slug) in list(translations.items()):
             self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)

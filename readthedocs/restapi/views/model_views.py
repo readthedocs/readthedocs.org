@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import logging
 
 from django.shortcuts import get_object_or_404
@@ -123,9 +124,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     project=project, versions=data['branches'], type=BRANCH)
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
-        except Exception, e:
-            log.exception("Sync Versions Error: %s" % e.message)
-            return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            log.exception("Sync Versions Error: %s" % str(e))
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         promoted_version = project.update_stable_version()
         if promoted_version:

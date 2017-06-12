@@ -1,5 +1,7 @@
 """Views for builds app."""
 
+from __future__ import absolute_import
+from builtins import object
 import logging
 
 from django.shortcuts import get_object_or_404

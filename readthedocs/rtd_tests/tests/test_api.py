@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from builtins import str
 import json
 import base64
 import datetime
@@ -16,8 +18,8 @@ from readthedocs.projects.models import Project
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
-super_auth = base64.b64encode('super:test')
-eric_auth = base64.b64encode('eric:test')
+super_auth = base64.b64encode(b'super:test').decode('utf-8')
+eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 
 
 class APIBuildTests(TestCase):
@@ -156,12 +158,12 @@ class APITests(TestCase):
         resp = self.client.post('/api/v1/project/',
                                 data=json.dumps(post_data),
                                 content_type='application/json',
-                                HTTP_AUTHORIZATION='Basic %s' % super_auth)
+                                HTTP_AUTHORIZATION=u'Basic %s' % super_auth)
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(resp['location'],
                          '/api/v1/project/24/')
         resp = self.client.get('/api/v1/project/24/', data={'format': 'json'},
-                               HTTP_AUTHORIZATION='Basic %s' % eric_auth)
+                               HTTP_AUTHORIZATION=u'Basic %s' % eric_auth)
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
         self.assertEqual(obj['slug'], 'awesome-project')
@@ -177,7 +179,7 @@ class APITests(TestCase):
         resp = self.client.post(
             '/api/v1/project/', data=json.dumps(post_data),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('tester:notapass')
+            HTTP_AUTHORIZATION=u'Basic %s' % base64.b64encode(b'tester:notapass').decode('utf-8')
         )
         self.assertEqual(resp.status_code, 401)
 
@@ -195,7 +197,7 @@ class APITests(TestCase):
             '/api/v1/project/',
             data=json.dumps(post_data),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Basic %s' % base64.b64encode('tester:test')
+            HTTP_AUTHORIZATION=u'Basic %s' % base64.b64encode(b'tester:test').decode('utf-8')
         )
         self.assertEqual(resp.status_code, 401)
 

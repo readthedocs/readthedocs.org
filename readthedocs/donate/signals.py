@@ -1,5 +1,6 @@
 """Django signal plumbing for the donate app."""
 
+from __future__ import absolute_import
 import random
 import logging
 

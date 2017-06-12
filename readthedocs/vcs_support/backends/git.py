@@ -1,17 +1,19 @@
 """Git-related utilities."""
+from __future__ import absolute_import
+
+from future import standard_library
+standard_library.install_aliases()
+
 import re
 import logging
 import csv
 import os
-import sys
+from io import StringIO
+
+from builtins import bytes, str
 
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-if sys.version_info > (3,):
-    from io import StringIO
-else:
-    from StringIO import StringIO
 
 
 log = logging.getLogger(__name__)
@@ -113,10 +115,13 @@ class Backend(BaseVCS):
         hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
+        # StringIO below is expecting Unicode data, so ensure that it gets it.
+        if not isinstance(data, str):
+            data = str(data)
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
         for row in raw_tags:
-            row = filter(lambda f: f != '', row)
+            row = [f for f in row if f != '']
             if row == []:
                 continue
             commit_hash, name = row
@@ -147,9 +152,12 @@ class Backend(BaseVCS):
               origin/release/2.1.0
         """
         clean_branches = []
+        # StringIO below is expecting Unicode data, so ensure that it gets it.
+        if not isinstance(data, str):
+            data = str(data)
         raw_branches = csv.reader(StringIO(data), delimiter=' ')
         for branch in raw_branches:
-            branch = filter(lambda f: f != '' and f != '*', branch)
+            branch = [f for f in branch if f != '' and f != '*']
             # Handle empty branches
             if len(branch):
                 branch = branch[0]

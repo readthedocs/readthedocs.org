@@ -1,8 +1,10 @@
 """Models for the core app."""
 
+from __future__ import absolute_import
 import logging
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
 from annoying.fields import AutoOneToOneField
 
@@ -11,6 +13,7 @@ STANDARD_EMAIL = "anonymous@readthedocs.org"
 log = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class UserProfile (models.Model):
 
     """Additional information about a User."""
@@ -25,7 +28,7 @@ class UserProfile (models.Model):
                                                   'contributions.'),
                                       default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return (ugettext("%(username)s's profile")
                 % {'username': self.user.username})
 

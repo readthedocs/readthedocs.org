@@ -1,7 +1,10 @@
 """Signal handling for core app."""
 
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.dispatch import Signal
 from corsheaders import signals

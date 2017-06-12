@@ -1,5 +1,6 @@
 """Celery tasks with publicly viewable status"""
 
+from __future__ import absolute_import
 from celery import Task, states
 from django.conf import settings
 

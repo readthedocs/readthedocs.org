@@ -1,6 +1,7 @@
 """Validators for core app."""
 
 # From https://github.com/django/django/pull/3477/files
+from __future__ import absolute_import
 import re
 
 from django.core.exceptions import ValidationError

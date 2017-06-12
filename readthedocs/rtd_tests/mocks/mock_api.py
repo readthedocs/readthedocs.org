@@ -1,4 +1,6 @@
 """Mock versions of many API-related classes."""
+from __future__ import absolute_import
+from builtins import object
 from contextlib import contextmanager
 import json
 import mock

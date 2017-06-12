@@ -1,5 +1,6 @@
 """Gold subscription views"""
 
+from __future__ import absolute_import
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin

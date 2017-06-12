@@ -1,4 +1,6 @@
 """Mix-in classes for project views."""
+from __future__ import absolute_import
+from builtins import object
 import logging
 from datetime import datetime, timedelta
 

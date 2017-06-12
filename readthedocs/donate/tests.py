@@ -1,16 +1,17 @@
+from __future__ import absolute_import
+
 import json
 import mock
 
+from builtins import range
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.test.client import RequestFactory
-
-from readthedocs.core.middleware import FooterNoSessionMiddleware
-
 from django_dynamic_fixture import get
 
-from .models import SupporterPromo, GeoFilter, Country,
+from readthedocs.core.middleware import FooterNoSessionMiddleware
+from .models import SupporterPromo, GeoFilter, Country
 from .constants import (CLICKS, VIEWS, OFFERS,
                         INCLUDE, EXCLUDE)
 from .signals import show_to_geo, get_promo, choose_promo, show_to_programming_language

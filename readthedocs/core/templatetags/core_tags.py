@@ -1,6 +1,10 @@
 """Template tags for core app."""
 
-import urllib
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+import urllib.request, urllib.parse, urllib.error
 import hashlib
 
 from django import template
@@ -22,7 +26,7 @@ def gravatar(email, size=48):
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading
     """
-    url = "http://www.gravatar.com/avatar.php?%s" % urllib.urlencode({
+    url = "http://www.gravatar.com/avatar.php?%s" % urllib.parse.urlencode({
         'gravatar_id': hashlib.md5(email).hexdigest(),
         'size': str(size)
     })

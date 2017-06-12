@@ -1,5 +1,6 @@
 """Project template tags and filters"""
 
+from __future__ import absolute_import
 from django import template
 
 from readthedocs.projects.version_handling import comparable_version

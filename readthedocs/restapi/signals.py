@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import django.dispatch
 
 footer_response = django.dispatch.Signal(

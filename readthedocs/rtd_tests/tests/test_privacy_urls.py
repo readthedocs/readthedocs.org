@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import print_function
+from builtins import object
 import re
 
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
@@ -59,7 +62,7 @@ class URLAccessMixin(object):
         response_attrs.update(response_data)
         if self.context_data and getattr(response, 'context'):
             self._test_context(response)
-        for (key, val) in response_attrs.items():
+        for (key, val) in list(response_attrs.items()):
             resp_val = getattr(response, key)
             self.assertEqual(
                 resp_val,
@@ -81,23 +84,23 @@ class URLAccessMixin(object):
                 self.context_data.append(self.pip)
         """
 
-        for key in response.context.keys():
+        for key in list(response.context.keys()):
             obj = response.context[key]
             for not_obj in self.context_data:
                 if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
                     self.assertNotIn(not_obj, obj)
-                    print "%s not in %s" % (not_obj, obj)
+                    print("%s not in %s" % (not_obj, obj))
                 else:
                     self.assertNotEqual(not_obj, obj)
-                    print "%s is not %s" % (not_obj, obj)
+                    print("%s is not %s" % (not_obj, obj))
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
         added_kwargs = {}
         for (view, regex, namespace, name) in deconstructed_urls:
             request_data = self.request_data.get(name, {}).copy()
-            for key in re.compile(regex).groupindex.keys():
-                if key in request_data.keys():
+            for key in list(re.compile(regex).groupindex.keys()):
+                if key in list(request_data.keys()):
                     added_kwargs[key] = request_data[key]
                     continue
                 if key not in self.default_kwargs:

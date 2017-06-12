@@ -1,5 +1,6 @@
 """Project signals"""
 
+from __future__ import absolute_import
 import django.dispatch
 from django.dispatch import receiver
 

@@ -1,5 +1,6 @@
 """WSGI application helper"""
 
+from __future__ import absolute_import
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
