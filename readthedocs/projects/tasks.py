@@ -395,11 +395,10 @@ class UpdateDocsTask(Task):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            move_files.delay(
-                version_pk=self.version.pk,
-                html=True,
-                hostname=socket.gethostname(),
-            )
+            broadcast(type='app', task=move_files,
+                      args=[self.version.pk, socket.gethostname()],
+                      kwargs=dict(html=True)
+                      )
         except socket.error:
             # TODO do something here
             pass
@@ -559,15 +558,14 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
     if not epub:
         clear_epub_artifacts(version)
 
-    move_files(
-        version_pk=version_pk,
-        hostname=hostname,
-        html=html,
-        localmedia=localmedia,
-        search=search,
-        pdf=pdf,
-        epub=epub,
-    )
+    broadcast(type='app', task=move_files, args=[version_pk, hostname],
+              kwargs=dict(
+                  html=html,
+                  localmedia=localmedia,
+                  search=search,
+                  pdf=pdf,
+                  epub=epub,
+    ))
 
     # Symlink project on every web
     broadcast(type='app', task=symlink_project, args=[version.project.pk])

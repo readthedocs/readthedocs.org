@@ -42,7 +42,7 @@ def run_on_app_servers(command):
     return ret
 
 
-def broadcast(type, task, args):  # pylint: disable=redefined-builtin
+def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
     assert type in ['web', 'app', 'build']
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
@@ -53,6 +53,7 @@ def broadcast(type, task, args):  # pylint: disable=redefined-builtin
         task.apply_async(
             queue=server,
             args=args,
+            kwargs=kwargs,
         )
 
 
