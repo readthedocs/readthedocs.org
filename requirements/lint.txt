@@ -1,8 +1,8 @@
 -r pip.txt
 maxcdn
-astroid<1.4
-pylint<1.5
+astroid
+pylint
 # prospector==0.12.6 currently has issues with pydocstyle
 prospector==0.12.5
-pylint-django<0.7
-pyflakes<1.2.0
+pylint-django
+pyflakes

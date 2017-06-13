@@ -54,8 +54,7 @@ def process_mkdocs_json(version, build_dir=True):
 def recurse_while_none(element):
     if element.text is None:
         return recurse_while_none(element.getchildren()[0])
-    else:
-        return element.text
+    return element.text
 
 
 def valid_mkdocs_json(file_path):

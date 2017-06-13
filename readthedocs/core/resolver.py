@@ -105,10 +105,7 @@ class ResolverBase(object):
             project_slug = project.slug
             subproject_slug = None
 
-        if project.single_version or single_version:
-            single_version = True
-        else:
-            single_version = False
+        single_version = bool(project.single_version or single_version)
 
         return self.base_resolve_path(
             project_slug=project_slug,
@@ -130,8 +127,7 @@ class ResolverBase(object):
             return domain.domain
         elif self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
-        else:
-            return getattr(settings, 'PRODUCTION_DOMAIN')
+        return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(self, project, protocol='http', filename='', private=None,
                 **kwargs):
@@ -160,8 +156,7 @@ class ResolverBase(object):
             return main_language_project
         elif relation:
             return relation.parent
-        else:
-            return project
+        return project
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain"""

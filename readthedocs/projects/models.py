@@ -60,7 +60,7 @@ class ProjectRelationship(models.Model):
     def __str__(self):
         return "%s -> %s" % (self.parent, self.child)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.alias:
             self.alias = self.child.slug
         super(ProjectRelationship, self).save(*args, **kwargs)
@@ -298,7 +298,7 @@ class Project(models.Model):
                 verbose_name__in=supported).update(supported=False)
             self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
@@ -357,8 +357,7 @@ class Project(models.Model):
     def get_canonical_url(self):
         if getattr(settings, 'DONT_HIT_DB', True):
             return apiv2.project(self.pk).canonical_url().get()['url']
-        else:
-            return self.get_docs_url()
+        return self.get_docs_url()
 
     def get_subproject_urls(self):
         """List subproject URLs
@@ -371,9 +370,8 @@ class Project(models.Model):
                         apiv2.project(self.pk)
                         .subprojects()
                         .get()['subprojects'])]
-        else:
-            return [(proj.child.slug, proj.child.get_docs_url())
-                    for proj in self.subprojects.all()]
+        return [(proj.child.slug, proj.child.get_docs_url())
+                for proj in self.subprojects.all()]
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -612,8 +610,8 @@ class Project(models.Model):
         """
         matches = []
         for root, __, filenames in os.walk(self.full_doc_path(version)):
-            for filename in fnmatch.filter(filenames, filename):
-                matches.append(os.path.join(root, filename))
+            for match in fnmatch.filter(filenames, filename):
+                matches.append(os.path.join(root, match))
         return matches
 
     def full_find(self, filename, version):
@@ -624,8 +622,8 @@ class Project(models.Model):
         """
         matches = []
         for root, __, filenames in os.walk(self.checkout_path(version)):
-            for filename in fnmatch.filter(filenames, filename):
-                matches.append(os.path.join(root, filename))
+            for match in fnmatch.filter(filenames, filename):
+                matches.append(os.path.join(root, match))
         return matches
 
     def get_latest_build(self, finished=True):
@@ -754,8 +752,7 @@ class Project(models.Model):
         """Get the version representing 'latest'"""
         if self.default_branch:
             return self.default_branch
-        else:
-            return self.vcs_repo().fallback_branch
+        return self.vcs_repo().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
@@ -911,7 +908,7 @@ class Domain(models.Model):
     def __str__(self):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
@@ -921,7 +918,7 @@ class Domain(models.Model):
         super(Domain, self).save(*args, **kwargs)
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
         super(Domain, self).delete(*args, **kwargs)

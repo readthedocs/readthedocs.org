@@ -1,3 +1,5 @@
+"""Endpoints related to searching through projects, sections, etc."""
+
 from __future__ import absolute_import
 import logging
 

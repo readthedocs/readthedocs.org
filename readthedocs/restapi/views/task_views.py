@@ -1,3 +1,5 @@
+"""Endpoints relating to task/job status, etc."""
+
 from __future__ import absolute_import
 import logging
 

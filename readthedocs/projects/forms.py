@@ -508,7 +508,10 @@ class RedirectForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super(RedirectForm, self).__init__(*args, **kwargs)
 
-    def save(self, **_):
+    def save(self, **_):  # pylint: disable=arguments-differ
+        # TODO this should respect the unused argument `commit`. It's not clear
+        # why this needs to be a call to `create`, instead of relying on the
+        # super `save()` call.
         redirect = Redirect.objects.create(
             project=self.project,
             redirect_type=self.cleaned_data['redirect_type'],

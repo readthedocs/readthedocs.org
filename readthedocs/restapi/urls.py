@@ -1,4 +1,7 @@
+"""Define routes between URL paths and views/endpoints."""
+
 from __future__ import absolute_import
+
 from django.conf.urls import url, include
 
 from rest_framework import routers

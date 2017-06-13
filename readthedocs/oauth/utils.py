@@ -74,12 +74,11 @@ def update_webhook(project, integration, request=None):
         project.has_valid_webhook = True
         project.save()
         return True
-    else:
-        messages.error(
-            request,
-            _('Webhook activation failed. '
-              'Make sure you have the necessary permissions.')
-        )
-        project.has_valid_webhook = False
-        project.save()
-        return False
+    messages.error(
+        request,
+        _('Webhook activation failed. '
+            'Make sure you have the necessary permissions.')
+    )
+    project.has_valid_webhook = False
+    project.save()
+    return False
