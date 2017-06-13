@@ -6,11 +6,11 @@ sudo: false
 matrix:
   include:
     - python: 2.7
-      script: tox -e docs
+      env: TOXENV=docs
     - python: 2.7
-      script: tox -e lint
+      env: TOXENV=lint
     - python: 2.7
-      script: tox -e eslint
+      env: TOXENV=eslint
 script:
   - tox
 cache:
