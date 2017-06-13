@@ -32,7 +32,7 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
+from readthedocs.core.utils import send_email, broadcast
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
