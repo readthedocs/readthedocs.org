@@ -2,8 +2,7 @@
 """Utilities related to reading and generating indexable search content."""
 
 from __future__ import absolute_import
-from builtins import next
-from builtins import range
+
 import os
 import fnmatch
 import re
@@ -11,8 +10,9 @@ import codecs
 import logging
 import json
 
+from builtins import next, range
 from pyquery import PyQuery
-from six.moves import range
+
 
 log = logging.getLogger(__name__)
 

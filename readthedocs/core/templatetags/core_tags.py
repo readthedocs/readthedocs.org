@@ -1,12 +1,10 @@
 """Template tags for core app."""
 
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-import urllib.request, urllib.parse, urllib.error
+
 import hashlib
 
+from builtins import str  # pylint: disable=redefined-builtin
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -14,6 +12,11 @@ from django.utils.encoding import force_bytes, force_text
 
 from readthedocs.projects.models import Project
 from readthedocs.core.resolver import resolve
+
+from future import standard_library
+standard_library.install_aliases()
+import urllib.request, urllib.parse, urllib.error  # noqa
+
 
 register = template.Library()
 

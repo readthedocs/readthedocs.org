@@ -1,14 +1,12 @@
 """Common utilty functions"""
 
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
+
 import errno
 import getpass
 import logging
 import os
 import re
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils import six
@@ -19,6 +17,10 @@ from django.utils.text import slugify as slugify_base
 from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from ..tasks import send_email_task
+
+from future import standard_library  # pylint: disable=wrong-import-order
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
 
 
 log = logging.getLogger(__name__)

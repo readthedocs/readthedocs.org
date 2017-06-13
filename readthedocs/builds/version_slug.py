@@ -17,14 +17,15 @@ another number would be confusing.
 """
 
 from __future__ import absolute_import
-from builtins import range
+
 import math
 import re
 import string
 from operator import truediv
+
 from django.db import models
 from django.utils.encoding import force_text
-from six.moves import range
+from builtins import range
 
 
 # Regex breakdown:

@@ -1,14 +1,17 @@
 """Subversion-related utilities."""
+
 from __future__ import absolute_import
-from builtins import bytes, str
-from future import standard_library
-standard_library.install_aliases()
+
 import csv
+
+from builtins import bytes, str  # pylint: disable=redefined-builtin
 
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
-from io import StringIO
+from future import standard_library
+standard_library.install_aliases()
+from io import StringIO  # noqa
 
 
 class Backend(BaseVCS):
