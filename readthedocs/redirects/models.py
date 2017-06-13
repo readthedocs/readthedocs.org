@@ -36,7 +36,7 @@ TYPE_CHOICES = (
 from_url_helptext = _('Absolute path, excluding the domain. '
                       'Example: <b>/docs/</b>  or <b>/install.html</b>'
                       )
-to_url_helptext = _('Absolute or relative url. Examples: '
+to_url_helptext = _('Absolute or relative URL. Examples: '
                     '<b>/tutorial/install.html</b>'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
