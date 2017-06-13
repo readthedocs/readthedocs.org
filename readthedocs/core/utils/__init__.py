@@ -33,9 +33,8 @@ def run_on_app_servers(command):
             if ret != 0:
                 ret_val = ret
         return ret_val
-    else:
-        ret = os.system(command)
-        return ret
+    ret = os.system(command)
+    return ret
 
 
 def broadcast(type, task, args):  # pylint: disable=redefined-builtin
@@ -56,8 +55,7 @@ def clean_url(url):
     parsed = urlparse(url)
     if parsed.scheme or parsed.netloc:
         return parsed.netloc
-    else:
-        return parsed.path
+    return parsed.path
 
 
 def cname_to_slug(host):

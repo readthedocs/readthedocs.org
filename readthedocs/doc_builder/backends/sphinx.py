@@ -137,7 +137,7 @@ class BaseSphinx(BaseBuilder):
             cwd=self.project.checkout_path(self.version.slug),
         )
 
-    def build(self, **__):
+    def build(self):
         self.clean()
         project = self.project
         build_command = [
@@ -275,7 +275,7 @@ class PdfBuilder(BaseSphinx):
     sphinx_build_dir = '_build/latex'
     pdf_file_name = None
 
-    def build(self, **__):
+    def build(self):
         self.clean()
         cwd = self.project.conf_dir(self.version.slug)
 

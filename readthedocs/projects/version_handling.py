@@ -36,7 +36,7 @@ class VersionManager(object):
         all_keys = sorted(set(self._state.keys()))
         major_keep = []
         for __ in range(num_latest):
-            if len(all_keys) > 0:
+            if all_keys:
                 major_keep.append(all_keys.pop(-1))
         for to_remove in all_keys:
             del self._state[to_remove]
@@ -46,7 +46,7 @@ class VersionManager(object):
             all_keys = sorted(set(minors.keys()))
             minor_keep = []
             for __ in range(num_latest):
-                if len(all_keys) > 0:
+                if all_keys:
                     minor_keep.append(all_keys.pop(-1))
             for to_remove in all_keys:
                 del self._state[major][to_remove]
@@ -158,8 +158,7 @@ def highest_version(version_list):
     versions = sort_versions(version_list)
     if versions:
         return versions[0]
-    else:
-        return (None, None)
+    return (None, None)
 
 
 def determine_stable_version(version_list):
@@ -177,5 +176,4 @@ def determine_stable_version(version_list):
     if versions:
         version_obj, comparable = versions[0]
         return version_obj
-    else:
-        return None
+    return None

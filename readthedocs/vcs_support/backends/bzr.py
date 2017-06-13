@@ -95,5 +95,4 @@ class Backend(BaseVCS):
         self.update()
         if not identifier:
             return self.up()
-        else:
-            return self.run('bzr', 'switch', identifier)
+        return self.run('bzr', 'switch', identifier)

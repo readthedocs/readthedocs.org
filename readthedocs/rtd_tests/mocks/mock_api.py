@@ -70,8 +70,7 @@ def mock_version(repo):
             project['repo'] = repo
             if 'slug' in kwargs:
                 return {'objects': [version], 'project': project}
-            else:
-                return version
+            return version
     return MockVersion
 
 

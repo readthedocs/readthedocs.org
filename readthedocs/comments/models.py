@@ -32,12 +32,12 @@ class DocumentNodeManager(models.Manager):
         if project_slug:
             snapshots = snapshots.filter(node__project__slug=project_slug)
 
-        if len(snapshots) == 0:
+        if not snapshots.exists():
             raise DocumentNode.DoesNotExist(
                 "No node exists on %s with a current hash of %s" % (
                     page, node_hash))
 
-        if len(snapshots) == 1:
+        if snapshots.count() == 1:
             # If we have found only one snapshot, we know we have the correct node.
             node = snapshots[0].node
         else:
@@ -84,22 +84,20 @@ class DocumentNode(models.Model):
     def visible_comments(self):
         if not self.project.comment_moderation:
             return self.comments.all()
-        else:
-            # non-optimal SQL warning.
-            decisions = ModerationAction.objects.filter(
-                comment__node=self,
-                decision=1,
-                date__gt=self.snapshots.latest().date
-            )
-            valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
-            return valid_comments
+        # non-optimal SQL warning.
+        decisions = ModerationAction.objects.filter(
+            comment__node=self,
+            decision=1,
+            date__gt=self.snapshots.latest().date
+        )
+        valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
+        return valid_comments
 
     def update_hash(self, new_hash, commit):
         latest_snapshot = self.snapshots.latest()
         if latest_snapshot.hash == new_hash and latest_snapshot.commit == commit:
             return latest_snapshot
-        else:
-            return self.snapshots.create(hash=new_hash, commit=commit)
+        return self.snapshots.create(hash=new_hash, commit=commit)
 
 
 class DocumentNodeSerializer(serializers.ModelSerializer):
@@ -183,8 +181,7 @@ class DocumentComment(models.Model):
             # If we do have an approval action which is newer than the most recent change,
             # we'll return True or False commensurate with its "approved" attribute.
             return latest_moderation_action.approved()
-        else:
-            return False
+        return False
 
     def is_orphaned(self):
         raise NotImplementedError('TODO')

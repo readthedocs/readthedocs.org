@@ -74,8 +74,7 @@ def delete_versions(project, version_data):
         log.info("(Sync Versions) Deleted Versions: [%s]", ' '.join(ret_val))
         to_delete_qs.delete()
         return ret_val
-    else:
-        return set()
+    return set()
 
 
 def index_search_request(version, page_list, commit, project_scale, page_scale,
