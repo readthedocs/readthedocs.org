@@ -106,7 +106,7 @@ def process_file(filename):
     else:
         log.info('Unable to index file due to no name %s', filename)
         return None
-    if 'body' in data and len(data['body']):
+    if 'body' in data and data['body']:
         body = PyQuery(data['body'])
         body_content = body.text().replace(u'¶', '')
         sections.extend(generate_sections_from_pyquery(body))

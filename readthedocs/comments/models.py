@@ -32,12 +32,12 @@ class DocumentNodeManager(models.Manager):
         if project_slug:
             snapshots = snapshots.filter(node__project__slug=project_slug)
 
-        if len(snapshots) == 0:
+        if not snapshots.exists():
             raise DocumentNode.DoesNotExist(
                 "No node exists on %s with a current hash of %s" % (
                     page, node_hash))
 
-        if len(snapshots) == 1:
+        if snapshots.count() == 1:
             # If we have found only one snapshot, we know we have the correct node.
             node = snapshots[0].node
         else:

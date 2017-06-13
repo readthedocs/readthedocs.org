@@ -61,7 +61,7 @@ class ProjectRelationship(models.Model):
     def __unicode__(self):
         return "%s -> %s" % (self.parent, self.child)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.alias:
             self.alias = self.child.slug
         super(ProjectRelationship, self).save(*args, **kwargs)
@@ -298,7 +298,7 @@ class Project(models.Model):
                 verbose_name__in=supported).update(supported=False)
             self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
@@ -612,8 +612,8 @@ class Project(models.Model):
         """
         matches = []
         for root, __, filenames in os.walk(self.full_doc_path(version)):
-            for filename in fnmatch.filter(filenames, filename):
-                matches.append(os.path.join(root, filename))
+            for match in fnmatch.filter(filenames, filename):
+                matches.append(os.path.join(root, match))
         return matches
 
     def full_find(self, filename, version):
@@ -624,8 +624,8 @@ class Project(models.Model):
         """
         matches = []
         for root, __, filenames in os.walk(self.checkout_path(version)):
-            for filename in fnmatch.filter(filenames, filename):
-                matches.append(os.path.join(root, filename))
+            for match in fnmatch.filter(filenames, filename):
+                matches.append(os.path.join(root, match))
         return matches
 
     def get_latest_build(self, finished=True):
@@ -907,7 +907,7 @@ class Domain(models.Model):
     def __unicode__(self):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
@@ -917,7 +917,7 @@ class Domain(models.Model):
         super(Domain, self).save(*args, **kwargs)
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
         super(Domain, self).delete(*args, **kwargs)

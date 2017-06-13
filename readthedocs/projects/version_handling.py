@@ -36,7 +36,7 @@ class VersionManager(object):
         all_keys = sorted(set(self._state.keys()))
         major_keep = []
         for __ in range(num_latest):
-            if len(all_keys) > 0:
+            if all_keys:
                 major_keep.append(all_keys.pop(-1))
         for to_remove in all_keys:
             del self._state[to_remove]
@@ -46,7 +46,7 @@ class VersionManager(object):
             all_keys = sorted(set(minors.keys()))
             minor_keep = []
             for __ in range(num_latest):
-                if len(all_keys) > 0:
+                if all_keys:
                     minor_keep.append(all_keys.pop(-1))
             for to_remove in all_keys:
                 del self._state[major][to_remove]

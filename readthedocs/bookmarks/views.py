@@ -24,8 +24,8 @@ from readthedocs.projects.models import Project
 class BookmarkExistsView(View):
 
     @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkExistsView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkExistsView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         return HttpResponse(
@@ -80,8 +80,8 @@ class BookmarkListView(ListView):
     model = Bookmark
 
     @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkListView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkListView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return Bookmark.objects.filter(user=self.request.user)
@@ -93,8 +93,8 @@ class BookmarkAddView(View):
 
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkAddView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkAddView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         return HttpResponse(
@@ -156,8 +156,8 @@ class BookmarkRemoveView(View):
 
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkRemoveView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkRemoveView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         return render_to_response(

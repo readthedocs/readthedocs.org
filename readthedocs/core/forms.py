@@ -30,11 +30,11 @@ class UserProfileForm(forms.ModelForm):
         except AttributeError:
             pass
 
-    def save(self, *args, **kwargs):
+    def save(self, commit=True):
         first_name = self.cleaned_data.pop('first_name', None)
         last_name = self.cleaned_data.pop('last_name', None)
-        profile = super(UserProfileForm, self).save(*args, **kwargs)
-        if kwargs.get('commit', True):
+        profile = super(UserProfileForm, self).save(commit=commit)
+        if commit:
             user = profile.user
             user.first_name = first_name
             user.last_name = last_name

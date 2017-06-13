@@ -151,7 +151,7 @@ class Backend(BaseVCS):
         for branch in raw_branches:
             branch = filter(lambda f: f != '' and f != '*', branch)
             # Handle empty branches
-            if len(branch):
+            if branch:
                 branch = branch[0]
                 if branch.startswith('origin/'):
                     cut_len = len('origin/')

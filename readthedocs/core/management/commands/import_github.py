@@ -11,7 +11,7 @@ class Command(BaseCommand):
     help = __doc__
 
     def handle(self, *args, **options):
-        if len(args):
+        if args:
             for slug in args:
                 for service in GitHubService.for_user(
                     User.objects.get(username=slug)

@@ -144,7 +144,7 @@ class Version(models.Model):
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(version_slug=self.slug, private=private)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super(Version, self).save(*args, **kwargs)
@@ -157,7 +157,7 @@ class Version(models.Model):
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
         tasks.clear_artifacts.delay(version_pk=self.pk)

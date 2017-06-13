@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = __doc__
 
     def handle(self, *args, **options):
-        if len(args):
+        if args:
             for slug in args:
                 tasks.update_imported_docs(
                     utils.version_from_slug(slug, LATEST).pk

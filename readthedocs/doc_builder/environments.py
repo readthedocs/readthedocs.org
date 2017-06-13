@@ -396,7 +396,7 @@ class BuildEnvironment(object):
             if self.failure and isinstance(self.failure,
                                            BuildEnvironmentException):
                 self.build['exit_code'] = self.failure.status_code
-            elif len(self.commands) > 0:
+            elif self.commands:
                 self.build['exit_code'] = max([cmd.exit_code
                                                for cmd in self.commands])
 

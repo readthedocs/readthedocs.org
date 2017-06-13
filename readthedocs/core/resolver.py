@@ -103,10 +103,7 @@ class ResolverBase(object):
             project_slug = project.slug
             subproject_slug = None
 
-        if project.single_version or single_version:
-            single_version = True
-        else:
-            single_version = False
+        single_version = bool(project.single_version or single_version)
 
         return self.base_resolve_path(
             project_slug=project_slug,

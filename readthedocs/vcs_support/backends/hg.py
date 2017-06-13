@@ -20,19 +20,19 @@ class Backend(BaseVCS):
             return self.clone()
 
     def pull(self):
-        pull_output = self.run('hg', 'pull')
-        if pull_output[0] != 0:
+        (pull_retcode, _, _) = self.run('hg', 'pull')
+        if pull_retcode != 0:
             raise ProjectImportError(
-                ("Failed to get code from '%s' (hg pull): %s"
-                 % (self.repo_url, pull_output[0]))
+                ("Failed to pull code from '%s': retcode=%s"
+                 % (self.repo_url, pull_retcode))
             )
-        update_output = self.run('hg', 'update', '-C')[0]
-        if update_output[0] != 0:
+        (update_retcode, stdout, stderr) = self.run('hg', 'update', '-C')
+        if update_retcode != 0:
             raise ProjectImportError(
-                ("Failed to get code from '%s' (hg update): %s"
-                 % (self.repo_url, pull_output[0]))
+                ("Failed to update code from '%s': retcode=%s"
+                 % (self.repo_url, update_retcode))
             )
-        return update_output
+        return (update_retcode, stdout, stderr)
 
     def clone(self):
         self.make_clean_working_dir()
