@@ -357,8 +357,7 @@ class Project(models.Model):
     def get_canonical_url(self):
         if getattr(settings, 'DONT_HIT_DB', True):
             return apiv2.project(self.pk).canonical_url().get()['url']
-        else:
-            return self.get_docs_url()
+        return self.get_docs_url()
 
     def get_subproject_urls(self):
         """List subproject URLs
@@ -371,9 +370,8 @@ class Project(models.Model):
                         apiv2.project(self.pk)
                         .subprojects()
                         .get()['subprojects'])]
-        else:
-            return [(proj.child.slug, proj.child.get_docs_url())
-                    for proj in self.subprojects.all()]
+        return [(proj.child.slug, proj.child.get_docs_url())
+                for proj in self.subprojects.all()]
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -754,8 +752,7 @@ class Project(models.Model):
         """Get the version representing 'latest'"""
         if self.default_branch:
             return self.default_branch
-        else:
-            return self.vcs_repo().fallback_branch
+        return self.vcs_repo().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(

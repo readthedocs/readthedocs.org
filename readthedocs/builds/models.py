@@ -106,8 +106,7 @@ class Version(models.Model):
         if self.slug == LATEST:
             if self.project.default_branch:
                 return self.project.default_branch
-            else:
-                return self.project.vcs_repo().fallback_branch
+            return self.project.vcs_repo().fallback_branch
 
         if self.slug == STABLE:
             if self.type == BRANCH:

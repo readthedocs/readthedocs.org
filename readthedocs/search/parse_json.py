@@ -127,5 +127,4 @@ def process_file(filename):
 def recurse_while_none(element):
     if element.text is None:
         return recurse_while_none(element.getchildren()[0])
-    else:
-        return element.text
+    return element.text

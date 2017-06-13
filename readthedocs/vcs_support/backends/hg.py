@@ -16,8 +16,7 @@ class Backend(BaseVCS):
         retcode = self.run('hg', 'status')[0]
         if retcode == 0:
             return self.pull()
-        else:
-            return self.clone()
+        return self.clone()
 
     def pull(self):
         (pull_retcode, _, _) = self.run('hg', 'pull')
@@ -106,6 +105,5 @@ class Backend(BaseVCS):
         if retcode == 0:
             self.run('hg', 'pull')
             return self.run('hg', 'update', '-C', identifier)
-        else:
-            self.clone()
-            return self.run('hg', 'update', '-C', identifier)
+        self.clone()
+        return self.run('hg', 'update', '-C', identifier)

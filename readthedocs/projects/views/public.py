@@ -246,8 +246,7 @@ def version_filter_autocomplete(request, project_slug):
             },
             context_instance=RequestContext(request),
         )
-    else:
-        return HttpResponse(status=400)
+    return HttpResponse(status=400)
 
 
 def file_autocomplete(request, project_slug):

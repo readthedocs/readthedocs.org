@@ -17,8 +17,7 @@ class CommentModeratorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True  # TODO: Similar logic to #1084
-        else:
-            return AdminPermission.is_admin(request.user, obj.node.project)
+        return AdminPermission.is_admin(request.user, obj.node.project)
 
 
 class RelatedProjectIsOwner(permissions.BasePermission):

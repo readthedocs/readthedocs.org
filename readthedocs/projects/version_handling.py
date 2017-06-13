@@ -158,8 +158,7 @@ def highest_version(version_list):
     versions = sort_versions(version_list)
     if versions:
         return versions[0]
-    else:
-        return (None, None)
+    return (None, None)
 
 
 def determine_stable_version(version_list):
@@ -177,5 +176,4 @@ def determine_stable_version(version_list):
     if versions:
         version_obj, comparable = versions[0]
         return version_obj
-    else:
-        return None
+    return None

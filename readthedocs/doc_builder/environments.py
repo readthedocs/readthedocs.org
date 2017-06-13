@@ -165,8 +165,7 @@ class BuildCommand(BuildCommandResultMixin):
         """Flatten command"""
         if hasattr(self.command, '__iter__') and not isinstance(self.command, str):
             return ' '.join(self.command)
-        else:
-            return self.command
+        return self.command
 
     def save(self):
         """Save this command and result via the API"""

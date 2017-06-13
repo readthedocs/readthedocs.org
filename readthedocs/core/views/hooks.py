@@ -220,11 +220,9 @@ def gitlab_build(request):  # noqa: D205
         projects = get_project_from_url(search_url)
         if projects:
             return _build_url(search_url, projects, branches)
-        else:
-            log.error('Project match not found: url=%s', search_url)
-            return HttpResponseNotFound('Project match not found')
-    else:
-        return HttpResponse('Method not allowed, POST is required', status=405)
+        log.error('Project match not found: url=%s', search_url)
+        return HttpResponseNotFound('Project match not found')
+    return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt
@@ -290,11 +288,9 @@ def bitbucket_build(request):
                 branches
             )
             return HttpResponseNotFound('Commit/branch not found')
-        else:
-            log.error('Project match not found: url=%s', search_url)
-            return HttpResponseNotFound('Project match not found')
-    else:
-        return HttpResponse('Method not allowed, POST is required', status=405)
+        log.error('Project match not found: url=%s', search_url)
+        return HttpResponseNotFound('Project match not found')
+    return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt

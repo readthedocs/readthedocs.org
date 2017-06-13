@@ -175,30 +175,29 @@ class BookmarkRemoveView(View):
             bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
             bookmark.delete()
             return HttpResponseRedirect(reverse('bookmark_list'))
-        else:
-            try:
-                post_json = json.loads(request.body)
-                project = Project.objects.get(slug=post_json['project'])
-                version = project.versions.get(slug=post_json['version'])
-                url = post_json['url']
-                page = post_json['page']
-            except KeyError:
-                return HttpResponseBadRequest(
-                    json.dumps({'error': "Invalid parameters"})
-                )
-
-            bookmark = get_object_or_404(
-                Bookmark,
-                user=request.user,
-                url=url,
-                project=project,
-                version=version,
-                page=page
+        try:
+            post_json = json.loads(request.body)
+            project = Project.objects.get(slug=post_json['project'])
+            version = project.versions.get(slug=post_json['version'])
+            url = post_json['url']
+            page = post_json['page']
+        except KeyError:
+            return HttpResponseBadRequest(
+                json.dumps({'error': "Invalid parameters"})
             )
-            bookmark.delete()
 
-            return HttpResponse(
-                json.dumps({'removed': True}),
-                status=200,
-                content_type="application/json"
-            )
+        bookmark = get_object_or_404(
+            Bookmark,
+            user=request.user,
+            url=url,
+            project=project,
+            version=version,
+            page=page
+        )
+        bookmark.delete()
+
+        return HttpResponse(
+            json.dumps({'removed': True}),
+            status=200,
+            content_type="application/json"
+        )

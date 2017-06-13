@@ -95,9 +95,8 @@ def wipe_version(request, project_slug, version_slug):
         for del_dir in del_dirs:
             broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
-    else:
-        return render_to_response('wipe_version.html',
-                                  context_instance=RequestContext(request))
+    return render_to_response('wipe_version.html',
+                              context_instance=RequestContext(request))
 
 
 def divide_by_zero(request):  # pylint: disable=unused-argument

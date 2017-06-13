@@ -38,29 +38,25 @@ class ProjectQuerySet(models.QuerySet):
     def for_admin_user(self, user=None):
         if user.is_authenticated():
             return self.filter(users__in=[user])
-        else:
-            return self.none()
+        return self.none()
 
     def public(self, user=None):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
             return self._add_user_repos(queryset, user)
-        else:
-            return queryset
+        return queryset
 
     def protected(self, user=None):
         queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
         if user:
             return self._add_user_repos(queryset, user)
-        else:
-            return queryset
+        return queryset
 
     def private(self, user=None):
         queryset = self.filter(privacy_level=constants.PRIVATE)
         if user:
             return self._add_user_repos(queryset, user)
-        else:
-            return queryset
+        return queryset
 
     # Aliases
 
