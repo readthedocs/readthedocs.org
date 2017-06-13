@@ -494,6 +494,7 @@ class TranslationForm(forms.Form):
 
     def save(self):
         project = self.parent.translations.add(self.translation)
+        self.parent.save()
         return project
 
 
