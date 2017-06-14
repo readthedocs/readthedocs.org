@@ -1,5 +1,8 @@
 """Documentation Builder Environments"""
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import os
 import re
 import sys
@@ -28,6 +31,7 @@ from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
                         DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
                         MKDOCS_TEMPLATE_DIR, DOCKER_HOSTNAME_MAX_LEN)
+import six
 
 log = logging.getLogger(__name__)
 
@@ -143,7 +147,11 @@ class BuildCommand(BuildCommandResultMixin):
             if self.input_data is not None:
                 cmd_input = self.input_data
 
-            cmd_output = proc.communicate(input=cmd_input)
+            if isinstance(cmd_input, six.string_types):
+                cmd_input_bytes = cmd_input.encode('utf-8')
+            else:
+                cmd_input_bytes = cmd_input
+            cmd_output = proc.communicate(input=cmd_input_bytes)
             (cmd_stdout, cmd_stderr) = cmd_output
             try:
                 self.output = cmd_stdout.decode('utf-8', 'replace')
@@ -165,8 +173,7 @@ class BuildCommand(BuildCommandResultMixin):
         """Flatten command"""
         if hasattr(self.command, '__iter__') and not isinstance(self.command, str):
             return ' '.join(self.command)
-        else:
-            return self.command
+        return self.command
 
     def save(self):
         """Save this command and result via the API"""
@@ -396,7 +403,7 @@ class BuildEnvironment(object):
             if self.failure and isinstance(self.failure,
                                            BuildEnvironmentException):
                 self.build['exit_code'] = self.failure.status_code
-            elif len(self.commands) > 0:
+            elif self.commands:
                 self.build['exit_code'] = max([cmd.exit_code
                                                for cmd in self.commands])
 
@@ -418,8 +425,8 @@ class BuildEnvironment(object):
                     "An unexpected error occurred")
 
         # Attempt to stop unicode errors on build reporting
-        for key, val in self.build.items():
-            if isinstance(val, basestring):
+        for key, val in list(self.build.items()):
+            if isinstance(val, six.binary_type):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
         try:

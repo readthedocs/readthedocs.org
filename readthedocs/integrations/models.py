@@ -1,5 +1,10 @@
 """Integration models for external services"""
 
+from __future__ import absolute_import
+from __future__ import division
+from builtins import str
+from past.utils import old_div
+from builtins import object
 import json
 import uuid
 import re
@@ -7,6 +12,7 @@ import re
 from django.db import models, transaction
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
@@ -59,13 +65,13 @@ class HttpExchangeManager(models.Manager):
         # title case-y hyphen separated values.
         request_headers = dict(
             (key[5:].title().replace('_', '-'), str(val))
-            for (key, val) in req.META.items()
+            for (key, val) in list(req.META.items())
             if key.startswith('HTTP_')
         )
         request_headers['Content-Type'] = req.content_type
         # Remove unwanted headers
         for filter_rule in self.REQ_FILTER_RULES:
-            for key in request_headers.keys():
+            for key in list(request_headers.keys()):
                 if filter_rule.match(key):
                     del request_headers[key]
 
@@ -74,7 +80,7 @@ class HttpExchangeManager(models.Manager):
             response_body = json.dumps(response_payload, sort_keys=True)
         except TypeError:
             response_body = str(response_payload)
-        response_headers = dict(resp.items())
+        response_headers = dict(list(resp.items()))
 
         fields = {
             'status_code': resp.status_code,
@@ -103,6 +109,7 @@ class HttpExchangeManager(models.Manager):
             exchange.delete()
 
 
+@python_2_unicode_compatible
 class HttpExchange(models.Model):
 
     """HTTP request/response exchange"""
@@ -127,16 +134,16 @@ class HttpExchange(models.Model):
 
     objects = HttpExchangeManager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Exchange {0}').format(self.pk)
 
     @property
     def failed(self):
         # Assume anything that isn't 2xx level status code is an error
-        return int(self.status_code / 100) != 2
+        return int(old_div(self.status_code, 100)) != 2
 
     def formatted_json(self, field):
         """Try to return pretty printed and Pygment highlighted code"""
@@ -188,7 +195,7 @@ class IntegrationQuerySet(models.QuerySet):
         if cls_replace is None:
             return original
         new = cls_replace()
-        for k, v in original.__dict__.items():
+        for k, v in list(original.__dict__.items()):
             new.__dict__[k] = v
         return new
 
@@ -199,7 +206,7 @@ class IntegrationQuerySet(models.QuerySet):
     def subclass(self, instance):
         return self._get_subclass_replacement(instance)
 
-    def create(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def create(self, **kwargs):
         """Override of create method to use subclass instance instead
 
         Instead of using the underlying Integration model to create this
@@ -215,6 +222,7 @@ class IntegrationQuerySet(models.QuerySet):
         return obj
 
 
+@python_2_unicode_compatible
 class Integration(models.Model):
 
     """Inbound webhook integration for projects"""
@@ -250,7 +258,7 @@ class Integration(models.Model):
     # Integration attributes
     has_sync = False
 
-    def __unicode__(self):
+    def __str__(self):
         return (_('{0} for {1}')
                 .format(self.get_integration_type_display(), self.project.name))
 
@@ -260,7 +268,7 @@ class GitHubWebhook(Integration):
     integration_type_id = Integration.GITHUB_WEBHOOK
     has_sync = True
 
-    class Meta:
+    class Meta(object):
         proxy = True
 
     @property
@@ -276,7 +284,7 @@ class BitbucketWebhook(Integration):
     integration_type_id = Integration.BITBUCKET_WEBHOOK
     has_sync = True
 
-    class Meta:
+    class Meta(object):
         proxy = True
 
     @property
@@ -292,10 +300,10 @@ class GenericAPIWebhook(Integration):
     integration_type_id = Integration.API_WEBHOOK
     has_sync = False
 
-    class Meta:
+    class Meta(object):
         proxy = True
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Ensure model has token data before saving"""
         try:
             token = self.provider_data.get('token')

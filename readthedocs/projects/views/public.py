@@ -1,5 +1,6 @@
 """Public project views"""
 
+from __future__ import absolute_import
 from collections import OrderedDict
 import operator
 import os
@@ -246,8 +247,7 @@ def version_filter_autocomplete(request, project_slug):
             },
             context_instance=RequestContext(request),
         )
-    else:
-        return HttpResponse(status=400)
+    return HttpResponse(status=400)
 
 
 def file_autocomplete(request, project_slug):
@@ -328,7 +328,7 @@ def elastic_project_search(request, project_slug):
     if results:
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
-            for key, val in hit['fields'].items():
+            for key, val in list(hit['fields'].items()):
                 if isinstance(val, list):
                     results['hits']['hits'][num]['fields'][key] = val[0]
 
@@ -393,9 +393,9 @@ def project_analytics(request, project_slug):
             analytics = None
 
     if analytics:
-        page_list = list(reversed(sorted(analytics['page'].items(),
+        page_list = list(reversed(sorted(list(analytics['page'].items()),
                                          key=operator.itemgetter(1))))
-        version_list = list(reversed(sorted(analytics['version'].items(),
+        version_list = list(reversed(sorted(list(analytics['version'].items()),
                                             key=operator.itemgetter(1))))
     else:
         page_list = []

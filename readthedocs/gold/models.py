@@ -1,7 +1,11 @@
 """Django models for recurring donations aka Gold Membership."""
+from __future__ import absolute_import
+from __future__ import division
+from past.utils import old_div
 import math
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Project
@@ -21,6 +25,7 @@ LEVEL_CHOICES = (
 DOLLARS_PER_PROJECT = 5
 
 
+@python_2_unicode_compatible
 class GoldUser(models.Model):
 
     """A user subscription for gold membership."""
@@ -38,11 +43,11 @@ class GoldUser(models.Model):
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Gold Level %s for %s' % (self.level, self.user)
 
     @property
     def num_supported_projects(self):
         dollars = int(self.level.split('-')[-1])
-        num_projects = int(math.floor(dollars / DOLLARS_PER_PROJECT))
+        num_projects = int(math.floor(old_div(dollars, DOLLARS_PER_PROJECT)))
         return num_projects

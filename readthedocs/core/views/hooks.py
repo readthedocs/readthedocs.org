@@ -1,5 +1,6 @@
 """Views pertaining to builds."""
 
+from __future__ import absolute_import
 import json
 import re
 
@@ -117,14 +118,14 @@ def _build_url(url, projects, branches):
         all_built[project.slug] = built
         all_not_building[project.slug] = not_building
 
-    for project_slug, built in all_built.items():
+    for project_slug, built in list(all_built.items()):
         if built:
             msg = '(URL Build) Build Started: %s [%s]' % (
                 url, ' '.join(built))
             log_info(project_slug, msg=msg)
             ret += msg
 
-    for project_slug, not_building in all_not_building.items():
+    for project_slug, not_building in list(all_not_building.items()):
         if not_building:
             msg = '(URL Build) Not Building: %s [%s]' % (
                 url, ' '.join(not_building))
@@ -220,11 +221,9 @@ def gitlab_build(request):  # noqa: D205
         projects = get_project_from_url(search_url)
         if projects:
             return _build_url(search_url, projects, branches)
-        else:
-            log.error('Project match not found: url=%s', search_url)
-            return HttpResponseNotFound('Project match not found')
-    else:
-        return HttpResponse('Method not allowed, POST is required', status=405)
+        log.error('Project match not found: url=%s', search_url)
+        return HttpResponseNotFound('Project match not found')
+    return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt
@@ -290,11 +289,9 @@ def bitbucket_build(request):
                 branches
             )
             return HttpResponseNotFound('Commit/branch not found')
-        else:
-            log.error('Project match not found: url=%s', search_url)
-            return HttpResponseNotFound('Project match not found')
-    else:
-        return HttpResponse('Method not allowed, POST is required', status=405)
+        log.error('Project match not found: url=%s', search_url)
+        return HttpResponseNotFound('Project match not found')
+    return HttpResponse('Method not allowed, POST is required', status=405)
 
 
 @csrf_exempt

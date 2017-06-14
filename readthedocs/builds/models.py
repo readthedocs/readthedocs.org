@@ -1,5 +1,7 @@
 """Models for the builds app."""
 
+from __future__ import absolute_import
+from builtins import object
 import logging
 import re
 import os.path
@@ -8,6 +10,7 @@ from shutil import rmtree
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from guardian.shortcuts import assign
@@ -33,6 +36,7 @@ DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL
 log = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class Version(models.Model):
 
     """Version of a ``Project``."""
@@ -77,7 +81,7 @@ class Version(models.Model):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
 
-    class Meta:
+    class Meta(object):
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
@@ -86,7 +90,7 @@ class Version(models.Model):
             ('view_version', _('View Version')),
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Version %(version)s of %(project)s (%(pk)s)" % {
             'version': self.verbose_name,
             'project': self.project,
@@ -106,8 +110,7 @@ class Version(models.Model):
         if self.slug == LATEST:
             if self.project.default_branch:
                 return self.project.default_branch
-            else:
-                return self.project.vcs_repo().fallback_branch
+            return self.project.vcs_repo().fallback_branch
 
         if self.slug == STABLE:
             if self.type == BRANCH:
@@ -144,7 +147,7 @@ class Version(models.Model):
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(version_slug=self.slug, private=private)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super(Version, self).save(*args, **kwargs)
@@ -157,7 +160,7 @@ class Version(models.Model):
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
         tasks.clear_artifacts.delay(version_pk=self.pk)
@@ -299,6 +302,7 @@ class Version(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class VersionAlias(models.Model):
 
     """Alias for a ``Version``."""
@@ -310,7 +314,7 @@ class VersionAlias(models.Model):
                                blank=True)
     largest = models.BooleanField(_('Largest'), default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Alias for %(project)s: %(from)s -> %(to)s" % {
             'project': self.project,
             'from': self.from_slug,
@@ -318,6 +322,7 @@ class VersionAlias(models.Model):
         })
 
 
+@python_2_unicode_compatible
 class Build(models.Model):
 
     """Build data."""
@@ -348,14 +353,14 @@ class Build(models.Model):
 
     objects = BuildQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [
             ['version', 'state', 'type']
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Build %(project)s for %(usernames)s (%(pk)s)" % {
             'project': self.project,
             'usernames': ' '.join(self.project.users.all()
@@ -395,6 +400,7 @@ class BuildCommandResultMixin(object):
         return not self.successful
 
 
+@python_2_unicode_compatible
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     """Build command for a ``Build``."""
@@ -410,13 +416,13 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     start_time = models.DateTimeField(_('Start time'))
     end_time = models.DateTimeField(_('End time'))
 
-    class Meta:
+    class Meta(object):
         ordering = ['start_time']
         get_latest_by = 'start_time'
 
     objects = RelatedBuildQuerySet.as_manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return (ugettext(u'Build command {pk} for build {build}')
                 .format(pk=self.pk, build=self.build))
 

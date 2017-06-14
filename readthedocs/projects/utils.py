@@ -1,5 +1,7 @@
 """Utility functions used by projects"""
 
+from __future__ import absolute_import
+from builtins import object
 import fnmatch
 import os
 import subprocess
@@ -41,8 +43,8 @@ def find_file(filename):
     """
     matches = []
     for root, __, filenames in os.walk('.'):
-        for filename in fnmatch.filter(filenames, filename):
-            matches.append(os.path.join(root, filename))
+        for match in fnmatch.filter(filenames, filename):
+            matches.append(os.path.join(root, match))
     return matches
 
 

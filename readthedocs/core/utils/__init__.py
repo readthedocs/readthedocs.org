@@ -1,11 +1,12 @@
 """Common utilty functions"""
 
+from __future__ import absolute_import
+
 import errno
 import getpass
 import logging
 import os
 import re
-from urlparse import urlparse
 
 from django.conf import settings
 from django.utils import six
@@ -16,6 +17,10 @@ from django.utils.text import slugify as slugify_base
 from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from ..tasks import send_email_task
+
+from future import standard_library  # pylint: disable=wrong-import-order
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
 
 
 log = logging.getLogger(__name__)
@@ -33,9 +38,8 @@ def run_on_app_servers(command):
             if ret != 0:
                 ret_val = ret
         return ret_val
-    else:
-        ret = os.system(command)
-        return ret
+    ret = os.system(command)
+    return ret
 
 
 def broadcast(type, task, args):  # pylint: disable=redefined-builtin
@@ -56,8 +60,7 @@ def clean_url(url):
     parsed = urlparse(url)
     if parsed.scheme or parsed.netloc:
         return parsed.netloc
-    else:
-        return parsed.path
+    return parsed.path
 
 
 def cname_to_slug(host):

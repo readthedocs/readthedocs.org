@@ -1,4 +1,5 @@
 """Utility functions for use in tests."""
+from __future__ import absolute_import
 import logging
 from os import chdir, environ, getcwd
 from os.path import abspath, join as pjoin

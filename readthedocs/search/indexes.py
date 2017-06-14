@@ -14,6 +14,8 @@ Django settings that should be defined:
 TODO: Handle page removal case in Page.
 
 """
+from __future__ import absolute_import
+from builtins import object
 import datetime
 
 from elasticsearch import Elasticsearch, exceptions
@@ -184,8 +186,8 @@ class Index(object):
         # Get current alias, if any.
         try:
             aliases = self.es.indices.get_alias(name=self._index)
-            if aliases and aliases.keys():
-                old_index = aliases.keys()[0]
+            if aliases and list(aliases.keys()):
+                old_index = list(aliases.keys())[0]
         except exceptions.NotFoundError:
             pass
 

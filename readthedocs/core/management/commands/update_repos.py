@@ -4,6 +4,7 @@ Custom management command to rebuild documentation for all projects.
 Invoked via ``./manage.py update_repos``.
 """
 
+from __future__ import absolute_import
 import logging
 from optparse import make_option
 
@@ -42,7 +43,7 @@ class Command(BaseCommand):
         record = options['record']
         force = options['force']
         version = options['version']
-        if len(args):
+        if args:
             for slug in args:
                 if version and version != "all":
                     log.info("Updating version %s for %s", version, slug)

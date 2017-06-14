@@ -1,5 +1,7 @@
 """Base classes for Builders."""
 
+from __future__ import absolute_import
+from builtins import object
 from functools import wraps
 import os
 import logging
@@ -48,7 +50,7 @@ class BaseBuilder(object):
         log.info("Forcing a build")
         self._force = True
 
-    def build(self, id=None, **__):  # pylint: disable=redefined-builtin
+    def build(self):
         """Do the actual building of the documentation."""
         raise NotImplementedError
 

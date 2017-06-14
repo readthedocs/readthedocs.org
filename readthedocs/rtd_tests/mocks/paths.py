@@ -1,4 +1,5 @@
 """Context managers to patch os.path.exists calls."""
+from __future__ import absolute_import
 import os
 import re
 import mock

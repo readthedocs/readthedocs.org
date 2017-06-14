@@ -1,9 +1,10 @@
 """An API to load config from a readthedocs.yml file."""
+from __future__ import absolute_import
+
+from builtins import (filter, object)
 
 from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
-
-
 from .constants import BUILD_IMAGES, DOCKER_IMAGE
 
 
@@ -29,8 +30,7 @@ class ConfigWrapper(object):
     def pip_install(self):
         if 'pip_install' in self._yaml_config.get('python', {}):
             return self._yaml_config['python']['pip_install']
-        else:
-            return False
+        return False
 
     @property
     def install_project(self):
@@ -38,16 +38,14 @@ class ConfigWrapper(object):
             return True
         if 'setup_py_install' in self._yaml_config.get('python', {}):
             return self._yaml_config['python']['setup_py_install']
-        else:
-            return self._project.install_project
+        return self._project.install_project
 
     @property
     def extra_requirements(self):
         if self.pip_install and 'extra_requirements' in self._yaml_config.get(
                 'python', {}):
             return self._yaml_config['python']['extra_requirements']
-        else:
-            return []
+        return []
 
     @property
     def python_interpreter(self):
@@ -55,10 +53,10 @@ class ConfigWrapper(object):
         if ver in [2, 3]:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
-            ver = max(filter(
+            ver = max(list(filter(
                 lambda x: x < ver + 1,
                 self._yaml_config.get_valid_python_versions(),
-            ))
+            )))
         return 'python{0}'.format(ver)
 
     @property
@@ -77,8 +75,7 @@ class ConfigWrapper(object):
     def use_system_site_packages(self):
         if 'use_system_site_packages' in self._yaml_config.get('python', {}):
             return self._yaml_config['python']['use_system_site_packages']
-        else:
-            return self._project.use_system_packages
+        return self._project.use_system_packages
 
     @property
     def use_conda(self):
@@ -88,27 +85,24 @@ class ConfigWrapper(object):
     def conda_file(self):
         if 'file' in self._yaml_config.get('conda', {}):
             return self._yaml_config['conda']['file']
-        else:
-            return None
+        return None
 
     @property
     def requirements_file(self):
         if 'requirements_file' in self._yaml_config:
             return self._yaml_config['requirements_file']
-        else:
-            return self._project.requirements_file
+        return self._project.requirements_file
 
     @property
     def formats(self):
         if 'formats' in self._yaml_config:
             return self._yaml_config['formats']
-        else:
-            formats = ['htmlzip']
-            if self._project.enable_epub_build:
-                formats += ['epub']
-            if self._project.enable_pdf_build:
-                formats += ['pdf']
-            return formats
+        formats = ['htmlzip']
+        if self._project.enable_epub_build:
+            formats += ['epub']
+        if self._project.enable_pdf_build:
+            formats += ['pdf']
+        return formats
 
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.

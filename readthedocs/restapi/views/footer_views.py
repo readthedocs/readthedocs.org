@@ -1,4 +1,7 @@
 """Endpoint to generate footer HTML."""
+
+from __future__ import absolute_import
+
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings
@@ -16,6 +19,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import highest_version
 from readthedocs.projects.version_handling import parse_version_failsafe
 from readthedocs.restapi.signals import footer_response
+import six
 
 
 def get_version_compare_data(project, base_version=None):
@@ -27,8 +31,8 @@ def get_version_compare_data(project, base_version=None):
     highest_version_obj, highest_version_comparable = highest_version(
         project.versions.public().filter(active=True))
     ret_val = {
-        'project': unicode(highest_version_obj),
-        'version': unicode(highest_version_comparable),
+        'project': six.text_type(highest_version_obj),
+        'version': six.text_type(highest_version_comparable),
         'is_highest': True,
     }
     if highest_version_obj:

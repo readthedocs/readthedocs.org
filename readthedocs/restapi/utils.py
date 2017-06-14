@@ -1,4 +1,6 @@
 """Utility functions that are used by both views and celery tasks."""
+
+from __future__ import absolute_import
 import hashlib
 import logging
 
@@ -25,7 +27,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     for version in versions:
         version_id = version['identifier']
         version_name = version['verbose_name']
-        if version_name in old_versions.keys():
+        if version_name in list(old_versions.keys()):
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue
@@ -74,8 +76,7 @@ def delete_versions(project, version_data):
         log.info("(Sync Versions) Deleted Versions: [%s]", ' '.join(ret_val))
         to_delete_qs.delete()
         return ret_val
-    else:
-        return set()
+    return set()
 
 
 def index_search_request(version, page_list, commit, project_scale, page_scale,

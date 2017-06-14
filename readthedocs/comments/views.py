@@ -1,5 +1,6 @@
 """Views for comments app."""
 
+from __future__ import absolute_import
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -184,7 +185,7 @@ class CommentViewSet(ModelViewSet):
         return queryset
 
     @method_decorator(login_required)
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         project = Project.objects.get(slug=request.data['project'])
         comment = project.add_comment(version_slug=request.data['version'],
                                       page=request.data['document_page'],

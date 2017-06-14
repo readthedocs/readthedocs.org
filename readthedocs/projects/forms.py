@@ -1,17 +1,18 @@
 """Project forms"""
 
-from random import choice
-from urlparse import urlparse
+from __future__ import absolute_import
 
+from random import choice
+
+from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from textclassifier.validators import ClassifierValidator
-
 from guardian.shortcuts import assign
+from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
@@ -22,6 +23,10 @@ from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 from readthedocs.redirects.models import Redirect
+
+from future import standard_library
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
 
 
 class ProjectForm(forms.ModelForm):
@@ -72,7 +77,7 @@ class ProjectBasicsForm(ProjectForm):
 
     """Form for basic project fields"""
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
@@ -152,7 +157,7 @@ class ProjectExtraForm(ProjectForm):
 
     """Additional project information form"""
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = (
             'description',
@@ -179,7 +184,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         help_text=_("(Beta) The Python interpreter used to create the virtual "
                     "environment."))
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = (
             # Standard build edits
@@ -215,7 +220,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
                         ProjectExtraForm):
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = (
             # Basics
@@ -496,7 +501,7 @@ class RedirectForm(forms.ModelForm):
 
     """Form for project redirects"""
 
-    class Meta:
+    class Meta(object):
         model = Redirect
         fields = ['redirect_type', 'from_url', 'to_url']
 
@@ -504,7 +509,10 @@ class RedirectForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super(RedirectForm, self).__init__(*args, **kwargs)
 
-    def save(self, **_):
+    def save(self, **_):  # pylint: disable=arguments-differ
+        # TODO this should respect the unused argument `commit`. It's not clear
+        # why this needs to be a call to `create`, instead of relying on the
+        # super `save()` call.
         redirect = Redirect.objects.create(
             project=self.project,
             redirect_type=self.cleaned_data['redirect_type'],
@@ -520,7 +528,7 @@ class DomainForm(forms.ModelForm):
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta:
+    class Meta(object):
         model = Domain
         exclude = ['machine', 'cname', 'count', 'https']
 
@@ -557,7 +565,7 @@ class IntegrationForm(forms.ModelForm):
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta:
+    class Meta(object):
         model = Integration
         exclude = ['provider_data', 'exchanges']
 
@@ -579,7 +587,7 @@ class ProjectAdvertisingForm(forms.ModelForm):
 
     """Project promotion opt-out form"""
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = ['allow_promos']
 

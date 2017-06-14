@@ -4,6 +4,8 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
+from __future__ import absolute_import
+from builtins import str
 import os
 import shutil
 import json
@@ -109,7 +111,7 @@ class UpdateDocsTask(Task):
 
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
-
+        # pylint: disable=arguments-differ
         self.project = self.get_project(pk)
         self.version = self.get_version(self.project, version_pk)
         self.build = self.get_build(build_pk)
@@ -260,7 +262,7 @@ class UpdateDocsTask(Task):
         build = {}
         if build_pk:
             build = api_v2.build(build_pk).get()
-        return dict((key, val) for (key, val) in build.items()
+        return dict((key, val) for (key, val) in list(build.items())
                     if key not in ['project', 'version', 'resource_uri',
                                    'absolute_uri'])
 

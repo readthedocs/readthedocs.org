@@ -1,5 +1,6 @@
 """Tasks for OAuth services"""
 
+from __future__ import absolute_import
 from django.contrib.auth.models import User
 from djcelery import celery as celery_app
 

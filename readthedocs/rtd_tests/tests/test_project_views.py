@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 
 from mock import patch
@@ -8,6 +9,8 @@ from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
+
+import six
 
 from readthedocs.core.models import UserProfile
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
@@ -43,7 +46,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.data = {}
         for key in data:
             self.data.update({('{0}-{1}'.format(key, k), v)
-                              for (k, v) in data[key].items()})
+                              for (k, v) in list(data[key].items())})
         self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
     def test_profile_middleware_no_profile(self):
@@ -107,7 +110,7 @@ class TestBasicsForm(WizardTestCase):
 
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
-        for (key, val) in self.step_data['basics'].items():
+        for (key, val) in list(self.step_data['basics'].items()):
             self.assertEqual(getattr(proj, key), val)
         self.assertEqual(proj.documentation_type, 'sphinx')
 
@@ -154,7 +157,7 @@ class TestAdvancedForm(TestBasicsForm):
         """Test all forms pass validation"""
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -164,12 +167,12 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         del self.step_data['extra']['tags']
-        self.assertItemsEqual(
+        six.assertCountEqual(
+            self,
             [tag.name for tag in proj.tags.all()],
-            [u'bar', u'baz', u'foo']
-        )
+            [u'bar', u'baz', u'foo'])
         data.update(self.step_data['extra'])
-        for (key, val) in data.items():
+        for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)
 
     def test_form_missing_extra(self):
@@ -179,7 +182,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
@@ -189,7 +192,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -211,7 +214,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')
@@ -233,7 +236,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')

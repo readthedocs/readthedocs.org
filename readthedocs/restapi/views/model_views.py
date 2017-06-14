@@ -1,4 +1,6 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
+
+from __future__ import absolute_import
 import logging
 
 from django.shortcuts import get_object_or_404
@@ -126,7 +128,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     project=project, versions=data['branches'], type=BRANCH)
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
-        except Exception, e:
+        except Exception as e:
             log.exception("Sync Versions Error: %s", e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
