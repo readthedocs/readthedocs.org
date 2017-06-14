@@ -90,7 +90,8 @@ def choose_promo(promo_list):
     return None
 
 
-def get_promo(country_code, programming_language, theme, gold_project=False, gold_user=False):
+def get_promo(country_code, programming_language, theme,
+              gold_project=False, gold_user=False, community_only=False):
     """
     Get a proper promo.
 
@@ -140,6 +141,13 @@ def get_promo(country_code, programming_language, theme, gold_project=False, gol
                                                    name='gold-project')
         if gold_promo.exists():
             promo_obj = gold_promo.first()
+
+    # Show community ads to community people
+    if community_only:
+        community_promo = SupporterPromo.objects.filter(live=True,
+                                                        display_type='community').order_by('?')
+        if community_promo.exists():
+            promo_obj = community_promo.first()
 
     return promo_obj
 
@@ -205,11 +213,11 @@ def lookup_promo(request, project, theme):
 
     gold_user = is_gold_user(request.user)
     gold_project = is_gold_project(project)
-    user_opt_out = request.user.is_authenticated() and request.user.profile.ad_opt_out
+    community_only = request.user.is_authenticated() and request.user.profile.ad_opt_out
 
     # Don't show promos to gold users or on gold projects for now
     # (Some day we may show them something customised for them)
-    if gold_user or gold_project or user_opt_out:
+    if gold_user or gold_project:
         return None
 
     promo_obj = get_promo(
@@ -218,6 +226,7 @@ def lookup_promo(request, project, theme):
         theme=theme,
         gold_project=gold_project,
         gold_user=gold_user,
+        community_only=community_only,
     )
 
     # If we don't have anything to show, don't show it.
