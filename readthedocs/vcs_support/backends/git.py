@@ -2,9 +2,14 @@
 import re
 import logging
 import csv
+import json
 import os
+import jwt
+import requests
 import sys
+import time
 
+from django.conf import settings
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
@@ -15,6 +20,9 @@ else:
 
 
 log = logging.getLogger(__name__)
+
+GITHUB_APP_PRIVATE_KEY = getattr(settings, 'GITHUB_APP_PRIVATE_KEY', None)
+GITHUB_APP_INTEGRATION_ID = getattr(settings, 'GITHUB_APP_INTEGRATION_ID', None)
 
 
 class Backend(BaseVCS):
@@ -31,18 +39,37 @@ class Backend(BaseVCS):
         self.repo_url = self._get_clone_url()
 
     def _get_clone_url(self):
-        if '://' in self.repo_url:
-            hacked_url = self.repo_url.split('://')[1]
-            hacked_url = re.sub('.git$', '', hacked_url)
-            clone_url = 'https://%s' % hacked_url
-            if self.token:
-                clone_url = 'https://%s@%s' % (self.token, hacked_url)
+        try:
+            url_search = re.search('^git@github.com:(.*?)/(.*?\.git)$',
+                                   self.repo_url)
+            groups = url_search.groups()
+            if GITHUB_APP_PRIVATE_KEY and GITHUB_APP_INTEGRATION_ID:
+                with open(GITHUB_APP_PRIVATE_KEY) as f:
+                    private_key = f.read()
+                payload = {
+                    'iat': int(time.time()),
+                    'exp': int(time.time() + 60),
+                    'iss': GITHUB_APP_INTEGRATION_ID,
+                }
+                jwt_token = jwt.encode(payload, private_key, algorithm='RS256')
+                headers = {
+                    'Authorization': 'Bearer ' + jwt_token,
+                    'Accept': 'application/vnd.github.machine-man-preview+json'
+                }
+                response = requests.get(
+                    'https://api.github.com/integration/installations',
+                    headers=headers)
+                response_dict = json.loads(response.text)
+                tokens_url = response_dict[0]['access_tokens_url']
+                tokens_response = requests.post(tokens_url, headers=headers)
+                tokens_response_dict = json.loads(tokens_response.text)
+                self.token = tokens_response_dict['token']
+                clone_url = 'https://git:%s@github.com/%s/%s' % \
+                            (self.token, groups[0], groups[1])
                 return clone_url
-            # Don't edit URL because all hosts aren't the same
-
-            # else:
-                # clone_url = 'git://%s' % (hacked_url)
-        return self.repo_url
+            return self.repo_url
+        except AttributeError:
+            return self.repo_url
 
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
