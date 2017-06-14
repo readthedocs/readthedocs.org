@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import mock
 
 from rest_framework.test import APIRequestFactory, APITestCase

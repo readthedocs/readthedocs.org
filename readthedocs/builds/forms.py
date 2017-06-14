@@ -1,5 +1,7 @@
 """Django forms for the builds app."""
 
+from __future__ import absolute_import
+from builtins import object
 from django import forms
 
 from readthedocs.builds.models import VersionAlias, Version
@@ -9,7 +11,7 @@ from readthedocs.core.utils import trigger_build
 
 class AliasForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = VersionAlias
         fields = (
             'project',
@@ -27,7 +29,7 @@ class AliasForm(forms.ModelForm):
 
 class VersionForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = Version
         fields = ['active', 'privacy_level', 'tags']
 

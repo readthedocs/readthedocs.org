@@ -1,13 +1,16 @@
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
+from __future__ import absolute_import
+
 import json
 import logging
+import six
 
+from builtins import object
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.exceptions import ParseError, NotFound
-
 from django.shortcuts import get_object_or_404
 
 from readthedocs.core.views.hooks import build_branches
@@ -291,7 +294,7 @@ class APIWebhookView(WebhookMixin, APIView):
                 'branches',
                 [self.project.get_default_branch()]
             )
-            if isinstance(branches, basestring):
+            if isinstance(branches, six.string_types):
                 branches = [branches]
             return self.get_response_push(self.project, branches)
         except TypeError:

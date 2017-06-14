@@ -1,5 +1,7 @@
 """Base classes for Builders."""
 
+from __future__ import absolute_import
+from builtins import object
 from functools import wraps
 import os
 import logging

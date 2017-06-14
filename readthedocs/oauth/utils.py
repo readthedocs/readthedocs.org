@@ -1,4 +1,5 @@
 """Support code for OAuth, including webhook support."""
+from __future__ import absolute_import
 import logging
 
 from django.contrib import messages

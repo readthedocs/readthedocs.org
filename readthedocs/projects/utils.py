@@ -1,5 +1,7 @@
 """Utility functions used by projects"""
 
+from __future__ import absolute_import
+from builtins import object
 import fnmatch
 import os
 import subprocess

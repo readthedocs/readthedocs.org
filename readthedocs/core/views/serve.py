@@ -24,6 +24,7 @@ PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
+from __future__ import absolute_import
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response

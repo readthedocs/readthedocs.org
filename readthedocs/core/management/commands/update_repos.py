@@ -4,6 +4,7 @@ Custom management command to rebuild documentation for all projects.
 Invoked via ``./manage.py update_repos``.
 """
 
+from __future__ import absolute_import
 import logging
 from optparse import make_option
 

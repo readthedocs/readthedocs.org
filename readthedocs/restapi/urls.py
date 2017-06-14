@@ -1,6 +1,7 @@
 """Define routes between URL paths and views/endpoints."""
-from django.conf.urls import url, include
+from __future__ import absolute_import
 
+from django.conf.urls import url, include
 from rest_framework import routers
 
 from readthedocs.constants import pattern_opts

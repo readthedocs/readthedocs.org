@@ -1,13 +1,14 @@
 """Endpoint to generate footer HTML."""
+from __future__ import absolute_import
+
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings
-
-
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
+import six
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
@@ -27,8 +28,8 @@ def get_version_compare_data(project, base_version=None):
     highest_version_obj, highest_version_comparable = highest_version(
         project.versions.public().filter(active=True))
     ret_val = {
-        'project': unicode(highest_version_obj),
-        'version': unicode(highest_version_comparable),
+        'project': six.text_type(highest_version_obj),
+        'version': six.text_type(highest_version_comparable),
         'is_highest': True,
     }
     if highest_version_obj:

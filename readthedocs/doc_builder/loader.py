@@ -1,4 +1,5 @@
 """Lookup tables for builders and backends."""
+from __future__ import absolute_import
 from importlib import import_module
 
 from django.conf import settings

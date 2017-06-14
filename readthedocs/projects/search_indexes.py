@@ -8,6 +8,7 @@ Project search indexes
     not maintain this code. Use at your own risk, this may go away soon.
 """
 
+from __future__ import absolute_import
 import codecs
 import os
 

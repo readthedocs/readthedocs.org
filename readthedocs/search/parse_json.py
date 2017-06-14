@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Functions related to converting content into dict/JSON structures."""
 
+from __future__ import absolute_import
+from builtins import next
+from builtins import range
 import codecs
 import fnmatch
 import json
@@ -9,6 +12,7 @@ import os
 from pyquery import PyQuery
 
 import logging
+from six.moves import range
 log = logging.getLogger(__name__)
 
 

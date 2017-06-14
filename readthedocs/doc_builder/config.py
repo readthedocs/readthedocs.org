@@ -1,9 +1,10 @@
 """An API to load config from a readthedocs.yml file."""
+from __future__ import absolute_import
+
+from builtins import (filter, object)
 
 from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
                                       load as load_config)
-
-
 from .constants import BUILD_IMAGES, DOCKER_IMAGE
 
 
@@ -55,10 +56,10 @@ class ConfigWrapper(object):
         if ver in [2, 3]:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
-            ver = max(filter(
+            ver = max(list(filter(
                 lambda x: x < ver + 1,
                 self._yaml_config.get_valid_python_versions(),
-            ))
+            )))
         return 'python{0}'.format(ver)
 
     @property

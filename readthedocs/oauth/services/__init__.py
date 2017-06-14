@@ -1,5 +1,6 @@
 """Conditional classes for OAuth services"""
 
+from __future__ import absolute_import
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.services import github, bitbucket
 

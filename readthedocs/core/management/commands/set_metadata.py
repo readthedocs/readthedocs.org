@@ -1,5 +1,6 @@
 """Generate metadata for all projects"""
 
+from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand
