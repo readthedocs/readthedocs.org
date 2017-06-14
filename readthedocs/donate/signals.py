@@ -161,6 +161,15 @@ def is_gold_project(project):
     return project.gold_owners.count()
 
 
+def is_community_only(user, project):
+    """Return True is this project or user should only be shown community ads"""
+    if user.is_authenticated() and user.profile.as_opt_out:
+        return True
+    if not project.allow_promos:
+        return True
+    return False
+
+
 def get_user_country(request):
     """Return the ISO country code from geo-IP data, or None if not found."""
     if not PROMO_GEO_PATH:
@@ -204,12 +213,9 @@ def lookup_promo(request, project, theme):
     if no promo should be shown.
 
     """
-    if not project.allow_promos:
-        return None
-
     gold_user = is_gold_user(request.user)
     gold_project = is_gold_project(project)
-    community_only = request.user.is_authenticated() and request.user.profile.ad_opt_out
+    community_only = is_community_only(request.user, project)
 
     # Don't show promos to gold users or on gold projects for now
     # (Some day we may show them something customised for them)
