@@ -1,11 +1,12 @@
 """Utility to purge MaxCDN files, if configured."""
 
 from __future__ import absolute_import
-from builtins import range
+
 import logging
 
 from django.conf import settings
-from six.moves import range
+from builtins import range
+
 
 log = logging.getLogger(__name__)
 

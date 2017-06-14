@@ -152,15 +152,15 @@ class Symlink(object):
             domains = [domain]
         else:
             domains = Domain.objects.filter(project=self.project)
-        for domain in domains:
-            self._log(u"Symlinking CNAME: {0} -> {1}".format(domain.domain, self.project.slug))
+        for dom in domains:
+            self._log(u"Symlinking CNAME: {0} -> {1}".format(dom.domain, self.project.slug))
 
             # CNAME to doc root
-            symlink = os.path.join(self.CNAME_ROOT, domain.domain)
+            symlink = os.path.join(self.CNAME_ROOT, dom.domain)
             run('ln -nsf {0} {1}'.format(self.project_root, symlink))
 
             # Project symlink
-            project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, domain.domain)
+            project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom.domain)
             run('ln -nsf %s %s' % (self.project.doc_path, project_cname_symlink))
 
     def remove_symlink_cname(self, domain):

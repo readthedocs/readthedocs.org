@@ -1,4 +1,7 @@
+"""Defines access permissions for the API."""
+
 from __future__ import absolute_import
+
 from rest_framework import permissions
 from readthedocs.privacy.backend import AdminPermission
 
@@ -14,11 +17,10 @@ class IsOwner(permissions.BasePermission):
 
 class CommentModeratorOrReadOnly(permissions.BasePermission):
 
-    def has_object_permission(self, request, view, comment):
+    def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True  # TODO: Similar logic to #1084
-        else:
-            return AdminPermission.is_admin(request.user, comment.node.project)
+        return AdminPermission.is_admin(request.user, obj.node.project)
 
 
 class RelatedProjectIsOwner(permissions.BasePermission):

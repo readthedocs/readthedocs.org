@@ -173,8 +173,7 @@ class BuildCommand(BuildCommandResultMixin):
         """Flatten command"""
         if hasattr(self.command, '__iter__') and not isinstance(self.command, str):
             return ' '.join(self.command)
-        else:
-            return self.command
+        return self.command
 
     def save(self):
         """Save this command and result via the API"""
@@ -404,7 +403,7 @@ class BuildEnvironment(object):
             if self.failure and isinstance(self.failure,
                                            BuildEnvironmentException):
                 self.build['exit_code'] = self.failure.status_code
-            elif len(self.commands) > 0:
+            elif self.commands:
                 self.build['exit_code'] = max([cmd.exit_code
                                                for cmd in self.commands])
 

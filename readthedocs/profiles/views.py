@@ -96,7 +96,7 @@ def create_profile(request, form_class, success_url=None,
         extra_context = {}
     context = RequestContext(request)
     for key, value in list(extra_context.items()):
-        context[key] = callable(value) and value() or value
+        context[key] = (value() if callable(value) else value)
 
     return render_to_response(template_name,
                               {'form': form},
@@ -173,7 +173,7 @@ def edit_profile(request, form_class, success_url=None,
         extra_context = {}
     context = RequestContext(request)
     for key, value in list(extra_context.items()):
-        context[key] = callable(value) and value() or value
+        context[key] = (value() if callable(value) else value)
 
     return render_to_response(template_name, {
         'form': form,
@@ -245,7 +245,7 @@ def profile_detail(request, username, public_profile_field=None,
         extra_context = {}
     context = RequestContext(request)
     for key, value in list(extra_context.items()):
-        context[key] = callable(value) and value() or value
+        context[key] = (value() if callable(value) else value)
 
     return render_to_response(template_name,
                               {'profile': profile_obj},

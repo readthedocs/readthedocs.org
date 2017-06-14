@@ -1,21 +1,18 @@
 """Project forms"""
 
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import object
-from random import choice
-from urllib.parse import urlparse
 
+from random import choice
+
+from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from textclassifier.validators import ClassifierValidator
-
 from guardian.shortcuts import assign
+from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
@@ -26,6 +23,10 @@ from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
 from readthedocs.privacy.loader import AdminPermission
 from readthedocs.redirects.models import Redirect
+
+from future import standard_library
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
 
 
 class ProjectForm(forms.ModelForm):
@@ -508,7 +509,10 @@ class RedirectForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super(RedirectForm, self).__init__(*args, **kwargs)
 
-    def save(self, **_):
+    def save(self, **_):  # pylint: disable=arguments-differ
+        # TODO this should respect the unused argument `commit`. It's not clear
+        # why this needs to be a call to `create`, instead of relying on the
+        # super `save()` call.
         redirect = Redirect.objects.create(
             project=self.project,
             redirect_type=self.cleaned_data['redirect_type'],

@@ -1,19 +1,19 @@
 """Git-related utilities."""
-from __future__ import absolute_import
 
-from future import standard_library
-standard_library.install_aliases()
+from __future__ import absolute_import
 
 import re
 import logging
 import csv
 import os
-from io import StringIO
 
-from builtins import bytes, str
-
+from builtins import bytes, str  # pylint: disable=redefined-builtin
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+
+from future import standard_library
+standard_library.install_aliases()
+from io import StringIO  # noqa
 
 
 log = logging.getLogger(__name__)
@@ -159,7 +159,7 @@ class Backend(BaseVCS):
         for branch in raw_branches:
             branch = [f for f in branch if f != '' and f != '*']
             # Handle empty branches
-            if len(branch):
+            if branch:
                 branch = branch[0]
                 if branch.startswith('origin/'):
                     cut_len = len('origin/')

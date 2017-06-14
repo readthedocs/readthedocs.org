@@ -150,7 +150,7 @@ class BaseMkdocs(BaseBuilder):
         tmpl = template_loader.get_template('doc_builder/include.js.tmpl')
         return tmpl.render(include_ctx)
 
-    def build(self, **__):
+    def build(self):
         checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             'python',
@@ -181,7 +181,7 @@ class MkdocsJSON(BaseMkdocs):
     build_dir = '_build/json'
     use_theme = False
 
-    def build(self, **kwargs):
+    def build(self):
         user_config = yaml.safe_load(
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
         )
@@ -191,4 +191,4 @@ class MkdocsJSON(BaseMkdocs):
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
         )
-        super(MkdocsJSON, self).build(**kwargs)
+        super(MkdocsJSON, self).build()

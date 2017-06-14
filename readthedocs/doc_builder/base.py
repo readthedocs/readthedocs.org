@@ -50,7 +50,7 @@ class BaseBuilder(object):
         log.info("Forcing a build")
         self._force = True
 
-    def build(self, id=None, **__):  # pylint: disable=redefined-builtin
+    def build(self):
         """Do the actual building of the documentation."""
         raise NotImplementedError
 

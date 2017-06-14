@@ -1,21 +1,18 @@
 """Project models"""
 
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import object
+
 import fnmatch
 import logging
 import os
-from urllib.parse import urlparse
 
+from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
@@ -33,10 +30,14 @@ from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.projects.version_handling import version_windows
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.validators import validate_domain_name
-
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
+
+from future import standard_library
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
+
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class ProjectRelationship(models.Model):
     def __str__(self):
         return "%s -> %s" % (self.parent, self.child)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.alias:
             self.alias = self.child.slug
         super(ProjectRelationship, self).save(*args, **kwargs)
@@ -298,7 +299,7 @@ class Project(models.Model):
                 verbose_name__in=supported).update(supported=False)
             self.versions.filter(verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
@@ -357,8 +358,7 @@ class Project(models.Model):
     def get_canonical_url(self):
         if getattr(settings, 'DONT_HIT_DB', True):
             return apiv2.project(self.pk).canonical_url().get()['url']
-        else:
-            return self.get_docs_url()
+        return self.get_docs_url()
 
     def get_subproject_urls(self):
         """List subproject URLs
@@ -371,9 +371,8 @@ class Project(models.Model):
                         apiv2.project(self.pk)
                         .subprojects()
                         .get()['subprojects'])]
-        else:
-            return [(proj.child.slug, proj.child.get_docs_url())
-                    for proj in self.subprojects.all()]
+        return [(proj.child.slug, proj.child.get_docs_url())
+                for proj in self.subprojects.all()]
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -612,8 +611,8 @@ class Project(models.Model):
         """
         matches = []
         for root, __, filenames in os.walk(self.full_doc_path(version)):
-            for filename in fnmatch.filter(filenames, filename):
-                matches.append(os.path.join(root, filename))
+            for match in fnmatch.filter(filenames, filename):
+                matches.append(os.path.join(root, match))
         return matches
 
     def full_find(self, filename, version):
@@ -624,8 +623,8 @@ class Project(models.Model):
         """
         matches = []
         for root, __, filenames in os.walk(self.checkout_path(version)):
-            for filename in fnmatch.filter(filenames, filename):
-                matches.append(os.path.join(root, filename))
+            for match in fnmatch.filter(filenames, filename):
+                matches.append(os.path.join(root, match))
         return matches
 
     def get_latest_build(self, finished=True):
@@ -754,8 +753,7 @@ class Project(models.Model):
         """Get the version representing 'latest'"""
         if self.default_branch:
             return self.default_branch
-        else:
-            return self.vcs_repo().fallback_branch
+        return self.vcs_repo().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
@@ -911,7 +909,7 @@ class Domain(models.Model):
     def __str__(self):
         return "{domain} pointed at {project}".format(domain=self.domain, project=self.project.name)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
@@ -921,7 +919,7 @@ class Domain(models.Model):
         super(Domain, self).save(*args, **kwargs)
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk])
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
         super(Domain, self).delete(*args, **kwargs)

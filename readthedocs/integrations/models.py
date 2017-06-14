@@ -206,7 +206,7 @@ class IntegrationQuerySet(models.QuerySet):
     def subclass(self, instance):
         return self._get_subclass_replacement(instance)
 
-    def create(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def create(self, **kwargs):
         """Override of create method to use subclass instance instead
 
         Instead of using the underlying Integration model to create this
@@ -303,7 +303,7 @@ class GenericAPIWebhook(Integration):
     class Meta(object):
         proxy = True
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Ensure model has token data before saving"""
         try:
             token = self.provider_data.get('token')

@@ -43,8 +43,8 @@ def find_file(filename):
     """
     matches = []
     for root, __, filenames in os.walk('.'):
-        for filename in fnmatch.filter(filenames, filename):
-            matches.append(os.path.join(root, filename))
+        for match in fnmatch.filter(filenames, filename):
+            matches.append(os.path.join(root, match))
     return matches
 
 
