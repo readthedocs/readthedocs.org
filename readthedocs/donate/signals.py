@@ -205,10 +205,11 @@ def lookup_promo(request, project, theme):
 
     gold_user = is_gold_user(request.user)
     gold_project = is_gold_project(project)
+    user_opt_out = request.user.is_authenticated() and request.user.profile.ad_opt_out
 
     # Don't show promos to gold users or on gold projects for now
     # (Some day we may show them something customised for them)
-    if gold_user or gold_project:
+    if gold_user or gold_project or user_opt_out:
         return None
 
     promo_obj = get_promo(
