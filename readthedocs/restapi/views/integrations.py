@@ -1,10 +1,10 @@
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
 from __future__ import absolute_import
-from builtins import object
 import json
 import logging
 
+from builtins import object
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer

@@ -129,7 +129,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
-            log.exception("Sync Versions Error: %s", str(e))
+            log.exception("Sync Versions Error: %s", e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
         promoted_version = project.update_stable_version()

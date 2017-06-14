@@ -140,7 +140,7 @@ class Project(models.Model):
 
     # Project features
     allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(_('Comment Moderation)'), default=False)
+    comment_moderation = models.BooleanField(_('Comment Moderation'), default=False)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -178,7 +178,7 @@ class Project(models.Model):
     conf_py_file = models.CharField(
         _('Python configuration file'), max_length=255, default='', blank=True,
         help_text=_('Path from project root to <code>conf.py</code> file '
-                    '(ex. <code>docs/conf.py</code>).'
+                    '(ex. <code>docs/conf.py</code>). '
                     'Leave blank if you want us to find it for you.'))
 
     featured = models.BooleanField(_('Featured'), default=False)
@@ -344,7 +344,7 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None, lang_slug=None, private=None):
-        """Return a url for the docs
+        """Return a URL for the docs
 
         Always use http for now, to avoid content warnings.
         """
@@ -892,14 +892,14 @@ class Domain(models.Model):
     )
     canonical = models.BooleanField(
         default=False,
-        help_text=_('This Domain is the primary one where the documentation is served from.')
+        help_text=_('This Domain is the primary one where the documentation is served from')
     )
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
         help_text=_('SSL is enabled for this domain')
     )
-    count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit.'))
+    count = models.IntegerField(default=0, help_text=_('Number of times this domain has been hit'))
 
     objects = RelatedProjectQuerySet.as_manager()
 
