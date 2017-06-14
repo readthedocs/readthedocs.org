@@ -1,11 +1,12 @@
+"""Utility endpoints relating to canonical urls, embedded content, etc."""
 from __future__ import absolute_import
+
+import json
+
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-
-import json
 import requests
-
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404

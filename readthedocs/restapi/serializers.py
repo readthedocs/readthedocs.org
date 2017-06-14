@@ -1,4 +1,6 @@
+"""Defines serializers for each of our models."""
 from __future__ import absolute_import
+
 from builtins import object
 from rest_framework import serializers
 

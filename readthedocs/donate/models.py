@@ -172,7 +172,7 @@ class SupporterPromo(models.Model):
         Include the link in the html text.
 
         Only used for reporting,
-        doesn't include any click fruad protection!
+        doesn't include any click fraud protection!
         """
         return self.text.replace('<a>', "<a href='%s'>" % self.link)
 

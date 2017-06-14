@@ -1,13 +1,14 @@
+"""Endpoint to generate footer HTML."""
 from __future__ import absolute_import
+
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings
-
-
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
+import six
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.constants import TAG
@@ -16,10 +17,14 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import highest_version
 from readthedocs.projects.version_handling import parse_version_failsafe
 from readthedocs.restapi.signals import footer_response
-import six
 
 
 def get_version_compare_data(project, base_version=None):
+    """Retrieve metadata about the highest version available for this project.
+
+    :param base_version: We assert whether or not the base_version is also the
+                         highest version in the resulting "is_highest" value.
+    """
     highest_version_obj, highest_version_comparable = highest_version(
         project.versions.public().filter(active=True))
     ret_val = {
@@ -50,6 +55,9 @@ def get_version_compare_data(project, base_version=None):
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer))
 def footer_html(request):
+    """Render and return footer markup."""
+    # TODO refactor this function
+    # pylint: disable=too-many-locals
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
     page_slug = request.GET.get('page', None)

@@ -164,7 +164,7 @@ Importing existing docs
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 The other side of `readthedocs.org <http://readthedocs.org>`_ is hosting the
-docs you've already built.  Simply provide us with the clone url to your repo,
+docs you've already built.  Simply provide us with the clone URL to your repo,
 we'll pull your code, extract your docs, and build them!  We make available
 a post-commit webhook that can be configured to update the docs on our site
 whenever you commit to your repo, effectively letting you 'set it and forget it'.

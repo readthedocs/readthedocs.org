@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, DetailView
 
 from taggit.models import Tag
@@ -102,7 +102,7 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         return context
 
 
-@cache_control(no_cache=True)
+@never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
