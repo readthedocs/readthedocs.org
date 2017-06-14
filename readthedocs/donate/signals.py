@@ -105,6 +105,9 @@ def get_promo(country_code, programming_language, theme,
     """
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
 
+    if community_only:
+        promo_queryset = promo_queryset.filter(community=True)
+
     filtered_promos = []
     for promo in promo_queryset:
         # Break out if we aren't meant to show to this language
@@ -141,13 +144,6 @@ def get_promo(country_code, programming_language, theme,
                                                    name='gold-project')
         if gold_promo.exists():
             promo_obj = gold_promo.first()
-
-    # Show community ads to community people
-    if community_only:
-        community_promo = SupporterPromo.objects.filter(live=True,
-                                                        display_type='community').order_by('?')
-        if community_promo.exists():
-            promo_obj = community_promo.first()
 
     return promo_obj
 

@@ -5,7 +5,6 @@ DISPLAY_CHOICES = (
     ('site-footer', 'Site Footer'),
     ('search', 'Search Pages'),
     ('error', 'Error Pages'),
-    ('community', 'Community Only Pages'),
 )
 
 INCLUDE = 'include'
