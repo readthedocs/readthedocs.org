@@ -22,7 +22,7 @@ class UserProfileForm(forms.ModelForm):
     class Meta(object):
         model = UserProfile
         # Don't allow users edit someone else's user page,
-        fields = ['first_name', 'last_name', 'homepage', 'ad_opt_out']
+        fields = ['first_name', 'last_name', 'homepage', 'allow_ads']
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)

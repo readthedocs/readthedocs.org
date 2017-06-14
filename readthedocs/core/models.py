@@ -23,10 +23,10 @@ class UserProfile (models.Model):
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     banned = models.BooleanField(_('Banned'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
-    ad_opt_out = models.BooleanField(_('Opt Out of seeing paid advertising'),
-                                     help_text=_('You will still see ads for community projects.'),
-                                     default=False,
-                                     )
+    allow_ads = models.BooleanField(_('See paid advertising'),
+                                    help_text=_('If unchecked, you will still see community ads.'),
+                                    default=True,
+                                    )
     allow_email = models.BooleanField(_('Allow email'),
                                       help_text=_('Show your email on VCS '
                                                   'contributions.'),

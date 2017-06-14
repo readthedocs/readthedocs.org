@@ -4,6 +4,7 @@ import json
 import mock
 
 from builtins import range
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
@@ -187,7 +188,7 @@ class FooterTests(TestCase):
     def test_user_disabling(self):
         """Test that the promo doesn't show when the project has it disabled"""
         user = User.objects.get(username='test')
-        user.profile.ad_opt_out = True
+        user.profile.allow_ads = False
         user.profile.save()
 
         # No ads for logged in user
