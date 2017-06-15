@@ -494,6 +494,8 @@ class TranslationForm(forms.Form):
 
     def save(self):
         project = self.parent.translations.add(self.translation)
+        # Run symlinking and other sync logic to make sure we are in a good state.
+        self.parent.save()
         return project
 
 
