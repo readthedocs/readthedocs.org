@@ -68,16 +68,15 @@ class ResolverBase(TestCase):
 
     def setUp(self):
         with mock.patch('readthedocs.projects.models.broadcast'):
-            with mock.patch('readthedocs.projects.models.update_static_metadata'):
-                self.owner = create_user(username='owner', password='test')
-                self.tester = create_user(username='tester', password='test')
-                self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
-                self.subproject = get(Project, slug='sub', language='ja', users=[
-                                      self.owner], main_language_project=None)
-                self.translation = get(Project, slug='trans', language='ja', users=[
-                                       self.owner], main_language_project=None)
-                self.pip.add_subproject(self.subproject)
-                self.pip.translations.add(self.translation)
+            self.owner = create_user(username='owner', password='test')
+            self.tester = create_user(username='tester', password='test')
+            self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+            self.subproject = get(Project, slug='sub', language='ja', users=[
+                                  self.owner], main_language_project=None)
+            self.translation = get(Project, slug='trans', language='ja', users=[
+                                   self.owner], main_language_project=None)
+            self.pip.add_subproject(self.subproject)
+            self.pip.translations.add(self.translation)
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_subproject_alias(self):

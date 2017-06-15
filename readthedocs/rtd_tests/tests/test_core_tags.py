@@ -14,7 +14,7 @@ class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
-        with mock.patch('readthedocs.projects.models.update_static_metadata'):
+        with mock.patch('readthedocs.projects.models.broadcast'):
             self.client.login(username='eric', password='test')
             self.pip = Project.objects.get(slug='pip')
             self.pip_fr = Project.objects.create(name="PIP-FR", slug='pip-fr', language='fr', main_language_project=self.pip)
