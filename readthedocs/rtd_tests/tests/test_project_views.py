@@ -371,13 +371,13 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch('readthedocs.projects.tasks.remove_dir')
-        with patcher as remove_dir:
+        patcher = patch('readthedocs.projects.tasks.broadcast')
+        with patcher as broadcast:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            remove_dir.apply_async.assert_called_with(
-                queue='celery',
+            broadcast.assert_called_with(
+                type='app',
                 args=[project.doc_path])
 
 
