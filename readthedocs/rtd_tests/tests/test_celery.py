@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import os
 import json
 import shutil
@@ -54,13 +53,15 @@ class TestCeleryBuilding(RTDTestCase):
         directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        tasks.clear_artifacts(version_pk=version.pk)
+        result = tasks.clear_artifacts.delay(version_pk=version.pk)
+        self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
         directory = version.project.rtd_build_path(version=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        tasks.clear_artifacts(version_pk=version.pk)
+        result = tasks.clear_artifacts.delay(version_pk=version.pk)
+        self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs',

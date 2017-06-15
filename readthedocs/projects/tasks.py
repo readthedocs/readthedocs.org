@@ -909,6 +909,7 @@ def remove_dir(path):
     shutil.rmtree(path, ignore_errors=True)
 
 
+@task()
 def clear_artifacts(version_pk):
     """Remove artifacts from the web servers"""
     version = Version.objects.get(pk=version_pk)
