@@ -70,6 +70,7 @@ class SupporterPromo(models.Model):
     theme = models.CharField(_('Theme'), max_length=40,
                              choices=THEMES, default=READTHEDOCS_THEME,
                              blank=True, null=True)
+    community = models.BooleanField(_('Community Ad'), default=False)
     live = models.BooleanField(_('Live'), default=False)
 
     class Meta(object):
