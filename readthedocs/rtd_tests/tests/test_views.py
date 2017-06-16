@@ -7,10 +7,10 @@ from django_dynamic_fixture import get
 from django_dynamic_fixture import new
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.models import ImportedFile
 from readthedocs.projects.models import Project
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.privacy.loader import AdminPermission
 
 
 class Testmaker(TestCase):

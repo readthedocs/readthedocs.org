@@ -15,13 +15,13 @@ from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build, slugify
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
-from readthedocs.privacy.loader import AdminPermission
 from readthedocs.redirects.models import Redirect
 
 from future import standard_library
