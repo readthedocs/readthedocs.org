@@ -32,7 +32,7 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.core.utils import send_email, run_on_app_servers, broadcast
+from readthedocs.core.utils import send_email, broadcast
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.cdn.purge import purge
 from readthedocs.doc_builder.loader import get_builder_class
@@ -395,11 +395,10 @@ class UpdateDocsTask(Task):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            move_files.delay(
-                version_pk=self.version.pk,
-                html=True,
-                hostname=socket.gethostname(),
-            )
+            broadcast(type='app', task=move_files,
+                      args=[self.version.pk, socket.gethostname()],
+                      kwargs=dict(html=True)
+                      )
         except socket.error:
             # TODO do something here
             pass
@@ -555,25 +554,27 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         version.save()
 
     if not pdf:
-        clear_pdf_artifacts(version)
+        broadcast(type='app', task=clear_pdf_artifacts, args=[version.pk])
     if not epub:
-        clear_epub_artifacts(version)
+        broadcast(type='app', task=clear_epub_artifacts, args=[version.pk])
 
-    move_files(
-        version_pk=version_pk,
-        hostname=hostname,
-        html=html,
-        localmedia=localmedia,
-        search=search,
-        pdf=pdf,
-        epub=epub,
-    )
+    # Sync files to the web servers
+    broadcast(type='app', task=move_files, args=[version_pk, hostname],
+              kwargs=dict(
+                  html=html,
+                  localmedia=localmedia,
+                  search=search,
+                  pdf=pdf,
+                  epub=epub,
+    ))
 
     # Symlink project on every web
     broadcast(type='app', task=symlink_project, args=[version.project.pk])
 
+    # Update metadata
+    broadcast(type='app', task=update_static_metadata, args=[version.project.pk])
+
     # Delayed tasks
-    update_static_metadata.delay(version.project.pk)
     fileify.delay(version.pk, commit=build.commit)
     update_search.delay(version.pk, commit=build.commit)
 
@@ -887,7 +888,6 @@ def update_static_metadata(project_pk, path=None):
         fh = open(path, 'w+')
         json.dump(metadata, fh)
         fh.close()
-        Syncer.copy(path, path, host=socket.gethostname(), is_file=True)
     except (AttributeError, IOError) as e:
         log.debug(LOG_TEMPLATE.format(
             project=project.slug,
@@ -909,7 +909,7 @@ def remove_dir(path):
     shutil.rmtree(path, ignore_errors=True)
 
 
-@task(queue='web')
+@task()
 def clear_artifacts(version_pk):
     """Remove artifacts from the web servers"""
     version = Version.objects.get(pk=version_pk)
@@ -920,33 +920,19 @@ def clear_artifacts(version_pk):
 
 
 def clear_pdf_artifacts(version):
-    run_on_app_servers('rm -rf %s'
-                       % version.project.get_production_media_path(
-                           type_='pdf', version_slug=version.slug))
+    remove_dir(version.project.get_production_media_path(
+        type_='pdf', version_slug=version.slug))
 
 
 def clear_epub_artifacts(version):
-    run_on_app_servers('rm -rf %s'
-                       % version.project.get_production_media_path(
-                           type_='epub', version_slug=version.slug))
+    remove_dir(version.project.get_production_media_path(
+        type_='epub', version_slug=version.slug))
 
 
 def clear_htmlzip_artifacts(version):
-    run_on_app_servers('rm -rf %s'
-                       % version.project.get_production_media_path(
-                           type_='htmlzip', version_slug=version.slug))
+    remove_dir(version.project.get_production_media_path(
+        type_='htmlzip', version_slug=version.slug))
 
 
 def clear_html_artifacts(version):
-    run_on_app_servers('rm -rf %s' % version.project.rtd_build_path(version=version.slug))
-
-
-@task(queue='web')
-def remove_path_from_web(path):
-    """Remove the given path from the web servers file system."""
-    # Santity check  for spaces in the path since spaces would result in
-    # deleting unpredictable paths with "rm -rf".
-    assert ' ' not in path, "No spaces allowed in path"
-
-    # TODO: We need some proper escaping here for the given path.
-    run_on_app_servers('rm -rf {path}'.format(path=path))
+    remove_dir(version.project.rtd_build_path(version=version.slug))

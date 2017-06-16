@@ -28,22 +28,10 @@ log = logging.getLogger(__name__)
 SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
-def run_on_app_servers(command):
-    """A helper to copy a single file across app servers"""
-    log.info("Running %s on app servers", command)
-    ret_val = 0
-    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-        for server in settings.MULTIPLE_APP_SERVERS:
-            ret = os.system("ssh %s@%s %s" % (SYNC_USER, server, command))
-            if ret != 0:
-                ret_val = ret
-        return ret_val
-    ret = os.system(command)
-    return ret
-
-
-def broadcast(type, task, args):  # pylint: disable=redefined-builtin
+def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
     assert type in ['web', 'app', 'build']
+    if kwargs is None:
+        kwargs = {}
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
         servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
@@ -53,6 +41,7 @@ def broadcast(type, task, args):  # pylint: disable=redefined-builtin
         task.apply_async(
             queue=server,
             args=args,
+            kwargs=kwargs,
         )
 
 

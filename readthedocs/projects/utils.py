@@ -29,12 +29,6 @@ def version_from_slug(slug, version):
     return v
 
 
-def update_static_metadata(project_pk):
-    """This is here to avoid circular imports in models.py"""
-    from readthedocs.projects import tasks
-    tasks.update_static_metadata.delay(project_pk)
-
-
 def find_file(filename):
     """Recursively find matching file from the current working path
 

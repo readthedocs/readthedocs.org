@@ -21,6 +21,7 @@ from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects import tasks
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
@@ -371,13 +372,13 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch('readthedocs.projects.tasks.remove_dir')
-        with patcher as remove_dir:
+        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            remove_dir.apply_async.assert_called_with(
-                queue='celery',
+            broadcast.assert_called_with(
+                type='app',
+                task=tasks.remove_dir,
                 args=[project.doc_path])
 
 
