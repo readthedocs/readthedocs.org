@@ -158,8 +158,8 @@ class Project(models.Model):
     build_queue = models.CharField(
         _('Alternate build queue id'), max_length=32, null=True, blank=True)
     allow_promos = models.BooleanField(
-        _('Sponsor advertisements'), default=True, help_text=_(
-            "Allow sponsor advertisements on my project documentation"))
+        _('Allow paid advertising'), default=True, help_text=_(
+            "If unchecked, users will still see community ads."))
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(

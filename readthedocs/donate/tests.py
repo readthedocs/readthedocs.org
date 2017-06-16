@@ -4,13 +4,14 @@ import json
 import mock
 
 from builtins import range
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.test.client import RequestFactory
 from django_dynamic_fixture import get
 
-from readthedocs.core.middleware import FooterNoSessionMiddleware
+from .core.middleware import FooterNoSessionMiddleware
 from .models import SupporterPromo, GeoFilter, Country
 from .constants import (CLICKS, VIEWS, OFFERS,
                         INCLUDE, EXCLUDE)
@@ -183,6 +184,28 @@ class FooterTests(TestCase):
         )
         resp = json.loads(r.content)
         self.assertEqual(resp['promo'], False)
+
+    def test_user_disabling(self):
+        """Test that the promo doesn't show when the project has it disabled"""
+        user = User.objects.get(username='test')
+        user.profile.allow_ads = False
+        user.profile.save()
+
+        # No ads for logged in user
+        self.login('test', 'test')
+        r = self.client.get(
+            '/api/v2/footer_html/?project=pip&version=latest&page=index'
+        )
+        resp = json.loads(r.content)
+        self.assertEqual(resp['promo'], False)
+
+        # Ads for logged out user
+        self.logout()
+        r = self.client.get(
+            '/api/v2/footer_html/?project=pip&version=latest&page=index'
+        )
+        resp = json.loads(r.content)
+        self.assertTrue(resp['promo'] is not False)
 
 
 class FilterTests(TestCase):

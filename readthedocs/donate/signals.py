@@ -28,13 +28,13 @@ if PROMO_GEO_PATH:
 
 def show_to_geo(promo, country_code):
     # Remove promo's that exclude this country.
-    for geo_filter in promo.geo_geo_filters.all():
-        if geo_filter.geo_filter_type == INCLUDE:
+    for geo_filter in promo.geo_filters.all():
+        if geo_filter.filter_type == INCLUDE:
             if country_code in geo_filter.codes:
                 continue
             else:
                 return False
-        if geo_filter.geo_filter_type == EXCLUDE:
+        if geo_filter.filter_type == EXCLUDE:
             if country_code in geo_filter.codes:
                 return False
 
@@ -90,7 +90,8 @@ def choose_promo(promo_list):
     return None
 
 
-def get_promo(country_code, programming_language, theme, gold_project=False, gold_user=False):
+def get_promo(country_code, programming_language, theme,
+              gold_project=False, gold_user=False, community_only=False):
     """
     Get a proper promo.
 
@@ -103,6 +104,9 @@ def get_promo(country_code, programming_language, theme, gold_project=False, gol
 
     """
     promo_queryset = SupporterPromo.objects.filter(live=True, display_type='doc')
+
+    if community_only:
+        promo_queryset = promo_queryset.filter(community=True)
 
     filtered_promos = []
     for promo in promo_queryset:
@@ -157,6 +161,15 @@ def is_gold_project(project):
     return project.gold_owners.count()
 
 
+def is_community_only(user, project):
+    """Return True is this project or user should only be shown community ads"""
+    if user.is_authenticated() and user.profile.as_opt_out:
+        return True
+    if not project.allow_promos:
+        return True
+    return False
+
+
 def get_user_country(request):
     """Return the ISO country code from geo-IP data, or None if not found."""
     if not PROMO_GEO_PATH:
@@ -200,11 +213,9 @@ def lookup_promo(request, project, theme):
     if no promo should be shown.
 
     """
-    if not project.allow_promos:
-        return None
-
     gold_user = is_gold_user(request.user)
     gold_project = is_gold_project(project)
+    community_only = is_community_only(request.user, project)
 
     # Don't show promos to gold users or on gold projects for now
     # (Some day we may show them something customised for them)
@@ -217,6 +228,7 @@ def lookup_promo(request, project, theme):
         theme=theme,
         gold_project=gold_project,
         gold_user=gold_user,
+        community_only=community_only,
     )
 
     # If we don't have anything to show, don't show it.
