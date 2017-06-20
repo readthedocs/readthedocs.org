@@ -277,7 +277,6 @@ class ProjectRelationshipForm(forms.ModelForm):
         return queryset
 
 
-
 class DualCheckboxWidget(forms.CheckboxInput):
 
     """Checkbox with link to the version's built documentation"""
