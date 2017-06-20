@@ -28,12 +28,13 @@ from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.forms import (
-    ProjectBasicsForm, ProjectExtraForm,
-    ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
+    ProjectBasicsForm, ProjectExtraForm, ProjectAdvancedForm,
+    UpdateProjectForm, ProjectRelationshipForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
     RedirectForm, WebHookForm, DomainForm, IntegrationForm,
     ProjectAdvertisingForm)
-from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
+from readthedocs.projects.models import (
+    Project, ProjectRelationship, EmailHook, WebHook, Domain)
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects import tasks
 from readthedocs.oauth.services import registry
@@ -398,7 +399,7 @@ def edit_alias(request, project_slug, alias_id=None):
 class AliasList(PrivateViewMixin, ListView):
     model = VersionAlias
     template_context_name = 'alias'
-    template_name = 'projects/alias_list.html',
+    template_name = 'projects/alias_list.html'
 
     def get_queryset(self):
         self.project = get_object_or_404(
@@ -407,44 +408,50 @@ class AliasList(PrivateViewMixin, ListView):
         return self.project.aliases.all()
 
 
-@login_required
-def project_subprojects(request, project_slug):
-    """Project subprojects view and form view"""
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
+class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    form_kwargs = {
-        'parent': project,
-        'user': request.user,
-    }
-    if request.method == 'POST':
-        form = SubprojectForm(request.POST, **form_kwargs)
-        if form.is_valid():
-            form.save()
-            broadcast(type='app', task=tasks.symlink_subproject, args=[project.pk])
-            project_dashboard = reverse(
-                'projects_subprojects', args=[project.slug])
-            return HttpResponseRedirect(project_dashboard)
-    else:
-        form = SubprojectForm(**form_kwargs)
+    model = ProjectRelationship
+    form_class = ProjectRelationshipForm
+    lookup_field = 'child__slug'
+    lookup_url_kwarg = 'subproject_slug'
 
-    subprojects = project.subprojects.all()
+    def get_queryset(self):
+        self.project = self.get_project()
+        return self.model.objects.filter(parent=self.project)
 
-    return render_to_response(
-        'projects/project_subprojects.html',
-        {'form': form, 'project': project, 'subprojects': subprojects},
-        context_instance=RequestContext(request)
-    )
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['user'] = self.request.user
+        return super(ProjectRelationshipMixin, self).get_form(data, files, **kwargs)
+
+    def form_valid(self, form):
+        broadcast(type='app', task=tasks.symlink_subproject,
+                  args=[self.get_project().pk])
+        return super(ProjectRelationshipMixin, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('projects_subprojects', args=[self.get_project().slug])
 
 
-@login_required
-def project_subprojects_delete(request, project_slug, child_slug):
-    parent = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    child = get_object_or_404(Project.objects.all(), slug=child_slug)
-    parent.remove_subproject(child)
-    broadcast(type='app', task=tasks.symlink_subproject, args=[parent.pk])
-    return HttpResponseRedirect(reverse('projects_subprojects',
-                                        args=[parent.slug]))
+class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProjectRelationshipMixin, self).get_context_data(**kwargs)
+        ctx['superproject'] = self.project.superprojects.first()
+        return ctx
+
+
+class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
+    pass
+
+
+class ProjectRelationshipUpdate(ProjectRelationshipMixin, UpdateView):
+    pass
+
+
+class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
+
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
 
 
 @login_required

@@ -113,8 +113,13 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_subprojects_delete(self):
+        # This URL doesn't exist anymore, 404
         response = self.client.get(
             '/dashboard/pip/subprojects/delete/a-subproject/')
+        self.assertEqual(response.status_code, 404)
+        # New URL
+        response = self.client.get(
+            '/dashboard/pip/subprojects/a-subproject/delete/')
         self.assertRedirectToLogin(response)
 
     def test_subprojects(self):
@@ -213,7 +218,18 @@ class SubprojectViewTests(TestCase):
         self.project.users.add(self.user)
         self.subproject.users.add(self.user)
 
-        response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        # URL doesn't exist anymore, 404
+        response = self.client.get(
+            '/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        self.assertEqual(response.status_code, 404)
+        # This URL still doesn't accept GET, 405
+        response = self.client.get(
+            '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
+        self.assertEqual(response.status_code, 405)
+        self.assertTrue(self.subproject in [r.child for r in self.project.subprojects.all()])
+        # Test POST
+        response = self.client.post(
+            '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
         self.assertEqual(response.status_code, 302)
         self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])
 
@@ -221,6 +237,7 @@ class SubprojectViewTests(TestCase):
         self.project.users.add(self.user)
         self.assertFalse(AdminPermission.is_admin(self.user, self.subproject))
 
-        response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        response = self.client.post(
+            '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
         self.assertEqual(response.status_code, 302)
         self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])

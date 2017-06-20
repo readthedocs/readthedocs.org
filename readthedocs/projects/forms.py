@@ -21,7 +21,8 @@ from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
+from readthedocs.projects.models import (
+    Project, ProjectRelationship, EmailHook, WebHook, Domain)
 from readthedocs.redirects.models import Redirect
 
 from future import standard_library
@@ -236,6 +237,47 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
         )
 
 
+class ProjectRelationshipForm(forms.ModelForm):
+
+    """Form to add/update project relationships"""
+
+    parent = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta(object):
+        model = ProjectRelationship
+        exclude = []
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        self.user = kwargs.pop('user', None)
+        super(ProjectRelationshipForm, self).__init__(*args, **kwargs)
+        # Don't display the update form with an editable child, as it will be
+        # filtered out from the queryset anyways.
+        if hasattr(self, 'instance') and self.instance.pk is not None:
+            self.fields['child'].disabled = True
+        else:
+            self.fields['child'].queryset = self.get_subproject_queryset()
+
+    def clean_parent(self):
+        if self.project.superprojects.exists():
+            # This validation error is mostly for testing, users shouldn't see
+            # this in normal circumstances
+            raise forms.ValidationError(_("Subproject nesting is not supported"))
+        return self.project
+
+    def get_subproject_queryset(self):
+        """Return scrubbed subproject choice queryset
+
+        This removes projects that are either already a subproject of another
+        project, or are a superproject, as neither case is supported.
+        """
+        queryset = (Project.objects.for_admin_user(self.user)
+                    .exclude(subprojects__isnull=False)
+                    .exclude(superprojects__isnull=False))
+        return queryset
+
+
+
 class DualCheckboxWidget(forms.CheckboxInput):
 
     """Checkbox with link to the version's built documentation"""
@@ -362,44 +404,6 @@ def build_upload_html_form(project):
             choices=choices,
         )
     return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)
-
-
-class SubprojectForm(forms.Form):
-
-    """Project subproject form"""
-
-    subproject = forms.CharField()
-    alias = forms.CharField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
-        self.parent = kwargs.pop('parent')
-        super(SubprojectForm, self).__init__(*args, **kwargs)
-
-    def clean_subproject(self):
-        """Normalize subproject field
-
-        Does lookup on against :py:class:`Project` to ensure matching project
-        exists. Return the :py:class:`Project` object instead.
-        """
-        subproject_name = self.cleaned_data['subproject']
-        subproject_qs = Project.objects.filter(slug=subproject_name)
-        if not subproject_qs.exists():
-            raise forms.ValidationError((_("Project %(name)s does not exist")
-                                         % {'name': subproject_name}))
-        subproject = subproject_qs.first()
-        if not AdminPermission.is_admin(self.user, subproject):
-            raise forms.ValidationError(_(
-                'You need to be admin of {name} in order to add it as '
-                'a subproject.'.format(name=subproject_name)))
-        return subproject
-
-    def save(self):
-        relationship = self.parent.add_subproject(
-            self.cleaned_data['subproject'],
-            alias=self.cleaned_data['alias'],
-        )
-        return relationship
 
 
 class UserForm(forms.Form):
