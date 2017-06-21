@@ -17,7 +17,7 @@ from allauth.socialaccount.models import SocialAccount
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
-from .managers import RemoteRepositoryQuerySet, RemoteOrganizationQuerySet
+from .querysets import RemoteRepositoryQuerySet, RemoteOrganizationQuerySet
 
 
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')

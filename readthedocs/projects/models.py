@@ -20,10 +20,13 @@ from readthedocs.api.client import api
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
-from readthedocs.privacy.loader import (RelatedProjectQuerySet, ProjectQuerySet,
-                                        ChildRelatedProjectQuerySet)
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.querysets import (
+    ProjectQuerySet,
+    RelatedProjectQuerySet,
+    ChildRelatedProjectQuerySet
+)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.utils import make_api_version
 from readthedocs.projects.version_handling import determine_stable_version

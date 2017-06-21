@@ -1,33 +1,32 @@
 """Models for the builds app."""
 
 from __future__ import absolute_import
-from builtins import object
+
 import logging
-import re
 import os.path
+import re
 from shutil import rmtree
 
-from django.core.urlresolvers import reverse
+from builtins import object
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
-
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
-
-from readthedocs.core.utils import broadcast
-from readthedocs.privacy.backend import VersionQuerySet, VersionManager
-from readthedocs.privacy.loader import RelatedBuildQuerySet, BuildQuerySet
-from readthedocs.projects.models import Project
-from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
-                                            GITHUB_REGEXS, BITBUCKET_URL,
-                                            BITBUCKET_REGEXS, PRIVATE)
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
                         BUILD_STATE_FINISHED, BRANCH, TAG)
+from .managers import VersionManager
+from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .version_slug import VersionSlugField
+from readthedocs.core.utils import broadcast
+from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
+                                            GITHUB_REGEXS, BITBUCKET_URL,
+                                            BITBUCKET_REGEXS, PRIVATE)
+from readthedocs.projects.models import Project
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')

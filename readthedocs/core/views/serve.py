@@ -34,9 +34,9 @@ from django.views.static import serve
 from readthedocs.builds.models import Version
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ProjectRelationship
-from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
-from readthedocs.privacy.loader import AdminPermission
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 
 import mimetypes
 import os

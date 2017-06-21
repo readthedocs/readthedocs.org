@@ -98,7 +98,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.redirects',
             'readthedocs.rtd_tests',
             'readthedocs.restapi',
-            'readthedocs.privacy',
             'readthedocs.gold',
             'readthedocs.donate',
             'readthedocs.payments',

@@ -23,8 +23,12 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
+from .constants import LOG_TEMPLATE
+from .exceptions import ProjectImportError
+from .models import ImportedFile, Project, Domain
+from .signals import before_vcs, after_vcs, before_build, after_build
+from .utils import make_api_version, make_api_project
 from readthedocs_build.config import ConfigError
-
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -41,18 +45,13 @@ from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
-from readthedocs.projects.exceptions import ProjectImportError
-from readthedocs.projects.models import ImportedFile, Project, Domain
-from readthedocs.projects.utils import make_api_version, make_api_project
-from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.privacy.loader import Syncer
+from readthedocs.builds.syncers import Syncer
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.search.utils import process_mkdocs_json
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
-from readthedocs.projects.signals import before_vcs, after_vcs, before_build, after_build
 from readthedocs.core.resolver import resolve_path
 
 
