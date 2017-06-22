@@ -248,8 +248,8 @@ class ProjectRelationshipForm(forms.ModelForm):
         exclude = []
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop('project', None)
-        self.user = kwargs.pop('user', None)
+        self.project = kwargs.pop('project')
+        self.user = kwargs.pop('user')
         super(ProjectRelationshipForm, self).__init__(*args, **kwargs)
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
