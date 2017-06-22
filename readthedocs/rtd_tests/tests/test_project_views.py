@@ -381,6 +381,21 @@ class TestPrivateViews(MockBuildTestCase):
                 task=tasks.remove_dir,
                 args=[project.doc_path])
 
+    def test_subproject_create(self):
+        project = get(Project, slug='pip', users=[self.user])
+        subproject = get(Project, users=[self.user])
+
+        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
+            response = self.client.post(
+                '/dashboard/pip/subprojects/create/',
+                data={'child': subproject.pk},
+            )
+            self.assertEqual(response.status_code, 302)
+            broadcast.assert_called_with(
+                type='app',
+                task=tasks.symlink_subproject,
+                args=[project.pk])
+
 
 class TestPrivateMixins(MockBuildTestCase):
 

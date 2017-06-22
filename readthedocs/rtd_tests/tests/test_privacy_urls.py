@@ -142,6 +142,7 @@ class ProjectMixin(URLAccessMixin):
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.default_kwargs = {
             'project_slug': self.pip.slug,
+            'subproject_slug': self.subproject.slug,
             'version_slug': self.pip.versions.all()[0].slug,
             'filename': 'index.html',
             'type_': 'pdf',
@@ -227,6 +228,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
+        '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
@@ -255,6 +257,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/users/delete/': {'status_code': 405},
         '/dashboard/pip/notifications/delete/': {'status_code': 405},
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
+        '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
