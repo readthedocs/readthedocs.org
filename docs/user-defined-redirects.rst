@@ -3,7 +3,7 @@ User-defined Redirects
 
 You can set up redirects for a project in your project dashboard's Redirects page. 
 
-Quick summary
+Quick Summary
 -------------
 
 * Log into your Readthedocs.com Admin account.
