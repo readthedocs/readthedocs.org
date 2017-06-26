@@ -163,7 +163,7 @@ def is_gold_project(project):
 
 def is_community_only(user, project):
     """Return True is this project or user should only be shown community ads"""
-    if user.is_authenticated() and user.profile.as_opt_out:
+    if user.is_authenticated() and not user.profile.allow_ads:
         return True
     if not project.allow_promos:
         return True
