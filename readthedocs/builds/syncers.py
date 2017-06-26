@@ -15,6 +15,7 @@ from builtins import object
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils import safe_makedirs
 
 
 log = logging.getLogger(__name__)
@@ -127,8 +128,9 @@ class RemotePuller(object):
         sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
         if not is_file:
             path += "/"
-        log.info("Local Copy %s to %s", path, target)
-        os.makedirs(target)
+        log.info("Remote Pull %s to %s", path, target)
+        if not is_file and not os.path.exists(target):
+            safe_makedirs(target)
         # Add a slash when copying directories
         sync_cmd = "rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
             host=host,
