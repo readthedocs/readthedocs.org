@@ -45,7 +45,7 @@ class Command(BaseCommand):
                 'hostname': build.builder,
                 'html': True,
                 'localmedia': True,
-                'search': False,
+                'search': True,
                 'pdf': version.project.enable_pdf_build,
                 'epub': version.project.enable_epub_build,
             }
