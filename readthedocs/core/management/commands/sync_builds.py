@@ -50,7 +50,6 @@ class Command(BaseCommand):
                 'epub': version.project.enable_epub_build,
             }
             if options['broadcast']:
-                move_files.delay(*args)
                 broadcast(type='app', task=move_files, kwargs=kwargs)
             else:
                 move_files(**kwargs)
