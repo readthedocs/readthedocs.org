@@ -1,6 +1,7 @@
 # encoding: utf-8
 # pylint: disable=missing-docstring
 
+from __future__ import absolute_import
 import os
 
 import djcelery
@@ -97,7 +98,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.redirects',
             'readthedocs.rtd_tests',
             'readthedocs.restapi',
-            'readthedocs.privacy',
             'readthedocs.gold',
             'readthedocs.donate',
             'readthedocs.payments',

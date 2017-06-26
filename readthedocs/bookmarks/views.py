@@ -1,5 +1,6 @@
 """Views for the bookmarks app."""
 
+from __future__ import absolute_import
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseBadRequest
@@ -24,8 +25,8 @@ from readthedocs.projects.models import Project
 class BookmarkExistsView(View):
 
     @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkExistsView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkExistsView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         return HttpResponse(
@@ -80,8 +81,8 @@ class BookmarkListView(ListView):
     model = Bookmark
 
     @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkListView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkListView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return Bookmark.objects.filter(user=self.request.user)
@@ -93,8 +94,8 @@ class BookmarkAddView(View):
 
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkAddView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkAddView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         return HttpResponse(
@@ -156,8 +157,8 @@ class BookmarkRemoveView(View):
 
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        return super(BookmarkRemoveView, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(BookmarkRemoveView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         return render_to_response(
@@ -175,30 +176,29 @@ class BookmarkRemoveView(View):
             bookmark = get_object_or_404(Bookmark, pk=kwargs['bookmark_pk'])
             bookmark.delete()
             return HttpResponseRedirect(reverse('bookmark_list'))
-        else:
-            try:
-                post_json = json.loads(request.body)
-                project = Project.objects.get(slug=post_json['project'])
-                version = project.versions.get(slug=post_json['version'])
-                url = post_json['url']
-                page = post_json['page']
-            except KeyError:
-                return HttpResponseBadRequest(
-                    json.dumps({'error': "Invalid parameters"})
-                )
-
-            bookmark = get_object_or_404(
-                Bookmark,
-                user=request.user,
-                url=url,
-                project=project,
-                version=version,
-                page=page
+        try:
+            post_json = json.loads(request.body)
+            project = Project.objects.get(slug=post_json['project'])
+            version = project.versions.get(slug=post_json['version'])
+            url = post_json['url']
+            page = post_json['page']
+        except KeyError:
+            return HttpResponseBadRequest(
+                json.dumps({'error': "Invalid parameters"})
             )
-            bookmark.delete()
 
-            return HttpResponse(
-                json.dumps({'removed': True}),
-                status=200,
-                content_type="application/json"
-            )
+        bookmark = get_object_or_404(
+            Bookmark,
+            user=request.user,
+            url=url,
+            project=project,
+            version=version,
+            page=page
+        )
+        bookmark.delete()
+
+        return HttpResponse(
+            json.dumps({'removed': True}),
+            status=200,
+            content_type="application/json"
+        )

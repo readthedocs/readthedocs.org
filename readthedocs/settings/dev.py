@@ -1,4 +1,5 @@
 """Local development settings, including local_settings, if present."""
+from __future__ import absolute_import
 import os
 
 from .base import CommunityBaseSettings
@@ -40,7 +41,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     }
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    FILE_SYNCER = 'readthedocs.privacy.backends.syncers.LocalSyncer'
+    FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
 
     NGINX_X_ACCEL_REDIRECT = True
 

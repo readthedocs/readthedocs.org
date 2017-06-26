@@ -1,5 +1,6 @@
 """Clean up stable build paths per project version"""
 
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 import logging
 from optparse import make_option

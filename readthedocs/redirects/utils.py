@@ -7,6 +7,7 @@ These are not used directly as views; they are instead included into 404
 handlers, so that redirects only take effect if no other view matches.
 
 """
+from __future__ import absolute_import
 from django.http import HttpResponseRedirect
 import logging
 import re

@@ -1,5 +1,7 @@
 """Support for templating of notifications."""
 
+from __future__ import absolute_import
+from builtins import object
 from django.conf import settings
 from django.template import Template, Context
 from django.template.loader import render_to_string

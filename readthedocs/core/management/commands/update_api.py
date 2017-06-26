@@ -6,6 +6,7 @@ Usage::
     ./manage.py update_api <slug>
 """
 
+from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand

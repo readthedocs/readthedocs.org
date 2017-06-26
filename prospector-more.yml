@@ -1,9 +1,39 @@
 inherits: prospector
 
-strictness: medium
+strictness: high
 
 ignore-paths:
-  - restapi/
+  - constants.py
+  - urls.py
+  - wsgi.py
+  - acl
+  - api
+  - betterversion
+  - bookmarks
+  - builds
+  - cdn
+  - comments
+  - core
+  - djangome
+  - doc_builder
+  - donate
+  - gold
+  - integrations
+  - locale
+  - notifications
+  - oauth
+  - payments
+  - privacy
+  - profiles
+  - projects
+  - redirects
+  - restapi
+  - rtd_tests
+  - search
+  - settings
+  - tastyapi
+  - templates
+  - vcs_support
 
 pylint:
   options:

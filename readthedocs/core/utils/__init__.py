@@ -1,11 +1,12 @@
 """Common utilty functions"""
 
+from __future__ import absolute_import
+
 import errno
 import getpass
 import logging
 import os
 import re
-from urlparse import urlparse
 
 from django.conf import settings
 from django.utils import six
@@ -17,29 +18,20 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from ..tasks import send_email_task
 
+from future import standard_library  # pylint: disable=wrong-import-order
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
+
 
 log = logging.getLogger(__name__)
 
 SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
-def run_on_app_servers(command):
-    """A helper to copy a single file across app servers"""
-    log.info("Running %s on app servers", command)
-    ret_val = 0
-    if getattr(settings, "MULTIPLE_APP_SERVERS", None):
-        for server in settings.MULTIPLE_APP_SERVERS:
-            ret = os.system("ssh %s@%s %s" % (SYNC_USER, server, command))
-            if ret != 0:
-                ret_val = ret
-        return ret_val
-    else:
-        ret = os.system(command)
-        return ret
-
-
-def broadcast(type, task, args):  # pylint: disable=redefined-builtin
+def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
     assert type in ['web', 'app', 'build']
+    if kwargs is None:
+        kwargs = {}
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
         servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
@@ -49,6 +41,7 @@ def broadcast(type, task, args):  # pylint: disable=redefined-builtin
         task.apply_async(
             queue=server,
             args=args,
+            kwargs=kwargs,
         )
 
 
@@ -56,8 +49,7 @@ def clean_url(url):
     parsed = urlparse(url)
     if parsed.scheme or parsed.netloc:
         return parsed.netloc
-    else:
-        return parsed.path
+    return parsed.path
 
 
 def cname_to_slug(host):

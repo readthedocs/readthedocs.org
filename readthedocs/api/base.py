@@ -1,4 +1,6 @@
 """API resources"""
+from __future__ import absolute_import
+from builtins import object
 import logging
 import json
 import redis
@@ -95,7 +97,7 @@ class ProjectResource(ModelResource, SearchMixin):
         except Exception as e:
             return self.create_response(
                 request,
-                {'exception': e.message},
+                {'exception': str(e)},
                 response_class=HttpApplicationError,
             )
         return self.create_response(request, deleted_versions)

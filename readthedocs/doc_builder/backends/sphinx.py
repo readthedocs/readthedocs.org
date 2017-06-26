@@ -3,6 +3,7 @@
 .. _Sphinx: http://www.sphinx-doc.org/
 
 """
+from __future__ import absolute_import
 import os
 import sys
 import codecs
@@ -23,6 +24,7 @@ from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
 from ..environments import DockerBuildCommand, BuildCommand
 from ..constants import SPHINX_TEMPLATE_DIR, SPHINX_STATIC_DIR, PDF_RE
+import six
 
 log = logging.getLogger(__name__)
 
@@ -119,7 +121,7 @@ class BaseSphinx(BaseBuilder):
             outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
         except (ProjectImportError, IOError):
             trace = sys.exc_info()[2]
-            raise ProjectImportError('Conf file not found'), None, trace
+            six.reraise(ProjectImportError('Conf file not found'), None, trace)
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -137,7 +139,7 @@ class BaseSphinx(BaseBuilder):
             cwd=self.project.checkout_path(self.version.slug),
         )
 
-    def build(self, **__):
+    def build(self):
         self.clean()
         project = self.project
         build_command = [
@@ -275,7 +277,7 @@ class PdfBuilder(BaseSphinx):
     sphinx_build_dir = '_build/latex'
     pdf_file_name = None
 
-    def build(self, **__):
+    def build(self):
         self.clean()
         cwd = self.project.conf_dir(self.version.slug)
 

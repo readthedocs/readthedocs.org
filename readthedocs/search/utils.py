@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Utilities related to reading and generating indexable search content."""
 
+from __future__ import absolute_import
+
 import os
 import fnmatch
 import re
@@ -8,7 +10,9 @@ import codecs
 import logging
 import json
 
+from builtins import next, range
 from pyquery import PyQuery
+
 
 log = logging.getLogger(__name__)
 
@@ -50,8 +54,7 @@ def process_mkdocs_json(version, build_dir=True):
 def recurse_while_none(element):
     if element.text is None:
         return recurse_while_none(element.getchildren()[0])
-    else:
-        return element.text
+    return element.text
 
 
 def valid_mkdocs_json(file_path):
@@ -182,13 +185,13 @@ def parse_sphinx_sections(content):
         h1_title = h1_section.text().replace(u'¶', '').strip()
         h1_id = div.attr('id')
         h1_content = ""
-        next_p = body('h1').next()
+        next_p = next(body('h1'))
         while next_p:
             if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
                 if 'section' in next_p[0].attrib['class']:
                     break
             h1_content += "\n%s\n" % next_p.html()
-            next_p = next_p.next()
+            next_p = next(next_p)
         if h1_content:
             yield {
                 'id': h1_id,
@@ -226,14 +229,14 @@ def parse_mkdocs_sections(content):
         h1_id = h1.attr('id')
         h1_title = h1.text().strip()
         h1_content = ""
-        next_p = body('h1').next()
+        next_p = next(body('h1'))
         while next_p:
             if next_p[0].tag == 'h2':
                 break
             h1_html = next_p.html()
             if h1_html:
                 h1_content += "\n%s\n" % h1_html
-            next_p = next_p.next()
+            next_p = next(next_p)
         if h1_content:
             yield {
                 'id': h1_id,
@@ -248,14 +251,14 @@ def parse_mkdocs_sections(content):
             h2_title = h2.text().strip()
             section_id = h2.attr('id')
             h2_content = ""
-            next_p = body('h2').next()
+            next_p = next(body('h2'))
             while next_p:
                 if next_p[0].tag == 'h2':
                     break
                 h2_html = next_p.html()
                 if h2_html:
                     h2_content += "\n%s\n" % h2_html
-                next_p = next_p.next()
+                next_p = next(next_p)
             if h2_content:
                 yield {
                     'id': section_id,

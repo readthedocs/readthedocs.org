@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """Functions related to converting content into dict/JSON structures."""
 
+from __future__ import absolute_import
+
+import logging
 import codecs
 import fnmatch
 import json
 import os
 
+from builtins import next, range  # pylint: disable=redefined-builtin
 from pyquery import PyQuery
 
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -106,7 +109,7 @@ def process_file(filename):
     else:
         log.info('Unable to index file due to no name %s', filename)
         return None
-    if 'body' in data and len(data['body']):
+    if 'body' in data and data['body']:
         body = PyQuery(data['body'])
         body_content = body.text().replace(u'¶', '')
         sections.extend(generate_sections_from_pyquery(body))
@@ -127,5 +130,4 @@ def process_file(filename):
 def recurse_while_none(element):
     if element.text is None:
         return recurse_while_none(element.getchildren()[0])
-    else:
-        return element.text
+    return element.text

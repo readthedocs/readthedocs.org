@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 
 from mock import patch
@@ -9,6 +10,8 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
 from django_dynamic_fixture import new
 
+import six
+
 from readthedocs.core.models import UserProfile
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
                                         RequestFactoryTestMixin)
@@ -18,6 +21,7 @@ from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects import tasks
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
@@ -43,7 +47,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.data = {}
         for key in data:
             self.data.update({('{0}-{1}'.format(key, k), v)
-                              for (k, v) in data[key].items()})
+                              for (k, v) in list(data[key].items())})
         self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
     def test_profile_middleware_no_profile(self):
@@ -107,7 +111,7 @@ class TestBasicsForm(WizardTestCase):
 
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
-        for (key, val) in self.step_data['basics'].items():
+        for (key, val) in list(self.step_data['basics'].items()):
             self.assertEqual(getattr(proj, key), val)
         self.assertEqual(proj.documentation_type, 'sphinx')
 
@@ -154,7 +158,7 @@ class TestAdvancedForm(TestBasicsForm):
         """Test all forms pass validation"""
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -164,12 +168,12 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         del self.step_data['extra']['tags']
-        self.assertItemsEqual(
+        six.assertCountEqual(
+            self,
             [tag.name for tag in proj.tags.all()],
-            [u'bar', u'baz', u'foo']
-        )
+            [u'bar', u'baz', u'foo'])
         data.update(self.step_data['extra'])
-        for (key, val) in data.items():
+        for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)
 
     def test_form_missing_extra(self):
@@ -179,7 +183,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
@@ -189,7 +193,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -211,7 +215,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')
@@ -233,7 +237,7 @@ class TestAdvancedForm(TestBasicsForm):
 
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=resp._request.session.items())
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/')
@@ -368,14 +372,29 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        patcher = patch('readthedocs.projects.tasks.remove_dir')
-        with patcher as remove_dir:
+        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            remove_dir.apply_async.assert_called_with(
-                queue='celery',
+            broadcast.assert_called_with(
+                type='app',
+                task=tasks.remove_dir,
                 args=[project.doc_path])
+
+    def test_subproject_create(self):
+        project = get(Project, slug='pip', users=[self.user])
+        subproject = get(Project, users=[self.user])
+
+        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
+            response = self.client.post(
+                '/dashboard/pip/subprojects/create/',
+                data={'child': subproject.pk},
+            )
+            self.assertEqual(response.status_code, 302)
+            broadcast.assert_called_with(
+                type='app',
+                task=tasks.symlink_subproject,
+                args=[project.pk])
 
 
 class TestPrivateMixins(MockBuildTestCase):

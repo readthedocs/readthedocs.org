@@ -1,6 +1,9 @@
 """Django models for the redirects app."""
 
+from __future__ import absolute_import
+from builtins import object
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 import logging
@@ -36,12 +39,13 @@ TYPE_CHOICES = (
 from_url_helptext = _('Absolute path, excluding the domain. '
                       'Example: <b>/docs/</b>  or <b>/install.html</b>'
                       )
-to_url_helptext = _('Absolute or relative url. Examples: '
+to_url_helptext = _('Absolute or relative URL. Examples: '
                     '<b>/tutorial/install.html</b>'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
 
 
+@python_2_unicode_compatible
 class Redirect(models.Model):
 
     """A HTTP redirect associated with a Project."""
@@ -68,20 +72,19 @@ class Redirect(models.Model):
 
     objects = RedirectManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('redirect')
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.redirect_type == 'prefix':
             return ugettext('Prefix Redirect: %s ->' % self.from_url)
         elif self.redirect_type == 'page':
             return ugettext('Page Redirect: %s -> %s' % (
                 self.from_url,
                 self.to_url))
-        else:
-            return ugettext('Redirect: %s' % self.get_redirect_type_display())
+        return ugettext('Redirect: %s' % self.get_redirect_type_display())
 
     def get_full_path(self, filename, language=None, version_slug=None):
         """

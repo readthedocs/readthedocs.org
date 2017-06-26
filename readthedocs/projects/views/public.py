@@ -1,5 +1,6 @@
 """Public project views"""
 
+from __future__ import absolute_import
 from collections import OrderedDict
 import operator
 import os
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, DetailView
 
 from taggit.models import Tag
@@ -101,7 +102,7 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         return context
 
 
-@cache_control(no_cache=True)
+@never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
@@ -246,8 +247,7 @@ def version_filter_autocomplete(request, project_slug):
             },
             context_instance=RequestContext(request),
         )
-    else:
-        return HttpResponse(status=400)
+    return HttpResponse(status=400)
 
 
 def file_autocomplete(request, project_slug):
@@ -328,7 +328,7 @@ def elastic_project_search(request, project_slug):
     if results:
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
-            for key, val in hit['fields'].items():
+            for key, val in list(hit['fields'].items()):
                 if isinstance(val, list):
                     results['hits']['hits'][num]['fields'][key] = val[0]
 
@@ -393,9 +393,9 @@ def project_analytics(request, project_slug):
             analytics = None
 
     if analytics:
-        page_list = list(reversed(sorted(analytics['page'].items(),
+        page_list = list(reversed(sorted(list(analytics['page'].items()),
                                          key=operator.itemgetter(1))))
-        version_list = list(reversed(sorted(analytics['version'].items(),
+        version_list = list(reversed(sorted(list(analytics['version'].items()),
                                             key=operator.itemgetter(1))))
     else:
         page_list = []

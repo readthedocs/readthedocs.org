@@ -1,4 +1,6 @@
 """Mock versions of many API-related classes."""
+from __future__ import absolute_import
+from builtins import object
 from contextlib import contextmanager
 import json
 import mock
@@ -70,8 +72,7 @@ def mock_version(repo):
             project['repo'] = repo
             if 'slug' in kwargs:
                 return {'objects': [version], 'project': project}
-            else:
-                return version
+            return version
     return MockVersion
 
 

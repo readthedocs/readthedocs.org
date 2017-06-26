@@ -1,5 +1,6 @@
 """Notification tests"""
 
+from __future__ import absolute_import
 import mock
 import django_dynamic_fixture as fixture
 from django.test import TestCase

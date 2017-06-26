@@ -1,15 +1,21 @@
-"""Classes allowing copying files around.
+"""Classes to copy files between build and web servers
 
 "Syncers" copy files from the local machine, while "Pullers" copy files to
 the local machine.
-
 """
+
+from __future__ import absolute_import
+
 import getpass
 import logging
 import os
 import shutil
 
+from builtins import object
 from django.conf import settings
+
+from readthedocs.core.utils.extend import SettingsOverrideObject
+
 
 log = logging.getLogger(__name__)
 
@@ -133,3 +139,8 @@ class RemotePuller(object):
         ret = os.system(sync_cmd)
         if ret != 0:
             log.info("COPY ERROR to app servers.")
+
+
+class Syncer(SettingsOverrideObject):
+    _default_class = LocalSyncer
+    _override_setting = 'FILE_SYNCER'

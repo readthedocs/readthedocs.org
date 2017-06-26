@@ -1,4 +1,6 @@
 """Search views."""
+from __future__ import absolute_import
+from __future__ import print_function
 from pprint import pprint
 import collections
 import logging
@@ -45,7 +47,7 @@ def elastic_search(request):
     if results:
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
-            for key, val in hit['fields'].items():
+            for key, val in list(hit['fields'].items()):
                 if isinstance(val, list):
                     results['hits']['hits'][num]['fields'][key] = val[0]
 
@@ -57,8 +59,8 @@ def elastic_search(request):
                         facets[facet_type][term['term']] = term['count']
 
     if settings.DEBUG:
-        print pprint(results)
-        print pprint(facets)
+        print(pprint(results))
+        print(pprint(facets))
 
     if user_input.query:
         user = ''

@@ -1,14 +1,18 @@
 """Django models for the donate app."""
 # We use 'type' and 'hash' heavily in the API here.
 # pylint: disable=redefined-builtin
+from __future__ import (absolute_import, division)
 
+from past.utils import old_div
+from builtins import object
 from django.db import models
 from django.utils.crypto import get_random_string
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.conf import settings
-
 from django_countries.fields import CountryField
+import six
 
 from readthedocs.donate.utils import get_ad_day
 from readthedocs.donate.constants import (
@@ -18,6 +22,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
 
 
+@python_2_unicode_compatible
 class Supporter(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -37,10 +42,11 @@ class Supporter(models.Model):
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
+@python_2_unicode_compatible
 class SupporterPromo(models.Model):
 
     """A banner advertisement."""
@@ -64,12 +70,13 @@ class SupporterPromo(models.Model):
     theme = models.CharField(_('Theme'), max_length=40,
                              choices=THEMES, default=READTHEDOCS_THEME,
                              blank=True, null=True)
+    community = models.BooleanField(_('Community Ad'), default=False)
     live = models.BooleanField(_('Live'), default=False)
 
-    class Meta:
+    class Meta(object):
         ordering = ('analytics_id', '-live')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def as_dict(self):
@@ -134,7 +141,7 @@ class SupporterPromo(models.Model):
         return impression.click_ratio
 
     def views_per_day(self):
-        return int(float(self.sold_impressions) / float(self.sold_days))
+        return int(old_div(float(self.sold_impressions), float(self.sold_days)))
 
     def views_shown_today(self, day=None):
         if not day:
@@ -158,7 +165,7 @@ class SupporterPromo(models.Model):
         if self.total_views() == 0:
             return float(0)
         return '%.4f' % float(
-            (float(self.total_clicks()) / float(self.total_views())) * 100
+            (old_div(float(self.total_clicks()), float(self.total_views()))) * 100
         )
 
     def report_html_text(self):
@@ -166,7 +173,7 @@ class SupporterPromo(models.Model):
         Include the link in the html text.
 
         Only used for reporting,
-        doesn't include any click fruad protection!
+        doesn't include any click fraud protection!
         """
         return self.text.replace('<a>', "<a href='%s'>" % self.link)
 
@@ -177,7 +184,7 @@ class BaseImpression(models.Model):
     views = models.IntegerField(_('View'), default=0)
     clicks = models.IntegerField(_('Clicks'), default=0)
 
-    class Meta:
+    class Meta(object):
         ordering = ('-date',)
         unique_together = ('promo', 'date')
         abstract = True
@@ -199,6 +206,7 @@ class BaseImpression(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class PromoImpressions(BaseImpression):
 
     """
@@ -210,10 +218,11 @@ class PromoImpressions(BaseImpression):
     promo = models.ForeignKey(SupporterPromo, related_name='impressions',
                               blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s on %s' % (self.promo, self.date)
 
 
+@python_2_unicode_compatible
 class ProjectImpressions(BaseImpression):
 
     """
@@ -227,20 +236,22 @@ class ProjectImpressions(BaseImpression):
     project = models.ForeignKey(Project, related_name='impressions',
                                 blank=True, null=True)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('project', 'promo', 'date')
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s / %s on %s' % (self.promo, self.project, self.date)
 
 
+@python_2_unicode_compatible
 class Country(models.Model):
     country = CountryField(unique=True)
 
-    def __unicode__(self):
-        return unicode(self.country.name)
+    def __str__(self):
+        return six.text_type(self.country.name)
 
 
+@python_2_unicode_compatible
 class GeoFilter(models.Model):
     promo = models.ForeignKey(SupporterPromo, related_name='geo_filters',
                               blank=True, null=True)
@@ -255,6 +266,6 @@ class GeoFilter(models.Model):
             ret.append(wrapped_code[0])
         return ret
 
-    def __unicode__(self):
-        return "Filter for {promo} that {type}s: {countries}".format(
+    def __str__(self):
+        return u"Filter for {promo} that {type}s: {countries}".format(
             promo=self.promo.name, type=self.filter_type, countries=self.codes)
