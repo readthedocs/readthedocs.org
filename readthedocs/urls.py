@@ -26,12 +26,8 @@ v1_api.register(FileResource())
 
 admin.autodiscover()
 
-if 'readthedocs.donate' in settings.INSTALLED_APPS:
-    handler404 = 'readthedocs.donate.views.promo_404'
-    handler500 = 'readthedocs.donate.views.promo_500'
-else:
-    handler404 = 'readthedocs.core.views.server_error_404'
-    handler500 = 'readthedocs.core.views.server_error_500'
+handler404 = 'readthedocs.core.views.server_error_404'
+handler500 = 'readthedocs.core.views.server_error_500'
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
