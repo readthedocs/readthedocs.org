@@ -215,7 +215,6 @@ class Conda(PythonEnvironment):
             'mock',
             'pillow',
             'sphinx_rtd_theme',
-            'mkdocs',
         ]
 
         cmd = [
@@ -232,6 +231,7 @@ class Conda(PythonEnvironment):
 
         # Install pip-only things.
         pip_requirements = [
+            'mkdocs',
             'readthedocs-sphinx-ext',
             'recommonmark',
         ]
