@@ -236,6 +236,9 @@ class Conda(PythonEnvironment):
             'recommonmark',
         ]
 
+        if self.project.documentation_type == 'mkdocs':
+            pip_requirements.append('mkdocs')
+
         pip_cmd = [
             'python',
             self.venv_bin(filename='pip'),
