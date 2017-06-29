@@ -7,21 +7,21 @@ Sphinx==1.5.3
 sphinx_rtd_theme==0.2.4
 Pygments==2.2.0
 mkdocs==0.14.0
-readthedocs-build==2.0.6
 django==1.9.12
+six==1.10.0
+future==0.16.0
 
 django-tastypie==0.13.0
-django-haystack==2.5.0
-celery-haystack==0.7.2
+django-haystack==2.6.0
+celery-haystack==0.10
 django-guardian==1.4.6
 django-extensions==1.7.4
 djangorestframework==3.5.4
 django-vanilla-views==1.0.4
 jsonfield==1.0.3
-pytest-django==2.8.0
 
 requests==2.3.0
-slumber==0.6.0
+slumber==0.7.1
 lxml==3.3.5
 
 django-countries==3.4.1
@@ -29,9 +29,9 @@ django-countries==3.4.1
 # Basic tools
 redis==2.10.3
 celery==3.1.23
-django-celery==3.1.17
-git+https://github.com/pennersr/django-allauth.git@d869aff9#egg=django-allauth
-dnspython==1.11.0
+django-celery==3.2.1
+django-allauth==0.32.0
+dnspython==1.15.0
 
 # VCS
 httplib2==0.7.7
@@ -43,12 +43,10 @@ pyquery==1.2.2
 
 # Utils
 django-gravatar2==1.4.0
-doc2dash==1.1.0
 pytz==2013b
 beautifulsoup4==4.1.3
-Unipath==0.2.1
+Unipath==1.1
 django-kombu==0.9.4
-django-secure==0.1.2
 mimeparse==0.1.3
 mock==1.0.1
 stripe==1.20.2
@@ -59,7 +57,6 @@ docker-py==1.3.1
 django-textclassifier==1.0
 django-annoying==0.10.1
 django-messages-extends==0.5
-django-filter==1.0.1
 djangorestframework-jsonp==1.0.2
 
 # Docs
@@ -68,13 +65,14 @@ commonmark==0.5.5
 recommonmark==0.4.0
 
 # Version comparison stuff
-Distutils2==1.0a3
 packaging==16.8
 
 # Commenting stuff
-git+https://github.com/zestedesavoir/django-cors-middleware.git@def9dc2f5e81eed53831bcda79ad1c127ecb3fe2
+django-cors-middleware==1.3.1
 nilsimsa==0.3.7
 
 # Pegged git requirements
 git+https://github.com/zyga/django-pagination.git@86caf15#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
+# readthedocs-build is only pegged until the next release comes out
+git+https://github.com/rtfd/readthedocs-build.git@864892c17c370c72865c3717c18370368e3e0635#egg=readthedocs-build

@@ -1,13 +1,18 @@
 """Conditional classes for OAuth services"""
 
-from django.utils.module_loading import import_string
-from django.conf import settings
+from __future__ import absolute_import
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.services import github, bitbucket
 
-GitHubService = import_string(
-    getattr(settings, 'OAUTH_GITHUB_SERVICE',
-            'readthedocs.oauth.services.github.GitHubService'))
-BitbucketService = import_string(
-    getattr(settings, 'OAUTH_BITBUCKET_SERVICE',
-            'readthedocs.oauth.services.bitbucket.BitbucketService'))
+
+class GitHubService(SettingsOverrideObject):
+    _default_class = github.GitHubService
+    _override_setting = 'OAUTH_GITHUB_SERVICE'
+
+
+class BitbucketService(SettingsOverrideObject):
+    _default_class = bitbucket.BitbucketService
+    _override_setting = 'OAUTH_BITBUCKET_SERVICE'
+
 
 registry = [GitHubService, BitbucketService]

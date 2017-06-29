@@ -1,5 +1,6 @@
 """Gold subscription URLs"""
 
+from __future__ import absolute_import
 from django.conf.urls import url
 
 from readthedocs.gold import views

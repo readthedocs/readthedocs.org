@@ -1,3 +1,6 @@
+"""Locking utilities."""
+from __future__ import absolute_import
+from builtins import object
 import logging
 import os
 import time
@@ -32,29 +35,29 @@ class Lock(object):
         while os.path.exists(self.fpath):
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.timeout:
-                log.info("Lock (%s): Force unlock, old lockfile" %
+                log.info("Lock (%s): Force unlock, old lockfile",
                          self.name)
                 os.remove(self.fpath)
                 break
-            log.info("Lock (%s): Locked, waiting.." % self.name)
+            log.info("Lock (%s): Locked, waiting..", self.name)
             time.sleep(self.polling_interval)
             timesince = time.time() - start
             if timesince > self.timeout:
-                log.info("Lock (%s): Force unlock, timeout reached" %
+                log.info("Lock (%s): Force unlock, timeout reached",
                          self.name)
                 os.remove(self.fpath)
                 break
-            log.info(("%s still locked after %.2f seconds; retry for %.2f"
-                      " seconds") % (self.name, timesince, self.timeout))
+            log.info("%s still locked after %.2f seconds; retry for %.2f"
+                     " seconds", self.name, timesince, self.timeout)
         open(self.fpath, 'w').close()
-        log.info("Lock (%s): Lock acquired" % self.name)
+        log.info("Lock (%s): Lock acquired", self.name)
 
     def __exit__(self, exc, value, tb):
         try:
-            log.info("Lock (%s): Releasing" % self.name)
+            log.info("Lock (%s): Releasing", self.name)
             os.remove(self.fpath)
-        except:
-            log.error("Lock (%s): Failed to release, ignoring..." % self.name,
+        except OSError:
+            log.error("Lock (%s): Failed to release, ignoring...", self.name,
                       exc_info=True)
 
 
@@ -82,20 +85,20 @@ class NonBlockingLock(object):
         if path_exists and self.max_lock_age is not None:
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.max_lock_age:
-                log.info("Lock (%s): Force unlock, old lockfile" %
+                log.info("Lock (%s): Force unlock, old lockfile",
                          self.name)
                 os.remove(self.fpath)
             else:
-                raise LockTimeout("Lock (%s): Lock still active" % self.name)
+                raise LockTimeout("Lock (%s): Lock still active", self.name)
         elif path_exists:
-            raise LockTimeout("Lock (%s): Lock still active" % self.name)
+            raise LockTimeout("Lock (%s): Lock still active", self.name)
         open(self.fpath, 'w').close()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         try:
-            log.info("Lock (%s): Releasing" % self.name)
+            log.info("Lock (%s): Releasing", self.name)
             os.remove(self.fpath)
         except (IOError, OSError):
-            log.error("Lock (%s): Failed to release, ignoring..." % self.name,
+            log.error("Lock (%s): Failed to release, ignoring...", self.name,
                       exc_info=True)

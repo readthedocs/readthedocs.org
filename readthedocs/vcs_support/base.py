@@ -1,3 +1,6 @@
+"""Base classes for VCS backends."""
+from __future__ import absolute_import
+from builtins import object
 import logging
 import os
 import shutil
@@ -90,6 +93,8 @@ class BaseVCS(BaseCLI):
     # General methods
     # =========================================================================
 
+    # Defining a base API, so we'll have unused args
+    # pylint: disable=unused-argument
     def __init__(self, project, version, **kwargs):
         self.default_branch = project.default_branch
         self.name = project.name

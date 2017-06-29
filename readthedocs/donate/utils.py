@@ -1,3 +1,6 @@
+"""Support functions for donations."""
+
+from __future__ import absolute_import
 import pytz
 import datetime
 

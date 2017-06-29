@@ -1,5 +1,6 @@
 """Project URLs for authenticated users"""
 
+from __future__ import absolute_import
 from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
@@ -62,14 +63,6 @@ urlpatterns = [
     url(r'^(?P<project_slug>[-\w]+)/delete/$',
         private.project_delete,
         name='projects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/subprojects/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_subprojects_delete,
-        name='projects_subprojects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/subprojects/$',
-        private.project_subprojects,
-        name='projects_subprojects'),
 
     url(r'^(?P<project_slug>[-\w]+)/users/$',
         private.project_users,
@@ -164,3 +157,25 @@ integration_urls = [
 ]
 
 urlpatterns += integration_urls
+
+subproject_urls = [
+    url(r'^(?P<project_slug>{project_slug})/subprojects/$'.format(**pattern_opts),
+        private.ProjectRelationshipList.as_view(),
+        name='projects_subprojects'),
+    url((r'^(?P<project_slug>{project_slug})/subprojects/create/$'
+         .format(**pattern_opts)),
+        private.ProjectRelationshipCreate.as_view(),
+        name='projects_subprojects_create'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'subprojects/(?P<subproject_slug>{project_slug})/edit/$'
+         .format(**pattern_opts)),
+        private.ProjectRelationshipUpdate.as_view(),
+        name='projects_subprojects_update'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'subprojects/(?P<subproject_slug>{project_slug})/delete/$'
+         .format(**pattern_opts)),
+        private.ProjectRelationshipDelete.as_view(),
+        name='projects_subprojects_delete'),
+]
+
+urlpatterns += subproject_urls

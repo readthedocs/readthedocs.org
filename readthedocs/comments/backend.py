@@ -1,10 +1,12 @@
+"""Storage backends for the comments app."""
+
+from __future__ import absolute_import
 import json
 
 from django.core import serializers
 from sphinx.websupport.storage import StorageBackend
 
 from .models import DocumentNode
-from readthedocs.comments.models import NodeSnapshot
 
 
 class DjangoStorage(StorageBackend):

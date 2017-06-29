@@ -1,5 +1,6 @@
 """Test core util functions"""
 
+from __future__ import absolute_import
 import mock
 
 from django_dynamic_fixture import get

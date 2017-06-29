@@ -1,0 +1,78 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Subprojects" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-proj %}class="active"{% endblock %}
+
+{% block project-subprojects-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Subprojects" %}{% endblock %}
+
+{% block project_edit_content %}
+  <p>
+    {% blocktrans trimmed %}
+      Subprojects are projects hosted from the same URL as their parent project.
+      This is useful for organizing multiple projects under a custom domain.
+    {% endblocktrans %}
+  </p>
+
+  {% if superproject %}
+    <p>
+      {% blocktrans trimmed with project=superproject.parent.name %}
+        This project is already configured as a subproject of {{ project }}.
+        Nested subprojects are not currently supported.
+      {% endblocktrans %}
+    </p>
+
+    <a href="{% url 'projects_subprojects' project_slug=superproject.parent.slug %}">
+      {% blocktrans trimmed with project=superproject.parent.name %}
+        View subprojects of {{ project }}
+      {% endblocktrans %}
+    </a>
+  {% else %}
+    <div class="button-bar">
+      <ul>
+        <li>
+          <a class="button"
+            href="{% url 'projects_subprojects_create' project_slug=project.slug %}">
+            {% trans "Add subproject" %}
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="module project-subprojects">
+      <div class="module-list-wrapper">
+        <ul>
+          {% for subproject in object_list %}
+            <li class="module-item">
+              <div class="subproject-name">
+                <a href="{% url 'projects_subprojects_update' project_slug=project.slug subproject_slug=subproject.child.slug %}">
+                  {{ subproject.child }}
+                </a>
+              </div>
+
+              <div class="subproject-meta">
+                <a href="{% url 'projects_manage' project_slug=subproject.child.slug %}">
+                  {% trans "Project page" %}</a>
+                &nbsp;&dash;&nbsp;
+                <a href="{{ subproject.get_absolute_url }}">
+                  {{ subproject.get_absolute_url }}
+                </a>
+              </div>
+            </li>
+          {% empty %}
+            <li class="module-item">
+              <p class="quiet">
+                {% trans 'No subprojects are currently configured' %}
+              </p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

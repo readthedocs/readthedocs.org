@@ -1,9 +1,10 @@
 """Forms for RTD donations"""
 
+from __future__ import absolute_import
+from builtins import object
 import logging
 
 from django import forms
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
@@ -23,7 +24,7 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
     :py:class:`StripeModelForm`
     """
 
-    class Meta:
+    class Meta(object):
         model = Supporter
         fields = (
             'last_4_digits',
@@ -97,7 +98,7 @@ class EthicalAdForm(StripeResourceMixin, StripeModelForm):
     :py:class:`StripeModelForm`
     """
 
-    class Meta:
+    class Meta(object):
         model = Supporter
         fields = (
             'last_4_digits',

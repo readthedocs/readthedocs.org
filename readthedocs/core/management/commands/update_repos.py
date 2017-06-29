@@ -1,3 +1,10 @@
+"""
+Custom management command to rebuild documentation for all projects.
+
+Invoked via ``./manage.py update_repos``.
+"""
+
+from __future__ import absolute_import
 import logging
 from optparse import make_option
 
@@ -12,12 +19,9 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
-    """
-    Custom management command to rebuild documentation for all projects.
+    """Management command for rebuilding documentation on projects"""
 
-    Invoked via ``./manage.py update_repos``.
-    """
-
+    help = __doc__
     option_list = BaseCommand.option_list + (
         make_option('-r',
                     action='store_true',
@@ -39,14 +43,14 @@ class Command(BaseCommand):
         record = options['record']
         force = options['force']
         version = options['version']
-        if len(args):
+        if args:
             for slug in args:
                 if version and version != "all":
-                    log.info("Updating version %s for %s" % (version, slug))
+                    log.info("Updating version %s for %s", version, slug)
                     for version in Version.objects.filter(project__slug=slug, slug=version):
                         trigger_build(project=version.project, version=version)
                 elif version == "all":
-                    log.info("Updating all versions for %s" % slug)
+                    log.info("Updating all versions for %s", slug)
                     for version in Version.objects.filter(project__slug=slug,
                                                           active=True,
                                                           uploaded=False):
@@ -55,7 +59,7 @@ class Command(BaseCommand):
                                               version_pk=version.pk)
                 else:
                     p = Project.all_objects.get(slug=slug)
-                    log.info("Building %s" % p)
+                    log.info("Building %s", p)
                     trigger_build(project=p, force=force, record=record)
         else:
             if version == "all":
@@ -71,7 +75,3 @@ class Command(BaseCommand):
                 for project in Project.objects.all():
                     tasks.update_docs.run(pk=project.pk, record=record,
                                           force=force)
-
-    @property
-    def help(self):
-        return Command.__doc__

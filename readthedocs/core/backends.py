@@ -1,3 +1,6 @@
+"""Email backends for core app."""
+
+from __future__ import absolute_import
 import smtplib
 
 from django.core.mail.utils import DNS_NAME
@@ -15,6 +18,6 @@ class SSLEmailBackend(EmailBackend):
             if self.username and self.password:
                 self.connection.login(self.username, self.password)
             return True
-        except:
+        except Exception:
             if not self.fail_silently:
                 raise

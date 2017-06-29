@@ -1,3 +1,9 @@
+"""Sphinx_ backend for building docs.
+
+.. _Sphinx: http://www.sphinx-doc.org/
+
+"""
+from __future__ import absolute_import
 import os
 import sys
 import codecs
@@ -18,6 +24,7 @@ from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
 from ..environments import DockerBuildCommand, BuildCommand
 from ..constants import SPHINX_TEMPLATE_DIR, SPHINX_STATIC_DIR, PDF_RE
+import six
 
 log = logging.getLogger(__name__)
 
@@ -48,87 +55,91 @@ class BaseSphinx(BaseBuilder):
         conf_file = os.path.join(docs_dir, 'conf.py')
         safe_write(conf_file, conf_template)
 
-    def append_conf(self, **kwargs):
+    def get_config_params(self):
+        """Get configuration parameters to be rendered into the conf file."""
+        # TODO this should be handled better in the theme
+        conf_py_path = os.path.join(os.path.sep,
+                                    self.version.get_conf_py_path(),
+                                    '')
+        remote_version = self.version.commit_name
+
+        github_user, github_repo = version_utils.get_github_username_repo(
+            url=self.project.repo)
+        github_version_is_editable = (self.version.type == 'branch')
+        display_github = github_user is not None
+
+        bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
+            url=self.project.repo)
+        bitbucket_version_is_editable = (self.version.type == 'branch')
+        display_bitbucket = bitbucket_user is not None
+
+        # Avoid hitting database and API if using Docker build environment
+        if getattr(settings, 'DONT_HIT_API', False):
+            versions = self.project.active_versions()
+            downloads = self.version.get_downloads(pretty=True)
+        else:
+            versions = self.project.api_versions()
+            downloads = api.version(self.version.pk).get()['downloads']
+
+        return {
+            'current_version': self.version.verbose_name,
+            'project': self.project,
+            'settings': settings,
+            'static_path': SPHINX_STATIC_DIR,
+            'template_path': SPHINX_TEMPLATE_DIR,
+            'conf_py_path': conf_py_path,
+            'api_host': getattr(settings, 'PUBLIC_API_URL', 'https://readthedocs.org'),
+            'commit': self.project.vcs_repo(self.version.slug).commit,
+            'versions': versions,
+            'downloads': downloads,
+
+            # GitHub
+            'github_user': github_user,
+            'github_repo': github_repo,
+            'github_version': remote_version,
+            'github_version_is_editable': github_version_is_editable,
+            'display_github': display_github,
+
+            # BitBucket
+            'bitbucket_user': bitbucket_user,
+            'bitbucket_repo': bitbucket_repo,
+            'bitbucket_version': remote_version,
+            'bitbucket_version_is_editable': bitbucket_version_is_editable,
+            'display_bitbucket': display_bitbucket,
+        }
+
+    def append_conf(self, **__):
         """Modify given ``conf.py`` file from a whitelisted user's project."""
-        # Pull config data
         try:
-            conf_py_path = self.version.get_conf_py_path()
+            self.version.get_conf_py_path()
         except ProjectImportError:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
-        project = self.project
-        # Open file for appending.
         try:
-            outfile_path = project.conf_file(self.version.slug)
+            outfile_path = self.project.conf_file(self.version.slug)
             outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
         except (ProjectImportError, IOError):
             trace = sys.exc_info()[2]
-            raise ProjectImportError('Conf file not found'), None, trace
-        try:
+            six.reraise(ProjectImportError('Conf file not found'), None, trace)
+
+        # Append config to project conf file
+        tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
+        rendered = tmpl.render(self.get_config_params())
+
+        with outfile:
             outfile.write("\n")
-            # TODO this should be handled better in the theme
-            conf_py_path = os.path.join(os.path.sep,
-                                        self.version.get_conf_py_path(),
-                                        '')
-            remote_version = self.version.commit_name
-
-            github_user, github_repo = version_utils.get_github_username_repo(
-                url=self.project.repo)
-            github_version_is_editable = (self.version.type == 'branch')
-            display_github = github_user is not None
-
-            bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(
-                url=self.project.repo)
-            bitbucket_version_is_editable = (self.version.type == 'branch')
-            display_bitbucket = bitbucket_user is not None
-
-            rtd_ctx = {
-                'current_version': self.version.verbose_name,
-                'project': project,
-                'settings': settings,
-                'static_path': SPHINX_STATIC_DIR,
-                'template_path': SPHINX_TEMPLATE_DIR,
-                'conf_py_path': conf_py_path,
-                'api_host': getattr(settings, 'PUBLIC_API_URL',
-                                    'https://readthedocs.org'),
-                # GitHub
-                'github_user': github_user,
-                'github_repo': github_repo,
-                'github_version': remote_version,
-                'github_version_is_editable': github_version_is_editable,
-                'display_github': display_github,
-                # BitBucket
-                'bitbucket_user': bitbucket_user,
-                'bitbucket_repo': bitbucket_repo,
-                'bitbucket_version': remote_version,
-                'bitbucket_version_is_editable': bitbucket_version_is_editable,
-                'display_bitbucket': display_bitbucket,
-                'commit': self.project.vcs_repo(self.version.slug).commit,
-            }
-
-            # Avoid hitting database and API if using Docker build environment
-            if getattr(settings, 'DONT_HIT_API', False):
-                rtd_ctx['versions'] = project.active_versions()
-                rtd_ctx['downloads'] = self.version.get_downloads(pretty=True)
-            else:
-                rtd_ctx['versions'] = project.api_versions()
-                rtd_ctx['downloads'] = (api.version(self.version.pk)
-                                        .get()['downloads'])
-            rtd_string = template_loader.get_template('doc_builder/conf.py.tmpl').render(rtd_ctx)
-            outfile.write(rtd_string)
-        finally:
-            outfile.close()
+            outfile.write(rendered)
 
         # Print the contents of conf.py in order to make the rendered
         # configfile visible in the build logs
         self.run(
             'cat', os.path.relpath(outfile_path,
-                                   project.checkout_path(self.version.slug)),
-            cwd=project.checkout_path(self.version.slug),
+                                   self.project.checkout_path(self.version.slug)),
+            cwd=self.project.checkout_path(self.version.slug),
         )
 
-    def build(self, **kwargs):
+    def build(self):
         self.clean()
         project = self.project
         build_command = [
@@ -181,7 +192,7 @@ class SingleHtmlBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super(SingleHtmlBuilder, self).__init__(*args, **kwargs)
-        sphinx_builder = 'readthedocssinglehtml'
+        self.sphinx_builder = 'readthedocssinglehtml'
 
 
 class SearchBuilder(BaseSphinx):
@@ -196,8 +207,8 @@ class LocalMediaBuilder(BaseSphinx):
     sphinx_build_dir = '_build/localmedia'
 
     @restoring_chdir
-    def move(self, **kwargs):
-        log.info("Creating zip file from %s" % self.old_artifact_path)
+    def move(self, **__):
+        log.info("Creating zip file from %s", self.old_artifact_path)
         target_file = os.path.join(self.target, '%s.zip' % self.project.slug)
         if not os.path.exists(self.target):
             os.makedirs(self.target)
@@ -207,9 +218,9 @@ class LocalMediaBuilder(BaseSphinx):
         # Create a <slug>.zip file
         os.chdir(self.old_artifact_path)
         archive = zipfile.ZipFile(target_file, 'w')
-        for root, subfolders, files in os.walk('.'):
-            for file in files:
-                to_write = os.path.join(root, file)
+        for root, __, files in os.walk('.'):
+            for fname in files:
+                to_write = os.path.join(root, fname)
                 archive.write(
                     filename=to_write,
                     arcname=os.path.join("%s-%s" % (self.project.slug,
@@ -224,7 +235,7 @@ class EpubBuilder(BaseSphinx):
     sphinx_builder = 'epub'
     sphinx_build_dir = '_build/epub'
 
-    def move(self, **kwargs):
+    def move(self, **__):
         from_globs = glob(os.path.join(self.old_artifact_path, "*.epub"))
         if not os.path.exists(self.target):
             os.makedirs(self.target)
@@ -259,11 +270,14 @@ class DockerLatexBuildCommand(DockerBuildCommand):
 
 
 class PdfBuilder(BaseSphinx):
+
+    """Builder to generate PDF documentation."""
+
     type = 'sphinx_pdf'
     sphinx_build_dir = '_build/latex'
     pdf_file_name = None
 
-    def build(self, **kwargs):
+    def build(self):
         self.clean()
         cwd = self.project.conf_dir(self.version.slug)
 
@@ -321,7 +335,7 @@ class PdfBuilder(BaseSphinx):
             pdf_commands.append(cmd_ret)
         return all(cmd.successful for cmd in pdf_commands)
 
-    def move(self, **kwargs):
+    def move(self, **__):
         if not os.path.exists(self.target):
             os.makedirs(self.target)
 

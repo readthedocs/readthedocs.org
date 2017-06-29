@@ -1,5 +1,7 @@
 """OAuth utility functions"""
 
+from __future__ import absolute_import
+from builtins import str
 import logging
 import json
 import re
@@ -107,7 +109,7 @@ class BitbucketService(Service):
                 account=self.account,
             )
             if repo.organization and repo.organization != organization:
-                log.debug('Not importing %s because mismatched orgs' %
+                log.debug('Not importing %s because mismatched orgs',
                           fields['name'])
                 return None
             else:
@@ -139,7 +141,7 @@ class BitbucketService(Service):
             repo.save()
             return repo
         else:
-            log.debug('Not importing %s because mismatched type' %
+            log.debug('Not importing %s because mismatched type',
                       fields['name'])
 
     def create_organization(self, fields):

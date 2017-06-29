@@ -1,8 +1,9 @@
+"""URL configuration for builds app."""
+
+from __future__ import absolute_import
 from django.conf.urls import url
 
-from .views import (
-    BuildList, BuildDetail, builds_redirect_detail, builds_redirect_list,
-)
+from .views import builds_redirect_detail, builds_redirect_list
 
 
 urlpatterns = [

@@ -1,6 +1,10 @@
-import urllib
+"""Template tags for core app."""
+
+from __future__ import absolute_import
+
 import hashlib
 
+from builtins import str  # pylint: disable=redefined-builtin
 from django import template
 from django.conf import settings
 from django.utils.safestring import mark_safe
@@ -8,6 +12,11 @@ from django.utils.encoding import force_bytes, force_text
 
 from readthedocs.projects.models import Project
 from readthedocs.core.resolver import resolve
+
+from future import standard_library
+standard_library.install_aliases()
+import urllib.request, urllib.parse, urllib.error  # noqa
+
 
 register = template.Library()
 
@@ -20,7 +29,7 @@ def gravatar(email, size=48):
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading
     """
-    url = "http://www.gravatar.com/avatar.php?%s" % urllib.urlencode({
+    url = "http://www.gravatar.com/avatar.php?%s" % urllib.parse.urlencode({
         'gravatar_id': hashlib.md5(email).hexdigest(),
         'size': str(size)
     })
@@ -60,15 +69,14 @@ def restructuredtext(value, short=False):
                 out = out.split("\n")[0]
         except IndexError:
             pass
-        finally:
-            return mark_safe(out)
+        return mark_safe(out)
 
 
 @register.filter
 def get_project(slug):
     try:
         return Project.objects.get(slug=slug)
-    except:
+    except Project.DoesNotExist:
         return None
 
 
@@ -76,7 +84,7 @@ def get_project(slug):
 def get_version(slug):
     try:
         return Project.objects.get(slug=slug)
-    except:
+    except Project.DoesNotExist:
         return None
 
 

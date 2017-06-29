@@ -1,11 +1,11 @@
 """Project views for authenticated users"""
 
+from __future__ import absolute_import
 import logging
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseRedirect, HttpResponseNotAllowed,
                          Http404, HttpResponseBadRequest)
@@ -23,20 +23,20 @@ from vanilla import CreateView, DeleteView, UpdateView, DetailView, GenericView
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.models import Version
 from readthedocs.builds.forms import AliasForm, VersionForm
-from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import VersionAlias
 from readthedocs.core.utils import trigger_build, broadcast
 from readthedocs.core.mixins import ListViewWithForm
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.forms import (
-    ProjectBasicsForm, ProjectExtraForm,
-    ProjectAdvancedForm, UpdateProjectForm, SubprojectForm,
+    ProjectBasicsForm, ProjectExtraForm, ProjectAdvancedForm,
+    UpdateProjectForm, ProjectRelationshipForm,
     build_versions_form, UserForm, EmailHookForm, TranslationForm,
     RedirectForm, WebHookForm, DomainForm, IntegrationForm,
     ProjectAdvertisingForm)
-from readthedocs.projects.models import Project, EmailHook, WebHook, Domain
+from readthedocs.projects.models import (
+    Project, ProjectRelationship, EmailHook, WebHook, Domain)
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects import constants, tasks
+from readthedocs.projects import tasks
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
 
@@ -62,9 +62,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
-        version_filter = VersionFilter(constants.IMPORTANT_VERSION_FILTERS,
-                                       queryset=self.get_queryset())
-        context['filter'] = version_filter
 
         bookmarks = Bookmark.objects.filter(user=self.request.user)
 
@@ -176,9 +173,10 @@ def project_version_detail(request, project_slug, version_slug):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info('Removing files for version %s' % version.slug)
+                log.info('Removing files for version %s', version.slug)
                 broadcast(type='app', task=tasks.clear_artifacts, args=[version.pk])
                 version.built = False
+                version.machine = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
@@ -243,15 +241,16 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         """
         form_data = self.get_all_cleaned_data()
         extra_fields = ProjectExtraForm.Meta.fields
-        # expect the first form
-        basics_form = form_list[0]
+        # expect the first form; manually wrap in a list in case it's a
+        # View Object, as it is in Python 3.
+        basics_form = list(form_list)[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
         tags = form_data.pop('tags', [])
         for tag in tags:
             project.tags.add(tag)
-        for field, value in form_data.items():
+        for field, value in list(form_data.items()):
             if field in extra_fields:
                 setattr(project, field, value)
         basic_only = True
@@ -298,7 +297,7 @@ class ImportDemoView(PrivateViewMixin, View):
                 messages.success(
                     request, _('Your demo project is currently being imported'))
             else:
-                for (__, msg) in form.errors.items():
+                for (__, msg) in list(form.errors.items()):
                     log.error(msg)
                 messages.error(request,
                                _('There was a problem adding the demo project'))
@@ -400,7 +399,7 @@ def edit_alias(request, project_slug, alias_id=None):
 class AliasList(PrivateViewMixin, ListView):
     model = VersionAlias
     template_context_name = 'alias'
-    template_name = 'projects/alias_list.html',
+    template_name = 'projects/alias_list.html'
 
     def get_queryset(self):
         self.project = get_object_or_404(
@@ -409,44 +408,50 @@ class AliasList(PrivateViewMixin, ListView):
         return self.project.aliases.all()
 
 
-@login_required
-def project_subprojects(request, project_slug):
-    """Project subprojects view and form view"""
-    project = get_object_or_404(Project.objects.for_admin_user(request.user),
-                                slug=project_slug)
+class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    form_kwargs = {
-        'parent': project,
-        'user': request.user,
-    }
-    if request.method == 'POST':
-        form = SubprojectForm(request.POST, **form_kwargs)
-        if form.is_valid():
-            form.save()
-            broadcast(type='app', task=tasks.symlink_subproject, args=[project.pk])
-            project_dashboard = reverse(
-                'projects_subprojects', args=[project.slug])
-            return HttpResponseRedirect(project_dashboard)
-    else:
-        form = SubprojectForm(**form_kwargs)
+    model = ProjectRelationship
+    form_class = ProjectRelationshipForm
+    lookup_field = 'child__slug'
+    lookup_url_kwarg = 'subproject_slug'
 
-    subprojects = project.subprojects.all()
+    def get_queryset(self):
+        self.project = self.get_project()
+        return self.model.objects.filter(parent=self.project)
 
-    return render_to_response(
-        'projects/project_subprojects.html',
-        {'form': form, 'project': project, 'subprojects': subprojects},
-        context_instance=RequestContext(request)
-    )
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['user'] = self.request.user
+        return super(ProjectRelationshipMixin, self).get_form(data, files, **kwargs)
+
+    def form_valid(self, form):
+        broadcast(type='app', task=tasks.symlink_subproject,
+                  args=[self.get_project().pk])
+        return super(ProjectRelationshipMixin, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('projects_subprojects', args=[self.get_project().slug])
 
 
-@login_required
-def project_subprojects_delete(request, project_slug, child_slug):
-    parent = get_object_or_404(Project.objects.for_admin_user(request.user), slug=project_slug)
-    child = get_object_or_404(Project.objects.all(), slug=child_slug)
-    parent.remove_subproject(child)
-    broadcast(type='app', task=tasks.symlink_subproject, args=[parent.pk])
-    return HttpResponseRedirect(reverse('projects_subprojects',
-                                        args=[parent.slug]))
+class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProjectRelationshipList, self).get_context_data(**kwargs)
+        ctx['superproject'] = self.project.superprojects.first()
+        return ctx
+
+
+class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
+    pass
+
+
+class ProjectRelationshipUpdate(ProjectRelationshipMixin, UpdateView):
+    pass
+
+
+class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
+
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
 
 
 @login_required

@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring
+from __future__ import absolute_import
 
+from functools import reduce
 from operator import add
 
 from django.conf.urls import url, include
@@ -7,7 +9,6 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import TemplateView
-
 from tastypie.api import Api
 
 from readthedocs.api.base import (ProjectResource, UserResource,
@@ -25,12 +26,8 @@ v1_api.register(FileResource())
 
 admin.autodiscover()
 
-if 'readthedocs.donate' in settings.INSTALLED_APPS:
-    handler404 = 'readthedocs.donate.views.promo_404'
-    handler500 = 'readthedocs.donate.views.promo_500'
-else:
-    handler404 = 'readthedocs.core.views.server_error_404'
-    handler500 = 'readthedocs.core.views.server_error_500'
+handler404 = 'readthedocs.core.views.server_error_404'
+handler500 = 'readthedocs.core.views.server_error_500'
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),

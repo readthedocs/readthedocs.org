@@ -1,3 +1,7 @@
+"""URL configurations for subdomains."""
+from __future__ import absolute_import
+
+from functools import reduce
 from operator import add
 
 from django.conf.urls import url, patterns

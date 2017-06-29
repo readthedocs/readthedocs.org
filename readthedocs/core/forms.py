@@ -1,3 +1,7 @@
+"""Forms for core app."""
+
+from __future__ import absolute_import
+from builtins import object
 import logging
 
 from haystack.forms import SearchForm
@@ -15,24 +19,24 @@ class UserProfileForm(forms.ModelForm):
     first_name = CharField(label=_('First name'), required=False)
     last_name = CharField(label=_('Last name'), required=False)
 
-    class Meta:
+    class Meta(object):
         model = UserProfile
         # Don't allow users edit someone else's user page,
-        fields = ['first_name', 'last_name', 'homepage']
+        fields = ['first_name', 'last_name', 'homepage', 'allow_ads']
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
         try:
             self.fields['first_name'].initial = self.instance.user.first_name
             self.fields['last_name'].initial = self.instance.user.last_name
-        except:
+        except AttributeError:
             pass
 
-    def save(self, *args, **kwargs):
+    def save(self, commit=True):
         first_name = self.cleaned_data.pop('first_name', None)
         last_name = self.cleaned_data.pop('last_name', None)
-        profile = super(UserProfileForm, self).save(*args, **kwargs)
-        if kwargs.get('commit', True):
+        profile = super(UserProfileForm, self).save(commit=commit)
+        if commit:
             user = profile.user
             user.first_name = first_name
             user.last_name = last_name

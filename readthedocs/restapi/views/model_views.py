@@ -1,3 +1,6 @@
+"""Endpoints for listing Projects, Versions, Builds, etc."""
+
+from __future__ import absolute_import
 import logging
 
 from django.shortcuts import get_object_or_404
@@ -8,13 +11,10 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import TAG
-from readthedocs.builds.filters import VersionFilter
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.builds.constants import STABLE
-from readthedocs.projects.filters import ProjectFilter, DomainFilter
 from readthedocs.projects.models import Project, EmailHook, Domain
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -31,10 +31,12 @@ log = logging.getLogger(__name__)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
+
+    """List, filter, etc. Projects."""
+
     permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
-    filter_class = ProjectFilter
     model = Project
     paginate_by = 100
     paginate_by_param = 'page_size'
@@ -47,7 +49,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def valid_versions(self, request, **kwargs):
         """Maintain state of versions that are wanted."""
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         if not project.num_major or not project.num_minor or not project.num_point:
             return Response(
                 {'error': 'Project does not support point version control'},
@@ -62,7 +64,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
     @detail_route()
-    def translations(self, request, pk, **kwargs):
+    def translations(self, *_, **__):
         translations = self.get_object().translations.all()
         return Response({
             'translations': ProjectSerializer(translations, many=True).data
@@ -71,7 +73,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @detail_route()
     def subprojects(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -81,7 +83,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         token = GitHubService.get_token_for_project(project, force_local=True)
         return Response({
             'token': token
@@ -90,7 +92,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @decorators.detail_route()
     def canonical_url(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
         return Response({
             'url': project.get_docs_url()
         })
@@ -103,7 +105,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         Returns the identifiers for the versions that have been deleted.
         """
         project = get_object_or_404(
-            Project.objects.api(self.request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user), pk=kwargs['pk'])
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
@@ -126,8 +128,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     project=project, versions=data['branches'], type=BRANCH)
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
-        except Exception, e:
-            log.exception("Sync Versions Error: %s" % e.message)
+        except Exception as e:
+            log.exception("Sync Versions Error: %s", e.message)
             return Response({'error': e.message}, status=status.HTTP_400_BAD_REQUEST)
 
         promoted_version = project.update_stable_version()
@@ -158,7 +160,6 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
-    filter_class = VersionFilter
     model = Version
 
     def get_queryset(self):
@@ -207,7 +208,6 @@ class DomainViewSet(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
-    filter_class = DomainFilter
     model = Domain
 
     def get_queryset(self):

@@ -1,28 +1,32 @@
+"""Models for the builds app."""
+
+from __future__ import absolute_import
+
 import logging
-import re
 import os.path
+import re
 from shutil import rmtree
 
-from django.core.urlresolvers import reverse
+from builtins import object
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, ugettext
-
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
-
-from readthedocs.core.utils import broadcast
-from readthedocs.privacy.backend import VersionQuerySet, VersionManager
-from readthedocs.privacy.loader import RelatedBuildManager, BuildManager
-from readthedocs.projects.models import Project
-from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
-                                            GITHUB_REGEXS, BITBUCKET_URL,
-                                            BITBUCKET_REGEXS, PRIVATE)
 
 from .constants import (BUILD_STATE, BUILD_TYPES, VERSION_TYPES,
                         LATEST, NON_REPOSITORY_VERSIONS, STABLE,
                         BUILD_STATE_FINISHED, BRANCH, TAG)
+from .managers import VersionManager
+from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .version_slug import VersionSlugField
+from readthedocs.core.utils import broadcast
+from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
+                                            GITHUB_REGEXS, BITBUCKET_URL,
+                                            BITBUCKET_REGEXS, PRIVATE)
+from readthedocs.projects.models import Project
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
@@ -31,7 +35,11 @@ DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL
 log = logging.getLogger(__name__)
 
 
+@python_2_unicode_compatible
 class Version(models.Model):
+
+    """Version of a ``Project``."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='versions')
     type = models.CharField(
@@ -72,7 +80,7 @@ class Version(models.Model):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
 
-    class Meta:
+    class Meta(object):
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
@@ -81,7 +89,7 @@ class Version(models.Model):
             ('view_version', _('View Version')),
         )
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Version %(version)s of %(project)s (%(pk)s)" % {
             'version': self.verbose_name,
             'project': self.project,
@@ -101,8 +109,7 @@ class Version(models.Model):
         if self.slug == LATEST:
             if self.project.default_branch:
                 return self.project.default_branch
-            else:
-                return self.project.vcs_repo().fallback_branch
+            return self.project.vcs_repo().fallback_branch
 
         if self.slug == STABLE:
             if self.type == BRANCH:
@@ -139,7 +146,7 @@ class Version(models.Model):
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(version_slug=self.slug, private=private)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super(Version, self).save(*args, **kwargs)
@@ -152,10 +159,10 @@ class Version(models.Model):
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
-        log.info('Removing files for version %s' % self.slug)
-        tasks.clear_artifacts.delay(version_pk=self.pk)
+        log.info('Removing files for version %s', self.slug)
+        broadcast(type='app', task=tasks.clear_artifacts, args=[self.pk])
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         super(Version, self).delete(*args, **kwargs)
 
@@ -220,6 +227,18 @@ class Version(models.Model):
             log.error('Build path cleanup failed', exc_info=True)
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
+        """
+        Return a GitHub URL for a given filename.
+
+        `docroot`
+            Location of documentation in repository
+        `filename`
+            Name of file
+        `source_suffix`
+            File suffix of documentation format
+        `action`
+            `view` (default) or `edit`
+        """
         repo_url = self.project.repo
         if 'github' not in repo_url:
             return ''
@@ -282,7 +301,11 @@ class Version(models.Model):
         )
 
 
+@python_2_unicode_compatible
 class VersionAlias(models.Model):
+
+    """Alias for a ``Version``."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='aliases')
     from_slug = models.CharField(_('From slug'), max_length=255, default='')
@@ -290,7 +313,7 @@ class VersionAlias(models.Model):
                                blank=True)
     largest = models.BooleanField(_('Largest'), default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Alias for %(project)s: %(from)s -> %(to)s" % {
             'project': self.project,
             'from': self.from_slug,
@@ -298,7 +321,11 @@ class VersionAlias(models.Model):
         })
 
 
+@python_2_unicode_compatible
 class Build(models.Model):
+
+    """Build data."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='builds')
     version = models.ForeignKey(Version, verbose_name=_('Version'), null=True,
@@ -323,16 +350,16 @@ class Build(models.Model):
 
     # Manager
 
-    objects = BuildManager()
+    objects = BuildQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [
             ['version', 'state', 'type']
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return ugettext(u"Build %(project)s for %(usernames)s (%(pk)s)" % {
             'project': self.project,
             'usernames': ' '.join(self.project.users.all()
@@ -372,7 +399,11 @@ class BuildCommandResultMixin(object):
         return not self.successful
 
 
+@python_2_unicode_compatible
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
+
+    """Build command for a ``Build``."""
+
     build = models.ForeignKey(Build, verbose_name=_('Build'),
                               related_name='commands')
 
@@ -384,13 +415,13 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     start_time = models.DateTimeField(_('Start time'))
     end_time = models.DateTimeField(_('End time'))
 
-    class Meta:
+    class Meta(object):
         ordering = ['start_time']
         get_latest_by = 'start_time'
 
-    objects = RelatedBuildManager()
+    objects = RelatedBuildQuerySet.as_manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return (ugettext(u'Build command {pk} for build {build}')
                 .format(pk=self.pk, build=self.build))
 

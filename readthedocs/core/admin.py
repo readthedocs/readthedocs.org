@@ -1,5 +1,6 @@
 """Django admin interface for core models"""
 
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 
 from django.contrib import admin
@@ -53,6 +54,9 @@ class UserProjectFilter(admin.SimpleListFilter):
 
 
 class UserAdminExtra(UserAdmin):
+
+    """Admin configuration for User."""
+
     list_display = ('username', 'email', 'first_name',
                     'last_name', 'is_staff', 'is_banned')
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter

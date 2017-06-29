@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
+from __future__ import (absolute_import, print_function, unicode_literals)
+
+from future import standard_library
+standard_library.install_aliases()
+
+import urllib.parse
 
 from django.db import models, migrations
+
 import readthedocs.core.validators
-
-import sys
-
-if sys.version_info > (3,):
-    import urllib.parse as urlparse
-else:
-    import urlparse
 
 
 def migrate_url(apps, schema_editor):
@@ -21,7 +20,7 @@ def migrate_url(apps, schema_editor):
                 project=domain.project.slug))
             domain.delete()
             continue
-        parsed = urlparse(domain.url)
+        parsed = urllib.parse(domain.url)
         if parsed.scheme or parsed.netloc:
             domain_string = parsed.netloc
         else:

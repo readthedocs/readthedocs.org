@@ -5,3 +5,6 @@ var doc_version = "{{ current_version }}";
 var doc_slug = "{{ slug }}";
 var page_name = "{{ pagename }}";
 var html_theme = "{{ html_theme }}";
+
+READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
+    0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));

@@ -1,3 +1,6 @@
+"""Utilities related to searching Elastic."""
+from __future__ import absolute_import
+from __future__ import print_function
 from pprint import pprint
 
 from django.conf import settings
@@ -12,7 +15,7 @@ from readthedocs.search.signals import (before_project_search,
 
 
 def search_project(request, query, language=None):
-
+    """Search index for projects matching query"""
     body = {
         "query": {
             "bool": {
@@ -148,11 +151,11 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
         body['facets']['taxonomy']['facet_filter'] = final_filter
 
     if settings.DEBUG:
-        print "Before Signal"
+        print("Before Signal")
         pprint(body)
     before_file_search.send(request=request, sender=PageIndex, body=body)
     if settings.DEBUG:
-        print "After Signal"
+        print("After Signal")
         pprint(body)
 
     return PageIndex().search(body, **kwargs)

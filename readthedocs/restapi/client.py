@@ -1,3 +1,6 @@
+"""Simple client to access our API with Slumber credentials."""
+
+from __future__ import absolute_import
 import logging
 
 from slumber import API, serialize

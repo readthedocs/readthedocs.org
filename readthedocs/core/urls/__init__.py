@@ -1,13 +1,12 @@
-from django.conf.urls import url
+"""URL configuration for core app."""
 
-from django_filters import views as django_filters_views
+from __future__ import absolute_import
+from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core import views
 from readthedocs.core.views import hooks, serve
-from readthedocs.builds.filters import VersionFilter
 from readthedocs.projects.feeds import LatestProjectsFeed, NewProjectsFeed
-from readthedocs.projects.filters import ProjectFilter
 
 
 docs_urls = [
@@ -52,15 +51,6 @@ core_urls = [
 ]
 
 deprecated_urls = [
-    url(r'^filter/version/$',
-        django_filters_views.object_filter,
-        {'filter_class': VersionFilter, 'template_name': 'filter.html'},
-        name='filter_version'),
-    url(r'^filter/project/$',
-        django_filters_views.object_filter,
-        {'filter_class': ProjectFilter, 'template_name': 'filter.html'},
-        name='filter_project'),
-
     url(r'^feeds/new/$',
         NewProjectsFeed(),
         name="new_feed"),

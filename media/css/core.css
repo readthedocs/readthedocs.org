@@ -1102,6 +1102,12 @@ div.httpexchange div.highlight pre {
     font-size: .9em;
 }
 
+/* Subprojects */
+div.module.project-subprojects div.subproject-meta {
+    font-size: .9em;
+    font-style: italic;
+}
+
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }
 div.highlight pre .c { color: #60a0b0; font-style: italic } /* Comment */

@@ -1,3 +1,5 @@
+"""Support code for OAuth, including webhook support."""
+from __future__ import absolute_import
 import logging
 
 from django.contrib import messages
@@ -36,7 +38,7 @@ def attach_webhook(project, request=None):
 
     user_accounts = service.for_user(request.user)
     for account in user_accounts:
-        success, resp = account.setup_webhook(project)
+        success, __ = account.setup_webhook(project)
         if success:
             messages.success(request, _('Webhook activated'))
             project.has_valid_webhook = True
@@ -72,12 +74,11 @@ def update_webhook(project, integration, request=None):
         project.has_valid_webhook = True
         project.save()
         return True
-    else:
-        messages.error(
-            request,
-            _('Webhook activation failed. '
-              'Make sure you have the necessary permissions.')
-        )
-        project.has_valid_webhook = False
-        project.save()
-        return False
+    messages.error(
+        request,
+        _('Webhook activation failed. '
+            'Make sure you have the necessary permissions.')
+    )
+    project.has_valid_webhook = False
+    project.save()
+    return False
