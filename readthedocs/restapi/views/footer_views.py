@@ -1,3 +1,7 @@
+"""Endpoint to generate footer HTML."""
+
+from __future__ import absolute_import
+
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext, loader as template_loader
 from django.conf import settings
@@ -15,14 +19,20 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import highest_version
 from readthedocs.projects.version_handling import parse_version_failsafe
 from readthedocs.restapi.signals import footer_response
+import six
 
 
 def get_version_compare_data(project, base_version=None):
+    """Retrieve metadata about the highest version available for this project.
+
+    :param base_version: We assert whether or not the base_version is also the
+                         highest version in the resulting "is_highest" value.
+    """
     highest_version_obj, highest_version_comparable = highest_version(
         project.versions.public().filter(active=True))
     ret_val = {
-        'project': unicode(highest_version_obj),
-        'version': unicode(highest_version_comparable),
+        'project': six.text_type(highest_version_obj),
+        'version': six.text_type(highest_version_comparable),
         'is_highest': True,
     }
     if highest_version_obj:
@@ -48,6 +58,9 @@ def get_version_compare_data(project, base_version=None):
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer, JSONPRenderer))
 def footer_html(request):
+    """Render and return footer markup."""
+    # TODO refactor this function
+    # pylint: disable=too-many-locals
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
     page_slug = request.GET.get('page', None)
@@ -105,6 +118,7 @@ def footer_html(request):
         'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
         'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
         'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
+        'theme': theme,
     }
 
     request_context = RequestContext(request, context)
@@ -116,7 +130,8 @@ def footer_html(request):
         'version_supported': version.supported,
     }
 
-    # Allow folks to hook onto the footer response for various information usage.
+    # Allow folks to hook onto the footer response for various information collection,
+    # or to modify the resp_data.
     footer_response.send(sender=None, request=request, context=context, resp_data=resp_data)
 
     return Response(resp_data)

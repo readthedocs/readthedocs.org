@@ -1,10 +1,16 @@
+"""Signal handling for core app."""
+
+from __future__ import absolute_import
 import logging
-from urlparse import urlparse
 
 from django.dispatch import Signal
 from corsheaders import signals
 
 from readthedocs.projects.models import Project, Domain
+
+from future import standard_library
+standard_library.install_aliases()
+from urllib.parse import urlparse  # noqa
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +22,7 @@ webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
 webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
 
 
-def decide_if_cors(sender, request, **kwargs):
+def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
     """
     Decide whether a request should be given CORS access.
 

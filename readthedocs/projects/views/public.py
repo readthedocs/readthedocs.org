@@ -1,5 +1,6 @@
 """Public project views"""
 
+from __future__ import absolute_import
 from collections import OrderedDict
 import operator
 import os
@@ -15,16 +16,14 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, DetailView
-from django.views.decorators.cache import cache_page
 
 from taggit.models import Tag
 import requests
 
 from .base import ProjectOnboardMixin
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.filters import VersionSlugFilter
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.search.indexes import PageIndex
@@ -83,8 +82,6 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         project = self.get_object()
         context['versions'] = Version.objects.public(
             user=self.request.user, project=project)
-        context['filter'] = VersionSlugFilter(self.request.GET,
-                                              queryset=context['versions'])
 
         protocol = 'http'
         if self.request.is_secure():
@@ -105,7 +102,7 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
         return context
 
 
-@cache_control(no_cache=True)
+@never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project"""
     version_slug = request.GET.get('version', LATEST)
@@ -235,11 +232,10 @@ def version_filter_autocomplete(request, project_slug):
     queryset = Project.objects.public(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
-    version_filter = VersionSlugFilter(request.GET, queryset=versions)
     resp_format = request.GET.get('format', 'json')
 
     if resp_format == 'json':
-        names = version_filter.qs.values_list('slug', flat=True)
+        names = versions.values_list('slug', flat=True)
         json_response = json.dumps(list(names))
         return HttpResponse(json_response, content_type='text/javascript')
     elif resp_format == 'html':
@@ -248,12 +244,10 @@ def version_filter_autocomplete(request, project_slug):
             {
                 'project': project,
                 'versions': versions,
-                'filter': version_filter,
             },
             context_instance=RequestContext(request),
         )
-    else:
-        return HttpResponse(status=400)
+    return HttpResponse(status=400)
 
 
 def file_autocomplete(request, project_slug):
@@ -334,7 +328,7 @@ def elastic_project_search(request, project_slug):
     if results:
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
-            for key, val in hit['fields'].items():
+            for key, val in list(hit['fields'].items()):
                 if isinstance(val, list):
                     results['hits']['hits'][num]['fields'][key] = val[0]
 
@@ -360,8 +354,6 @@ def project_versions(request, project_slug):
     versions = Version.objects.public(user=request.user, project=project, only_active=False)
     active_versions = versions.filter(active=True)
     inactive_versions = versions.filter(active=False)
-    inactive_filter = VersionSlugFilter(request.GET, queryset=inactive_versions)
-    active_filter = VersionSlugFilter(request.GET, queryset=active_versions)
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
@@ -374,8 +366,8 @@ def project_versions(request, project_slug):
     return render_to_response(
         'projects/project_version_list.html',
         {
-            'inactive_filter': inactive_filter,
-            'active_filter': active_filter,
+            'inactive_versions': inactive_versions,
+            'active_versions': active_versions,
             'project': project,
         },
         context_instance=RequestContext(request)
@@ -401,9 +393,9 @@ def project_analytics(request, project_slug):
             analytics = None
 
     if analytics:
-        page_list = list(reversed(sorted(analytics['page'].items(),
+        page_list = list(reversed(sorted(list(analytics['page'].items()),
                                          key=operator.itemgetter(1))))
-        version_list = list(reversed(sorted(analytics['version'].items(),
+        version_list = list(reversed(sorted(list(analytics['version'].items()),
                                             key=operator.itemgetter(1))))
     else:
         page_list = []

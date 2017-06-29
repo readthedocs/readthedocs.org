@@ -1,8 +1,6 @@
-"""
-Views for creating, editing and viewing site-specific user profiles.
+"""Views for creating, editing and viewing site-specific user profiles."""
 
-"""
-
+from __future__ import absolute_import
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -18,8 +16,7 @@ def create_profile(request, form_class, success_url=None,
                    template_name='profiles/private/create_profile.html',
                    extra_context=None):
     """
-    Create a profile for the current user, if one doesn't already
-    exist.
+    Create a profile for the current user, if one doesn't already exist.
 
     If the user already has a profile, a redirect will be issued to the
     :view:`profiles.views.edit_profile` view.
@@ -98,8 +95,8 @@ def create_profile(request, form_class, success_url=None,
     if extra_context is None:
         extra_context = {}
     context = RequestContext(request)
-    for key, value in extra_context.items():
-        context[key] = callable(value) and value() or value
+    for key, value in list(extra_context.items()):
+        context[key] = (value() if callable(value) else value)
 
     return render_to_response(template_name,
                               {'form': form},
@@ -175,8 +172,8 @@ def edit_profile(request, form_class, success_url=None,
     if extra_context is None:
         extra_context = {}
     context = RequestContext(request)
-    for key, value in extra_context.items():
-        context[key] = callable(value) and value() or value
+    for key, value in list(extra_context.items()):
+        context[key] = (value() if callable(value) else value)
 
     return render_to_response(template_name, {
         'form': form,
@@ -247,8 +244,8 @@ def profile_detail(request, username, public_profile_field=None,
     if extra_context is None:
         extra_context = {}
     context = RequestContext(request)
-    for key, value in extra_context.items():
-        context[key] = callable(value) and value() or value
+    for key, value in list(extra_context.items()):
+        context[key] = (value() if callable(value) else value)
 
     return render_to_response(template_name,
                               {'profile': profile_obj},

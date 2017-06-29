@@ -1,3 +1,6 @@
+"""Utility classes for api module"""
+from __future__ import absolute_import
+from builtins import object
 import logging
 
 from django.core.paginator import Paginator, InvalidPage
@@ -40,7 +43,7 @@ class SearchMixin(object):
             search_highlight = True
     """
 
-    def get_search(self, request, **kwargs):
+    def get_search(self, request):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)
@@ -72,12 +75,14 @@ class SearchMixin(object):
 
     def _search(self, request, model, facets=None, page_size=20,
                 highlight=True):
+        # pylint: disable=too-many-locals
         """
-        `facets`
+        Return a paginated list of objects for a request.
 
+        `model`
+            Limit the search to a particular model
+        `facets`
             A list of facets to include with the results
-        `models`
-            Limit the search to one or more models
         """
         form = FacetedSearchForm(request.GET, facets=facets or [],
                                  models=(model,), load_all=True)
@@ -145,6 +150,9 @@ class SearchMixin(object):
 
 
 class PostAuthentication(BasicAuthentication):
+
+    """Require HTTP Basic authentication for any method other than GET."""
+
     def is_authenticated(self, request, **kwargs):
         val = super(PostAuthentication, self).is_authenticated(request,
                                                                **kwargs)
@@ -154,7 +162,7 @@ class PostAuthentication(BasicAuthentication):
 
 
 class EnhancedModelResource(ModelResource):
-    def obj_get_list(self, request=None, *args, **kwargs):
+    def obj_get_list(self, request=None, *_, **kwargs):  # pylint: disable=arguments-differ
         """
         A ORM-specific implementation of ``obj_get_list``.
 

@@ -1,3 +1,6 @@
+"""URL config for the bookmarks app."""
+
+from __future__ import absolute_import
 from django.conf.urls import url
 from readthedocs.bookmarks.views import BookmarkListView
 from readthedocs.bookmarks.views import BookmarkAddView, BookmarkRemoveView

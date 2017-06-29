@@ -1,22 +1,36 @@
+"""Support for templating of notifications."""
+
+from __future__ import absolute_import
+from builtins import object
 from django.conf import settings
 from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.db import models
 
 from .backends import send_notification
-from .constants import INFO, HTML, TEXT
+from . import constants
 
 
 class Notification(object):
 
+    """An unsent notification linked to an object.
+
+    This class provides an interface to construct notification messages by
+    rendering Django templates. The ``Notification`` itself is not expected
+    to be persisted by the backends.
+
+    Call .send() to send the notification.
+
+    """
+
     name = None
     context_object_name = 'object'
-    level = INFO
+    level = constants.INFO
     subject = None
     user = None
 
-    def __init__(self, object, request, user=None):
-        self.object = object
+    def __init__(self, context_object, request, user=None):
+        self.object = context_object
         self.request = request
         self.user = user
         if self.user is None:
@@ -35,14 +49,15 @@ class Notification(object):
             )
         }
 
-    def get_template_names(self, backend_name, source_format=HTML):
+    def get_template_names(self, backend_name, source_format=constants.HTML):
         names = []
         if self.object and isinstance(self.object, models.Model):
+            meta = self.object._meta  # pylint: disable=protected-access
             names.append(
                 '{app}/notifications/{name}_{backend}.{source_format}'
                 .format(
-                    app=self.object._meta.app_label,
-                    name=self.name or self.object._meta.model_name,
+                    app=meta.app_label,
+                    name=self.name or meta.model_name,
                     backend=backend_name,
                     source_format=source_format,
                 ))
@@ -50,7 +65,7 @@ class Notification(object):
         else:
             raise AttributeError()
 
-    def render(self, backend_name, source_format=HTML):
+    def render(self, backend_name, source_format=constants.HTML):
         return render_to_string(
             template_name=self.get_template_names(
                 backend_name=backend_name,

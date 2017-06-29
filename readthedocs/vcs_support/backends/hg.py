@@ -1,8 +1,13 @@
+"""Mercurial-related utilities."""
+from __future__ import absolute_import
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
+
+    """Mercurial VCS backend."""
+
     supports_tags = True
     supports_branches = True
     fallback_branch = 'default'
@@ -12,23 +17,22 @@ class Backend(BaseVCS):
         retcode = self.run('hg', 'status')[0]
         if retcode == 0:
             return self.pull()
-        else:
-            return self.clone()
+        return self.clone()
 
     def pull(self):
-        pull_output = self.run('hg', 'pull')
-        if pull_output[0] != 0:
+        (pull_retcode, _, _) = self.run('hg', 'pull')
+        if pull_retcode != 0:
             raise ProjectImportError(
-                ("Failed to get code from '%s' (hg pull): %s"
-                 % (self.repo_url, pull_output[0]))
+                ("Failed to pull code from '%s': retcode=%s"
+                 % (self.repo_url, pull_retcode))
             )
-        update_output = self.run('hg', 'update', '-C')[0]
-        if update_output[0] != 0:
+        (update_retcode, stdout, stderr) = self.run('hg', 'update', '-C')
+        if update_retcode != 0:
             raise ProjectImportError(
-                ("Failed to get code from '%s' (hg update): %s"
-                 % (self.repo_url, pull_output[0]))
+                ("Failed to update code from '%s': retcode=%s"
+                 % (self.repo_url, update_retcode))
             )
-        return update_output
+        return (update_retcode, stdout, stderr)
 
     def clone(self):
         self.make_clean_working_dir()
@@ -49,11 +53,7 @@ class Backend(BaseVCS):
         return self.parse_branches(stdout)
 
     def parse_branches(self, data):
-        """
-        stable
-        default
-        """
-
+        """Stable / default"""
         names = [name.lstrip() for name in data.splitlines()]
         return [VCSVersion(self, name, name) for name in names if name]
 
@@ -89,13 +89,13 @@ class Backend(BaseVCS):
             name, commit = row
             if name == 'tip':
                 continue
-            revision, commit_hash = commit.split(':')
+            _, commit_hash = commit.split(':')
             vcs_tags.append(VCSVersion(self, commit_hash, name))
         return vcs_tags
 
     @property
     def commit(self):
-        retcode, stdout = self.run('hg', 'id', '-i')[:2]
+        _, stdout = self.run('hg', 'id', '-i')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
@@ -106,6 +106,5 @@ class Backend(BaseVCS):
         if retcode == 0:
             self.run('hg', 'pull')
             return self.run('hg', 'update', '-C', identifier)
-        else:
-            self.clone()
-            return self.run('hg', 'update', '-C', identifier)
+        self.clone()
+        return self.run('hg', 'update', '-C', identifier)

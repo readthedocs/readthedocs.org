@@ -1,3 +1,7 @@
+"""Base classes for Builders."""
+
+from __future__ import absolute_import
+from builtins import object
 from functools import wraps
 import os
 import logging
@@ -19,6 +23,7 @@ def restoring_chdir(fn):
 
 
 class BaseBuilder(object):
+
     """
     The Base for all Builders. Defines the API for subclasses.
 
@@ -40,43 +45,33 @@ class BaseBuilder(object):
             type_=self.type
         )
 
-    def force(self, **kwargs):
-        """
-        An optional step to force a build even when nothing has changed.
-        """
+    def force(self, **__):
+        """An optional step to force a build even when nothing has changed."""
         log.info("Forcing a build")
         self._force = True
 
-    def build(self, id=None, **kwargs):
-        """
-        Do the actual building of the documentation.
-        """
+    def build(self):
+        """Do the actual building of the documentation."""
         raise NotImplementedError
 
-    def move(self, **kwargs):
-        """
-        Move the documentation from it's generated place to its artifact directory.
-        """
+    def move(self, **__):
+        """Move the generated documentation to its artifact directory."""
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info("Copying %s on the local filesystem" % self.type)
+            log.info("Copying %s on the local filesystem", self.type)
             shutil.copytree(self.old_artifact_path, self.target)
         else:
             log.warning("Not moving docs, because the build dir is unknown.")
 
-    def clean(self, **kwargs):
-        """
-        Clean the path where documentation will be built
-        """
+    def clean(self, **__):
+        """Clean the path where documentation will be built"""
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
-            log.info("Removing old artifact path: %s" % self.old_artifact_path)
+            log.info("Removing old artifact path: %s", self.old_artifact_path)
 
-    def docs_dir(self, docs_dir=None, **kwargs):
-        """
-        Handle creating a custom docs_dir if it doesn't exist.
-        """
+    def docs_dir(self, docs_dir=None, **__):
+        """Handle creating a custom docs_dir if it doesn't exist."""
         checkout_path = self.project.checkout_path(self.version.slug)
         if not docs_dir:
             for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
@@ -88,11 +83,8 @@ class BaseBuilder(object):
             docs_dir = checkout_path
         return docs_dir
 
-    def create_index(self, extension='md', **kwargs):
-        """
-        Create an index file if it needs it.
-        """
-
+    def create_index(self, extension='md', **__):
+        """Create an index file if it needs it."""
         docs_dir = self.docs_dir()
 
         index_filename = os.path.join(docs_dir, 'index.{ext}'.format(ext=extension))
@@ -119,5 +111,5 @@ If you want to use another markup, choose a different builder in your settings.
         return 'index'
 
     def run(self, *args, **kwargs):
-        '''Proxy run to build environment'''
+        """Proxy run to build environment"""
         return self.build_env.run(*args, **kwargs)

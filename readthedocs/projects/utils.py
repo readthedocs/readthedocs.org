@@ -1,5 +1,7 @@
 """Utility functions used by projects"""
 
+from __future__ import absolute_import
+from builtins import object
 import fnmatch
 import os
 import subprocess
@@ -27,12 +29,6 @@ def version_from_slug(slug, version):
     return v
 
 
-def update_static_metadata(project_pk):
-    """This is here to avoid circular imports in models.py"""
-    from readthedocs.projects import tasks
-    tasks.update_static_metadata.delay(project_pk)
-
-
 def find_file(filename):
     """Recursively find matching file from the current working path
 
@@ -41,8 +37,8 @@ def find_file(filename):
     """
     matches = []
     for root, __, filenames in os.walk('.'):
-        for filename in fnmatch.filter(filenames, filename):
-            matches.append(os.path.join(root, filename))
+        for match in fnmatch.filter(filenames, filename):
+            matches.append(os.path.join(root, match))
     return matches
 
 

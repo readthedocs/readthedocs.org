@@ -1,6 +1,4 @@
-"""
-A flask app for redirecting documentation from the root / URL.
-"""
+"""A Flask app for redirecting documentation from the root / URL."""
 
 import json
 

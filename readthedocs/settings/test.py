@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 
 from .dev import CommunityDevSettings
@@ -12,6 +13,9 @@ class CommunityTestSettings(CommunityDevSettings):
     # A bunch of our tests check this value in a returned URL/Domain
     PRODUCTION_DOMAIN = 'readthedocs.org'
     GROK_API_HOST = 'http://localhost:8888'
+
+    DEBUG = False
+    TEMPLATE_DEBUG = False
 
 
 CommunityTestSettings.load_settings(__name__)

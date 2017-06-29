@@ -1,3 +1,6 @@
+"""Base classes for VCS backends."""
+from __future__ import absolute_import
+from builtins import object
 import logging
 import os
 import shutil
@@ -10,6 +13,7 @@ log = logging.getLogger(__name__)
 
 
 class VCSVersion(object):
+
     """
     Represents a Version (tag or branch) in a VCS.
 
@@ -18,6 +22,7 @@ class VCSVersion(object):
     It can act as a context manager to temporarily switch to this tag (eg to
     build docs for this tag).
     """
+
     def __init__(self, repository, identifier, verbose_name):
         self.repository = repository
         self.identifier = identifier
@@ -30,23 +35,23 @@ class VCSVersion(object):
 
 class VCSProject(namedtuple("VCSProject",
                             "name default_branch working_dir repo_url")):
+
     """Transient object to encapsulate a projects stuff"""
+
     pass
 
 
 class BaseCLI(object):
-    """
-    Helper class for CLI-heavy classes.
-    """
+
+    """Helper class for CLI-heavy classes."""
+
     log_tmpl = u'VCS[{name}:{ident}]: {args}'
 
     def __call__(self, *args):
         return self.run(args)
 
     def run(self, *args):
-        """
-        :param bits: list of command and args. See `subprocess` docs
-        """
+        """:param bits: list of command and args. See `subprocess` docs"""
         process = subprocess.Popen(args, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
                                    cwd=self.working_dir, shell=False,
@@ -74,10 +79,13 @@ class BaseCLI(object):
 
 
 class BaseVCS(BaseCLI):
+
     """
     Base for VCS Classes.
+
     Built on top of the BaseCLI.
     """
+
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
 
@@ -85,6 +93,8 @@ class BaseVCS(BaseCLI):
     # General methods
     # =========================================================================
 
+    # Defining a base API, so we'll have unused args
+    # pylint: disable=unused-argument
     def __init__(self, project, version, **kwargs):
         self.default_branch = project.default_branch
         self.name = project.name
@@ -96,12 +106,14 @@ class BaseVCS(BaseCLI):
             os.makedirs(self.working_dir)
 
     def make_clean_working_dir(self):
-        "Ensures that the working dir exists and is empty"
+        """Ensures that the working dir exists and is empty"""
         shutil.rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
     def update(self):
         """
+        Update a local copy of the repository in self.working_dir.
+
         If self.working_dir is already a valid local copy of the repository,
         update the repository, else create a new local copy of the repository.
         """
@@ -116,24 +128,24 @@ class BaseVCS(BaseCLI):
     @property
     def tags(self):
         """
-        Returns a list of VCSVersion objects. See VCSVersion for more
-        information.
+        Returns a list of VCSVersion objects.
+
+        See VCSVersion for more information.
         """
         raise NotImplementedError
 
     @property
     def branches(self):
         """
-        Returns a list of VCSVersion objects. See VCSVersion for more
-        information.
+        Returns a list of VCSVersion objects.
+
+        See VCSVersion for more information.
         """
         raise NotImplementedError
 
     @property
     def commit(self):
-        """
-        Returns a string representing the current commit.
-        """
+        """Returns a string representing the current commit."""
         raise NotImplementedError
 
     def checkout(self, identifier=None):

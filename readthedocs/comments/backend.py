@@ -1,16 +1,18 @@
+"""Storage backends for the comments app."""
+
+from __future__ import absolute_import
 import json
 
 from django.core import serializers
 from sphinx.websupport.storage import StorageBackend
 
 from .models import DocumentNode
-from readthedocs.comments.models import NodeSnapshot
 
 
 class DjangoStorage(StorageBackend):
-    """
-    A Sphinx StorageBackend using Django.
-    """
+
+    """A Sphinx StorageBackend using Django."""
+
     def get_metadata(self, docname, moderator=None):
         ret_dict = {}
         for node in DocumentNode.objects.filter(page=docname):

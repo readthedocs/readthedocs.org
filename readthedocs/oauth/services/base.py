@@ -1,5 +1,8 @@
 """OAuth utility functions"""
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import logging
 from datetime import datetime
 
@@ -103,7 +106,6 @@ class Service(object):
                 u'expires_at': 1449218652.558185
             }
         """
-
         def _updater(data):
             token.token = data['access_token']
             token.expires_at = datetime.fromtimestamp(data['expires_at'])
@@ -123,6 +125,9 @@ class Service(object):
         raise NotImplementedError
 
     def setup_webhook(self, project):
+        raise NotImplementedError
+
+    def update_webhook(self, project, integration):
         raise NotImplementedError
 
     @classmethod

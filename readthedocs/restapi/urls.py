@@ -1,3 +1,7 @@
+"""Define routes between URL paths and views/endpoints."""
+
+from __future__ import absolute_import
+
 from django.conf.urls import url, include
 
 from rest_framework import routers
@@ -62,18 +66,22 @@ task_urls = [
 ]
 
 integration_urls = [
-    url(r'webhook/github/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+    url(r'webhook/github/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         integrations.GitHubWebhookView.as_view(),
         name='api_webhook_github'),
-    url(r'webhook/gitlab/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+    url(r'webhook/gitlab/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         integrations.GitLabWebhookView.as_view(),
         name='api_webhook_gitlab'),
-    url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
+    url(r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         integrations.BitbucketWebhookView.as_view(),
         name='api_webhook_bitbucket'),
-    url(r'webhook/generic/(?P<project_slug>{project_slug})/'.format(**pattern_opts),
-        integrations.GenericWebhookView.as_view(),
+    url(r'webhook/generic/(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
+        integrations.APIWebhookView.as_view(),
         name='api_webhook_generic'),
+    url((r'webhook/(?P<project_slug>{project_slug})/'
+         r'(?P<integration_pk>{integer_pk})/$'.format(**pattern_opts)),
+        integrations.WebhookView.as_view(),
+        name='api_webhook'),
 ]
 
 urlpatterns += function_urls

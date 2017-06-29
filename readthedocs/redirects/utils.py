@@ -1,3 +1,13 @@
+"""Redirection view support.
+
+This module allows for parsing a URL path, looking up redirects associated
+with it in the database, and generating a redirect response.
+
+These are not used directly as views; they are instead included into 404
+handlers, so that redirects only take effect if no other view matches.
+
+"""
+from __future__ import absolute_import
 from django.http import HttpResponseRedirect
 import logging
 import re
@@ -10,6 +20,16 @@ log = logging.getLogger(__name__)
 
 
 def project_and_path_from_request(request, path):
+    """Parse the project from a request path.
+
+    Return a tuple (project, path) where `project` is a projects.Project if
+    a matching project exists, and `path` is the unmatched remainder of the
+    path.
+
+    If the path does not match, or no matching project is found, then `project`
+    will be ``None``.
+
+    """
     if hasattr(request, 'slug'):
         project_slug = request.slug
     elif path.startswith('/docs/'):

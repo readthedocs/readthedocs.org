@@ -1,3 +1,6 @@
+"""Simple client to access our API with Slumber credentials."""
+
+from __future__ import absolute_import
 import logging
 
 from slumber import API, serialize
@@ -16,7 +19,9 @@ PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
 
 
 class DrfJsonSerializer(serialize.JsonSerializer):
-    '''Additional serialization help from the DRF parser/renderer'''
+
+    """Additional serialization help from the DRF parser/renderer"""
+
     key = 'json-drf'
 
     def loads(self, data):

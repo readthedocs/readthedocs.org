@@ -1,25 +1,40 @@
 """Integration models for external services"""
 
+from __future__ import absolute_import
+from __future__ import division
+from builtins import str
+from past.utils import old_div
+from builtins import object
 import json
 import uuid
+import re
 
 from django.db import models, transaction
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from jsonfield import JSONField
 from pygments import highlight
 from pygments.lexers import JsonLexer
 from pygments.formatters import HtmlFormatter
 
+from readthedocs.core.fields import default_token
+from readthedocs.projects.models import Project
 from .utils import normalize_request_payload
 
 
 class HttpExchangeManager(models.Manager):
 
     """HTTP exchange manager methods"""
+
+    # Filter rules for request headers to remove from the output
+    REQ_FILTER_RULES = [
+        re.compile('^X-Forwarded-.*$', re.I),
+        re.compile('^X-Real-Ip$', re.I),
+    ]
 
     @transaction.atomic
     def from_exchange(self, req, resp, related_object, payload=None):
@@ -50,17 +65,22 @@ class HttpExchangeManager(models.Manager):
         # title case-y hyphen separated values.
         request_headers = dict(
             (key[5:].title().replace('_', '-'), str(val))
-            for (key, val) in req.META.items()
+            for (key, val) in list(req.META.items())
             if key.startswith('HTTP_')
         )
         request_headers['Content-Type'] = req.content_type
+        # Remove unwanted headers
+        for filter_rule in self.REQ_FILTER_RULES:
+            for key in list(request_headers.keys()):
+                if filter_rule.match(key):
+                    del request_headers[key]
 
         response_payload = resp.data if hasattr(resp, 'data') else resp.content
         try:
             response_body = json.dumps(response_payload, sort_keys=True)
         except TypeError:
             response_body = str(response_payload)
-        response_headers = dict(resp.items())
+        response_headers = dict(list(resp.items()))
 
         fields = {
             'status_code': resp.status_code,
@@ -75,17 +95,21 @@ class HttpExchangeManager(models.Manager):
         return obj
 
     def delete_limit(self, related_object, limit=10):
-        queryset = self.filter(
-            content_type=ContentType.objects.get(
-                app_label=related_object._meta.app_label,
-                model=related_object._meta.model_name,
-            ),
-            object_id=related_object.pk
-        )
+        if isinstance(related_object, Integration):
+            queryset = self.filter(integrations=related_object)
+        else:
+            queryset = self.filter(
+                content_type=ContentType.objects.get(
+                    app_label=related_object._meta.app_label,  # pylint: disable=protected-access
+                    model=related_object._meta.model_name,  # pylint: disable=protected-access
+                ),
+                object_id=related_object.pk
+            )
         for exchange in queryset[limit:]:
             exchange.delete()
 
 
+@python_2_unicode_compatible
 class HttpExchange(models.Model):
 
     """HTTP request/response exchange"""
@@ -110,22 +134,24 @@ class HttpExchange(models.Model):
 
     objects = HttpExchangeManager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['-date']
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Exchange {0}').format(self.pk)
 
     @property
     def failed(self):
         # Assume anything that isn't 2xx level status code is an error
-        return int(self.status_code / 100) != 2
+        return int(old_div(self.status_code, 100)) != 2
 
     def formatted_json(self, field):
         """Try to return pretty printed and Pygment highlighted code"""
         value = getattr(self, field) or ''
         try:
-            json_value = json.dumps(json.loads(value), sort_keys=True, indent=2)
+            if not isinstance(value, dict):
+                value = json.loads(value)
+            json_value = json.dumps(value, sort_keys=True, indent=2)
             formatter = HtmlFormatter()
             html = highlight(json_value, JsonLexer(), formatter)
             return mark_safe(html)
@@ -139,3 +165,157 @@ class HttpExchange(models.Model):
     @property
     def formatted_response_body(self):
         return self.formatted_json('response_body')
+
+
+class IntegrationQuerySet(models.QuerySet):
+
+    """Return a subclass of Integration, based on the integration type
+
+    .. note::
+        This doesn't affect queries currently, only fetching of an object
+    """
+
+    def _get_subclass(self, integration_type):
+        # Build a mapping of integration_type -> class dynamically
+        class_map = dict(
+            (cls.integration_type_id, cls)
+            for cls in self.model.__subclasses__()
+            if hasattr(cls, 'integration_type_id')
+        )
+        return class_map.get(integration_type)
+
+    def _get_subclass_replacement(self, original):
+        """Replace model instance on Integration subclasses
+
+        This is based on the ``integration_type`` field, and is used to provide
+        specific functionality to and integration via a proxy subclass of the
+        Integration model.
+        """
+        cls_replace = self._get_subclass(original.integration_type)
+        if cls_replace is None:
+            return original
+        new = cls_replace()
+        for k, v in list(original.__dict__.items()):
+            new.__dict__[k] = v
+        return new
+
+    def get(self, *args, **kwargs):
+        original = super(IntegrationQuerySet, self).get(*args, **kwargs)
+        return self._get_subclass_replacement(original)
+
+    def subclass(self, instance):
+        return self._get_subclass_replacement(instance)
+
+    def create(self, **kwargs):
+        """Override of create method to use subclass instance instead
+
+        Instead of using the underlying Integration model to create this
+        instance, we get the correct subclass to use instead. This allows for
+        overrides to ``save`` and other model functions on object creation.
+        """
+        model_cls = self._get_subclass(kwargs.get('integration_type'))
+        if model_cls is None:
+            model_cls = self.model
+        obj = model_cls(**kwargs)
+        self._for_write = True
+        obj.save(force_insert=True, using=self.db)
+        return obj
+
+
+@python_2_unicode_compatible
+class Integration(models.Model):
+
+    """Inbound webhook integration for projects"""
+
+    GITHUB_WEBHOOK = 'github_webhook'
+    BITBUCKET_WEBHOOK = 'bitbucket_webhook'
+    GITLAB_WEBHOOK = 'gitlab_webhook'
+    API_WEBHOOK = 'api_webhook'
+
+    WEBHOOK_INTEGRATIONS = (
+        (GITHUB_WEBHOOK, _('GitHub incoming webhook')),
+        (BITBUCKET_WEBHOOK, _('Bitbucket incoming webhook')),
+        (GITLAB_WEBHOOK, _('GitLab incoming webhook')),
+        (API_WEBHOOK, _('Generic API incoming webhook')),
+    )
+
+    INTEGRATIONS = WEBHOOK_INTEGRATIONS
+
+    project = models.ForeignKey(Project, related_name='integrations')
+    integration_type = models.CharField(
+        _('Integration type'),
+        max_length=32,
+        choices=INTEGRATIONS
+    )
+    provider_data = JSONField(_('Provider data'))
+    exchanges = GenericRelation(
+        'HttpExchange',
+        related_query_name='integrations'
+    )
+
+    objects = IntegrationQuerySet.as_manager()
+
+    # Integration attributes
+    has_sync = False
+
+    def __str__(self):
+        return (_('{0} for {1}')
+                .format(self.get_integration_type_display(), self.project.name))
+
+
+class GitHubWebhook(Integration):
+
+    integration_type_id = Integration.GITHUB_WEBHOOK
+    has_sync = True
+
+    class Meta(object):
+        proxy = True
+
+    @property
+    def can_sync(self):
+        try:
+            return all((k in self.provider_data) for k in ['id', 'url'])
+        except (ValueError, TypeError):
+            return False
+
+
+class BitbucketWebhook(Integration):
+
+    integration_type_id = Integration.BITBUCKET_WEBHOOK
+    has_sync = True
+
+    class Meta(object):
+        proxy = True
+
+    @property
+    def can_sync(self):
+        try:
+            return all((k in self.provider_data) for k in ['uuid', 'url'])
+        except (ValueError, TypeError):
+            return False
+
+
+class GenericAPIWebhook(Integration):
+
+    integration_type_id = Integration.API_WEBHOOK
+    has_sync = False
+
+    class Meta(object):
+        proxy = True
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """Ensure model has token data before saving"""
+        try:
+            token = self.provider_data.get('token')
+        except (AttributeError, TypeError):
+            token = None
+        finally:
+            if token is None:
+                token = default_token()
+                self.provider_data = {'token': token}
+        super(GenericAPIWebhook, self).save(*args, **kwargs)
+
+    @property
+    def token(self):
+        """Get or generate a secret token for authentication"""
+        return self.provider_data.get('token')

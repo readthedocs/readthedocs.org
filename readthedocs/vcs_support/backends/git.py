@@ -1,22 +1,28 @@
+"""Git-related utilities."""
+
+from __future__ import absolute_import
+
 import re
 import logging
 import csv
 import os
-import sys
 
+from builtins import bytes, str  # pylint: disable=redefined-builtin
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
-if sys.version_info > (3,):
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from future import standard_library
+standard_library.install_aliases()
+from io import StringIO  # noqa
 
 
 log = logging.getLogger(__name__)
 
 
 class Backend(BaseVCS):
+
+    """Git VCS backend."""
+
     supports_tags = True
     supports_branches = True
     fallback_branch = 'master'  # default branch
@@ -48,11 +54,11 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, out, err = self.run('git', 'status')
+        code, _, _ = self.run('git', 'status')
         return code == 0
 
     def fetch(self):
-        code, out, err = self.run('git', 'fetch', '--tags', '--prune')
+        code, _, err = self.run('git', 'fetch', '--tags', '--prune')
         if code != 0:
             raise ProjectImportError(
                 "Failed to get code from '%s' (git fetch): %s\n\nStderr:\n\n%s\n\n" % (
@@ -67,13 +73,13 @@ class Backend(BaseVCS):
         code, out, err = self.run('git', 'checkout',
                                   '--force', '--quiet', revision)
         if code != 0:
-            log.warning("Failed to checkout revision '%s': %s" % (
-                revision, code))
+            log.warning("Failed to checkout revision '%s': %s",
+                        revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, out, err = self.run('git', 'clone', '--recursive', '--quiet',
-                                  self.repo_url, '.')
+        code, _, err = self.run('git', 'clone', '--recursive', '--quiet',
+                                self.repo_url, '.')
         if code != 0:
             raise ProjectImportError(
                 (
@@ -88,7 +94,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, err = self.run('git', 'show-ref', '--tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -109,10 +115,13 @@ class Backend(BaseVCS):
         hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
+        # StringIO below is expecting Unicode data, so ensure that it gets it.
+        if not isinstance(data, str):
+            data = str(data)
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
         vcs_tags = []
         for row in raw_tags:
-            row = filter(lambda f: f != '', row)
+            row = [f for f in row if f != '']
             if row == []:
                 continue
             commit_hash, name = row
@@ -123,7 +132,7 @@ class Backend(BaseVCS):
     @property
     def branches(self):
         # Only show remote branches
-        retcode, stdout, err = self.run('git', 'branch', '-r')
+        retcode, stdout, _ = self.run('git', 'branch', '-r')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -131,7 +140,10 @@ class Backend(BaseVCS):
 
     def parse_branches(self, data):
         """
-        Parse output of git branch -r, eg:
+        Parse output of git branch -r
+
+        e.g.:
+
               origin/2.0.X
               origin/HEAD -> origin/master
               origin/develop
@@ -140,11 +152,14 @@ class Backend(BaseVCS):
               origin/release/2.1.0
         """
         clean_branches = []
+        # StringIO below is expecting Unicode data, so ensure that it gets it.
+        if not isinstance(data, str):
+            data = str(data)
         raw_branches = csv.reader(StringIO(data), delimiter=' ')
         for branch in raw_branches:
-            branch = filter(lambda f: f != '' and f != '*', branch)
+            branch = [f for f in branch if f != '' and f != '*']
             # Handle empty branches
-            if len(branch):
+            if branch:
                 branch = branch[0]
                 if branch.startswith('origin/'):
                     cut_len = len('origin/')
@@ -160,7 +175,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        retcode, stdout, err = self.run('git', 'rev-parse', 'HEAD')
+        _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
         return stdout.strip()
 
     def checkout(self, identifier=None):
@@ -207,7 +222,7 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, out, err = self.run('git', 'show-ref', ref)
+        code, _, _ = self.run('git', 'show-ref', ref)
         return code == 0
 
     @property

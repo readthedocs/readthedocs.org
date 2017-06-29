@@ -1,14 +1,16 @@
 """Project URLs for authenticated users"""
 
+from __future__ import absolute_import
 from django.conf.urls import url
 
+from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
     ProjectDashboard, ImportView,
     ProjectUpdate, ProjectAdvancedUpdate,
     DomainList, DomainCreate, DomainDelete, DomainUpdate,
-    IntegrationList, IntegrationExchangeDetail, IntegrationWebhookSync,
-    ProjectAdvertisingUpdate)
+    IntegrationList, IntegrationCreate, IntegrationDetail, IntegrationDelete,
+    IntegrationExchangeDetail, IntegrationWebhookSync, ProjectAdvertisingUpdate)
 from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
 
 
@@ -61,14 +63,6 @@ urlpatterns = [
     url(r'^(?P<project_slug>[-\w]+)/delete/$',
         private.project_delete,
         name='projects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/subprojects/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_subprojects_delete,
-        name='projects_subprojects_delete'),
-
-    url(r'^(?P<project_slug>[-\w]+)/subprojects/$',
-        private.project_subprojects,
-        name='projects_subprojects'),
 
     url(r'^(?P<project_slug>[-\w]+)/users/$',
         private.project_users,
@@ -129,15 +123,59 @@ domain_urls = [
 urlpatterns += domain_urls
 
 integration_urls = [
-    url(r'^(?P<project_slug>[-\w]+)/integrations/$',
+    url(r'^(?P<project_slug>{project_slug})/integrations/$'.format(**pattern_opts),
         IntegrationList.as_view(),
         name='projects_integrations'),
-    url(r'^(?P<project_slug>[-\w]+)/integrations/exchange/(?P<exchange_pk>[-\w]+)/$',
-        IntegrationExchangeDetail.as_view(),
-        name='projects_integrations_exchange_detail'),
-    url(r'^(?P<project_slug>[-\w]+)/integrations/sync/$',
+    url(r'^(?P<project_slug>{project_slug})/integrations/sync/$'.format(**pattern_opts),
         IntegrationWebhookSync.as_view(),
-        name='projects_integrations_sync'),
+        name='projects_integrations_webhooks_sync'),
+    url((r'^(?P<project_slug>{project_slug})/integrations/create/$'
+         .format(**pattern_opts)),
+        IntegrationCreate.as_view(),
+        name='projects_integrations_create'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/$'
+         .format(**pattern_opts)),
+        IntegrationDetail.as_view(),
+        name='projects_integrations_detail'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/'
+         r'exchange/(?P<exchange_pk>[-\w]+)/$'
+         .format(**pattern_opts)),
+        IntegrationExchangeDetail.as_view(),
+        name='projects_integrations_exchanges_detail'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/sync/$'
+         .format(**pattern_opts)),
+        IntegrationWebhookSync.as_view(),
+        name='projects_integrations_webhooks_sync'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'integrations/(?P<integration_pk>{integer_pk})/delete/$'
+         .format(**pattern_opts)),
+        IntegrationDelete.as_view(),
+        name='projects_integrations_delete'),
 ]
 
 urlpatterns += integration_urls
+
+subproject_urls = [
+    url(r'^(?P<project_slug>{project_slug})/subprojects/$'.format(**pattern_opts),
+        private.ProjectRelationshipList.as_view(),
+        name='projects_subprojects'),
+    url((r'^(?P<project_slug>{project_slug})/subprojects/create/$'
+         .format(**pattern_opts)),
+        private.ProjectRelationshipCreate.as_view(),
+        name='projects_subprojects_create'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'subprojects/(?P<subproject_slug>{project_slug})/edit/$'
+         .format(**pattern_opts)),
+        private.ProjectRelationshipUpdate.as_view(),
+        name='projects_subprojects_update'),
+    url((r'^(?P<project_slug>{project_slug})/'
+         r'subprojects/(?P<subproject_slug>{project_slug})/delete/$'
+         .format(**pattern_opts)),
+        private.ProjectRelationshipDelete.as_view(),
+        name='projects_subprojects_delete'),
+]
+
+urlpatterns += subproject_urls

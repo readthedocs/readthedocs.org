@@ -1,6 +1,7 @@
+"""Local development settings, including local_settings, if present."""
+from __future__ import absolute_import
 import os
 
-from readthedocs.core.settings import Settings
 from .base import CommunityBaseSettings
 
 
@@ -40,7 +41,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     }
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    FILE_SYNCER = 'readthedocs.privacy.backends.syncers.LocalSyncer'
+    FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
 
     NGINX_X_ACCEL_REDIRECT = True
 
@@ -50,6 +51,12 @@ class CommunityDevSettings(CommunityBaseSettings):
     CORS_ORIGIN_WHITELIST = (
         'test:8000',
     )
+
+    @property
+    def LOGGING(self):  # noqa - avoid pep8 N802
+        logging = super(CommunityDevSettings, self).LOGGING
+        logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        return logging
 
 
 CommunityDevSettings.load_settings(__name__)

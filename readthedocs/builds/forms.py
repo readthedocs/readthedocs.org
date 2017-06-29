@@ -1,3 +1,7 @@
+"""Django forms for the builds app."""
+
+from __future__ import absolute_import
+from builtins import object
 from django import forms
 
 from readthedocs.builds.models import VersionAlias, Version
@@ -7,7 +11,7 @@ from readthedocs.core.utils import trigger_build
 
 class AliasForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = VersionAlias
         fields = (
             'project',
@@ -25,12 +29,12 @@ class AliasForm(forms.ModelForm):
 
 class VersionForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = Version
         fields = ['active', 'privacy_level', 'tags']
 
-    def save(self, *args, **kwargs):
-        obj = super(VersionForm, self).save(*args, **kwargs)
+    def save(self, commit=True):
+        obj = super(VersionForm, self).save(commit=commit)
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
         return obj

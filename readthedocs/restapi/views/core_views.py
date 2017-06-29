@@ -1,3 +1,7 @@
+"""Utility endpoints relating to canonical urls, embedded content, etc."""
+
+from __future__ import absolute_import
+
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -22,6 +26,7 @@ from readthedocs.core.templatetags.core_tags import make_document_url
 def cname(request):
     """
     Get the slug that a particular hostname resolves to.
+
     This is useful for debugging your DNS settings,
     or for getting the backing project name on Read the Docs for a URL.
 

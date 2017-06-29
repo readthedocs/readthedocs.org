@@ -1,9 +1,14 @@
+"""Models for the comments app."""
+
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from readthedocs.privacy.backend import AdminPermission, AdminNotAuthorized
 from readthedocs.restapi.serializers import VersionSerializer
 
 
@@ -23,6 +28,7 @@ class DocumentNodeManager(models.Manager):
         return node
 
     def from_hash(self, version_slug, page, node_hash, project_slug=None):
+        """Return a node matching a given hash."""
         snapshots = NodeSnapshot.objects.filter(hash=node_hash,
                                                 node__version__slug=version_slug,
                                                 node__page=page)
@@ -30,12 +36,12 @@ class DocumentNodeManager(models.Manager):
         if project_slug:
             snapshots = snapshots.filter(node__project__slug=project_slug)
 
-        if len(snapshots) == 0:
+        if not snapshots.exists():
             raise DocumentNode.DoesNotExist(
                 "No node exists on %s with a current hash of %s" % (
                     page, node_hash))
 
-        if len(snapshots) == 1:
+        if snapshots.count() == 1:
             # If we have found only one snapshot, we know we have the correct node.
             node = snapshots[0].node
         else:
@@ -56,7 +62,10 @@ class DocumentNodeManager(models.Manager):
         return node
 
 
+@python_2_unicode_compatible
 class DocumentNode(models.Model):
+
+    """Document node."""
 
     objects = DocumentNodeManager()
 
@@ -68,12 +77,8 @@ class DocumentNode(models.Model):
 
     raw_source = models.TextField(_('Raw Source'))
 
-    def __unicode__(self):
+    def __str__(self):
         return "node %s on %s for %s" % (self.id, self.page, self.project)
-
-    def save(self, *args, **kwargs):
-        pass
-        super(DocumentNode, self).save(*args, **kwargs)
 
     def latest_hash(self):
         return self.snapshots.latest().hash
@@ -84,22 +89,20 @@ class DocumentNode(models.Model):
     def visible_comments(self):
         if not self.project.comment_moderation:
             return self.comments.all()
-        else:
-            # non-optimal SQL warning.
-            decisions = ModerationAction.objects.filter(
-                comment__node=self,
-                decision=1,
-                date__gt=self.snapshots.latest().date
-            )
-            valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
-            return valid_comments
+        # non-optimal SQL warning.
+        decisions = ModerationAction.objects.filter(
+            comment__node=self,
+            decision=1,
+            date__gt=self.snapshots.latest().date
+        )
+        valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
+        return valid_comments
 
     def update_hash(self, new_hash, commit):
         latest_snapshot = self.snapshots.latest()
         if latest_snapshot.hash == new_hash and latest_snapshot.commit == commit:
             return latest_snapshot
-        else:
-            return self.snapshots.create(hash=new_hash, commit=commit)
+        return self.snapshots.create(hash=new_hash, commit=commit)
 
 
 class DocumentNodeSerializer(serializers.ModelSerializer):
@@ -109,23 +112,27 @@ class DocumentNodeSerializer(serializers.ModelSerializer):
     last_commit = serializers.CharField(source='latest_commit')
     snapshots_count = serializers.CharField(source='snapshots.count')
 
-    class Meta:
+    class Meta(object):
         model = DocumentNode
         exclude = ('')
 
 
+@python_2_unicode_compatible
 class NodeSnapshot(models.Model):
     date = models.DateTimeField('Publication date', auto_now_add=True)
     hash = models.CharField(_('Hash'), max_length=255)
     node = models.ForeignKey(DocumentNode, related_name="snapshots")
     commit = models.CharField(max_length=255)
 
-    class Meta:
+    class Meta(object):
         get_latest_by = 'date'
         # Snapshots are *almost* unique_together just for node and hash,
         # but for the possibility that a node's hash might change and then change back
         # in a later commit.
         unique_together = ("hash", "node", "commit")
+
+    def __str__(self):
+        return self.hash
 
 
 # class DocumentCommentManager(models.Manager):
@@ -148,14 +155,18 @@ class NodeSnapshot(models.Model):
 #             return valid_comments
 
 
+@python_2_unicode_compatible
 class DocumentComment(models.Model):
+
+    """Comment on a ``DocumentNode`` by a user."""
+
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     rating = models.IntegerField(_('Rating'), default=0)
     text = models.TextField(_('Text'))
     user = models.ForeignKey(User)
     node = models.ForeignKey(DocumentNode, related_name='comments')
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s - %s" % (self.text, self.node)
 
     def get_absolute_url(self):
@@ -177,8 +188,7 @@ class DocumentComment(models.Model):
             # If we do have an approval action which is newer than the most recent change,
             # we'll return True or False commensurate with its "approved" attribute.
             return latest_moderation_action.approved()
-        else:
-            return False
+        return False
 
     def is_orphaned(self):
         raise NotImplementedError('TODO')
@@ -187,7 +197,7 @@ class DocumentComment(models.Model):
 class DocumentCommentSerializer(serializers.ModelSerializer):
     node = DocumentNodeSerializer()
 
-    class Meta:
+    class Meta(object):
         model = DocumentComment
         fields = ('date', 'user', 'text', 'node')
 
@@ -195,12 +205,18 @@ class DocumentCommentSerializer(serializers.ModelSerializer):
         pass
 
 
+@python_2_unicode_compatible
 class ModerationActionManager(models.Model):
 
+    def __str__(self):
+        return str(self.id)
+
     def current_approvals(self):
-        most_recent_change = self.comment.node.snapshots.latest().date
+        # pylint: disable=unused-variable
+        most_recent_change = self.comment.node.snapshots.latest().date  # noqa
 
 
+@python_2_unicode_compatible
 class ModerationAction(models.Model):
     user = models.ForeignKey(User)
     comment = models.ForeignKey(DocumentComment, related_name="moderation_actions")
@@ -211,7 +227,10 @@ class ModerationAction(models.Model):
     ))
     date = models.DateTimeField(_('Date'), auto_now_add=True)
 
-    class Meta:
+    def __str__(self):
+        return "%s - %s" % (self.user_id, self.get_decision_display())
+
+    class Meta(object):
         get_latest_by = 'date'
 
     def approved(self):
@@ -220,6 +239,6 @@ class ModerationAction(models.Model):
 
 class ModerationActionSerializer(serializers.ModelSerializer):
 
-    class Meta:
+    class Meta(object):
         model = ModerationAction
         exclude = ()

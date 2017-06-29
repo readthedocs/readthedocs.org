@@ -1,11 +1,13 @@
 """Payment forms"""
 
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 import logging
 
 from stripe.resource import Customer, Charge
 from stripe.error import InvalidRequestError
 from django import forms
-from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from .utils import stripe
@@ -27,7 +29,7 @@ class StripeResourceMixin(object):
                 pass
             return resource.create(**attrs)
         else:
-            for (key, val) in attrs.items():
+            for (key, val) in list(attrs.items()):
                 setattr(instance, key, val)
             instance.save()
             return instance
@@ -159,7 +161,7 @@ class StripeModelForm(forms.ModelForm):
             error_field = field_lookup.get(e.param, None)
             self.add_error(
                 error_field,
-                forms.ValidationError(e.message),
+                forms.ValidationError(str(e)),
             )
         except stripe.error.StripeError as e:
             log.error('There was a problem communicating with Stripe: %s',

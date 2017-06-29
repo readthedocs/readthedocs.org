@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import mock
 
 from django.test import TestCase
@@ -16,14 +17,13 @@ class ResolverBase(TestCase):
 
     def setUp(self):
         with mock.patch('readthedocs.projects.models.broadcast'):
-            with mock.patch('readthedocs.projects.models.update_static_metadata'):
-                self.owner = create_user(username='owner', password='test')
-                self.tester = create_user(username='tester', password='test')
-                self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
-                self.subproject = get(Project, slug='sub', language='ja', users=[self.owner], main_language_project=None)
-                self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
-                self.pip.add_subproject(self.subproject)
-                self.pip.translations.add(self.translation)
+            self.owner = create_user(username='owner', password='test')
+            self.tester = create_user(username='tester', password='test')
+            self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+            self.subproject = get(Project, slug='sub', language='ja', users=[self.owner], main_language_project=None)
+            self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
+            self.pip.add_subproject(self.subproject)
+            self.pip.translations.add(self.translation)
 
 
 class SmartResolverPathTests(ResolverBase):
@@ -391,15 +391,14 @@ class ResolverAltSetUp(object):
 
     def setUp(self):
         with mock.patch('readthedocs.projects.models.broadcast'):
-            with mock.patch('readthedocs.projects.models.update_static_metadata'):
-                self.owner = create_user(username='owner', password='test')
-                self.tester = create_user(username='tester', password='test')
-                self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
-                self.seed = get(Project, slug='sub', users=[self.owner], main_language_project=None)
-                self.subproject = get(Project, slug='subproject', language='ja', users=[self.owner], main_language_project=None)
-                self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
-                self.pip.add_subproject(self.subproject, alias='sub')
-                self.pip.translations.add(self.translation)
+            self.owner = create_user(username='owner', password='test')
+            self.tester = create_user(username='tester', password='test')
+            self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+            self.seed = get(Project, slug='sub', users=[self.owner], main_language_project=None)
+            self.subproject = get(Project, slug='subproject', language='ja', users=[self.owner], main_language_project=None)
+            self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
+            self.pip.add_subproject(self.subproject, alias='sub')
+            self.pip.translations.add(self.translation)
 
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')

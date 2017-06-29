@@ -1,16 +1,23 @@
+"""Subversion-related utilities."""
+
+from __future__ import absolute_import
+
 import csv
-import sys
+
+from builtins import bytes, str  # pylint: disable=redefined-builtin
 
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
-if sys.version_info > (3,):
-    from io import StringIO
-else:
-    from StringIO import StringIO
+from future import standard_library
+standard_library.install_aliases()
+from io import StringIO  # noqa
 
 
 class Backend(BaseVCS):
+
+    """Subversion VCS backend."""
+
     supports_tags = False
     fallback_branch = '/trunk/'
 
@@ -87,7 +94,9 @@ class Backend(BaseVCS):
             release-1.5/
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-
+        # StringIO below is expecting Unicode data, so ensure that it gets it.
+        if not isinstance(data, str):
+            data = str(data)
         raw_tags = csv.reader(StringIO(data), delimiter='/')
         vcs_tags = []
         for name, _ in raw_tags:
@@ -96,7 +105,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        retcode, stdout = self.run('svnversion')[:2]
+        _, stdout = self.run('svnversion')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):

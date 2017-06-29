@@ -1,3 +1,6 @@
+"""Clean up stable build paths per project version"""
+
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 import logging
 from optparse import make_option
@@ -12,7 +15,7 @@ log = logging.getLogger(__name__)
 
 class Command(BaseCommand):
 
-    help = ('Clean up stale build paths per project version')
+    help = __doc__
 
     option_list = BaseCommand.option_list + (
         make_option('--days',

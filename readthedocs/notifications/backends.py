@@ -1,10 +1,17 @@
-"""Notification to message backends"""
+"""Pluggable backends for the delivery of notifications.
 
+Delivery of notifications to users depends on a list of backends configured in
+Django settings. For example, they might be e-mailed to users as well as
+displayed on the site.
+
+"""
+
+from __future__ import absolute_import
+from builtins import object
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.module_loading import import_string
 from messages_extends.constants import INFO_PERSISTENT
-from messages_extends import add_message
 
 from readthedocs.core.utils import send_email
 

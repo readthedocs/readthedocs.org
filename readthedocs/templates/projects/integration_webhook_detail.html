@@ -1,0 +1,102 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Integration" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-integrations %}class="active"{% endblock %}
+
+{% block project-integrations-active %}active{% endblock %}
+{% block project_edit_content_header %}
+  {% blocktrans with type=integration.get_integration_type_display %}
+    Integration - {{ type }}
+  {% endblocktrans %}
+{% endblock %}
+
+{% block project_edit_content %}
+  {% if integration.has_sync and integration.can_sync %}
+    <p>
+      {% blocktrans %}
+        This webhook was configured when this project was imported. If this
+        integration is not functioning correctly, try resyncing the webhook:
+      {% endblocktrans %}
+    </p>
+
+    <form method="post" action="{% url 'projects_integrations_webhooks_sync' project_slug=project.slug integration_pk=integration.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Resync webhook" %}">
+    </form>
+  {% else %}
+    {% comment %}
+      Display information for manual webhook set up if either case is true:
+
+      * Integration doesn't have the ability to sync
+      * Integration has ability to sync, but we don't have the data returned
+        from the provider API on webhook creation (or webhook was automatically
+        created on new data from an old webhook)
+    {% endcomment %}
+    {% if integration.has_sync and not integration.can_sync %}
+      <p>
+        {% blocktrans %}
+          This integration was created automatically from an existing webhook
+          configured on your repository. To make any changes to this webhook,
+          you'll need to update the configuration there. You can use the
+          following address to manually configure this webhook.
+        {% endblocktrans %}
+      </p>
+    {% else %}
+      <p>
+        {% blocktrans %}
+          To manually configure this webhook with your provider, use the
+          following address:
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
+    <p>
+      {% url 'api_webhook' project_slug=project.slug integration_pk=integration.pk as webhook_url %}
+      <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
+    </p>
+
+    {% block integration_details %}{% endblock %}
+
+    <p>
+      {% blocktrans %}
+        For more information on manually configuring a webhook, refer to
+        <a href="https://docs.readthedocs.io/en/latest/webhooks.html">
+          our webhook documentation
+        </a>
+      {% endblocktrans %}
+    </p>
+  {% endif %}
+
+  <h3>Recent Activity</h3>
+
+  <div class="module-list-wrapper httpexchanges">
+    <ul>
+      {% for exchange in integration.exchanges.all %}
+        <li class="module-item">
+          <span class="status status-{% if exchange.failed %}fail{% else %}pass{% endif %}">{{ exchange.status_code }}</span>
+          <a href="{% url 'projects_integrations_exchanges_detail' project_slug=project.slug integration_pk=integration.pk exchange_pk=exchange.pk %}">
+            {% blocktrans with date=exchange.date|timesince %}
+              {{ date }} ago
+            {% endblocktrans %}
+          </a>
+        </li>
+      {% empty %}
+        <li class="module-item">
+          <span class="quiet">
+            {% trans 'There is no recent activity' %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <form method="post" action="{% url 'projects_integrations_delete' project_slug=project.slug integration_pk=integration.pk %}">
+    {% csrf_token %}
+    <input type="submit" value="{% trans "Delete webhook" %}">
+  </form>
+{% endblock %}

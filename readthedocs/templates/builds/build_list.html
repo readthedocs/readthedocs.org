@@ -15,21 +15,6 @@
 
 {% block content %}
 
-{% comment %}
-
-<div class="navigable">
-<h3>
-Filters
-</h3>
-<ul>
-        <form action="" method="get">
-            {{ filter.form.as_p }}
-            <input type="submit" value="Filter" />
-        </form>
-</ul>
-
-{% endcomment %}
-
 
 <!-- BEGIN queue depth warning -->
 {% if queue_length > 10 %}

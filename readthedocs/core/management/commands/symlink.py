@@ -1,3 +1,6 @@
+"""Update symlinks for projects"""
+
+from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand
@@ -10,6 +13,8 @@ log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+
+    help = __doc__
 
     def add_arguments(self, parser):
         parser.add_argument('projects', nargs='+', type=str)

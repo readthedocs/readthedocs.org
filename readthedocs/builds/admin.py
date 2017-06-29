@@ -1,7 +1,6 @@
-"""Django admin interface for `~builds.models.Build` and related models.
+"""Django admin interface for `~builds.models.Build` and related models."""
 
-"""
-
+from __future__ import absolute_import
 from django.contrib import admin
 from readthedocs.builds.models import Build, VersionAlias, Version, BuildCommandResult
 from guardian.admin import GuardedModelAdmin

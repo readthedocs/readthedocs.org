@@ -14,6 +14,8 @@ Django settings that should be defined:
 TODO: Handle page removal case in Page.
 
 """
+from __future__ import absolute_import
+from builtins import object
 import datetime
 
 from elasticsearch import Elasticsearch, exceptions
@@ -23,9 +25,9 @@ from django.conf import settings
 
 
 class Index(object):
-    """
-    Base class to define some common methods across indexes.
-    """
+
+    """Base class to define some common methods across indexes."""
+
     # The _index and _type define the URL path to Elasticsearch, e.g.:
     #   http://localhost:9200/{_index}/{_type}/_search
     _index = 'readthedocs'
@@ -166,15 +168,11 @@ class Index(object):
         return self.es.delete_by_query(**kwargs)
 
     def get_mapping(self):
-        """
-        Returns the mapping for this _index and _type.
-        """
+        """Returns the mapping for this _index and _type."""
         raise NotImplementedError()
 
     def extract_document(self, data):
-        """
-        Extracts the Elasticsearch document for this object instance.
-        """
+        """Extracts the Elasticsearch document for this object instance."""
         raise NotImplementedError()
 
     def update_aliases(self, new_index, delete=True):
@@ -188,8 +186,8 @@ class Index(object):
         # Get current alias, if any.
         try:
             aliases = self.es.indices.get_alias(name=self._index)
-            if aliases and aliases.keys():
-                old_index = aliases.keys()[0]
+            if aliases and list(aliases.keys()):
+                old_index = list(aliases.keys())[0]
         except exceptions.NotFoundError:
             pass
 
@@ -211,6 +209,8 @@ class Index(object):
 
 
 class ProjectIndex(Index):
+
+    """Search index configuration for Projects"""
 
     _type = 'project'
 
@@ -262,6 +262,8 @@ class ProjectIndex(Index):
 
 class PageIndex(Index):
 
+    """Search index configuration for Pages"""
+
     _type = 'page'
     _parent = 'project'
 
@@ -307,6 +309,8 @@ class PageIndex(Index):
 
 
 class SectionIndex(Index):
+
+    """Search index configuration for Sections"""
 
     _type = 'section'
     _parent = 'page'

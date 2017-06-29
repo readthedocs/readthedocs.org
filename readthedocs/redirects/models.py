@@ -1,4 +1,9 @@
+"""Django models for the redirects app."""
+
+from __future__ import absolute_import
+from builtins import object
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 import logging
@@ -34,13 +39,17 @@ TYPE_CHOICES = (
 from_url_helptext = _('Absolute path, excluding the domain. '
                       'Example: <b>/docs/</b>  or <b>/install.html</b>'
                       )
-to_url_helptext = _('Absolute or relative url. Examples: '
+to_url_helptext = _('Absolute or relative URL. Examples: '
                     '<b>/tutorial/install.html</b>'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
 
 
+@python_2_unicode_compatible
 class Redirect(models.Model):
+
+    """A HTTP redirect associated with a Project."""
+
     project = models.ForeignKey(Project, verbose_name=_('Project'),
                                 related_name='redirects')
 
@@ -63,27 +72,27 @@ class Redirect(models.Model):
 
     objects = RedirectManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _('redirect')
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.redirect_type == 'prefix':
             return ugettext('Prefix Redirect: %s ->' % self.from_url)
         elif self.redirect_type == 'page':
             return ugettext('Page Redirect: %s -> %s' % (
                 self.from_url,
                 self.to_url))
-        else:
-            return ugettext('Redirect: %s' % self.get_redirect_type_display())
+        return ugettext('Redirect: %s' % self.get_redirect_type_display())
 
     def get_full_path(self, filename, language=None, version_slug=None):
         """
-        Return a full path for a given filename. This will include version and
-        language information. No protocol/domain is returned.
-        """
+        Return a full path for a given filename.
 
+        This will include version and language information. No protocol/domain
+        is returned.
+        """
         # Handle explicit http redirects
         if re.match('^https?://', filename):
             return filename
@@ -100,7 +109,7 @@ class Redirect(models.Model):
 
     def redirect_prefix(self, path, language=None, version_slug=None):
         if path.startswith(self.from_url):
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             cut_path = re.sub('^%s' % self.from_url, '', path)
             to = self.get_full_path(
                 filename=cut_path,
@@ -110,16 +119,16 @@ class Redirect(models.Model):
 
     def redirect_page(self, path, language=None, version_slug=None):
         if path == self.from_url:
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             to = self.get_full_path(
                 filename=self.to_url.lstrip('/'),
                 language=language,
                 version_slug=version_slug)
             return to
 
-    def redirect_exact(self, path, language=None, version_slug=None):
+    def redirect_exact(self, path, **__):
         if path == self.from_url:
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             return self.to_url
         # Handle full sub-level redirects
         if '$rest' in self.from_url:
@@ -131,7 +140,7 @@ class Redirect(models.Model):
     def redirect_sphinx_html(self, path, language=None, version_slug=None):
         for ending in ['/', '/index.html']:
             if path.endswith(ending):
-                log.debug('Redirecting %s' % self)
+                log.debug('Redirecting %s', self)
                 path = path[1:]  # Strip leading slash.
                 to = re.sub(ending + '$', '.html', path)
                 return self.get_full_path(
@@ -141,7 +150,7 @@ class Redirect(models.Model):
 
     def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
         if path.endswith('.html'):
-            log.debug('Redirecting %s' % self)
+            log.debug('Redirecting %s', self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('.html$', '/', path)
             return self.get_full_path(

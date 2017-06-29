@@ -1,5 +1,6 @@
 """Allauth overrides"""
 
+from __future__ import absolute_import
 import pickle
 import logging
 
@@ -33,9 +34,9 @@ class AccountAdapter(DefaultAccountAdapter):
         # Allauth sends some additional data in the context, remove it if the
         # pieces can't be pickled
         removed_keys = []
-        for key in context.keys():
+        for key in list(context.keys()):
             try:
-                _ = pickle.dumps(context[key])
+                _ = pickle.dumps(context[key])  # noqa for F841
             except (pickle.PickleError, TypeError):
                 removed_keys.append(key)
                 del context[key]

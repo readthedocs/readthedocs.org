@@ -8,7 +8,7 @@ uses:
   - celery
 
 ignore-paths:
-  - docs
+  - docs/
 
 ignore-patterns:
   - /migrations/
@@ -25,19 +25,15 @@ pylint:
   disable:
     - logging-format-interpolation
 
-pyflakes:
-  disable:
-    - F999
-
 mccabe:
   run: false
 
 pep257:
-  run: false
+  run: true
   disable:
-      - D105
-      - D211
-      - D104
+    - D105
+    - D211
+    - D104
 
 pyflakes:
   disable:

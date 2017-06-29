@@ -1,11 +1,14 @@
 """OAuth service models"""
 
+from __future__ import absolute_import
+from builtins import object
 import json
 
 from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
@@ -14,12 +17,13 @@ from allauth.socialaccount.models import SocialAccount
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
 
-from .managers import RemoteRepositoryManager, RemoteOrganizationManager
+from .querysets import RemoteRepositoryQuerySet, RemoteOrganizationQuerySet
 
 
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
 
+@python_2_unicode_compatible
 class RemoteOrganization(models.Model):
 
     """Organization from remote service
@@ -47,9 +51,9 @@ class RemoteOrganization(models.Model):
 
     json = models.TextField(_('Serialized API response'))
 
-    objects = RemoteOrganizationManager()
+    objects = RemoteOrganizationQuerySet.as_manager()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Remote organization: {name}'.format(name=self.slug)
 
     def get_serialized(self, key=None, default=None):
@@ -62,6 +66,7 @@ class RemoteOrganization(models.Model):
             pass
 
 
+@python_2_unicode_compatible
 class RemoteRepository(models.Model):
 
     """Remote importable repositories
@@ -84,6 +89,9 @@ class RemoteRepository(models.Model):
         related_name='repositories', null=True, blank=True)
     active = models.BooleanField(_('Active'), default=False)
 
+    project = models.OneToOneField(Project, on_delete=models.SET_NULL,
+                                   related_name='remote_repository', null=True,
+                                   blank=True)
     name = models.CharField(_('Name'), max_length=255)
     full_name = models.CharField(_('Full Name'), max_length=255)
     description = models.TextField(_('Description'), blank=True, null=True,
@@ -108,13 +116,13 @@ class RemoteRepository(models.Model):
 
     json = models.TextField(_('Serialized API response'))
 
-    objects = RemoteRepositoryManager()
+    objects = RemoteRepositoryQuerySet.as_manager()
 
-    class Meta:
+    class Meta(object):
         ordering = ['organization__name', 'name']
         verbose_name_plural = 'remote repositories'
 
-    def __unicode__(self):
+    def __str__(self):
         return "Remote repository: %s" % (self.html_url)
 
     def get_serialized(self, key=None, default=None):

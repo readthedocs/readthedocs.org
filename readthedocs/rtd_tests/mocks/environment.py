@@ -1,17 +1,21 @@
+# pylint: disable=missing-docstring
+from __future__ import absolute_import
+from builtins import object
 import mock
-
-from readthedocs.doc_builder.environments import BuildEnvironment
 
 
 class EnvironmentMockGroup(object):
-    '''Mock out necessary environment pieces'''
+
+    """Mock out necessary environment pieces"""
 
     def __init__(self):
         self.patches = {
             'popen': mock.patch('subprocess.Popen'),
             'process': mock.Mock(),
             'api': mock.patch('slumber.Resource'),
-
+            'api_v2.command': mock.patch(
+                'readthedocs.doc_builder.environments.api_v2.command',
+                mock.Mock(**{'get.return_value': {}})),
             'api_versions': mock.patch(
                 'readthedocs.projects.models.Project.api_versions'),
             'non_blocking_lock': mock.patch(
@@ -43,7 +47,7 @@ class EnvironmentMockGroup(object):
         self.mocks = {}
 
     def start(self):
-        '''Create a patch object for class patches'''
+        """Create a patch object for class patches"""
         for patch in self.patches:
             self.mocks[patch] = self.patches[patch].start()
         self.mocks['process'].communicate.return_value = ('', '')
@@ -61,7 +65,7 @@ class EnvironmentMockGroup(object):
                 pass
 
     def configure_mock(self, mock, kwargs):
-        '''Configure object mocks'''
+        """Configure object mocks"""
         self.mocks[mock].configure_mock(**kwargs)
 
     def __getattr__(self, name):

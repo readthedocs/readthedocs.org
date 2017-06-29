@@ -1,7 +1,7 @@
-import json
+"""Views for comments app."""
 
+from __future__ import absolute_import
 from django.contrib.auth.decorators import login_required
-from django.http.response import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.decorators import method_decorator
@@ -14,19 +14,16 @@ from rest_framework.decorators import (
     detail_route
 )
 from rest_framework.exceptions import ParseError
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer, Serializer
 from rest_framework.viewsets import ModelViewSet
 from sphinx.websupport import WebSupport
 
 from readthedocs.comments.models import (
     DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,
     DocumentNodeSerializer, ModerationActionSerializer)
-from readthedocs.privacy.backend import AdminNotAuthorized
 from readthedocs.projects.models import Project
-from readthedocs.restapi.permissions import IsOwner, CommentModeratorOrReadOnly
+from readthedocs.restapi.permissions import CommentModeratorOrReadOnly
 
 from .backend import DjangoStorage
 from .session import UnsafeSessionAuthentication
@@ -48,7 +45,7 @@ support = WebSupport(
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
 @renderer_classes((JSONRenderer,))
-def get_options(request):
+def get_options(request):  # pylint: disable=unused-argument
     base_opts = support.base_comment_opts
     base_opts['addCommentURL'] = '/api/v2/comments/'
     base_opts['getCommentsURL'] = '/api/v2/comments/'
@@ -61,6 +58,7 @@ def get_options(request):
 def get_metadata(request):
     """
     Check for get_metadata
+
     GET: page
     """
     document = request.GET.get('page', '')
@@ -87,11 +85,11 @@ def attach_comment(request):
 # Normal Views
 #######
 
-def build(request):
+def build(request):  # pylint: disable=unused-argument
     support.build()
 
 
-def serve_file(request, file):
+def serve_file(request, file):  # pylint: disable=redefined-builtin
     document = support.get_document(file)
 
     return render_to_response('doc.html',
@@ -108,6 +106,7 @@ def serve_file(request, file):
 def has_node(request):
     """
     Checks to see if a node exists.
+
     GET: node_id - The node's ID to check
     """
     node_id = request.GET.get('node_id', '')
@@ -156,6 +155,9 @@ def update_node(request):
 
 
 class CommentViewSet(ModelViewSet):
+
+    """Viewset for Comment model."""
+
     serializer_class = DocumentCommentSerializer
     permission_classes = [CommentModeratorOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
 
@@ -183,7 +185,7 @@ class CommentViewSet(ModelViewSet):
         return queryset
 
     @method_decorator(login_required)
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         project = Project.objects.get(slug=request.data['project'])
         comment = project.add_comment(version_slug=request.data['version'],
                                       page=request.data['document_page'],
@@ -197,7 +199,7 @@ class CommentViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @detail_route(methods=['put'])
-    def moderate(self, request, pk):
+    def moderate(self, request, pk):  # pylint: disable=unused-argument
         comment = self.get_object()
         decision = request.data['decision']
         moderation_action = comment.moderate(request.user, decision)

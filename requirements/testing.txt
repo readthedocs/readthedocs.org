@@ -1,0 +1,6 @@
+-r pip.txt
+
+pytest-django==3.1.2
+pytest-xdist==1.16.0
+apipkg==1.4
+execnet==1.4.1

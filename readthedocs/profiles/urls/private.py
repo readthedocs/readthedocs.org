@@ -1,3 +1,6 @@
+"""URL patterns for views to modify user profiles."""
+
+from __future__ import absolute_import
 from django.conf.urls import url
 
 from readthedocs.core.forms import UserProfileForm
