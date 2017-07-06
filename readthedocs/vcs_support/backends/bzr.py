@@ -6,12 +6,10 @@ import csv
 import re
 
 from builtins import bytes, str  # pylint: disable=redefined-builtin
+from six import StringIO
+
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-from future import standard_library
-standard_library.install_aliases()
-from io import StringIO  # noqa
 
 
 class Backend(BaseVCS):

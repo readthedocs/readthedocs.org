@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
@@ -36,10 +37,6 @@ from readthedocs.core.validators import validate_domain_name
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
-
-from future import standard_library
-standard_library.install_aliases()
-from urllib.parse import urlparse  # noqa
 
 
 log = logging.getLogger(__name__)

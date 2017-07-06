@@ -1,16 +1,15 @@
 """Signal handling for core app."""
 
 from __future__ import absolute_import
+
 import logging
 
-from django.dispatch import Signal
 from corsheaders import signals
+from django.dispatch import Signal
+from future.backports.urllib.parse import urlparse
 
 from readthedocs.projects.models import Project, Domain
 
-from future import standard_library
-standard_library.install_aliases()
-from urllib.parse import urlparse  # noqa
 
 log = logging.getLogger(__name__)
 

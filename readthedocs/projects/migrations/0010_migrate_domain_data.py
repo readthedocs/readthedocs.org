@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import (absolute_import, print_function, unicode_literals)
 
-from future import standard_library
-standard_library.install_aliases()
-
-import urllib.parse
-
 from django.db import models, migrations
+from future.backports.urllib.parse import urlparse
 
 import readthedocs.core.validators
 
@@ -20,7 +16,7 @@ def migrate_url(apps, schema_editor):
                 project=domain.project.slug))
             domain.delete()
             continue
-        parsed = urllib.parse(domain.url)
+        parsed = urlparse(domain.url)
         if parsed.scheme or parsed.netloc:
             domain_string = parsed.netloc
         else:
