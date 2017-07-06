@@ -9,13 +9,13 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
+from future.backports.urllib.parse import urlparse
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
-from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build, slugify
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
@@ -24,10 +24,6 @@ from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Project, ProjectRelationship, EmailHook, WebHook, Domain)
 from readthedocs.redirects.models import Redirect
-
-from future import standard_library
-standard_library.install_aliases()
-from urllib.parse import urlparse  # noqa
 
 
 class ProjectForm(forms.ModelForm):
