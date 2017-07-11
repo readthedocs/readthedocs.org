@@ -2,18 +2,12 @@
 
 from __future__ import absolute_import
 
-import re
 import logging
-import csv
 import os
+import re
 
-from builtins import bytes, str  # pylint: disable=redefined-builtin
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-from future import standard_library
-standard_library.install_aliases()
-from io import StringIO  # noqa
 
 
 log = logging.getLogger(__name__)
@@ -26,6 +20,25 @@ class Backend(BaseVCS):
     supports_tags = True
     supports_branches = True
     fallback_branch = 'master'  # default branch
+
+    TAG_REGEX = re.compile(
+        r'''
+        ^\s*
+        (?P<hash>[0-9a-f]+)
+        \s+
+        (?P<tag>.*)
+        (?:\n|$)
+        ''',
+        (re.VERBOSE | re.MULTILINE)
+    )
+    BRANCH_REGEX = re.compile(
+        r'''
+        ^\s*
+        (?P<branch>\w.+)
+        (?:\n|$)
+        ''',
+        (re.VERBOSE | re.MULTILINE)
+    )
 
     def __init__(self, *args, **kwargs):
         super(Backend, self).__init__(*args, **kwargs)
@@ -115,19 +128,11 @@ class Backend(BaseVCS):
         hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
-        # StringIO below is expecting Unicode data, so ensure that it gets it.
-        if not isinstance(data, str):
-            data = str(data)
-        raw_tags = csv.reader(StringIO(data), delimiter=' ')
-        vcs_tags = []
-        for row in raw_tags:
-            row = [f for f in row if f != '']
-            if row == []:
-                continue
-            commit_hash, name = row
-            clean_name = name.split('/')[-1]
-            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
-        return vcs_tags
+        tags = []
+        for match in self.TAG_REGEX.finditer(data):
+            tag = match.group('tag').split('/')[-1]
+            tags.append(VCSVersion(self, match.group('hash'), tag))
+        return tags
 
     @property
     def branches(self):
@@ -151,27 +156,20 @@ class Backend(BaseVCS):
               origin/release/2.0.0
               origin/release/2.1.0
         """
-        clean_branches = []
-        # StringIO below is expecting Unicode data, so ensure that it gets it.
-        if not isinstance(data, str):
-            data = str(data)
-        raw_branches = csv.reader(StringIO(data), delimiter=' ')
-        for branch in raw_branches:
-            branch = [f for f in branch if f != '' and f != '*']
-            # Handle empty branches
-            if branch:
-                branch = branch[0]
-                if branch.startswith('origin/'):
-                    cut_len = len('origin/')
-                    slug = branch[cut_len:].replace('/', '-')
-                    if slug in ['HEAD']:
-                        continue
-                    clean_branches.append(VCSVersion(self, branch, slug))
-                else:
-                    # Believe this is dead code.
-                    slug = branch.replace('/', '-')
-                    clean_branches.append(VCSVersion(self, branch, slug))
-        return clean_branches
+        branches = []
+        for match in self.BRANCH_REGEX.finditer(data):
+            branch = match.group('branch')
+            if branch.startswith('origin/HEAD'):
+                continue
+            elif branch.startswith('origin/'):
+                cut_len = len('origin/')
+                slug = branch[cut_len:].replace('/', '-')
+                branches.append(VCSVersion(self, branch, slug))
+            else:
+                # Believe this is dead code.
+                slug = branch.replace('/', '-')
+                branches.append(VCSVersion(self, branch, slug))
+        return branches
 
     @property
     def commit(self):

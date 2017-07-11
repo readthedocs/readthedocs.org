@@ -1,15 +1,20 @@
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import, unicode_literals
+
+import re
 from os.path import exists
 
 from django.contrib.auth.models import User
 
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
-
 from readthedocs.rtd_tests.utils import make_test_git, make_test_hg
+from readthedocs.vcs_support.backends.git import Backend
 
 
 class TestGitBackend(RTDTestCase):
+
     def setUp(self):
         git_repo = make_test_git()
         super(TestGitBackend, self).setUp()
@@ -23,6 +28,20 @@ class TestGitBackend(RTDTestCase):
             repo=git_repo
         )
         self.project.users.add(self.eric)
+
+    def test_branch_regex(self):
+        data = "  origin/HEAD -> origin/master"
+        self.assertRegexpMatches(data, Backend.BRANCH_REGEX)
+
+        data = """
+            origin/master
+            origin/HEAD -> origin/master
+        """
+        matches = Backend.BRANCH_REGEX.findall(data)
+        self.assertEqual(matches, [
+            'origin/master',
+            'origin/HEAD -> origin/master',
+        ])
 
     def test_parse_branches(self):
         data = """
@@ -47,10 +66,33 @@ class TestGitBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
+    def test_parse_unicode_branch(self):
+        data = """
+        origin/üñîçø∂é
+        """
+        expected_ids = [('origin/üñîçø∂é', 'üñîçø∂é')]
+        given_ids = [(x.identifier, x.verbose_name) for x in
+                     self.project.vcs_repo().parse_branches(data)]
+        self.assertEqual(expected_ids, given_ids)
+
     def test_git_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout()
         self.assertTrue(exists(repo.working_dir))
+
+    def test_tag_regex(self):
+        data = "bd533a768ff661991a689d3758fcfe72f455435d refs/tags/1.0"
+        self.assertRegexpMatches(data, Backend.TAG_REGEX)
+
+        data = """
+            3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
+            bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
+        """
+        matches = Backend.TAG_REGEX.findall(data)
+        self.assertEqual(matches, [
+            ('3b32886c8d3cb815df3793b3937b2e91d0fb00f1', 'refs/tags/2.0.0'),
+            ('bd533a768ff661991a689d3758fcfe72f455435d', 'refs/tags/2.0.1'),
+        ])
 
     def test_parse_git_tags(self):
         data = """\
@@ -74,8 +116,21 @@ class TestGitBackend(RTDTestCase):
                      self.project.vcs_repo().parse_tags(data)]
         self.assertEqual(expected_tags, given_ids)
 
+    def test_parse_unicode_git_tags(self):
+        data = """\
+            bd533a768ff661991a689d3758fcfe72f455435d refs/tags/release-ünîø∂é
+         """
+        expected_tags = [
+            ('bd533a768ff661991a689d3758fcfe72f455435d', 'release-ünîø∂é'),
+        ]
+
+        given_ids = [(x.identifier, x.verbose_name) for x in
+                     self.project.vcs_repo().parse_tags(data)]
+        self.assertEqual(expected_tags, given_ids)
+
 
 class TestHgBackend(RTDTestCase):
+
     def setUp(self):
         hg_repo = make_test_hg()
         super(TestHgBackend, self).setUp()
@@ -101,6 +156,13 @@ class TestHgBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
+    def test_parse_unicode_branches(self):
+        data = "üñîçø∂é"
+        expected_ids = ['üñîçø∂é']
+        given_ids = [x.identifier for x in
+                     self.project.vcs_repo().parse_branches(data)]
+        self.assertEqual(expected_ids, given_ids)
+
     def test_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout()
@@ -117,6 +179,18 @@ class TestHgBackend(RTDTestCase):
             ('aa1f3be38ab1', '1.8.1'),
             ('2616325766e3', '1.8'),
             ('2b2155623ee2', '1.7.5'),
+        ]
+
+        given_ids = [(x.identifier, x.verbose_name) for x in
+                     self.project.vcs_repo().parse_tags(data)]
+        self.assertEqual(expected_tags, given_ids)
+
+    def test_parse_unicode_tags(self):
+        data = """\
+        üñîçø∂é                        13575:8e94a1b4e9a4
+         """
+        expected_tags = [
+            ('8e94a1b4e9a4', 'üñîçø∂é'),
         ]
 
         given_ids = [(x.identifier, x.verbose_name) for x in
