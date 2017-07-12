@@ -1,17 +1,16 @@
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
+
 import json
 import logging
-from urllib.parse import urlencode
 
 import mock
-from django_dynamic_fixture import get
 from django.test import TestCase
+from django_dynamic_fixture import get
+from future.backports.urllib.parse import urlencode
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.projects import tasks
+
 
 log = logging.getLogger(__name__)
 
