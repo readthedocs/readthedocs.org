@@ -21,21 +21,25 @@ class Backend(BaseVCS):
     supports_branches = True
     fallback_branch = 'master'  # default branch
 
+    #: Regex pattern to match tags from output of `git show-ref --tags`
     TAG_REGEX = re.compile(
         r'''
-        ^\s*
-        (?P<hash>[0-9a-f]+)
-        \s+
-        (?P<tag>.*)
-        (?:\n|$)
+        ^\s*                        # any amount of whitespace
+        (?P<hash>[0-9a-f]{40,64})   # sha-1 or sha-256 hash
+        \s+                         # any amount of whitespace
+        (?P<tag>.*)                 # name of the tag, simplified to catch any char
+        (?:\n|$)                    # end of line or string
         ''',
         (re.VERBOSE | re.MULTILINE)
     )
+    #: Regex pattern to match branch names from output of `git branch -r`. The
+    #: rules for branch names are a lot more specific than this, but not something
+    #: that should be maintained here.
     BRANCH_REGEX = re.compile(
         r'''
-        ^\s*
-        (?P<branch>\w.+)
-        (?:\n|$)
+        ^\s*                        # any amount of whitespace
+        (?P<branch>\w.+)            # an alpha-numeric character followed by anything
+        (?:\n|$)                    # end of line or string
         ''',
         (re.VERBOSE | re.MULTILINE)
     )
@@ -127,7 +131,8 @@ class Backend(BaseVCS):
         Into VCSTag objects with the tag name as verbose_name and the commit
         hash as identifier.
         """
-        # parse the lines into a list of tuples (commit-hash, tag ref name)
+        # TODO consider replacing this with GitPython
+        data = data.decode('utf-8')
         tags = []
         for match in self.TAG_REGEX.finditer(data):
             tag = match.group('tag').split('/')[-1]
@@ -156,6 +161,8 @@ class Backend(BaseVCS):
               origin/release/2.0.0
               origin/release/2.1.0
         """
+        # TODO consider replacing this with GitPython
+        data = data.decode('utf-8')
         branches = []
         for match in self.BRANCH_REGEX.finditer(data):
             branch = match.group('branch')
