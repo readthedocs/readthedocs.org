@@ -100,7 +100,7 @@ class BaseMkdocs(BaseBuilder):
         if 'theme_dir' not in user_config and self.use_theme:
             user_config['theme_dir'] = TEMPLATE_DIR
 
-        yaml.dump(
+        yaml.safe_dump(
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
         )
@@ -187,7 +187,7 @@ class MkdocsJSON(BaseMkdocs):
         )
         if user_config['theme_dir'] == TEMPLATE_DIR:
             del user_config['theme_dir']
-        yaml.dump(
+        yaml.safe_dump(
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
         )
