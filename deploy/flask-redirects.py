@@ -46,7 +46,7 @@ def redirect_front():
         print "Redirecting {host} to {sendfile}".format(host=request.host, sendfile=sendfile)
         return make_response('', 303, {'X-Accel-Redirect': sendfile})
     else:
-        url = '/{language}/{version}/'.format(language=language, version=version)
+        url = '/{language}/{version}?{query_string}'.format(language=language, version=version, query_string=request.query_string)
         print "Redirecting {host} to {url}".format(host=request.host, url=url)
         return redirect(url)
 
