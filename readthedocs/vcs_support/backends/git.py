@@ -2,18 +2,16 @@
 
 from __future__ import absolute_import
 
-import re
-import logging
 import csv
+import logging
 import os
+import re
 
-from builtins import bytes, str  # pylint: disable=redefined-builtin
+from builtins import str
+from six import StringIO
+
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-from future import standard_library
-standard_library.install_aliases()
-from io import StringIO  # noqa
 
 
 log = logging.getLogger(__name__)

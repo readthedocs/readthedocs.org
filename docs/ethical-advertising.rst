@@ -145,6 +145,16 @@ Fill out your information and we'll get in touch.
         <input type="text" name="_gotcha" style="display:none" />
     </form>
 
+
+
+Community Ads
+-------------
+
+There are a large number of projects that we care about in the software ecosystem. A large number of them operate like we have for the past 6 years, with almost no income. Our new Community Ads program will highlight some of these projects each month.
+
+We'll show 10% of our ad inventory each month to support an open source project that we care about.
+`Send us an email <mailto:rev@readthedocs.org>`_ to be considered for our Community Ads program.
+
 .. _opt-out:
 
 Opting Out
