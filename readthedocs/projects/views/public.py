@@ -114,13 +114,15 @@ def project_badge(request, project_slug):
             project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
         url = (
-            'https://img.shields.io/badge/docs-unknown%20version-yellow.svg?style={style}&maxAge={max_age}'
+            'https://img.shields.io/badge/docs-unknown%20version-yellow.svg'
+            '?style={style}&maxAge={max_age}'
             .format(style=style, max_age=max_age))
         return HttpResponseRedirect(url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
         url = (
-            'https://img.shields.io/badge/docs-no%20builds-yellow.svg?style={style}&maxAge={max_age}'
+            'https://img.shields.io/badge/docs-no%20builds-yellow.svg'
+            '?style={style}&maxAge={max_age}'
             .format(style=style, max_age=max_age))
         return HttpResponseRedirect(url)
     last_build = version_builds[0]
@@ -128,9 +130,11 @@ def project_badge(request, project_slug):
         color = 'brightgreen'
     else:
         color = 'red'
-    url = ('https://img.shields.io/badge/docs-{version}-{color}.svg?style={style}&maxAge={max_age}'
-           .format(version=version.slug.replace('-', '--'), color=color,
-                   style=style, max_age=max_age))
+    url = (
+        'https://img.shields.io/badge/docs-{version}-{color}.svg'
+        '?style={style}&maxAge={max_age}'
+        .format(version=version.slug.replace('-', '--'), color=color,
+                style=style, max_age=max_age))
     return HttpResponseRedirect(url)
 
 
