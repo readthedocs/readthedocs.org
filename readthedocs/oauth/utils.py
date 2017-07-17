@@ -55,7 +55,7 @@ def attach_webhook(project, request=None):
             request,
             _('No accounts available to set webhook on. '
                 'Please connect your {network} account.'.format(
-                    network=service.adapter().get_provider().name
+                    network=service.adapter(request).get_provider().name
                 ))
         )
     return False
