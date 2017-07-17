@@ -90,8 +90,3 @@ This means that redirects will only happen in the case of a *404 File Not Found*
 
 In the future we might implement redirect logic in Javascript,
 but this first version is only implemented in the 404 handlers.
-
-
-Feature Requests
-
-
