@@ -918,20 +918,32 @@ def clear_artifacts(version_pk):
     clear_html_artifacts(version)
 
 
+@task()
 def clear_pdf_artifacts(version):
+    if isinstance(version, int):
+        version = Version.objects.get(pk=version)
     remove_dir(version.project.get_production_media_path(
         type_='pdf', version_slug=version.slug))
 
 
+@task()
 def clear_epub_artifacts(version):
+    if isinstance(version, int):
+        version = Version.objects.get(pk=version)
     remove_dir(version.project.get_production_media_path(
         type_='epub', version_slug=version.slug))
 
 
+@task()
 def clear_htmlzip_artifacts(version):
+    if isinstance(version, int):
+        version = Version.objects.get(pk=version)
     remove_dir(version.project.get_production_media_path(
         type_='htmlzip', version_slug=version.slug))
 
 
+@task()
 def clear_html_artifacts(version):
+    if isinstance(version, int):
+        version = Version.objects.get(pk=version)
     remove_dir(version.project.rtd_build_path(version=version.slug))

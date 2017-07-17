@@ -13,14 +13,11 @@ from django.utils import six
 from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
+from future.backports.urllib.parse import urlparse
 
+from ..tasks import send_email_task
 from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from ..tasks import send_email_task
-
-from future import standard_library  # pylint: disable=wrong-import-order
-standard_library.install_aliases()
-from urllib.parse import urlparse  # noqa
 
 
 log = logging.getLogger(__name__)
