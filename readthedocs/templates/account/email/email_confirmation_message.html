@@ -3,10 +3,8 @@
 {% load i18n %}
 
 {% block content %}
-  {% blocktrans %}
     <p>
-      To complete setting up your account, please verify this email address by
-      going to:
+      {% trans "To verify your email address and finish setting up your account, please go to:" %}
     </p>
 
     <p>
@@ -14,8 +12,7 @@
     </p>
 
     <p>
-      If you did not sign up for an account with Read the Docs, you can
-      disregard this email.
+      {% trans "If you did not sign up for an account with Read the Docs, you can disregard this email." %}
     </p>
-  {% endblocktrans %}
 {% endblock %}
+
