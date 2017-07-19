@@ -32,7 +32,9 @@
         {% blocktrans %}
           This repository doesn't have a valid webhook set up,
           commits won't trigger new builds for this project.
+        {% endblocktrans %}
           <br>
+        {% blocktrans %}
           See <a href='{{ integrations_url }}'>your project integrations</a> for more information.
         {% endblocktrans %}
       </p>
@@ -40,11 +42,11 @@
 
     {% if project.skip %}
       <p class="build-failure">
-            {% blocktrans %}
+          {% blocktrans %}
             Your project is currently disabled for abuse of the system.
             Please make sure it isn't using unreasonable amounts of resources or triggering lots of builds in a short amount of time.
             Please <a href="https://github.com/rtfd/readthedocs.org/issues">file a ticket</a> to get your project re-enabled.
-            {% endblocktrans %}
+          {% endblocktrans %}
       </p>
       <br>
     {% endif %}

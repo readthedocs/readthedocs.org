@@ -26,7 +26,11 @@ $(document).ready(function () {
 
   <h3> {% trans "Existing Projects" %} </h3>
   <p>
-    You can adopt {{ gold_user.num_supported_projects }} projects with your subscription.
+    {% blocktrans count projects=gold_user.num_supported_projects %}
+      You can adopt one project with your subscription.
+    {% plural %}
+      You can adopt {{ projects }} projects with your subscription.
+    {% endblocktrans %}
   </p>
 
     <ul>
