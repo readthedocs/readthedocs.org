@@ -125,7 +125,7 @@ class Virtualenv(PythonEnvironment):
             'recommonmark==0.4.0',
         ]
 
-        if self.project.document_type == 'mkdocs':
+        if self.project.documentation_type == 'mkdocs':
             requirements.append('mkdocs==0.15.0')
         else:
             requirements.extend(['sphinx==1.5.3', 'sphinx-rtd-theme<0.3',
