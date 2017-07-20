@@ -226,7 +226,7 @@ class Conda(PythonEnvironment):
             pip_requirements.append('mkdocs')
         else:
             pip_requirements.append('readthedocs-sphinx-ext')
-            requirements.extend(['sphinx', 'sphinx-rtd-theme'])
+            requirements.extend(['sphinx', 'sphinx_rtd_theme'])
 
         cmd = [
             'conda',
