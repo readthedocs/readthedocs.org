@@ -8,6 +8,10 @@ Have a local settings file
 --------------------------
 
 If you put a file named ``local_settings.py`` in the ``readthedocs/settings`` directory, it will override settings available in the base install.
+To enable options specific for custom installations, add a line::
+
+    IS_CUSTOM_INSTALL = True
+
 
 Adding your own title to pages
 ------------------------------
