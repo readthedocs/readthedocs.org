@@ -10,6 +10,7 @@ import logging
 from httplib2 import Http
 
 import redis
+import six
 from django.conf import settings
 from django.core.cache import cache
 
@@ -69,12 +70,17 @@ def run(*commands, **kwargs):
     shell = kwargs.get('shell', False)
 
     for command in commands:
-        if shell:
-            log.info("Running commands in a shell")
-            run_command = command
-        else:
+        # If command is a string, split it up by spaces to pass into Popen.
+        # Otherwise treat the command as an iterable.
+        if isinstance(command, six.string_types):
             run_command = command.split()
-        log.info("Running: '%s' [%s]", command, cwd)
+        else:
+            try:
+                run_command = list(command)
+                command = ' '.join(command)
+            except TypeError:
+                run_command = command
+        log.info('Running command: cwd=%s command=%s', cwd, command)
         try:
             p = subprocess.Popen(run_command, shell=shell, cwd=cwd,
                                  stdout=subprocess.PIPE,
