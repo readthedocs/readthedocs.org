@@ -83,7 +83,7 @@ def run(*commands):
                 command = ' '.join(command)
             except TypeError:
                 run_command = command
-        log.info('Running command: cwd=%s command=%s', cwd, command, shell)
+        log.info('Running command: cwd=%s command=%s', cwd, command)
         try:
             p = subprocess.Popen(
                 run_command,
