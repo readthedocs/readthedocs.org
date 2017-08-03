@@ -10,9 +10,9 @@ def i18n():
     with lcd('readthedocs'):
         local('rm -rf rtd_tests/tests/builds/')
         local('tx pull')
-        local('./manage.py makemessages --all')
-        #local('tx push -s')
-        local('./manage.py compilemessages')
+        local('django-admin makemessages --all')
+        local('tx push -s')
+        local('django-admin compilemessages')
 
 
 def i18n_docs():

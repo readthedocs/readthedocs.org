@@ -115,19 +115,21 @@ class Virtualenv(PythonEnvironment):
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
-            'sphinx==1.5.3',
             'Pygments==2.2.0',
             'setuptools==28.8.0',
             'docutils==0.13.1',
-            'mkdocs==0.15.0',
             'mock==1.0.1',
             'pillow==2.6.1',
-            'readthedocs-sphinx-ext<0.6',
-            'sphinx-rtd-theme<0.3',
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
         ]
+
+        if self.project.documentation_type == 'mkdocs':
+            requirements.append('mkdocs==0.15.0')
+        else:
+            requirements.extend(['sphinx==1.5.3', 'sphinx-rtd-theme<0.3',
+                                 'readthedocs-sphinx-ext<0.6'])
 
         cmd = [
             'python',
@@ -211,11 +213,20 @@ class Conda(PythonEnvironment):
         """Install basic Read the Docs requirements into the Conda env."""
         # Use conda for requirements it packages
         requirements = [
-            'sphinx',
             'mock',
             'pillow',
-            'sphinx_rtd_theme',
         ]
+
+        # Install pip-only things.
+        pip_requirements = [
+            'recommonmark',
+        ]
+
+        if self.project.documentation_type == 'mkdocs':
+            pip_requirements.append('mkdocs')
+        else:
+            pip_requirements.append('readthedocs-sphinx-ext')
+            requirements.extend(['sphinx', 'sphinx_rtd_theme'])
 
         cmd = [
             'conda',
@@ -228,13 +239,6 @@ class Conda(PythonEnvironment):
         self.build_env.run(
             *cmd
         )
-
-        # Install pip-only things.
-        pip_requirements = [
-            'mkdocs',
-            'readthedocs-sphinx-ext',
-            'recommonmark',
-        ]
 
         pip_cmd = [
             'python',

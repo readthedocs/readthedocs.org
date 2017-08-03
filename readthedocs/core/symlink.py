@@ -157,11 +157,11 @@ class Symlink(object):
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
-            run('ln -nsf {0} {1}'.format(self.project_root, symlink))
+            run(['ln', '-nsf', self.project_root, symlink])
 
             # Project symlink
             project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom.domain)
-            run('ln -nsf %s %s' % (self.project.doc_path, project_cname_symlink))
+            run(['ln', '-nsf', self.project.doc_path, project_cname_symlink])
 
     def remove_symlink_cname(self, domain):
         """Remove CNAME symlink"""
@@ -198,7 +198,13 @@ class Symlink(object):
                 symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
                 if not os.path.lexists(symlink_dir):
                     safe_makedirs(symlink_dir)
-                run('ln -nsf %s %s' % (docs_dir, symlink))
+                # TODO this should use os.symlink, not a call to shell. For now,
+                # this passes command as a list to be explicit about escaping
+                # characters like spaces.
+                status, _, stderr = run(['ln', '-nsf', docs_dir, symlink])
+                if status > 0:
+                    log.error('Could not symlink path: status=%d error=%s',
+                              status, stderr)
 
         # Remove old symlinks
         if os.path.exists(self.subproject_root):
@@ -228,7 +234,7 @@ class Symlink(object):
             self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
-            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run(['ln', '-nsf', docs_dir, symlink])
 
         # Remove old symlinks
         for lang in os.listdir(self.project_root):
@@ -259,7 +265,7 @@ class Symlink(object):
         if version is not None:
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
                                     'rtd-builds', version.slug)
-            run('ln -nsf %s/ %s' % (docs_dir, symlink))
+            run(['ln', '-nsf', docs_dir, symlink])
 
     def symlink_versions(self):
         """Symlink project's versions
@@ -279,7 +285,7 @@ class Symlink(object):
             self._log(u"Symlinking Version: %s" % version)
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
-            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run(['ln', '-nsf', docs_dir, symlink])
             versions.add(version.slug)
 
         # Remove old symlinks

@@ -18,8 +18,10 @@
     {% with extra_recipients=recipients|slice:"20:" %}
       {% if extra_recipients|length > 0 %}
         <li>
-          {% blocktrans with count=extra_recipients|length %}
-            And {{ count }} other recipients...
+          {% blocktrans count counter=extra_recipients|length %}
+            And 1 other recipient.
+          {% plural %}
+            And {{ counter }} other recipients...
           {% endblocktrans %}
         </li>
       {% endif %}
