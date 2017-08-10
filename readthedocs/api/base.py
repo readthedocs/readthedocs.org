@@ -157,7 +157,7 @@ class VersionResource(ModelResource):
                 % self._meta.resource_name,
                 self.wrap_view('dispatch_list'),
                 name="api_version_list"),
-            url((r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P"
+            url((r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+[a-z0-9-_]+)/(?P"
                  r"<version_slug>[a-z0-9-_.]+)/build/$")
                 % self._meta.resource_name,
                 self.wrap_view('build_version'),
