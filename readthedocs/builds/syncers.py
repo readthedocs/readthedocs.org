@@ -103,7 +103,7 @@ class DoubleRemotePuller(object):
                     log.info(mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = (
-                "ssh {user}@{server} 'rsync -av --delete {user}@{host}:{path} {target}'"
+                "ssh {user}@{server} 'rsync -av --delete --exclude projects {user}@{host}:{path} {target}'"
                 .format(
                     host=host,
                     path=path,
