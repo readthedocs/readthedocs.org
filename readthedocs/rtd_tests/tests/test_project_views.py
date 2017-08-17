@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib.messages import constants as message_const
+from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get
@@ -12,12 +14,11 @@ from django_dynamic_fixture import new
 
 import six
 
-from readthedocs.core.models import UserProfile
+from readthedocs.builds.models import Build, Version
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
                                         RequestFactoryTestMixin)
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.forms import ProjectBasicsForm
 from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.mixins import ProjectRelationMixin
@@ -418,3 +419,30 @@ class TestPrivateMixins(MockBuildTestCase):
         self.assertEqual(view.get_project(), self.project)
         self.assertEqual(view.get_queryset().first(), self.domain)
         self.assertEqual(view.get_context_data()['project'], self.project)
+
+
+class TestBadges(TestCase):
+    """Test a static badge asset is served for each build."""
+
+    def setUp(self):
+        self.BADGE_PATH = 'projects/badges/%s.svg'
+        self.project = get(Project, slug='badgey')
+        self.version = Version.objects.get(project=self.project)
+        self.badge_url = reverse('project_badge', args=[self.project.slug])
+
+    def test_unknown_badge(self):
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        static_badge = static(self.BADGE_PATH % 'unknown')
+        self.assertEquals(res.url, static_badge)
+
+    def test_passing_badge(self):
+        get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        static_badge = static(self.BADGE_PATH % 'passing')
+        self.assertEquals(res.url, static_badge)
+
+    def test_failing_badge(self):
+        get(Build, project=self.project, version=self.version, success=False)
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        static_badge = static(self.BADGE_PATH % 'failing')
+        self.assertEquals(res.url, static_badge)
