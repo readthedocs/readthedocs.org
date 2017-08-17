@@ -18,7 +18,6 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast, slugify
-# transitioning from v1 to v2, rename for now, remove later
 from readthedocs.restapi.client import api
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.projects import constants
