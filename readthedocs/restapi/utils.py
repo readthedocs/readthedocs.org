@@ -115,9 +115,8 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
     routes.extend([p.parent.slug for p in project.superprojects.all()])
     for page in page_list:
         log.debug("Indexing page: %s:%s", project.slug, page['path'])
-        page_id = (hashlib
-                   .md5('-'.join([project.slug, version.slug, page['path']]))
-                   .hexdigest())
+        to_hash = '-'.join([project.slug, version.slug, page['path']])
+        page_id = hashlib.md5(to_hash.encode('utf-8')).hexdigest()
         index_list.append({
             'id': page_id,
             'project': project.slug,
@@ -132,11 +131,10 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
         })
         if section:
             for sect in page['sections']:
+                id_to_hash = '-'.join([project.slug, version.slug,
+                                       page['path'], sect['id']])
                 section_index_list.append({
-                    'id': (hashlib
-                           .md5('-'.join([project.slug, version.slug,
-                                         page['path'], sect['id']]))
-                           .hexdigest()),
+                    'id': (hashlib.md5(id_to_hash.encode('utf-8')).hexdigest()),
                     'project': project.slug,
                     'version': version.slug,
                     'path': page['path'],
