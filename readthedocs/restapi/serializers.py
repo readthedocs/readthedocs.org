@@ -24,6 +24,24 @@ class ProjectSerializer(serializers.ModelSerializer):
             'users',
             'canonical_url',
         )
+        # Fields needed for properly passing data to the builds
+        build_extra = (
+            'enable_epub_build',
+            'enable_pdf_build',
+            'conf_py_file',
+            'analytics_code',
+            'cdn_enabled',
+            'container_image',
+            'container_mem_limit',
+            'container_time_limit',
+            'install_project',
+            'use_system_packages',
+            'suffix',
+            'skip',
+            'requirements_file',
+            'python_interpreter',
+        )
+        fields += build_extra
 
 
 class VersionSerializer(serializers.ModelSerializer):
