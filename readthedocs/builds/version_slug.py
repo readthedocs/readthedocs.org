@@ -29,6 +29,13 @@ from builtins import range
 
 
 def get_fields_with_model(cls):
+    """
+    As of Django 1.10 Model._meta.get_fields_with_model() is deprecated.
+    It was used in VersionSlugField.get_queryset(), but is now replaced
+    with local function get_fields_with_model() as prescribed by the Django
+    docs.
+    https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
+    """
     return [
         (f, f.model if f.model != cls else None)
         for f in cls._meta.get_fields()
