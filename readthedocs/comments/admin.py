@@ -13,7 +13,7 @@ class DocumentNodeAdmin(admin.ModelAdmin):
     search_fields = ('id', 'document')
     list_filter = ('project__name',)
     raw_id_fields = ('project', 'version')
-    list_display = ('__unicode__', 'latest_hash', 'latest_commit')
+    list_display = ('__str__', 'latest_hash', 'latest_commit')
     inlines = (SnapshotAdmin,)
 
 
