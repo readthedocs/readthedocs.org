@@ -31,9 +31,7 @@ from readthedocs.projects.querysets import (
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.utils import make_api_version
 from readthedocs.projects.version_handling import determine_stable_version, version_windows
-# transitioning from v1 to v2, rename for now, remove later
 from readthedocs.restapi.client import api
-from readthedocs.restapi.client import api as apiv2
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -358,7 +356,7 @@ class Project(models.Model):
 
     def get_canonical_url(self):
         if getattr(settings, 'DONT_HIT_DB', True):
-            return apiv2.project(self.pk).canonical_url().get()['url']
+            return api.project(self.pk).canonical_url().get()['url']
         return self.get_docs_url()
 
     def get_subproject_urls(self):
@@ -369,7 +367,7 @@ class Project(models.Model):
         if getattr(settings, 'DONT_HIT_DB', True):
             return [(proj['slug'], proj['canonical_url'])
                     for proj in (
-                        apiv2.project(self.pk)
+                        api.project(self.pk)
                         .subprojects()
                         .get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
