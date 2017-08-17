@@ -26,9 +26,8 @@ lxml==3.3.5
 defusedxml==0.5.0
 
 # Basic tools
-redis==2.10.3
-celery==3.1.23
-django-celery==3.2.1
+redis==2.10.6
+celery==4.1.0
 django-allauth==0.32.0
 dnspython==1.15.0
 
