@@ -157,10 +157,6 @@ class BuildEnvironmentTests(TestCase):
 
     def test_build_pdf_latex_failures(self):
         '''Build failure if latex fails'''
-        if six.PY3:
-            import pytest
-            pytest.xfail(
-                "test_build_pdf_latex_failures is known to fail on 3.6")
 
         self.mocks.patches['html_build'].stop()
         self.mocks.patches['pdf_build'].stop()
@@ -183,11 +179,11 @@ class BuildEnvironmentTests(TestCase):
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
-            (('', ''), 0),  # sphinx-build html
-            (('', ''), 0),  # sphinx-build pdf
-            (('', ''), 1),  # latex
-            (('', ''), 0),  # makeindex
-            (('', ''), 0),  # latex
+            ((b'', b''), 0),  # sphinx-build html
+            ((b'', b''), 0),  # sphinx-build pdf
+            ((b'', b''), 1),  # latex
+            ((b'', b''), 0),  # makeindex
+            ((b'', b''), 0),  # latex
         ]
         mock_obj = mock.Mock()
         mock_obj.communicate.side_effect = [output for (output, status)
@@ -203,10 +199,6 @@ class BuildEnvironmentTests(TestCase):
 
     def test_build_pdf_latex_not_failure(self):
         '''Test pass during PDF builds and bad latex failure status code'''
-        if six.PY3:
-            import pytest
-            pytest.xfail(
-                "test_build_pdf_latex_not_failure is known to fail on 3.6")
 
         self.mocks.patches['html_build'].stop()
         self.mocks.patches['pdf_build'].stop()
@@ -229,11 +221,11 @@ class BuildEnvironmentTests(TestCase):
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
-            (('', ''), 0),  # sphinx-build html
-            (('', ''), 0),  # sphinx-build pdf
-            (('Output written on foo.pdf', ''), 1),  # latex
-            (('', ''), 0),  # makeindex
-            (('', ''), 0),  # latex
+            ((b'', b''), 0),  # sphinx-build html
+            ((b'', b''), 0),  # sphinx-build pdf
+            ((b'Output written on foo.pdf', b''), 1),  # latex
+            ((b'', b''), 0),  # makeindex
+            ((b'', b''), 0),  # latex
         ]
         mock_obj = mock.Mock()
         mock_obj.communicate.side_effect = [output for (output, status)
