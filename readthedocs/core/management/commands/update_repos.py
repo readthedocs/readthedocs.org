@@ -54,9 +54,11 @@ class Command(BaseCommand):
                     for version in Version.objects.filter(project__slug=slug,
                                                           active=True,
                                                           uploaded=False):
-                        tasks.update_docs.run(pk=version.project_id,
-                                              record=False,
-                                              version_pk=version.pk)
+                        tasks.UpdateDocsTask().run(
+                            pk=version.project_id,
+                            record=False,
+                            version_pk=version.pk
+                        )
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info("Building %s", p)
@@ -66,12 +68,17 @@ class Command(BaseCommand):
                 log.info("Updating all versions")
                 for version in Version.objects.filter(active=True,
                                                       uploaded=False):
-                    tasks.update_docs.run(pk=version.project_id,
-                                          record=record,
-                                          force=force,
-                                          version_pk=version.pk)
+                    tasks.UpdateDocsTask().run(
+                        pk=version.project_id,
+                        record=record,
+                        force=force,
+                        version_pk=version.pk
+                    )
             else:
                 log.info("Updating all docs")
                 for project in Project.objects.all():
-                    tasks.update_docs.run(pk=project.pk, record=record,
-                                          force=force)
+                    tasks.UpdateDocsTask().run(
+                        pk=project.pk,
+                        record=record,
+                        force=force
+                    )
