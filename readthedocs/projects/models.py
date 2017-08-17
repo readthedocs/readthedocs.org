@@ -17,8 +17,9 @@ from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.api.client import api
 from readthedocs.core.utils import broadcast, slugify
+# transitioning from v1 to v2, rename for now, remove later
+from readthedocs.restapi.client import api
 from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.projects import constants
@@ -642,8 +643,7 @@ class Project(models.Model):
 
     def api_versions(self):
         ret = []
-        for version_data in api.version.get(project=self.pk,
-                                            active=True)['objects']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:
             version = make_api_version(version_data)
             ret.append(version)
         return sort_version_aware(ret)
