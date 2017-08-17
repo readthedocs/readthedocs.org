@@ -27,7 +27,7 @@ lxml==3.3.5
 django-countries==3.4.1
 
 # Basic tools
-redis==2.10.3
+redis==2.10.6
 celery==4.1.0
 django-allauth==0.32.0
 dnspython==1.15.0

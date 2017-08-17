@@ -12,7 +12,7 @@ def create_application():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'readthedocs.settings.dev')
     app = Celery('readthedocs')
     app.config_from_object('django.conf:settings')
-    app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+    app.autodiscover_tasks()
     return app
 
 
