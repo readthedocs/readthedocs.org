@@ -77,12 +77,12 @@ class DocumentNode(models.Model):
 
     raw_source = models.TextField(_('Raw Source'))
 
-    def __str__(self):
+    def __unicode__(self):
         return "node %s on %s for %s" % (self.id, self.page, self.project)
 
     def latest_hash(self):
         return self.snapshots.latest().hash
-
+        
     def latest_commit(self):
         return self.snapshots.latest().commit
 
