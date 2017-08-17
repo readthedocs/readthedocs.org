@@ -80,6 +80,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
             'subprojects': ProjectSerializer(children, many=True).data
         })
 
+    @detail_route()
+    def active_versions(self, request, **kwargs):
+        project = get_object_or_404(
+            Project.objects.api(request.user), pk=kwargs['pk'])
+        versions = project.versions.filter(active=True)
+        return Response({
+            'versions': VersionSerializer(versions, many=True).data
+        })
+
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
         project = get_object_or_404(
