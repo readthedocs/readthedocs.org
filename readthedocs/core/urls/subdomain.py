@@ -10,14 +10,16 @@ from django.conf.urls.static import static
 
 from readthedocs.core.views.serve import (
     redirect_page_with_filename,
-    redirect_project_slug,
-    serve_docs
+    redirect_project_slug, serve_docs
 )
-
+from readthedocs.core.views import (
+    server_error_500,
+    server_error_404,
+)
 from readthedocs.constants import pattern_opts
 
-handler500 = 'readthedocs.core.views.server_error'
-handler404 = 'readthedocs.core.views.server_error_404'
+handler500 = server_error_500
+handler404 = server_error_404
 
 subdomain_urls = [
     url(r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
@@ -33,8 +35,8 @@ subdomain_urls = [
          r'(?P<lang_slug>{lang_slug})/'
          r'(?P<version_slug>{version_slug})/'
          r'(?P<filename>{filename_slug})$'.format(**pattern_opts)),
-         serve_docs,
-         name='docs_detail'),
+        serve_docs,
+        name='docs_detail'),
 ]
 
 groups = [subdomain_urls]
