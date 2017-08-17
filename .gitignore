@@ -8,6 +8,7 @@
 .coverage
 .idea
 .vagrant
+.vscode
 .tox
 .env
 .rope_project/
