@@ -455,7 +455,7 @@ class UpdateDocsTask(Task):
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
 
 
-from readthedocs.celery import app
+from readthedocs.celery_conf import app
 app.register_task(UpdateDocsTask())
 
 
@@ -552,30 +552,40 @@ def finish_build(version_pk, build_pk, hostname=None, html=False,
         version.built = True
         version.save()
 
-    if not pdf:
-        broadcast(type='app', task=clear_pdf_artifacts, args=[version.pk])
-    if not epub:
-        broadcast(type='app', task=clear_epub_artifacts, args=[version.pk])
-
-    # Sync files to the web servers
-    broadcast(type='app', task=move_files, args=[version_pk, hostname],
-              kwargs=dict(
+    broadcast(type='app', task=ordered_finish_build_steps, args=[version_pk, version.project.pk], kwargs=dict(
+                  hostname=hostname,
                   html=html,
                   localmedia=localmedia,
                   search=search,
                   pdf=pdf,
                   epub=epub,
+                  build_commit=build.commit
     ))
 
+
+@shared_task(type="web")
+def ordered_finish_build_steps(version_pk, version_project_pk, hostname=None, html=False,
+                 localmedia=False, search=False, pdf=False, epub=False, build_commit=None):
+    if not pdf:
+        clear_pdf_artifacts(version_pk)
+    if not epub:
+        clear_epub_artifacts(version_pk)
+
+    # Sync files to the web servers
+    move_files(version_pk, hostname, html=html, localmedia=localmedia, search=search, pdf=pdf, epub=epub,)
+
     # Symlink project on every web
-    broadcast(type='app', task=symlink_project, args=[version.project.pk])
+    symlink_project()
+    symlink_project(version_project_pk)
 
     # Update metadata
-    broadcast(type='app', task=update_static_metadata, args=[version.project.pk])
+    update_static_metadata(version_project_pk)
 
     # Delayed tasks
-    fileify.delay(version.pk, commit=build.commit)
-    update_search.delay(version.pk, commit=build.commit)
+    fileify(version_pk, commit=build_commit)
+    update_search(version_pk, commit=build_commit)
+
+
 
 
 @shared_task(queue='web')

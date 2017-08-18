@@ -19,7 +19,7 @@ def get_task_data(task_id):
 
     meta data has no ``'task_name'`` key set.
     """
-    from readthedocs.celery import app
+    from readthedocs.celery_conf import app
 
     result = AsyncResult(task_id)
     state, info = result.state, result.info
