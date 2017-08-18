@@ -455,7 +455,7 @@ class UpdateDocsTask(Task):
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
 
 
-from readthedocs.celery import app
+from readthedocs.celery_conf import app
 app.register_task(UpdateDocsTask())
 
 
