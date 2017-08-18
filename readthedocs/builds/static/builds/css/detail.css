@@ -107,15 +107,8 @@ div.build-command div.build-command-output {
     margin-top: .5em;
 }
 
-div.build-command:not(*:root) div.build-command-run > span,
-div.build-command:not(*:root) div.build-command-output > span {
-    /* workaround for extraneous padding on Chrome. See #2251 */
-    margin-bottom: -16px;
-}
-
 div.build-command div.build-command-run > span,
 div.build-command div.build-command-output > span {
-    display: block;
     font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
     white-space: pre;
     overflow-x: scroll;
