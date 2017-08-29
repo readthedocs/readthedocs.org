@@ -108,7 +108,7 @@ class ProjectBasicsForm(ProjectForm):
 
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
-        if '1-8' in name or '18' in name:
+        if '1' in name and '8' in name:
             raise forms.ValidationError(
                 _('Invalid project name. Spam detected. Please email dev@readthedocs.org if this is an error.'))
         if not self.instance.pk:
