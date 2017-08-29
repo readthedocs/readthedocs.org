@@ -71,7 +71,10 @@ class BaseCLI(object):
         except UnicodeDecodeError:
             # >:x
             pass
-        return (process.returncode, stdout, stderr)
+        return (
+            process.returncode,
+            stdout.decode('utf-8'),
+            stderr.decode('utf-8'))
 
     @property
     def env(self):

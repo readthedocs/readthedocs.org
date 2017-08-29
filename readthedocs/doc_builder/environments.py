@@ -22,7 +22,6 @@ from slumber.exceptions import HttpClientError
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.projects.constants import LOG_TEMPLATE
-from readthedocs.api.client import api as api_v1
 from readthedocs.restapi.client import api as api_v2
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
@@ -37,7 +36,7 @@ log = logging.getLogger(__name__)
 
 
 __all__ = (
-    'api_v1', 'api_v2',
+    'api_v2',
     'BuildCommand', 'DockerBuildCommand',
     'BuildEnvironment', 'LocalEnvironment', 'DockerEnvironment',
 )
