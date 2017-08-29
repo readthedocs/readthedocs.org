@@ -122,4 +122,7 @@ def server_error_404(request, exception, template_name='404.html'):  # pylint: d
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))
     r.status_code = 404
+    if 'gmail' in request.path or '18' in request.path or '1-8' in request.path:
+        r.status_code = 410
+
     return r
