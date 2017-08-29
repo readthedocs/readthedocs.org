@@ -106,23 +106,23 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
 @never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project"""
-    BADGE_PATH = "projects/badges/%s.svg"
+    badge_path = "projects/badges/%s.svg"
     version_slug = request.GET.get('version', LATEST)
     try:
         version = Version.objects.public(request.user).get(
             project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = static(BADGE_PATH % "unknown")
+        url = static(badge_path % "unknown")
         return HttpResponseRedirect(url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = static(BADGE_PATH % "unknown")
+        url = static(badge_path % "unknown")
         return HttpResponseRedirect(url)
     last_build = version_builds[0]
     if last_build.success:
-        url = static(BADGE_PATH % "passing")
+        url = static(badge_path % "passing")
     else:
-        url = static(BADGE_PATH % "failing")
+        url = static(badge_path % "failing")
     return HttpResponseRedirect(url)
 
 
