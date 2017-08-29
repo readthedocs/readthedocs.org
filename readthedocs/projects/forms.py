@@ -17,6 +17,7 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
+from readthedocs.core.validators import validate_spam
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
@@ -78,6 +79,10 @@ class ProjectBasicsForm(ProjectForm):
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
+    name = forms.CharField(
+        validators=[validate_spam],
+        required=True,
+    )
     remote_repository = forms.CharField(
         widget=forms.HiddenInput(),
         required=False,
@@ -108,9 +113,6 @@ class ProjectBasicsForm(ProjectForm):
 
     def clean_name(self):
         name = self.cleaned_data.get('name', '')
-        if '1' in name and '8' in name:
-            raise forms.ValidationError(
-                _('Invalid project name. Spam detected. Please email dev@readthedocs.org if this is an error.'))
         if not self.instance.pk:
             potential_slug = slugify(name)
             if Project.objects.filter(slug=potential_slug).exists():
@@ -169,7 +171,7 @@ class ProjectExtraForm(ProjectForm):
         )
 
     description = forms.CharField(
-        validators=[ClassifierValidator(raises=ProjectSpamError)],
+        validators=[ClassifierValidator(raises=ProjectSpamError), validate_spam],
         required=False,
         widget=forms.Textarea
     )
