@@ -164,7 +164,10 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
 Inside the **Admin > Advertising** section of every project,
 you can see options to control or remove advertising on your project.
 
-These options include:
+Users can opt out by going to ** Drop down next to user in top right > Settings**. 
+On the Details tab, you can unclick **See paid advertising**.
+
+Project opt out options include:
 
 * Supporting us `financially <https://readthedocs.org/accounts/gold/subscription/?>`_ with Read the Docs Gold.
 * Supporting us with `your time <http://docs.readthedocs.org/en/latest/contribute.html?>`_ by contributing to the project.
