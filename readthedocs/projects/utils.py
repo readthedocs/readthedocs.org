@@ -10,6 +10,7 @@ import logging
 from httplib2 import Http
 
 import redis
+import six
 from django.conf import settings
 from django.core.cache import cache
 
@@ -42,8 +43,12 @@ def find_file(filename):
     return matches
 
 
-def run(*commands, **kwargs):
+def run(*commands):
     """Run one or more commands
+
+    Each argument in `commands` can be passed as a string or as a list. Passing
+    as a list is the preferred method, as space escaping is more explicit and it
+    avoids the need for executing anything in a shell.
 
     If more than one command is given, then this is equivalent to
     chaining them together with ``&&``; if all commands succeed, then
@@ -66,19 +71,27 @@ def run(*commands, **kwargs):
     cwd = os.getcwd()
     if not commands:
         raise ValueError("run() requires one or more command-line strings")
-    shell = kwargs.get('shell', False)
 
     for command in commands:
-        if shell:
-            log.info("Running commands in a shell")
-            run_command = command
-        else:
+        # If command is a string, split it up by spaces to pass into Popen.
+        # Otherwise treat the command as an iterable.
+        if isinstance(command, six.string_types):
             run_command = command.split()
-        log.info("Running: '%s' [%s]", command, cwd)
+        else:
+            try:
+                run_command = list(command)
+                command = ' '.join(command)
+            except TypeError:
+                run_command = command
+        log.info('Running command: cwd=%s command=%s', cwd, command)
         try:
-            p = subprocess.Popen(run_command, shell=shell, cwd=cwd,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, env=environment)
+            p = subprocess.Popen(
+                run_command,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment
+            )
 
             out, err = p.communicate()
             ret = p.returncode

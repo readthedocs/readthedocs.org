@@ -48,7 +48,7 @@ or `this template`_ if you need help). Build them to see how they look::
 
     $ make html
 
-.. note:: You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-autobuild . _build_html`` instead.
+.. note:: You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-autobuild . _build/html`` instead.
 
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs.

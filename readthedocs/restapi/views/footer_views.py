@@ -121,8 +121,8 @@ def footer_html(request):
         'theme': theme,
     }
 
-    request_context = RequestContext(request, context)
-    html = template_loader.get_template('restapi/footer.html').render(request_context)
+    html = template_loader.get_template('restapi/footer.html').render(context,
+                                                                      request)
     resp_data = {
         'html': html,
         'version_active': version.active,
