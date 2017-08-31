@@ -136,7 +136,7 @@ class Virtualenv(PythonEnvironment):
             self.venv_bin(filename='pip'),
             'install',
             '--use-wheel',
-            '-U',
+            '--upgrade',
             '--cache-dir',
             self.project.pip_cache_path,
         ]
