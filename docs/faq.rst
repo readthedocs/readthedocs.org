@@ -54,13 +54,13 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
     import sys
     from unittest.mock import MagicMock
 
-    class Mock(MagicMock):
+    class MockedModule(MagicMock):
         @classmethod
         def __getattr__(cls, name):
                 return MagicMock()
 
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+    sys.modules.update((mod_name, MockedModule()) for mod_name in MOCK_MODULES)
 
 Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
 
@@ -70,6 +70,37 @@ Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
         from mock import Mock as MagicMock
 
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
+
+If you in adition want to mock all submodules of the modules in MOCK_MODULES as well as be able to import the objects in STAR_METHODS as::
+
+    from module import *
+
+then use this longer code snippet:
+
+    MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
+    STAR_METHODS = ['function1', 'function2', 'class1', 'list3']
+    
+    class MockedModule(MagicMock):
+        __all__ = STAR_METHODS
+        @classmethod
+        def __getattr__(cls, name):
+            return MagicMock()
+    
+    mocked_module = MockedModule()
+    
+    class MockImporter(object):
+        def __init__(self, mocked_modules = []):
+            self.mocked_modules = mocked_modules
+    
+        def find_module(self, name, path=None):
+            if any(name == m or name.startswith(m+'.') for m in self.mocked_modules):
+                return self
+            return None
+    
+        def load_module(self, name):
+            return mocked_module
+
+    sys.meta_path=[MockImporter(MOCK_MODULES)]
 
 `Client Error 401` when building documentation
 ----------------------------------------------
