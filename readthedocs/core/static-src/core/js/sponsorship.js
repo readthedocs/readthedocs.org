@@ -45,11 +45,8 @@ Promo.prototype.create = function () {
 
         // On Click handler
         function promo_click() {
-            if (_gaq) {
-                _gaq.push(
-                    ['rtfd._setAccount', 'UA-17997319-1'],
-                    ['rtfd._trackEvent', 'Promo', 'Click', self.id]
-                );
+            if (ga) {
+                ga('rtfd.send', 'event', 'Promo', 'Click', self.id);
             }
         }
 
