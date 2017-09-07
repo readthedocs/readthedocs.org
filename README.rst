@@ -31,7 +31,7 @@ the Docs site`_.
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html#contributing-to-development>`_
+You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html>`_
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
