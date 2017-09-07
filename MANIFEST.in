@@ -2,7 +2,7 @@ include AUTHORS.rst
 include CONTRIBUTING.rst
 include README.rst
 include CHANGES
-include LICENSE.mit
+include LICENSE
 include MANIFEST.in
 include requirements.txt
 recursive-include requirements *.txt
