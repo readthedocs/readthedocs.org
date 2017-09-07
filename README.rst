@@ -69,3 +69,7 @@ when you push to GitHub.
     :scale: 100%
     :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
+License
+-------
+
+[MIT](LICENSE) © 2010-2017 Read the Docs, Inc & contributors
