@@ -47,8 +47,8 @@ class PythonEnvironment(object):
             shutil.rmtree(build_dir)
 
     def install_package(self):
-        setup_path = os.path.join(self.checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.config.install_project:
+        if self.config.install_project:
+            setup_path = os.path.join(self.checkout_path, 'setup.py')
             if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
                 extra_req_param = ''
                 if self.config.extra_requirements:
@@ -65,7 +65,7 @@ class PythonEnvironment(object):
                     cwd=self.checkout_path,
                     bin_path=self.venv_bin()
                 )
-            else:
+            elif os.path.isfile(setup_path):
                 self.build_env.run(
                     'python',
                     'setup.py',
