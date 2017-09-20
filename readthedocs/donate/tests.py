@@ -31,7 +31,6 @@ class PromoTests(TestCase):
     def test_clicks(self):
         hash_key = 'random_hash'
         cache.set(self.promo.cache_key(type=CLICKS, hash=hash_key), 0)
-        self.assertEqual(cache.get(self.promo.cache_key(type=CLICKS, hash=hash_key)), 0)
         resp = self.client.get(
             'http://testserver/sustainability/click/%s/%s/' % (self.promo.id, hash_key))
         self.assertEqual(resp._headers['location'][1], 'http://example.com')
