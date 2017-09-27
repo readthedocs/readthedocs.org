@@ -11,6 +11,7 @@ from glob import glob
 import logging
 import zipfile
 
+import six
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -24,7 +25,7 @@ from ..base import BaseBuilder, restoring_chdir
 from ..exceptions import BuildEnvironmentError
 from ..environments import DockerBuildCommand, BuildCommand
 from ..constants import SPHINX_TEMPLATE_DIR, SPHINX_STATIC_DIR, PDF_RE
-import six
+from ..signals import finalize_sphinx_context_data
 
 log = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ class BaseSphinx(BaseBuilder):
             versions = self.project.api_versions()
             downloads = api.version(self.version.pk).get()['downloads']
 
-        return {
+        data = {
             'current_version': self.version.verbose_name,
             'project': self.project,
             'settings': settings,
@@ -107,6 +108,14 @@ class BaseSphinx(BaseBuilder):
             'bitbucket_version_is_editable': bitbucket_version_is_editable,
             'display_bitbucket': display_bitbucket,
         }
+
+        finalize_sphinx_context_data.send(
+            sender=self.__class__,
+            build_env=self.build_env,
+            data=data,
+        )
+
+        return data
 
     def append_conf(self, **__):
         """Modify given ``conf.py`` file from a whitelisted user's project."""
