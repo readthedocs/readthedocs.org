@@ -86,7 +86,7 @@ groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
     groups.append([
-        url(r'^sustainability/', include('readthedocs.donate.urls')),
+        url(r'^sustainability/', include('readthedocsext.donate.urls')),
         url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     ])
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
