@@ -8,6 +8,12 @@ import djcelery
 
 from readthedocs.core.settings import Settings
 
+try:
+    import readthedocsext.donate  # noqa
+    donate = True
+except ImportError:
+    donate = False
+
 
 djcelery.setup_loader()
 
@@ -99,10 +105,10 @@ class CommunityBaseSettings(Settings):
             'readthedocs.rtd_tests',
             'readthedocs.restapi',
             'readthedocs.gold',
-            'readthedocs.donate',
             'readthedocs.payments',
             'readthedocs.notifications',
             'readthedocs.integrations',
+
 
             # allauth
             'allauth',
@@ -112,6 +118,8 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
+        if donate:
+            apps.append('readthedocsext.donate')
         return apps
 
     TEMPLATE_LOADERS = (
