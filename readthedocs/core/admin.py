@@ -67,6 +67,7 @@ class UserAdminExtra(UserAdmin):
         return hasattr(obj, 'profile') and obj.profile.banned
 
     is_banned.short_description = 'Banned'
+    is_banned.boolean = True
 
     def ban_user(self, request, queryset):
         users = []
