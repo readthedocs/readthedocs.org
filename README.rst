@@ -31,7 +31,7 @@ the Docs site`_.
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html>`_
+You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html>`_.
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
@@ -72,4 +72,6 @@ when you push to GitHub.
 License
 -------
 
-[MIT](LICENSE) © 2010-2017 Read the Docs, Inc & contributors
+`MIT`_ © 2010-2017 Read the Docs, Inc & contributors
+
+.. _MIT: LICENSE
