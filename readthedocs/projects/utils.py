@@ -200,8 +200,3 @@ def make_api_project(project_data):
     project = Project(**project_data)
     project.save = _new_save
     return project
-
-
-def delete_project(project):
-    broadcast(type='app', task=tasks.remove_dir, args=[project.doc_path])
-    project.delete()
