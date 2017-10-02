@@ -63,6 +63,10 @@ what they stand for.
     This label indicates that a better test coverage is required to resolve
     the ticket. New tests should be proposed via a pull request on GitHub.
 
+*Needed: replication*
+    This label indicates that a bug has been reported, but has not been
+    successfully replicated by another user or contributor yet.
+
 *Operations*
     Tickets that require changes in the server infrastructure.
 
