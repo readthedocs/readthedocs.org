@@ -131,7 +131,7 @@ Include your signature
 Request Archive
 ---------------
 
-Currently, Read the Docs has not recieved any takedown requests.
+Currently, Read the Docs has not received any takedown requests.
 
 ..
     * :download:`Some Company, Inc <archive/2017-01-22.txt>`
