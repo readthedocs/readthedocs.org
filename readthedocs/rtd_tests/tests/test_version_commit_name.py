@@ -45,9 +45,8 @@ class VersionCommitNameTests(TestCase):
     def test_stable_version_tag(self):
         version = new(Version,
                       identifier=u'3d92b728b7d7b842259ac2020c2fa389f13aff0d',
-                      slug=STABLE, verbose_name=STABLE, type=TAG)
-        self.assertEqual(version.commit_name,
-                         u'3d92b728b7d7b842259ac2020c2fa389f13aff0d')
+                      slug=STABLE, verbose_name=u'stable_verbose', type=TAG)
+        self.assertEqual(version.commit_name, u'stable_verbose')
 
     def test_hg_latest_branch(self):
         hg_project = get(Project, repo_type=REPO_TYPE_HG)

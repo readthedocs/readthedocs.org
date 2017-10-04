@@ -120,6 +120,11 @@ class Version(models.Model):
                 # the underlying commits.
                 if self.identifier.startswith('origin/'):
                     return self.identifier[len('origin/'):]
+            if self.type == TAG:
+                # If this version is a tag, the verbose_name will contain the
+                # actual name. A tag would contain the hash in indentifier,
+                # which is not as pretty as the actual tag name.
+                return self.verbose_name
             return self.identifier
 
         # By now we must have handled all special versions.
