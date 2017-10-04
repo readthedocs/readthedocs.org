@@ -116,7 +116,7 @@ class Virtualenv(PythonEnvironment):
         """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
             'Pygments==2.2.0',
-            'setuptools==36.4.0',
+            'setuptools==36.5.0',
             'docutils==0.13.1',
             'mock==1.0.1',
             'pillow==2.6.1',
