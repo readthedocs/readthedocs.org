@@ -145,6 +145,11 @@ class ProjectAdmin(GuardedModelAdmin):
     ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
+        """Remove HTML/etc artifacts from application instances
+
+        Prior to the query delete, broadcast tasks to delete HTML artifacts from
+        application instances.
+        """
         if request.POST.get('post'):
             for project in queryset:
                 broadcast(type='app', task=remove_dir, args=[project.doc_path])
