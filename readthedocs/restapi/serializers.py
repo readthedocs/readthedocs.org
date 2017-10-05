@@ -1,13 +1,13 @@
 """Defines serializers for each of our models."""
 
 from __future__ import absolute_import
-from builtins import object
 
+from builtins import object
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.projects.models import Project, Domain
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.projects.models import Project, Domain
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -28,6 +28,18 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectAdminSerializer(ProjectSerializer):
 
+    """Project serializer for admin only access
+
+    Includes special internal fields that don't need to be exposed through the
+    general API, mostly for fields used in the build process
+    """
+
+    features = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='feature',
+    )
+
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
             'enable_epub_build',
@@ -44,6 +56,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'skip',
             'requirements_file',
             'python_interpreter',
+            'features',
         )
 
 

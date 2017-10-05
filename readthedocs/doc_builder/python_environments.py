@@ -11,6 +11,7 @@ from django.conf import settings
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
@@ -128,8 +129,14 @@ class Virtualenv(PythonEnvironment):
         if self.project.documentation_type == 'mkdocs':
             requirements.append('mkdocs==0.15.0')
         else:
-            requirements.extend(['sphinx==1.5.3', 'sphinx-rtd-theme<0.3',
-                                 'readthedocs-sphinx-ext<0.6'])
+            if self.project.has_feature(Feature.USE_SPHINX_LATEST):
+                requirements.append('sphinx<1.7')
+            else:
+                requirements.append('sphinx==1.5.6')
+            requirements.extend([
+                'sphinx-rtd-theme<0.3',
+                'readthedocs-sphinx-ext<0.6'
+            ])
 
         cmd = [
             'python',

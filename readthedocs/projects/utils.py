@@ -192,11 +192,10 @@ def make_api_version(version_data):
 
 def make_api_project(project_data):
     """Make mock Project instance from API return"""
-    from readthedocs.projects.models import Project
+    from readthedocs.projects.models import APIProject
     for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
                 'main_language_project', 'related_projects']:
         if key in project_data:
             del project_data[key]
-    project = Project(**project_data)
-    project.save = _new_save
+    project = APIProject(**project_data)
     return project

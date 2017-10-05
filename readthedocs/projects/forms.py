@@ -22,7 +22,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
-    Project, ProjectRelationship, EmailHook, WebHook, Domain)
+    Project, ProjectRelationship, EmailHook, WebHook, Domain, Feature)
 from readthedocs.redirects.models import Redirect
 
 
@@ -595,3 +595,23 @@ class ProjectAdvertisingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super(ProjectAdvertisingForm, self).__init__(*args, **kwargs)
+
+
+class FeatureForm(forms.ModelForm):
+
+    """Project feature form for dynamic admin choices
+
+    This form converts the CharField into a ChoiceField on display. The
+    underlying driver won't attempt to do validation on the choices, and so we
+    can dynamically populate this list.
+    """
+
+    feature = forms.ChoiceField()
+
+    class Meta(object):
+        model = Feature
+        fields = ['project', 'feature']
+
+    def __init__(self, *args, **kwargs):
+        super(FeatureForm, self).__init__(*args, **kwargs)
+        self.fields['feature'].choices = Feature.FEATURES

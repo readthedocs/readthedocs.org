@@ -821,6 +821,35 @@ class Project(models.Model):
                                      hash=content_hash, commit=commit)
         return node.comments.create(user=user, text=text)
 
+    def has_feature(self, feature):
+        """Does project have existing feature flag"""
+        return self.features.filter(feature=feature).exists()
+
+
+class APIProject(Project):
+
+    """Project object from API data deserialization
+
+    This is to preserve the Project model methods for use in builder instances.
+    Properties can be read only here, as the builders don't need write access to
+    a number of attributes.
+    """
+
+    features = []
+
+    class Meta:
+        proxy = True
+
+    def __init__(self, *args, **kwargs):
+        self.features = kwargs.pop('features', [])
+        super(APIProject, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return 0
+
+    def has_feature(self, feature):
+        return feature in self.features
+
 
 @python_2_unicode_compatible
 class ImportedFile(models.Model):
@@ -921,3 +950,52 @@ class Domain(models.Model):
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
         super(Domain, self).delete(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Feature(models.Model):
+
+    """Project feature flags
+
+    Features should generally be added here as choices, however features may
+    also be added dynamically from a signal in other packages. See the
+    FeatureForm implementation for this.
+
+    Features can be added by external packages with the use of signals::
+
+        @receiver(pre_init, sender=Feature)
+        def add_features(sender, **kwargs):
+            sender.FEATURES += (('blah', 'BLAH'),)
+
+    The FeatureForm will grab the updated list on instantiation.
+    """
+
+    # Feature constants - this is not a exhaustive list of features, features
+    # may be added by other packages
+    USE_SPHINX_LATEST = 'use_sphinx_latest'
+
+    FEATURES = (
+        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+    )
+
+    project = models.ForeignKey(
+        Project,
+        related_name='features',
+    )
+    # Feature is not implemented as a ChoiceField, as we don't want validation
+    # at the database level on this field. Arbitrary values are allowed here.
+    feature = models.CharField(
+        _('Project feature'),
+        max_length=32,
+    )
+
+    def __str__(self):
+        return "{0} feature for {1}".format(self.get_feature_display(), self.project)
+
+    def get_feature_display(self):
+        """Implement display name field for fake ChoiceField
+
+        Because choices are implemented in FeatureForm, we need to reimplement
+        this here.
+        """
+        return dict(self.FEATURES).get(self.feature, self.feature)
