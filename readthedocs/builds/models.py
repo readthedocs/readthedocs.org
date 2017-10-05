@@ -348,6 +348,9 @@ class Build(models.Model):
 
     builder = models.CharField(_('Builder'), max_length=255, null=True, blank=True)
 
+    cold_storage = models.BooleanField(_('Cold Storage'), default=False,
+                                       help_text='Build comamnds are stored outside the database.')
+
     # Manager
 
     objects = BuildQuerySet.as_manager()

@@ -13,6 +13,7 @@ from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Project, EmailHook, Domain
@@ -166,7 +167,7 @@ class VersionViewSet(viewsets.ReadOnlyModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class BuildViewSet(viewsets.ModelViewSet):
+class BuildViewSetBase(viewsets.ModelViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     model = Build
@@ -185,7 +186,14 @@ class BuildViewSet(viewsets.ModelViewSet):
         return BuildSerializer
 
 
+class BuildViewSet(SettingsOverrideObject):
+    _default_class = BuildViewSetBase
+
+
 class BuildCommandViewSet(viewsets.ModelViewSet):
+
+    """This is currently a write-only way to update the commands on build."""
+
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
