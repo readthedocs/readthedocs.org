@@ -187,6 +187,9 @@ class BuildViewSetBase(viewsets.ModelViewSet):
 
 
 class BuildViewSet(SettingsOverrideObject):
+
+    """A pluggable class to allow for build cold storage."""
+
     _default_class = BuildViewSetBase
 
 
