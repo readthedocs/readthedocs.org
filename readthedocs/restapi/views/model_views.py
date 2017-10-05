@@ -156,8 +156,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
 
-class VersionViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+class VersionViewSet(viewsets.ModelViewSet):
+
+    permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     model = Version
