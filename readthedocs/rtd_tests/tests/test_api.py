@@ -1,10 +1,11 @@
 from __future__ import absolute_import
-from builtins import str
+
 import json
 import base64
 import datetime
 
 import mock
+from builtins import str
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
@@ -167,6 +168,23 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         obj = json.loads(resp.content)
         self.assertEqual(obj['slug'], 'awesome-project')
+
+    def test_user_doesnt_get_full_api_return(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+        project = get(Project, main_language_project=None, conf_py_file='foo')
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn('conf_py_file', resp.data)
+
+        client.force_authenticate(user=user_admin)
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('conf_py_file', resp.data)
+        self.assertEqual(resp.data['conf_py_file'], 'foo')
 
     def test_invalid_make_project(self):
         """

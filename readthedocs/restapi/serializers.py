@@ -24,8 +24,16 @@ class ProjectSerializer(serializers.ModelSerializer):
             'users',
             'canonical_url',
         )
-        # Fields needed for properly passing data to the builds
-        build_extra = (
+
+
+class ProjectSerializerFull(ProjectSerializer):
+
+    """Serializer to return all Project fields, for use by builder instances"""
+
+    class Meta(object):
+        model = Project
+        # The following fields are required by builder processes
+        fields = ProjectSerializer.Meta.fields + (
             'enable_epub_build',
             'enable_pdf_build',
             'conf_py_file',
@@ -41,7 +49,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             'requirements_file',
             'python_interpreter',
         )
-        fields += build_extra
 
 
 class VersionSerializer(serializers.ModelSerializer):

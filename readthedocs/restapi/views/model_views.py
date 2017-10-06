@@ -23,8 +23,8 @@ from ..permissions import (APIPermission, APIRestrictedPermission,
                            RelatedProjectIsOwner, IsOwner)
 from ..serializers import (BuildSerializerFull, BuildSerializer,
                            BuildCommandSerializer, ProjectSerializer,
-                           VersionSerializer, DomainSerializer,
-                           RemoteOrganizationSerializer,
+                           ProjectSerializerFull, VersionSerializer,
+                           DomainSerializer, RemoteOrganizationSerializer,
                            RemoteRepositorySerializer)
 from .. import utils as api_utils
 
@@ -45,6 +45,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.model.objects.api(self.request.user)
+
+    def get_serializer_class(self):
+        if self.request.user.is_staff:
+            return ProjectSerializerFull
+        return self.serializer_class
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
