@@ -26,13 +26,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         )
 
 
-class ProjectSerializerFull(ProjectSerializer):
+class ProjectAdminSerializer(ProjectSerializer):
 
-    """Serializer to return all Project fields, for use by builder instances"""
-
-    class Meta(object):
-        model = Project
-        # The following fields are required by builder processes
+    class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
             'enable_epub_build',
             'enable_pdf_build',
@@ -66,7 +62,15 @@ class VersionSerializer(serializers.ModelSerializer):
         )
 
 
+class VersionAdminSerializer(VersionSerializer):
+
+    """Version serializer that returns admin project data"""
+
+    project = ProjectAdminSerializer()
+
+
 class BuildCommandSerializer(serializers.ModelSerializer):
+
     run_time = serializers.ReadOnlyField()
 
     class Meta(object):
@@ -76,7 +80,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 class BuildSerializer(serializers.ModelSerializer):
 
-    """Readonly version of the build serializer, used for user facing display"""
+    """Build serializer for user display, doesn't display internal fields"""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
     state_display = serializers.ReadOnlyField(source='get_state_display')
@@ -86,13 +90,12 @@ class BuildSerializer(serializers.ModelSerializer):
         exclude = ('builder',)
 
 
-class BuildSerializerFull(BuildSerializer):
+class BuildAdminSerializer(BuildSerializer):
 
-    """Writeable Build instance serializer, for admin access by builders"""
+    """Build serializer for display to admin users and build instances"""
 
-    class Meta(object):
-        model = Build
-        exclude = ('')
+    class Meta(BuildSerializer.Meta):
+        exclude = ()
 
 
 class SearchIndexSerializer(serializers.Serializer):
