@@ -348,7 +348,7 @@ class Build(models.Model):
 
     builder = models.CharField(_('Builder'), max_length=255, null=True, blank=True)
 
-    cold_storage = models.NullBooleanField(_('Cold Storage'), default=False,
+    cold_storage = models.NullBooleanField(_('Cold Storage'),
                                            help_text='Build steps stored outside the database.')
 
     # Manager
