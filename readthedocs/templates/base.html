@@ -89,34 +89,92 @@
 
 
         {% block footer-content %}
-        <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.io">{%  trans "Docs" %}</a>.
 
-        {% url "gold_detail" as gold_detail %}
-        {% blocktrans %}
-        Made by <a href="https://docs.readthedocs.io/en/latest/team.html">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
-        {% endblocktrans %}
-        </p>
+        <div class="column33">
+          <div class="footerlogo"></div>
+
+          <ul class="social">
+            <li><a href="https://github.com/rtfd/readthedocs.org"><span class="icon github"></span></a></li>
+            <li><a href="https://twitter.com/readthedocs"><span class="icon twitter"></span></a></li>
+          </ul>
+        </div>
+
+        <div class="column33">
+          <h4>{%  trans "About Us" %}</h4>
+
+          <ul>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/team.html">{%  trans "Team" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/open-source-philosophy.html">{% trans "Open Source Philosophy" %}</a>
+            <li>
+              <a href="http://blog.readthedocs.com/">{% trans "Blog" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/sponsors.html">{% trans "Our Sponsors" %}</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="column33">
+          <h4>{%  trans "Read the Docs" %}</h4>
+
+          <ul>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/getting_started.html">{% trans "Getting Started Guide" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io">{% trans "Documentation" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/contribute.html">{% trans "Contributing" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">{%  trans "Advertise with Us" %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.com">{%  trans "Commercial Support" %}</a>
+            </li>
+            <li>
+              {% url "gold_detail" as gold_detail %}
+              <a href="{{ gold_detail }}">{%  trans "Read the Docs Gold" %}</a>
+            </li>
+            <li>
+              <a href='{% url "donate" %}'>{% trans "Donate" %}</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="footer-bottom">
+          <div class="column50">
+            <p>
+              <small>&copy; Copyright 2010-{% now "Y" %}, {% trans "Read the Docs, Inc & contributors" %}</small>
+            </p>
+          </div>
+
+          <div class="column50">
+            {% get_current_language as current_lang %}
+            <form action="/i18n/setlang/" method="post" style="float: right">
+              <input name="next" type="hidden" value="/" />
+              {% csrf_token %}
+              <select name="language">
+                {% for lang in LANGUAGES %}
+                  {% if lang.0 == current_lang %}
+                  <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                  {% else %}
+                  <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <input type="submit" value="{% trans 'Change Language' %}" name="submit">
+            </form>
+          </div>
+        </div>
+
         {% endblock %}
-
-        {% get_current_language as current_lang %}
-        <form action="/i18n/setlang/" method="post">{% csrf_token %}
-          <input name="next" type="hidden" value="/" />
-            {% csrf_token %}
-            <select style="float: left; height: 33px;" name="language">
-              {% for lang in LANGUAGES %}
-                {% if lang.0 == current_lang %}
-                <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                {% else %}
-                <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                {% endif %}
-                }
-              {% endfor %}
-            </select>
-            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit" id="change-language-input">
-        </form>
-
-        <br>
-        <br>
 
       </div>
     </div>
