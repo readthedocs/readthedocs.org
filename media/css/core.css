@@ -96,7 +96,6 @@ select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; f
 textarea { background: #fff; width: 435px; height: 150px; }
 input[type="submit"], input[type="button"], button, .button { font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; cursor: pointer;}
 .button { padding: 6px 10px; float: left; cursor: pointer; }
-#change-language-input {padding: 4px; margin: 0px 10px 0px 10px;}
 input[type="submit"]:hover, input[type="button"]:hover, button:hover, .button:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #6B9939; border-bottom-color: #50732B; }
 input[type="submit"]:active, input[type="button"]:active, button:active, .button:active { box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: none; }
 fieldset { border: 1px solid #bfbfbf; padding: 15px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; margin-bottom: 15px; }
@@ -127,7 +126,7 @@ form.form-wide textarea {
 
 /* content */
 
-#content { padding-top: 50px; }
+#content { padding: 50px 0; }
 #content ul { margin-bottom: 20px; }
 
 #content #project_description { margin-bottom: 20px; }
@@ -563,9 +562,28 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 /* footer */
 
-#footer { margin: 100px 0; color: #aaa; }
-#footer a { color: #aaa; }
-#footer a:hover { color: #666; }
+#footer { background: url(../images/header-home-bg.svg) top left repeat #465158; border-bottom: 1px solid #333; padding: 65px 0; color: #BCC1C3; }
+#footer .column33 { float: left; width: 33.33%; }
+#footer .column50 { float: left; width: 50%; }
+#footer .footerlogo { width: 64px; height: 64px; background: url(../images/logo.png) top left no-repeat; }
+#footer h4 { font-size: 18px; color: #e3e3e3; text-shadow: none; }
+#footer li { margin-bottom: 5px; }
+#footer a, #footer a:visited { color: #e3e3e3; text-decoration: none; }
+#footer a:hover, #footer a:active { color: white; text-decoration: underline; }
+
+/* Social icons */
+#footer .social { font-family: FontAwesome; margin-left: 25px; }
+#footer .social li { float: left; }
+#footer .social a { text-decoration: none; opacity: 0.5; }
+#footer .social a:hover, #footer .social a:visited { opacity: 1; }
+#footer .social .icon { display: inline-block; width: 36px; height: 36px; font-size: 24px;}
+#footer .social .github:before { content: "\f09b"; }
+#footer .social .twitter:before { content: "\f099"; }
+
+/* Change language form */
+#footer .footer-bottom { margin-top: 30px; }
+#footer select { float: left; width: 175px; padding: 2px; height: 24px; font-size: 12px; margin-right: 10px; }
+#footer input[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
 
 
 /* utils */
