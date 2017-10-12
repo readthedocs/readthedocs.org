@@ -5,22 +5,24 @@ rebuilding documentation.
 """
 
 from __future__ import absolute_import
-from builtins import str
-import os
-import shutil
+
+import hashlib
 import json
 import logging
+import os
+import shutil
 import socket
-import requests
-import hashlib
 from collections import defaultdict
 
+import requests
+from builtins import str
 from celery import task, Task
 from celery.exceptions import SoftTimeLimitExceeded
-from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from djcelery import celery as celery_app
+from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
@@ -28,7 +30,7 @@ from .exceptions import ProjectImportError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
 from .utils import make_api_version, make_api_project
-from readthedocs_build.config import ConfigError
+from readthedocs.api.client import api as api_v1
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -36,23 +38,22 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.core.utils import send_email, broadcast
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.builds.syncers import Syncer
 from readthedocs.cdn.purge import purge
-from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.core.resolver import resolve_path
+from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.core.utils import send_email, broadcast
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
-from readthedocs.builds.syncers import Syncer
+from readthedocs.restapi.client import api as api_v2
+from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.search.utils import process_mkdocs_json
-from readthedocs.restapi.utils import index_search_request
 from readthedocs.vcs_support import utils as vcs_support_utils
-from readthedocs.api.client import api as api_v1
-from readthedocs.restapi.client import api as api_v2
-from readthedocs.core.resolver import resolve_path
 
 
 log = logging.getLogger(__name__)
