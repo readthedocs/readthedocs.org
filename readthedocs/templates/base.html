@@ -141,7 +141,8 @@
               <a href="{{ gold_detail }}">{%  trans "Read the Docs Gold" %}</a>
             </li>
             <li>
-              <a href='{% url "donate" %}'>{% trans "Donate" %}</a>
+              {% url "donate" as donate_url %}
+              <a href='{{ donate_url }}'>{% trans "Donate" %}</a>
             </li>
           </ul>
         </div>
