@@ -48,6 +48,12 @@ class ConfigWrapper(object):
         return []
 
     @property
+    def process_dependency_links(self):
+        if 'process_dependency_links' in self._yaml_config.get('python', {}):
+            return self._yaml_config['python']['process_dependency_links']
+        return False
+
+    @property
     def python_interpreter(self):
         ver = self.python_version
         if ver in [2, 3]:

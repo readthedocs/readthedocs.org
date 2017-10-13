@@ -172,6 +172,33 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.extra_requirements, [])
 
+    def test_process_dependency_links(self, load_config):
+        load_config.side_effect = create_load({
+            'python': {
+                'pip_install': True,
+                'process_dependency_links': True
+            }
+        })
+        config = load_yaml_config(self.version)
+        self.assertTrue(config.process_dependency_links)
+
+        load_config.side_effect = create_load({
+            'python': {
+                'pip_install': True,
+                'process_dependency_links': False
+            }
+        })
+        config = load_yaml_config(self.version)
+        self.assertFalse(config.process_dependency_links)
+
+        load_config.side_effect = create_load({
+            'python': {
+                'pip_install': True,
+            }
+        })
+        config = load_yaml_config(self.version)
+        self.assertFalse(config.process_dependency_links)
+
     def test_conda(self, load_config):
         to_find = 'urls.py'
         load_config.side_effect = create_load({
