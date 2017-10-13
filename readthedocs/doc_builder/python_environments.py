@@ -54,20 +54,20 @@ class PythonEnvironment(object):
                 if self.config.extra_requirements:
                     extra_req_param = '[{0}]'.format(
                         ','.join(self.config.extra_requirements))
-                pip_flags = []
+                pip_args = []
                 if True:
-                    pip_flags.append('--ignore-installed')
+                    pip_args.append('--ignore-installed')
                 if True:
-                    pip_flags.append('--cache-dir')
+                    pip_args.append('--cache-dir')
                 if self.config.process_dependency_links:
-                    pip_flags.append('--process-dependency-links')
+                    pip_args.append('--process-dependency-links')
+                pip_args.append(self.project.pip_cache_path)
+                pip_args.append('.{0}'.format(extra_req_param))
                 self.build_env.run(
                     'python',
                     self.venv_bin(filename='pip'),
                     'install',
-                    *pip_flags,
-                    self.project.pip_cache_path,
-                    '.{0}'.format(extra_req_param),
+                    *pip_args,
                     cwd=self.checkout_path,
                     bin_path=self.venv_bin()
                 )
