@@ -90,7 +90,7 @@
 
         {% block footer-content %}
 
-        <div class="column33">
+        <div class="column-logo">
           <div class="footerlogo"></div>
 
           <ul class="social">
@@ -99,7 +99,7 @@
           </ul>
         </div>
 
-        <div class="column33">
+        <div class="column-about">
           <h4>{%  trans "About Us" %}</h4>
 
           <ul>
@@ -117,7 +117,7 @@
           </ul>
         </div>
 
-        <div class="column33">
+        <div class="column-rtd">
           <h4>{%  trans "Read the Docs" %}</h4>
 
           <ul>
@@ -150,13 +150,13 @@
         <div class="clearfix"></div>
 
         <div class="footer-bottom">
-          <div class="column50">
+          <div class="column-copyright">
             <p>
               <small>&copy; Copyright 2010-{% now "Y" %}, {% trans "Read the Docs, Inc & contributors" %}</small>
             </p>
           </div>
 
-          <div class="column50">
+          <div class="column-setlang">
             {% get_current_language as current_lang %}
             <form action="/i18n/setlang/" method="post" style="float: right">
               <input name="next" type="hidden" value="/" />

@@ -563,8 +563,8 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 /* footer */
 
 #footer { background: url(../images/header-home-bg.svg) top left repeat #465158; border-bottom: 1px solid #333; padding: 65px 0; color: #BCC1C3; }
-#footer .column33 { float: left; width: 33.33%; }
-#footer .column50 { float: left; width: 50%; }
+#footer .column-rtd, #footer .column-about, #footer .column-logo { float: left; width: 33.33%; }
+#footer .column-copyright, #footer .column-setlang { float: left; width: 50%; }
 #footer .footerlogo { width: 64px; height: 64px; background: url(../images/logo.png) top left no-repeat; }
 #footer h4 { font-size: 18px; color: #e3e3e3; text-shadow: none; }
 #footer li { margin-bottom: 5px; }
