@@ -14,7 +14,8 @@ from tastypie.api import Api
 from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
-from readthedocs.core.views import HomepageView, SupportView
+from readthedocs.core.views import (HomepageView, SupportView,
+                                    server_error_404, server_error_500)
 from readthedocs.search import views as search_views
 
 
@@ -26,8 +27,8 @@ v1_api.register(FileResource())
 
 admin.autodiscover()
 
-handler404 = 'readthedocs.core.views.server_error_404'
-handler500 = 'readthedocs.core.views.server_error_500'
+handler404 = server_error_404
+handler500 = server_error_500
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),

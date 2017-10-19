@@ -5,22 +5,24 @@ rebuilding documentation.
 """
 
 from __future__ import absolute_import
-from builtins import str
-import os
-import shutil
+
+import hashlib
 import json
 import logging
+import os
+import shutil
 import socket
-import requests
-import hashlib
 from collections import defaultdict
 
+import requests
+from builtins import str
 from celery import task, Task
 from celery.exceptions import SoftTimeLimitExceeded
-from djcelery import celery as celery_app
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from djcelery import celery as celery_app
+from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
@@ -28,7 +30,7 @@ from .exceptions import ProjectImportError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
 from .utils import make_api_version, make_api_project
-from readthedocs_build.config import ConfigError
+from readthedocs.api.client import api as api_v1
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -36,23 +38,22 @@ from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_FINISHED)
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.core.utils import send_email, broadcast
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.builds.syncers import Syncer
 from readthedocs.cdn.purge import purge
-from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.core.resolver import resolve_path
+from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.core.utils import send_email, broadcast
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
-from readthedocs.builds.syncers import Syncer
+from readthedocs.restapi.client import api as api_v2
+from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.search.utils import process_mkdocs_json
-from readthedocs.restapi.utils import index_search_request
 from readthedocs.vcs_support import utils as vcs_support_utils
-from readthedocs.api.client import api as api_v1
-from readthedocs.restapi.client import api as api_v2
-from readthedocs.core.resolver import resolve_path
 
 
 log = logging.getLogger(__name__)
@@ -214,17 +215,14 @@ class UpdateDocsTask(Task):
             except SoftTimeLimitExceeded:
                 raise BuildEnvironmentError(_('Build exited due to time out'))
 
-            # Web Server Tasks
+            # Finalize build and update web servers
             if build_id:
-                finish_build.delay(
-                    version_pk=self.version.pk,
-                    build_pk=build_id,
-                    hostname=socket.gethostname(),
-                    html=outcomes['html'],
-                    search=outcomes['search'],
-                    localmedia=outcomes['localmedia'],
-                    pdf=outcomes['pdf'],
-                    epub=outcomes['epub'],
+                self.update_app_instances(
+                    html=bool(outcomes['html']),
+                    search=bool(outcomes['search']),
+                    localmedia=bool(outcomes['localmedia']),
+                    pdf=bool(outcomes['pdf']),
+                    epub=bool(outcomes['epub']),
                 )
 
         if self.build_env.failed:
@@ -332,6 +330,51 @@ class UpdateDocsTask(Task):
         project_data['documentation_type'] = ret
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
+
+    def update_app_instances(self, html=False, localmedia=False, search=False,
+                             pdf=False, epub=False):
+        """Update application instances with build artifacts
+
+        This triggers updates across application instances for html, pdf, epub,
+        downloads, and search. Tasks are broadcast to all web servers from here.
+        """
+        # Update version if we have successfully built HTML output
+        try:
+            if html:
+                version = api_v2.version(self.version.pk)
+                version.patch({
+                    'active': True,
+                    'built': True,
+                })
+        except HttpClientError as e:
+            log.error('Updating version failed, skipping file sync: version=%s',
+                      self.version.pk, exc_info=True)
+        else:
+            # Broadcast finalization steps to web application instances
+            broadcast(
+                type='app',
+                task=sync_files,
+                args=[
+                    self.project.pk,
+                    self.version.pk,
+                ],
+                kwargs=dict(
+                    hostname=socket.gethostname(),
+                    html=html,
+                    localmedia=localmedia,
+                    search=search,
+                    pdf=pdf,
+                    epub=epub,
+                )
+            )
+
+            # Delayed tasks
+            # TODO these should be chained on to the broadcast calls. The
+            # broadcast calls could be lumped together into a promise, and on
+            # task result, these next few tasks can be updated, also in a
+            # chained fashion
+            fileify.delay(self.version.pk, commit=self.build.get('commit'))
+            update_search.delay(self.version.pk, commit=self.build.get('commit'))
 
     def setup_environment(self):
         """
@@ -541,41 +584,35 @@ def update_imported_docs(version_pk):
 
 # Web tasks
 @task(queue='web')
-def finish_build(version_pk, build_pk, hostname=None, html=False,
-                 localmedia=False, search=False, pdf=False, epub=False):
-    """Build Finished, do house keeping bits"""
-    version = Version.objects.get(pk=version_pk)
-    build = Build.objects.get(pk=build_pk)
+def sync_files(project_pk, version_pk, hostname=None, html=False,
+               localmedia=False, search=False, pdf=False, epub=False):
+    """Sync build artifacts to application instances
 
-    if html:
-        version.active = True
-        version.built = True
-        version.save()
-
+    This task broadcasts from a build instance on build completion and
+    performs synchronization of build artifacts on each application instance.
+    """
+    # Clean up unused artifacts
     if not pdf:
-        broadcast(type='app', task=clear_pdf_artifacts, args=[version.pk])
+        clear_pdf_artifacts(version_pk)
     if not epub:
-        broadcast(type='app', task=clear_epub_artifacts, args=[version.pk])
+        clear_epub_artifacts(version_pk)
 
     # Sync files to the web servers
-    broadcast(type='app', task=move_files, args=[version_pk, hostname],
-              kwargs=dict(
-                  html=html,
-                  localmedia=localmedia,
-                  search=search,
-                  pdf=pdf,
-                  epub=epub,
-    ))
+    move_files(
+        version_pk,
+        hostname,
+        html=html,
+        localmedia=localmedia,
+        search=search,
+        pdf=pdf,
+        epub=epub
+    )
 
-    # Symlink project on every web
-    broadcast(type='app', task=symlink_project, args=[version.project.pk])
+    # Symlink project
+    symlink_project(project_pk)
 
     # Update metadata
-    broadcast(type='app', task=update_static_metadata, args=[version.project.pk])
-
-    # Delayed tasks
-    fileify.delay(version.pk, commit=build.commit)
-    update_search.delay(version.pk, commit=build.commit)
+    update_static_metadata(project_pk)
 
 
 @task(queue='web')

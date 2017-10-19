@@ -43,8 +43,6 @@ class CommunityDevSettings(CommunityBaseSettings):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
 
-    NGINX_X_ACCEL_REDIRECT = True
-
     # For testing locally. Put this in your /etc/hosts:
     # 127.0.0.1 test
     # and navigate to http://test:8000

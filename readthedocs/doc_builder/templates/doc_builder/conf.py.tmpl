@@ -117,6 +117,10 @@ context = {
     'commit': '{{ commit }}',
     {% endif %}
 }
+
+{# Provide block for extending context data from child template #}
+{% block extra_context %}{% endblock %}
+
 if 'html_context' in globals():
     html_context.update(context)
 else:

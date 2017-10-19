@@ -13,6 +13,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -105,36 +106,23 @@ class ProjectDetailView(ProjectOnboardMixin, DetailView):
 @never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project"""
+    badge_path = "projects/badges/%s.svg"
     version_slug = request.GET.get('version', LATEST)
-    style = request.GET.get('style', 'flat')
-    # Default to 24 hour cache lifetime
-    max_age = request.GET.get('maxAge', 86400)
     try:
         version = Version.objects.public(request.user).get(
             project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = (
-            'https://img.shields.io/badge/docs-unknown%20version-yellow.svg'
-            '?style={style}&maxAge={max_age}'
-            .format(style=style, max_age=max_age))
+        url = static(badge_path % "unknown")
         return HttpResponseRedirect(url)
     version_builds = version.builds.filter(type='html', state='finished').order_by('-date')
     if not version_builds.exists():
-        url = (
-            'https://img.shields.io/badge/docs-no%20builds-yellow.svg'
-            '?style={style}&maxAge={max_age}'
-            .format(style=style, max_age=max_age))
+        url = static(badge_path % "unknown")
         return HttpResponseRedirect(url)
     last_build = version_builds[0]
     if last_build.success:
-        color = 'brightgreen'
+        url = static(badge_path % "passing")
     else:
-        color = 'red'
-    url = (
-        'https://img.shields.io/badge/docs-{version}-{color}.svg'
-        '?style={style}&maxAge={max_age}'
-        .format(version=version.slug.replace('-', '--'), color=color,
-                style=style, max_age=max_age))
+        url = static(badge_path % "failing")
     return HttpResponseRedirect(url)
 
 

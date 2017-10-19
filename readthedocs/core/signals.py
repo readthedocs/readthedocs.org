@@ -6,6 +6,7 @@ import logging
 
 from corsheaders import signals
 from django.dispatch import Signal
+from django.db.models import Q
 from future.backports.urllib.parse import urlparse
 
 from readthedocs.projects.models import Project, Domain
@@ -53,8 +54,8 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             return False
 
         domain = Domain.objects.filter(
-            domain__icontains=host,
-            project=project
+            Q(domain__icontains=host),
+            Q(project=project) | Q(project__subprojects__child=project)
         )
         if domain.exists():
             return True

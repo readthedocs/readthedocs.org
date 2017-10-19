@@ -307,7 +307,7 @@ class CommunityBaseSettings(Settings):
 
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
-    GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
+    GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'
     COPY_START_YEAR = 2010
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {

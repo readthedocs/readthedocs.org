@@ -18,9 +18,10 @@ from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.api.client import api
-from readthedocs.core.utils import broadcast, slugify
-from readthedocs.restapi.client import api as apiv2
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
+from readthedocs.core.resolver import resolve, resolve_domain
+from readthedocs.core.utils import broadcast, slugify
+from readthedocs.core.validators import validate_domain_name
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.querysets import (
@@ -30,12 +31,10 @@ from readthedocs.projects.querysets import (
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.utils import make_api_version
-from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.projects.version_handling import version_windows
-from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.validators import validate_domain_name
-from readthedocs.vcs_support.base import VCSProject
+from readthedocs.projects.version_handling import determine_stable_version, version_windows
+from readthedocs.restapi.client import api as apiv2
 from readthedocs.vcs_support.backends import backend_cls
+from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 
