@@ -73,6 +73,7 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'corsheaders',
+            'copyright',
             'textclassifier',
             'annoying',
             'django_countries',
