@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Advertise with Us" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" href="{% static 'donate/css/advertisewithus.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<section class="advertisewithus-header">
+  <h1>{% trans "Over 7 million developers Read the Docs each month" %}</h1>
+  <a href="#advertise-cta" class="advertisewithus-anchor">{% trans "Connect with them today" %}</a>
+</section>
+
+<section class="advertisewithus-features">
+  <div class="feature">
+    <h3>{% trans "Developers read our docs" %}</h3>
+    <p>{% trans "Developers come to Read the Docs to solve their problems. Your product could be the solution they are looking for. By putting your advertisement in front of our 100% developer audience, you can connect to your target market and achieve your business goals." %}</p>
+  </div>
+
+  <div class="feature">
+    <!-- Image credit: http://techsini.com/multi-mockup/ -->
+    <img src="{% static 'donate/img/advertisewithus/docsite-screenshot.png' %}" alt="A sustainability ad on Read the Docs">
+  </div>
+
+  <div class="clearfix"></div>
+
+</section>
+
+<section class="advertisewithus-stats">
+  <div class="stat">
+    <p class="stat-icon group"></p>
+    <h3>{% trans "30 Million" %}</h3>
+    <p>{% trans "Pageviews Every Month" %}</p>
+  </div>
+
+  <div class="stat">
+    <p class="stat-icon book"></p>
+    <h3>{% trans "Over 60,000" %}</h3>
+    <p>{% trans "Documentation Microsites" %}</p>
+  </div>
+
+  <div class="stat">
+    <p class="stat-icon chart"></p>
+    <h3>{% trans "Top 1500" %}</h3>
+    <p>{% trans "Alexa Site Globally" %}</p>
+  </div>
+
+  <div class="clearfix"></div>
+
+</section>
+
+<section>
+  <h2>{% trans "Companies who drove business success with Read the Docs" %}</h2>
+  <div class="advertisewithus-client">
+    <img src="{% static 'donate/img/advertisewithus/twilio.png' %}" alt="Twilio">
+  </div>
+  <div class="advertisewithus-client">
+    <img src="{% static 'donate/img/advertisewithus/fastmail.png' %}" alt="Twilio">
+  </div>
+  <div class="advertisewithus-client">
+    <img src="{% static 'donate/img/advertisewithus/linode.png' %}" alt="Linode">
+  </div>
+  <div class="advertisewithus-client">
+    <img src="{% static 'donate/img/advertisewithus/sentry.png' %}" alt="Sentry">
+  </div>
+</section>
+
+<section class="advertisewithus-testimonial">
+  <blockquote>Read The Docs is an amazing resource and destination for developers. Supporting them, while generating awareness for Rollbar, was a total no-brainer.</blockquote>
+  <div class="testimonial-citation">
+    <img src="{% static 'donate/img/advertisewithus/rollbar-mikesmith.jpg' %}" alt="Mike Smith - Head of Growth at Rollbar" class="photo">
+    <p>
+      <strong>Mike Smith</strong><br>
+      <span>{% trans "Head of Growth" %}</span>
+    </p>
+    <div>
+      <img src="{% static 'donate/img/advertisewithus/rollbar-testimonial.png' %}" alt="Rollbar" class="logo">
+    </div>
+  </div>
+</section>
+
+<section>
+  <a name="advertise-cta"></a>
+  <div class="advertisewithus-form-wrapper">
+
+    <h2>{% trans "Advertise with us" %}</h2>
+
+    <form action="https://formspree.io/rev@readthedocs.org" method="POST" class="advertisewithus-form">
+      <label>{% trans "Name" %}</label>
+      <input type="text" name="name" placeholder="{% trans 'Your Name' %}" value="{% if request.user.get_full_name %}{{ request.user.get_full_name }}{% endif %}" required>
+
+      <label>{% trans "Email" %}</label>
+      <input type="email" name="_replyto" placeholder="you@yourcompany.com" value="{% if request.user %}{{ request.user.email }}{% endif %}" required>
+
+      <label>{% trans "Your Company" %}</label>
+      <input type="text" name="company" placeholder="{% trans 'Your company or organization' %}" required>
+
+      <input name="_subject" value="Read the Docs Advertising Inquiry" type="hidden">
+      <input name="_next" value="https://readthedocs.org{% url 'advertising-submitted' %}" type="hidden">
+      <input name="_gotcha" style="display:none" type="text">
+
+      <input type="submit" class="ctas-button" value="{% trans 'Get More Information' %}">
+    </form>
+
+    <p>{% trans "When you advertise on Read the Docs you are connecting directly with professional developers reading about the latest in software." %}</p>
+
+    <p>{% trans "A member of our team will reach out to you with more information and help you to get started promoting your product or brand to millions of developers and ensure you reach your advertising goals." %}</p>
+
+  </div>
+
+  {% with ethical_advertising_url='http://docs.readthedocs.io/en/latest/ethical-advertising.html' opensource_url='http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/' %}
+    <p class="advertisewithus-footer">{% blocktrans %}Read the Docs supports <a href="{{ ethical_advertising_url }}">ethical advertising</a> and all of the money raised goes to <a href="{{ opensource_url }}">support open source software</a>.{% endblocktrans %}</p>
+  {% endwith %}
+
+</section>
+
+{% endblock content %}

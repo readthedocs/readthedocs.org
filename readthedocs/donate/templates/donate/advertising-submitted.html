@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Thank you for contacting us" %}{% endblock %}
+
+{% block content %}
+<section>
+  <h1>{% trans "Thank you for contacting us" %}</h1>
+  <p>{% trans "A member of our team will be getting back to you shortly." %}</p>
+
+  {% with ethical_advertising_url='http://docs.readthedocs.io/en/latest/ethical-advertising.html' whatwedo_url='https://blog.readthedocs.com/ads-on-other-themes/#what-we-re-doing-with-the-money' rtd_stats_url='https://blog.readthedocs.com/read-the-docs-2016-stats/' %}
+    {% blocktrans %}
+      <p>In the meantime, please feel free to check out <a href="{{ rtd_stats_url }}">our latest stats</a>, read about <a href="{{ ethical_advertising_url }}">our approach to advertising</a> or see <a href="{{ whatwedo_url }}">what we do with advertising money</a>.</p>
+    {% endblocktrans %}
+  {% endwith %}
+
+</section>
+{% endblock content %}
