@@ -21,30 +21,51 @@ from readthedocs.projects.version_handling import determine_stable_version
 
 from ..permissions import (APIPermission, APIRestrictedPermission,
                            RelatedProjectIsOwner, IsOwner)
-from ..serializers import (BuildSerializerFull, BuildSerializer,
-                           BuildCommandSerializer, ProjectSerializer,
-                           VersionSerializer, DomainSerializer,
-                           RemoteOrganizationSerializer,
+from ..serializers import (BuildSerializer, BuildAdminSerializer,
+                           BuildCommandSerializer,
+                           ProjectSerializer, ProjectAdminSerializer,
+                           VersionSerializer, VersionAdminSerializer,
+                           DomainSerializer, RemoteOrganizationSerializer,
                            RemoteRepositorySerializer)
 from .. import utils as api_utils
 
 log = logging.getLogger(__name__)
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
+class UserSelectViewSet(viewsets.ModelViewSet):
+
+    """View set that varies serializer class based on request user credentials
+
+    Viewsets using this class should have an attribute `admin_serializer_class`,
+    which is a serializer that might have more fields that only admin/staff
+    users require. If the user is staff, this class will be returned instead.
+    """
+
+    def get_serializer_class(self):
+        try:
+            if self.request.user.is_staff and self.admin_serializer_class is not None:
+                return self.admin_serializer_class
+        except AttributeError:
+            pass
+        return self.serializer_class
+
+    def get_queryset(self):
+        """Use our API manager method to determine authorization on queryset"""
+        return self.model.objects.api(self.request.user)
+
+
+class ProjectViewSet(UserSelectViewSet):
 
     """List, filter, etc. Projects."""
 
     permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
+    admin_serializer_class = ProjectAdminSerializer
     model = Project
     paginate_by = 100
     paginate_by_param = 'page_size'
     max_paginate_by = 1000
-
-    def get_queryset(self):
-        return self.model.objects.api(self.request.user)
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
@@ -79,6 +100,15 @@ class ProjectViewSet(viewsets.ModelViewSet):
         children = [rel.child for rel in rels]
         return Response({
             'subprojects': ProjectSerializer(children, many=True).data
+        })
+
+    @detail_route()
+    def active_versions(self, request, **kwargs):
+        project = get_object_or_404(
+            Project.objects.api(request.user), pk=kwargs['pk'])
+        versions = project.versions.filter(active=True)
+        return Response({
+            'versions': VersionSerializer(versions, many=True).data
         })
 
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
@@ -157,34 +187,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
         })
 
 
-class VersionViewSet(viewsets.ModelViewSet):
+class VersionViewSet(UserSelectViewSet):
 
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
+    admin_serializer_class = VersionAdminSerializer
     model = Version
 
-    def get_queryset(self):
-        return self.model.objects.api(self.request.user)
 
-
-class BuildViewSetBase(viewsets.ModelViewSet):
+class BuildViewSetBase(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
+    serializer_class = BuildSerializer
+    admin_serializer_class = BuildAdminSerializer
     model = Build
-
-    def get_queryset(self):
-        return self.model.objects.api(self.request.user)
-
-    def get_serializer_class(self):
-        """Vary serializer class based on user status
-
-        This is used to allow write to write-only fields on Build by admin users
-        and to not return those fields to non-admin users.
-        """
-        if self.request.user.is_staff:
-            return BuildSerializerFull
-        return BuildSerializer
 
 
 class BuildViewSet(SettingsOverrideObject):
@@ -194,17 +211,11 @@ class BuildViewSet(SettingsOverrideObject):
     _default_class = BuildViewSetBase
 
 
-class BuildCommandViewSet(viewsets.ModelViewSet):
-
-    """This is currently a write-only way to update the commands on build."""
-
+class BuildCommandViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
-
-    def get_queryset(self):
-        return self.model.objects.api(self.request.user)
 
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
@@ -216,14 +227,11 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class DomainViewSet(viewsets.ModelViewSet):
+class DomainViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
     model = Domain
-
-    def get_queryset(self):
-        return self.model.objects.api(self.request.user)
 
 
 class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):

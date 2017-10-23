@@ -3,12 +3,10 @@ import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-import six
-
 from readthedocs_build.config import BuildConfig, ProjectConfig, InvalidConfig
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
+from readthedocs.doc_builder.config import load_yaml_config
 
 
 def create_load(config=None):
@@ -128,7 +126,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         with self.assertRaises(InvalidConfig):
-            config = load_yaml_config(self.version)
+            load_yaml_config(self.version)
 
     def test_install_project(self, load_config):
         load_config.side_effect = create_load()
@@ -189,11 +187,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.conda_file, None)
 
     def test_requirements_file(self, load_config):
-        if six.PY3:
-            import pytest
-            pytest.xfail("test_requirements_file is known to fail on 3.6")
-
-        requirements_file = 'wsgi.py' if six.PY2 else 'readthedocs/wsgi.py'
+        requirements_file = 'wsgi.py'
         load_config.side_effect = create_load({
             'requirements_file': requirements_file
         })
