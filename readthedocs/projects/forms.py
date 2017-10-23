@@ -17,6 +17,7 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import trigger_build, slugify
+from readthedocs.core.validators import validate_spam
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
@@ -78,6 +79,10 @@ class ProjectBasicsForm(ProjectForm):
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
+    name = forms.CharField(
+        validators=[validate_spam],
+        required=True,
+    )
     remote_repository = forms.CharField(
         widget=forms.HiddenInput(),
         required=False,

@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 import re
 
+from readthedocs.projects.exceptions import ProjectSpamError
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
@@ -44,4 +45,19 @@ class DomainNameValidator(RegexValidator):
                 raise exc
             super(DomainNameValidator, self).__call__(idnavalue)
 
+
 validate_domain_name = DomainNameValidator()
+
+
+def validate_spam(value):
+    """
+    Assume that anything with a 1 and 8 in it is spam.
+
+    We have had a ton of phone number spam,
+    and I think taking a large swath approach will be good for now.
+    """
+
+    if '1' in value and '8' in value:
+        raise ProjectSpamError(
+            _('Invalid project name. Spam detected. '
+                'Please email dev@readthedocs.org if this is an error.'))
