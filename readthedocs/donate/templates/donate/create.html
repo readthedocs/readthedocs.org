@@ -71,27 +71,13 @@ $(document).ready(function () {
               value="50"
               id="id_dollars_input"
               style="display: none;" />
-          <select data-bind="value: dollars_select, visible: dollars_select() != 'custom'">
-            <option value="custom">{% trans "Custom amount" %}</option>
-            <option value="5">$5</option>
-            <option value="10">$10</option>
-            <option value="25">$25</option>
-            <option value="50" selected>{% trans "1 Hour" %} ($50)</option>
-            <option value="100">{% trans "2 Hours" %} ($100)</option>
-            <option value="200">{% trans "4 Hours" %} ($200)</option>
-            <option value="400">{% trans "1 Day" %} ($400)</option>
-            <option value="800">{% trans "2 Days" %} ($800)</option>
-            <option value="1200">{% trans "3 Days" %} ($1200)</option>
-            <option value="1600">{% trans "4 Days" %} ($1600)</option>
-            <option value="2000">{% trans "5 Days" %} ($2000)</option>
-            <option value="4000">{% trans "2 Weeks" %} ($4000)</option>
-            <option value="6000">{% trans "3 Weeks" %} ($6000)</option>
-            <option value="8000">{% trans "4 Weeks" %} ($8000)</option>
-          </select>
+          {{ form.dollars_select }}
           {% if field.help_text %}
             <span class="helptext">{{ field.help_text }}</span>
           {% endif %}
         </p>
+      {% elif field.name == 'dollars_select' %}
+          {% comment %}It's already rendered within 'dollars'.{% endcomment %}
       {% else %}
         {% include 'core/ko_form_field.html' with field=field %}
       {% endif %}

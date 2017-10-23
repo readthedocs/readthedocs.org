@@ -11,6 +11,7 @@ from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 from readthedocs.payments.utils import stripe
 
 from .models import Supporter
+from .constants import DOLLAR_AMOUNTS
 
 log = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
             'name',
             'email',
             'dollars',
+            'dollars_select',
             'logo_url',
             'site_url',
             'public',
@@ -48,6 +50,9 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
             'dollars': forms.HiddenInput(attrs={
                 'data-bind': 'value: dollars'
             }),
+            'dollars_select': forms.Select(attrs={
+                'data-bind': 'value: dollars_select, visible: dollars_select() != "custom"'
+            }),
             'logo_url': forms.TextInput(attrs={
                 'data-bind': 'value: logo_url, enable: urls_enabled'
             }),
@@ -62,6 +67,8 @@ class SupporterForm(StripeResourceMixin, StripeModelForm):
     last_4_digits = forms.CharField(widget=forms.HiddenInput(), required=True)
     name = forms.CharField(required=True)
     email = forms.CharField(required=True)
+    dollars_select = forms.ChoiceField(choices=DOLLAR_AMOUNTS, initial=50,
+                                       widget=Meta.widgets['dollars_select'])
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
