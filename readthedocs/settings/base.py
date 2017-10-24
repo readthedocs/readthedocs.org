@@ -82,7 +82,6 @@ class CommunityBaseSettings(Settings):
             'copyright',
             'textclassifier',
             'annoying',
-            'django_countries',
             'django_extensions',
             'messages_extends',
 
@@ -119,6 +118,7 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
         if donate:
+            apps.append('django_countries')
             apps.append('readthedocsext.donate')
         return apps
 
