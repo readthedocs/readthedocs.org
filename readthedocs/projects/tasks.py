@@ -234,7 +234,7 @@ class UpdateDocsTask(Task):
     @staticmethod
     def get_project(project_pk):
         """Get project from API"""
-        project_data = api_v1.project(project_pk).get()
+        project_data = api_v2.project(project_pk).get()
         project = make_api_project(project_data)
         return project
 
@@ -242,9 +242,9 @@ class UpdateDocsTask(Task):
     def get_version(project, version_pk):
         """Ensure we're using a sane version"""
         if version_pk:
-            version_data = api_v1.version(version_pk).get()
+            version_data = api_v2.version(version_pk).get()
         else:
-            version_data = (api_v1
+            version_data = (api_v2
                             .version(project.slug)
                             .get(slug=LATEST)['objects'][0])
         return make_api_version(version_data)
@@ -509,7 +509,7 @@ def update_imported_docs(version_pk):
 
     :param version_pk: Version id to update
     """
-    version_data = api_v1.version(version_pk).get()
+    version_data = api_v2.version(version_pk).get()
     version = make_api_version(version_data)
     project = version.project
     ret_dict = {}
