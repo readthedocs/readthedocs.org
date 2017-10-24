@@ -44,6 +44,7 @@ rtd_urls = [
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^notifications/', include('readthedocs.notifications.urls')),
+    url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 404's with DEBUG on.
@@ -87,7 +88,6 @@ if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
     groups.append([
         url(r'^sustainability/', include('readthedocsext.donate.urls')),
-        url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     ])
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
