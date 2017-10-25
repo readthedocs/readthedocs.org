@@ -44,6 +44,7 @@ rtd_urls = [
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^notifications/', include('readthedocs.notifications.urls')),
+    url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 404's with DEBUG on.
@@ -83,11 +84,10 @@ debug_urls = add(
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
           deprecated_urls]
 
-if 'readthedocs.donate' in settings.INSTALLED_APPS:
+if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
     groups.append([
-        url(r'^sustainability/', include('readthedocs.donate.urls')),
-        url(r'^accounts/gold/', include('readthedocs.gold.urls')),
+        url(r'^sustainability/', include('readthedocsext.donate.urls')),
     ])
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
