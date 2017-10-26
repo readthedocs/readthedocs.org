@@ -165,21 +165,23 @@ class ResolverBase(TestCase):
         fixture.get(Project, slug='sub_alias', language='ya')
 
 
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    @override_settings(
+            PRODUCTION_DOMAIN='readthedocs.org',
+            USE_SUBDOMAIN=False,
+            )
     def test_resolver_subproject_alias(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            resp = self.client.get('/docs/pip/projects/sub_alias/')
-            self.assertEqual(resp.status_code, 302)
-            self.assertEqual(
-                resp._headers['location'][1],
-                'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/'
-            )
+        resp = self.client.get('/docs/pip/projects/sub_alias/')
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp._headers['location'][1],
+            'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/'
+        )
 
+    @override_settings(USE_SUBDOMAIN=True)
     def test_resolver_subproject_subdomain_alias(self):
-        with override_settings(USE_SUBDOMAIN=True):
-            resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
-            self.assertEqual(resp.status_code, 302)
-            self.assertEqual(
-                resp._headers['location'][1],
-                'http://pip.readthedocs.org/projects/sub_alias/ja/latest/'
-            )
+        resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp._headers['location'][1],
+            'http://pip.readthedocs.org/projects/sub_alias/ja/latest/'
+        )
