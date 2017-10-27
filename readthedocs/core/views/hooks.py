@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.tasks import update_imported_docs
 
 import logging
@@ -21,6 +21,10 @@ log = logging.getLogger(__name__)
 
 class NoProjectException(Exception):
     pass
+
+
+def allow_deprecated_use(project):
+    return project.has_feature(Feature.ALLOW_DEPRECATED_WEBHOOKS)
 
 
 def _build_version(project, slug, already_built=()):
@@ -108,6 +112,13 @@ def _build_url(url, projects, branches):
     ret = ""
     all_built = {}
     all_not_building = {}
+
+    # This endpoint doesn't require authorization, we shouldn't allow builds to
+    # be triggered from this any longer. Deprecation plan is to selectively
+    # allow access to this endpoint for now.
+    if not any(allow_deprecated_use(project) for project in projects):
+        return HttpResponse('This API endpoint is deprecated', status=403)
+
     for project in projects:
         (built, not_building) = build_branches(project, branches)
         if not built:
@@ -314,6 +325,11 @@ def generic_build(request, project_id_or_slug=None):
                 project_id_or_slug)
             return HttpResponseNotFound(
                 'Repo not found: %s' % project_id_or_slug)
+    # This endpoint doesn't require authorization, we shouldn't allow builds to
+    # be triggered from this any longer. Deprecation plan is to selectively
+    # allow access to this endpoint for now.
+    if not allow_deprecated_use(project):
+        return HttpResponse('This API endpoint is deprecated', status=403)
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(
