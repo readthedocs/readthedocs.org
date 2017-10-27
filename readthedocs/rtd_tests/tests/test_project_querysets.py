@@ -40,19 +40,41 @@ class FeatureQuerySetTests(TestCase):
 
     def test_feature_for_project_is_implicitly_applied(self):
         project = fixture.get(Project, main_language_project=None)
+        # Explicit feature
         feature1 = fixture.get(Feature, projects=[project])
+        # False implicit feature
         feature2 = fixture.get(
             Feature,
             projects=[],
             add_date=project.pub_date + timedelta(days=1),
             default_true=False,
         )
+        # True implicit feature before add date
         feature3 = fixture.get(
             Feature,
             projects=[],
             add_date=project.pub_date + timedelta(days=1),
             default_true=True,
         )
-        self.assertTrue(project.has_feature(feature1.feature))
-        self.assertFalse(project.has_feature(feature2.feature))
-        self.assertTrue(project.has_feature(feature3.feature))
+        # True implicit feature after add date
+        feature4 = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date - timedelta(days=1),
+            default_true=True,
+        )
+        self.assertQuerysetEqual(
+            Feature.objects.for_project(project),
+            [repr(feature1), repr(feature3)],
+            ordered=False,
+        )
+
+    def test_feature_multiple_projects(self):
+        project1 = fixture.get(Project, main_language_project=None)
+        project2 = fixture.get(Project, main_language_project=None)
+        feature = fixture.get(Feature, projects=[project1, project2])
+        self.assertQuerysetEqual(
+            Feature.objects.for_project(project1),
+            [repr(feature)],
+            ordered=False,
+        )

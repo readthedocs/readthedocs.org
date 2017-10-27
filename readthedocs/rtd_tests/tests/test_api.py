@@ -245,6 +245,22 @@ class APITests(TestCase):
             [feature1.feature, feature2.feature]
         )
 
+    def test_project_features_multiple_projects(self):
+        user = get(User, is_staff=True)
+        project1 = get(Project, main_language_project=None)
+        project2 = get(Project, main_language_project=None)
+        feature = get(Feature, projects=[project1, project2], default_true=True)
+        client = APIClient()
+
+        client.force_authenticate(user=user)
+        resp = client.get('/api/v2/project/%s/' % (project1.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('features', resp.data)
+        self.assertEqual(
+            resp.data['features'],
+            [feature.feature]
+        )
+
 
 class APIImportTests(TestCase):
 

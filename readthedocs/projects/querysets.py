@@ -158,4 +158,4 @@ class FeatureQuerySet(models.QuerySet):
         return self.filter(
             Q(projects=project) |
             Q(default_true=True, add_date__gt=project.pub_date)
-        )
+        ).distinct()
