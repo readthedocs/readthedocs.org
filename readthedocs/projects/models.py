@@ -29,7 +29,6 @@ from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import make_api_version
 from readthedocs.projects.version_handling import determine_stable_version, version_windows
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
@@ -639,9 +638,10 @@ class Project(models.Model):
         return self.builds.filter(**kwargs).first()
 
     def api_versions(self):
+        from readthedocs.builds.models import APIVersion
         ret = []
         for version_data in api.project(self.pk).active_versions.get()['versions']:
-            version = make_api_version(version_data)
+            version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
 
@@ -828,11 +828,16 @@ class Project(models.Model):
 
 class APIProject(Project):
 
-    """Project object from API data deserialization
+    """Project proxy model for API data deserialization
 
-    This is to preserve the Project model methods for use in builder instances.
-    Properties can be read only here, as the builders don't need write access to
-    a number of attributes.
+    This replaces the pattern where API data was deserialized into a mocked
+    :py:cls:`Project` object. This pattern was confusing, as it was not explicit
+    as to what form of object you were working with -- API backed or database
+    backed.
+
+    This model preserves the Project model methods, allowing for overrides on
+    model field differences. This model pattern will generally only be used on
+    builder instances, where we are interacting solely with API data.
     """
 
     features = []
@@ -842,6 +847,12 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
+                    'main_language_project', 'related_projects']:
+            try:
+                del kwargs[key]
+            except KeyError:
+                pass
         super(APIProject, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -958,10 +969,8 @@ class Feature(models.Model):
     """Project feature flags
 
     Features should generally be added here as choices, however features may
-    also be added dynamically from a signal in other packages. See the
-    FeatureForm implementation for this.
-
-    Features can be added by external packages with the use of signals::
+    also be added dynamically from a signal in other packages. Features can be
+    added by external packages with the use of signals::
 
         @receiver(pre_init, sender=Feature)
         def add_features(sender, **kwargs):
@@ -990,12 +999,15 @@ class Feature(models.Model):
     )
 
     def __str__(self):
-        return "{0} feature for {1}".format(self.get_feature_display(), self.project)
+        return "{0} feature for {1}".format(
+            self.get_feature_display(),
+            self.project,
+        )
 
     def get_feature_display(self):
         """Implement display name field for fake ChoiceField
 
-        Because choices are implemented in FeatureForm, we need to reimplement
-        this here.
+        Because the field is not a ChoiceField here, we need to manually
+        implement this behavior.
         """
         return dict(self.FEATURES).get(self.feature, self.feature)

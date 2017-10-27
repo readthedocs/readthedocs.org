@@ -1,30 +1,31 @@
 """Utility functions used by projects"""
 
 from __future__ import absolute_import
-from builtins import object
+
 import fnmatch
+import logging
 import os
 import subprocess
 import traceback
-import logging
-from httplib2 import Http
 
 import redis
 import six
+from builtins import object
 from django.conf import settings
 from django.core.cache import cache
+from httplib2 import Http
 
 
 log = logging.getLogger(__name__)
 
 
+# TODO make this a classmethod of Version
 def version_from_slug(slug, version):
-    from readthedocs.projects import tasks
-    from readthedocs.builds.models import Version
+    from readthedocs.builds.models import Version, APIVersion
     from readthedocs.restapi.client import api
     if getattr(settings, 'DONT_HIT_DB', True):
         version_data = api.version().get(project=slug, slug=version)['results'][0]
-        v = tasks.make_api_version(version_data)
+        v = APIVersion(**version_data)
     else:
         v = Version.objects.get(project__slug=slug, slug=version)
     return v
@@ -167,35 +168,3 @@ class DictObj(object):
 
     def __getattr__(self, attr):
         return self.__dict__.get(attr)
-
-
-# Prevent saving the temporary Project instance
-def _new_save(*dummy_args, **dummy_kwargs):
-    log.warning("Called save on a non-real object.")
-    return 0
-
-
-def make_api_version(version_data):
-    """Make mock Version instance from API return"""
-    from readthedocs.builds.models import Version
-    for key in ['resource_uri', 'absolute_url', 'downloads']:
-        if key in version_data:
-            del version_data[key]
-    project_data = version_data['project']
-    project = make_api_project(project_data)
-    version_data['project'] = project
-    ver = Version(**version_data)
-    ver.save = _new_save
-
-    return ver
-
-
-def make_api_project(project_data):
-    """Make mock Project instance from API return"""
-    from readthedocs.projects.models import APIProject
-    for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
-                'main_language_project', 'related_projects']:
-        if key in project_data:
-            del project_data[key]
-    project = APIProject(**project_data)
-    return project
