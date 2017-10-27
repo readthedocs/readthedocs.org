@@ -610,7 +610,7 @@ class FeatureForm(forms.ModelForm):
 
     class Meta(object):
         model = Feature
-        fields = ['project', 'feature']
+        fields = ['projects', 'feature', 'default_true']
 
     def __init__(self, *args, **kwargs):
         super(FeatureForm, self).__init__(*args, **kwargs)

@@ -15,7 +15,7 @@ from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import Integration
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
@@ -226,6 +226,40 @@ class APITests(TestCase):
 
         resp = self.client.get("/api/v1/project/", data={"format": "json"})
         self.assertEqual(resp.status_code, 200)
+
+    def test_project_features(self):
+        user = get(User, is_staff=True)
+        project = get(Project, main_language_project=None)
+        # One explicit, one implicit feature
+        feature1 = get(Feature, projects=[project])
+        feature2 = get(Feature, projects=[], default_true=True)
+        feature3 = get(Feature, projects=[], default_true=False)
+        client = APIClient()
+
+        client.force_authenticate(user=user)
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('features', resp.data)
+        self.assertEqual(
+            resp.data['features'],
+            [feature1.feature, feature2.feature]
+        )
+
+    def test_project_features_multiple_projects(self):
+        user = get(User, is_staff=True)
+        project1 = get(Project, main_language_project=None)
+        project2 = get(Project, main_language_project=None)
+        feature = get(Feature, projects=[project1, project2], default_true=True)
+        client = APIClient()
+
+        client.force_authenticate(user=user)
+        resp = client.get('/api/v2/project/%s/' % (project1.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('features', resp.data)
+        self.assertEqual(
+            resp.data['features'],
+            [feature.feature]
+        )
 
 
 class APIImportTests(TestCase):
