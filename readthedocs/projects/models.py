@@ -26,7 +26,8 @@ from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
-    ChildRelatedProjectQuerySet
+    ChildRelatedProjectQuerySet,
+    FeatureQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.version_handling import determine_stable_version, version_windows
@@ -821,8 +822,17 @@ class Project(models.Model):
                                      hash=content_hash, commit=commit)
         return node.comments.create(user=user, text=text)
 
+    @property
+    def features(self):
+        return Feature.objects.for_project(self)
+
     def has_feature(self, feature):
-        """Does project have existing feature flag"""
+        """Does project have existing feature flag
+
+        If the feature has a historical True value before the feature was added,
+        we consider the project to have the flag. This is used for deprecating a
+        feature or changing behavior for new projects
+        """
         return self.features.filter(feature=feature).exists()
 
     def get_feature_value(self, feature, positive, negative):
@@ -999,21 +1009,31 @@ class Feature(models.Model):
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
     )
 
-    project = models.ForeignKey(
+    projects = models.ManyToManyField(
         Project,
-        related_name='features',
+        blank=True,
     )
     # Feature is not implemented as a ChoiceField, as we don't want validation
     # at the database level on this field. Arbitrary values are allowed here.
     feature = models.CharField(
-        _('Project feature'),
+        _('Feature identifier'),
         max_length=32,
+        unique=True,
+    )
+    add_date = models.DateTimeField(
+        _('Date feature was added'),
+        auto_now_add=True,
+    )
+    default_true = models.BooleanField(
+        _('Historical default is True'),
+        default=False,
     )
 
+    objects = FeatureQuerySet.as_manager()
+
     def __str__(self):
-        return "{0} feature for {1}".format(
+        return "{0} feature".format(
             self.get_feature_display(),
-            self.project,
         )
 
     def get_feature_display(self):
