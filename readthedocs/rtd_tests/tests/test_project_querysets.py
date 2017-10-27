@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
+from datetime import timedelta
+
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 
-from readthedocs.projects.models import Project, ProjectRelationship
+from readthedocs.projects.models import Project, ProjectRelationship, Feature
 from readthedocs.projects.querysets import (ParentRelatedProjectQuerySet,
                                             ChildRelatedProjectQuerySet)
 
@@ -27,3 +29,30 @@ class ProjectQuerySetTests(TestCase):
             mgr.__class__.__name__,
             'ManagerFromParentRelatedProjectQuerySetBase'
         )
+
+
+class FeatureQuerySetTests(TestCase):
+
+    def test_feature_for_project_is_explicit_applied(self):
+        project = fixture.get(Project, main_language_project=None)
+        feature = fixture.get(Feature, projects=[project])
+        self.assertTrue(project.has_feature(feature.feature))
+
+    def test_feature_for_project_is_implicitly_applied(self):
+        project = fixture.get(Project, main_language_project=None)
+        feature1 = fixture.get(Feature, projects=[project])
+        feature2 = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date + timedelta(days=1),
+            default_true=False,
+        )
+        feature3 = fixture.get(
+            Feature,
+            projects=[],
+            add_date=project.pub_date + timedelta(days=1),
+            default_true=True,
+        )
+        self.assertTrue(project.has_feature(feature1.feature))
+        self.assertFalse(project.has_feature(feature2.feature))
+        self.assertTrue(project.has_feature(feature3.feature))

@@ -184,8 +184,13 @@ class DomainAdmin(admin.ModelAdmin):
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
-    list_display = ('project', 'feature')
-    search_fields = ('project__name', 'project__slug', 'feature')
+    list_display = ('feature', 'foo')
+    search_fields = ('feature',)
+    filter_horizontal = ('projects',)
+    readonly_fields = ('add_date',)
+
+    def foo(self):
+        return 'x'
 
 
 admin.site.register(Project, ProjectAdmin)
