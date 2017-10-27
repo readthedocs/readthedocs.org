@@ -991,10 +991,12 @@ class Feature(models.Model):
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
+    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
+        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
     )
 
     project = models.ForeignKey(
