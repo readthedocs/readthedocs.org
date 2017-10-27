@@ -184,6 +184,8 @@ class DomainAdmin(admin.ModelAdmin):
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
+    list_display = ('project', 'feature')
+    search_fields = ('project__name', 'project__slug', 'feature')
 
 
 admin.site.register(Project, ProjectAdmin)
