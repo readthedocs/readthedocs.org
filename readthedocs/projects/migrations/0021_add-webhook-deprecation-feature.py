@@ -14,7 +14,6 @@ def forward_add_feature(apps, schema_editor):
     Feature = apps.get_model('projects', 'Feature')
     Feature.objects.create(
         feature=FEATURE_ID,
-        projects=[],
         default_true=True,
     )
 
