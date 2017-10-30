@@ -184,18 +184,13 @@ class DomainAdmin(admin.ModelAdmin):
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
-    list_display = ('feature', 'projects_list', 'default_true')
-    search_fields = ('feature',)
+    list_display = ('feature_id', 'project_count', 'default_true')
+    search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)
 
-    def projects_list(self, feature):
-        projects = [p.name for p in feature.projects.all()[0:10]]
-        if feature.projects.count() > 10:
-            projects += [
-                '... and {0} more'.format(feature.projects.count() - 10)
-            ]
-        return ', '.join(projects)
+    def project_count(self, feature):
+        return feature.projects.count()
 
 
 admin.site.register(Project, ProjectAdmin)

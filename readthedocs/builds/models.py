@@ -322,8 +322,8 @@ class APIVersion(Version):
 
     def __init__(self, *args, **kwargs):
         self.project = APIProject(**kwargs.pop('project', {}))
-        # This was replicated from readthedocs.projects.utils.make_api_project.
-        # I'm not certain why these need to be deleted
+        # These fields only exist on the API return, not on the model, so we'll
+        # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['resource_uri', 'absolute_url', 'downloads']:
             try:
                 del kwargs[key]
