@@ -130,7 +130,9 @@ class Virtualenv(PythonEnvironment):
             requirements.append('mkdocs==0.15.0')
         else:
             if self.project.has_feature(Feature.USE_SPHINX_LATEST):
-                requirements.append('sphinx')
+                # We will assume semver here and only automate up to the next
+                # backward incompatible release: 2.x
+                requirements.append('sphinx<2')
             else:
                 requirements.append('sphinx==1.5.6')
             requirements.extend([
