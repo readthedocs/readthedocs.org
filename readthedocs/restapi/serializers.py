@@ -37,7 +37,7 @@ class ProjectAdminSerializer(ProjectSerializer):
     features = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field='feature',
+        slug_field='feature_id',
     )
 
     class Meta(ProjectSerializer.Meta):

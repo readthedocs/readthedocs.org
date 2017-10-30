@@ -136,7 +136,7 @@ class Virtualenv(PythonEnvironment):
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    'sphinx<1.7',
+                    'sphinx',
                     'sphinx==1.5.6',
                 ),
                 'sphinx-rtd-theme<0.3',
