@@ -36,7 +36,7 @@ class FeatureQuerySetTests(TestCase):
     def test_feature_for_project_is_explicit_applied(self):
         project = fixture.get(Project, main_language_project=None)
         feature = fixture.get(Feature, projects=[project])
-        self.assertTrue(project.has_feature(feature.feature))
+        self.assertTrue(project.has_feature(feature.feature_id))
 
     def test_feature_for_project_is_implicitly_applied(self):
         project = fixture.get(Project, main_language_project=None)

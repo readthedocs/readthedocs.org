@@ -826,14 +826,14 @@ class Project(models.Model):
     def features(self):
         return Feature.objects.for_project(self)
 
-    def has_feature(self, feature):
+    def has_feature(self, feature_id):
         """Does project have existing feature flag
 
         If the feature has a historical True value before the feature was added,
         we consider the project to have the flag. This is used for deprecating a
         feature or changing behavior for new projects
         """
-        return self.features.filter(feature=feature).exists()
+        return self.features.filter(feature_id=feature_id).exists()
 
 
 class APIProject(Project):
@@ -857,6 +857,8 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        # These fields only exist on the API return, not on the model, so we'll
+        # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
                     'main_language_project', 'related_projects']:
             try:
@@ -868,8 +870,8 @@ class APIProject(Project):
     def save(self, *args, **kwargs):
         return 0
 
-    def has_feature(self, feature):
-        return feature in self.features
+    def has_feature(self, feature_id):
+        return feature_id in self.features
 
 
 @python_2_unicode_compatible
@@ -1003,7 +1005,7 @@ class Feature(models.Model):
     )
     # Feature is not implemented as a ChoiceField, as we don't want validation
     # at the database level on this field. Arbitrary values are allowed here.
-    feature = models.CharField(
+    feature_id = models.CharField(
         _('Feature identifier'),
         max_length=32,
         unique=True,
@@ -1030,4 +1032,4 @@ class Feature(models.Model):
         Because the field is not a ChoiceField here, we need to manually
         implement this behavior.
         """
-        return dict(self.FEATURES).get(self.feature, self.feature)
+        return dict(self.FEATURES).get(self.feature_id, self.feature_id)
