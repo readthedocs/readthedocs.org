@@ -242,7 +242,7 @@ class APITests(TestCase):
         self.assertIn('features', resp.data)
         self.assertEqual(
             resp.data['features'],
-            [feature1.feature, feature2.feature]
+            [feature1.feature_id, feature2.feature_id]
         )
 
     def test_project_features_multiple_projects(self):
@@ -258,7 +258,7 @@ class APITests(TestCase):
         self.assertIn('features', resp.data)
         self.assertEqual(
             resp.data['features'],
-            [feature.feature]
+            [feature.feature_id]
         )
 
 
