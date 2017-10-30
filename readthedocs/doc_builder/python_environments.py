@@ -119,7 +119,7 @@ class Virtualenv(PythonEnvironment):
             'Pygments==2.2.0',
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                'setuptools<36.7',
+                'setuptools',
                 'setuptools==28.8.0',
             ),
             'docutils==0.13.1',
