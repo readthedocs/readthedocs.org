@@ -13,14 +13,14 @@ FEATURE_ID = 'allow_deprecated_webhooks'
 def forward_add_feature(apps, schema_editor):
     Feature = apps.get_model('projects', 'Feature')
     Feature.objects.create(
-        feature=FEATURE_ID,
+        feature_id=FEATURE_ID,
         default_true=True,
     )
 
 
 def reverse_add_feature(apps, schema_editor):
     Feature = apps.get_model('projects', 'Feature')
-    Feature.objects.filter(feature=FEATURE_ID).delete()
+    Feature.objects.filter(feature_id=FEATURE_ID).delete()
 
 
 class Migration(migrations.Migration):
