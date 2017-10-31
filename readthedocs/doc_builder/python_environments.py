@@ -117,9 +117,11 @@ class Virtualenv(PythonEnvironment):
         """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
             'Pygments==2.2.0',
+            # Assume semver for setuptools version, support up to next backwards
+            # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                'setuptools',
+                'setuptools<37',
                 'setuptools==28.8.0',
             ),
             'docutils==0.13.1',
