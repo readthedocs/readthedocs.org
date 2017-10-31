@@ -152,7 +152,7 @@ class Virtualenv(PythonEnvironment):
             self.venv_bin(filename='pip'),
             'install',
             '--use-wheel',
-            '-U',
+            '--upgrade',
             '--cache-dir',
             self.project.pip_cache_path,
         ]
@@ -182,14 +182,21 @@ class Virtualenv(PythonEnvironment):
                         break
 
         if requirements_file_path:
-            self.build_env.run(
+            args = [
                 'python',
                 self.venv_bin(filename='pip'),
                 'install',
+            ]
+            if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
+                args += ['--upgrade']
+            args += [
                 '--exists-action=w',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r{0}'.format(requirements_file_path),
+            ]
+            self.build_env.run(
+                *args,
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin()
             )
