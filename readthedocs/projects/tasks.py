@@ -29,14 +29,13 @@ from .constants import LOG_TEMPLATE
 from .exceptions import ProjectImportError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
-from .utils import make_api_version, make_api_project
 from readthedocs.api.client import api as api_v1
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
                                           BUILD_STATE_BUILDING,
                                           BUILD_STATE_FINISHED)
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
 from readthedocs.cdn.purge import purge
@@ -49,6 +48,7 @@ from readthedocs.doc_builder.environments import (LocalEnvironment,
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
+from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
@@ -235,7 +235,7 @@ class UpdateDocsTask(Task):
     def get_project(project_pk):
         """Get project from API"""
         project_data = api_v2.project(project_pk).get()
-        project = make_api_project(project_data)
+        project = APIProject(**project_data)
         return project
 
     @staticmethod
@@ -247,7 +247,7 @@ class UpdateDocsTask(Task):
             version_data = (api_v2
                             .version(project.slug)
                             .get(slug=LATEST)['objects'][0])
-        return make_api_version(version_data)
+        return APIVersion(**version_data)
 
     @staticmethod
     def get_build(build_pk):
@@ -510,7 +510,7 @@ def update_imported_docs(version_pk):
     :param version_pk: Version id to update
     """
     version_data = api_v2.version(version_pk).get()
-    version = make_api_version(version_data)
+    version = APIVersion(**version_data)
     project = version.project
     ret_dict = {}
 

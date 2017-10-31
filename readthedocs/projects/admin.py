@@ -13,9 +13,10 @@ from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
 from readthedocs.notifications.views import SendNotificationView
 
-from .notifications import ResourceUsageNotification
-from .models import (Project, ImportedFile,
+from .forms import FeatureForm
+from .models import (Project, ImportedFile, Feature,
                      ProjectRelationship, EmailHook, WebHook, Domain)
+from .notifications import ResourceUsageNotification
 from .tasks import remove_dir
 
 
@@ -180,8 +181,21 @@ class DomainAdmin(admin.ModelAdmin):
     model = Domain
 
 
+class FeatureAdmin(admin.ModelAdmin):
+    model = Feature
+    form = FeatureForm
+    list_display = ('feature_id', 'project_count', 'default_true')
+    search_fields = ('feature_id',)
+    filter_horizontal = ('projects',)
+    readonly_fields = ('add_date',)
+
+    def project_count(self, feature):
+        return feature.projects.count()
+
+
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
 admin.site.register(Domain, DomainAdmin)
+admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
