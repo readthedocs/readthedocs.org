@@ -835,6 +835,14 @@ class Project(models.Model):
         """
         return self.features.filter(feature_id=feature_id).exists()
 
+    def get_feature_value(self, feature, positive, negative):
+        """Look up project feature, return corresponding value
+
+        If a project has a feature, return ``positive``, otherwise return
+        ``negative``
+        """
+        return positive if self.has_feature(feature) else negative
+
 
 class APIProject(Project):
 
@@ -994,9 +1002,11 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
+    USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
     )
 
     projects = models.ManyToManyField(
