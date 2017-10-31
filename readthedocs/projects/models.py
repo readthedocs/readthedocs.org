@@ -26,10 +26,10 @@ from readthedocs.projects.exceptions import ProjectImportError
 from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
-    ChildRelatedProjectQuerySet
+    ChildRelatedProjectQuerySet,
+    FeatureQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import make_api_version
 from readthedocs.projects.version_handling import determine_stable_version, version_windows
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
@@ -639,9 +639,10 @@ class Project(models.Model):
         return self.builds.filter(**kwargs).first()
 
     def api_versions(self):
+        from readthedocs.builds.models import APIVersion
         ret = []
         for version_data in api.project(self.pk).active_versions.get()['versions']:
-            version = make_api_version(version_data)
+            version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
 
@@ -821,6 +822,65 @@ class Project(models.Model):
                                      hash=content_hash, commit=commit)
         return node.comments.create(user=user, text=text)
 
+    @property
+    def features(self):
+        return Feature.objects.for_project(self)
+
+    def has_feature(self, feature_id):
+        """Does project have existing feature flag
+
+        If the feature has a historical True value before the feature was added,
+        we consider the project to have the flag. This is used for deprecating a
+        feature or changing behavior for new projects
+        """
+        return self.features.filter(feature_id=feature_id).exists()
+
+    def get_feature_value(self, feature, positive, negative):
+        """Look up project feature, return corresponding value
+
+        If a project has a feature, return ``positive``, otherwise return
+        ``negative``
+        """
+        return positive if self.has_feature(feature) else negative
+
+
+class APIProject(Project):
+
+    """Project proxy model for API data deserialization
+
+    This replaces the pattern where API data was deserialized into a mocked
+    :py:cls:`Project` object. This pattern was confusing, as it was not explicit
+    as to what form of object you were working with -- API backed or database
+    backed.
+
+    This model preserves the Project model methods, allowing for overrides on
+    model field differences. This model pattern will generally only be used on
+    builder instances, where we are interacting solely with API data.
+    """
+
+    features = []
+
+    class Meta:
+        proxy = True
+
+    def __init__(self, *args, **kwargs):
+        self.features = kwargs.pop('features', [])
+        # These fields only exist on the API return, not on the model, so we'll
+        # remove them to avoid throwing exceptions due to unexpected fields
+        for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
+                    'main_language_project', 'related_projects']:
+            try:
+                del kwargs[key]
+            except KeyError:
+                pass
+        super(APIProject, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return 0
+
+    def has_feature(self, feature_id):
+        return feature_id in self.features
+
 
 @python_2_unicode_compatible
 class ImportedFile(models.Model):
@@ -921,3 +981,69 @@ class Domain(models.Model):
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain, args=[self.project.pk, self.pk, True])
         super(Domain, self).delete(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Feature(models.Model):
+
+    """Project feature flags
+
+    Features should generally be added here as choices, however features may
+    also be added dynamically from a signal in other packages. Features can be
+    added by external packages with the use of signals::
+
+        @receiver(pre_init, sender=Feature)
+        def add_features(sender, **kwargs):
+            sender.FEATURES += (('blah', 'BLAH'),)
+
+    The FeatureForm will grab the updated list on instantiation.
+    """
+
+    # Feature constants - this is not a exhaustive list of features, features
+    # may be added by other packages
+    USE_SPHINX_LATEST = 'use_sphinx_latest'
+    USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
+    ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
+    PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+
+    FEATURES = (
+        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
+        (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
+        (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+    )
+
+    projects = models.ManyToManyField(
+        Project,
+        blank=True,
+    )
+    # Feature is not implemented as a ChoiceField, as we don't want validation
+    # at the database level on this field. Arbitrary values are allowed here.
+    feature_id = models.CharField(
+        _('Feature identifier'),
+        max_length=32,
+        unique=True,
+    )
+    add_date = models.DateTimeField(
+        _('Date feature was added'),
+        auto_now_add=True,
+    )
+    default_true = models.BooleanField(
+        _('Historical default is True'),
+        default=False,
+    )
+
+    objects = FeatureQuerySet.as_manager()
+
+    def __str__(self):
+        return "{0} feature".format(
+            self.get_feature_display(),
+        )
+
+    def get_feature_display(self):
+        """Implement display name field for fake ChoiceField
+
+        Because the field is not a ChoiceField here, we need to manually
+        implement this behavior.
+        """
+        return dict(self.FEATURES).get(self.feature_id, self.feature_id)
