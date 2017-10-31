@@ -121,8 +121,8 @@ class Virtualenv(PythonEnvironment):
             # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                'setuptools<37',
-                'setuptools==28.8.0',
+                positive='setuptools<37',
+                negative='setuptools==28.8.0',
             ),
             'docutils==0.13.1',
             'mock==1.0.1',
@@ -140,8 +140,8 @@ class Virtualenv(PythonEnvironment):
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    'sphinx<2',
-                    'sphinx==1.5.6',
+                    positive='sphinx<2',
+                    negative='sphinx==1.5.6',
                 ),
                 'sphinx-rtd-theme<0.3',
                 'readthedocs-sphinx-ext<0.6'
@@ -152,7 +152,7 @@ class Virtualenv(PythonEnvironment):
             self.venv_bin(filename='pip'),
             'install',
             '--use-wheel',
-            '-U',
+            '--upgrade',
             '--cache-dir',
             self.project.pip_cache_path,
         ]
@@ -182,14 +182,21 @@ class Virtualenv(PythonEnvironment):
                         break
 
         if requirements_file_path:
-            self.build_env.run(
+            args = [
                 'python',
                 self.venv_bin(filename='pip'),
                 'install',
+            ]
+            if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
+                args += ['--upgrade']
+            args += [
                 '--exists-action=w',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r{0}'.format(requirements_file_path),
+            ]
+            self.build_env.run(
+                *args,
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin()
             )

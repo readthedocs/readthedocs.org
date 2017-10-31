@@ -606,12 +606,12 @@ class FeatureForm(forms.ModelForm):
     can dynamically populate this list.
     """
 
-    feature = forms.ChoiceField()
+    feature_id = forms.ChoiceField()
 
     class Meta(object):
         model = Feature
-        fields = ['projects', 'feature', 'default_true']
+        fields = ['projects', 'feature_id', 'default_true']
 
     def __init__(self, *args, **kwargs):
         super(FeatureForm, self).__init__(*args, **kwargs)
-        self.fields['feature'].choices = Feature.FEATURES
+        self.fields['feature_id'].choices = Feature.FEATURES
