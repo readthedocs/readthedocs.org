@@ -117,9 +117,11 @@ class Virtualenv(PythonEnvironment):
         """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
             'Pygments==2.2.0',
+            # Assume semver for setuptools version, support up to next backwards
+            # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                'setuptools',
+                'setuptools<37',
                 'setuptools==28.8.0',
             ),
             'docutils==0.13.1',
@@ -133,10 +135,12 @@ class Virtualenv(PythonEnvironment):
         if self.project.documentation_type == 'mkdocs':
             requirements.append('mkdocs==0.15.0')
         else:
+            # We will assume semver here and only automate up to the next
+            # backward incompatible release: 2.x
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    'sphinx',
+                    'sphinx<2',
                     'sphinx==1.5.6',
                 ),
                 'sphinx-rtd-theme<0.3',
