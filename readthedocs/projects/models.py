@@ -1002,17 +1002,11 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
-<<<<<<< HEAD
     USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
-=======
-
-    FEATURES = (
-        (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
->>>>>>> master
     )
 
     projects = models.ManyToManyField(
