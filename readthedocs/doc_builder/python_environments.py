@@ -133,10 +133,12 @@ class Virtualenv(PythonEnvironment):
         if self.project.documentation_type == 'mkdocs':
             requirements.append('mkdocs==0.15.0')
         else:
+            # We will assume semver here and only automate up to the next
+            # backward incompatible release: 2.x
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    'sphinx',
+                    'sphinx<2',
                     'sphinx==1.5.6',
                 ),
                 'sphinx-rtd-theme<0.3',

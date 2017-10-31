@@ -36,7 +36,7 @@ Promo.prototype.create = function () {
         var promo_about = $('<div />')
             .attr('class', 'rtd-pro-about');
         var promo_about_link = $('<a />')
-            .attr('href', 'http://docs.readthedocs.io/en/latest/ethical-advertising.html')
+            .attr('href', 'https://readthedocs.org/sustainability/advertising/')
             .appendTo(promo_about);
         var promo_about_icon = $('<i />')
             .attr('class', 'fa fa-info-circle')
