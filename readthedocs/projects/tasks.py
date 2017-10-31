@@ -984,3 +984,8 @@ def clear_html_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
     remove_dir(version.project.rtd_build_path(version=version.slug))
+
+
+@task()
+def bulk_delete_projects(projects_id):
+    Project.objects.filter(id__in=projects_id).delete()
