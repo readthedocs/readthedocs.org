@@ -23,7 +23,7 @@ class NoProjectException(Exception):
     pass
 
 
-def allow_deprecated_use(project):
+def _allow_deprecated_webhook(project):
     return project.has_feature(Feature.ALLOW_DEPRECATED_WEBHOOKS)
 
 
@@ -116,7 +116,7 @@ def _build_url(url, projects, branches):
     # This endpoint doesn't require authorization, we shouldn't allow builds to
     # be triggered from this any longer. Deprecation plan is to selectively
     # allow access to this endpoint for now.
-    if not any(allow_deprecated_use(project) for project in projects):
+    if not any(_allow_deprecated_webhook(project) for project in projects):
         return HttpResponse('This API endpoint is deprecated', status=403)
 
     for project in projects:
@@ -328,7 +328,7 @@ def generic_build(request, project_id_or_slug=None):
     # This endpoint doesn't require authorization, we shouldn't allow builds to
     # be triggered from this any longer. Deprecation plan is to selectively
     # allow access to this endpoint for now.
-    if not allow_deprecated_use(project):
+    if not _allow_deprecated_webhook(project):
         return HttpResponse('This API endpoint is deprecated', status=403)
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
