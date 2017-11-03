@@ -644,18 +644,18 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
         Syncer.copy(from_path, target, host=hostname)
 
     if 'sphinx' in version.project.documentation_type:
-        if localmedia:
-            from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_localmedia')
-            to_path = version.project.get_production_media_path(
-                type_='htmlzip', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
         if search:
             from_path = version.project.artifact_path(
                 version=version.slug, type_='sphinx_search')
             to_path = version.project.get_production_media_path(
                 type_='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+        if localmedia:
+            from_path = version.project.artifact_path(
+                version=version.slug, type_='sphinx_localmedia')
+            to_path = version.project.get_production_media_path(
+                type_='htmlzip', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
 
         # Always move PDF's because the return code lies.
