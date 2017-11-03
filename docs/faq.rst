@@ -104,7 +104,7 @@ If you add a subproject to a project,
 that documentation will also be served under the parent project's subdomain.
 
 For example,
-Kombu is a subproject of celery,
+Kombu is a subproject of Celery,
 so you can access it on the `celery.readthedocs.io` domain:
 
 http://celery.readthedocs.io/projects/kombu/en/latest/
