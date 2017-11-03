@@ -42,3 +42,4 @@ private_*
 .rope_project/
 readthedocs/htmlcov
 tags
+.python-version
