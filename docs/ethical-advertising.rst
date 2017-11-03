@@ -17,15 +17,18 @@ and also new companies that care about supporting the open source community.
 We feel like this is something we can be proud of,
 and we can start leading the ad industry in the right direction.
 
+.. note::
+
+   **Are you a marketer?**
+   `Learn more <https://readthedocs.org/sustainability/advertising/>`_ about how you can connect with the millions of developers who Read the Docs each month.
+
+
 We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
 We're a community,
 and we value your feedback.
 If you ever want to reach out about this effort,
 feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 You can also :ref:`opt out <opt-out>` if you prefer.
-
-If you're a **marketer**,
-we have :ref:`information <ethical-buy-ads>` on how to get in touch with us about running ads.
 
 We have gone into more detail about our views in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
 Also,
@@ -104,19 +107,15 @@ We hope that others will join us in this mission:
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
-.. _ethical-buy-ads:
-
 Advertise with us
 -----------------
 
 If you like our vision,
 let's work together to get your ad in front of the Read the Docs audience.
-We have over 5 million developers reading documentation each month,
+We have over 7 million developers reading documentation each month,
 and provide a valuable service to the open source community.
 
-**We only work with people who sell products that would be of interest to our audience of programmers and users of open source.**
-
-Fill out your information and we'll get in touch.
+A member of our team will reach out to you with more information and help you to get started promoting your product or brand to millions of developers and ensure you reach your advertising goals.
 
 .. raw:: html
 
@@ -132,17 +131,17 @@ Fill out your information and we'll get in touch.
     }
     </style>
     <form action="https://formspree.io/rev@readthedocs.org" method="POST" class="advertising">
-        <label>Your name</label>
-        <input type="text" name="name" size=50 />
-        <label>Your work email</label>
-        <input type="email" name="_replyto" size=40 required/>
-        <label>What is your job?</label>
-        <input type="text" name="job" size=50 />
-        <input type="submit" value="Send" class="btn" />
+        <label>Name</label>
+        <input type="text" name="name" size="50" placeholder="Your name" required>
+        <label>Email</label>
+        <input type="email" name="_replyto" size="50" placeholder="you@yourcompany.com" required>
+        <label>Your Company</label>
+        <input type="text" name="company" size="50" placeholder="Your company or organization" required>
+        <input type="submit" value="Send" class="btn">
 
-        <input type="hidden" name="_subject" value="Read the Docs Advertising Inquiry" />
-        <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html" />
-        <input type="text" name="_gotcha" style="display:none" />
+        <input type="hidden" name="_subject" value="Read the Docs Advertising Inquiry">
+        <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html">
+        <input type="text" name="_gotcha" style="display:none">
     </form>
 
 
