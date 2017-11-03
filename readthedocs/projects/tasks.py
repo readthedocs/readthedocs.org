@@ -370,7 +370,7 @@ class UpdateDocsTask(Task):
 
             # We're waiting to make sure all the file syncing has happened,
             # so we can perform other options on those files without a race conflict.
-            # This has a low (5 second) timeout, so we don't wait forever,
+            # This has a low (5 second * 4) timeout, so we don't wait forever,
             # but should capture most failure cases for now.
             for result in task_results:
                 task.get(timeout=5)
