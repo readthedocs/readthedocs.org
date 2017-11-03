@@ -346,12 +346,12 @@ class UpdateDocsTask(Task):
                     'active': True,
                     'built': True,
                 })
-        except HttpClientError as e:
+        except HttpClientError:
             log.error('Updating version failed, skipping file sync: version=%s',
                       self.version.pk, exc_info=True)
         else:
             # Broadcast finalization steps to web application instances
-            broadcast(
+            task_results = broadcast(
                 type='app',
                 task=sync_files,
                 args=[
@@ -368,11 +368,13 @@ class UpdateDocsTask(Task):
                 )
             )
 
-            # Delayed tasks
-            # TODO these should be chained on to the broadcast calls. The
-            # broadcast calls could be lumped together into a promise, and on
-            # task result, these next few tasks can be updated, also in a
-            # chained fashion
+            # We're waiting to make sure all the file syncing has happened,
+            # so we can perform other options on those files without a race conflict.
+            # This has a low (5 second) timeout, so we don't wait forever,
+            # but should capture most failure cases for now.
+            for result in task_results:
+                task.get(timeout=5)
+
             fileify.delay(self.version.pk, commit=self.build.get('commit'))
             update_search.delay(self.version.pk, commit=self.build.get('commit'))
 

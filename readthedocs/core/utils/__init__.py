@@ -26,6 +26,11 @@ SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
 def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
+    """
+    Run a broadcast across our servers.
+
+    Returns the task results for each task that was run.
+    """
     assert type in ['web', 'app', 'build']
     if kwargs is None:
         kwargs = {}
@@ -34,12 +39,15 @@ def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-built
         servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
     elif type in ['build']:
         servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", [default_queue])
+    task_results = []
     for server in servers:
-        task.apply_async(
+        task_result = task.apply_async(
             queue=server,
             args=args,
             kwargs=kwargs,
         )
+        task_results += task_result
+    return task_results
 
 
 def clean_url(url):
