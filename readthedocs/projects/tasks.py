@@ -371,9 +371,6 @@ class UpdateDocsTask(Task):
                 callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
             )
 
-            # fileify.delay(self.version.pk, commit=self.build.get('commit'))
-            # update_search.delay(self.version.pk, commit=self.build.get('commit'))
-
     def setup_environment(self):
         """
         Build the virtualenv and install the project into it.
