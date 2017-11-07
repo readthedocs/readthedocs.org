@@ -46,7 +46,7 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         task_sig = task.s(*args, **kwargs).set(queue=server)
         tasks.append(task_sig)
     if callback:
-        task_promise = chord(*tasks)(callback).get()
+        task_promise = chord(tasks)(callback).get()
         log.debug('Sent Chord: {}'.format(locals()))
     else:
         task_promise = group(*tasks).apply_async()
