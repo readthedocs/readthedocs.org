@@ -73,6 +73,6 @@ class ProjectAdminActionsTest(TestCase):
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
         remove_dir.s.assert_has_calls([
             mock.call(
-                '/Users/eric/projects/readthedocs.org/user_builds/1'
+                self.project.doc_path,
             ),
         ])
