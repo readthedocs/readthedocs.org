@@ -224,6 +224,8 @@ class UpdateDocsTask(Task):
                     pdf=bool(outcomes['pdf']),
                     epub=bool(outcomes['epub']),
                 )
+            else:
+                log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
             self.send_notifications()
@@ -351,7 +353,8 @@ class UpdateDocsTask(Task):
                       self.version.pk, exc_info=True)
         else:
             # Broadcast finalization steps to web application instances
-            task_results = broadcast(
+
+            broadcast(
                 type='app',
                 task=sync_files,
                 args=[
@@ -365,18 +368,12 @@ class UpdateDocsTask(Task):
                     search=search,
                     pdf=pdf,
                     epub=epub,
-                )
+                ),
+                callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
             )
 
-            # We're waiting to make sure all the file syncing has happened,
-            # so we can perform other options on those files without a race conflict.
-            # This has a low (5 second * 4) timeout, so we don't wait forever,
-            # but should capture most failure cases for now.
-            for result in task_results:
-                task.get(timeout=5)
-
-            fileify.delay(self.version.pk, commit=self.build.get('commit'))
-            update_search.delay(self.version.pk, commit=self.build.get('commit'))
+            # fileify.delay(self.version.pk, commit=self.build.get('commit'))
+            # update_search.delay(self.version.pk, commit=self.build.get('commit'))
 
     def setup_environment(self):
         """
@@ -636,6 +633,8 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     :type epub: bool
     """
     version = Version.objects.get(pk=version_pk)
+    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
+                                  msg='Moving files: {}'.format(locals())))
 
     if html:
         from_path = version.project.artifact_path(
@@ -986,3 +985,14 @@ def clear_html_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
     remove_dir(version.project.rtd_build_path(version=version.slug))
+
+
+@task(queue='web')
+def sync_callback(_, version_pk, commit, *args, **kwargs):
+    """
+    This will be called once the sync_files tasks are done.
+
+    The first argument is the result from previous tasks, which we discard.
+    """
+    fileify(version_pk, commit=commit)
+    update_search(version_pk, commit=commit)

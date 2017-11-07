@@ -357,7 +357,7 @@ class CommunityBaseSettings(Settings):
             'debug': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
-                'filename': 'debug.log',
+                'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
         },

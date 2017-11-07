@@ -33,6 +33,7 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
 
     HAYSTACK_CONNECTIONS = {
@@ -55,6 +56,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super(CommunityDevSettings, self).LOGGING
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        logging['handlers']['console']['level'] = 'DEBUG'
+        logging['loggers']['']['handlers'] = []
         return logging
 
 
