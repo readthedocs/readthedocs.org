@@ -281,11 +281,10 @@ class UpdateDocsTask(Task):
             if commit:
                 self.build['commit'] = commit
         except ProjectImportError as e:
-            log.error(
+            log.exception(
                 LOG_TEMPLATE.format(project=self.project.slug,
                                     version=self.version.slug,
-                                    msg=str(e)),
-                exc_info=True,
+                                    msg='Failed to import Project: '),
             )
             raise BuildEnvironmentError('Failed to import project: %s' % e,
                                         status_code=404)
@@ -437,8 +436,7 @@ class UpdateDocsTask(Task):
                       kwargs=dict(html=True)
                       )
         except socket.error:
-            # TODO do something here
-            pass
+            log.exception('move_files task has failed on socket error.')
 
         return success
 
@@ -545,8 +543,6 @@ def update_imported_docs(version_pk):
                 version_slug = LATEST
                 version_repo = project.vcs_repo(version_slug)
                 ret_dict['checkout'] = version_repo.update()
-        except Exception:
-            raise
         finally:
             after_vcs.send(sender=version)
 
