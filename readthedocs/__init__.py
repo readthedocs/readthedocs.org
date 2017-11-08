@@ -1,1 +1,2 @@
-from .tasks import app
+# Import the Celery application before anything else happens
+from .worker import app
