@@ -30,7 +30,10 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     """
     Run a broadcast across our servers.
 
-    Returns the task results for each task that was run.
+    Returns a task group that can be checked for results.
+
+    `callback` should be a task signature that will be run once,
+    after all of the broadcast tasks have finished running.
     """
     assert type in ['web', 'app', 'build']
     if kwargs is None:
@@ -47,10 +50,8 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         tasks.append(task_sig)
     if callback:
         task_promise = chord(tasks)(callback).get()
-        log.debug('Sent Chord: {}'.format(locals()))
     else:
         task_promise = group(*tasks).apply_async()
-        log.debug('Sent Group: {}'.format(locals()))
     return task_promise
 
 

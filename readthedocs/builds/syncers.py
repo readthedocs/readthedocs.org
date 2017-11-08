@@ -140,8 +140,7 @@ class RemotePuller(object):
         )
         ret = os.system(sync_cmd)
         if ret != 0:
-            log.error("COPY ERROR to app servers. Return code: {}".format(ret))
-            log.error("COPY ERROR command run: {}".format(sync_cmd))
+            log.error("COPY ERROR to app servers. Command: [{}] Return: [{}]".format(sync_cmd, ret))
 
 
 class Syncer(SettingsOverrideObject):
