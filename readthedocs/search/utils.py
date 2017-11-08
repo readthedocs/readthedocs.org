@@ -266,7 +266,7 @@ def parse_mkdocs_sections(content):
     # we're unsure which exceptions can be raised
     # pylint: disable=bare-except
     except:
-        log.error('Failed indexing', exc_info=True)
+        log.exception('Failed indexing')
 
 
 def parse_sections(documentation_type, content):

@@ -433,7 +433,7 @@ class BuildEnvironment(object):
         except HttpClientError as e:
             log.error("Unable to post a new build: %s", e.content)
         except Exception:
-            log.error("Unknown build exception", exc_info=True)
+            log.exception("Unknown build exception")
 
 
 class LocalEnvironment(BuildEnvironment):
