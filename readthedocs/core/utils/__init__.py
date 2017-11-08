@@ -14,6 +14,7 @@ from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 from future.backports.urllib.parse import urlparse
+from celery import group, chord
 
 from ..tasks import send_email_task
 from readthedocs.builds.constants import LATEST
@@ -25,7 +26,15 @@ log = logging.getLogger(__name__)
 SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
-def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
+def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
+    """
+    Run a broadcast across our servers.
+
+    Returns a task group that can be checked for results.
+
+    `callback` should be a task signature that will be run once,
+    after all of the broadcast tasks have finished running.
+    """
     assert type in ['web', 'app', 'build']
     if kwargs is None:
         kwargs = {}
@@ -34,12 +43,16 @@ def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-built
         servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
     elif type in ['build']:
         servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", [default_queue])
+
+    tasks = []
     for server in servers:
-        task.apply_async(
-            queue=server,
-            args=args,
-            kwargs=kwargs,
-        )
+        task_sig = task.s(*args, **kwargs).set(queue=server)
+        tasks.append(task_sig)
+    if callback:
+        task_promise = chord(tasks)(callback).get()
+    else:
+        task_promise = group(*tasks).apply_async()
+    return task_promise
 
 
 def clean_url(url):

@@ -71,10 +71,8 @@ class ProjectAdminActionsTest(TestCase):
             action_data
         )
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
-        remove_dir.apply_async.assert_has_calls([
+        remove_dir.s.assert_has_calls([
             mock.call(
-                kwargs={},
-                queue='celery',
-                args=[self.project.doc_path]
+                self.project.doc_path,
             ),
         ])
