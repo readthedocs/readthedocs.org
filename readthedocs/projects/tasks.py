@@ -347,28 +347,27 @@ class UpdateDocsTask(Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.error('Updating version failed, skipping file sync: version=%s',
-                      self.version.pk, exc_info=True)
-        else:
-            # Broadcast finalization steps to web application instances
+            log.exception('Updating version failed, skipping file sync: version=%s',
+                      self.version.pk)
 
-            broadcast(
-                type='app',
-                task=sync_files,
-                args=[
-                    self.project.pk,
-                    self.version.pk,
-                ],
-                kwargs=dict(
-                    hostname=socket.gethostname(),
-                    html=html,
-                    localmedia=localmedia,
-                    search=search,
-                    pdf=pdf,
-                    epub=epub,
-                ),
-                callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
-            )
+        # Broadcast finalization steps to web application instances
+        broadcast(
+            type='app',
+            task=sync_files,
+            args=[
+                self.project.pk,
+                self.version.pk,
+            ],
+            kwargs=dict(
+                hostname=socket.gethostname(),
+                html=html,
+                localmedia=localmedia,
+                search=search,
+                pdf=pdf,
+                epub=epub,
+            ),
+            callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
+        )
 
     def setup_environment(self):
         """
@@ -566,10 +565,10 @@ def update_imported_docs(version_pk):
 
         try:
             api_v2.project(project.pk).sync_versions.post(version_post_data)
-        except HttpClientError as e:
-            log.error("Sync Versions Exception: %s", e.content)
-        except Exception as e:
-            log.error("Unknown Sync Versions Exception", exc_info=True)
+        except HttpClientError:
+            log.exception("Sync Versions Exception")
+        except Exception:
+            log.exception("Unknown Sync Versions Exception")
     return ret_dict
 
 
