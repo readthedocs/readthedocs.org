@@ -1,7 +1,4 @@
 =====================
-Development Standards
-=====================
-
 Front End Development
 =====================
 

@@ -29,7 +29,6 @@ from .constants import LOG_TEMPLATE
 from .exceptions import ProjectImportError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
-from readthedocs.api.client import api as api_v1
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -224,6 +223,8 @@ class UpdateDocsTask(Task):
                     pdf=bool(outcomes['pdf']),
                     epub=bool(outcomes['epub']),
                 )
+            else:
+                log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
             self.send_notifications()
@@ -280,11 +281,10 @@ class UpdateDocsTask(Task):
             if commit:
                 self.build['commit'] = commit
         except ProjectImportError as e:
-            log.error(
+            log.exception(
                 LOG_TEMPLATE.format(project=self.project.slug,
                                     version=self.version.slug,
-                                    msg=str(e)),
-                exc_info=True,
+                                    msg='Failed to import Project: '),
             )
             raise BuildEnvironmentError('Failed to import project: %s' % e,
                                         status_code=404)
@@ -346,35 +346,27 @@ class UpdateDocsTask(Task):
                     'active': True,
                     'built': True,
                 })
-        except HttpClientError as e:
-            log.error('Updating version failed, skipping file sync: version=%s',
-                      self.version.pk, exc_info=True)
-        else:
-            # Broadcast finalization steps to web application instances
-            broadcast(
-                type='app',
-                task=sync_files,
-                args=[
-                    self.project.pk,
-                    self.version.pk,
-                ],
-                kwargs=dict(
-                    hostname=socket.gethostname(),
-                    html=html,
-                    localmedia=localmedia,
-                    search=search,
-                    pdf=pdf,
-                    epub=epub,
-                )
-            )
+        except HttpClientError:
+            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
 
-            # Delayed tasks
-            # TODO these should be chained on to the broadcast calls. The
-            # broadcast calls could be lumped together into a promise, and on
-            # task result, these next few tasks can be updated, also in a
-            # chained fashion
-            fileify.delay(self.version.pk, commit=self.build.get('commit'))
-            update_search.delay(self.version.pk, commit=self.build.get('commit'))
+        # Broadcast finalization steps to web application instances
+        broadcast(
+            type='app',
+            task=sync_files,
+            args=[
+                self.project.pk,
+                self.version.pk,
+            ],
+            kwargs=dict(
+                hostname=socket.gethostname(),
+                html=html,
+                localmedia=localmedia,
+                search=search,
+                pdf=pdf,
+                epub=epub,
+            ),
+            callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
+        )
 
     def setup_environment(self):
         """
@@ -442,8 +434,7 @@ class UpdateDocsTask(Task):
                       kwargs=dict(html=True)
                       )
         except socket.error:
-            # TODO do something here
-            pass
+            log.exception('move_files task has failed on socket error.')
 
         return success
 
@@ -550,8 +541,6 @@ def update_imported_docs(version_pk):
                 version_slug = LATEST
                 version_repo = project.vcs_repo(version_slug)
                 ret_dict['checkout'] = version_repo.update()
-        except Exception:
-            raise
         finally:
             after_vcs.send(sender=version)
 
@@ -575,10 +564,10 @@ def update_imported_docs(version_pk):
 
         try:
             api_v2.project(project.pk).sync_versions.post(version_post_data)
-        except HttpClientError as e:
-            log.error("Sync Versions Exception: %s", e.content)
-        except Exception as e:
-            log.error("Unknown Sync Versions Exception", exc_info=True)
+        except HttpClientError:
+            log.exception("Sync Versions Exception")
+        except Exception:
+            log.exception("Unknown Sync Versions Exception")
     return ret_dict
 
 
@@ -634,6 +623,8 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     :type epub: bool
     """
     version = Version.objects.get(pk=version_pk)
+    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
+                                  msg='Moving files: {}'.format(locals())))
 
     if html:
         from_path = version.project.artifact_path(
@@ -642,18 +633,18 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
         Syncer.copy(from_path, target, host=hostname)
 
     if 'sphinx' in version.project.documentation_type:
-        if localmedia:
-            from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_localmedia')
-            to_path = version.project.get_production_media_path(
-                type_='htmlzip', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
         if search:
             from_path = version.project.artifact_path(
                 version=version.slug, type_='sphinx_search')
             to_path = version.project.get_production_media_path(
                 type_='json', version_slug=version.slug, include_file=False)
+            Syncer.copy(from_path, to_path, host=hostname)
+
+        if localmedia:
+            from_path = version.project.artifact_path(
+                version=version.slug, type_='sphinx_localmedia')
+            to_path = version.project.get_production_media_path(
+                type_='htmlzip', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
 
         # Always move PDF's because the return code lies.
@@ -984,3 +975,14 @@ def clear_html_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
     remove_dir(version.project.rtd_build_path(version=version.slug))
+
+
+@task(queue='web')
+def sync_callback(_, version_pk, commit, *args, **kwargs):
+    """
+    This will be called once the sync_files tasks are done.
+
+    The first argument is the result from previous tasks, which we discard.
+    """
+    fileify(version_pk, commit=commit)
+    update_search(version_pk, commit=commit)
