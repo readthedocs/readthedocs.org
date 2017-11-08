@@ -347,8 +347,7 @@ class UpdateDocsTask(Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.exception('Updating version failed, skipping file sync: version=%s',
-                      self.version.pk)
+            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
 
         # Broadcast finalization steps to web application instances
         broadcast(
