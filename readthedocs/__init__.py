@@ -1,2 +1,4 @@
+"""Read the Docs"""
+
 # Import the Celery application before anything else happens
-from .worker import app
+from readthedocs.worker import app  # noqa

@@ -490,9 +490,6 @@ class UpdateDocsTask(Task):
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
 
 
-app.register_task(UpdateDocsTask())
-
-
 @shared_task()
 def update_imported_docs(version_pk):
     """
