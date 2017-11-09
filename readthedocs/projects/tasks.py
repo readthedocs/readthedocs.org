@@ -16,7 +16,7 @@ from collections import defaultdict
 
 import requests
 from builtins import str
-from celery import shared_task, Task
+from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -490,7 +490,7 @@ class UpdateDocsTask(Task):
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
 
 
-@shared_task()
+@app.task()
 def update_imported_docs(version_pk):
     """
     Check out or update the given project's repository
@@ -569,7 +569,7 @@ def update_imported_docs(version_pk):
 
 
 # Web tasks
-@shared_task(queue='web')
+@app.task(queue='web')
 def sync_files(project_pk, version_pk, hostname=None, html=False,
                localmedia=False, search=False, pdf=False, epub=False):
     """Sync build artifacts to application instances
@@ -601,7 +601,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
     update_static_metadata(project_pk)
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                pdf=False, epub=False):
     """Task to move built documentation to web servers
@@ -667,7 +667,7 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             Syncer.copy(from_path, to_path, host=hostname)
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def update_search(version_pk, commit, delete_non_commit_files=True):
     """Task to update search indexes
 
@@ -702,7 +702,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     )
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -710,7 +710,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def symlink_domain(project_pk, domain_pk, delete=False):
     project = Project.objects.get(pk=project_pk)
     domain = Domain.objects.get(pk=domain_pk)
@@ -722,7 +722,7 @@ def symlink_domain(project_pk, domain_pk, delete=False):
             sym.symlink_cnames(domain)
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -730,7 +730,7 @@ def symlink_subproject(project_pk):
         sym.symlink_subprojects()
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def fileify(version_pk, commit):
     """
     Create ImportedFile objects for all of a version's files.
@@ -806,7 +806,7 @@ def _manage_imported_files(version, path, commit):
             purge(cdn_ids[version.project.slug], changed_files)
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get(pk=version_pk)
     build = Build.objects.get(pk=build_pk)
@@ -875,7 +875,7 @@ def webhook_notification(version, build, hook_url):
     requests.post(hook_url, data=data)
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def update_static_metadata(project_pk, path=None):
     """Update static metadata JSON file
 
@@ -921,7 +921,7 @@ def update_static_metadata(project_pk, path=None):
 
 
 # Random Tasks
-@shared_task()
+@app.task()
 def remove_dir(path):
     """
     Remove a directory on the build/celery server.
@@ -933,7 +933,7 @@ def remove_dir(path):
     shutil.rmtree(path, ignore_errors=True)
 
 
-@shared_task()
+@app.task()
 def clear_artifacts(version_pk):
     """Remove artifacts from the web servers"""
     version = Version.objects.get(pk=version_pk)
@@ -943,7 +943,7 @@ def clear_artifacts(version_pk):
     clear_html_artifacts(version)
 
 
-@shared_task()
+@app.task()
 def clear_pdf_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
@@ -951,7 +951,7 @@ def clear_pdf_artifacts(version):
         type_='pdf', version_slug=version.slug))
 
 
-@shared_task()
+@app.task()
 def clear_epub_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
@@ -959,7 +959,7 @@ def clear_epub_artifacts(version):
         type_='epub', version_slug=version.slug))
 
 
-@shared_task()
+@app.task()
 def clear_htmlzip_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
@@ -967,14 +967,14 @@ def clear_htmlzip_artifacts(version):
         type_='htmlzip', version_slug=version.slug))
 
 
-@shared_task()
+@app.task()
 def clear_html_artifacts(version):
     if isinstance(version, int):
         version = Version.objects.get(pk=version)
     remove_dir(version.project.rtd_build_path(version=version.slug))
 
 
-@shared_task(queue='web')
+@app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
     This will be called once the sync_files tasks are done.
