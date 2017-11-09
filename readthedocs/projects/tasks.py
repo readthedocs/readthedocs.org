@@ -21,7 +21,6 @@ from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from djcelery import celery as celery_app
 from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
 
