@@ -84,7 +84,7 @@ def run(*commands):
                 command = ' '.join(command)
             except TypeError:
                 run_command = command
-        log.info('Running command: cwd=%s command=%s', cwd, command)
+        log.debug('Running command: cwd=%s command=%s', cwd, command)
         try:
             p = subprocess.Popen(
                 run_command,
@@ -100,7 +100,7 @@ def run(*commands):
             out = ''
             err = traceback.format_exc()
             ret = -1
-            log.error("Command failed", exc_info=True)
+            log.exception("Command failed")
 
     return (ret, out, err)
 

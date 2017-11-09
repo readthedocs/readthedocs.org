@@ -315,29 +315,29 @@ class Project(models.Model):
                     latest.identifier = self.default_branch
                     latest.save()
         except Exception:
-            log.error('Failed to update latest identifier', exc_info=True)
+            log.exception('Failed to update latest identifier')
 
         # Add exceptions here for safety
         try:
             self.sync_supported_versions()
         except Exception:
-            log.error('failed to sync supported versions', exc_info=True)
+            log.exception('failed to sync supported versions')
         try:
             if not first_save:
                 broadcast(type='app', task=tasks.symlink_project, args=[self.pk])
         except Exception:
-            log.error('failed to symlink project', exc_info=True)
+            log.exception('failed to symlink project')
         try:
             if not first_save:
                 broadcast(type='app', task=tasks.update_static_metadata, args=[self.pk])
         except Exception:
-            log.error('failed to update static metadata', exc_info=True)
+            log.exception('failed to update static metadata')
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
         except Exception:
-            log.error('Error creating default branches', exc_info=True)
+            log.exception('Error creating default branches')
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
