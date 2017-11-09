@@ -977,7 +977,7 @@ def clear_html_artifacts(version):
     remove_dir(version.project.rtd_build_path(version=version.slug))
 
 
-@task(queue='web')
+@shared_task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
     This will be called once the sync_files tasks are done.
