@@ -155,7 +155,7 @@ class Version(models.Model):
         try:
             self.project.sync_supported_versions()
         except Exception:
-            log.error('failed to sync supported versions', exc_info=True)
+            log.exception('failed to sync supported versions')
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
 
@@ -224,7 +224,7 @@ class Version(models.Model):
                     path, self))
                 rmtree(path)
         except OSError:
-            log.error('Build path cleanup failed', exc_info=True)
+            log.exception('Build path cleanup failed')
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
         """

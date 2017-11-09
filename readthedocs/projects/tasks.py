@@ -624,7 +624,7 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     """
     version = Version.objects.get(pk=version_pk)
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
-                                  msg='Moving files: {}'.format(locals())))
+                                  msg='Moving files'))
 
     if html:
         from_path = version.project.artifact_path(
