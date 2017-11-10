@@ -58,6 +58,7 @@ class TestGitBackend(RTDTestCase):
             bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
             c0288a17899b2c6818f74e3a90b77e2a1779f96a refs/tags/2.0.2
             a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
+            8b0eef4cb37a85b8a35784f82799352188d90ca3 refs/tags/2.1.0.beta2^{}
             c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
             edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
          """
@@ -65,7 +66,7 @@ class TestGitBackend(RTDTestCase):
             ('3b32886c8d3cb815df3793b3937b2e91d0fb00f1', '2.0.0'),
             ('bd533a768ff661991a689d3758fcfe72f455435d', '2.0.1'),
             ('c0288a17899b2c6818f74e3a90b77e2a1779f96a', '2.0.2'),
-            ('a63a2de628a3ce89034b7d1a5ca5e8159534eef0', '2.1.0.beta2'),
+            ('8b0eef4cb37a85b8a35784f82799352188d90ca3', '2.1.0.beta2'),
             ('c7fc3d16ed9dc0b19f0d27583ca661a64562d21e', '2.1.0.rc1'),
             ('edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1', '2.1.0.rc2'),
         ]
