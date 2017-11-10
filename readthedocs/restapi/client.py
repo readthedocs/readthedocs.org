@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import logging
 
 from slumber import API, serialize
-from requests import Session
+import requests
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -32,8 +32,10 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
 
 def setup_api():
-    session = Session()
+    session = requests.Session()
     session.headers.update({'Host': PRODUCTION_DOMAIN})
+    retry_adapter = requests.adapters.HTTPAdapter(max_retries=3)
+    session.mount(API_HOST, retry_adapter)
     api_config = {
         'base_url': '%s/api/v2/' % API_HOST,
         'serializer': serialize.Serializer(
