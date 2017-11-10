@@ -81,9 +81,9 @@ class TestCeleryBuilding(RTDTestCase):
 
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs')
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build')
-    def test_update_docs_unexpected_setup_exception(self, mock_update_build, mock_setup_vcs):
+    def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
         build = get(Build, project=self.project,
@@ -96,13 +96,12 @@ class TestCeleryBuilding(RTDTestCase):
                 record=False,
                 intersphinx=False)
         self.assertTrue(result.successful())
-        mock_update_build.assert_called_once_with(state=BUILD_STATE_FINISHED)
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs')
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build')
-    def test_update_docs_unexpected_build_exception(self, mock_update_build, mock_build_docs):
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs')
+    def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
         build = get(Build, project=self.project,
