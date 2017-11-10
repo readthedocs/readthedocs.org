@@ -191,7 +191,6 @@ class UpdateDocsTask(Task):
             if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
                 self.send_notifications()
 
-            self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return False
 
         if self.setup_env.successful and not self.project.has_valid_clone:
