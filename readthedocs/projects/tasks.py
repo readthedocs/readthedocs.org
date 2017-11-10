@@ -136,6 +136,7 @@ class UpdateDocsTask(Task):
 
         # **Always** report build status.
         # This can still fail if the API Is totally down, but should catch more failures
+        result = {}
         if hasattr(self, 'build'):
             self.build['state'] = BUILD_STATE_FINISHED
             if failure:
@@ -147,6 +148,7 @@ class UpdateDocsTask(Task):
                              'success': False,
                              'error': 'Unknown setup failure: {}'.format(failure)}
             result = api_v2.build(build_pk).patch(build_updates)
+        return result
 
     def run_setup(self, record=True):
         """Run setup in the local environment.
