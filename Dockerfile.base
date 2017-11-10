@@ -1,0 +1,54 @@
+# Read the Docs - Environment base
+# docker build -f Dockerfile.base -t readthedocs/build:docker-compose --build-arg UID=1000 --build-arg GID=100 --build-arg GROUPNAME=users --build-arg DOCKER_GID=991 .
+
+FROM ubuntu:16.04
+MAINTAINER Read the Docs <support@readthedocs.com>
+
+ARG UID=1000
+ARG GID=100
+ARG GROUPNAME=users
+ARG DOCKER_GID=991
+
+ENV LANG C.UTF-8
+
+# System dependencies
+RUN apt-get -y update
+
+# Install requirements
+RUN apt-get -y install \
+    git-core \
+    postgresql-client 
+
+# Install Python tools/libs
+RUN apt-get -y install python-pip
+
+RUN apt-get -y install wget
+
+RUN apt-get -y install python3 python3-venv
+RUN apt-get -y install libxml2-dev libxslt-dev zlib1g-dev
+
+
+# https://github.com/rtfd/readthedocs.org/pull/3152#issuecomment-339573168
+# RUN groupadd --gid ${GID} ${GROUPNAME}
+RUN useradd --uid ${UID} --gid ${GID} docs
+
+# Create the `docker` group with our specific GID
+RUN groupadd --gid ${DOCKER_GID} docker
+
+# Add `docs` user to the `docker` group so it run containers
+RUN gpasswd -a docs docker
+RUN apt-get -y install docker.io
+
+# Download latest pip requirements for the project
+RUN pip install -U pip
+RUN wget https://raw.githubusercontent.com/rtfd/readthedocs.org/master/requirements/pip.txt -O requirements.txt
+RUN pip install -r requirements.txt
+
+# Install some python utilities
+RUN pip install ipdb dj-cmd
+
+USER docs
+WORKDIR /home/docs/readthedocs.org
+
+
+CMD ["/bin/bash"]
