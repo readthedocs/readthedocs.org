@@ -49,7 +49,7 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         task_sig = task.s(*args, **kwargs).set(queue=server)
         tasks.append(task_sig)
     if callback:
-        task_promise = chord(tasks)(callback).apply_async()
+        task_promise = chord(tasks, callback).apply_async()
     else:
         # Celery's Group class does some special handling when an iterable with
         # len() == 1 is passed in. This will be hit if there is only one server
