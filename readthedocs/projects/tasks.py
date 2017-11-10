@@ -139,15 +139,14 @@ class UpdateDocsTask(Task):
         if hasattr(self, 'build'):
             self.build['state'] = BUILD_STATE_FINISHED
             if failure:
-                self.build['error'] += 'Unknown setup failure: {}'.format(failure)
+                self.build['error'] = 'Unknown setup failure: {}'.format(failure)
                 self.build['success'] = False
-            result = api_v2.build(self.build['id']).patch(self.build)
+            result = api_v2.build(build_pk).patch(self.build)
         else:
             build_updates = {'state': BUILD_STATE_FINISHED,
                              'success': False,
                              'error': 'Unknown setup failure: {}'.format(failure)}
             result = api_v2.build(build_pk).patch(build_updates)
-        print(result)
 
     def run_setup(self, record=True):
         """Run setup in the local environment.
