@@ -110,18 +110,40 @@ class UpdateDocsTask(Task):
 
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
-        # pylint: disable=arguments-differ
-        self.project = self.get_project(pk)
-        self.version = self.get_version(self.project, version_pk)
-        self.build = self.get_build(build_pk)
-        self.build_search = search
-        self.build_localmedia = localmedia
-        self.build_force = force
-        self.config = None
+        """
+        Run a documentation build.
 
-        setup_successful = self.run_setup(record=record)
-        if setup_successful:
-            self.run_build(record=record, docker=docker)
+        This is fully wrapped in exception handling to account for a number of failure cases.
+        """
+
+        # pylint: disable=arguments-differ
+        try:
+            self.project = self.get_project(pk)
+            self.version = self.get_version(self.project, version_pk)
+            self.build = self.get_build(build_pk)
+            self.build_search = search
+            self.build_localmedia = localmedia
+            self.build_force = force
+            self.config = None
+
+            setup_successful = self.run_setup(record=record)
+            if setup_successful:
+                self.run_build(record=record, docker=docker)
+            failure = self.setup_env.failure or self.build_env.failure
+        except Exception as e:  # noqa
+            log.exception('Top-level build exception has been raised')
+            failure = str(e)
+
+        # **Always** report build status.
+        # This can still fail if the API Is totally down, but should catch more failures
+        build_updates = {'state': BUILD_STATE_FINISHED,
+                         'success': False,
+                         'error': 'Unknown setup failure: {}'.format(failure)}
+        if hasattr(self, 'build'):
+            self.build.update(build_updates)
+            api_v2.build(self.build['id']).put(self.build)
+        else:
+            api_v2.build(build_pk).patch(build_updates)
 
     def run_setup(self, record=True):
         """Run setup in the local environment.
@@ -229,8 +251,6 @@ class UpdateDocsTask(Task):
         if self.build_env.failed:
             self.send_notifications()
         build_complete.send(sender=Build, build=self.build_env.build)
-
-        self.build_env.update_build(state=BUILD_STATE_FINISHED)
 
     @staticmethod
     def get_project(project_pk):
