@@ -116,7 +116,6 @@ class TestCeleryBuilding(RTDTestCase):
                 record=False,
                 intersphinx=False)
         self.assertTrue(result.successful())
-        mock_update_build.assert_called_with(state=BUILD_STATE_FINISHED)
 
     def test_update_imported_doc(self):
         with mock_api(self.repo):
