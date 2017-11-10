@@ -699,6 +699,8 @@ class Project(models.Model):
         project that can be considered stable.
         """
         versions = self.versions.all()
+        # this returns packaging.version.Version object with human readable
+        # tag name or RTD labels (`stable` or `latest`)
         new_stable = determine_stable_version(versions)
         if new_stable:
             current_stable = self.get_stable_version()
