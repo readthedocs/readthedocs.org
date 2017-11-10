@@ -121,8 +121,8 @@ class Backend(BaseVCS):
 
         See https://www.kernel.org/pub/software/scm/git/docs/git-show-ref.html
 
-        Returns VCSVersion objects with the tag name as verbose_name and the commit
-        hash as identifier.
+        Returns sorted list of VCSVersion objects with the tag name as
+        verbose_name and the commit hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
         # StringIO below is expecting Unicode data, so ensure that it gets it.
@@ -144,7 +144,7 @@ class Backend(BaseVCS):
                 # dereferenced hash overwrites previous value
                 tag_map[clean_name] = commit_hash
         vcs_tags = []
-        for tag_name in tag_map:
+        for tag_name in sorted(tag_map):
             vcs_tags.append(VCSVersion(self, tag_map[tag_name], tag_name))
         return vcs_tags
 
