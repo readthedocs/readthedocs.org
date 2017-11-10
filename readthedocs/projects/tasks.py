@@ -136,14 +136,18 @@ class UpdateDocsTask(Task):
 
         # **Always** report build status.
         # This can still fail if the API Is totally down, but should catch more failures
-        build_updates = {'state': BUILD_STATE_FINISHED,
-                         'success': False,
-                         'error': 'Unknown setup failure: {}'.format(failure)}
         if hasattr(self, 'build'):
-            self.build.update(build_updates)
-            api_v2.build(self.build['id']).put(self.build)
+            self.build['state'] = BUILD_STATE_FINISHED
+            if failure:
+                self.build['error'] += 'Unknown setup failure: {}'.format(failure)
+                self.build['success'] = False
+            result = api_v2.build(self.build['id']).patch(self.build)
         else:
-            api_v2.build(build_pk).patch(build_updates)
+            build_updates = {'state': BUILD_STATE_FINISHED,
+                             'success': False,
+                             'error': 'Unknown setup failure: {}'.format(failure)}
+            result = api_v2.build(build_pk).patch(build_updates)
+        print(result)
 
     def run_setup(self, record=True):
         """Run setup in the local environment.
@@ -257,7 +261,6 @@ class UpdateDocsTask(Task):
         """Get project from API"""
         project_data = api_v2.project(project_pk).get()
         project = APIProject(**project_data)
-        return project
 
     @staticmethod
     def get_version(project, version_pk):
