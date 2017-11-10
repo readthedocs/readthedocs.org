@@ -118,7 +118,7 @@ class Backend(BaseVCS):
         Label without ^{} points to hash that identifies git tag itself, and label
         with ^{} suffix points to specific commit that was marked with the tag.
         This prefixed label only appears for annotated tags.
-        
+
         See https://www.kernel.org/pub/software/scm/git/docs/git-show-ref.html
 
         Returns VCSVersion objects with the tag name as verbose_name and the commit
