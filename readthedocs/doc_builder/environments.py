@@ -418,10 +418,17 @@ class BuildEnvironment(object):
             # BuildEnvironmentException or BuildEnvironmentWarning
             if isinstance(self.failure,
                           (BuildEnvironmentException, BuildEnvironmentWarning)):
-                self.build['error'] = str(self.failure)
+                self.build['error'] = ugettext_noop(
+                    "A failure in building the documentation as occured: {}".format(
+                        str(self.failure)
+                    )
+                )
             else:
                 self.build['error'] = ugettext_noop(
-                    "An unexpected error occurred")
+                    "A failure in our code has occured. The failure is: {}".format(
+                        str(self.failure)
+                    )
+                )
 
         # Attempt to stop unicode errors on build reporting
         for key, val in list(self.build.items()):
