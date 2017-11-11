@@ -108,20 +108,46 @@ class UpdateDocsTask(Task):
                          version=self.version.slug,
                          msg=msg))
 
+    # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
-        # pylint: disable=arguments-differ
-        self.project = self.get_project(pk)
-        self.version = self.get_version(self.project, version_pk)
-        self.build = self.get_build(build_pk)
-        self.build_search = search
-        self.build_localmedia = localmedia
-        self.build_force = force
-        self.config = None
+        """
+        Run a documentation build.
 
-        setup_successful = self.run_setup(record=record)
-        if setup_successful:
-            self.run_build(record=record, docker=docker)
+        This is fully wrapped in exception handling to account for a number of failure cases.
+        """
+        try:
+            self.project = self.get_project(pk)
+            self.version = self.get_version(self.project, version_pk)
+            self.build = self.get_build(build_pk)
+            self.build_search = search
+            self.build_localmedia = localmedia
+            self.build_force = force
+            self.config = None
+
+            setup_successful = self.run_setup(record=record)
+            if setup_successful:
+                self.run_build(record=record, docker=docker)
+            failure = self.setup_env.failure or self.build_env.failure
+        except Exception as e:  # noqa
+            log.exception('Top-level build exception has been raised')
+            failure = str(e)
+
+        # **Always** report build status.
+        # This can still fail if the API Is totally down, but should catch more failures
+        result = {}
+        if hasattr(self, 'build'):
+            self.build['state'] = BUILD_STATE_FINISHED
+            if failure:
+                self.build['error'] = 'Unknown setup failure: {}'.format(failure)
+                self.build['success'] = False
+            result = api_v2.build(build_pk).patch(self.build)
+        else:
+            build_updates = {'state': BUILD_STATE_FINISHED,
+                             'success': False,
+                             'error': 'Unknown setup failure: {}'.format(failure)}
+            result = api_v2.build(build_pk).patch(build_updates)
+        return result
 
     def run_setup(self, record=True):
         """Run setup in the local environment.
@@ -166,7 +192,6 @@ class UpdateDocsTask(Task):
             if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
                 self.send_notifications()
 
-            self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return False
 
         if self.setup_env.successful and not self.project.has_valid_clone:
@@ -230,14 +255,11 @@ class UpdateDocsTask(Task):
             self.send_notifications()
         build_complete.send(sender=Build, build=self.build_env.build)
 
-        self.build_env.update_build(state=BUILD_STATE_FINISHED)
-
     @staticmethod
     def get_project(project_pk):
         """Get project from API"""
         project_data = api_v2.project(project_pk).get()
-        project = APIProject(**project_data)
-        return project
+        return APIProject(**project_data)
 
     @staticmethod
     def get_version(project, version_pk):
@@ -621,7 +643,7 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     """
     version = Version.objects.get(pk=version_pk)
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
-                                  msg='Moving files: {}'.format(locals())))
+                                  msg='Moving files'))
 
     if html:
         from_path = version.project.artifact_path(

@@ -92,18 +92,18 @@ Information about development is also available:
    :maxdepth: 2
    :caption: Developer Documentation
 
-   install
-   api/index
    changelog
+   install
+   architecture
    tests
    docs
-   architecture
    development/standards
    development/buildenvironments
    symlinks
    settings
    i18n
    issue-labels
+   api/index
 
 .. _business-docs:
 

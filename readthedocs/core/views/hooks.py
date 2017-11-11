@@ -178,7 +178,7 @@ def github_build(request):  # noqa: D205
             ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
             branches = [data['ref'].replace('refs/heads/', '')]
         except (ValueError, TypeError, KeyError):
-            log.error('Invalid GitHub webhook payload', exc_info=True)
+            log.exception('Invalid GitHub webhook payload')
             return HttpResponse('Invalid request', status=400)
         try:
             repo_projects = get_project_from_url(http_search_url)
@@ -198,7 +198,7 @@ def github_build(request):  # noqa: D205
             projects = repo_projects | ssh_projects
             return _build_url(http_search_url, projects, branches)
         except NoProjectException:
-            log.error('Project match not found: url=%s', http_search_url)
+            log.exception('Project match not found: url=%s', http_search_url)
             return HttpResponseNotFound('Project not found')
     else:
         return HttpResponse('Method not allowed, POST is required', status=405)
@@ -222,7 +222,7 @@ def gitlab_build(request):  # noqa: D205
             search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
             branches = [data['ref'].replace('refs/heads/', '')]
         except (ValueError, TypeError, KeyError):
-            log.error('Invalid GitLab webhook payload', exc_info=True)
+            log.exception('Invalid GitLab webhook payload')
             return HttpResponse('Invalid request', status=400)
         log.info(
             'GitLab webhook search: url=%s branches=%s',
@@ -281,7 +281,7 @@ def bitbucket_build(request):
                     data['repository']['full_name']
                 )
         except (TypeError, ValueError, KeyError):
-            log.error('Invalid Bitbucket webhook payload', exc_info=True)
+            log.exception('Invalid Bitbucket webhook payload')
             return HttpResponse('Invalid request', status=400)
 
         log.info(
@@ -320,7 +320,7 @@ def generic_build(request, project_id_or_slug=None):
         try:
             project = Project.objects.get(slug=project_id_or_slug)
         except (Project.DoesNotExist, ValueError):
-            log.error(
+            log.exception(
                 "(Incoming Generic Build) Repo not found:  %s",
                 project_id_or_slug)
             return HttpResponseNotFound(

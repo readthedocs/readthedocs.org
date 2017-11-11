@@ -289,5 +289,5 @@ class GitHubService(Service):
                     if tokens.exists():
                         token = tokens[0].token
         except Exception:
-            log.error('Failed to get token for project', exc_info=True)
+            log.exception('Failed to get token for project')
         return token
