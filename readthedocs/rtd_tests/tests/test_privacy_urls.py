@@ -1,21 +1,22 @@
 from __future__ import absolute_import
 from __future__ import print_function
-from builtins import object
 import re
 
+from builtins import object
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django_dynamic_fixture import get
+import mock
+from taggit.models import Tag
 
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
 from readthedocs.comments.models import DocumentComment, NodeSnapshot
+from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project, Domain
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
-
-from django_dynamic_fixture import get
-from taggit.models import Tag
 
 
 class URLAccessMixin(object):
@@ -341,8 +342,10 @@ class APIMixin(URLAccessMixin):
 
 class APIUnauthAccessTest(APIMixin, TestCase):
 
-    def test_api_urls(self):
+    @mock.patch('readthedocs.restapi.views.task_views.get_public_task_data')
+    def test_api_urls(self, get_public_task_data):
         from readthedocs.restapi.urls import urlpatterns
+        get_public_task_data.side_effect = TaskNoPermission('Nope')
         self._test_url(urlpatterns)
 
     def login(self):

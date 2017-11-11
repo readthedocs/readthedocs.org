@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 from django.contrib.auth.models import User
-from djcelery import celery as celery_app
 
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import permission_check
@@ -22,4 +21,4 @@ class SyncRemoteRepositories(PublicTask):
                 service.sync()
 
 
-sync_remote_repositories = celery_app.tasks[SyncRemoteRepositories.name]
+sync_remote_repositories = SyncRemoteRepositories()

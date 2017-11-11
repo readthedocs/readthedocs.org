@@ -49,9 +49,15 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         task_sig = task.s(*args, **kwargs).set(queue=server)
         tasks.append(task_sig)
     if callback:
-        task_promise = chord(tasks)(callback).get()
+        task_promise = chord(tasks, callback).apply_async()
     else:
-        task_promise = group(*tasks).apply_async()
+        # Celery's Group class does some special handling when an iterable with
+        # len() == 1 is passed in. This will be hit if there is only one server
+        # defined in the above queue lists
+        if len(tasks) > 1:
+            task_promise = group(*tasks).apply_async()
+        else:
+            task_promise = group(tasks).apply_async()
     return task_promise
 
 
@@ -77,7 +83,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     will be prefixed with ``build-`` to unify build queue names.
     """
     # Avoid circular import
-    from readthedocs.projects.tasks import update_docs
+    from readthedocs.projects.tasks import UpdateDocsTask
     from readthedocs.builds.models import Build
 
     if project.skip:
@@ -121,6 +127,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
+    update_docs = UpdateDocsTask()
     update_docs.apply_async(kwargs=kwargs, **options)
 
     return build

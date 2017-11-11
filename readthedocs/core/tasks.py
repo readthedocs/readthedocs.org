@@ -3,11 +3,12 @@
 from __future__ import absolute_import
 import logging
 
-from celery import task
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
+
+from readthedocs.worker import app
 
 
 log = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ log = logging.getLogger(__name__)
 EMAIL_TIME_LIMIT = 30
 
 
-@task(queue='web', time_limit=EMAIL_TIME_LIMIT)
+@app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
 def send_email_task(recipient, subject, template, template_html, context=None):
     """Send multipart email
 

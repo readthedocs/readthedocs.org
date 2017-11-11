@@ -4,8 +4,6 @@
 from __future__ import absolute_import
 import os
 
-import djcelery
-
 from readthedocs.core.settings import Settings
 
 try:
@@ -14,8 +12,6 @@ try:
 except ImportError:
     donate = False
 
-
-djcelery.setup_loader()
 
 _ = gettext = lambda s: s
 
@@ -84,9 +80,6 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-
-            # Celery bits
-            'djcelery',
 
             # daniellindsleyrocksdahouse
             'haystack',
