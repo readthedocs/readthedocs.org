@@ -108,6 +108,7 @@ class UpdateDocsTask(Task):
                          version=self.version.slug,
                          msg=msg))
 
+    # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
         """
@@ -115,8 +116,6 @@ class UpdateDocsTask(Task):
 
         This is fully wrapped in exception handling to account for a number of failure cases.
         """
-
-        # pylint: disable=arguments-differ
         try:
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
