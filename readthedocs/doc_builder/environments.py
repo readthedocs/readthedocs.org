@@ -419,14 +419,17 @@ class BuildEnvironment(object):
             if isinstance(self.failure,
                           (BuildEnvironmentException, BuildEnvironmentWarning)):
                 self.build['error'] = ugettext_noop(
-                    "A failure in building the documentation as occured: {}".format(
-                        str(self.failure)
+                    "A failure in building the documentation as occured. "
+                    "If you believe this is an error with Read the Docs, "
+                    "please include the build id({}) in your bug report.".format(
+                        self.build['pk']
                     )
                 )
             else:
                 self.build['error'] = ugettext_noop(
-                    "A failure in our code has occured. The failure is: {}".format(
-                        str(self.failure)
+                    "A failure in our code has occured. "
+                    "Please report this to us with your build id ({}).".format(
+                        self.build['pk']
                     )
                 )
 
