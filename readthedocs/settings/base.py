@@ -355,15 +355,14 @@ class CommunityBaseSettings(Settings):
             },
         },
         'loggers': {
+            '': {  # root logger
+                'handlers': ['debug', 'console'],
+                'level': 'DEBUG',  # Always send from the root, handlers can filter levels
+            },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
-                'propagate': True,
-            },
-            '': {
-                'handlers': ['debug', 'console'],
-                'level': 'DEBUG',
-                'propagate': True,
+                'propagate': False,  # Don't double log at the root logger for these.
             },
         },
     }
