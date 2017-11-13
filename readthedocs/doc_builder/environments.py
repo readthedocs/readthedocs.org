@@ -421,9 +421,9 @@ class BuildEnvironment(object):
                 self.build['error'] = str(self.failure)
             else:
                 self.build['error'] = ugettext_noop(
-                    "A failure in our code has occured. "
-                    "Please report this to us with your build id ({}).".format(
-                        self.build['pk']
+                    "There was a problem with Read the Docs while building your documentation. "
+                    "Please report this to us with your build id ({build_id}).".format(
+                        build_id=self.build['pk']
                     )
                 )
 

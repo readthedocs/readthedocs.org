@@ -136,22 +136,19 @@ class UpdateDocsTask(Task):
         # **Always** report build status.
         # This can still fail if the API Is totally down, but should catch more failures
         result = {}
-        error = 'Unknown error. Please include the build id ({}) in any bug reports.'.format(
-            build_pk
-        )
+        error = _('Unknown error encountered. '
+                  'Please include the build id ({build_id}) in any bug reports.'.format(
+                      build_id=build_pk
+                  ))
+        build_updates = {'state': BUILD_STATE_FINISHED}
+        build_data = {}
         if hasattr(self, 'build'):
-            self.build['state'] = BUILD_STATE_FINISHED
-            if failure:
-                self.build['error'] = error
-                self.build['success'] = False
-            result = api_v2.build(build_pk).patch(self.build)
-        else:
-            build_updates = {
-                'state': BUILD_STATE_FINISHED,
-                'success': False,
-                'error': error,
-            }
-            result = api_v2.build(build_pk).patch(build_updates)
+            build_data.update(self.build)
+        if failure:
+            build_updates['success'] = False
+            build_updates['error'] = error
+        build_data.update(build_updates)
+        result = api_v2.build(build_pk).patch(build_updates)
         return result
 
     def run_setup(self, record=True):
