@@ -264,7 +264,7 @@ class UpdateDocsTask(Task):
     def get_project(project_pk):
         """Get project from API"""
         project_data = api_v2.project(project_pk).get()
-        # return APIProject(**project_data)
+        return APIProject(**project_data)
 
     @staticmethod
     def get_version(project, version_pk):
