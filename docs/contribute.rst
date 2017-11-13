@@ -20,7 +20,7 @@ If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
 :ref:`Installation Guide <installing-read-the-docs>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
-First Bug`_. These are meant to be a great way to get a smooth start and
+First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
 
 If you are up to more challenging tasks with a bigger scope, then there are a
@@ -35,7 +35,7 @@ When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
 
 .. _Feature Overview: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
-.. _Good First Bug: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Bug%22
+.. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
 .. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
