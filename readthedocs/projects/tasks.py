@@ -130,22 +130,27 @@ class UpdateDocsTask(Task):
                 self.run_build(record=record, docker=docker)
             failure = self.setup_env.failure or self.build_env.failure
         except Exception as e:  # noqa
-            log.exception('Top-level build exception has been raised')
+            log.exception('Top-level build exception has been raised', extra={'build': build_pk})
             failure = str(e)
 
         # **Always** report build status.
         # This can still fail if the API Is totally down, but should catch more failures
         result = {}
+        error = 'Unknown error. Please include the build id ({}) in any bug reports.'.format(
+            build_pk
+        )
         if hasattr(self, 'build'):
             self.build['state'] = BUILD_STATE_FINISHED
             if failure:
-                self.build['error'] = 'Unknown setup failure: {}'.format(failure)
+                self.build['error'] = error
                 self.build['success'] = False
             result = api_v2.build(build_pk).patch(self.build)
         else:
-            build_updates = {'state': BUILD_STATE_FINISHED,
-                             'success': False,
-                             'error': 'Unknown setup failure: {}'.format(failure)}
+            build_updates = {
+                'state': BUILD_STATE_FINISHED,
+                'success': False,
+                'error': error,
+            }
             result = api_v2.build(build_pk).patch(build_updates)
         return result
 
@@ -259,7 +264,7 @@ class UpdateDocsTask(Task):
     def get_project(project_pk):
         """Get project from API"""
         project_data = api_v2.project(project_pk).get()
-        return APIProject(**project_data)
+        # return APIProject(**project_data)
 
     @staticmethod
     def get_version(project, version_pk):
