@@ -37,7 +37,7 @@ class BuildBase(object):
 class BuildTriggerMixin(object):
     def post(self, request, project_slug):
         project = get_object_or_404(
-            Project.objects.protected(self.request.user),
+            Project.objects.for_admin_user(self.request.user),
             slug=project_slug
         )
         version_slug = request.POST.get('version_slug')
