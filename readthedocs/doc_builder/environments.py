@@ -421,7 +421,11 @@ class BuildEnvironment(object):
                 self.build['error'] = str(self.failure)
             else:
                 self.build['error'] = ugettext_noop(
-                    "An unexpected error occurred")
+                    "There was a problem with Read the Docs while building your documentation. "
+                    "Please report this to us with your build id ({build_id}).".format(
+                        build_id=self.build['pk']
+                    )
+                )
 
         # Attempt to stop unicode errors on build reporting
         for key, val in list(self.build.items()):
