@@ -132,26 +132,24 @@ class UpdateDocsTask(Task):
         except Exception as e:  # noqa
             log.exception(
                 'An unhandled exception was raised outside the build environment',
-                extra={
-                    data={'build': build_pk},
-                },
+                tags={'build': build_pk},
             )
-            failure = str(e)
+            error = _('Unknown error encountered. '
+                      'Please include the build id ({build_id}) in any bug reports.'.format(
+                          build_id=build_pk
+                      ))
+            failure = error
 
         # **Always** report build status.
         # This can still fail if the API Is totally down, but should catch more failures
         result = {}
-        error = _('Unknown error encountered. '
-                  'Please include the build id ({build_id}) in any bug reports.'.format(
-                      build_id=build_pk
-                  ))
         build_updates = {'state': BUILD_STATE_FINISHED}
         build_data = {}
         if hasattr(self, 'build'):
             build_data.update(self.build)
         if failure:
             build_updates['success'] = False
-            build_updates['error'] = error
+            build_updates['error'] = failure
         build_data.update(build_updates)
         result = api_v2.build(build_pk).patch(build_updates)
         return result
