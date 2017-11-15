@@ -1,7 +1,7 @@
 """Allauth overrides"""
 
 from __future__ import absolute_import
-import pickle
+import json
 import logging
 
 from allauth.account.adapter import DefaultAccountAdapter
@@ -36,8 +36,8 @@ class AccountAdapter(DefaultAccountAdapter):
         removed_keys = []
         for key in list(context.keys()):
             try:
-                _ = pickle.dumps(context[key])  # noqa for F841
-            except (pickle.PickleError, TypeError):
+                _ = json.dumps(context[key])  # noqa for F841
+            except (ValueError, TypeError):
                 removed_keys.append(key)
                 del context[key]
         if removed_keys:
