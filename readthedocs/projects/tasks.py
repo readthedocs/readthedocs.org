@@ -134,11 +134,10 @@ class UpdateDocsTask(Task):
                 'An unhandled exception was raised outside the build environment',
                 extra={'tags': {'build': build_pk}}
             )
-            error = _('Unknown error encountered. '
-                      'Please include the build id ({build_id}) in any bug reports.'.format(
-                          build_id=build_pk
-                      ))
-            failure = error
+            failure = _('Unknown error encountered. '
+                        'Please include the build id ({build_id}) in any bug reports.'.format(
+                            build_id=build_pk
+                        ))
 
         # **Always** report build status.
         # This can still fail if the API Is totally down, but should catch more failures
