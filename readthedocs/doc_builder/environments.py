@@ -429,10 +429,9 @@ class BuildEnvironment(object):
                 log.error(
                     'Build failed with unhandled exception: %s',
                     str(self.failure),
-                    extra={
-                        'stack' True,
-                        'data': {'build': self.build['id']},
-                    }
+                    extra={'stack': True,
+                           'tags': {'build': self.build['id']},
+                           }
                 )
 
         # Attempt to stop unicode errors on build reporting
