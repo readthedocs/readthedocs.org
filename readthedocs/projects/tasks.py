@@ -130,7 +130,12 @@ class UpdateDocsTask(Task):
                 self.run_build(record=record, docker=docker)
             failure = self.setup_env.failure or self.build_env.failure
         except Exception as e:  # noqa
-            log.exception('Top-level build exception has been raised', extra={'build': build_pk})
+            log.exception(
+                'An unhandled exception was raised outside the build environment',
+                extra={
+                    data={'build': build_pk},
+                },
+            )
             failure = str(e)
 
         # **Always** report build status.
