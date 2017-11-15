@@ -1,5 +1,6 @@
 -r pip.txt
 
+py<1.5,>=1.4.33
 pytest-django==3.1.2
 pytest-xdist==1.16.0
 apipkg==1.4
