@@ -132,7 +132,7 @@ class UpdateDocsTask(Task):
         except Exception as e:  # noqa
             log.exception(
                 'An unhandled exception was raised outside the build environment',
-                extra={'stack': True, 'tags': {'build': build_pk}}
+                extra={'tags': {'build': build_pk}}
             )
             error = _('Unknown error encountered. '
                       'Please include the build id ({build_id}) in any bug reports.'.format(
