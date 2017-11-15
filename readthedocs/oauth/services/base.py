@@ -75,7 +75,7 @@ class Service(object):
         if token.expires_at is not None:
             token_expires = (token.expires_at - datetime.now()).total_seconds()
             token_config.update({
-                'refresh_token': str(token.token_secret),
+                'refresh_token': token.token_secret,
                 'expires_in': token_expires,
             })
 
