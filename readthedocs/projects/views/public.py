@@ -26,6 +26,7 @@ import requests
 from .base import ProjectOnboardMixin
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
+from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.search.indexes import PageIndex
 from readthedocs.search.views import LOG_TEMPLATE
@@ -67,7 +68,7 @@ class ProjectIndex(ListView):
 project_index = ProjectIndex.as_view()
 
 
-class ProjectDetailView(ProjectOnboardMixin, DetailView):
+class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
     """Display project onboard steps"""
 
