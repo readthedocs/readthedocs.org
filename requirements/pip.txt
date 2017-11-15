@@ -73,4 +73,4 @@ nilsimsa==0.3.7
 git+https://github.com/zyga/django-pagination.git@86caf15#egg=django_pagination-dev
 git+https://github.com/alex/django-taggit.git#egg=django_taggit-dev
 # readthedocs-build is only pegged until the next release comes out
-git+https://github.com/rtfd/readthedocs-build.git@864892c17c370c72865c3717c18370368e3e0635#egg=readthedocs-build
+git+https://github.com/rtfd/readthedocs-build.git@70dad9c69ecaeedbfd8a41ff19d79044a728f5c3#egg=readthedocs-build
