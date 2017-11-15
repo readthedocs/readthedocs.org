@@ -8,7 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.utils.decorators import method_decorator
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
@@ -35,6 +37,8 @@ class BuildBase(object):
 
 
 class BuildTriggerMixin(object):
+
+    @method_decorator(login_required)
     def post(self, request, project_slug):
         project = get_object_or_404(
             Project.objects.for_admin_user(self.request.user),
