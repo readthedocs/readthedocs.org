@@ -1,5 +1,6 @@
 """An API to load config from a readthedocs.yml file."""
 from __future__ import absolute_import
+import os
 
 from builtins import (filter, object)
 
@@ -143,9 +144,15 @@ def load_yaml_config(version):
             'type': 'sphinx',
             'name': version.slug,
         })
+        # Use a top-level rtd.yml if it exists, otherwise search for it
+        possible_rtd_yaml = os.path.join(checkout_path, 'readthedocs.yml')
+        if os.path.exists(possible_rtd_yaml):
+            kwargs = {'path': possible_rtd_yaml, 'only': True}
+        else:
+            kwargs = {'path': checkout_path, 'only': False}
         config = load_config(
-            path=checkout_path,
             env_config=sphinx_env_config,
+            **kwargs
         )[0]
     except InvalidConfig:  # This is a subclass of ConfigError, so has to come first
         raise
