@@ -32,7 +32,7 @@ class AccountAdapter(DefaultAccountAdapter):
         subject = self.format_email_subject(subject)
 
         # Allauth sends some additional data in the context, remove it if the
-        # pieces can't be pickled
+        # pieces can't be json encoded
         removed_keys = []
         for key in list(context.keys()):
             try:
