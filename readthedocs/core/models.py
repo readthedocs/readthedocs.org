@@ -1,6 +1,4 @@
-"""
-Models for the core app.
-"""
+"""Models for the core app."""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
@@ -19,9 +17,7 @@ log = logging.getLogger(__name__)
 
 @python_2_unicode_compatible
 class UserProfile(models.Model):
-    """
-    Additional information about a User.
-    """
+    """Additional information about a User."""
 
     user = AutoOneToOneField('auth.User', verbose_name=_('User'), related_name='profile')
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
