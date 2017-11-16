@@ -192,8 +192,6 @@ class BitbucketService(Service):
         finally:
             return []
 
-
-
     def get_webhook_data(self, project, integration):
         """Get webhook JSON data to post to the API"""
         return json.dumps({
