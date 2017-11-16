@@ -42,6 +42,7 @@ you. These commands are a mix between `autoflake`_, `autopep8`_,
   $ autoflake --remove-all-unused-imports --remove-unused-variables --keep-useless-pass
   $ autopep8
   $ docformatter --wrap-summaries=120 --wrap-descriptions=120 --pre-summary-newline --no-blank
+  $ isort
   $ unify --quote="'"
   $ yapf --exclude=*migrations* --exclude=*settings* --exclude=*scripts* --parallel
 
