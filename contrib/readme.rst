@@ -12,19 +12,17 @@ from ``supervisord`` is::
     supervisord
 
 This will bring up a web instance for the dashboard, a web instance for
-documentation serving, two celery instances, and redis-server.
+documentation serving, two celery instances, and redis-server. 
+
+If you already are running redis-server, this will complain about the port
+already being in use, but will still load.
 
 Debugging
 ---------
 
-Because supervisord doesn't redirect stdin to the various processes, ``ipdb``
-and ``pdb`` will hang. You can still use ``pdb`` through telnet though!:
+To debug, set trace points like normal, with ``pdb``/``ipdb``. Then you can
+connect to the process by bringing it to the foreground::
 
-    def method_you_want_to_test(self):
-        ...
-        from celery.contrib import rdb; rdb.set_trace()
-        ...
+    supervisorctl fg main
 
-This will pause and give you a telnet port to connect to. Then simply::
-
-    % telnet 127.0.0.1 6900
+You'll still see logging to STDERR on the main supervisord process page.
