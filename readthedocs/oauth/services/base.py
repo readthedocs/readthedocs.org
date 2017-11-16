@@ -1,7 +1,6 @@
-"""OAuth utility functions"""
+"""OAuth utility functions."""
 
 from __future__ import absolute_import
-from builtins import str
 from builtins import object
 import logging
 from datetime import datetime
@@ -69,7 +68,7 @@ class Service(object):
             return None
 
         token_config = {
-            'access_token': str(token.token),
+            'access_token': token.token,
             'token_type': 'bearer',
         }
         if token.expires_at is not None:
