@@ -50,7 +50,7 @@ BLANK_LINE_BEFORE_CLASS_DOCSTRING=False
 COALESCE_BRACKETS=True
 
 # The column limit.
-COLUMN_LIMIT=120
+COLUMN_LIMIT=80
 
 # Indent width used for line continuations.
 CONTINUATION_INDENT_WIDTH=4
