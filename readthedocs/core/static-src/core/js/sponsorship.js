@@ -79,7 +79,11 @@ Promo.prototype.create = function () {
         });
         promo.append(promo_text);
 
-        var copy_text = $('<p>Ads served <a href="http://docs.readthedocs.io/en/latest/ethical-advertising.html">ethically</a></p>')
+        var copy_text = $(
+            '<p class="ethical-callout"><small><em><a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">' + 
+            'Ads served ethically.' + 
+            '</a></em></small></p>'
+        )
         promo.append(copy_text);
 
         promo.appendTo(menu);

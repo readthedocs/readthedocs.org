@@ -153,11 +153,6 @@ div.rtd-pro.alabaster div.rtd-pro-about i.fa-info-circle:before {
     }
 }
 
-div.rtd-pro > p {
+div.rtd-pro > p.ethical-callout {
     margin-top: 1em;
-    color: #838383;
-    font-size: 12px;
-    font-style: italic;
-    font-family: "Courier";
-
 }

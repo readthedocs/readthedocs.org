@@ -1,29 +1,25 @@
 Ethical Advertising
 ===================
 
-Read the Docs is a large,
-free web service.
-There is one proven business model to support this kind of site:
-**Advertising**.
-However,
-instead of using Google,
-we are building the advertising model that we want to exist.
-We only work with companies we like and respect,
-and offer products that are relevant to developers.
-We hope that you'll discover new products and services that are relevant,
-and also new companies that care about supporting the open source community.
+Read the Docs is a large, free web service.
+There is one proven business model to support this kind of site: **Advertising**.
+Instead of using en existing ad network, we are building the model we want to exist.
 
 **We're building an advertising model that respects users while providing value to advertisers.**
-We feel like this is something we can be proud of,
-and we can start leading the ad industry in the right direction.
+We don't track you, sell your data, or anything else.
+We simply show ads to users, based on the content of the pages you look at.
+
+We talk a bit below about :ref:`our worldview on advertising <ethical-info>`,
+if you want to know more.
 
 .. note::
 
    **Are you a marketer?**
    `Learn more <https://readthedocs.org/sustainability/advertising/>`_ about how you can connect with the millions of developers who Read the Docs each month.
 
+Feedback
+--------
 
-We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
 We're a community,
 and we value your feedback.
 If you ever want to reach out about this effort,
@@ -31,10 +27,7 @@ feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 You can also :ref:`opt out <opt-out>` if you prefer.
 
 We have gone into more detail about our views in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
-Also,
-Eric Holscher,
-one of our co-founders also `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
-
+Also, Eric Holscher, one of our co-founders also `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
 
 .. _ethical-info:
 
