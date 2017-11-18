@@ -1,6 +1,6 @@
 # https://github.com/google/yapf
 # current version used in this repo
-# yapf==0.19.0
+# yapf==0.20.0
 
 
 [style]
@@ -154,6 +154,9 @@ SPLIT_BEFORE_LOGICAL_OPERATOR=False
 # Split named assignments onto individual lines.
 SPLIT_BEFORE_NAMED_ASSIGNS=False
 
+# For list comprehensions and generator expressions with multiple clauses
+SPLIT_COMPLEX_COMPREHENSION=False
+
 # The penalty for splitting right after the opening bracket.
 SPLIT_PENALTY_AFTER_OPENING_BRACKET=2000
 
@@ -166,6 +169,9 @@ SPLIT_PENALTY_BEFORE_IF_EXPR=0
 # The penalty of splitting the line around the '&', '|', and '^'
 # operators.
 SPLIT_PENALTY_BITWISE_OPERATOR=300
+
+# The penalty for splitting a list comprehension or generator expression.
+SPLIT_PENALTY_COMPREHENSION=80
 
 # The penalty for characters over the column limit.
 SPLIT_PENALTY_EXCESS_CHARACTER=2600
