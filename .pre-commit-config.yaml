@@ -50,4 +50,4 @@ repos:
   sha: v1.0
   hooks:
     - id: autoflake
-      args: ['--remove-all-unused-imports', '--remove-unused-variable']
+      args: ['--in-place', '--remove-all-unused-imports', '--remove-unused-variable']
