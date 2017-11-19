@@ -45,3 +45,9 @@ repos:
   sha: v0.8
   hooks:
     - id: docformatter
+
+- repo: git@github.com:humitos/mirrors-autoflake.git
+  sha: v1.0
+  hooks:
+    - id: autoflake
+      args: ['--remove-all-unused-imports', '--remove-unused-variable']
