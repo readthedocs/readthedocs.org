@@ -11,6 +11,21 @@ repos:
     - id: end-of-file-fixer
     - id: fix-encoding-pragma
     - id: flake8
+      additional_dependencies: [
+      'flake8-blind-except',
+      'flake8-coding',
+      'flake8-comprehensions',
+      'flake8-debugger',
+      'flake8-deprecated',
+      'flake8-docstrings',
+      'flake8-meiqia',
+      'flake8-mutable',
+      'flake8-pep3101',
+      'flake8-print',
+      'flake8-quotes',
+      'flake8-string-format',
+      'flake8-tidy-imports',
+      'flake8-todo']
     - id: trailing-whitespace
 
 - repo: git@github.com:pre-commit/mirrors-yapf.git
@@ -18,6 +33,7 @@ repos:
   hooks:
     - id: yapf
       exclude: 'migrations|settings|scripts'
+      additional_dependencies: ['futures']
 
 - repo: git@github.com:FalconSocial/pre-commit-python-sorter.git
   sha: b57843b0b874df1d16eb0bef00b868792cb245c2
