@@ -84,7 +84,7 @@ I18N_COMMENT=
 # The i18n function call names. The presence of this function stops
 # reformattting on that line, because the string it has cannot be moved
 # away from the i18n comment.
-I18N_FUNCTION_CALL=
+I18N_FUNCTION_CALL=["_", "ugettext", "gettext"]
 
 # Indent the dictionary value if it cannot fit on the same line as the
 # dictionary key. For example:
