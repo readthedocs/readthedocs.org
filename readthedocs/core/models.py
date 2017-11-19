@@ -48,12 +48,12 @@ class UserProfile(models.Model):
 
     def get_contribution_details(self):
         """
-        Gets the line to put into commits to attribute the author.
+        Get the line to put into commits to attribute the author.
 
         Returns a tuple (name, email)
         """
         if self.user.first_name and self.user.last_name:
-            name = '%s %s' % (self.user.first_name, self.user.last_name)
+            name = '{} {}'.format(self.user.first_name, self.user.last_name)
         else:
             name = self.user.username
         if self.allow_email:
