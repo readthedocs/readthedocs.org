@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 """Mix-in classes for project views."""
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import logging
 from datetime import datetime, timedelta
@@ -66,7 +68,8 @@ class ProjectAdminMixin(object):
         if self.project_url_field not in self.kwargs:
             return None
         return get_object_or_404(
-            Project.objects.for_admin_user(user=self.request.user), slug=self.kwargs[self.project_url_field])
+            Project.objects.for_admin_user(user=self.request.user),
+            slug=self.kwargs[self.project_url_field])
 
     def get_context_data(self, **kwargs):
         """Add project to context data."""
@@ -85,7 +88,9 @@ class ProjectSpamMixin(object):
 
     def post(self, request, *args, **kwargs):
         if request.user.profile.banned:
-            log.error('Rejecting project POST from shadowbanned user %s', request.user)
+            log.error(
+                'Rejecting project POST from shadowbanned user %s',
+                request.user)
             return HttpResponseRedirect(self.get_failure_url())
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
@@ -94,7 +99,9 @@ class ProjectSpamMixin(object):
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()
-                log.error('Spam detected from new user, shadowbanned user %s', request.user)
+                log.error(
+                    'Spam detected from new user, shadowbanned user %s',
+                    request.user)
             else:
                 log.error('Spam detected from user %s', request.user)
             return HttpResponseRedirect(self.get_failure_url())
