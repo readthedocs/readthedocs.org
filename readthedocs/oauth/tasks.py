@@ -11,6 +11,8 @@ from .services import registry
 
 @permission_check(user_id_matches)
 class SyncRemoteRepositories(PublicTask):
+
+    name = __name__ + '.sync_remote_repositories'
     public_name = 'sync_remote_repositories'
     queue = 'web'
 
