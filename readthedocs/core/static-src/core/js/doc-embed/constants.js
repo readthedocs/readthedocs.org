@@ -10,4 +10,9 @@ exports.PROMO_SUPPORTED_THEMES = [
     exports.THEME_ALABASTER
 ]
 
+exports.PROMO_TYPES = {
+    LEFTNAV: 'doc',               // Left navigation on documentation pages
+    FOOTER: 'site-footer'         // Footer of documentation pages
+};
+
 module.exports = exports;
