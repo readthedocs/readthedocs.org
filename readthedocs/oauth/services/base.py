@@ -123,7 +123,7 @@ class Service(object):
         """
         try:
             resp = self.get_session().get(url)
-            next_url = self.get_next_url(resp)
+            next_url = self.get_next_url_to_paginate(resp)
             results = self.get_paginated_results(resp)
             if next_url:
                 results.extend(self.paginate(next_url))
@@ -161,7 +161,7 @@ class Service(object):
         """
         raise NotImplementedError
 
-    def get_paginated_results(response):
+    def get_paginated_results(self, response):
         """Return the results for the current response/page.
 
         :param response: response from where to get the results.

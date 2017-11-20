@@ -148,10 +148,10 @@ class GitHubService(Service):
         organization.save()
         return organization
 
-    def get_next_url_to_paginate(response):
+    def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
 
-    def get_paginated_results(response):
+    def get_paginated_results(self, response):
         return response.json()
 
     def get_webhook_data(self, project, integration):
