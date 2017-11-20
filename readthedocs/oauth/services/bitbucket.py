@@ -11,7 +11,6 @@ from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter)
-from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
@@ -165,32 +164,11 @@ class BitbucketService(Service):
         organization.save()
         return organization
 
-    def paginate(self, url):
-        """Recursively combine results from Bitbucket pagination.
+    def get_next_url_to_paginate(response):
+        return response.json().get('next')
 
-        :param url: start url to get the data from.
-        """
-        try:
-            resp = self.get_session().get(url)
-            data = resp.json()
-            results = data.get('values', [])
-            next_url = data.get('next')
-            if next_url:
-                results.extend(self.paginate(next_url))
-            return results
-        # Catch specific exception related to OAuth
-        except InvalidClientIdError:
-            log.error('Bitbucket access_token or refresh_token failed: %s', url)
-        # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
-            # Response data should always be JSON, still try to log if not though
-            try:
-                debug_data = resp.json()
-            except ValueError:
-                debug_data = resp.content
-            log.debug('Bitbucket paginate failed at %s with response: %s', url, debug_data)
-        finally:
-            return []
+    def get_paginated_results(response):
+        return response.json().get('values', [])
 
     def get_webhook_data(self, project, integration):
         """Get webhook JSON data to post to the API"""
