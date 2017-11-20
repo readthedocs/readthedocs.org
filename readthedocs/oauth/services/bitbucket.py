@@ -164,18 +164,11 @@ class BitbucketService(Service):
         organization.save()
         return organization
 
-    def paginate(self, url):
-        """Recursively combine results from Bitbucket pagination
+    def get_next_url_to_paginate(self, response):
+        return response.json().get('next')
 
-        :param url: start url to get the data from.
-        """
-        resp = self.get_session().get(url)
-        data = resp.json()
-        results = data.get('values', [])
-        next_url = data.get('next')
-        if next_url:
-            results.extend(self.paginate(next_url))
-        return results
+    def get_paginated_results(self, response):
+        return response.json().get('values', [])
 
     def get_webhook_data(self, project, integration):
         """Get webhook JSON data to post to the API"""
