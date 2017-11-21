@@ -135,10 +135,11 @@ class UpdateDocsTask(Task):
                 'An unhandled exception was raised outside the build environment',
                 extra={'tags': {'build': build_pk}}
             )
-            unhandled_failure = _('Unknown error encountered. '
-                        'Please include the build id ({build_id}) in any bug reports.'.format(
-                            build_id=build_pk
-                        ))
+            unhandled_failure = _(
+                'Unknown error encountered. '
+                'Please include the build id ({build_id}) in any bug reports.'.format(
+                    build_id=build_pk
+                ))
         finally:
             if unhandled_failure:
                 self.build_env.build['failure'] = unhandled_failure
