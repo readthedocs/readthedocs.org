@@ -556,7 +556,6 @@ class DockerEnvironment(BuildEnvironment):
                       exc_info=True)
         self.container = None
         self.build['state'] = BUILD_STATE_FINISHED
-        self.update_build(BUILD_STATE_FINISHED)
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
