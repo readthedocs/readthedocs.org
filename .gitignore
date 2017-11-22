@@ -15,6 +15,7 @@
 .ropeproject/
 _build
 bower_components/
+contrib/supervisord.log
 deploy/.vagrant
 dist/*
 local_settings.py
@@ -43,3 +44,4 @@ private_*
 readthedocs/htmlcov
 tags
 .python-version
+*.pyo

@@ -1,13 +1,14 @@
-"""OAuth utility functions"""
+"""OAuth utility functions."""
 
 from __future__ import absolute_import
-from builtins import str
 from builtins import object
 import logging
 from datetime import datetime
 
 from django.conf import settings
 from requests_oauthlib import OAuth2Session
+from requests.exceptions import RequestException
+from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from allauth.socialaccount.models import SocialAccount
 
 
@@ -69,13 +70,13 @@ class Service(object):
             return None
 
         token_config = {
-            'access_token': str(token.token),
+            'access_token': token.token,
             'token_type': 'bearer',
         }
         if token.expires_at is not None:
             token_expires = (token.expires_at - datetime.now()).total_seconds()
             token_config.update({
-                'refresh_token': str(token.token_secret),
+                'refresh_token': token.token_secret,
                 'expires_in': token_expires,
             })
 
@@ -114,6 +115,34 @@ class Service(object):
 
         return _updater
 
+    def paginate(self, url):
+        """Recursively combine results from service's pagination.
+
+        :param url: start url to get the data from.
+        :type url: unicode
+        """
+        try:
+            resp = self.get_session().get(url)
+            next_url = self.get_next_url_to_paginate(resp)
+            results = self.get_paginated_results(resp)
+            if next_url:
+                results.extend(self.paginate(next_url))
+            return results
+        # Catch specific exception related to OAuth
+        except InvalidClientIdError:
+            log.error('access_token or refresh_token failed: %s', url)
+            raise Exception('You should reconnect your account')
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            # Response data should always be JSON, still try to log if not though
+            try:
+                debug_data = resp.json()
+            except ValueError:
+                debug_data = resp.content
+            log.debug('paginate failed at %s with response: %s', url, debug_data)
+        finally:
+            return []
+
     def sync(self):
         raise NotImplementedError
 
@@ -122,6 +151,22 @@ class Service(object):
         raise NotImplementedError
 
     def create_organization(self, fields):
+        raise NotImplementedError
+
+    def get_next_url_to_paginate(self, response):
+        """Return the next url to feed the `paginate` method.
+
+        :param response: response from where to get the `next_url` attribute
+        :type response: requests.Response
+        """
+        raise NotImplementedError
+
+    def get_paginated_results(self, response):
+        """Return the results for the current response/page.
+
+        :param response: response from where to get the results.
+        :type response: requests.Response
+        """
         raise NotImplementedError
 
     def setup_webhook(self, project):

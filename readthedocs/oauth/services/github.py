@@ -148,19 +148,11 @@ class GitHubService(Service):
         organization.save()
         return organization
 
-    def paginate(self, url):
-        """Combines return from GitHub pagination
+    def get_next_url_to_paginate(self, response):
+        return response.links.get('next', {}).get('url')
 
-        :param url: start url to get the data from.
-
-        See https://developer.github.com/v3/#pagination
-        """
-        resp = self.get_session().get(url)
-        result = resp.json()
-        next_url = resp.links.get('next', {}).get('url')
-        if next_url:
-            result.extend(self.paginate(next_url))
-        return result
+    def get_paginated_results(self, response):
+        return response.json()
 
     def get_webhook_data(self, project, integration):
         """Get webhook JSON data to post to the API"""

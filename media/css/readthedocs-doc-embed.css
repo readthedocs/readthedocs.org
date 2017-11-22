@@ -8,21 +8,21 @@
 }
 
 .rst-other-versions {
-	text-align: left;
+    text-align: left;
 }
 
 .rst-other-versions a {
-	border: 0;
+    border: 0;
 }
 
 .rst-other-versions dl {
-	margin: 0;
+    margin: 0;
 }
 
 
 /* Fix RTD theme bottom margin */
 .rst-content .line-block {
-	margin-bottom: 24px
+    margin-bottom: 24px
 }
 
 /* Fix for nav bottom padding with flyout */
@@ -134,9 +134,37 @@ div.rtd-pro.alabaster div.rtd-pro-about a {
     border-bottom: 0px;
 }
 
-div.rtd-pro.alabaster div.rtd-pro-about i.fa-info-circle:before {
+div.rtd-pro.alabaster div.rtd-pro-about i.fa-info-circle:before,
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about i.fa-info-circle:before {
     content: "";
     color: #a3a3a3;
+}
+
+/* Hide the "sponsored" note in the left navigation */
+div.rtd-pro-about span {
+    display: none;
+}
+
+/* Footer promos */
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about span {
+    display: inline;
+}
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about {
+    float: none;
+}
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about a {
+    text-decoration: none;
+}
+div.rtd-pro.rtd-pro-footer {
+    text-align: left;
+}
+div.rtd-pro.rtd-pro-footer a.rtd-pro-image-wrapper {
+    float: right;
+    margin-left: 25px;
+}
+
+div.rtd-pro-wrapper {
+    clear: both;
 }
 
 @media (max-width: 768px) {
