@@ -92,7 +92,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', '--dereference')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -100,31 +100,52 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of show-ref --tags, eg:
+        Parses output of show-ref --tags --dereference, eg:
 
-            3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
-            bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
-            c0288a17899b2c6818f74e3a90b77e2a1779f96a refs/tags/2.0.2
-            a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
-            c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
-            edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
+            8148e36c2d39600b3490d7b8186c4ece450f49bf refs/tags/4.2.1
+            4d977eb02c9397a834825256544aaddfc62b8ea4 refs/tags/4.2.1^{}
+            1f5a71b1000251084a29e425bfd2e9e1bdce2f9e refs/tags/5.0.0
+            1ba246d740cd242e377d722630a909d85433c313 refs/tags/5.0.0^{}
+            6bffaff0455f42530df688d23a73c21bc05e7703 refs/tags/5.0.0b1
+            171a542f269aac28483a639b34ee56938f87577f refs/tags/5.0.0b1^{}
+            4d17d4d5d6d2937c7b586acc34d23dcff1356fae refs/tags/5.0.0b2
+            97bd1ea3260774ffe438a5f850c7873e903e6e3f refs/tags/5.0.0b2^{}
+            fe8b7f362b9dc78bd15568912874a91b6ddeb8bb refs/tags/5.0.0rc1
+            192b3e4c7a290ce87932965ab2d36343eea6dd19 refs/tags/5.0.0rc1^{}
+            d1d50255fce289ba1effd52b83e0b905b579c86b refs/tags/5.1.0
+            5c9c918bc0a11057184ec143da13b68994f59666 refs/tags/5.1.0^{}
 
-        Into VCSTag objects with the tag name as verbose_name and the commit
-        hash as identifier.
+        Label without ^{} points to hash that identifies git tag itself, and label
+        with ^{} suffix points to specific commit that was marked with the tag.
+        This prefixed label only appears for annotated tags.
+
+        See https://www.kernel.org/pub/software/scm/git/docs/git-show-ref.html
+
+        Returns sorted list of VCSVersion objects with the tag name as
+        verbose_name and the commit hash as identifier.
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
         raw_tags = csv.reader(StringIO(data), delimiter=' ')
-        vcs_tags = []
+        # "tag name": "dereferenced commit hash"
+        tag_map = dict()
         for row in raw_tags:
+            # compress spaces
             row = [f for f in row if f != '']
             if row == []:
                 continue
+            # name includes ^{} suffix if any
             commit_hash, name = row
-            clean_name = name.split('/')[-1]
-            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
+            clean_name = name.split('/')[-1].replace('^{}', '')
+            dereferenced = name.endswith('^{}')
+            if (clean_name not in tag_map) or (dereferenced):
+                # dereferenced hash overwrites previous value
+                tag_map[clean_name] = commit_hash
+        vcs_tags = []
+        for tag_name in sorted(tag_map):
+            vcs_tags.append(VCSVersion(self, tag_map[tag_name], tag_name))
         return vcs_tags
 
     @property
