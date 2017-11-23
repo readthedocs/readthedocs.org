@@ -116,8 +116,7 @@ class UpdateDocsTask(Task):
 
         This is fully wrapped in exception handling to account for a number of failure cases.
         """
-        unhandled_failure = False
-
+        unhandled_failure = ''
         try:
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
