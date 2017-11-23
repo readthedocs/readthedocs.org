@@ -142,7 +142,7 @@ class UpdateDocsTask(Task):
                 ))
         finally:
             if unhandled_failure:
-                self.build_env.build['failure'] = unhandled_failure
+                self.build_env.build['error'] = unhandled_failure
             self.build_env.update_build(BUILD_STATE_FINISHED)
 
         return self.get_build(build_pk)
