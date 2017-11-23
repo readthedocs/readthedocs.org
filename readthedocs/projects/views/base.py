@@ -21,6 +21,7 @@ USER_MATURITY_DAYS = getattr(settings, 'USER_MATURITY_DAYS', 7)
 
 
 class ProjectOnboardMixin(object):
+
     """Add project onboard context data to project object views."""
 
     def get_context_data(self, **kwargs):
@@ -48,6 +49,7 @@ class ProjectOnboardMixin(object):
 
 # Mixins
 class ProjectAdminMixin(object):
+
     """
     Mixin class that provides project sublevel objects.
 
@@ -84,6 +86,7 @@ class ProjectAdminMixin(object):
 
 
 class ProjectSpamMixin(object):
+
     """Protects POST views from spammers."""
 
     def post(self, request, *args, **kwargs):

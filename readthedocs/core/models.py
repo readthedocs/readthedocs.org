@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 
 @python_2_unicode_compatible
 class UserProfile(models.Model):
+
     """Additional information about a User."""
 
     user = AutoOneToOneField(

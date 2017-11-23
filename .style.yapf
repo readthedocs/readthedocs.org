@@ -29,7 +29,7 @@ ALLOW_MULTILINE_DICTIONARY_KEYS=False
 BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF=True
 
 # Insert a blank line before a class-level docstring.
-BLANK_LINE_BEFORE_CLASS_DOCSTRING=False
+BLANK_LINE_BEFORE_CLASS_DOCSTRING=True
 
 # Do not split consecutive brackets. Only relevant when
 # dedent_closing_brackets is set. For example:
