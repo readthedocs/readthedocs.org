@@ -23,6 +23,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
+from requests.exceptions import ConnectionError
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
                          BuildEnvironmentWarning)
@@ -275,15 +276,17 @@ class BuildEnvironment(object):
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
+    :param finalize: finalize the build by setting a finished state on exit
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None):
+                 environment=None, finalize=True):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
+        self.finalize = finalize
 
         self.commands = []
         self.failure = None
@@ -294,11 +297,12 @@ class BuildEnvironment(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         ret = self.handle_exception(exc_type, exc_value, tb)
-        self.build['state'] = BUILD_STATE_FINISHED
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg='Build finished'))
+        if self.finalize:
+            self.update_build(BUILD_STATE_FINISHED)
+            log.info(LOG_TEMPLATE
+                     .format(project=self.project.slug,
+                             version=self.version.slug,
+                             msg='Build finished'))
         return ret
 
     def handle_exception(self, exc_type, exc_value, _):
@@ -521,7 +525,9 @@ class DockerEnvironment(BuildEnvironment):
                                       .format(self.container_id))))
                     client = self.get_client()
                     client.remove_container(self.container_id)
-        except DockerAPIError:
+        except (DockerAPIError, ConnectionError):
+            # If there is an exception here, we swallow the exception as this
+            # was just during a sanity check anyways.
             pass
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
@@ -550,19 +556,24 @@ class DockerEnvironment(BuildEnvironment):
         try:
             log.info('Removing container %s', self.container_id)
             client.remove_container(self.container_id)
-        except DockerAPIError:
-            log.error(LOG_TEMPLATE
-                      .format(
-                          project=self.project.slug,
-                          version=self.version.slug,
-                          msg="Couldn't remove container"),
-                      exc_info=True)
+        # Catch direct failures from Docker API, but also requests exceptions
+        # with the HTTP request
+        except (DockerAPIError, ConnectionError):
+            log.exception(
+                LOG_TEMPLATE
+                .format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg="Couldn't remove container",
+                ),
+            )
         self.container = None
-        self.build['state'] = BUILD_STATE_FINISHED
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg='Build finished'))
+        if self.finalize:
+            self.update_build(BUILD_STATE_FINISHED)
+            log.info(LOG_TEMPLATE
+                     .format(project=self.project.slug,
+                             version=self.version.slug,
+                             msg='Build finished'))
         return ret
 
     def get_client(self):
@@ -655,11 +666,22 @@ class DockerEnvironment(BuildEnvironment):
                 mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
+        except ConnectionError as e:
+            log.exception(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=e,
+                ),
+            )
+            raise BuildEnvironmentError('There was a problem connecting to Docker')
         except DockerAPIError as e:
-            log.error(LOG_TEMPLATE
-                      .format(
-                          project=self.project.slug,
-                          version=self.version.slug,
-                          msg=e.explanation),
-                      exc_info=True)
+            log.exception(
+                LOG_TEMPLATE
+                .format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=e.explanation,
+                ),
+            )
             raise BuildEnvironmentError('Build environment creation failed')
