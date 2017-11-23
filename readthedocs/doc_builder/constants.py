@@ -39,3 +39,4 @@ BUILD_IMAGES = {
         'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
     },
 }
+BUILD_IMAGES.update(getattr(settings, 'BUILD_IMAGES', {}))
