@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
@@ -106,17 +106,13 @@ def projects(request):
     else:
         form = GoldProjectForm()
 
-    return render_to_response(
-        'gold/projects.html',
-        {
-            'form': form,
-            'gold_user': gold_user,
-            'publishable': settings.STRIPE_PUBLISHABLE,
-            'user': request.user,
-            'projects': gold_projects
-        },
-        context_instance=RequestContext(request)
-    )
+    return render(request, 'gold/projects.html', {
+        'form': form,
+        'gold_user': gold_user,
+        'publishable': settings.STRIPE_PUBLISHABLE,
+        'user': request.user,
+        'projects': gold_projects
+    })
 
 
 @login_required
