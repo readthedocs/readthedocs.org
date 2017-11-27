@@ -7,12 +7,13 @@ import json
 import logging
 import re
 
-from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 
-from readthedocs.restapi.client import api
+from readthedocs.builds import utils as build_utils
+from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import DEFAULT_PRIVACY_LEVEL, Service
@@ -27,7 +28,13 @@ log = logging.getLogger(__name__)
 
 class GitLabService(Service):
 
-    """Provider service for GitLab."""
+    """
+    Provider service for GitLab.
+
+    See:
+     - https://docs.gitlab.com/ce/integration/oauth_provider.html
+     - https://docs.gitlab.com/ce/api/oauth2.html
+    """
 
     adapter = GitLabOAuth2Adapter
     # Just use the network location to determine if it's a GitLab project
@@ -46,22 +53,37 @@ class GitLabService(Service):
         return response.json()
 
     def sync(self):
-        """Sync repositories from GitLab API."""
-        org = None
+        """
+        Sync repositories and organizations from GitLab API.
+
+        See: https://docs.gitlab.com/ce/api/projects.html
+        """
         repos = self.paginate(
-            u'{url}/api/v3/projects'.format(url=self.adapter.provider_base_url),
+            '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
             per_page=100,
+            archived=False,
             order_by='path',
             sort='asc',
+            membership=True,
         )
-        for repo in repos:
-            # Skip archived repositories
-            if repo.get('archived', False):
-                continue
-            if not org or org.slug != repo['namespace']['id']:
-                org = self.create_organization(repo['namespace'])
 
-            self.create_repository(repo, organization=org)
+        try:
+            org = None
+            for repo in repos:
+                # Skip archived repositories
+                # if repo.get('archived', False):
+                #     continue
+
+                # organization data is included in the /projects response
+                if org is None or org.slug != repo['namespace']['path']:
+                    org = self.create_organization(repo['namespace'])
+
+                self.create_repository(repo, organization=org)
+        except (TypeError, ValueError):
+            log.exception('Error syncing GitLab repositories')
+            raise Exception(
+                'Could not sync your GitLab repositories, try reconnecting '
+                'your account')
 
     def create_repository(
             self, fields, privacy=DEFAULT_PRIVACY_LEVEL, organization=None):
@@ -74,12 +96,11 @@ class GitLabService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
-        # See: https://docs.gitlab.com/ce/api/projects.html#projects
-        repo_is_public = fields['visibility_level'] == 20
 
         def is_owned_by(owner_id):
             return self.account.extra_data['id'] == owner_id
 
+        repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
             try:
                 repo = RemoteRepository.objects.get(
@@ -102,32 +123,40 @@ class GitLabService(Service):
                 return None
             else:
                 repo.organization = organization
+
             repo.name = fields['name']
-            repo.full_name = fields['name_with_namespace']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
             repo.html_url = fields['web_url']
-            repo.private = not fields['public']
+            repo.private = not repo_is_public
+            if repo.private:
+                repo.clone_url = repo.ssh_url
+            else:
+                repo.clone_url = fields['http_url_to_repo']
+
+            # TODO: review this repo.admin logic
             repo.admin = not repo_is_public
-            repo.clone_url = (
-                repo.admin and repo.ssh_url or fields['http_url_to_repo'])
             if not repo.admin and 'owner' in fields:
                 repo.admin = is_owned_by(fields['owner']['id'])
+
             repo.vcs = 'git'
             repo.account = self.account
+
+            # TODO: do we want default avatar URL?
             owner = fields.get('owner') or {}
             repo.avatar_url = (
                 fields.get('avatar_url') or owner.get('avatar_url') or
                 self.default_avatar['repo'])
+
             repo.json = json.dumps(fields)
             repo.save()
             return repo
         else:
             log.info(
-                u'Not importing {0} because mismatched type: public={1}'.format(
-                    fields['name_with_namespace'],
-                    fields['public'],
-                ))
+                'Not importing %s because mismatched type: visibility=%s',
+                fields['name_with_namespace'],
+                fields['visibility'],
+            )
 
     def create_organization(self, fields):
         """
@@ -151,19 +180,53 @@ class GitLabService(Service):
 
         organization.name = fields.get('name')
         organization.account = self.account
-        organization.url = u'{url}/{path}'.format(
-            url=self.adapter.provider_base_url, path=fields.get('path'))
+        organization.url = '{url}/{path}'.format(
+            url=self.adapter.provider_base_url,
+            path=fields.get('path'),
+        )
         avatar = fields.get('avatar') or {}
         if avatar.get('url'):
-            organization.avatar_url = u'{url}/{avatar}'.format(
+            organization.avatar_url = '{url}/{avatar}'.format(
                 url=self.adapter.provider_base_url,
                 avatar=avatar.get('url'),
             )
         else:
+            # TODO: do we want default avatar URL here?
             organization.avatar_url = self.default_avatar['org']
+
         organization.json = json.dumps(fields)
         organization.save()
         return organization
+
+    def get_webhook_data(self, repository, integration, project):
+        """
+        Get webhook JSON data to post to the API.
+
+        See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
+        """
+        return json.dumps({
+            'id': repository.id,
+            'push_events': True,
+            'tag_push_events': True,
+            'url': 'https://{domain}/{path}'.format(
+                domain=settings.PRODUCTION_DOMAIN,
+                path=reverse(
+                    'api_webhook',
+                    kwargs={
+                        'project_slug': project.slug,
+                        'integration_pk': integration.pk,
+                    },
+                ),
+            ),
+
+            # Optional
+            'issues_events': False,
+            'merge_requests_events': False,
+            'note_events': False,
+            'job_events': False,
+            'pipeline_events': False,
+            'wiki_events': False,
+        })
 
     def setup_webhook(self, project):
         """
@@ -175,65 +238,63 @@ class GitLabService(Service):
         :rtype: bool
         """
         session = self.get_session()
+        owner, repo = build_utils.get_gitlab_username_repo(url=project.repo)
+        integration, _ = Integration.objects.get_or_create(
+            project=project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+        )
+        data = self.get_webhook_data(project.repo)
         resp = None
-        repositories = RemoteRepository.objects.filter(
-            clone_url=project.vcs_repo().repo_url)
-
-        if not repositories.exists():
-            log.error('GitLab remote repository not found')
-            return False, resp
-
-        repo_id = repositories[0].get_serialized()['id']
-        # See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
-        data = json.dumps({
-            'id': repo_id,
-            'push_events': True,
-            'issues_events': False,
-            'merge_requests_events': False,
-            'note_events': False,
-            'tag_push_events': True,
-            'url': u'https://{0}/gitlab'.format(settings.PRODUCTION_DOMAIN),
-        })
-
         try:
             resp = session.post(
-                u'{url}/api/v3/projects/{repo_id}/hooks'.format(
+                '{url}/api/v4/projects/{repo}/hooks'.format(
                     url=self.adapter.provider_base_url,
-                    repo_id=repo_id,
+                    repo=repo,
                 ),
                 data=data,
                 headers={'content-type': 'application/json'},
             )
             if resp.status_code == 201:
+                integration.provider_data = resp.json()
+                integration.save()
                 log.info(
                     'GitLab webhook creation successful for project: %s',
-                    project)
-                return True, resp
-        except RequestException:
-            log.error(
-                'GitLab webhook creation failed for project: %s', project,
-                exc_info=True)
+                    project,
+                )
+                return (True, resp)
+        except (RequestException, ValueError):
+            log.exception(
+                'GitLab webhook creation failed for project: %s',
+                project,
+            )
         else:
-            log.error('GitLab webhook creation failed for project: %s', project)
-        return False, resp
+            log.exception(
+                'GitLab webhook creation failed for project: %s',
+                project,
+            )
+            return (False, resp)
 
-    @classmethod
-    def get_token_for_project(cls, project, force_local=False):
-        """Get access token for project by iterating over project users."""
-        # TODO: why does this only target GitHub?
-        if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
-            return None
-        token = None
-        try:
-            if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
-                token = api.project(project.pk).token().get()['token']
-            else:
-                for user in project.users.all():
-                    tokens = SocialToken.objects.filter(
-                        account__user=user,
-                        app__provider=cls.adapter.provider_id)
-                    if tokens.exists():
-                        token = tokens[0].token
-        except Exception:
-            log.error('Failed to get token for user', exc_info=True)
-        return token
+    def update_webhook(self, project, integration):
+        # TODO: to implement
+        pass
+
+    # @classmethod
+    # def get_token_for_project(cls, project, force_local=False):
+    #     """Get access token for project by iterating over project users."""
+    #     # TODO: why does this only target GitHub?
+    #     if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
+    #         return None
+    #     token = None
+    #     try:
+    #         if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
+    #             token = api.project(project.pk).token().get()['token']
+    #         else:
+    #             for user in project.users.all():
+    #                 tokens = SocialToken.objects.filter(
+    #                     account__user=user,
+    #                     app__provider=cls.adapter.provider_id)
+    #                 if tokens.exists():
+    #                     token = tokens[0].token
+    #     except Exception:
+    #         log.error('Failed to get token for user', exc_info=True)
+    #     return token
