@@ -9,7 +9,8 @@ receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
 version.
 
-.. _integration-detail:
+GitHub
+------
 
 Webhook Integrations
 --------------------
@@ -51,7 +52,7 @@ GitHub
 .. note:: The webhook secret is not yet respected
 
 Bitbucket
-~~~~~~~~~
+---------
 
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
@@ -61,13 +62,13 @@ Bitbucket
 * Finish by clicking **Save**
 
 GitLab
-~~~~~~
+------
 
 * Go to the **Settings** page for your project
 * Click **Integrations**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
   :ref:`integration detail page <integration-detail>` page
-* Leave the default **Push events** selected
+* Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
 Using the generic API integration

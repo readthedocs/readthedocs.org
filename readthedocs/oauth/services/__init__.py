@@ -1,8 +1,11 @@
-"""Conditional classes for OAuth services"""
+# -*- coding: utf-8 -*-
+"""Conditional classes for OAuth services."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.oauth.services import github, bitbucket
+from readthedocs.oauth.services import bitbucket, github, gitlab
 
 
 class GitHubService(SettingsOverrideObject):
@@ -15,4 +18,9 @@ class BitbucketService(SettingsOverrideObject):
     _override_setting = 'OAUTH_BITBUCKET_SERVICE'
 
 
-registry = [GitHubService, BitbucketService]
+class GitLabService(SettingsOverrideObject):
+    _default_class = gitlab.GitLabService
+    _override_setting = 'OAUTH_GITLAB_SERVICE'
+
+
+registry = [GitHubService, BitbucketService, GitLabService]

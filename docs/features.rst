@@ -13,7 +13,7 @@ More information can be found in the :doc:`vcs` page.
 Auto-updating
 -------------
 
-The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for GitHub, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
+The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for GitHub, Bitbucket and GitLab, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
 
 Internationalization
 --------------------

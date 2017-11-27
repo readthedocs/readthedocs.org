@@ -26,6 +26,7 @@ repos:
       'flake8-string-format',
       'flake8-tidy-imports',
       'flake8-todo']
+      exclude: 'test_oauth.py'
     - id: trailing-whitespace
 
 - repo: git@github.com:pre-commit/mirrors-yapf.git
