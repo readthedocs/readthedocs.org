@@ -39,22 +39,11 @@ class GitLabService(Service):
         'org': urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
     }
 
-    def paginate(self, url, **kwargs):
-        """
-        Combine return from GitLab pagination. GitLab uses LinkHeaders.
+    def get_next_url_to_paginate(self, response):
+        return response.links.get('next', {}).get('url')
 
-        See: http://www.w3.org/wiki/LinkHeader.
-        See: https://docs.gitlab.com/ce/api/README.html#pagination
-
-        :param url: start url to get the data from.
-        :param kwargs: optional parameters passed to .get() method
-        """
-        resp = self.get_session().get(url, data=kwargs)
-        result = resp.json()
-        next_url = resp.links.get('next', {}).get('url')
-        if next_url:
-            result.extend(self.paginate(next_url, **kwargs))
-        return result
+    def get_paginated_results(self, response):
+        return response.json()
 
     def sync(self):
         """Sync repositories from GitLab API."""
