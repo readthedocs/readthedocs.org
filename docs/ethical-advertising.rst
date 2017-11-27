@@ -3,7 +3,7 @@ Ethical Advertising
 
 Read the Docs is a large, free web service.
 There is one proven business model to support this kind of site: **Advertising**.
-Instead of using en existing ad network, we are building the model we want to exist.
+Instead of using an existing ad network, we are building the model we want to exist.
 
 **We're building an advertising model that respects users while providing value to advertisers.**
 We don't track you, sell your data, or anything else.
@@ -24,10 +24,12 @@ We're a community,
 and we value your feedback.
 If you ever want to reach out about this effort,
 feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
-You can also :ref:`opt out <opt-out>` if you prefer.
+
+You can :ref:`opt out <opt-out>` of having paid ads on your projects,
+or seeing paid ads if you want.
 
 We have gone into more detail about our views in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
-Also, Eric Holscher, one of our co-founders also `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
+Eric Holscher, one of our co-founders `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
 
 .. _ethical-info:
 
