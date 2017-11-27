@@ -42,7 +42,7 @@ DOCKER_OOM_EXIT_CODE = 137
 DOCKER_HOSTNAME_MAX_LEN = 64
 
 # Build images
-BUILD_IMAGES = {
+DOCKER_BUILD_IMAGES = {
     'readthedocs/build:1.0': {
         'python': {'supported_versions': [2, 2.7, 3, 3.4]},
     },
@@ -53,4 +53,4 @@ BUILD_IMAGES = {
         'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
     },
 }
-BUILD_IMAGES.update(getattr(settings, 'BUILD_IMAGES', {}))
+DOCKER_BUILD_IMAGES.update(getattr(settings, 'DOCKER_BUILD_IMAGES', {}))
