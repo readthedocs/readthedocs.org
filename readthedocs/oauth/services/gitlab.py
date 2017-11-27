@@ -1,48 +1,53 @@
-"""OAuth utility functions"""
+# -*- coding: utf-8 -*-
+"""OAuth utility functions."""
 
-import logging
+from __future__ import division, print_function, unicode_literals
+
 import json
+import logging
 import re
+
+from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
+from django.conf import settings
+from requests.exceptions import RequestException
+
+from readthedocs.restapi.client import api
+
+from ..models import RemoteOrganization, RemoteRepository
+from .base import DEFAULT_PRIVACY_LEVEL, Service
 
 try:
     from urlparse import urljoin, urlparse
 except ImportError:
     from urllib.parse import urljoin, urlparse  # noqa
 
-from django.conf import settings
-from requests.exceptions import RequestException
-from allauth.socialaccount.models import SocialToken
-from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
-
-from readthedocs.restapi.client import api
-
-from ..models import RemoteOrganization, RemoteRepository
-from .base import Service, DEFAULT_PRIVACY_LEVEL
-
-
 log = logging.getLogger(__name__)
 
 
 class GitLabService(Service):
-    """Provider service for GitLab"""
+
+    """Provider service for GitLab."""
 
     adapter = GitLabOAuth2Adapter
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
-    url_pattern = re.compile(re.escape(urlparse(adapter.provider_base_url).netloc))
+    url_pattern = re.compile(
+        re.escape(urlparse(adapter.provider_base_url).netloc))
     default_avatar = {
         'repo': urljoin(settings.MEDIA_URL, 'images/fa-bookmark.svg'),
-        'org':  urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
+        'org': urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
     }
 
     def paginate(self, url, **kwargs):
-        """Combines return from GitLab pagination. GitLab uses
-        LinkHeaders, see: http://www.w3.org/wiki/LinkHeader
+        """
+        Combine return from GitLab pagination. GitLab uses LinkHeaders.
+
+        See: http://www.w3.org/wiki/LinkHeader.
+        See: https://docs.gitlab.com/ce/api/README.html#pagination
 
         :param url: start url to get the data from.
         :param kwargs: optional parameters passed to .get() method
-
-        See https://docs.gitlab.com/ce/api/README.html#pagination
         """
         resp = self.get_session().get(url, data=kwargs)
         result = resp.json()
@@ -52,13 +57,13 @@ class GitLabService(Service):
         return result
 
     def sync(self):
-        """Sync repositories from GitLab API"""
+        """Sync repositories from GitLab API."""
         org = None
         repos = self.paginate(
             u'{url}/api/v3/projects'.format(url=self.adapter.provider_base_url),
             per_page=100,
             order_by='path',
-            sort='asc'
+            sort='asc',
         )
         for repo in repos:
             # Skip archived repositories
@@ -69,9 +74,10 @@ class GitLabService(Service):
 
             self.create_repository(repo, organization=org)
 
-    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
-                          organization=None):
-        """Update or create a repository from GitLab API response
+    def create_repository(
+            self, fields, privacy=DEFAULT_PRIVACY_LEVEL, organization=None):
+        """
+        Update or create a repository from GitLab API response.
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
@@ -100,8 +106,10 @@ class GitLabService(Service):
                 repo.users.add(self.user)
 
             if repo.organization and repo.organization != organization:
-                log.debug('Not importing %s because mismatched orgs' %
-                          fields['name'])
+                log.debug(
+                    'Not importing %s because mismatched orgs',
+                    fields['name'],
+                )
                 return None
             else:
                 repo.organization = organization
@@ -112,16 +120,16 @@ class GitLabService(Service):
             repo.html_url = fields['web_url']
             repo.private = not fields['public']
             repo.admin = not repo_is_public
-            repo.clone_url = (repo.admin and repo.ssh_url or
-                              fields['http_url_to_repo'])
+            repo.clone_url = (
+                repo.admin and repo.ssh_url or fields['http_url_to_repo'])
             if not repo.admin and 'owner' in fields:
                 repo.admin = is_owned_by(fields['owner']['id'])
             repo.vcs = 'git'
             repo.account = self.account
             owner = fields.get('owner') or {}
-            repo.avatar_url = (fields.get('avatar_url') or
-                               owner.get('avatar_url') or
-                               self.default_avatar['repo'])
+            repo.avatar_url = (
+                fields.get('avatar_url') or owner.get('avatar_url') or
+                self.default_avatar['repo'])
             repo.json = json.dumps(fields)
             repo.save()
             return repo
@@ -130,11 +138,11 @@ class GitLabService(Service):
                 u'Not importing {0} because mismatched type: public={1}'.format(
                     fields['name_with_namespace'],
                     fields['public'],
-                )
-            )
+                ))
 
     def create_organization(self, fields):
-        """Update or create remote organization from GitLab API response
+        """
+        Update or create remote organization from GitLab API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
@@ -155,8 +163,7 @@ class GitLabService(Service):
         organization.name = fields.get('name')
         organization.account = self.account
         organization.url = u'{url}/{path}'.format(
-            url=self.adapter.provider_base_url, path=fields.get('path')
-        )
+            url=self.adapter.provider_base_url, path=fields.get('path'))
         avatar = fields.get('avatar') or {}
         if avatar.get('url'):
             organization.avatar_url = u'{url}/{avatar}'.format(
@@ -170,7 +177,8 @@ class GitLabService(Service):
         return organization
 
     def setup_webhook(self, project):
-        """Set up GitLab project webhook for project
+        """
+        Set up GitLab project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
@@ -179,7 +187,8 @@ class GitLabService(Service):
         """
         session = self.get_session()
         resp = None
-        repositories = RemoteRepository.objects.filter(clone_url=project.vcs_repo().repo_url)
+        repositories = RemoteRepository.objects.filter(
+            clone_url=project.vcs_repo().repo_url)
 
         if not repositories.exists():
             log.error('GitLab remote repository not found')
@@ -204,21 +213,25 @@ class GitLabService(Service):
                     repo_id=repo_id,
                 ),
                 data=data,
-                headers={'content-type': 'application/json'}
+                headers={'content-type': 'application/json'},
             )
             if resp.status_code == 201:
-                log.info('GitLab webhook creation successful for project: %s', project)
+                log.info(
+                    'GitLab webhook creation successful for project: %s',
+                    project)
                 return True, resp
         except RequestException:
-            log.error('GitLab webhook creation failed for project: %s', project, exc_info=True)
+            log.error(
+                'GitLab webhook creation failed for project: %s', project,
+                exc_info=True)
         else:
             log.error('GitLab webhook creation failed for project: %s', project)
         return False, resp
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
-        """Get access token for project by iterating over project users"""
-        # TODO why does this only target GitHub?
+        """Get access token for project by iterating over project users."""
+        # TODO: why does this only target GitHub?
         if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
             return None
         token = None
