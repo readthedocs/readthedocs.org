@@ -426,7 +426,7 @@ class BuildEnvironment(object):
                 self.build['error'] = ugettext_noop(
                     "There was a problem with Read the Docs while building your documentation. "
                     "Please report this to us with your build id ({build_id}).".format(
-                        build_id=self.build['pk']
+                        build_id=self.build['id']
                     )
                 )
                 log.error(
