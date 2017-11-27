@@ -12,6 +12,7 @@ ignore-paths:
 
 ignore-patterns:
   - /migrations/
+  - local_settings.py
 
 pep8:
   full: true
