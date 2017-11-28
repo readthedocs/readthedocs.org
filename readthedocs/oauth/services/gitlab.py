@@ -12,7 +12,6 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 
-from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -253,7 +252,6 @@ class GitLabService(Service):
         :rtype: bool
         """
         session = self.get_session()
-        owner, repo = build_utils.get_gitlab_username_repo(url=project.repo)
         integration, _ = Integration.objects.get_or_create(
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
@@ -261,7 +259,7 @@ class GitLabService(Service):
 
         # The ID or URL-encoded path of the project
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
-        repo_id = '{}%2F{}'.format(owner, repo)
+        repo_id = json.loads(project.remote_repository.json).get('id')
 
         data = self.get_webhook_data(repo_id, integration, project)
         resp = None
