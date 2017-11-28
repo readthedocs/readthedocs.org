@@ -21,7 +21,7 @@ BB_REGEXS = [
 # TODO: I think this can be different than `gitlab.com`
 # self.adapter.provider_base_url
 GL_REGEXS = [
-    re.compile('gitlab.com/(.+)/(.+)/'),
+    re.compile('gitlab.com/(.+)/(.+)(?:\.git){1}'),
     re.compile('gitlab.com/(.+)/(.+)'),
     re.compile('gitlab.com:(.+)/(.+)\.git'),
 ]

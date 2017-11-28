@@ -58,6 +58,10 @@ class GitLabService(Service):
 
         See: https://docs.gitlab.com/ce/api/projects.html
         """
+        self.sync_repositories()
+        self.sync_organizations()
+
+    def sync_repositories(self):
         repos = self.paginate(
             '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
             per_page=100,
@@ -68,21 +72,42 @@ class GitLabService(Service):
         )
 
         try:
-            org = None
             for repo in repos:
-                # Skip archived repositories
-                # if repo.get('archived', False):
-                #     continue
-
-                # organization data is included in the /projects response
-                if org is None or org.slug != repo['namespace']['path']:
-                    org = self.create_organization(repo['namespace'])
-
-                self.create_repository(repo, organization=org)
+                self.create_repository(repo)
         except (TypeError, ValueError):
             log.exception('Error syncing GitLab repositories')
             raise Exception(
                 'Could not sync your GitLab repositories, try reconnecting '
+                'your account')
+
+    def sync_organizations(self):
+        orgs = self.paginate(
+            '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+            per_page=100,
+            all_available=False,
+            order_by='path',
+            sort='asc',
+        )
+
+        try:
+            for org in orgs:
+                org_obj = self.create_organization(org)
+                org_repos = self.paginate(
+                    '{url}/api/v4/groups/{id}/projects'.format(
+                        url=self.adapter.provider_base_url,
+                        id=org['id'],
+                    ),
+                    per_page=100,
+                    archived=False,
+                    order_by='path',
+                    sort='asc',
+                )
+                for repo in org_repos:
+                    self.create_repository(repo, organization=org_obj)
+        except (TypeError, ValueError):
+            log.exception('Error syncing GitLab organizations')
+            raise Exception(
+                'Could not sync your GitLab organization, try reconnecting '
                 'your account')
 
     def create_repository(
@@ -198,14 +223,14 @@ class GitLabService(Service):
         organization.save()
         return organization
 
-    def get_webhook_data(self, repository, integration, project):
+    def get_webhook_data(self, repo_id, integration, project):
         """
         Get webhook JSON data to post to the API.
 
         See: http://doc.gitlab.com/ce/api/projects.html#add-project-hook
         """
         return json.dumps({
-            'id': repository.id,
+            'id': repo_id,
             'push_events': True,
             'tag_push_events': True,
             'url': 'https://{domain}/{path}'.format(
@@ -243,13 +268,18 @@ class GitLabService(Service):
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
         )
-        data = self.get_webhook_data(project.repo)
+
+        # The ID or URL-encoded path of the project
+        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
+        repo_id = '{}%2F{}'.format(owner, repo)
+
+        data = self.get_webhook_data(repo_id, integration, project)
         resp = None
         try:
             resp = session.post(
-                '{url}/api/v4/projects/{repo}/hooks'.format(
+                '{url}/api/v4/projects/{repo_id}/hooks'.format(
                     url=self.adapter.provider_base_url,
-                    repo=repo,
+                    repo_id=repo_id,
                 ),
                 data=data,
                 headers={'content-type': 'application/json'},
