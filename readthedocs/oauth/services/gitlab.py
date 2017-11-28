@@ -305,26 +305,55 @@ class GitLabService(Service):
             return (False, resp)
 
     def update_webhook(self, project, integration):
-        # TODO: to implement
-        pass
+        """
+        Update webhook integration.
 
-    # @classmethod
-    # def get_token_for_project(cls, project, force_local=False):
-    #     """Get access token for project by iterating over project users."""
-    #     # TODO: why does this only target GitHub?
-    #     if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
-    #         return None
-    #     token = None
-    #     try:
-    #         if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
-    #             token = api.project(project.pk).token().get()['token']
-    #         else:
-    #             for user in project.users.all():
-    #                 tokens = SocialToken.objects.filter(
-    #                     account__user=user,
-    #                     app__provider=cls.adapter.provider_id)
-    #                 if tokens.exists():
-    #                     token = tokens[0].token
-    #     except Exception:
-    #         log.error('Failed to get token for user', exc_info=True)
-    #     return token
+        :param project: project to set up webhook for
+        :type project: Project
+
+        :param integration: Webhook integration to update
+        :type integration: Integration
+
+        :returns: boolean based on webhook update success, and requests Response
+                  object
+
+        :rtype: (Bool, Response)
+        """
+        session = self.get_session()
+
+        # The ID or URL-encoded path of the project
+        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
+        repo_id = json.loads(project.remote_repository.json).get('id')
+
+        data = self.get_webhook_data(repo_id, project, integration)
+        hook_id = integration.provider_data.get('id')
+        resp = None
+        try:
+            resp = session.put(
+                '{url}/api/v4/projects/{repo_id}/hooks/{hook_id}'.format(
+                    url=self.adapter.provider_base_url,
+                    repo_id=repo_id,
+                    hook_id=hook_id,
+                ),
+                data=data,
+                headers={'content-type': 'application/json'},
+            )
+            if resp.status_code in 200:
+                recv_data = resp.json()
+                integration.provider_data = recv_data
+                integration.save()
+                log.info(
+                    'GitLab webhook update successful for project: %s', project)
+                return (True, resp)
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            log.exception(
+                'GitLab webhook update failed for project: %s', project)
+        else:
+            log.error('GitLab webhook update failed for project: %s', project)
+            try:
+                debug_data = resp.json()
+            except ValueError:
+                debug_data = resp.content
+            log.debug('GitLab webhook update failure response: %s', debug_data)
+            return (False, resp)
