@@ -233,7 +233,7 @@ class GitLabService(Service):
             'id': repo_id,
             'push_events': True,
             'tag_push_events': True,
-            'url': 'https://{domain}/{path}'.format(
+            'url': 'https://{domain}{path}'.format(
                 domain=settings.PRODUCTION_DOMAIN,
                 path=reverse(
                     'api_webhook',
