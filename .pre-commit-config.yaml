@@ -52,3 +52,11 @@ repos:
   hooks:
     - id: autoflake
       args: ['--in-place', '--remove-all-unused-imports', '--remove-unused-variable']
+
+- repo: git://github.com/guykisel/prospector-mirror
+  sha: 'b27f281eb9398fc8504415d7fbdabf119ea8c5e1'
+  hooks:
+    - id: prospector
+      # https://github.com/pre-commit/pre-commit/issues/178
+      language: system
+      args: ['--profile=prospector']
