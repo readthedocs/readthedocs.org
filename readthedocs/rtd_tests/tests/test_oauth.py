@@ -2,6 +2,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -392,9 +393,11 @@ class GitLabOAuthTests(TestCase):
         return data
 
     def test_make_project_pass(self):
-        repo = self.service.create_repository(
-            self.repo_response_data, organization=self.org,
-            privacy=self.privacy)
+        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
+            m.return_value = True
+            repo = self.service.create_repository(
+                self.repo_response_data, organization=self.org,
+                privacy=self.privacy)
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testorga / testrepo')
@@ -411,6 +414,8 @@ class GitLabOAuthTests(TestCase):
         )
         self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
         self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
+        self.assertTrue(repo.admin)
+        self.assertFalse(repo.private)
 
     def test_make_private_project_fail(self):
         repo = self.service.create_repository(

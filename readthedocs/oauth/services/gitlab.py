@@ -105,6 +105,9 @@ class GitLabService(Service):
                 'Could not sync your GitLab organization, try reconnecting '
                 'your account')
 
+    def is_owned_by(self, owner_id):
+        return self.account.extra_data['id'] == owner_id
+
     def create_repository(
             self, fields, privacy=DEFAULT_PRIVACY_LEVEL, organization=None):
         """
@@ -116,8 +119,6 @@ class GitLabService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
-        def is_owned_by(owner_id):
-            return self.account.extra_data['id'] == owner_id
 
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
@@ -153,10 +154,9 @@ class GitLabService(Service):
             else:
                 repo.clone_url = fields['http_url_to_repo']
 
-            # TODO: review this repo.admin logic
             repo.admin = not repo_is_public
             if not repo.admin and 'owner' in fields:
-                repo.admin = is_owned_by(fields['owner']['id'])
+                repo.admin = self.is_owned_by(fields['owner']['id'])
 
             repo.vcs = 'git'
             repo.account = self.account
