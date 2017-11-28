@@ -41,10 +41,6 @@ class GitLabService(Service):
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
         re.escape(urlparse(adapter.provider_base_url).netloc))
-    default_avatar = {
-        'repo': urljoin(settings.MEDIA_URL, 'images/fa-bookmark.svg'),
-        'org': urljoin(settings.MEDIA_URL, 'images/fa-users.svg'),
-    }
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
@@ -166,11 +162,9 @@ class GitLabService(Service):
             repo.vcs = 'git'
             repo.account = self.account
 
-            # TODO: do we want default avatar URL?
             owner = fields.get('owner') or {}
             repo.avatar_url = (
-                fields.get('avatar_url') or owner.get('avatar_url') or
-                self.default_avatar['repo'])
+                fields.get('avatar_url') or owner.get('avatar_url'))
 
             repo.json = json.dumps(fields)
             repo.save()
@@ -208,15 +202,12 @@ class GitLabService(Service):
             url=self.adapter.provider_base_url,
             path=fields.get('path'),
         )
-        avatar = fields.get('avatar') or {}
-        if avatar.get('url'):
+        avatar_url = fields.get('avatar', {}).get('url')
+        if avatar_url:
             organization.avatar_url = '{url}/{avatar}'.format(
                 url=self.adapter.provider_base_url,
-                avatar=avatar.get('url'),
+                avatar=avatar_url,
             )
-        else:
-            # TODO: do we want default avatar URL here?
-            organization.avatar_url = self.default_avatar['org']
 
         organization.json = json.dumps(fields)
         organization.save()
