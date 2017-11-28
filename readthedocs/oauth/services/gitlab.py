@@ -121,7 +121,6 @@ class GitLabService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
-
         def is_owned_by(owner_id):
             return self.account.extra_data['id'] == owner_id
 
