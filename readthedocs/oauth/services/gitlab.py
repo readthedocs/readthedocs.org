@@ -201,13 +201,7 @@ class GitLabService(Service):
             url=self.adapter.provider_base_url,
             path=fields.get('path'),
         )
-        avatar_url = fields.get('avatar', {}).get('url')
-        if avatar_url:
-            organization.avatar_url = '{url}/{avatar}'.format(
-                url=self.adapter.provider_base_url,
-                avatar=avatar_url,
-            )
-
+        organization.avatar_url = fields.get('avatar_url')
         organization.json = json.dumps(fields)
         organization.save()
         return organization

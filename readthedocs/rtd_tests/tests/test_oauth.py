@@ -4,7 +4,6 @@ from __future__ import (
 
 from django.contrib.auth.models import User
 from django.test import TestCase
-from mock import Mock
 
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
@@ -288,56 +287,92 @@ class GitLabOAuthTests(TestCase):
     fixtures = ['eric', 'test_data']
 
     repo_response_data = {
+        'lfs_enabled': True,
+        'request_access_enabled': False,
+        'approvals_before_merge': 0,
         'forks_count': 12,
-        'container_registry_enabled': None,
+        'only_allow_merge_if_all_discussions_are_resolved': False,
+        'container_registry_enabled': True,
         'web_url': 'https://gitlab.com/testorga/testrepo',
+        'owner': {
+            'username': 'testorga',
+            'web_url': 'https://gitlab.com/testorga',
+            'name': 'Test Orga',
+            'state': 'active',
+            'avatar_url': 'https://secure.gravatar.com/avatar/test',
+            'id': 42,
+        },
         'wiki_enabled': True,
-        'public_builds': True,
-        'id': 2,
+        'id': 42,
         'merge_requests_enabled': True,
         'archived': False,
-        'snippets_enabled': False,
+        'snippets_enabled': True,
         'http_url_to_repo': 'https://gitlab.com/testorga/testrepo.git',
         'namespace': {
-            'share_with_group_lock': False,
+            'kind': 'user',
             'name': 'Test Orga',
-            'created_at': '2014-07-11T13:38:53.510Z',
-            'description': '',
-            'updated_at': '2014-07-11T13:38:53.510Z',
-            'avatar': {
-                'url': None,
-            },
+            'parent_id': None,
+            'plan': 'early_adopter',
             'path': 'testorga',
-            'visibility_level': 20,
-            'id': 5,
-            'owner_id': None,
+            'id': 42,
+            'full_path': 'testorga',
         },
-        'star_count': 0,
-        'avatar_url': 'http://placekitten.com/50/50',
+        'star_count': 1,
+        '_links': {
+            'repo_branches': 'http://gitlab.com/api/v4/projects/42/repository/branches',
+            'merge_requests': 'http://gitlab.com/api/v4/projects/42/merge_requests',
+            'self': 'http://gitlab.com/api/v4/projects/42',
+            'labels': 'http://gitlab.com/api/v4/projects/42/labels',
+            'members': 'http://gitlab.com/api/v4/projects/42/members',
+            'events': 'http://gitlab.com/api/v4/projects/42/events',
+            'issues': 'http://gitlab.com/api/v4/projects/42/issues',
+        },
+        'resolve_outdated_diff_discussions': False,
         'issues_enabled': True,
         'path_with_namespace': 'testorga/testrepo',
-        'public': True,
+        'ci_config_path': None,
+        'shared_with_groups': [],
         'description': 'Test Repo',
         'default_branch': 'master',
+        'visibility': 'public',
         'ssh_url_to_repo': 'git@gitlab.com:testorga/testrepo.git',
+        'public_jobs': True,
         'path': 'testrepo',
-        'visibility_level': 20,
+        'import_status': 'none',
+        'only_allow_merge_if_pipeline_succeeds': False,
+        'open_issues_count': 0,
+        'last_activity_at': '2017-11-28T14:21:17.570Z',
+        'name': 'testrepo',
+        'printing_merge_request_link_enabled': True,
+        'name_with_namespace': 'testorga / testrepo',
+        'created_at': '2017-11-27T19:19:30.906Z',
+        'shared_runners_enabled': True,
+        'creator_id': 389803,
+        'avatar_url': None,
         'permissions': {
-            'group_access': {
+            'group_access': None,
+            'project_access': {
                 'notification_level': 3,
                 'access_level': 40,
             },
-            'project_access': None,
         },
-        'open_issues_count': 2,
-        'last_activity_at': '2016-03-01T09:22:34.344Z',
-        'name': 'testrepo',
-        'name_with_namespace': 'testorga / testrepo',
-        'created_at': '2015-11-02T13:52:42.821Z',
-        'builds_enabled': True,
-        'creator_id': 5,
-        'shared_runners_enabled': True,
         'tag_list': [],
+        'jobs_enabled': True,
+    }
+
+    group_response_data = {
+        'id': 1,
+        'name': 'Test Orga',
+        'path': 'testorga',
+        'description': 'An interesting group',
+        'visibility': 'public',
+        'lfs_enabled': True,
+        'avatar_url': 'https://secure.gravatar.com/avatar/test',
+        'web_url': 'https://gitlab.com/groups/testorga',
+        'request_access_enabled': False,
+        'full_name': 'Test Orga',
+        'full_path': 'testorga',
+        'parent_id': None,
     }
 
     def setUp(self):
@@ -352,8 +387,7 @@ class GitLabOAuthTests(TestCase):
         """Manipulate repo response data to get private repo data."""
         data = self.repo_response_data.copy()
         data.update({
-            'visibility_level': 10,
-            'public': False,
+            'visibility': 'private',
         })
         return data
 
@@ -365,11 +399,16 @@ class GitLabOAuthTests(TestCase):
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testorga / testrepo')
         self.assertEqual(repo.description, 'Test Repo')
-        self.assertEqual(repo.avatar_url, 'http://placekitten.com/50/50')
+        self.assertEqual(
+            repo.avatar_url,
+            'https://secure.gravatar.com/avatar/test',
+        )
         self.assertIn(self.user, repo.users.all())
         self.assertEqual(repo.organization, self.org)
         self.assertEqual(
-            repo.clone_url, 'https://gitlab.com/testorga/testrepo.git')
+            repo.clone_url,
+            'https://gitlab.com/testorga/testrepo.git',
+        )
         self.assertEqual(repo.ssh_url, 'git@gitlab.com:testorga/testrepo.git')
         self.assertEqual(repo.html_url, 'https://gitlab.com/testorga/testrepo')
 
@@ -387,36 +426,12 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(repo.private, True)
 
     def test_make_organization(self):
-        org = self.service.create_organization(
-            self.repo_response_data['namespace'])
+        org = self.service.create_organization(self.group_response_data)
         self.assertIsInstance(org, RemoteOrganization)
         self.assertEqual(org.slug, 'testorga')
         self.assertEqual(org.name, 'Test Orga')
-        self.assertEqual(org.avatar_url, '/media/images/fa-users.svg')
+        self.assertEqual(
+            org.avatar_url,
+            'https://secure.gravatar.com/avatar/test',
+        )
         self.assertEqual(org.url, 'https://gitlab.com/testorga')
-
-    def test_sync_skip_archived_repo(self):
-        data = self.repo_response_data
-        data['archived'] = True
-        create_repo_mock = Mock()
-        create_orga_mock = Mock()
-        setattr(self.service, 'paginate', Mock(return_value=[data]))
-        setattr(self.service, 'create_repository', create_repo_mock)
-        setattr(self.service, 'create_organization', create_orga_mock)
-        self.service.sync()
-        self.assertFalse(create_repo_mock.called)
-        self.assertFalse(create_orga_mock.called)
-
-    def test_sync_create_repo_and_orga(self):
-        create_repo_mock = Mock()
-        create_orga_mock = Mock(return_value=self.org)
-        setattr(
-            self.service, 'paginate',
-            Mock(return_value=[self.repo_response_data]))
-        setattr(self.service, 'create_repository', create_repo_mock)
-        setattr(self.service, 'create_organization', create_orga_mock)
-        self.service.sync()
-        create_repo_mock.assert_called_once_with(
-            self.repo_response_data, organization=self.org)
-        create_orga_mock.assert_called_once_with(
-            self.repo_response_data['namespace'])
