@@ -337,7 +337,7 @@ class GitLabService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
-            if resp.status_code in 200:
+            if resp.status_code == 200:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
