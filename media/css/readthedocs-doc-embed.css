@@ -180,3 +180,7 @@ div.rtd-pro-wrapper {
         border-color: #656565;
     }
 }
+
+div.rtd-pro > p.ethical-callout {
+    margin-top: 1em;
+}

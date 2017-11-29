@@ -106,7 +106,7 @@ def divide_by_zero(request):  # pylint: disable=unused-argument
     return old_div(1, 0)
 
 
-def server_error_500(request, exception, template_name='500.html'):  # pylint: disable=unused-argument  # noqa
+def server_error_500(request, template_name='500.html'):
     """A simple 500 handler so we get media"""
     r = render_to_response(template_name,
                            context_instance=RequestContext(request))

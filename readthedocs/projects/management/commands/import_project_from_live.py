@@ -51,49 +51,19 @@ class Command(BaseCommand):
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 
-            copy_attributes = (
-                'pub_date',
-                'modified_date',
-                'name',
-                'description',
-                'repo',
-                'repo_type',
-                'project_url',
+            exclude_attributes = (
+                'absolute_url',
+                'analytics_code',
                 'canonical_url',
-                'version',
-                'copyright',
-                'theme',
-                'suffix',
-                'single_version',
-                'default_version',
-                'default_branch',
-                'requirements_file',
-                'documentation_type',
-                'allow_comments',
-                'comment_moderation',
-                # 'analytics_code' is left out on purpose.
-                'enable_epub_build',
-                'enable_pdf_build',
-                'conf_py_file',
-                'skip',
-                'mirror',
-                'install_project',
-                'python_interpreter',
-                'use_system_packages',
-                'django_packages_url',
-                'privacy_level',
-                'version_privacy_level',
-                'language',
-                'num_major',
-                'num_minor',
-                'num_point',
+                'users',
             )
 
-            for attribute in copy_attributes:
-                setattr(project, attribute, project_data[attribute])
+            for attribute in project_data:
+                if attribute not in exclude_attributes:
+                    setattr(project, attribute, project_data[attribute])
             project.user = user1
             project.save()
             if user1:
                 project.users.add(user1)
 
-            call_command('update_repos', project.slug, version='all')
+            call_command('update_repos', project.slug, record=True, version='all')
