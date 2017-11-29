@@ -5,3 +5,6 @@ pytest-django==3.1.2
 pytest-xdist==1.20.1
 apipkg==1.4
 execnet==1.5.0
+
+# local debugging tools
+pdbpp
