@@ -34,17 +34,18 @@ label. Those tickets are meant to be standalone and can be worked on ad-hoc.
 When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
 
-We have a strict code style that it's easy to follow since you just
-have to run a couple of commands and they will do everything for
-you. These commands are a mix between `autoflake`_, `autopep8`_,
-`docformatter`_, `isort`_, `unify`_ and `yapf`_::
+We have a strict code style that it's easy to follow since you just have to
+install `pre-commit`_ and it will be ran automatically as a pre-commit hook for
+git. This hook will run a different linting tools (`autoflake`_, `autopep8`_,
+`docformatter`_, `isort`_, `prospector`_, `unify`_ and `yapf`_) to check your
+changes before you commit them and let you know if there are some problems that
+weren't able to fix automatically.
 
-  $ autoflake --remove-all-unused-imports --remove-unused-variables --keep-useless-pass
-  $ autopep8
-  $ docformatter --wrap-summaries=80 --wrap-descriptions=80 --pre-summary-newline --no-blank
-  $ isort
-  $ unify --quote="'"
-  $ yapf --exclude=*migrations* --exclude=*settings* --exclude=*scripts* --parallel
+To install the `pre-commit` tool and setup the git pre-commit hook run these
+commands::
+
+  $ pip install -U pre-commit
+  $ pre-commit install
 
 .. _Feature Overview: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
 .. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
@@ -54,6 +55,8 @@ you. These commands are a mix between `autoflake`_, `autopep8`_,
 .. _autoflake: https://github.com/myint/autoflake
 .. _autopep8: https://github.com/hhatto/autopep8
 .. _docformatter: https://github.com/myint/docformatter
+.. _isort: https://github.com/timothycrosley/isort
+.. _prospector: https://prospector.landscape.io/en/master
 .. _unify: https://github.com/myint/unify
 .. _yapf: https://github.com/google/yapf
 
