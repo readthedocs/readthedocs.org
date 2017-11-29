@@ -7,7 +7,7 @@ import json
 
 from django.test import TestCase
 
-from readthedocs.builds.constants import STABLE
+from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -24,12 +24,14 @@ class TestSyncVersions(TestCase):
             verbose_name='master',
             active=True,
             machine=True,
+            type=BRANCH,
         )
         Version.objects.create(
             project=self.pip,
             identifier='to_delete',
             verbose_name='to_delete',
             active=False,
+            type=TAG,
         )
 
     def test_proper_url_no_slash(self):
@@ -387,6 +389,70 @@ class TestStableVersion(TestCase):
         version_stable = Version.objects.get(slug=STABLE)
         self.assertFalse(version_stable.active)
         self.assertEqual(version_stable.identifier, '1.0.0')
+
+    def test_stable_version_tags_over_branches(self):
+        version_post_data = {
+            'branches': [
+                # 2.0 development
+                {'identifier': 'origin/2.0', 'verbose_name': '2.0'},
+                {'identifier': 'origin/0.9.1rc1', 'verbose_name': '0.9.1rc1'},
+            ],
+            'tags': [
+                {'identifier': '1.0rc1', 'verbose_name': '1.0rc1'},
+                {'identifier': '0.9', 'verbose_name': '0.9'},
+            ],
+        }
+
+        self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        # If there is a branch with a higher version, tags takes preferences
+        # over the branches to select the stable version
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '0.9')
+
+        version_post_data['tags'].append({
+            'identifier': '1.0',
+            'verbose_name': '1.0',
+        })
+
+        self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '1.0')
+
+    def test_stable_version_same_id_tag_branch(self):
+        version_post_data = {
+            'branches': [
+                # old 1.0 development branch
+                {'identifier': 'origin/1.0', 'verbose_name': '1.0'},
+            ],
+            'tags': [
+                # tagged 1.0 final version
+                {'identifier': '1.0', 'verbose_name': '1.0'},
+                {'identifier': '0.9', 'verbose_name': '0.9'},
+            ],
+        }
+
+        self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        version_stable = Version.objects.get(slug=STABLE)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(version_stable.identifier, '1.0')
+        self.assertEqual(version_stable.type, 'tag')
 
     def test_unicode(self):
         version_post_data = {
