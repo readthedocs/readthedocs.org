@@ -35,17 +35,29 @@ When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
 
 We have a strict code style that it's easy to follow since you just have to
-install `pre-commit`_ and it will be ran automatically as a pre-commit hook for
-git. This hook will run a different linting tools (`autoflake`_, `autopep8`_,
-`docformatter`_, `isort`_, `prospector`_, `unify`_ and `yapf`_) to check your
-changes before you commit them and let you know if there are some problems that
-weren't able to fix automatically.
+install `pre-commit`_ and it will be run automatically a different linting tools
+(`autoflake`_, `autopep8`_, `docformatter`_, `isort`_, `prospector`_, `unify`_
+and `yapf`_) to check your changes before you commit them and let you know if
+there are some problems that weren't to fix automatically.
 
-To install the `pre-commit` tool and setup the git pre-commit hook run these
-commands::
+To run the `pre-commit` command and check your changes::
 
   $ pip install -U pre-commit
-  $ pre-commit install
+  $ git add <your-modified-files>
+  $ pre-commit run
+
+
+.. note::
+
+   If you feel confortable with the changes that `pre-commit run`
+   applied to your code, you can run the pre-commit command as a
+   pre-commit git hook by installing it like this::
+
+     $ pre-commit install
+
+   After installing it, the next time you do `git commit` the
+   `pre-commit run` command will be run immediately and inform you the
+   changes and the errors.
 
 .. _Feature Overview: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
 .. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
