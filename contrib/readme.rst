@@ -7,7 +7,7 @@ in an environment relatively close to the production evironment. All you need is
 outside the scope of this documentation, but once installed, all you need to run
 from ``supervisord`` is::
 
-    pip install supervisord
+    pip install supervisor
     cd contrib/
     supervisord
 
