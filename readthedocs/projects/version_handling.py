@@ -11,7 +11,7 @@ import six
 from packaging.version import InvalidVersion, Version
 
 from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
+    LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG)
 
 
 def get_major(version):
@@ -233,6 +233,12 @@ def determine_stable_version(version_list):
                 if not comparable.is_prerelease]
 
     if versions:
+        # We take preference for tags over branches. If we don't find any tag,
+        # we just return the first branch found.
+        for version_obj, comparable in versions:
+            if version_obj.type == TAG:
+                return version_obj
+
         version_obj, comparable = versions[0]
         return version_obj
     return None
