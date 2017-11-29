@@ -28,8 +28,13 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    highest_version_obj, highest_version_comparable = highest_version(
-        project.versions.public().filter(active=True))
+    versions_qs = project.versions.public().filter(active=True)
+
+    # Take preferences over tags only if the project has at least one tag
+    if versions_qs.filter(type=TAG).exists():
+        versions_qs = versions_qs.filter(type=TAG)
+
+    highest_version_obj, highest_version_comparable = highest_version(versions_qs)
     ret_val = {
         'project': six.text_type(highest_version_obj),
         'version': six.text_type(highest_version_comparable),
