@@ -119,7 +119,6 @@ class GitLabService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
-
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
             try:
