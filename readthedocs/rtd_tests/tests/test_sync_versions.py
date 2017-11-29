@@ -1,26 +1,36 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import json
 
 from django.test import TestCase
 
-from readthedocs.builds.models import Version
 from readthedocs.builds.constants import STABLE
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
 class TestSyncVersions(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        Version.objects.create(project=self.pip, identifier='origin/master',
-                               verbose_name='master', active=True,
-                               machine=True)
-        Version.objects.create(project=self.pip, identifier='to_delete',
-                               verbose_name='to_delete', active=False)
+        Version.objects.create(
+            project=self.pip,
+            identifier='origin/master',
+            verbose_name='master',
+            active=True,
+            machine=True,
+        )
+        Version.objects.create(
+            project=self.pip,
+            identifier='to_delete',
+            verbose_name='to_delete',
+            active=False,
+        )
 
     def test_proper_url_no_slash(self):
         version_post_data = {
@@ -33,10 +43,11 @@ class TestSyncVersions(TestCase):
                     'identifier': 'origin/to_add',
                     'verbose_name': 'to_add',
                 },
-            ]}
+            ],
+        }
 
         r = self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -46,8 +57,12 @@ class TestSyncVersions(TestCase):
 
     def test_new_tag_update_active(self):
 
-        Version.objects.create(project=self.pip, identifier='0.8.3',
-                               verbose_name='0.8.3', active=True)
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=True,
+        )
 
         version_post_data = {
             'branches': [
@@ -69,12 +84,11 @@ class TestSyncVersions(TestCase):
                     'identifier': '0.8.3',
                     'verbose_name': '0.8.3',
                 },
-
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -83,8 +97,12 @@ class TestSyncVersions(TestCase):
 
     def test_new_tag_update_inactive(self):
 
-        Version.objects.create(project=self.pip, identifier='0.8.3',
-                               verbose_name='0.8.3', active=False)
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=False,
+        )
 
         version_post_data = {
             'branches': [
@@ -106,12 +124,11 @@ class TestSyncVersions(TestCase):
                     'identifier': '0.8.3',
                     'verbose_name': '0.8.3',
                 },
-
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -120,7 +137,7 @@ class TestSyncVersions(TestCase):
 
 
 class TestStableVersion(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
@@ -147,17 +164,16 @@ class TestStableVersion(TestCase):
                     'identifier': '0.8',
                     'verbose_name': '0.8',
                 },
-
-            ]
+            ],
         }
 
         self.assertRaises(
             Version.DoesNotExist,
             Version.objects.get,
-            slug=STABLE
+            slug=STABLE,
         )
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -174,11 +190,11 @@ class TestStableVersion(TestCase):
                 {'identifier': '0.9b1', 'verbose_name': '0.9b1'},
                 {'identifier': '0.8', 'verbose_name': '0.8'},
                 {'identifier': '0.8rc2', 'verbose_name': '0.8rc2'},
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -192,11 +208,11 @@ class TestStableVersion(TestCase):
             'tags': [
                 {'identifier': '1.0', 'verbose_name': '1.0'},
                 {'identifier': '1.0.post1', 'verbose_name': '1.0.post1'},
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -210,12 +226,15 @@ class TestStableVersion(TestCase):
         version_post_data = {
             'branches': [],
             'tags': [
-                {'identifier': 'this.is.invalid', 'verbose_name': 'this.is.invalid'},
-            ]
+                {
+                    'identifier': 'this.is.invalid',
+                    'verbose_name': 'this.is.invalid'
+                },
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -224,13 +243,19 @@ class TestStableVersion(TestCase):
         version_post_data = {
             'branches': [],
             'tags': [
-                {'identifier': '1.0', 'verbose_name': '1.0'},
-                {'identifier': 'this.is.invalid', 'verbose_name': 'this.is.invalid'},
-            ]
+                {
+                    'identifier': '1.0',
+                    'verbose_name': '1.0',
+                },
+                {
+                    'identifier': 'this.is.invalid',
+                    'verbose_name': 'this.is.invalid'
+                },
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -255,11 +280,11 @@ class TestStableVersion(TestCase):
                     'identifier': '0.8',
                     'verbose_name': '0.8',
                 },
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -278,7 +303,7 @@ class TestStableVersion(TestCase):
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -293,11 +318,11 @@ class TestStableVersion(TestCase):
                     'identifier': '0.7',
                     'verbose_name': '0.7',
                 },
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -319,11 +344,11 @@ class TestStableVersion(TestCase):
                     'identifier': '0.9',
                     'verbose_name': '0.9',
                 },
-            ]
+            ],
         }
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -339,7 +364,7 @@ class TestStableVersion(TestCase):
         })
 
         self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -353,11 +378,11 @@ class TestStableVersion(TestCase):
             'branches': [],
             'tags': [
                 {'identifier': 'foo-£', 'verbose_name': 'foo-£'},
-            ]
+            ],
         }
 
         resp = self.client.post(
-            '/api/v2/project/%s/sync_versions/' % self.pip.pk,
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
