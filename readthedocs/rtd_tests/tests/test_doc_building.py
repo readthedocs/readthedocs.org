@@ -1,40 +1,39 @@
 # -*- coding: utf-8 -*-
-"""Things to know:
-
-   * raw subprocess calls like .communicate expects bytes
-   * the Command wrappers encapsulate the bytes and expose unicode
 """
-from __future__ import absolute_import
-from builtins import str
+Things to know:
+
+* raw subprocess calls like .communicate expects bytes
+* the Command wrappers encapsulate the bytes and expose unicode
+"""
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import os.path
-import shutil
-import uuid
 import re
+import uuid
+from builtins import str
 
 import mock
 from django.test import TestCase
-from django.contrib.auth.models import User
-from mock import patch, Mock, PropertyMock
-from docker.errors import APIError as DockerAPIError, DockerException
+from docker.errors import APIError as DockerAPIError
+from docker.errors import DockerException
+from mock import Mock, PropertyMock, patch
 
-from readthedocs.projects.models import Project
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.environments import (DockerEnvironment,
-                                                  DockerBuildCommand,
-                                                  LocalEnvironment,
-                                                  BuildCommand)
+from readthedocs.doc_builder.environments import (
+    BuildCommand, DockerBuildCommand, DockerEnvironment, LocalEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
-
-from readthedocs.rtd_tests.utils import make_test_git
-from readthedocs.rtd_tests.base import RTDTestCase
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
 SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 
+
 class TestLocalEnvironment(TestCase):
-    '''Test execution and exception handling in environment'''
+
+    """Test execution and exception handling in environment."""
     fixtures = ['test_data']
 
     def setUp(self):
@@ -48,13 +47,18 @@ class TestLocalEnvironment(TestCase):
         self.mocks.stop()
 
     def test_normal_execution(self):
-        '''Normal build in passing state'''
+        """Normal build in passing state."""
         self.mocks.configure_mock('process', {
-            'communicate.return_value': (b'This is okay', '')})
+            'communicate.return_value': (b'This is okay', '')
+        })
         type(self.mocks.process).returncode = PropertyMock(return_value=0)
 
-        build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={'id': DUMMY_BUILD_ID})
+        build_env = LocalEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
         with build_env:
             build_env.run('echo', 'test')
         self.assertTrue(self.mocks.process.communicate.called)
@@ -81,13 +85,18 @@ class TestLocalEnvironment(TestCase):
         })
 
     def test_failing_execution(self):
-        '''Build in failing state'''
+        """Build in failing state."""
         self.mocks.configure_mock('process', {
-            'communicate.return_value': (b'This is not okay', '')})
+            'communicate.return_value': (b'This is not okay', '')
+        })
         type(self.mocks.process).returncode = PropertyMock(return_value=1)
 
-        build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={'id': DUMMY_BUILD_ID})
+        build_env = LocalEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
         with build_env:
             build_env.run('echo', 'test')
             self.fail('This should be unreachable')
@@ -115,9 +124,12 @@ class TestLocalEnvironment(TestCase):
         })
 
     def test_failing_execution_with_caught_exception(self):
-        '''Build in failing state with BuildEnvironmentError exception'''
-        build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={'id': DUMMY_BUILD_ID})
+        """Build in failing state with BuildEnvironmentError exception."""
+        build_env = LocalEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
 
         with build_env:
             raise BuildEnvironmentError('Foobar')
@@ -145,9 +157,12 @@ class TestLocalEnvironment(TestCase):
         })
 
     def test_failing_execution_with_unexpected_exception(self):
-        '''Build in failing state with exception from code'''
-        build_env = LocalEnvironment(version=self.version, project=self.project,
-                                     build={'id': DUMMY_BUILD_ID})
+        """Build in failing state with exception from code."""
+        build_env = LocalEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
 
         with build_env:
             raise ValueError('uncaught')
@@ -178,7 +193,8 @@ class TestLocalEnvironment(TestCase):
 
 
 class TestDockerEnvironment(TestCase):
-    '''Test docker build environment'''
+
+    """Test docker build environment."""
 
     fixtures = ['test_data']
 
@@ -193,18 +209,21 @@ class TestDockerEnvironment(TestCase):
         self.mocks.stop()
 
     def test_container_id(self):
-        '''Test docker build command'''
-        docker = DockerEnvironment(version=self.version, project=self.project,
-                                   build={'id': DUMMY_BUILD_ID})
-        self.assertEqual(docker.container_id,
-                         'build-123-project-6-pip')
+        """Test docker build command."""
+        docker = DockerEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+        self.assertEqual(docker.container_id, 'build-123-project-6-pip')
 
     def test_environment_successful_build(self):
-        """A successful build exits cleanly and reports the build output"""
+        """A successful build exits cleanly and reports the build output."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
-            build={'id': DUMMY_BUILD_ID})
+            build={'id': DUMMY_BUILD_ID},
+        )
 
         with build_env:
             pass
@@ -224,16 +243,17 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_environment_successful_build_without_finalize(self):
-        """A successful build exits cleanly and doesn't update build"""
+        """A successful build exits cleanly and doesn't update build."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
-            finalize=False)
+            finalize=False,
+        )
 
         with build_env:
             pass
@@ -245,12 +265,13 @@ class TestDockerEnvironment(TestCase):
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
     def test_environment_failed_build_without_finalize(self):
-        """A failed build exits cleanly and doesn't update build"""
+        """A failed build exits cleanly and doesn't update build."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
-            finalize=False)
+            finalize=False,
+        )
 
         with build_env:
             raise BuildEnvironmentError('Test')
@@ -262,14 +283,13 @@ class TestDockerEnvironment(TestCase):
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
     def test_connection_failure(self):
-        """Connection failure on to docker socket should raise exception"""
-        self.mocks.configure_mock('docker', {
-            'side_effect': DockerException
-        })
+        """Connection failure on to docker socket should raise exception."""
+        self.mocks.configure_mock('docker', {'side_effect': DockerException})
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
-            build={'id': DUMMY_BUILD_ID})
+            build={'id': DUMMY_BUILD_ID},
+        )
 
         def _inner():
             with build_env:
@@ -291,22 +311,24 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_api_failure(self):
-        """Failing API error response from docker should raise exception"""
+        """Failing API error response from docker should raise exception."""
         response = Mock(status_code=500, reason='Because')
-        self.mocks.configure_mock('docker_client', {
-            'create_container.side_effect': DockerAPIError(
-                'Failure creating container',
-                response,
-                'Failure creating container'
-            )
-        })
+        self.mocks.configure_mock(
+            'docker_client', {
+                'create_container.side_effect': DockerAPIError(
+                    'Failure creating container', response,
+                    'Failure creating container')
+            })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={'id': DUMMY_BUILD_ID})
+        build_env = DockerEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
 
         def _inner():
             with build_env:
@@ -328,24 +350,23 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_api_failure_on_docker_memory_limit(self):
         """Docker exec_create raised memory issue on `exec`"""
         response = Mock(status_code=500, reason='Internal Server Error')
-        self.mocks.configure_mock('docker_client', {
-            'exec_create.side_effect': DockerAPIError(
-                'Failure creating container',
-                response,
-                'Failure creating container'
-            ),
-        })
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.side_effect': DockerAPIError(
+                    'Failure creating container', response,
+                    'Failure creating container'),
+            })
 
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
-            build={'id': DUMMY_BUILD_ID}
+            build={'id': DUMMY_BUILD_ID},
         )
 
         with build_env:
@@ -369,7 +390,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_api_failure_on_error_in_exit(self):
@@ -381,7 +402,7 @@ class TestDockerEnvironment(TestCase):
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
-            build={'id': DUMMY_BUILD_ID}
+            build={'id': DUMMY_BUILD_ID},
         )
 
         with build_env:
@@ -401,11 +422,12 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_api_failure_returns_previous_error_on_error_in_exit(self):
-        """Treat previously raised errors with more priority
+        """
+        Treat previously raised errors with more priority.
 
         Don't report a connection problem to Docker on cleanup if we have a more
         usable error to show the user.
@@ -418,7 +440,7 @@ class TestDockerEnvironment(TestCase):
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
-            build={'id': DUMMY_BUILD_ID}
+            build={'id': DUMMY_BUILD_ID},
         )
 
         with build_env:
@@ -438,31 +460,30 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_command_execution(self):
-        '''Command execution through Docker'''
-        self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': b'container-foobar'},
-            'exec_start.return_value': b'This is the return',
-            'exec_inspect.return_value': {'ExitCode': 1},
-        })
+        """Command execution through Docker."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 1},
+            })
 
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
-            build={'id': DUMMY_BUILD_ID})
+            build={'id': DUMMY_BUILD_ID},
+        )
 
         with build_env:
             build_env.run('echo test', cwd='/tmp')
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
-            stderr=True,
-            stdout=True
-        )
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
         self.assertEqual(build_env.commands[0].exit_code, 1)
         self.assertEqual(build_env.commands[0].output, u'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
@@ -482,25 +503,29 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_command_execution_cleanup_exception(self):
-        '''Command execution through Docker, catch exception during cleanup'''
+        """Command execution through Docker, catch exception during cleanup."""
         response = Mock(status_code=500, reason='Because')
-        self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': b'container-foobar'},
-            'exec_start.return_value': b'This is the return',
-            'exec_inspect.return_value': {'ExitCode': 0},
-            'kill.side_effect': DockerAPIError(
-                'Failure killing container',
-                response,
-                'Failure killing container'
-            )
-        })
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 0},
+                'kill.side_effect': DockerAPIError(
+                    'Failure killing container',
+                    response,
+                    'Failure killing container',
+                )
+            })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={'id': DUMMY_BUILD_ID})
+        build_env = DockerEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
@@ -522,20 +547,25 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_container_already_exists(self):
-        '''Docker container already exists'''
-        self.mocks.configure_mock('docker_client', {
-            'inspect_container.return_value': {'State': {'Running': True}},
-            'exec_create.return_value': {'Id': b'container-foobar'},
-            'exec_start.return_value': b'This is the return',
-            'exec_inspect.return_value': {'ExitCode': 0},
-        })
+        """Docker container already exists."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'inspect_container.return_value': {'State': {'Running': True}},
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 0},
+            })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={'id': DUMMY_BUILD_ID})
+        build_env = DockerEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
         def _inner():
             with build_env:
                 build_env.run('echo', 'test', cwd='/tmp')
@@ -561,34 +591,36 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
     def test_container_timeout(self):
-        '''Docker container timeout and command failure'''
+        """Docker container timeout and command failure."""
         response = Mock(status_code=404, reason='Container not found')
-        self.mocks.configure_mock('docker_client', {
-            'inspect_container.side_effect': [
-                DockerAPIError(
-                    'No container found',
-                    response,
-                    'No container found',
-                ),
-                {'State': {'Running': False, 'ExitCode': 42}},
-            ],
-            'exec_create.return_value': {'Id': b'container-foobar'},
-            'exec_start.return_value': b'This is the return',
-            'exec_inspect.return_value': {'ExitCode': 0},
-        })
+        self.mocks.configure_mock(
+            'docker_client', {
+                'inspect_container.side_effect': [
+                    DockerAPIError(
+                        'No container found',
+                        response,
+                        'No container found',
+                    ),
+                    {'State': {'Running': False, 'ExitCode': 42}},
+                ],
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 0},
+            })
 
-        build_env = DockerEnvironment(version=self.version, project=self.project,
-                                      build={'id': DUMMY_BUILD_ID})
+        build_env = DockerEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
-        self.assertEqual(
-            str(build_env.failure),
-            'Build exited due to time out')
+        self.assertEqual(str(build_env.failure), 'Build exited due to time out')
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 1)
         self.assertTrue(build_env.failed)
 
@@ -606,23 +638,23 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo'
+            'builder': u'foo',
         })
 
 
 class TestBuildCommand(TestCase):
-    '''Test build command creation'''
+
+    """Test build command creation."""
 
     def test_command_env(self):
-        '''Test build command env vars'''
-        env = {'FOOBAR': 'foobar',
-               'BIN_PATH': 'foobar'}
+        """Test build command env vars."""
+        env = {'FOOBAR': 'foobar', 'BIN_PATH': 'foobar'}
         cmd = BuildCommand('echo', environment=env)
         for key in list(env.keys()):
             self.assertEqual(cmd.environment[key], env[key])
 
     def test_result(self):
-        '''Test result of output using unix true/false commands'''
+        """Test result of output using unix true/false commands."""
         cmd = BuildCommand('true')
         cmd.run()
         self.assertTrue(cmd.successful)
@@ -632,7 +664,7 @@ class TestBuildCommand(TestCase):
         self.assertTrue(cmd.failed)
 
     def test_missing_command(self):
-        '''Test missing command'''
+        """Test missing command."""
         path = os.path.join('non-existant', str(uuid.uuid4()))
         self.assertFalse(os.path.exists(path))
         cmd = BuildCommand(path)
@@ -641,29 +673,26 @@ class TestBuildCommand(TestCase):
         self.assertRegexpMatches(cmd.error, missing_re)
 
     def test_input(self):
-        '''Test input to command'''
+        """Test input to command."""
         cmd = BuildCommand('/bin/cat', input_data='FOOBAR')
         cmd.run()
         self.assertEqual(cmd.output, 'FOOBAR')
 
     def test_output(self):
-        '''Test output command'''
-        cmd = BuildCommand(['/bin/bash',
-                            '-c', 'echo -n FOOBAR'])
+        """Test output command."""
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
         cmd.run()
-        self.assertEqual(cmd.output, "FOOBAR")
+        self.assertEqual(cmd.output, 'FOOBAR')
 
     def test_error_output(self):
-        '''Test error output from command'''
+        """Test error output from command."""
         # Test default combined output/error streams
-        cmd = BuildCommand(['/bin/bash',
-                            '-c', 'echo -n FOOBAR 1>&2'])
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'])
         cmd.run()
         self.assertEqual(cmd.output, 'FOOBAR')
         self.assertIsNone(cmd.error)
         # Test non-combined streams
-        cmd = BuildCommand(['/bin/bash',
-                            '-c', 'echo -n FOOBAR 1>&2'],
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'],
                            combine_output=False)
         cmd.run()
         self.assertEqual(cmd.output, '')
@@ -671,7 +700,7 @@ class TestBuildCommand(TestCase):
 
     @patch('subprocess.Popen')
     def test_unicode_output(self, mock_subprocess):
-        '''Unicode output from command'''
+        """Unicode output from command."""
         mock_process = Mock(**{
             'communicate.return_value': (SAMPLE_UTF8_BYTES, b''),
         })
@@ -685,7 +714,8 @@ class TestBuildCommand(TestCase):
 
 
 class TestDockerBuildCommand(TestCase):
-    '''Test docker build commands'''
+
+    """Test docker build commands."""
 
     def setUp(self):
         self.mocks = EnvironmentMockGroup()
@@ -695,31 +725,33 @@ class TestDockerBuildCommand(TestCase):
         self.mocks.stop()
 
     def test_wrapped_command(self):
-        '''Test shell wrapping for Docker chdir'''
+        """Test shell wrapping for Docker chdir."""
         cmd = DockerBuildCommand(['pip', 'install', 'requests'],
                                  cwd='/tmp/foobar')
         self.assertEqual(
             cmd.get_wrapped_command(),
-            ("/bin/sh -c "
-             "'cd /tmp/foobar && "
-             "pip install requests'"))
-        cmd = DockerBuildCommand(['python', '/tmp/foo/pip', 'install',
-                                  'Django>1.7'],
-                                 cwd='/tmp/foobar',
-                                 bin_path='/tmp/foo')
+            "/bin/sh -c 'cd /tmp/foobar && pip install requests'",
+        )
+        cmd = DockerBuildCommand(
+            ['python', '/tmp/foo/pip', 'install', 'Django>1.7'],
+            cwd='/tmp/foobar',
+            bin_path='/tmp/foo',
+        )
         self.assertEqual(
             cmd.get_wrapped_command(),
-            ("/bin/sh -c "
+            ('/bin/sh -c '
              "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
-             "python /tmp/foo/pip install Django\>1.7'"))
+             "python /tmp/foo/pip install Django\>1.7'"),
+        )
 
     def test_unicode_output(self):
-        '''Unicode output from command'''
-        self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': b'container-foobar'},
-            'exec_start.return_value': SAMPLE_UTF8_BYTES,
-            'exec_inspect.return_value': {'ExitCode': 0},
-        })
+        """Unicode output from command."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': SAMPLE_UTF8_BYTES,
+                'exec_inspect.return_value': {'ExitCode': 0},
+            })
         cmd = DockerBuildCommand(['echo', 'test'], cwd='/tmp/foobar')
         cmd.build_env = Mock()
         cmd.build_env.get_client.return_value = self.mocks.docker_client
@@ -733,12 +765,13 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(self.mocks.docker_client.exec_inspect.call_count, 1)
 
     def test_command_oom_kill(self):
-        '''Command is OOM killed'''
-        self.mocks.configure_mock('docker_client', {
-            'exec_create.return_value': {'Id': b'container-foobar'},
-            'exec_start.return_value': b'Killed\n',
-            'exec_inspect.return_value': {'ExitCode': 137},
-        })
+        """Command is OOM killed."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'Killed\n',
+                'exec_inspect.return_value': {'ExitCode': 137},
+            })
         cmd = DockerBuildCommand(['echo', 'test'], cwd='/tmp/foobar')
         cmd.build_env = Mock()
         cmd.build_env.get_client.return_value = self.mocks.docker_client
