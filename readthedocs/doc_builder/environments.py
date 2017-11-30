@@ -277,11 +277,12 @@ class BuildEnvironment(object):
     :param environment: shell environment variables
     """
 
-    def __init__(self, project=None, version=None, build=None, record=True,
+    def __init__(self, project=None, version=None, build=None, config=None, record=True,
                  environment=None):
         self.project = project
         self.version = version
         self.build = build
+        self.config = config
         self.record = record
         self.environment = environment or {}
 
@@ -490,6 +491,8 @@ class DockerEnvironment(BuildEnvironment):
                 project_name=self.project.slug,
             )[:DOCKER_HOSTNAME_MAX_LEN]
         )
+        if self.config.build_image:
+            self.container_image = self.config.build_image
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:

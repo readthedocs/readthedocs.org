@@ -40,17 +40,3 @@ DOCKER_TIMEOUT_EXIT_CODE = 42
 DOCKER_OOM_EXIT_CODE = 137
 
 DOCKER_HOSTNAME_MAX_LEN = 64
-
-# Build images
-DOCKER_BUILD_IMAGES = {
-    'readthedocs/build:1.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-    },
-    'readthedocs/build:2.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-    },
-    'readthedocs/build:latest': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-}
-DOCKER_BUILD_IMAGES.update(getattr(settings, 'DOCKER_BUILD_IMAGES', {}))
