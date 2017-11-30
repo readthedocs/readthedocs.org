@@ -297,12 +297,11 @@ class BuildEnvironment(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         ret = self.handle_exception(exc_type, exc_value, tb)
-        if self.finalize:
-            self.update_build(BUILD_STATE_FINISHED)
-            log.info(LOG_TEMPLATE
-                     .format(project=self.project.slug,
-                             version=self.version.slug,
-                             msg='Build finished'))
+        self.update_build(BUILD_STATE_FINISHED)
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg='Build finished'))
         return ret
 
     def handle_exception(self, exc_type, exc_value, _):
@@ -446,12 +445,13 @@ class BuildEnvironment(object):
             if isinstance(val, six.binary_type):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
-        try:
-            api_v2.build(self.build['id']).put(self.build)
-        except HttpClientError as e:
-            log.error("Unable to post a new build: %s", e.content)
-        except Exception:
-            log.exception("Unknown build exception")
+        if self.finalize:
+            try:
+                api_v2.build(self.build['id']).put(self.build)
+            except HttpClientError as e:
+                log.error("Unable to post a new build: %s", e.content)
+            except Exception:
+                log.exception("Unknown build exception")
 
 
 class LocalEnvironment(BuildEnvironment):
@@ -529,6 +529,11 @@ class DockerEnvironment(BuildEnvironment):
             # If there is an exception here, we swallow the exception as this
             # was just during a sanity check anyways.
             pass
+        except BuildEnvironmentError:
+            # There may have been a problem connecting to Docker altogether, or
+            # some other handled exception here.
+            self.__exit__(*sys.exc_info())
+            raise
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -543,37 +548,44 @@ class DockerEnvironment(BuildEnvironment):
 
     def __exit__(self, exc_type, exc_value, tb):
         """End of environment context"""
+        try:
+            # Update buildenv state given any container error states first
+            self.update_build_from_container_state()
+
+            client = self.get_client()
+            try:
+                client.kill(self.container_id)
+            except DockerAPIError:
+                pass
+            try:
+                log.info('Removing container %s', self.container_id)
+                client.remove_container(self.container_id)
+            # Catch direct failures from Docker API, but also requests exceptions
+            # with the HTTP request. These should not
+            except (DockerAPIError, ConnectionError):
+                log.exception(
+                    LOG_TEMPLATE
+                    .format(
+                        project=self.project.slug,
+                        version=self.version.slug,
+                        msg="Couldn't remove container",
+                    ),
+                )
+            self.container = None
+        except BuildEnvironmentError:
+            # Several interactions with Docker can result in a top level failure
+            # here. We'll catch this and report if there were no reported errors
+            # already. These errors are not as important as a failure at deeper
+            # code
+            if not all([exc_type, exc_value, tb]):
+                exc_type, exc_value, tb = sys.exc_info()
+
         ret = self.handle_exception(exc_type, exc_value, tb)
-
-        # Update buildenv state given any container error states first
-        self.update_build_from_container_state()
-
-        client = self.get_client()
-        try:
-            client.kill(self.container_id)
-        except DockerAPIError:
-            pass
-        try:
-            log.info('Removing container %s', self.container_id)
-            client.remove_container(self.container_id)
-        # Catch direct failures from Docker API, but also requests exceptions
-        # with the HTTP request
-        except (DockerAPIError, ConnectionError):
-            log.exception(
-                LOG_TEMPLATE
-                .format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg="Couldn't remove container",
-                ),
-            )
-        self.container = None
-        if self.finalize:
-            self.update_build(BUILD_STATE_FINISHED)
-            log.info(LOG_TEMPLATE
-                     .format(project=self.project.slug,
-                             version=self.version.slug,
-                             msg='Build finished'))
+        self.update_build(BUILD_STATE_FINISHED)
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg='Build finished'))
         return ret
 
     def get_client(self):
