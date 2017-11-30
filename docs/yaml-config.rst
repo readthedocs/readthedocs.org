@@ -94,6 +94,13 @@ as defined here::
 * '2.0': 2, 2.7, 3, 3.5
 * 'latest': 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6
 
+.. code-block:: yaml
+
+    build:
+        image: latest
+
+    python:
+        version: 3.6
 
 python
 ~~~~~~

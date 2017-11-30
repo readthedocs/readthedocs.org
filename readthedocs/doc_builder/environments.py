@@ -491,7 +491,7 @@ class DockerEnvironment(BuildEnvironment):
                 project_name=self.project.slug,
             )[:DOCKER_HOSTNAME_MAX_LEN]
         )
-        if self.config.build_image:
+        if self.config and self.config.build_image:
             self.container_image = self.config.build_image
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit

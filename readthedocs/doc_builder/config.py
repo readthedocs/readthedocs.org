@@ -57,7 +57,7 @@ class ConfigWrapper(object):
                 list(
                     filter(
                         lambda x: x < ver + 1,
-                        self._yaml_config.get_valid_python_versions(),
+                        self._yaml_config.PYTHON_SUPPORTED_VERSIONS,
                     )))
         return 'python{0}'.format(ver)
 
