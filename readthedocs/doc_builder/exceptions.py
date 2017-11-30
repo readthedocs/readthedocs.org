@@ -1,5 +1,7 @@
 """Exceptions raised when building documentation."""
 
+from django.utils.translation import ugettext_noop
+
 
 class BuildEnvironmentException(Exception):
 
@@ -15,7 +17,11 @@ class BuildEnvironmentException(Exception):
 
 
 class BuildEnvironmentError(BuildEnvironmentException):
-    pass
+
+    GENERIC_WITH_BUILD_ID = ugettext_noop(
+        "There was a problem with Read the Docs while building your documentation. "
+        "Please report this to us with your build id ({build_id})."
+    )
 
 
 class BuildEnvironmentWarning(BuildEnvironmentException):

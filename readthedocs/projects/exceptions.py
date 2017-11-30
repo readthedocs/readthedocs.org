@@ -20,19 +20,20 @@ class RepositoryError(BuildEnvironmentError):
 
     """Failure during repository operation."""
 
-    PRIVATE_REPO = _(
+    PRIVATE_ALLOWED = _(
         'There was a problem connecting to your repository, '
         'ensure that your repository URL is correct.'
     )
-    PUBLIC_REPO = _(
+    PRIVATE_NOT_ALLOWED = _(
         'There was a problem connecting to your repository, '
-        'ensure that your repository URL is correct and your repository is public.'
+        'ensure that your repository URL is correct and your repository is public. '
+        'Private repositories are not supported.'
     )
 
     def get_default_message(self):
         if settings.ALLOW_PRIVATE_REPOS:
-            return self.PRIVATE_REPO
-        return self.PUBLIC_REPO
+            return self.PRIVATE_ALLOWED
+        return self.PRIVATE_NOT_ALLOWED
 
 
 class ProjectSpamError(Exception):

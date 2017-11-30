@@ -19,6 +19,7 @@ from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from mock import Mock, PropertyMock, patch
 
+from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.environments import (
     BuildCommand, DockerBuildCommand, DockerEnvironment, LocalEnvironment)
@@ -83,6 +84,40 @@ class TestLocalEnvironment(TestCase):
             'builder': u'foo',
             'exit_code': 0,
         })
+
+    def test_incremental_state_update_with_no_commit(self):
+        """Build updates to a non-finished state when specifying commit=True."""
+        build_envs = [
+            LocalEnvironment(
+                version=self.version,
+                project=self.project,
+                build={'id': DUMMY_BUILD_ID},
+            ),
+            LocalEnvironment(
+                version=self.version,
+                project=self.project,
+                build={'id': DUMMY_BUILD_ID},
+                commit=False,
+            ),
+        ]
+
+        for build_env in build_envs:
+            with build_env:
+                build_env.update_build(BUILD_STATE_CLONING)
+                self.mocks.mocks['api_v2.build']().put.assert_called_with({
+                    'id': DUMMY_BUILD_ID,
+                    'version': self.version.pk,
+                    'success': True,
+                    'project': self.project.pk,
+                    'setup_error': u'',
+                    'length': mock.ANY,
+                    'error': '',
+                    'setup': u'',
+                    'output': u'',
+                    'state': BUILD_STATE_CLONING,
+                    'builder': u'foo',
+                    'exit_code': 0,
+                })
 
     def test_failing_execution(self):
         """Build in failing state."""
@@ -188,7 +223,6 @@ class TestLocalEnvironment(TestCase):
             'output': u'',
             'state': u'finished',
             'builder': u'foo',
-            'exit_code': 1,
         })
 
 
@@ -246,13 +280,13 @@ class TestDockerEnvironment(TestCase):
             'builder': u'foo',
         })
 
-    def test_environment_successful_build_without_finalize(self):
+    def test_environment_successful_build_without_commit(self):
         """A successful build exits cleanly and doesn't update build."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
-            finalize=False,
+            commit=False,
         )
 
         with build_env:
@@ -264,13 +298,13 @@ class TestDockerEnvironment(TestCase):
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
-    def test_environment_failed_build_without_finalize(self):
+    def test_environment_failed_build_without_commit_but_with_error(self):
         """A failed build exits cleanly and doesn't update build."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
-            finalize=False,
+            commit=False,
         )
 
         with build_env:
@@ -280,7 +314,20 @@ class TestDockerEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': False,
+            'project': self.project.pk,
+            'setup_error': u'',
+            'exit_code': 1,
+            'length': 0,
+            'error': 'Test',
+            'setup': u'',
+            'output': u'',
+            'state': u'finished',
+            'builder': u'foo',
+        })
 
     def test_connection_failure(self):
         """Connection failure on to docker socket should raise exception."""
@@ -307,7 +354,11 @@ class TestDockerEnvironment(TestCase):
             'setup_error': u'',
             'exit_code': 1,
             'length': 0,
-            'error': 'Problem creating build environment',
+            'error': (
+                "There was a problem with Read the Docs while building your "
+                "documentation. Please report this to us with your build id "
+                "(123)."
+            ),
             'setup': u'',
             'output': u'',
             'state': u'finished',

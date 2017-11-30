@@ -268,25 +268,39 @@ class BuildEnvironment(object):
 
     Base class for wrapping command execution for build steps. This provides a
     context for command execution and reporting, and eventually performs updates
-    on the build object itself, reporting success/failure, as well as top-level
-    failures.
+    on the build object itself, reporting success/failure, as well as failures
+    during the context manager enter and exit.
+
+    Any exceptions raised inside this context and handled by the eventual
+    :py:meth:`__exit__` method, specifically, inside :py:meth:`handle_exception`
+    and :py:meth:`update_build`. If the exception is a subclass of
+    :py:cls:`BuildEnvironmentError`, then this error message is added to the
+    build object and is shown to the user as the top-level failure reason for
+    why the build failed. Other exceptions raise a general failure warning on
+    the build.
+
+    We only update the build through the API in one of three cases:
+
+    * The build is not done and needs incremental builds
+    * The build failed and we should always report this change
+    * The build was successful and ``commit`` is ``True``
 
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
-    :param finalize: finalize the build by setting a finished state on exit
+    :param commit: update the build object via API if the build was successful
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None, finalize=True):
+                 environment=None, commit=True):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
-        self.finalize = finalize
+        self.commit = commit
 
         self.commands = []
         self.failure = None
@@ -389,9 +403,12 @@ class BuildEnvironment(object):
     def update_build(self, state=None):
         """Record a build by hitting the API
 
-        This step is skipped if we aren't recording the build, or if we don't
-        want to record successful builds yet (if we are running setup commands
-        for the build)
+        This step is skipped if we aren't recording the build. To avoid
+        recording successful builds yet (for instance, running setup commands for
+        the build), set the ``commit`` argument on environment instantiation.
+
+        If there was an error on the build, update the build regardless of
+        whether ``commit`` is ``True`` or not.
         """
         if not self.record:
             return None
@@ -420,32 +437,41 @@ class BuildEnvironment(object):
             self.build['length'] = int(build_length.total_seconds())
 
         if self.failure is not None:
-            # Only surface the error message if it was a
-            # BuildEnvironmentException or BuildEnvironmentWarning
-            if isinstance(self.failure,
-                          (BuildEnvironmentException, BuildEnvironmentWarning)):
-                self.build['error'] = str(self.failure)
-            else:
-                self.build['error'] = ugettext_noop(
-                    "There was a problem with Read the Docs while building your documentation. "
-                    "Please report this to us with your build id ({build_id}).".format(
-                        build_id=self.build['id']
-                    )
-                )
+            # Surface a generic error if the class is not a
+            # BuildEnvironmentError
+            if not isinstance(self.failure,
+                              (BuildEnvironmentException,
+                               BuildEnvironmentWarning)):
                 log.error(
                     'Build failed with unhandled exception: %s',
                     str(self.failure),
-                    extra={'stack': True,
-                           'tags': {'build': self.build['id']},
-                           }
+                    extra={
+                        'stack': True,
+                        'tags': {'build': self.build['id']},
+                    }
                 )
+                self.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=self.build['id'],
+                    )
+                )
+            self.build['error'] = str(self.failure)
 
         # Attempt to stop unicode errors on build reporting
         for key, val in list(self.build.items()):
             if isinstance(val, six.binary_type):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
-        if self.finalize:
+        # We are selective about when we update the build object here
+        update_build = (
+            # Build isn't done yet, we unconditionally update in this state
+            not self.done
+            # Build is done, but isn't successful, always update
+            or (self.done and not self.successful)
+            # Otherwise, are we explicitly to not update?
+            or self.commit
+        )
+        if update_build:
             try:
                 api_v2.build(self.build['id']).put(self.build)
             except HttpClientError as e:
@@ -556,12 +582,15 @@ class DockerEnvironment(BuildEnvironment):
             try:
                 client.kill(self.container_id)
             except DockerAPIError:
-                pass
+                log.exception(
+                    'Unable to remove container: id=%s',
+                    self.container_id,
+                )
             try:
-                log.info('Removing container %s', self.container_id)
+                log.info('Removing container: id=%s', self.container_id)
                 client.remove_container(self.container_id)
-            # Catch direct failures from Docker API, but also requests exceptions
-            # with the HTTP request. These should not
+            # Catch direct failures from Docker API or with a requests HTTP
+            # request. These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
                     LOG_TEMPLATE
@@ -599,13 +628,21 @@ class DockerEnvironment(BuildEnvironment):
                 )
             return self.client
         except DockerException as e:
-            log.error(LOG_TEMPLATE
-                      .format(
-                          project=self.project.slug,
-                          version=self.version.slug,
-                          msg=e),
-                      exc_info=True)
-            raise BuildEnvironmentError('Problem creating build environment')
+            log.exception(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Could not connection to Docker API',
+                ),
+            )
+            # We don't raise an error here mentioning Docker, that is a
+            # technical detail that the user can't resolve on their own.
+            # Instead, give the user a generic failure
+            raise BuildEnvironmentError(
+                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build['id'],
+                )
+            )
 
     @property
     def container_id(self):

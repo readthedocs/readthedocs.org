@@ -75,7 +75,6 @@ class UpdateDocsTask(Task):
         Whether or not to keep a record of the update in the database. Useful
         for preventing changes visible to the end-user when running commands
         from the shell, for example.
-
     """
 
     max_retries = 5
@@ -134,11 +133,11 @@ class UpdateDocsTask(Task):
                 'An unhandled exception was raised during build setup',
                 extra={'tags': {'build': build_pk}}
             )
-            self.setup_env.build['error'] = _(
-                'An unknown error was encountered while setting up your project. '
-                'Please include the build id ({build_id}) in any bug reports.'.format(
-                    build_id=build_pk
-                ))
+            self.setup_env.failure = BuildEnvironmentError(
+                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=build_pk,
+                )
+            )
             self.setup_env.update_build(BUILD_STATE_FINISHED)
             return False
         else:
@@ -151,11 +150,11 @@ class UpdateDocsTask(Task):
                     'An unhandled exception was raised during project build',
                     extra={'tags': {'build': build_pk}}
                 )
-                self.build_env.build['error'] = _(
-                    'An unknown error was encountered while building your project. '
-                    'Please include the build id ({build_id}) in any bug reports.'.format(
-                        build_id=build_pk
-                    ))
+                self.build_env.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=build_pk,
+                    )
+                )
                 self.build_env.update_build(BUILD_STATE_FINISHED)
                 return False
 
@@ -165,14 +164,13 @@ class UpdateDocsTask(Task):
         """Run setup in the local environment.
 
         Return True if successful.
-
         """
         self.setup_env = LocalEnvironment(
             project=self.project,
             version=self.version,
             build=self.build,
             record=record,
-            finalize=False,
+            commit=False,
         )
 
         # Environment used for code checkout & initial configuration reading
@@ -205,7 +203,6 @@ class UpdateDocsTask(Task):
             if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
                 self.send_notifications()
 
-            self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return False
 
         if self.setup_env.successful and not self.project.has_valid_clone:
@@ -268,7 +265,6 @@ class UpdateDocsTask(Task):
         if self.build_env.failed:
             self.send_notifications()
 
-        self.build_env.update_build(state=BUILD_STATE_FINISHED)
         build_complete.send(sender=Build, build=self.build_env.build)
 
     @staticmethod
