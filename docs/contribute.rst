@@ -54,6 +54,7 @@ you. These commands are a mix between `autoflake`_, `autopep8`_,
 .. _autoflake: https://github.com/myint/autoflake
 .. _autopep8: https://github.com/hhatto/autopep8
 .. _docformatter: https://github.com/myint/docformatter
+.. _isort: https://github.com/timothycrosley/isort
 .. _unify: https://github.com/myint/unify
 .. _yapf: https://github.com/google/yapf
 
