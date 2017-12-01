@@ -34,30 +34,37 @@ label. Those tickets are meant to be standalone and can be worked on ad-hoc.
 When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
 
-We have a strict code style that it's easy to follow since you just have to
-install `pre-commit`_ and it will be run automatically a different linting tools
+We have a strict code style that is easy to follow since you just have to
+install `pre-commit`_ and it will automatically run different linting tools
 (`autoflake`_, `autopep8`_, `docformatter`_, `isort`_, `prospector`_, `unify`_
-and `yapf`_) to check your changes before you commit them and let you know if
-there are some problems that weren't to fix automatically.
+and `yapf`_) to check your changes before you commit them. `pre-commit` will let
+you know if there were any problems that is wasn't able to fix automatically.
 
 To run the `pre-commit` command and check your changes::
 
-  $ pip install -U pre-commit
-  $ git add <your-modified-files>
-  $ pre-commit run
+    $ pip install -U pre-commit
+    $ git add <your-modified-files>
+    $ pre-commit run
 
+or to run against a specific file::
+
+    $ pre-commit run --files <file.py>
+
+`pre-commit` can also be run as a git pre-commit hook. You can set this up
+with::
+
+    $ pre-commit install
+
+After this installation, the next time you run `git commit` the `pre-commit run`
+command will be run immediately and will inform you of the changes and errors.
 
 .. note::
 
-   If you feel confortable with the changes that `pre-commit run`
-   applied to your code, you can run the pre-commit command as a
-   pre-commit git hook by installing it like this::
+    Our code base is still maturing and the core team doesn't yet recommend
+    running this as a pre-commit hook due to the number of changes this will
+    cause while constructing a pull request. Independent pull requests with
+    linting changes would be a great help to making this possible.
 
-     $ pre-commit install
-
-   After installing it, the next time you do `git commit` the
-   `pre-commit run` command will be run immediately and inform you the
-   changes and the errors.
 
 .. _Feature Overview: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
 .. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
