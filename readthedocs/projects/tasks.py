@@ -113,7 +113,29 @@ class UpdateDocsTask(Task):
         """
         Run a documentation build.
 
-        This is fully wrapped in exception handling to account for a number of failure cases.
+        This is fully wrapped in exception handling to account for a number of
+        failure cases. We first run a few commands in a local build environment,
+        but do not report on environment success. This avoids a flicker on the
+        build output page where the build is marked as finished in between the
+        local environment steps and the docker build steps.
+
+        If a failure is raised, or the build is not successful, return ``False``,
+        otherwise, ``True``.
+
+        Unhandled exceptions raise a generic user facing error, which directs
+        the user to bug us. It is therefore a benefit to have as few unhandled
+        errors as possible.
+
+        :param pk int: Project id
+        :param version_pk int: Project Version id
+        :param build_pk int: Build id
+        :param record bool: record a build object in the database
+        :param docker bool: use docker to build the project
+        :param search bool: update search
+        :param force bool: force Sphinx build
+        :param localmedia: update localmedia
+        :returns: if build was successful or not
+        :rtype: bool
         """
         try:
             self.project = self.get_project(pk)
