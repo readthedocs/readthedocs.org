@@ -1,11 +1,11 @@
-Abstract
-========
+Policy for Abandoned Projects
+=============================
 
-This document describes the process by which a RTD project name may be changed.
+This policy describes the process by which a RTD project name may be changed.
 
 
 Rationale
-=========
+---------
 
 Conflict between the current use of the name and a different suggested use of
 the same name occasionally arise.  This document aims to provide general
@@ -13,9 +13,9 @@ guidelines for solving the most typical cases of such conflicts.
 
 
 Specification
-=============
+-------------
 
-The main idea behind this document is that RTD serves the community.  Every
+The main idea behind this policy is that RTD serves the community.  Every
 user is invited to upload content under the Terms of Use, understanding that it
 is at the sole risk of the user.
 
@@ -24,7 +24,7 @@ content accessible indefinitely in its published form.  However, in certain
 edge cases the greater community's needs might outweigh the individual's
 expectation of ownership of a project name.
 
-The use cases covered by this document are:
+The use cases covered by this policy are:
 
 * Abandoned projects:
 
@@ -37,10 +37,10 @@ The use cases covered by this document are:
 
 
 Implementation
-==============
+--------------
 
 Reachability
-------------
+~~~~~~~~~~~~
 
 The user of RTD is solely responsible for being reachable by the maintainers
 for matters concerning projects that the user owns.  In every case where
@@ -56,7 +56,7 @@ will be considered *unreachable*.
 
 
 Abandoned projects
-------------------
+~~~~~~~~~~~~~~~~~~
 
 A project is considered *abandoned* when ALL of the following are met:
 
@@ -69,7 +69,7 @@ All other projects are considered *active*.
 
 
 Renaming of an abandoned project
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Projects are never renamed solely on the basis of abandonment.
 
@@ -84,13 +84,13 @@ following are met:
   name already exists and meets notability requirements;
 * the candidate is able to demonstrate why a fork under a different name is not
   an acceptable workaround;
-* access statistics for the existing package indicate the project is not being
+* access statistics for the existing project indicate the project is not being
   heavily used; and
 * the maintainers do not have any additional reservations.
 
 
 Name conflict resolution for active projects
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The maintainers of RTD are not arbiters in disputes around *active* projects.
 The maintainers recommend users to get in touch with each other and solve the
@@ -98,14 +98,8 @@ issue by respectful communication.
 
 
 Prior art
-=========
+---------
 
 The Python Package Index (PyPI) policy for claiming abandoned packages
 (`PEP-0541 <https://www.python.org/dev/peps/pep-0541>`_) heavily
-influenced this document.
-
-
-Copyright
-=========
-
-This document has been placed in the public domain.
+influenced this policy.
