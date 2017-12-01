@@ -81,7 +81,7 @@ class TestLocalEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
             'exit_code': 0,
         })
 
@@ -115,7 +115,7 @@ class TestLocalEnvironment(TestCase):
                     'setup': u'',
                     'output': u'',
                     'state': BUILD_STATE_CLONING,
-                    'builder': u'foo',
+                    'builder': mock.ANY,
                     'exit_code': 0,
                 })
 
@@ -154,7 +154,7 @@ class TestLocalEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
             'exit_code': 1,
         })
 
@@ -187,7 +187,7 @@ class TestLocalEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
             'exit_code': 1,
         })
 
@@ -222,7 +222,7 @@ class TestLocalEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
 
@@ -277,7 +277,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_environment_successful_build_without_commit(self):
@@ -326,7 +326,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_connection_failure(self):
@@ -362,7 +362,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_api_failure(self):
@@ -401,7 +401,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_api_failure_on_docker_memory_limit(self):
@@ -441,7 +441,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_api_failure_on_error_in_exit(self):
@@ -473,7 +473,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_api_failure_returns_previous_error_on_error_in_exit(self):
@@ -511,7 +511,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_command_execution(self):
@@ -554,7 +554,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_command_execution_cleanup_exception(self):
@@ -598,7 +598,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_container_already_exists(self):
@@ -642,7 +642,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
     def test_container_timeout(self):
@@ -689,7 +689,7 @@ class TestDockerEnvironment(TestCase):
             'setup': u'',
             'output': u'',
             'state': u'finished',
-            'builder': u'foo',
+            'builder': mock.ANY,
         })
 
 
