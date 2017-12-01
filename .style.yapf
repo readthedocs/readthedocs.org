@@ -145,7 +145,7 @@ SPLIT_BEFORE_EXPRESSION_AFTER_OPENING_PAREN=True
 
 # If an argument / parameter list is going to be split, then split
 # before the first argument.
-SPLIT_BEFORE_FIRST_ARGUMENT=True
+SPLIT_BEFORE_FIRST_ARGUMENT=False
 
 # Set to True to prefer splitting before 'and' or 'or' rather than
 # after.
