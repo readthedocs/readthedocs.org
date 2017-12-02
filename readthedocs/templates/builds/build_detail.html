@@ -92,14 +92,21 @@ $(document).ready(function () {
       </span>
     </div>
 
-    {% if not build.success and build.commands.count < 4 %}
     <div class="build-ideas">
+    {% if not build.success and build.commands.count < 4 %}
       <p>
         Having trouble with your build environment?
         Try <a href="{% url 'wipe_version' build.version.project.slug build.version.slug %}">reseting it</a>.
       </p>
-    </div>
     {% endif %}
+
+    {% if not build.success and "setup.py install" in build.commands.last.output %}
+      <p>
+        Don't want <pre>setup.py install</pre> called?
+        Change the <strong>Install Project</strong> setting in your <a href="{% url 'projects_advanced' build.version.project.slug %}">advanced settings</a>.
+      </p>
+    {% endif %}
+    </div>
 
     {% if build.output %}
       {# If we have build output, this is an old build #}
