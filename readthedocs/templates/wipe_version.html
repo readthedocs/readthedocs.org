@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 
+{% block project_editing %}
+  {% with versions_active="active" %}
+    {% include "core/project_bar.html" %}
+  {% endwith %}
+{% endblock %}
+
+
 {% block title %}Wipe the build directories for a version {% endblock %}
 
 {% block content %}
+
+<h3>Remove build environment for <em>{{ version.slug }}</em> version.</h3>
 
 {% if deleted %}
 Your project environment has been wiped.<br><br>
@@ -10,7 +19,7 @@ Your project environment has been wiped.<br><br>
 Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
 
 <form method="post" action="#">
-  <input type="submit" value="Wipe version">
+  <input type="submit" value="Wipe {{ version.slug }}">
 </form>
 {% endif %}
 

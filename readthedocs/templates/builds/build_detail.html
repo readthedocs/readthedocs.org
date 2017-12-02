@@ -92,6 +92,15 @@ $(document).ready(function () {
       </span>
     </div>
 
+    {% if not build.success and build.commands.count < 4 %}
+    <div class="build-ideas">
+      <p>
+        Having trouble with your build environment?
+        Try <a href="{% url 'wipe_version' build.version.project.slug build.version.slug %}">reseting it</a>.
+      </p>
+    </div>
+    {% endif %}
+
     {% if build.output %}
       {# If we have build output, this is an old build #}
       <p>

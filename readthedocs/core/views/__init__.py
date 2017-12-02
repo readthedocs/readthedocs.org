@@ -98,7 +98,7 @@ def wipe_version(request, project_slug, version_slug):
         for del_dir in del_dirs:
             broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
-    return render_to_response('wipe_version.html',
+    return render_to_response('wipe_version.html', {'version': version, 'project': version.project},
                               context_instance=RequestContext(request))
 
 
