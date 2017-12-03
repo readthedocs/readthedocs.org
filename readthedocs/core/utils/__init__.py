@@ -134,7 +134,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
 
 def send_email(recipient, subject, template, template_html, context=None,
-               request=None):  # pylint: disable=unused-argument
+               request=None, from_email=None):  # pylint: disable=unused-argument
     """Alter context passed in and call email send task
 
     .. seealso::
@@ -146,7 +146,8 @@ def send_email(recipient, subject, template, template_html, context=None,
         context = {}
     context['uri'] = '{scheme}://{host}'.format(
         scheme='https', host=settings.PRODUCTION_DOMAIN)
-    send_email_task.delay(recipient, subject, template, template_html, context)
+    send_email_task.delay(recipient=recipient, subject=subject, template=template,
+                          template_html=template_html, context=context, from_email=from_email)
 
 
 def slugify(value, *args, **kwargs):
