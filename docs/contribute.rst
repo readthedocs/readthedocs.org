@@ -71,6 +71,7 @@ command will be run immediately and will inform you of the changes and errors.
 .. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
+.. _pre-commit: https://github.com/pre-commit/pre-commit
 .. _autoflake: https://github.com/myint/autoflake
 .. _autopep8: https://github.com/hhatto/autopep8
 .. _docformatter: https://github.com/myint/docformatter
