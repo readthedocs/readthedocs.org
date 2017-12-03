@@ -17,7 +17,7 @@ EMAIL_TIME_LIMIT = 30
 
 
 @app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
-def send_email_task(recipient, subject, template, template_html, context=None):
+def send_email_task(recipient, subject, template, template_html, context=None, from_email=None):
     """Send multipart email
 
     recipient
@@ -38,7 +38,7 @@ def send_email_task(recipient, subject, template, template_html, context=None):
     msg = EmailMultiAlternatives(
         subject,
         get_template(template).render(context),
-        settings.DEFAULT_FROM_EMAIL,
+        from_email or settings.DEFAULT_FROM_EMAIL,
         [recipient]
     )
     try:
