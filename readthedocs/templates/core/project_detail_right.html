@@ -61,16 +61,21 @@
 
 
 {% block tags %}
-  {% if project.tags.count %}
     <h3>{% trans "Tags" %}</h3>
     <p>
+  {% if project.tags.count %}
       {% for tag in project.tags.all %}
         <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
       {% empty %}
         <span class="quiet">{% trans "No tags" %}</span>
       {% endfor %}
-    </p>
+  {% else %}
+    Project has no tags.
+    {% if request.user|is_admin:project %}
+    Add some in your <a href="{% url 'projects_edit' project.slug %}">project settings</a>.
+    {% endif %}
   {% endif %}
+    </p>
 {% endblock %}
 
 {% block privacy-level %}
