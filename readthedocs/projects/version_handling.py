@@ -1,24 +1,37 @@
-"""Project version handling"""
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
+"""Project version handling."""
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import unicodedata
+from builtins import object, range
 from collections import defaultdict
 
-from builtins import (object, range)
-from packaging.version import Version
-from packaging.version import InvalidVersion
 import six
+from packaging.version import InvalidVersion, Version
 
-from readthedocs.builds.constants import LATEST_VERBOSE_NAME
-from readthedocs.builds.constants import STABLE_VERBOSE_NAME
+from readthedocs.builds.constants import (
+    LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG)
 
 
 def get_major(version):
+    """
+    Return the major version.
+
+    :param version: version to get the major
+    :type version: packaging.version.Version
+    """
     # pylint: disable=protected-access
     return version._version.release[0]
 
 
 def get_minor(version):
+    """
+    Return the minor version.
+
+    :param version: version to get the minor
+    :type version: packaging.version.Version
+    """
     # pylint: disable=protected-access
     try:
         return version._version.release[1]
@@ -28,7 +41,7 @@ def get_minor(version):
 
 class VersionManager(object):
 
-    """Prune list of versions based on version windows"""
+    """Prune list of versions based on version windows."""
 
     def __init__(self):
         self._state = defaultdict(lambda: defaultdict(list))
@@ -72,13 +85,13 @@ class VersionManager(object):
                 versions.extend(version_list)
         versions = sorted(versions)
         return [
-            version.public
-            for version in versions
-            if not version.is_prerelease]
+            version.public for version in versions if not version.is_prerelease
+        ]
 
 
 def version_windows(versions, major=1, minor=1, point=1):
-    """Return list of versions that have been pruned to version windows
+    """
+    Return list of versions that have been pruned to version windows.
 
     Uses :py:class:`VersionManager` to prune the list of versions
 
@@ -111,6 +124,18 @@ def version_windows(versions, major=1, minor=1, point=1):
 
 
 def parse_version_failsafe(version_string):
+    """
+    Parse a version in string form and return Version object.
+
+    If there is an error parsing the string, ``None`` is returned.
+
+    :param version_string: version as string object (e.g. '3.10.1')
+    :type version_string: str or unicode
+
+    :returns: version object created from a string object
+
+    :rtype: packaging.version.Version
+    """
     if not isinstance(version_string, six.text_type):
         uni_version = version_string.decode('utf-8')
     else:
@@ -126,11 +151,19 @@ def parse_version_failsafe(version_string):
 
 
 def comparable_version(version_string):
-    """This can be used as ``key`` argument to ``sorted``.
+    """
+    Can be used as ``key`` argument to ``sorted``.
 
     The ``LATEST`` version shall always beat other versions in comparison.
     ``STABLE`` should be listed second. If we cannot figure out the version
     number then we sort it to the bottom of the list.
+
+    :param version_string: version as string object (e.g. '3.10.1' or 'latest')
+    :type version_string: str or unicode
+
+    :returns: a comparable version object (e.g. 'latest' -> Version('99999.0'))
+
+    :rtype: packaging.version.Version
     """
     comparable = parse_version_failsafe(version_string)
     if not comparable:
@@ -144,12 +177,16 @@ def comparable_version(version_string):
 
 
 def sort_versions(version_list):
-    """Takes a list of ``Version`` models and return a sorted list,
+    """
+    Take a list of Version models and return a sorted list.
 
-    The returned value is a list of two-tuples. The first is the actual
-    ``Version`` model instance, the second is an instance of
-    ``packaging.version.Version``. They are ordered in descending order (latest
-    version first).
+    :param version_list: list of Version models
+    :type version_list: list(readthedocs.builds.models.Version)
+
+    :returns: sorted list in descending order (latest version first) of versions
+
+    :rtype: list(tupe(readthedocs.builds.models.Version,
+            packaging.version.Version))
     """
     versions = []
     for version_obj in version_list:
@@ -158,13 +195,20 @@ def sort_versions(version_list):
         if comparable_version:
             versions.append((version_obj, comparable_version))
 
-    return list(sorted(
-        versions,
-        key=lambda version_info: version_info[1],
-        reverse=True))
+    return list(
+        sorted(
+            versions,
+            key=lambda version_info: version_info[1],
+            reverse=True,
+        ))
 
 
 def highest_version(version_list):
+    """
+    Return the highest version for a given ``version_list``.
+
+    :rtype: tupe(readthedocs.builds.models.Version, packaging.version.Version)
+    """
     versions = sort_versions(version_list)
     if versions:
         return versions[0]
@@ -172,18 +216,29 @@ def highest_version(version_list):
 
 
 def determine_stable_version(version_list):
-    """Determine a stable version for version list
+    """
+    Determine a stable version for version list.
 
-    Takes a list of ``Version`` model instances and returns the version
-    instance which can be considered the most recent stable one. It will return
-    ``None`` if there is no stable version in the list.
+    :param version_list: list of versions
+    :type version_list: list(readthedocs.builds.models.Version)
+
+    :returns: version considered the most recent stable one or ``None`` if there
+              is no stable version in the list
+
+    :rtype: readthedocs.builds.models.Version
     """
     versions = sort_versions(version_list)
-    versions = [
-        (version_obj, comparable)
-        for version_obj, comparable in versions
-        if not comparable.is_prerelease]
+    versions = [(version_obj, comparable)
+                for version_obj, comparable in versions
+                if not comparable.is_prerelease]
+
     if versions:
+        # We take preference for tags over branches. If we don't find any tag,
+        # we just return the first branch found.
+        for version_obj, comparable in versions:
+            if version_obj.type == TAG:
+                return version_obj
+
         version_obj, comparable = versions[0]
         return version_obj
     return None
