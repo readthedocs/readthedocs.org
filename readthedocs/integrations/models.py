@@ -306,6 +306,22 @@ class BitbucketWebhook(Integration):
             return False
 
 
+class GitLabWebhook(Integration):
+
+    integration_type_id = Integration.GITLAB_WEBHOOK
+    has_sync = True
+
+    class Meta(object):
+        proxy = True
+
+    @property
+    def can_sync(self):
+        try:
+            return all((k in self.provider_data) for k in ['id', 'url'])
+        except (ValueError, TypeError):
+            return False
+
+
 class GenericAPIWebhook(Integration):
 
     integration_type_id = Integration.API_WEBHOOK

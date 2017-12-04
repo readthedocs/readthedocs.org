@@ -21,8 +21,8 @@ from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_REGEXS, BITBUCKET_URL, GITHUB_REGEXS, GITHUB_URL, PRIVACY_CHOICES,
-    PRIVATE)
+    BITBUCKET_REGEXS, BITBUCKET_URL, GITHUB_REGEXS, GITHUB_URL, GITLAB_REGEXS,
+    GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
@@ -113,7 +113,7 @@ class Version(models.Model):
         Return the branch name, the tag name or the revision identifier.
 
         The result could be used as ref in a git repo, e.g. for linking to
-        GitHub or Bitbucket.
+        GitHub, Bitbucket or GitLab.
         """
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
@@ -286,6 +286,44 @@ class Version(models.Model):
         repo = repo.rstrip('/')
 
         return GITHUB_URL.format(
+            user=user,
+            repo=repo,
+            version=self.commit_name,
+            docroot=docroot,
+            path=filename,
+            source_suffix=source_suffix,
+            action=action_string,
+        )
+
+    def get_gitlab_url(
+            self, docroot, filename, source_suffix='.rst', action='view'):
+        repo_url = self.project.repo
+        if 'gitlab' not in repo_url:
+            return ''
+
+        if not docroot:
+            return ''
+        else:
+            if docroot[0] != '/':
+                docroot = '/{}'.format(docroot)
+            if docroot[-1] != '/':
+                docroot = '{}/'.format(docroot)
+
+        if action == 'view':
+            action_string = 'blob'
+        elif action == 'edit':
+            action_string = 'edit'
+
+        for regex in GITLAB_REGEXS:
+            match = regex.search(repo_url)
+            if match:
+                user, repo = match.groups()
+                break
+        else:
+            return ''
+        repo = repo.rstrip('/')
+
+        return GITLAB_URL.format(
             user=user,
             repo=repo,
             version=self.commit_name,

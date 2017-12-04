@@ -291,9 +291,17 @@ BITBUCKET_REGEXS = [
     re.compile('bitbucket.org/(.+)/(.+)/'),
     re.compile('bitbucket.org/(.+)/(.+)'),
 ]
+GITLAB_REGEXS = [
+    re.compile('gitlab.com/(.+)/(.+)(?:\.git){1}'),
+    re.compile('gitlab.com/(.+)/(.+)'),
+    re.compile('gitlab.com:(.+)/(.+).git'),
+]
 GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}')
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}')
+GITLAB_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    '{action}/{version}{docroot}{path}{source_suffix}')

@@ -82,6 +82,11 @@ class BaseSphinx(BaseBuilder):
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
+        gitlab_user, gitlab_repo = version_utils.get_gitlab_username_repo(
+            url=self.project.repo)
+        gitlab_version_is_editable = (self.version.type == 'branch')
+        display_gitlab = gitlab_user is not None
+
         # Avoid hitting database and API if using Docker build environment
         if getattr(settings, 'DONT_HIT_API', False):
             versions = self.project.active_versions()
@@ -119,6 +124,13 @@ class BaseSphinx(BaseBuilder):
             'bitbucket_version': remote_version,
             'bitbucket_version_is_editable': bitbucket_version_is_editable,
             'display_bitbucket': display_bitbucket,
+
+            # GitLab
+            'gitlab_user': gitlab_user,
+            'gitlab_repo': gitlab_repo,
+            'gitlab_version': remote_version,
+            'gitlab_version_is_editable': gitlab_version_is_editable,
+            'display_gitlab': display_gitlab,
         }
 
         finalize_sphinx_context_data.send(

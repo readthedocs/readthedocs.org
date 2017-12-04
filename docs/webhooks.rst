@@ -3,7 +3,7 @@ Webhooks
 
 The primary method that Read the Docs uses to detect changes to your
 documentation is through the use of *webhooks*. Webhooks are configured with
-your repository provider, such as GitHub or Bitbucket, and with each commit,
+your repository provider, such as GitHub, Bitbucket or GitLab, and with each commit,
 merge, or other change to your repository, Read the Docs is notified. When we
 receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that

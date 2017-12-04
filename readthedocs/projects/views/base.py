@@ -35,8 +35,6 @@ class ProjectOnboardMixin(object):
         onboard = {}
         project = self.get_object()
 
-        # TODO: gitlab
-
         # Show for the first few builds, return last build state
         if project.builds.count() <= 5:
             onboard['build'] = project.get_latest_build(finished=False)
@@ -44,6 +42,8 @@ class ProjectOnboardMixin(object):
                 onboard['provider'] = 'github'
             elif 'bitbucket' in project.repo:
                 onboard['provider'] = 'bitbucket'
+            elif 'gitlab' in project.repo:
+                onboard['provider'] = 'gitlab'
             context['onboard'] = onboard
 
         return context
