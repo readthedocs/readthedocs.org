@@ -4,9 +4,9 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import logging
+from builtins import object
 from datetime import datetime, timedelta
 
-from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -34,6 +34,8 @@ class ProjectOnboardMixin(object):
 
         onboard = {}
         project = self.get_object()
+
+        # TODO: gitlab
 
         # Show for the first few builds, return last build state
         if project.builds.count() <= 5:
