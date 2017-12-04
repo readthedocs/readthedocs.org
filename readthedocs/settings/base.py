@@ -7,10 +7,10 @@ import os
 from readthedocs.core.settings import Settings
 
 try:
-    import readthedocsext.donate  # noqa
-    donate = True
+    import readthedocsext  # noqa
+    ext = True
 except ImportError:
-    donate = False
+    ext = False
 
 
 _ = gettext = lambda s: s
@@ -110,9 +110,10 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
-        if donate:
+        if ext:
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
+            apps.append('readthedocsext.embed')
         return apps
 
     TEMPLATE_LOADERS = (
