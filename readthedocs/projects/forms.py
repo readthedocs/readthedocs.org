@@ -183,9 +183,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES,
         initial='python',
-        help_text=_(
-            '(Beta) The Python interpreter used to create the virtual '
-            'environment.'),
+        help_text=_('(Beta) The Python interpreter used to create the virtual '
+                    'environment.'),
     )
 
     class Meta(object):
@@ -323,10 +322,16 @@ class BaseVersionsForm(forms.Form):
 
     def save_version(self, version):
         """Save version if there has been a change, trigger a rebuild."""
-        new_value = self.cleaned_data.get('version-%s' % version.slug, None)
-        privacy_level = self.cleaned_data.get('privacy-%s' % version.slug, None)
+        new_value = self.cleaned_data.get(
+            'version-{}'.format(version.slug),
+            None,
+        )
+        privacy_level = self.cleaned_data.get(
+            'privacy-{}'.format(version.slug),
+            None,
+        )
         if ((new_value is None or new_value == version.active) and
-            (privacy_level is None or privacy_level == version.privacy_level)):
+                (privacy_level is None or privacy_level == version.privacy_level)):  # yapf: disable  # noqa
             return
         version.active = new_value
         version.privacy_level = privacy_level
@@ -354,7 +359,9 @@ def build_versions_form(project):
         privacy_name = 'privacy-{}'.format(version.slug)
         if version.type == TAG:
             label = '{} ({})'.format(
-                version.verbose_name, version.identifier[:8])
+                version.verbose_name,
+                version.identifier[:8],
+            )
         else:
             label = version.verbose_name
         attrs[field_name] = forms.BooleanField(
@@ -374,8 +381,8 @@ def build_versions_form(project):
 
 class BaseUploadHTMLForm(forms.Form):
     content = forms.FileField(label=_('Zip file of HTML'))
-    overwrite = forms.BooleanField(
-        required=False, label=_('Overwrite existing HTML?'))
+    overwrite = forms.BooleanField(required=False,
+                                   label=_('Overwrite existing HTML?'))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -491,14 +498,13 @@ class TranslationForm(forms.Form):
         translation_name = self.cleaned_data['project']
         translation_qs = Project.objects.filter(slug=translation_name)
         if not translation_qs.exists():
-            raise forms.ValidationError((
-                _('Project {name} does not exist').format(
+            raise forms.ValidationError(
+                (_('Project {name} does not exist').format(
                     name=translation_name)))
         if translation_qs.first().language == self.parent.language:
-            err = (
-                'Both projects have a language of `{}`. '
-                'Please choose one with another language'.format(
-                    self.parent.language))
+            err = ('Both projects have a language of `{}`. '
+                   'Please choose one with another language'.format(
+                       self.parent.language))
             raise forms.ValidationError(_(err))
 
         self.translation = translation_qs.first()
