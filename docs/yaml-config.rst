@@ -80,19 +80,20 @@ The ``build`` block configures specific aspects of the documentation build.
 build.image
 ```````````
 
-* Default: ``2.0``
+
+* Default: :djangosetting:`DOCKER_IMAGE`
 * Options: ``1.0``, ``2.0``, ``latest``
 
-The docker image to use for specific builds.
-This lets users specify a more experimental builder,
+The build image to use for specific builds.
+This lets users specify a more experimental build image,
 if they want to be on the cutting edge.
 
-Certain Python versions require a certain builder,
+Certain Python versions require a certain build image,
 as defined here::
 
-* '1.0': 2, 2.7, 3, 3.4
-* '2.0': 2, 2.7, 3, 3.5
-* 'latest': 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6
+* `'1.0': 2, 2.7, 3, 3.4`
+* `'2.0': 2, 2.7, 3, 3.5`
+* `'latest': 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6`
 
 .. code-block:: yaml
 
