@@ -140,7 +140,7 @@ class Service(object):
             except ValueError:
                 debug_data = resp.content
             log.debug('paginate failed at %s with response: %s', url, debug_data)
-        finally:
+        else:
             return []
 
     def sync(self):

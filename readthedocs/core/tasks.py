@@ -17,7 +17,8 @@ EMAIL_TIME_LIMIT = 30
 
 
 @app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
-def send_email_task(recipient, subject, template, template_html, context=None):
+def send_email_task(recipient, subject, template, template_html,
+                    context=None, from_email=None, **kwargs):
     """Send multipart email
 
     recipient
@@ -34,12 +35,16 @@ def send_email_task(recipient, subject, template, template_html, context=None):
 
     context
         A dictionary to pass into the template calls
+
+    kwargs
+        Additional options to the EmailMultiAlternatives option.
     """
     msg = EmailMultiAlternatives(
         subject,
         get_template(template).render(context),
-        settings.DEFAULT_FROM_EMAIL,
-        [recipient]
+        from_email or settings.DEFAULT_FROM_EMAIL,
+        [recipient],
+        **kwargs
     )
     try:
         msg.attach_alternative(get_template(template_html).render(context),
