@@ -161,8 +161,8 @@ class ProjectExtraForm(ProjectForm):
             'documentation_type',
             'language',
             'programming_language',
-            'project_url',
             'tags',
+            'project_url',
         )
 
     description = forms.CharField(
