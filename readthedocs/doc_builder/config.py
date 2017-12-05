@@ -112,10 +112,8 @@ class ConfigWrapper(object):
     def build_image(self):
         if self._project.container_image:
             # Allow us to override per-project still
-            assert 'readthedocs/build' in self._project.container_image, (
-                'container image must be fully qualified')
             return self._project.container_image
-        return 'readthedocs/build:{}'.format(self._yaml_config['build']['image'])
+        return self._yaml_config['build']['image']
 
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.
