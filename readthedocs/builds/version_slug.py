@@ -28,6 +28,22 @@ from django.utils.encoding import force_text
 from builtins import range
 
 
+def get_fields_with_model(cls):
+    """
+    Replace deprecated function of the same name in Model._meta.
+
+    This replaces deprecated function (as of Django 1.10) in
+    Model._meta as prescrived in the Django docs.
+    https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
+    """
+    return [
+        (f, f.model if f.model != cls else None)
+        for f in cls._meta.get_fields()
+        if not f.is_relation or f.one_to_one or
+        (f.many_to_one and f.related_model)
+    ]
+
+
 # Regex breakdown:
 #   [a-z0-9] -- start with alphanumeric value
 #   [-._a-z0-9] -- allow dash, dot, underscore, digit, lowercase ascii
@@ -59,7 +75,7 @@ class VersionSlugField(models.CharField):
 
     def get_queryset(self, model_cls, slug_field):
         # pylint: disable=protected-access
-        for field, model in model_cls._meta.get_fields_with_model():
+        for field, model in get_fields_with_model(model_cls):
             if model and field == slug_field:
                 return model._default_manager.all()
         return model_cls._default_manager.all()
