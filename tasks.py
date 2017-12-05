@@ -45,23 +45,23 @@ def prepare(ctx, version):
         '-o rtfd -r readthedocs.org '
         '--file {changelog_path} '
         '--template {template_path} '
-        '--header "Version {version}"'
-    ).format(
-        version=version,
-        template_path=template_path,
-        changelog_path=changelog_path,
-    )
+        '--header "Version {version}"').format(
+            version=version,
+            template_path=template_path,
+            changelog_path=changelog_path,
+        )
     try:
         token = os.environ['GITHUB_TOKEN']
         cmd += '--token ' + token + ' '
     except KeyError:
         print('')
-        print('\n'.join(
-            textwrap.wrap(
-                'In order to avoid rate limiting on the GitHub API, you can specify '
-                'an environment variable `GITHUB_TOKEN` with a personal access token. '
-                'There is no need for the token to have any permissions unless the '
-                'repoistory is private.')))
+        print(
+            '\n'.join(
+                textwrap.wrap(
+                    'In order to avoid rate limiting on the GitHub API, you can specify '
+                    'an environment variable `GITHUB_TOKEN` with a personal access token. '
+                    'There is no need for the token to have any permissions unless the '
+                    'repoistory is private.')))
         print('')
     print('Updating changelog')
     ctx.run(cmd)
