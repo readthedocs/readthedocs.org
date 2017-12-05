@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block project_editing %}
   {% with versions_active="active" %}
@@ -11,21 +12,25 @@
 
 {% block content %}
 
+<h3>
 {% blocktrans with slug=version.slug %}
-    <h3>Remove build environment for <em>{{ slug }}</em> version.</h3>
+    Remove build environment for <em>{{ slug }}</em> version.
 {% endblocktrans %}
+</h3>
 
 {% if deleted %}
+    <p>
     {% blocktrans %}
-        Your project environment has been wiped.<br><br>
+        Your project environment has been wiped.
     {% endblocktrans %}
+    </p>
 {% else %}
     {% blocktrans %}
         Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
     {% endblocktrans %}
 
 <form method="post" action="#">
-  <input type="submit" value="Wipe {{ version.slug }}">
+  <input type="submit" value="{% trans 'Wipe' %} {{ version.slug }}">
 </form>
 {% endif %}
 
