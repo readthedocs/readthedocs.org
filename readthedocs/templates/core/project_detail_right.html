@@ -64,7 +64,7 @@
     <h3>{% trans "Tags" %}</h3>
     <p>
 
-    {% if project.tags.count %}
+    {% if project.tags.exists %}
         {% for tag in project.tags.all %}
           <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
         {% endfor %}
