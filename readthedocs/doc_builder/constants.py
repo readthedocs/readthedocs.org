@@ -33,7 +33,8 @@ DOCKER_SOCKET = getattr(
 )
 DOCKER_VERSION = getattr(settings, 'DOCKER_VERSION', 'auto')
 DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
-DOCKER_BUILD_IMAGES = getattr(settings, 'DOCKER_BUILD_IMAGES', {})
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
+
 DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 DOCKER_LIMITS.update(getattr(settings, 'DOCKER_LIMITS', {}))
 

@@ -8,7 +8,7 @@ from builtins import filter, object
 from readthedocs_build.config import load as load_config
 from readthedocs_build.config import BuildConfig, ConfigError, InvalidConfig
 
-from .constants import DOCKER_BUILD_IMAGES, DOCKER_IMAGE
+from .constants import DOCKER_IMAGE_SETTINGS, DOCKER_IMAGE
 
 
 class ConfigWrapper(object):
@@ -138,14 +138,16 @@ def load_yaml_config(version):
     # Get build image to set up the python version validation. Pass in the
     # build image python limitations to the loaded config so that the versions
     # can be rejected at validation
-    build_image = DOCKER_BUILD_IMAGES.get(
-        version.project.container_image,
-        DOCKER_BUILD_IMAGES.get(DOCKER_IMAGE, None),
-    )
-    if build_image:
-        env_config = {
-            'python': build_image['python'],
+
+    img_name = version.project.container_image or DOCKER_IMAGE
+    env_config = {
+        'build': {
+            'image': img_name,
         }
+    }
+    img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
+    if img_settings:
+        env_config.update(img_settings)
 
     try:
         sphinx_env_config = env_config.copy()
