@@ -12,17 +12,17 @@
 {% block content %}
 
 {% blocktrans with slug=version.slug %}
-<h3>Remove build environment for <em>{{ slug }}</em> version.</h3>
+    <h3>Remove build environment for <em>{{ slug }}</em> version.</h3>
 {% endblocktrans %}
 
 {% if deleted %}
-{% blocktrans %}
-Your project environment has been wiped.<br><br>
-{% endblocktrans %}
+    {% blocktrans %}
+        Your project environment has been wiped.<br><br>
+    {% endblocktrans %}
 {% else %}
-{% blocktrans %}
-Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
-{% endblocktrans %}
+    {% blocktrans %}
+        Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
+    {% endblocktrans %}
 
 <form method="post" action="#">
   <input type="submit" value="Wipe {{ version.slug }}">
