@@ -17,6 +17,8 @@ environments by running::
 
     tox
 
+.. note:: You need `Mercurial`_ installed to pass some tests.
+
 To target a specific environment::
 
     tox -e py27
@@ -35,6 +37,7 @@ target a single environment to limit the test suite::
         Test documentation compilation with Sphinx.
 
 .. _`Tox`: http://tox.readthedocs.io/en/latest/index.html
+.. _`Mercurial`: https://www.mercurial-scm.org/
 .. _`Prospector`: http://prospector.readthedocs.io/en/master/
 .. _`pylint`: http://docs.pylint.org/
 .. _`pyflakes`: https://github.com/pyflakes/pyflakes
