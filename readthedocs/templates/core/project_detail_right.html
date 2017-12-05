@@ -63,19 +63,22 @@
 {% block tags %}
     <h3>{% trans "Tags" %}</h3>
     <p>
-  {% if project.tags.count %}
-      {% for tag in project.tags.all %}
-        <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
-  {% else %}
-    {% trans "Project has no tags." %}
-    {% if request.user|is_admin:project %}
 
-      {% url 'projects_edit' project.slug as edit_url %}
-        {% blocktrans %}
-        Add some in your <a href="{{ edit_url }}">project settings</a>.
-        {% endblocktrans %}
+    {% if project.tags.count %}
+        {% for tag in project.tags.all %}
+          <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+        {% endfor %}
+    {% else %}
+      {% trans "Project has no tags." %}
+      {% if request.user|is_admin:project %}
+
+        {% url 'projects_edit' project.slug as edit_url %}
+          {% blocktrans %}
+          Add some in your <a href="{{ edit_url }}">project settings</a>.
+          {% endblocktrans %}
+      {% endif %}
     {% endif %}
-  {% endif %}
+
     </p>
 {% endblock %}
 
