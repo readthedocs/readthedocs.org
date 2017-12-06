@@ -6,11 +6,14 @@ import logging
 
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.http import HttpResponsePermanentRedirect
+from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.utils.decorators import method_decorator
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 
 from redis import Redis, ConnectionError
@@ -33,7 +36,26 @@ class BuildBase(object):
         return queryset
 
 
-class BuildList(BuildBase, ListView):
+class BuildTriggerMixin(object):
+
+    @method_decorator(login_required)
+    def post(self, request, project_slug):
+        project = get_object_or_404(
+            Project.objects.for_admin_user(self.request.user),
+            slug=project_slug
+        )
+        version_slug = request.POST.get('version_slug')
+        version = get_object_or_404(
+            Version,
+            project=project,
+            slug=version_slug,
+        )
+
+        trigger_build(project=project, version=version)
+        return HttpResponseRedirect(reverse('builds_project_list', args=[project.slug]))
+
+
+class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)

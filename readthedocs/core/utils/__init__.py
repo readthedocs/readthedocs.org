@@ -14,6 +14,7 @@ from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 from future.backports.urllib.parse import urlparse
+from celery import group, chord
 
 from ..tasks import send_email_task
 from readthedocs.builds.constants import LATEST
@@ -25,7 +26,15 @@ log = logging.getLogger(__name__)
 SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
 
 
-def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-builtin
+def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
+    """
+    Run a broadcast across our servers.
+
+    Returns a task group that can be checked for results.
+
+    `callback` should be a task signature that will be run once,
+    after all of the broadcast tasks have finished running.
+    """
     assert type in ['web', 'app', 'build']
     if kwargs is None:
         kwargs = {}
@@ -34,12 +43,22 @@ def broadcast(type, task, args, kwargs=None):  # pylint: disable=redefined-built
         servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
     elif type in ['build']:
         servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", [default_queue])
+
+    tasks = []
     for server in servers:
-        task.apply_async(
-            queue=server,
-            args=args,
-            kwargs=kwargs,
-        )
+        task_sig = task.s(*args, **kwargs).set(queue=server)
+        tasks.append(task_sig)
+    if callback:
+        task_promise = chord(tasks, callback).apply_async()
+    else:
+        # Celery's Group class does some special handling when an iterable with
+        # len() == 1 is passed in. This will be hit if there is only one server
+        # defined in the above queue lists
+        if len(tasks) > 1:
+            task_promise = group(*tasks).apply_async()
+        else:
+            task_promise = group(tasks).apply_async()
+    return task_promise
 
 
 def clean_url(url):
@@ -64,7 +83,7 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     will be prefixed with ``build-`` to unify build queue names.
     """
     # Avoid circular import
-    from readthedocs.projects.tasks import update_docs
+    from readthedocs.projects.tasks import UpdateDocsTask
     from readthedocs.builds.models import Build
 
     if project.skip:
@@ -108,13 +127,14 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
+    update_docs = UpdateDocsTask()
     update_docs.apply_async(kwargs=kwargs, **options)
 
     return build
 
 
 def send_email(recipient, subject, template, template_html, context=None,
-               request=None):  # pylint: disable=unused-argument
+               request=None, from_email=None, **kwargs):  # pylint: disable=unused-argument
     """Alter context passed in and call email send task
 
     .. seealso::
@@ -126,7 +146,9 @@ def send_email(recipient, subject, template, template_html, context=None,
         context = {}
     context['uri'] = '{scheme}://{host}'.format(
         scheme='https', host=settings.PRODUCTION_DOMAIN)
-    send_email_task.delay(recipient, subject, template, template_html, context)
+    send_email_task.delay(recipient=recipient, subject=subject, template=template,
+                          template_html=template_html, context=context, from_email=from_email,
+                          **kwargs)
 
 
 def slugify(value, *args, **kwargs):

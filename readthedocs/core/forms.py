@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from builtins import object
 import logging
 
+from django.contrib.auth.models import User
 from haystack.forms import SearchForm
 from haystack.query import SearchQuerySet
 from django import forms
@@ -42,6 +43,22 @@ class UserProfileForm(forms.ModelForm):
             user.last_name = last_name
             user.save()
         return profile
+
+
+class UserDeleteForm(forms.ModelForm):
+    username = CharField(label=_('Username'), help_text=_('Please type your username to confirm.'))
+
+    class Meta(object):
+        model = User
+        fields = ['username']
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+
+        if self.instance.username != data:
+            raise forms.ValidationError(_("Username does not match!"))
+
+        return data
 
 
 class FacetField(forms.MultipleChoiceField):

@@ -1,37 +1,39 @@
 Ethical Advertising
 ===================
 
-Read the Docs is a large,
-free web service.
-There is one proven business model to support this kind of site:
-**Advertising**.
-However,
-instead of using Google,
-we are building the advertising model that we want to exist.
-We only work with companies we like and respect,
-and offer products that are relevant to developers.
-We hope that you'll discover new products and services that are relevant,
-and also new companies that care about supporting the open source community.
+Read the Docs is a large, free web service.
+There is one proven business model to support this kind of site: **Advertising**.
+Instead of using an existing ad network, we are building the model we want to exist.
 
 **We're building an advertising model that respects users while providing value to advertisers.**
-We feel like this is something we can be proud of,
-and we can start leading the ad industry in the right direction.
+We don't track you, sell your data, or anything else.
+We simply show ads to users, based on the content of the pages you look at.
+We also give 10% of our ad space to :ref:`community projects <community-ads>`,
+as our way of saying thanks to the open source community
 
-We talk a bit :ref:`below <ethical-info>` about our worldview on advertising.
+We talk a bit below about :ref:`our worldview on advertising <ethical-info>`,
+if you want to know more.
+
+.. important::
+
+   **Are you a marketer?**
+   `Learn more <https://readthedocs.org/sustainability/advertising/>`_ about how you can connect with the millions of developers who Read the Docs each month.
+
+Feedback
+--------
+
 We're a community,
 and we value your feedback.
 If you ever want to reach out about this effort,
 feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
-You can also :ref:`opt out <opt-out>` if you prefer.
 
-If you're a **marketer**,
-we have :ref:`information <ethical-buy-ads>` on how to get in touch with us about running ads.
+You can :ref:`opt out <opt-out>` of having paid ads on your projects,
+or seeing paid ads if you want.
+You will still see :ref:`community ads <community-ads>`,
+which we run for free that promote community projects. 
 
 We have gone into more detail about our views in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
-Also,
-Eric Holscher,
-one of our co-founders also `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
-
+Eric Holscher, one of our co-founders `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
 
 .. _ethical-info:
 
@@ -104,19 +106,15 @@ We hope that others will join us in this mission:
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
-.. _ethical-buy-ads:
-
 Advertise with us
 -----------------
 
 If you like our vision,
 let's work together to get your ad in front of the Read the Docs audience.
-We have over 5 million developers reading documentation each month,
+We have over 7 million developers reading documentation each month,
 and provide a valuable service to the open source community.
 
-**We only work with people who sell products that would be of interest to our audience of programmers and users of open source.**
-
-Fill out your information and we'll get in touch.
+A member of our team will reach out to you with more information and help you to get started promoting your product or brand to millions of developers and ensure you reach your advertising goals.
 
 .. raw:: html
 
@@ -132,20 +130,21 @@ Fill out your information and we'll get in touch.
     }
     </style>
     <form action="https://formspree.io/rev@readthedocs.org" method="POST" class="advertising">
-        <label>Your name</label>
-        <input type="text" name="name" size=50 />
-        <label>Your work email</label>
-        <input type="email" name="_replyto" size=40 required/>
-        <label>What is your job?</label>
-        <input type="text" name="job" size=50 />
-        <input type="submit" value="Send" class="btn" />
+        <label>Name</label>
+        <input type="text" name="name" size="50" placeholder="Your name" required>
+        <label>Email</label>
+        <input type="email" name="_replyto" size="50" placeholder="you@yourcompany.com" required>
+        <label>Your Company</label>
+        <input type="text" name="company" size="50" placeholder="Your company or organization" required>
+        <input type="submit" value="Send" class="btn">
 
-        <input type="hidden" name="_subject" value="Read the Docs Advertising Inquiry" />
-        <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html" />
-        <input type="text" name="_gotcha" style="display:none" />
+        <input type="hidden" name="_subject" value="Read the Docs Advertising Inquiry">
+        <input type="hidden" name="_next" value="//docs.readthedocs.io/en/latest/sponsors.html">
+        <input type="text" name="_gotcha" style="display:none">
     </form>
 
 
+.. _community-ads: 
 
 Community Ads
 -------------
@@ -162,10 +161,17 @@ Opting Out
 
 We have added multiple ways to opt out of the advertising on Read the Docs.
 
-Users can opt out of seeing paid advertisements on documentation pages by going to the drop down user menu in the top right of the Read the Docs dashboard and clicking **Settings**, or by going to https://readthedocs.org/accounts/edit/.
-On the **Details** tab, you can deselect **See paid advertising**.
+Users can opt out of seeing paid advertisements on documentation pages:
 
-Project owners can also disable advertisements for their projects. Options to control advertisements can be found on the project admin page, by clicking on the **Admin** dashboard link on the project page and selecting the **Advertising** section.
+* Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking **Settings** (https://readthedocs.org/accounts/edit/).
+* On the **Details** tab, you can deselect **See paid advertising**.
+
+Project owners can also disable advertisements for their projects. You can change these options:
+
+* Click on your **Project** page (`/projects/<slug>/`)
+* Click the  **Admin** dashboard link 
+* Choose the **Advertising** submenu on the left side
+* Change your advertising settings
 
 Project opt out options include:
 

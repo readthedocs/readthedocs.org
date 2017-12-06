@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Custom management command to rebuild documentation for all projects.
 
@@ -5,14 +6,17 @@ Invoked via ``./manage.py update_repos``.
 """
 
 from __future__ import absolute_import
+
 import logging
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
+
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
-from readthedocs.builds.models import Version
-from readthedocs.core.utils import trigger_build
+
 
 log = logging.getLogger(__name__)
 
@@ -54,9 +58,23 @@ class Command(BaseCommand):
                     for version in Version.objects.filter(project__slug=slug,
                                                           active=True,
                                                           uploaded=False):
-                        tasks.update_docs.run(pk=version.project_id,
-                                              record=False,
-                                              version_pk=version.pk)
+
+                        build_pk = None
+                        if record:
+                            build = Build.objects.create(
+                                project=version.project,
+                                version=version,
+                                type='html',
+                                state='triggered',
+                            )
+                            build_pk = build.pk
+
+                        tasks.UpdateDocsTask().run(
+                            pk=version.project_id,
+                            build_pk=build_pk,
+                            record=record,
+                            version_pk=version.pk
+                        )
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info("Building %s", p)
@@ -66,12 +84,17 @@ class Command(BaseCommand):
                 log.info("Updating all versions")
                 for version in Version.objects.filter(active=True,
                                                       uploaded=False):
-                    tasks.update_docs.run(pk=version.project_id,
-                                          record=record,
-                                          force=force,
-                                          version_pk=version.pk)
+                    tasks.UpdateDocsTask().run(
+                        pk=version.project_id,
+                        record=record,
+                        force=force,
+                        version_pk=version.pk
+                    )
             else:
                 log.info("Updating all docs")
                 for project in Project.objects.all():
-                    tasks.update_docs.run(pk=project.pk, record=record,
-                                          force=force)
+                    tasks.UpdateDocsTask().run(
+                        pk=project.pk,
+                        record=record,
+                        force=force
+                    )

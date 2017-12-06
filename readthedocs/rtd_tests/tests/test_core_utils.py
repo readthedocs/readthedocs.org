@@ -18,12 +18,12 @@ class CoreUtilTests(TestCase):
         self.project = get(Project, container_time_limit=None)
         self.version = get(Version, project=self.project)
 
-    @mock.patch('readthedocs.projects.tasks.update_docs')
+    @mock.patch('readthedocs.projects.tasks.UpdateDocsTask')
     def test_trigger_build_time_limit(self, update_docs):
         """Pass of time limit"""
         trigger_build(project=self.project, version=self.version)
-        update_docs.assert_has_calls([
-            mock.call.apply_async(
+        update_docs().apply_async.assert_has_calls([
+            mock.call(
                 time_limit=720,
                 soft_time_limit=600,
                 queue=mock.ANY,
@@ -38,13 +38,13 @@ class CoreUtilTests(TestCase):
             )
         ])
 
-    @mock.patch('readthedocs.projects.tasks.update_docs')
+    @mock.patch('readthedocs.projects.tasks.UpdateDocsTask')
     def test_trigger_build_invalid_time_limit(self, update_docs):
         """Time limit as string"""
         self.project.container_time_limit = '200s'
         trigger_build(project=self.project, version=self.version)
-        update_docs.assert_has_calls([
-            mock.call.apply_async(
+        update_docs().apply_async.assert_has_calls([
+            mock.call(
                 time_limit=720,
                 soft_time_limit=600,
                 queue=mock.ANY,
@@ -59,13 +59,13 @@ class CoreUtilTests(TestCase):
             )
         ])
 
-    @mock.patch('readthedocs.projects.tasks.update_docs')
+    @mock.patch('readthedocs.projects.tasks.UpdateDocsTask')
     def test_trigger_build_rounded_time_limit(self, update_docs):
         """Time limit should round down"""
         self.project.container_time_limit = 3
         trigger_build(project=self.project, version=self.version)
-        update_docs.assert_has_calls([
-            mock.call.apply_async(
+        update_docs().apply_async.assert_has_calls([
+            mock.call(
                 time_limit=3,
                 soft_time_limit=3,
                 queue=mock.ANY,

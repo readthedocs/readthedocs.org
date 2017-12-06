@@ -29,9 +29,11 @@ class CommunityDevSettings(CommunityBaseSettings):
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
     SLUMBER_API_HOST = 'http://localhost:8000'
+    PUBLIC_API_URL = 'http://localhost:8000'
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
 
     HAYSTACK_CONNECTIONS = {

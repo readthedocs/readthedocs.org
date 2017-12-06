@@ -1,10 +1,11 @@
 from __future__ import absolute_import
-from builtins import str
+
 import json
 import base64
 import datetime
 
 import mock
+from builtins import str
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
@@ -14,7 +15,7 @@ from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import Integration
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 
 
@@ -168,6 +169,23 @@ class APITests(TestCase):
         obj = json.loads(resp.content)
         self.assertEqual(obj['slug'], 'awesome-project')
 
+    def test_user_doesnt_get_full_api_return(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+        project = get(Project, main_language_project=None, conf_py_file='foo')
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn('conf_py_file', resp.data)
+
+        client.force_authenticate(user=user_admin)
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('conf_py_file', resp.data)
+        self.assertEqual(resp.data['conf_py_file'], 'foo')
+
     def test_invalid_make_project(self):
         """
         Test that the authentication is turned on.
@@ -208,6 +226,40 @@ class APITests(TestCase):
 
         resp = self.client.get("/api/v1/project/", data={"format": "json"})
         self.assertEqual(resp.status_code, 200)
+
+    def test_project_features(self):
+        user = get(User, is_staff=True)
+        project = get(Project, main_language_project=None)
+        # One explicit, one implicit feature
+        feature1 = get(Feature, projects=[project])
+        feature2 = get(Feature, projects=[], default_true=True)
+        feature3 = get(Feature, projects=[], default_true=False)
+        client = APIClient()
+
+        client.force_authenticate(user=user)
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('features', resp.data)
+        self.assertEqual(
+            resp.data['features'],
+            [feature1.feature_id, feature2.feature_id]
+        )
+
+    def test_project_features_multiple_projects(self):
+        user = get(User, is_staff=True)
+        project1 = get(Project, main_language_project=None)
+        project2 = get(Project, main_language_project=None)
+        feature = get(Feature, projects=[project1, project2], default_true=True)
+        client = APIClient()
+
+        client.force_authenticate(user=user)
+        resp = client.get('/api/v2/project/%s/' % (project1.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('features', resp.data)
+        self.assertEqual(
+            resp.data['features'],
+            [feature.feature_id]
+        )
 
 
 class APIImportTests(TestCase):

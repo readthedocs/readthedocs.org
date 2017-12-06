@@ -57,8 +57,7 @@ class Lock(object):
             log.info("Lock (%s): Releasing", self.name)
             os.remove(self.fpath)
         except OSError:
-            log.error("Lock (%s): Failed to release, ignoring...", self.name,
-                      exc_info=True)
+            log.exception("Lock (%s): Failed to release, ignoring...", self.name)
 
 
 class NonBlockingLock(object):

@@ -4,12 +4,14 @@
 from __future__ import absolute_import
 import os
 
-import djcelery
-
 from readthedocs.core.settings import Settings
 
+try:
+    import readthedocsext.donate  # noqa
+    donate = True
+except ImportError:
+    donate = False
 
-djcelery.setup_loader()
 
 _ = gettext = lambda s: s
 
@@ -76,12 +78,8 @@ class CommunityBaseSettings(Settings):
             'copyright',
             'textclassifier',
             'annoying',
-            'django_countries',
             'django_extensions',
             'messages_extends',
-
-            # Celery bits
-            'djcelery',
 
             # daniellindsleyrocksdahouse
             'haystack',
@@ -99,10 +97,10 @@ class CommunityBaseSettings(Settings):
             'readthedocs.rtd_tests',
             'readthedocs.restapi',
             'readthedocs.gold',
-            'readthedocs.donate',
             'readthedocs.payments',
             'readthedocs.notifications',
             'readthedocs.integrations',
+
 
             # allauth
             'allauth',
@@ -112,6 +110,9 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
+        if donate:
+            apps.append('django_countries')
+            apps.append('readthedocsext.donate')
         return apps
 
     TEMPLATE_LOADERS = (
@@ -349,20 +350,19 @@ class CommunityBaseSettings(Settings):
             'debug': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
-                'filename': 'debug.log',
+                'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
         },
         'loggers': {
+            '': {  # root logger
+                'handlers': ['debug', 'console'],
+                'level': 'DEBUG',  # Always send from the root, handlers can filter levels
+            },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
-                'propagate': True,
-            },
-            '': {
-                'handlers': ['debug', 'console'],
-                'level': 'DEBUG',
-                'propagate': True,
+                'propagate': False,  # Don't double log at the root logger for these.
             },
         },
     }

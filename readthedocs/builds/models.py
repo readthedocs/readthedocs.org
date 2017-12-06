@@ -26,7 +26,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (PRIVACY_CHOICES, GITHUB_URL,
                                             GITHUB_REGEXS, BITBUCKET_URL,
                                             BITBUCKET_REGEXS, PRIVATE)
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, APIProject
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
@@ -155,7 +155,7 @@ class Version(models.Model):
         try:
             self.project.sync_supported_versions()
         except Exception:
-            log.error('failed to sync supported versions', exc_info=True)
+            log.exception('failed to sync supported versions')
         broadcast(type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
 
@@ -224,7 +224,7 @@ class Version(models.Model):
                     path, self))
                 rmtree(path)
         except OSError:
-            log.error('Build path cleanup failed', exc_info=True)
+            log.exception('Build path cleanup failed')
 
     def get_github_url(self, docroot, filename, source_suffix='.rst', action='view'):
         """
@@ -299,6 +299,40 @@ class Version(models.Model):
             path=filename,
             source_suffix=source_suffix,
         )
+
+
+class APIVersion(Version):
+
+    """Version proxy model for API data deserialization
+
+    This replaces the pattern where API data was deserialized into a mocked
+    :py:cls:`Version` object. This pattern was confusing, as it was not explicit
+    as to what form of object you were working with -- API backed or database
+    backed.
+
+    This model preserves the Version model methods, allowing for overrides on
+    model field differences. This model pattern will generally only be used on
+    builder instances, where we are interacting solely with API data.
+    """
+
+    project = None
+
+    class Meta:
+        proxy = True
+
+    def __init__(self, *args, **kwargs):
+        self.project = APIProject(**kwargs.pop('project', {}))
+        # These fields only exist on the API return, not on the model, so we'll
+        # remove them to avoid throwing exceptions due to unexpected fields
+        for key in ['resource_uri', 'absolute_url', 'downloads']:
+            try:
+                del kwargs[key]
+            except KeyError:
+                pass
+        super(APIVersion, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return 0
 
 
 @python_2_unicode_compatible

@@ -17,6 +17,12 @@ class CommunityTestSettings(CommunityDevSettings):
     DEBUG = False
     TEMPLATE_DEBUG = False
 
+    @property
+    def LOGGING(self):  # noqa - avoid pep8 N802
+        logging = super(CommunityDevSettings, self).LOGGING
+        return logging
+
+
 
 CommunityTestSettings.load_settings(__name__)
 

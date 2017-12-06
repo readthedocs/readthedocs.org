@@ -64,56 +64,56 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs',
-           new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs',
-           new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
     def test_update_docs(self):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs.delay(
+            update_docs = tasks.UpdateDocsTask()
+            result = update_docs.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs',
-           new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs')
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build')
-    def test_update_docs_unexpected_setup_exception(self, mock_update_build, mock_setup_vcs):
+    def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs.delay(
+            update_docs = tasks.UpdateDocsTask()
+            result = update_docs.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False)
         self.assertTrue(result.successful())
-        mock_update_build.assert_called_once_with(state=BUILD_STATE_FINISHED)
 
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs')
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs',
-           new=MagicMock)
-    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build')
-    def test_update_docs_unexpected_build_exception(self, mock_update_build, mock_build_docs):
+    def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            result = tasks.update_docs.delay(
+            update_docs = tasks.UpdateDocsTask()
+            result = update_docs.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False)
         self.assertTrue(result.successful())
-        mock_update_build.assert_called_with(state=BUILD_STATE_FINISHED)
 
     def test_update_imported_doc(self):
         with mock_api(self.repo):

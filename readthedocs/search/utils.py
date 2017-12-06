@@ -212,8 +212,6 @@ def parse_sphinx_sections(content):
             'title': title,
             'content': content,
         }
-        log.debug("(Search Index) Section [%s:%s]: %s",
-                  section_id, title, content)
 
 
 def parse_mkdocs_sections(content):
@@ -265,12 +263,10 @@ def parse_mkdocs_sections(content):
                     'title': h2_title,
                     'content': h2_content,
                 }
-            log.debug("(Search Index) Section [%s:%s]: %s",
-                      section_id, h2_title, h2_content)
     # we're unsure which exceptions can be raised
     # pylint: disable=bare-except
     except:
-        log.error('Failed indexing', exc_info=True)
+        log.exception('Failed indexing')
 
 
 def parse_sections(documentation_type, content):
