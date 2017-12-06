@@ -17,7 +17,7 @@ def prepare(ctx, version):
 
     This will stage a few updates for manual review and commit:
 
-    * Prepend the most recent PRs and issues that were closed to CHANGELOG.md.
+    * Prepend the most recent PRs and issues that were closed to CHANGELOG.rst.
     * Update the setup.cfg version
 
     Changelog uses the file modification date to track the last time it was
@@ -45,11 +45,12 @@ def prepare(ctx, version):
         '-o rtfd -r readthedocs.org '
         '--file {changelog_path} '
         '--template {template_path} '
-        '--header "Version {version}"').format(
-            version=version,
-            template_path=template_path,
-            changelog_path=changelog_path,
-        )
+        '--header "Version {version}"'
+    ).format(
+        version=version,
+        template_path=template_path,
+        changelog_path=changelog_path,
+    )  # yapf: disable
     try:
         token = os.environ['GITHUB_TOKEN']
         cmd += '--token ' + token + ' '
@@ -74,4 +75,7 @@ def release(ctx, version):
 
     Do this after prepare task and manual cleanup/commit
     """
-    ctx.run('git checkout master && git tag {version}'.format(version=version))
+    ctx.run(
+        ('git checkout master && '
+         'git tag {version} && '
+         'git push --tags').format(version=version))
