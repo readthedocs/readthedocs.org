@@ -388,7 +388,7 @@ class TestStableVersion(TestCase):
 
         version_stable = Version.objects.get(slug=STABLE)
         self.assertFalse(version_stable.active)
-        self.assertEqual(version_stable.identifier, '1.0.0')
+        self.assertEqual(version_stable.identifier, '0.9')
 
     def test_stable_version_tags_over_branches(self):
         version_post_data = {
