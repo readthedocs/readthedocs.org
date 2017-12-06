@@ -5,12 +5,14 @@ from __future__ import absolute_import
 import logging
 
 from corsheaders import signals
+from django.conf import settings
+from django.db.models.signals import pre_delete
 from django.dispatch import Signal
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.dispatch import receiver
 from future.backports.urllib.parse import urlparse
 
 from readthedocs.projects.models import Project, Domain
-
 
 log = logging.getLogger(__name__)
 
@@ -61,5 +63,21 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             return True
 
     return False
+
+
+@receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
+def delete_projects_and_organizations(sender, instance, *args, **kwargs):
+    # Here we count the owner list from the projects that the user own
+    # Then exclude the projects where there are more than one owner
+    projects = instance.projects.all().annotate(num_users=Count('users')).exclude(num_users__gt=1)
+
+    # Here we count the users list from the organization that the user belong
+    # Then exclude the organizations where there are more than one user
+    oauth_organizations = (instance.oauth_organizations.annotate(num_users=Count('users'))
+                                                       .exclude(num_users__gt=1))
+
+    projects.delete()
+    oauth_organizations.delete()
+
 
 signals.check_request_enabled.connect(decide_if_cors)
