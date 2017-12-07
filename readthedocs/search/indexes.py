@@ -318,7 +318,7 @@ class SectionIndex(Index):
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
                 # Associate a section with a page.
-                #'_parent': {'type': self._parent},
+                # '_parent': {'type': self._parent},
                 # Commenting this out until we need it.
                 # 'suggest': {
                 #     "type": "completion",

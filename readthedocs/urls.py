@@ -38,7 +38,7 @@ basic_urls = [
 
 rtd_urls = [
     url(r'^bookmarks/', include('readthedocs.bookmarks.urls')),
-    #url(r'^search/$', search_views.elastic_search, name='search'),
+    url(r'^search/$', search_views.elastic_search, name='search'),
     url(r'^dashboard/', include('readthedocs.projects.urls.private')),
     url(r'^profiles/', include('readthedocs.profiles.urls.public')),
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
@@ -86,10 +86,13 @@ groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
-    groups.append([
+    groups.insert(0, [
         url(r'^sustainability/', include('readthedocsext.donate.urls')),
-        url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search'),
     ])
+    for num, _url in enumerate(rtd_urls):
+        if 'search' in _url.name:
+            rtd_urls[num] = \
+                url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search'),
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):
