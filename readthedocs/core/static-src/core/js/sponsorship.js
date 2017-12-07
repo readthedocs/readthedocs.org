@@ -6,13 +6,14 @@ module.exports = {
     Promo: Promo
 };
 
-function Promo (id, text, link, image, theme, display_type) {
+function Promo (id, text, link, image, theme, display_type, pixel) {
     this.id = id;
     this.text = text;
     this.link = link;
     this.image = image;
     this.theme = theme || constants.THEME_RTD;
     this.display_type = display_type || constants.PROMO_TYPES.LEFTNAV;
+    this.pixel = pixel;
     this.promo = null;
 
     // Handler when a promo receives a click
@@ -64,7 +65,13 @@ Promo.prototype.place_promo = function (selector, promo_class) {
     promo_about.appendTo(promo);
 
     // Promo image
-    if (self.image) {
+    if (self.pixel) {
+        var pixel = $('<img />')
+            .attr('style', 'display: none;')
+            .attr('src', self.image)
+            .appendTo(promo);
+    } else {
+        // Use a first-party tracking pixel so we can still count the number of times this is displayed
         var promo_image_link = $('<a />')
             .attr('class', 'rtd-pro-image-wrapper')
             .attr('href', self.link)
