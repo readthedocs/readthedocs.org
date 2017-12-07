@@ -26,7 +26,7 @@ from readthedocs.restapi.client import api as api_v2
 from requests.exceptions import ConnectionError
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
-                         BuildEnvironmentWarning)
+                         BuildEnvironmentWarning, BuildEnvironmentCreationFailed)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
                         DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
@@ -281,26 +281,27 @@ class BuildEnvironment(object):
 
     We only update the build through the API in one of three cases:
 
-    * The build is not done and needs incremental builds
+    * The build is not done and needs an additional build step to follow
     * The build failed and we should always report this change
-    * The build was successful and ``commit`` is ``True``
+    * The build was successful and ``update_on_success`` is ``True``
 
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
-    :param commit: update the build object via API if the build was successful
+    :param update_on_success: update the build object via API if the build was
+                              successful
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None, commit=True):
+                 environment=None, update_on_success=True):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
-        self.commit = commit
+        self.update_on_success = update_on_success
 
         self.commands = []
         self.failure = None
@@ -404,11 +405,12 @@ class BuildEnvironment(object):
         """Record a build by hitting the API
 
         This step is skipped if we aren't recording the build. To avoid
-        recording successful builds yet (for instance, running setup commands for
-        the build), set the ``commit`` argument on environment instantiation.
+        recording successful builds yet (for instance, running setup commands
+        for the build), set the ``update_on_success`` argument to False on
+        environment instantiation.
 
         If there was an error on the build, update the build regardless of
-        whether ``commit`` is ``True`` or not.
+        whether ``update_on_success`` is ``True`` or not.
         """
         if not self.record:
             return None
@@ -469,13 +471,17 @@ class BuildEnvironment(object):
             # Build is done, but isn't successful, always update
             or (self.done and not self.successful)
             # Otherwise, are we explicitly to not update?
-            or self.commit
+            or self.update_on_success
         )
         if update_build:
             try:
                 api_v2.build(self.build['id']).put(self.build)
             except HttpClientError as e:
-                log.error("Unable to post a new build: %s", e.content)
+                log.error(
+                    "Unable to update build: id=%d error=%s",
+                    self.build['id'],
+                    e.content,
+                )
             except Exception:
                 log.exception("Unknown build exception")
 
@@ -583,7 +589,7 @@ class DockerEnvironment(BuildEnvironment):
                 client.kill(self.container_id)
             except DockerAPIError:
                 log.exception(
-                    'Unable to remove container: id=%s',
+                    'Unable to kill container: id=%s',
                     self.container_id,
                 )
             try:
@@ -632,7 +638,7 @@ class DockerEnvironment(BuildEnvironment):
                 LOG_TEMPLATE.format(
                     project=self.project.slug,
                     version=self.version.slug,
-                    msg='Could not connection to Docker API',
+                    msg='Could not connect to Docker API',
                 ),
             )
             # We don't raise an error here mentioning Docker, that is a
@@ -720,10 +726,20 @@ class DockerEnvironment(BuildEnvironment):
                 LOG_TEMPLATE.format(
                     project=self.project.slug,
                     version=self.version.slug,
-                    msg=e,
+                    msg=(
+                        'Could not connect to the Docker API, '
+                        'make sure Docker is running'
+                    ),
                 ),
             )
-            raise BuildEnvironmentError('There was a problem connecting to Docker')
+            # We don't raise an error here mentioning Docker, that is a
+            # technical detail that the user can't resolve on their own.
+            # Instead, give the user a generic failure
+            raise BuildEnvironmentError(
+                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build['id'],
+                )
+            )
         except DockerAPIError as e:
             log.exception(
                 LOG_TEMPLATE
@@ -733,4 +749,4 @@ class DockerEnvironment(BuildEnvironment):
                     msg=e.explanation,
                 ),
             )
-            raise BuildEnvironmentError('Build environment creation failed')
+            raise BuildEnvironmentCreationFailed

@@ -97,7 +97,7 @@ class TestLocalEnvironment(TestCase):
                 version=self.version,
                 project=self.project,
                 build={'id': DUMMY_BUILD_ID},
-                commit=False,
+                update_on_success=False,
             ),
         ]
 

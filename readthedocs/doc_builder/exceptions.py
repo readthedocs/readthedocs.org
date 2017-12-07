@@ -24,5 +24,12 @@ class BuildEnvironmentError(BuildEnvironmentException):
     )
 
 
+class BuildEnvironmentCreationFailed(BuildEnvironmentError):
+
+    message = ugettext_noop(
+        "Build environment creation failed"
+    )
+
+
 class BuildEnvironmentWarning(BuildEnvironmentException):
     pass

@@ -192,7 +192,7 @@ class UpdateDocsTask(Task):
             version=self.version,
             build=self.build,
             record=record,
-            commit=False,
+            update_on_success=False,
         )
 
         # Environment used for code checkout & initial configuration reading
