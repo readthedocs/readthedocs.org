@@ -85,8 +85,8 @@ class TestLocalEnvironment(TestCase):
             'exit_code': 0,
         })
 
-    def test_incremental_state_update_with_no_commit(self):
-        """Build updates to a non-finished state when specifying commit=True."""
+    def test_incremental_state_update_with_no_update(self):
+        """Build updates to a non-finished state when update_on_success=True."""
         build_envs = [
             LocalEnvironment(
                 version=self.version,
@@ -280,13 +280,13 @@ class TestDockerEnvironment(TestCase):
             'builder': mock.ANY,
         })
 
-    def test_environment_successful_build_without_commit(self):
+    def test_environment_successful_build_without_update(self):
         """A successful build exits cleanly and doesn't update build."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
-            commit=False,
+            update_on_success=False,
         )
 
         with build_env:
@@ -298,13 +298,13 @@ class TestDockerEnvironment(TestCase):
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
-    def test_environment_failed_build_without_commit_but_with_error(self):
+    def test_environment_failed_build_without_update_but_with_error(self):
         """A failed build exits cleanly and doesn't update build."""
         build_env = DockerEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
-            commit=False,
+            update_on_success=False,
         )
 
         with build_env:
