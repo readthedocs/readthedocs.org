@@ -66,13 +66,13 @@ Promo.prototype.place_promo = function (selector, promo_class) {
 
     // Promo image
     if (self.pixel) {
+        // Use a first-party tracking pixel for text ads,
+        // so we can still count the number of times they are displayed
         var pixel = $('<img />')
             .attr('style', 'display: none;')
             .attr('src', self.image)
             .appendTo(promo);
     } else {
-        // Use a first-party tracking pixel,
-        // so we can still count the number of times this is displayed
         var promo_image_link = $('<a />')
             .attr('class', 'rtd-pro-image-wrapper')
             .attr('href', self.link)
