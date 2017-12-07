@@ -224,9 +224,12 @@ class DockerBuildCommand(BuildCommand):
             self.exit_code = cmd_ret['ExitCode']
 
             # Docker will exit with a special exit code to signify the command
-            # was killed due to memory usage, make the error code nicer.
-            if (self.exit_code == DOCKER_OOM_EXIT_CODE and
-                    self.output == 'Killed\n'):
+            # was killed due to memory usage, make the error code
+            # nicer. Sometimes the kernel kills the command and Docker doesn't
+            # not use the specific exit code, so we check if the word `Killed`
+            # is in the last 15 lines of the command's output
+            killed_in_output = 'Killed' in '\n'.join(self.output.splitlines()[-15:])
+            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
                 self.output = _('Command killed due to excessive memory '
                                 'consumption\n')
         except DockerAPIError:
@@ -421,7 +424,18 @@ class BuildEnvironment(object):
                 self.build['error'] = str(self.failure)
             else:
                 self.build['error'] = ugettext_noop(
-                    "An unexpected error occurred")
+                    "There was a problem with Read the Docs while building your documentation. "
+                    "Please report this to us with your build id ({build_id}).".format(
+                        build_id=self.build['id']
+                    )
+                )
+                log.error(
+                    'Build failed with unhandled exception: %s',
+                    str(self.failure),
+                    extra={'stack': True,
+                           'tags': {'build': self.build['id']},
+                           }
+                )
 
         # Attempt to stop unicode errors on build reporting
         for key, val in list(self.build.items()):
@@ -433,7 +447,7 @@ class BuildEnvironment(object):
         except HttpClientError as e:
             log.error("Unable to post a new build: %s", e.content)
         except Exception:
-            log.error("Unknown build exception", exc_info=True)
+            log.exception("Unknown build exception")
 
 
 class LocalEnvironment(BuildEnvironment):

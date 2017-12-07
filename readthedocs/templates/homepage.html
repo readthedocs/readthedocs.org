@@ -121,9 +121,16 @@ as we always need more contributors to the project.
     <div>
         <h3>{% trans "Read the Docs is funded by the community" %}</h3>
         <p>
-          Read the Docs is funded by readers like you.
-          Help keep the site alive and well by supporting us with a <a href="{% url "gold_detail" %}">Gold Subscription</a>.
-          You can also make one-time donations on our <a href='{% url "donate" %}'>sustainability</a> page.
+          {% url "advertising" as advertising_url %}
+          {% url "donate" as sponsors_url %}
+          {% url "gold_detail" as gold_detail %}
+
+          Read the Docs is a huge resource that millions of developers rely on
+          for software documentation. It would not be possible without the
+          support of our
+          <a href="{{ sponsors_url | default:'https://readthedocs.org/sustainability/' }}">sponsors</a>,
+          <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">advertisers</a>,
+          and <a href="{{ gold_detail }}">readers like you</a>.
         </p>
         <p>
           Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.

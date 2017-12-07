@@ -88,8 +88,6 @@ def generate_sections_from_pyquery(body):
             'title': title,
             'content': content,
         }
-        log.debug("(Search Index) Section [%s:%s]: %s",
-                  section_id, title, content)
 
 
 def process_file(filename):

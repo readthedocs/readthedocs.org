@@ -16,7 +16,8 @@
         {% endblocktrans %}
       </p>
 
-      <form method="post" action="{% url "generic_build" project.pk %}">
+      <form method="post" action="{% url "projects_detail" project.slug %}">
+        {% csrf_token %}
         <input type="hidden" name="version_slug" value="latest" />
         <input type="submit" value="{% trans "Build latest version" %}" />
       </form>

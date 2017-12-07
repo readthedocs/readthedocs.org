@@ -11,6 +11,7 @@ from django.conf import settings
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
@@ -47,8 +48,7 @@ class PythonEnvironment(object):
             shutil.rmtree(build_dir)
 
     def install_package(self):
-        setup_path = os.path.join(self.checkout_path, 'setup.py')
-        if os.path.isfile(setup_path) and self.config.install_project:
+        if self.config.install_project:
             if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
                 extra_req_param = ''
                 if self.config.extra_requirements:
@@ -116,7 +116,13 @@ class Virtualenv(PythonEnvironment):
         """Install basic Read the Docs requirements into the virtualenv."""
         requirements = [
             'Pygments==2.2.0',
-            'setuptools==28.8.0',
+            # Assume semver for setuptools version, support up to next backwards
+            # incompatible release
+            self.project.get_feature_value(
+                Feature.USE_SETUPTOOLS_LATEST,
+                positive='setuptools<37',
+                negative='setuptools==28.8.0',
+            ),
             'docutils==0.13.1',
             'mock==1.0.1',
             'pillow==2.6.1',
@@ -128,15 +134,24 @@ class Virtualenv(PythonEnvironment):
         if self.project.documentation_type == 'mkdocs':
             requirements.append('mkdocs==0.15.0')
         else:
-            requirements.extend(['sphinx==1.5.3', 'sphinx-rtd-theme<0.3',
-                                 'readthedocs-sphinx-ext<0.6'])
+            # We will assume semver here and only automate up to the next
+            # backward incompatible release: 2.x
+            requirements.extend([
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_LATEST,
+                    positive='sphinx<2',
+                    negative='sphinx==1.5.6',
+                ),
+                'sphinx-rtd-theme<0.3',
+                'readthedocs-sphinx-ext<0.6'
+            ])
 
         cmd = [
             'python',
             self.venv_bin(filename='pip'),
             'install',
             '--use-wheel',
-            '-U',
+            '--upgrade',
             '--cache-dir',
             self.project.pip_cache_path,
         ]
@@ -166,14 +181,21 @@ class Virtualenv(PythonEnvironment):
                         break
 
         if requirements_file_path:
-            self.build_env.run(
+            args = [
                 'python',
                 self.venv_bin(filename='pip'),
                 'install',
+            ]
+            if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
+                args += ['--upgrade']
+            args += [
                 '--exists-action=w',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r{0}'.format(requirements_file_path),
+            ]
+            self.build_env.run(
+                *args,
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin()
             )

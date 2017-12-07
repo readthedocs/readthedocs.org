@@ -1,0 +1,3 @@
+[pep8]
+ignore = E701,E70,E702
+max-line-length = 80

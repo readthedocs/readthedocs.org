@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% load pagination_tags %}
+{% load privacy_tags %}
 {% load projects_tags %}
 
 {% block title %}Builds{% endblock %}
@@ -37,10 +38,11 @@
           <div class="module-wrapper">
 
             {% block build_versions %}
-            {% if versions %}
+            {% if versions and request.user|is_admin:project %}
             <div class="module-header">
               <div style="float:right;">
-                <form method="post" action="{% url "generic_build" project.pk %}">
+                <form method="post" action="{% url "builds_project_list" project.slug %}">
+                  {% csrf_token %}
                   <ul class="build_a_version">
                     <li style="display: inline-block">
                       <input style="display: inline-block" type="submit" value="{% trans "Build Version:" %}">

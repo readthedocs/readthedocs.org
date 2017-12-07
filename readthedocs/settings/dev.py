@@ -33,6 +33,7 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
 
     HAYSTACK_CONNECTIONS = {

@@ -13,12 +13,9 @@ log = logging.getLogger(__name__)
 
 def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
-    # Bookkeeping for keeping tag/branch identifies correct
-    verbose_names = [v['verbose_name'] for v in versions]
-    project.versions.filter(verbose_name__in=verbose_names).update(type=type)
-
     old_versions = {}
-    old_version_values = project.versions.values('identifier', 'verbose_name')
+    old_version_values = project.versions.filter(type=type).values(
+        'identifier', 'verbose_name')
     for version in old_version_values:
         old_versions[version['verbose_name']] = version['identifier']
 

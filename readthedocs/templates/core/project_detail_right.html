@@ -24,10 +24,10 @@
               <span class="build-state build-state-failing">{% trans "failed" %}</span>
             {% endif %}
           {% else %}
-            Currently Building
+            {% trans "Currently Building" %}
           {% endif %}
       {% else %}
-        No builds yet
+        {% trans "No builds yet" %}
       {% endif %}
     {% endwith %}
   </p>
@@ -61,16 +61,25 @@
 
 
 {% block tags %}
-  {% if project.tags.count %}
     <h3>{% trans "Tags" %}</h3>
     <p>
-      {% for tag in project.tags.all %}
-        <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
-      {% empty %}
-        <span class="quiet">{% trans "No tags" %}</span>
-      {% endfor %}
+
+    {% if project.tags.exists %}
+        {% for tag in project.tags.all %}
+          <a href="{% url "projects_tag_detail" tag.slug %}">{{ tag.name }}</a>{% if forloop.last %}{% else %}, {% endif %}
+        {% endfor %}
+    {% else %}
+      {% trans "Project has no tags." %}
+      {% if request.user|is_admin:project %}
+
+        {% url 'projects_edit' project.slug as edit_url %}
+          {% blocktrans %}
+          Add some in your <a href="{{ edit_url }}">project settings</a>.
+          {% endblocktrans %}
+      {% endif %}
+    {% endif %}
+
     </p>
-  {% endif %}
 {% endblock %}
 
 {% block privacy-level %}
