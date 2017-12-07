@@ -3,8 +3,8 @@ Read the Docs features
 
 This will serve as a list of all of the features that Read the Docs currently has. Some features are important enough to have their own page in the docs, others will simply be listed here.
 
-GitHub and Bitbucket Integration
---------------------------------
+GitHub, Bitbucket and GitLab Integration
+----------------------------------------
 
 We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation.
 
@@ -13,7 +13,7 @@ More information can be found in the :doc:`vcs` page.
 Auto-updating
 -------------
 
-The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for GitHub, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
+The :doc:`webhooks` page talks about the different ways you can ping RTD to let us know your project has been updated. We have official support for GitHub, Bitbucket and GitLab, and anywhere else we have a generic post-commit hook that allows you to POST to a URL to get your documentation built.
 
 Internationalization
 --------------------
@@ -66,4 +66,3 @@ Alternate Domains
 -----------------
 
 We provide support for CNAMEs, subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
-

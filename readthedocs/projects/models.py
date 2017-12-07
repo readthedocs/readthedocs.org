@@ -22,7 +22,7 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.core.validators import validate_domain_name
 from readthedocs.projects import constants
-from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
     ProjectQuerySet,
     RelatedProjectQuerySet,
@@ -531,11 +531,9 @@ class Project(models.Model):
         for filename in files:
             if filename.find('doc', 70) != -1:
                 return filename
-        # Having this be translatable causes this odd error:
-        # ProjectImportError(<django.utils.functional.__proxy__ object at
-        # 0x1090cded0>,)
-        raise ProjectImportError(
-            u"Conf File Missing. Please make sure you have a conf.py in your project.")
+        raise ProjectConfigurationError(
+            ProjectConfigurationError.NOT_FOUND
+        )
 
     def conf_dir(self, version=LATEST):
         conf_file = self.conf_file(version)
@@ -707,7 +705,7 @@ class Project(models.Model):
             if current_stable:
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier)
-                if identifier_updated and current_stable.machine:
+                if identifier_updated and current_stable.active and current_stable.machine:
                     log.info(
                         "Update stable version: {project}:{version}".format(
                             project=self.slug,

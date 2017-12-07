@@ -131,6 +131,18 @@ def footer_html(request):
             source_suffix,
             'view',
         ),
+        'gitlab_edit_url': version.get_gitlab_url(
+            docroot,
+            page_slug,
+            source_suffix,
+            'edit',
+        ),
+        'gitlab_view_url': version.get_gitlab_url(
+            docroot,
+            page_slug,
+            source_suffix,
+            'view',
+        ),
         'bitbucket_url': version.get_bitbucket_url(
             docroot,
             page_slug,
@@ -140,7 +152,9 @@ def footer_html(request):
     }
 
     html = template_loader.get_template('restapi/footer.html').render(
-        context, request)
+        context,
+        request,
+    )
     resp_data = {
         'html': html,
         'version_active': version.active,
@@ -151,6 +165,10 @@ def footer_html(request):
     # Allow folks to hook onto the footer response for various information
     # collection, or to modify the resp_data.
     footer_response.send(
-        sender=None, request=request, context=context, resp_data=resp_data)
+        sender=None,
+        request=request,
+        context=context,
+        resp_data=resp_data,
+    )
 
     return Response(resp_data)

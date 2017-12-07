@@ -3,7 +3,7 @@ Webhooks
 
 The primary method that Read the Docs uses to detect changes to your
 documentation is through the use of *webhooks*. Webhooks are configured with
-your repository provider, such as GitHub or Bitbucket, and with each commit,
+your repository provider, such as GitHub, Bitbucket or GitLab, and with each commit,
 merge, or other change to your repository, Read the Docs is notified. When we
 receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
@@ -67,7 +67,7 @@ GitLab
 * Click **Integrations**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
   :ref:`integration detail page <integration-detail>` page
-* Leave the default **Push events** selected
+* Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
 Using the generic API integration

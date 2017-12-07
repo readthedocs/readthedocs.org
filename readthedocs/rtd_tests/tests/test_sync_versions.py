@@ -468,3 +468,71 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
         self.assertEqual(resp.status_code, 200)
+
+    def test_user_defined_stable_version_with_tags(self):
+
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=True,
+        )
+
+        # A pre-existing active stable branch that was machine created
+        Version.objects.create(
+            project=self.pip,
+            identifier='foo',
+            type='branch',
+            verbose_name='stable',
+            active=True,
+            machine=True,
+        )
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # A new user-defined stable branch
+                {
+                    'identifier': 'origin/stable',
+                    'verbose_name': 'stable',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '0.9',
+                    'verbose_name': '0.9',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        # Didn't update to newest tag
+        version_9 = Version.objects.get(slug='0.9')
+        self.assertFalse(version_9.active)
+
+        # Did update to user-defined stable version
+        version_stable = Version.objects.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+
+        # Check that posting again doesn't change anything from current state.
+        self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)

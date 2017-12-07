@@ -93,6 +93,16 @@
           <a href="{{ bitbucket_url }}">Edit</a>
         </dd>
       </dl>
+      {% elif gitlab_edit_url %}
+      <dl>
+        <dt>On GitLab</dt>
+        <dd>
+          <a href="{{ gitlab_view_url }}">View</a>
+        </dd>
+        <dd>
+          <a href="{{ gitlab_edit_url }}">Edit</a>
+        </dd>
+      </dl>
       {% endif %}
       {% endblock %}
 
@@ -113,7 +123,7 @@
 
       <hr/>
       {% block footer %}
-      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>.
       {% endblock %}
 
       {% if not new_theme %}
