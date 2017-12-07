@@ -1,3 +1,27 @@
+Version 2.1.0
+-------------
+
+ * `@ericholscher <http://github.com/ericholscher>`_: Revert "Merge pull request #3336 from rtfd/use-active-for-stable" (`#3368 <https://github.com/rtfd/readthedocs.org/pull/3368>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Revert "Do not split before first argument (#3333)" (`#3366 <https://github.com/rtfd/readthedocs.org/pull/3366>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Remove pitch from ethical ads page, point folks to actual pitch page. (`#3365 <https://github.com/rtfd/readthedocs.org/pull/3365>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Add changelog and changelog automation (`#3364 <https://github.com/rtfd/readthedocs.org/pull/3364>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Fix mkdocs search. (`#3361 <https://github.com/rtfd/readthedocs.org/pull/3361>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Email sending: Allow kwargs for other options (`#3355 <https://github.com/rtfd/readthedocs.org/pull/3355>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Try and get folks to put more tags. (`#3350 <https://github.com/rtfd/readthedocs.org/pull/3350>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Suggest wiping your environment to folks with bad build outcomes. (`#3347 <https://github.com/rtfd/readthedocs.org/pull/3347>`_)
+ * `@humitos <http://github.com/humitos>`_: GitLab Integration (`#3327 <https://github.com/rtfd/readthedocs.org/pull/3327>`_)
+ * `@jimfulton <http://github.com/jimfulton>`_: Draft policy for claiming existing project names. (`#3314 <https://github.com/rtfd/readthedocs.org/pull/3314>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: More logic changes to error reporting, cleanup (`#3310 <https://github.com/rtfd/readthedocs.org/pull/3310>`_)
+ * `@safwanrahman <http://github.com/safwanrahman>`_: [Fix #3182] Better user deletion (`#3214 <https://github.com/rtfd/readthedocs.org/pull/3214>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Better User deletion (`#3182 <https://github.com/rtfd/readthedocs.org/issues/3182>`_)
+ * `@RichardLitt <http://github.com/RichardLitt>`_: Add `Needed: replication` label (`#3138 <https://github.com/rtfd/readthedocs.org/pull/3138>`_)
+ * `@josejrobles <http://github.com/josejrobles>`_: Replaced usage of deprecated function get_fields_with_model with new … (`#3052 <https://github.com/rtfd/readthedocs.org/pull/3052>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Don't delete the subprojects directory on sync of superproject (`#3042 <https://github.com/rtfd/readthedocs.org/pull/3042>`_)
+ * `@andrew <http://github.com/andrew>`_: Pass query string when redirecting, fixes #2595 (`#3001 <https://github.com/rtfd/readthedocs.org/pull/3001>`_)
+ * `@saily <http://github.com/saily>`_: Add GitLab repo sync and webhook support (`#1870 <https://github.com/rtfd/readthedocs.org/pull/1870>`_)
+ * `@destroyerofbuilds <http://github.com/destroyerofbuilds>`_: Setup GitLab Web Hook on Project Import (`#1443 <https://github.com/rtfd/readthedocs.org/issues/1443>`_)
+ * `@takotuesday <http://github.com/takotuesday>`_: Add GitLab Provider from django-allauth (`#1441 <https://github.com/rtfd/readthedocs.org/issues/1441>`_)
+
 Version 2.0
 -----------
 
