@@ -72,6 +72,12 @@ class BaseSphinx(BaseBuilder):
         )
         remote_version = self.version.commit_name
 
+        # Replace "/origin" because upstream VCS does not recognize the local
+        # repo remote name
+        # Refs: https://github.com/rtfd/readthedocs.org/issues/3203
+        if remote_version:
+            remote_version = remote_version.replace("origin/", "")
+
         github_user, github_repo = version_utils.get_github_username_repo(
             url=self.project.repo)
         github_version_is_editable = (self.version.type == 'branch')
