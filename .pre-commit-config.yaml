@@ -26,6 +26,7 @@ repos:
       'flake8-string-format',
       'flake8-tidy-imports',
       'flake8-todo']
+      exclude: 'test_oauth.py'
     - id: trailing-whitespace
 
 - repo: git@github.com:pre-commit/mirrors-yapf.git
@@ -34,6 +35,7 @@ repos:
     - id: yapf
       exclude: 'migrations|settings|scripts'
       additional_dependencies: ['futures']
+      args: ['--style=.style.yapf', '--parallel']
 
 - repo: git@github.com:FalconSocial/pre-commit-python-sorter.git
   sha: b57843b0b874df1d16eb0bef00b868792cb245c2

@@ -1,7 +1,9 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import os
 
 from readthedocs.core.settings import Settings
@@ -18,7 +20,7 @@ _ = gettext = lambda s: s
 
 class CommunityBaseSettings(Settings):
 
-    """Community base settings, don't use this directly"""
+    """Community base settings, don't use this directly."""
 
     # Django settings
     SITE_ID = 1
@@ -47,7 +49,7 @@ class CommunityBaseSettings(Settings):
     MANAGERS = ADMINS
 
     # Email
-    DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
+    DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
     # Cookies
@@ -107,6 +109,7 @@ class CommunityBaseSettings(Settings):
             'allauth.account',
             'allauth.socialaccount',
             'allauth.socialaccount.providers.github',
+            'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
@@ -137,20 +140,20 @@ class CommunityBaseSettings(Settings):
 
     AUTHENTICATION_BACKENDS = (
         # Needed to login by username in Django admin, regardless of `allauth`
-        "django.contrib.auth.backends.ModelBackend",
+        'django.contrib.auth.backends.ModelBackend',
         # `allauth` specific authentication methods, such as login by e-mail
-        "allauth.account.auth_backends.AuthenticationBackend",
+        'allauth.account.auth_backends.AuthenticationBackend',
     )
 
     TEMPLATE_CONTEXT_PROCESSORS = (
-        "django.contrib.auth.context_processors.auth",
-        "django.contrib.messages.context_processors.messages",
-        "django.core.context_processors.debug",
-        "django.core.context_processors.i18n",
-        "django.core.context_processors.media",
-        "django.core.context_processors.request",
+        'django.contrib.auth.context_processors.auth',
+        'django.contrib.messages.context_processors.messages',
+        'django.core.context_processors.debug',
+        'django.core.context_processors.i18n',
+        'django.core.context_processors.media',
+        'django.core.context_processors.request',
         # Read the Docs processor
-        "readthedocs.core.context_processors.readthedocs_processor",
+        'readthedocs.core.context_processors.readthedocs_processor',
     )
 
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
@@ -228,15 +231,6 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
-    # Wildcards not supported: https://github.com/celery/celery/issues/150
-    CELERY_ROUTES = {
-        'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
-            'queue': 'web',
-        },
-        'readthedocs.oauth.tasks.SyncGitHubRepositories': {
-            'queue': 'web',
-        },
-    }
 
     # Docker
     DOCKER_ENABLE = False
@@ -245,15 +239,26 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
-    ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-    ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+    ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
-            'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']
-        }
+            'SCOPE': [
+                'user:email',
+                'read:org',
+                'admin:repo_hook',
+                'repo:status',
+            ],
+        },
+        'gitlab': {
+            'SCOPE': [
+                'api',
+                'read_user',
+            ],
+        },
     }
 
     # CORS
@@ -293,7 +298,7 @@ class CommunityBaseSettings(Settings):
     ALLOWED_HOSTS = ['*']
 
     ABSOLUTE_URL_OVERRIDES = {
-        'auth.user': lambda o: "/profiles/%s/" % o.username
+        'auth.user': lambda o: '/profiles/{}/'.format(o.username)
     }
 
     INTERNAL_IPS = ('127.0.0.1',)
@@ -308,7 +313,7 @@ class CommunityBaseSettings(Settings):
 
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
-    GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'
+    GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
     COPY_START_YEAR = 2010
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
@@ -325,7 +330,7 @@ class CommunityBaseSettings(Settings):
         'field_name_limit': 50,
     }
     REST_FRAMEWORK = {
-        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
@@ -357,12 +362,14 @@ class CommunityBaseSettings(Settings):
         'loggers': {
             '': {  # root logger
                 'handlers': ['debug', 'console'],
-                'level': 'DEBUG',  # Always send from the root, handlers can filter levels
+                # Always send from the root, handlers can filter levels
+                'level': 'DEBUG',
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
-                'propagate': False,  # Don't double log at the root logger for these.
+                # Don't double log at the root logger for these.
+                'propagate': False,
             },
         },
     }
