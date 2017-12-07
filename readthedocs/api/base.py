@@ -102,7 +102,7 @@ class ProjectResource(ModelResource, SearchMixin):
             )
         return self.create_response(request, deleted_versions)
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name,
                 self.wrap_view('get_schema'), name="api_get_schema"),
@@ -147,7 +147,7 @@ class VersionResource(ModelResource):
         trigger_build(project=project, version=version_obj)
         return self.create_response(request, {'building': True})
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/schema/$"
                 % self._meta.resource_name,
@@ -180,7 +180,7 @@ class FileResource(ModelResource, SearchMixin):
         authorization = DjangoAuthorization()
         search_facets = ['project']
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/schema/$" %
                 self._meta.resource_name,
@@ -228,7 +228,7 @@ class UserResource(ModelResource):
             'username': 'exact',
         }
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
             url(r"^(?P<resource_name>%s)/schema/$" %
                 self._meta.resource_name,
