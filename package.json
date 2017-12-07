@@ -4,7 +4,8 @@
   "description": "Read the Docs build dependencies",
   "author": "Anthony Johnson <anthony@readthedocs.com>",
   "dependencies": {
-    "cssfilter": "0.0.8"
+    "cssfilter": "0.0.8",
+    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git"
   },
   "devDependencies": {
     "bower": "*",

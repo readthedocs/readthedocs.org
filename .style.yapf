@@ -26,7 +26,7 @@ ALLOW_MULTILINE_DICTIONARY_KEYS=False
 #                      # <------ this blank line
 #     def method():
 #       ...
-BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF=True
+BLANK_LINE_BEFORE_NESTED_CLASS_OR_DEF=False
 
 # Insert a blank line before a class-level docstring.
 BLANK_LINE_BEFORE_CLASS_DOCSTRING=True
@@ -145,7 +145,7 @@ SPLIT_BEFORE_EXPRESSION_AFTER_OPENING_PAREN=True
 
 # If an argument / parameter list is going to be split, then split
 # before the first argument.
-SPLIT_BEFORE_FIRST_ARGUMENT=False
+SPLIT_BEFORE_FIRST_ARGUMENT=True
 
 # Set to True to prefer splitting before 'and' or 'or' rather than
 # after.

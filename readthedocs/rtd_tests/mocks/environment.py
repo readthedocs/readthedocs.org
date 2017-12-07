@@ -16,6 +16,9 @@ class EnvironmentMockGroup(object):
             'api_v2.command': mock.patch(
                 'readthedocs.doc_builder.environments.api_v2.command',
                 mock.Mock(**{'get.return_value': {}})),
+            'api_v2.build': mock.patch(
+                'readthedocs.doc_builder.environments.api_v2.build',
+                mock.Mock(**{'get.return_value': {}})),
             'api_versions': mock.patch(
                 'readthedocs.projects.models.Project.api_versions'),
             'non_blocking_lock': mock.patch(
