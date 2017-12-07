@@ -1,0 +1,22 @@
+Version 2.0
+-----------
+
+ * `@ericholscher <http://github.com/ericholscher>`_: Email sending: Allow kwargs for other options (`#3355 <https://github.com/rtfd/readthedocs.org/pull/3355>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Try and get folks to put more tags. (`#3350 <https://github.com/rtfd/readthedocs.org/pull/3350>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Small changes to email sending to enable from email (`#3349 <https://github.com/rtfd/readthedocs.org/pull/3349>`_)
+ * `@dplanella <http://github.com/dplanella>`_: Duplicate TOC entries (`#3345 <https://github.com/rtfd/readthedocs.org/issues/3345>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Small tweaks to ethical ads page (`#3344 <https://github.com/rtfd/readthedocs.org/pull/3344>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Fix python usage around oauth pagination (`#3342 <https://github.com/rtfd/readthedocs.org/pull/3342>`_)
+ * `@tony <http://github.com/tony>`_: Fix isort link (`#3340 <https://github.com/rtfd/readthedocs.org/pull/3340>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Change stable version switching to respect `active` (`#3336 <https://github.com/rtfd/readthedocs.org/pull/3336>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Allow superusers to pass admin & member tests for projects (`#3335 <https://github.com/rtfd/readthedocs.org/pull/3335>`_)
+ * `@humitos <http://github.com/humitos>`_: Do not split before first argument (`#3333 <https://github.com/rtfd/readthedocs.org/pull/3333>`_)
+ * `@humitos <http://github.com/humitos>`_: Update docs for pre-commit (auto linting) (`#3332 <https://github.com/rtfd/readthedocs.org/pull/3332>`_)
+ * `@humitos <http://github.com/humitos>`_: Take preferece of tags over branches when selecting the stable version (`#3331 <https://github.com/rtfd/readthedocs.org/pull/3331>`_)
+ * `@humitos <http://github.com/humitos>`_: Add prospector as a pre-commit hook (`#3328 <https://github.com/rtfd/readthedocs.org/pull/3328>`_)
+ * `@andrewgodwin <http://github.com/andrewgodwin>`_: "stable" appearing to track future release branches (`#3268 <https://github.com/rtfd/readthedocs.org/issues/3268>`_)
+ * `@humitos <http://github.com/humitos>`_: Config files for auto linting (`#3264 <https://github.com/rtfd/readthedocs.org/pull/3264>`_)
+ * `@mekrip <http://github.com/mekrip>`_: Build is not working (`#3223 <https://github.com/rtfd/readthedocs.org/issues/3223>`_)
+ * `@skddc <http://github.com/skddc>`_: Add JSDoc to docs build environment (`#3069 <https://github.com/rtfd/readthedocs.org/issues/3069>`_)
+ * `@jakirkham <http://github.com/jakirkham>`_: Specifying conda version used (`#2076 <https://github.com/rtfd/readthedocs.org/issues/2076>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Document code style guidelines (`#1475 <https://github.com/rtfd/readthedocs.org/issues/1475>`_)

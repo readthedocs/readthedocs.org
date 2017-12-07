@@ -1,16 +1,25 @@
-# Changelog
+Changelog
+=========
 
-This document will track major changes in the project.
+.. include:: ../CHANGELOG.rst
 
-Also note, this document is a Markdown file. This is mainly to keep parity with GitHub, and also because we can.
+Previous releases
+-----------------
 
-## July 23, 2015
+Starting with version ``2.0``, we will be incrementing the Read the Docs version
+based on semantic versioning principles, and will be automating the update of
+our changelog.
 
+Below are some historical changes from when we have tried to add information
+here in the past
+
+July 23, 2015
+~~~~~~~~~~~~~
 
 * Django 1.8 Support Merged
 
-### Code Notes
-
+Code Notes
+``````````
 
 - Updated Django from `1.6.11` to `1.8.3`.
 - Removed South and ported the South migrations to Django's migration framework.
@@ -25,36 +34,32 @@ Also note, this document is a Markdown file. This is mainly to keep parity with 
 - Added `django.setup()` to `conf.py` to load django properly for doc builds.
 - Added migrations for all apps with models in the `readthedocs/` directory
 
-### Deployment Notes
+Deployment Notes
+````````````````
 
-After you have updated the code and installed the new dependencies, you need to run these commands on the server:
+After you have updated the code and installed the new dependencies, you need to run these commands on the server::
 
-```bash
-python manage.py migrate contenttypes
-python manage.py migrate projects 0002 --fake
-python manage.py migrate --fake-initial
-```
+    python manage.py migrate contenttypes
+    python manage.py migrate projects 0002 --fake
+    python manage.py migrate --fake-initial
 
 Locally I had trouble in a test environment that pip did not update to the specified commit of tastypie. It might be required to use `pip install -U -r requirements/deploy.txt` during deployment.
 
 
-### Development Update Notes
+Development Update Notes
+````````````````````````
 
 The readthedocs developers need to execute these commands when switching to this branch (or when this got merged into master):
 
-- **Before updating** please make sure that all migrations are applied:
+- **Before updating** please make sure that all migrations are applied::
 
-```bash
-python manage.py syncdb
-python manage.py migrate
-```
+    python manage.py syncdb
+    python manage.py migrate
 
 - Update the codebase: `git pull`
 - You need to update the requirements with `pip install -r requirements.txt`
-- Now you need to fake the initial migrations:
+- Now you need to fake the initial migrations::
 
-```bash
-python manage.py migrate contenttypes
-python manage.py migrate projects 0002 --fake
-python manage.py migrate --fake-initial
-```
+    python manage.py migrate contenttypes
+    python manage.py migrate projects 0002 --fake
+    python manage.py migrate --fake-initial
