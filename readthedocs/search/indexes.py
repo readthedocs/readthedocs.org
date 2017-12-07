@@ -19,7 +19,7 @@ from builtins import object
 import datetime
 
 from elasticsearch import Elasticsearch, exceptions
-from elasticsearch.helpers import bulk_index
+from elasticsearch.helpers import bulk
 
 from django.conf import settings
 
@@ -48,8 +48,6 @@ class Index(object):
             'number_of_replicas': settings.ES_DEFAULT_NUM_REPLICAS,
             'number_of_shards': settings.ES_DEFAULT_NUM_SHARDS,
             'refresh_interval': '5s',
-            'store.compress.tv': True,
-            'store.compress.stored': True,
             'analysis': self.get_analysis(),
         }
         if settings_override:
@@ -139,7 +137,7 @@ class Index(object):
             docs.append(doc)
 
         # TODO: This doesn't work with the new ES setup.
-        bulk_index(self.es, docs, chunk_size=chunk_size)
+        bulk(self.es, docs, chunk_size=chunk_size)
 
     def index_document(self, data, index=None, parent=None, routing=None):
         doc = self.extract_document(data)
@@ -220,25 +218,24 @@ class ProjectIndex(Index):
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
                 'properties': {
-                    'id': {'type': 'long'},
-                    'name': {'type': 'string', 'analyzer': 'default_icu'},
-                    'description': {'type': 'string', 'analyzer': 'default_icu'},
+                    'id': {'type': 'keyword'},
+                    'name': {'type': 'text', 'analyzer': 'default_icu'},
+                    'description': {'type': 'text', 'analyzer': 'default_icu'},
 
-                    'slug': {'type': 'string', 'index': 'not_analyzed'},
-                    'lang': {'type': 'string', 'index': 'not_analyzed'},
-                    'tags': {'type': 'string', 'index': 'not_analyzed'},
-                    'privacy': {'type': 'string', 'index': 'not_analyzed'},
+                    'slug': {'type': 'keyword'},
+                    'lang': {'type': 'keyword'},
+                    'tags': {'type': 'keyword'},
+                    'privacy': {'type': 'keyword'},
                     'author': {
-                        'type': 'string',
+                        'type': 'text',
                         'analyzer': 'default_icu',
                         'fields': {
                             'raw': {
-                                'type': 'string',
-                                'index': 'not_analyzed',
+                                'type': 'keyword',
                             },
                         },
                     },
-                    'url': {'type': 'string', 'index': 'not_analyzed'},
+                    'url': {'type': 'keyword'},
                     # Add a weight field to enhance relevancy scoring.
                     'weight': {'type': 'float'},
                 }
@@ -273,19 +270,19 @@ class PageIndex(Index):
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
                 # Associate a page with a project.
-                '_parent': {'type': self._parent},
+                # '_parent': {'type': self._parent},
                 'properties': {
-                    'id': {'type': 'string', 'index': 'not_analyzed'},
-                    'sha': {'type': 'string', 'index': 'not_analyzed'},
-                    'project': {'type': 'string', 'index': 'not_analyzed'},
-                    'version': {'type': 'string', 'index': 'not_analyzed'},
-                    'path': {'type': 'string', 'index': 'not_analyzed'},
-                    'taxonomy': {'type': 'string', 'index': 'not_analyzed'},
-                    'commit': {'type': 'string', 'index': 'not_analyzed'},
+                    'id': {'type': 'keyword'},
+                    'sha': {'type': 'keyword'},
+                    'project': {'type': 'keyword'},
+                    'version': {'type': 'keyword'},
+                    'path': {'type': 'keyword'},
+                    'taxonomy': {'type': 'keyword'},
+                    'commit': {'type': 'keyword'},
 
-                    'title': {'type': 'string', 'analyzer': 'default_icu'},
-                    'headers': {'type': 'string', 'analyzer': 'default_icu'},
-                    'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    'title': {'type': 'text', 'analyzer': 'default_icu'},
+                    'headers': {'type': 'text', 'analyzer': 'default_icu'},
+                    'content': {'type': 'text', 'analyzer': 'default_icu'},
                     # Add a weight field to enhance relevancy scoring.
                     'weight': {'type': 'float'},
                 }
@@ -321,7 +318,7 @@ class SectionIndex(Index):
                 # Disable _all field to reduce index size.
                 '_all': {'enabled': False},
                 # Associate a section with a page.
-                '_parent': {'type': self._parent},
+                # '_parent': {'type': self._parent},
                 # Commenting this out until we need it.
                 # 'suggest': {
                 #     "type": "completion",
@@ -330,18 +327,18 @@ class SectionIndex(Index):
                 #     "payloads": True,
                 # },
                 'properties': {
-                    'id': {'type': 'string', 'index': 'not_analyzed'},
-                    'project': {'type': 'string', 'index': 'not_analyzed'},
-                    'version': {'type': 'string', 'index': 'not_analyzed'},
-                    'path': {'type': 'string', 'index': 'not_analyzed'},
-                    'page_id': {'type': 'string', 'index': 'not_analyzed'},
-                    'commit': {'type': 'string', 'index': 'not_analyzed'},
-                    'title': {'type': 'string', 'analyzer': 'default_icu'},
-                    'content': {'type': 'string', 'analyzer': 'default_icu'},
+                    'id': {'type': 'keyword'},
+                    'project': {'type': 'keyword'},
+                    'version': {'type': 'keyword'},
+                    'path': {'type': 'keyword'},
+                    'page_id': {'type': 'keyword'},
+                    'commit': {'type': 'keyword'},
+                    'title': {'type': 'text', 'analyzer': 'default_icu'},
+                    'content': {'type': 'text', 'analyzer': 'default_icu'},
                     'blocks': {
                         'type': 'object',
                         'properties': {
-                            'code': {'type': 'string', 'analyzer': 'default_icu'}
+                            'code': {'type': 'text', 'analyzer': 'default_icu'}
                         }
                     },
                     # Add a weight field to enhance relevancy scoring.

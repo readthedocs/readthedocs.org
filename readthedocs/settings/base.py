@@ -120,6 +120,7 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
+            apps.append('readthedocsext.search')
         return apps
 
     @property
