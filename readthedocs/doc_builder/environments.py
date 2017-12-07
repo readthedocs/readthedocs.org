@@ -23,9 +23,10 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
+from requests.exceptions import ConnectionError
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
-                         BuildEnvironmentWarning)
+                         BuildEnvironmentWarning, BuildEnvironmentCreationFailed)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
                         DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
@@ -267,23 +268,40 @@ class BuildEnvironment(object):
 
     Base class for wrapping command execution for build steps. This provides a
     context for command execution and reporting, and eventually performs updates
-    on the build object itself, reporting success/failure, as well as top-level
-    failures.
+    on the build object itself, reporting success/failure, as well as failures
+    during the context manager enter and exit.
+
+    Any exceptions raised inside this context and handled by the eventual
+    :py:meth:`__exit__` method, specifically, inside :py:meth:`handle_exception`
+    and :py:meth:`update_build`. If the exception is a subclass of
+    :py:cls:`BuildEnvironmentError`, then this error message is added to the
+    build object and is shown to the user as the top-level failure reason for
+    why the build failed. Other exceptions raise a general failure warning on
+    the build.
+
+    We only update the build through the API in one of three cases:
+
+    * The build is not done and needs an additional build step to follow
+    * The build failed and we should always report this change
+    * The build was successful and ``update_on_success`` is ``True``
 
     :param project: Project that is being built
     :param version: Project version that is being built
     :param build: Build instance
     :param record: Record status of build object
     :param environment: shell environment variables
+    :param update_on_success: update the build object via API if the build was
+                              successful
     """
 
     def __init__(self, project=None, version=None, build=None, record=True,
-                 environment=None):
+                 environment=None, update_on_success=True):
         self.project = project
         self.version = version
         self.build = build
         self.record = record
         self.environment = environment or {}
+        self.update_on_success = update_on_success
 
         self.commands = []
         self.failure = None
@@ -294,7 +312,7 @@ class BuildEnvironment(object):
 
     def __exit__(self, exc_type, exc_value, tb):
         ret = self.handle_exception(exc_type, exc_value, tb)
-        self.build['state'] = BUILD_STATE_FINISHED
+        self.update_build(BUILD_STATE_FINISHED)
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
@@ -386,9 +404,13 @@ class BuildEnvironment(object):
     def update_build(self, state=None):
         """Record a build by hitting the API
 
-        This step is skipped if we aren't recording the build, or if we don't
-        want to record successful builds yet (if we are running setup commands
-        for the build)
+        This step is skipped if we aren't recording the build. To avoid
+        recording successful builds yet (for instance, running setup commands
+        for the build), set the ``update_on_success`` argument to False on
+        environment instantiation.
+
+        If there was an error on the build, update the build regardless of
+        whether ``update_on_success`` is ``True`` or not.
         """
         if not self.record:
             return None
@@ -417,37 +439,51 @@ class BuildEnvironment(object):
             self.build['length'] = int(build_length.total_seconds())
 
         if self.failure is not None:
-            # Only surface the error message if it was a
-            # BuildEnvironmentException or BuildEnvironmentWarning
-            if isinstance(self.failure,
-                          (BuildEnvironmentException, BuildEnvironmentWarning)):
-                self.build['error'] = str(self.failure)
-            else:
-                self.build['error'] = ugettext_noop(
-                    "There was a problem with Read the Docs while building your documentation. "
-                    "Please report this to us with your build id ({build_id}).".format(
-                        build_id=self.build['id']
-                    )
-                )
+            # Surface a generic error if the class is not a
+            # BuildEnvironmentError
+            if not isinstance(self.failure,
+                              (BuildEnvironmentException,
+                               BuildEnvironmentWarning)):
                 log.error(
                     'Build failed with unhandled exception: %s',
                     str(self.failure),
-                    extra={'stack': True,
-                           'tags': {'build': self.build['id']},
-                           }
+                    extra={
+                        'stack': True,
+                        'tags': {'build': self.build['id']},
+                    }
                 )
+                self.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=self.build['id'],
+                    )
+                )
+            self.build['error'] = str(self.failure)
 
         # Attempt to stop unicode errors on build reporting
         for key, val in list(self.build.items()):
             if isinstance(val, six.binary_type):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
-        try:
-            api_v2.build(self.build['id']).put(self.build)
-        except HttpClientError as e:
-            log.error("Unable to post a new build: %s", e.content)
-        except Exception:
-            log.exception("Unknown build exception")
+        # We are selective about when we update the build object here
+        update_build = (
+            # Build isn't done yet, we unconditionally update in this state
+            not self.done
+            # Build is done, but isn't successful, always update
+            or (self.done and not self.successful)
+            # Otherwise, are we explicitly to not update?
+            or self.update_on_success
+        )
+        if update_build:
+            try:
+                api_v2.build(self.build['id']).put(self.build)
+            except HttpClientError as e:
+                log.error(
+                    "Unable to update build: id=%d error=%s",
+                    self.build['id'],
+                    e.content,
+                )
+            except Exception:
+                log.exception("Unknown build exception")
 
 
 class LocalEnvironment(BuildEnvironment):
@@ -521,8 +557,15 @@ class DockerEnvironment(BuildEnvironment):
                                       .format(self.container_id))))
                     client = self.get_client()
                     client.remove_container(self.container_id)
-        except DockerAPIError:
+        except (DockerAPIError, ConnectionError):
+            # If there is an exception here, we swallow the exception as this
+            # was just during a sanity check anyways.
             pass
+        except BuildEnvironmentError:
+            # There may have been a problem connecting to Docker altogether, or
+            # some other handled exception here.
+            self.__exit__(*sys.exc_info())
+            raise
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -537,28 +580,43 @@ class DockerEnvironment(BuildEnvironment):
 
     def __exit__(self, exc_type, exc_value, tb):
         """End of environment context"""
+        try:
+            # Update buildenv state given any container error states first
+            self.update_build_from_container_state()
+
+            client = self.get_client()
+            try:
+                client.kill(self.container_id)
+            except DockerAPIError:
+                log.exception(
+                    'Unable to kill container: id=%s',
+                    self.container_id,
+                )
+            try:
+                log.info('Removing container: id=%s', self.container_id)
+                client.remove_container(self.container_id)
+            # Catch direct failures from Docker API or with a requests HTTP
+            # request. These errors should not surface to the user.
+            except (DockerAPIError, ConnectionError):
+                log.exception(
+                    LOG_TEMPLATE
+                    .format(
+                        project=self.project.slug,
+                        version=self.version.slug,
+                        msg="Couldn't remove container",
+                    ),
+                )
+            self.container = None
+        except BuildEnvironmentError:
+            # Several interactions with Docker can result in a top level failure
+            # here. We'll catch this and report if there were no reported errors
+            # already. These errors are not as important as a failure at deeper
+            # code
+            if not all([exc_type, exc_value, tb]):
+                exc_type, exc_value, tb = sys.exc_info()
+
         ret = self.handle_exception(exc_type, exc_value, tb)
-
-        # Update buildenv state given any container error states first
-        self.update_build_from_container_state()
-
-        client = self.get_client()
-        try:
-            client.kill(self.container_id)
-        except DockerAPIError:
-            pass
-        try:
-            log.info('Removing container %s', self.container_id)
-            client.remove_container(self.container_id)
-        except DockerAPIError:
-            log.error(LOG_TEMPLATE
-                      .format(
-                          project=self.project.slug,
-                          version=self.version.slug,
-                          msg="Couldn't remove container"),
-                      exc_info=True)
-        self.container = None
-        self.build['state'] = BUILD_STATE_FINISHED
+        self.update_build(BUILD_STATE_FINISHED)
         log.info(LOG_TEMPLATE
                  .format(project=self.project.slug,
                          version=self.version.slug,
@@ -576,13 +634,21 @@ class DockerEnvironment(BuildEnvironment):
                 )
             return self.client
         except DockerException as e:
-            log.error(LOG_TEMPLATE
-                      .format(
-                          project=self.project.slug,
-                          version=self.version.slug,
-                          msg=e),
-                      exc_info=True)
-            raise BuildEnvironmentError('Problem creating build environment')
+            log.exception(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Could not connect to Docker API',
+                ),
+            )
+            # We don't raise an error here mentioning Docker, that is a
+            # technical detail that the user can't resolve on their own.
+            # Instead, give the user a generic failure
+            raise BuildEnvironmentError(
+                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build['id'],
+                )
+            )
 
     @property
     def container_id(self):
@@ -655,11 +721,32 @@ class DockerEnvironment(BuildEnvironment):
                 mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
+        except ConnectionError as e:
+            log.exception(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=(
+                        'Could not connect to the Docker API, '
+                        'make sure Docker is running'
+                    ),
+                ),
+            )
+            # We don't raise an error here mentioning Docker, that is a
+            # technical detail that the user can't resolve on their own.
+            # Instead, give the user a generic failure
+            raise BuildEnvironmentError(
+                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build['id'],
+                )
+            )
         except DockerAPIError as e:
-            log.error(LOG_TEMPLATE
-                      .format(
-                          project=self.project.slug,
-                          version=self.version.slug,
-                          msg=e.explanation),
-                      exc_info=True)
-            raise BuildEnvironmentError('Build environment creation failed')
+            log.exception(
+                LOG_TEMPLATE
+                .format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=e.explanation,
+                ),
+            )
+            raise BuildEnvironmentCreationFailed
