@@ -4,10 +4,9 @@ from __future__ import absolute_import
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, View
 from django.core.urlresolvers import reverse
-from django.template import RequestContext
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
@@ -161,10 +160,7 @@ class BookmarkRemoveView(View):
         return super(BookmarkRemoveView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        return render_to_response(
-            'bookmarks/bookmark_delete.html',
-            context_instance=RequestContext(request)
-        )
+        return render(request, 'bookmarks/bookmark_delete.html')
 
     def post(self, request, *args, **kwargs):
         """

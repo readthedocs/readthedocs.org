@@ -15,8 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, render
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView, DetailView
 
@@ -138,15 +137,13 @@ def project_downloads(request, project_slug):
         if data:
             version_data[version] = data
 
-    return render_to_response(
+    return render(request, 
         'projects/project_downloads.html',
         {
             'project': project,
             'version_data': version_data,
             'versions': versions,
-        },
-        context_instance=RequestContext(request),
-    )
+        })
 
 
 def project_download_media(request, project_slug, type_, version_slug):
@@ -234,14 +231,12 @@ def version_filter_autocomplete(request, project_slug):
         json_response = json.dumps(list(names))
         return HttpResponse(json_response, content_type='text/javascript')
     elif resp_format == 'html':
-        return render_to_response(
+        return render(request, 
             'core/version_list.html',
             {
                 'project': project,
                 'versions': versions,
-            },
-            context_instance=RequestContext(request),
-        )
+            })
     return HttpResponse(status=400)
 
 
@@ -327,15 +322,13 @@ def elastic_project_search(request, project_slug):
                 if isinstance(val, list):
                     results['hits']['hits'][num]['fields'][key] = val[0]
 
-    return render_to_response(
+    return render(request, 
         'search/elastic_project_search.html',
         {
             'project': project,
             'query': query,
             'results': results,
-        },
-        context_instance=RequestContext(request),
-    )
+        })
 
 
 def project_versions(request, project_slug):
@@ -359,15 +352,13 @@ def project_versions(request, project_slug):
     if wiped and wiped_version.count():
         messages.success(request, 'Version wiped: ' + wiped)
 
-    return render_to_response(
+    return render(request, 
         'projects/project_version_list.html',
         {
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
-        },
-        context_instance=RequestContext(request)
-    )
+        })
 
 
 def project_analytics(request, project_slug):
@@ -402,7 +393,7 @@ def project_analytics(request, project_slug):
         page_list = page_list[:20]
         version_list = version_list[:20]
 
-    return render_to_response(
+    return render(request, 
         'projects/project_analytics.html',
         {
             'project': project,
@@ -410,9 +401,7 @@ def project_analytics(request, project_slug):
             'page_list': page_list,
             'version_list': version_list,
             'full': full,
-        },
-        context_instance=RequestContext(request)
-    )
+        })
 
 
 def project_embed(request, project_slug):
@@ -422,7 +411,7 @@ def project_embed(request, project_slug):
     version = project.versions.get(slug=LATEST)
     files = version.imported_files.filter(name__endswith='.html').order_by('path')
 
-    return render_to_response(
+    return render(request, 
         'projects/project_embed.html',
         {
             'project': project,
@@ -431,6 +420,4 @@ def project_embed(request, project_slug):
                 'PUBLIC_API_URL': settings.PUBLIC_API_URL,
                 'URI': request.build_absolute_uri(location='/').rstrip('/')
             }
-        },
-        context_instance=RequestContext(request)
-    )
+        })

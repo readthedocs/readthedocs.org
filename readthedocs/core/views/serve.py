@@ -27,8 +27,7 @@ SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 from __future__ import absolute_import
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -109,8 +108,7 @@ def redirect_page_with_filename(request, project, subproject, filename):  # pyli
 
 
 def _serve_401(request, project):
-    res = render_to_response('401.html',
-                             context_instance=RequestContext(request))
+    res = render(request, '401.html')
     res.status_code = 401
     log.error('Unauthorized access to {0} documentation'.format(project.slug))
     return res

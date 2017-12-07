@@ -13,8 +13,7 @@ import logging
 
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.template import RequestContext
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
@@ -98,8 +97,8 @@ def wipe_version(request, project_slug, version_slug):
         for del_dir in del_dirs:
             broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
-    return render_to_response('wipe_version.html', {'version': version, 'project': version.project},
-                              context_instance=RequestContext(request))
+    return render(request, 'wipe_version.html',
+                  {'version': version, 'project': version.project})
 
 
 def divide_by_zero(request):  # pylint: disable=unused-argument
@@ -108,8 +107,7 @@ def divide_by_zero(request):  # pylint: disable=unused-argument
 
 def server_error_500(request, template_name='500.html'):
     """A simple 500 handler so we get media"""
-    r = render_to_response(template_name,
-                           context_instance=RequestContext(request))
+    r = render(request, template_name)
     r.status_code = 500
     return r
 
@@ -119,7 +117,6 @@ def server_error_404(request, exception, template_name='404.html'):  # pylint: d
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response
-    r = render_to_response(template_name,
-                           context_instance=RequestContext(request))
+    r = render(request, template_name)
     r.status_code = 404
     return r

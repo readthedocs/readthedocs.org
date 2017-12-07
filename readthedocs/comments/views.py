@@ -2,8 +2,7 @@
 
 from __future__ import absolute_import
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from rest_framework import permissions, status
 from rest_framework.decorators import (
@@ -92,9 +91,7 @@ def build(request):  # pylint: disable=unused-argument
 def serve_file(request, file):  # pylint: disable=redefined-builtin
     document = support.get_document(file)
 
-    return render_to_response('doc.html',
-                              {'document': document},
-                              context_instance=RequestContext(request))
+    return render(request, 'doc.html', {'document': document})
 
 ######
 # Called by Builder

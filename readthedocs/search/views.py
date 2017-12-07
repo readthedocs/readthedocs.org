@@ -6,8 +6,7 @@ import collections
 import logging
 
 from django.conf import settings
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.search import lib as search_lib
@@ -80,8 +79,7 @@ def elastic_search(request):
         'results': results,
         'facets': facets,
     })
-    return render_to_response(
+    return render(request, 
         'search/elastic_search.html',
         template_vars,
-        context_instance=RequestContext(request),
     )

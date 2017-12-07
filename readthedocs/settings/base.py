@@ -118,11 +118,6 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.embed')
         return apps
 
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
-
     MIDDLEWARE_CLASSES = (
         'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
@@ -143,17 +138,6 @@ class CommunityBaseSettings(Settings):
         'django.contrib.auth.backends.ModelBackend',
         # `allauth` specific authentication methods, such as login by e-mail
         'allauth.account.auth_backends.AuthenticationBackend',
-    )
-
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        'django.contrib.auth.context_processors.auth',
-        'django.contrib.messages.context_processors.messages',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.request',
-        # Read the Docs processor
-        'readthedocs.core.context_processors.readthedocs_processor',
     )
 
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
@@ -181,9 +165,30 @@ class CommunityBaseSettings(Settings):
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
     STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
-    TEMPLATE_DIRS = (
-        TEMPLATE_ROOT,
-    )
+
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [TEMPLATE_ROOT],
+            'OPTIONS': {
+                'debug': DEBUG,
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.request',
+                    # Read the Docs processor
+                    'readthedocs.core.context_processors.readthedocs_processor',
+                ],
+                'loaders': [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ],
+            },
+        },
+    ]
 
     # Cache
     CACHES = {

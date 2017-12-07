@@ -8,11 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import Http404
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.context import RequestContext
 
 from readthedocs.core.forms import UserDeleteForm
 
@@ -103,9 +101,8 @@ def create_profile(request, form_class, success_url=None,
     for key, value in list(extra_context.items()):
         context[key] = (value() if callable(value) else value)
 
-    return render_to_response(template_name,
-                              {'form': form},
-                              context_instance=context)
+    context.update({'form': form})
+    return render(request, template_name, context=context)
 create_profile = login_required(create_profile)
 
 
@@ -180,11 +177,12 @@ def edit_profile(request, form_class, success_url=None,
     for key, value in list(extra_context.items()):
         context[key] = (value() if callable(value) else value)
 
-    return render_to_response(template_name, {
+    context.update({
         'form': form,
         'profile': profile_obj,
         'user': profile_obj.user,
-    }, context_instance=context)
+    })
+    return render(request, template_name, context=context)
 edit_profile = login_required(edit_profile)
 
 
@@ -271,6 +269,5 @@ def profile_detail(request, username, public_profile_field=None,
     for key, value in list(extra_context.items()):
         context[key] = (value() if callable(value) else value)
 
-    return render_to_response(template_name,
-                              {'profile': profile_obj},
-                              context_instance=context)
+    context.update({'profile': profile_obj})
+    return render(request, template_name, context=context)
