@@ -4,9 +4,9 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import logging
+from builtins import object
 from datetime import datetime, timedelta
 
-from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -42,6 +42,8 @@ class ProjectOnboardMixin(object):
                 onboard['provider'] = 'github'
             elif 'bitbucket' in project.repo:
                 onboard['provider'] = 'bitbucket'
+            elif 'gitlab' in project.repo:
+                onboard['provider'] = 'gitlab'
             context['onboard'] = onboard
 
         return context

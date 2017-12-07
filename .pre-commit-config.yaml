@@ -26,6 +26,7 @@ repos:
       'flake8-string-format',
       'flake8-tidy-imports',
       'flake8-todo']
+      exclude: 'test_oauth.py'
     - id: trailing-whitespace
 
 - repo: git@github.com:pre-commit/mirrors-yapf.git
@@ -34,6 +35,7 @@ repos:
     - id: yapf
       exclude: 'migrations|settings|scripts'
       additional_dependencies: ['futures']
+      args: ['--style=.style.yapf', '--parallel']
 
 - repo: git@github.com:FalconSocial/pre-commit-python-sorter.git
   sha: b57843b0b874df1d16eb0bef00b868792cb245c2
@@ -52,3 +54,11 @@ repos:
   hooks:
     - id: autoflake
       args: ['--in-place', '--remove-all-unused-imports', '--remove-unused-variable']
+
+- repo: git://github.com/guykisel/prospector-mirror
+  sha: 'b27f281eb9398fc8504415d7fbdabf119ea8c5e1'
+  hooks:
+    - id: prospector
+      # https://github.com/pre-commit/pre-commit/issues/178
+      language: system
+      args: ['--profile=prospector']

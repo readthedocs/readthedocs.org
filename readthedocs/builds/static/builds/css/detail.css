@@ -35,6 +35,10 @@ div.build-detail div.build-state > span.build-state-successful {
     background: #5a5;
 }
 
+div.build-detail div.build-ideas {
+    padding: .5em;
+}
+
 ul.build-meta {
     display: block;
     width: 40%;

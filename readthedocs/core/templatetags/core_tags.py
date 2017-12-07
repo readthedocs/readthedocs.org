@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
 from future.backports.urllib.parse import urlencode
 
+from readthedocs import __version__
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
 
@@ -95,3 +96,8 @@ def url_replace(request, field, value):
 @register.filter
 def key(d, key_name):
     return d[key_name]
+
+
+@register.simple_tag
+def readthedocs_version():
+    return __version__

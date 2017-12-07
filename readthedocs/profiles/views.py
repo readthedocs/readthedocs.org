@@ -196,11 +196,9 @@ def delete_account(request):
     if request.method == 'POST':
         form = UserDeleteForm(instance=request.user, data=request.POST)
         if form.is_valid():
-
-            # Do not delete the account permanently because it may create disaster
-            # Inactive the user instead.
-            request.user.is_active = False
-            request.user.save()
+            # Delete the user permanently
+            # It will also delete some projects where he is the only owner
+            request.user.delete()
             logout(request)
             messages.info(request, 'You have successfully deleted your account')
 

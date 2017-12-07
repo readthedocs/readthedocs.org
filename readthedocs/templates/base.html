@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load copyrighttags %}
+{% load core_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -153,7 +154,10 @@
         <div class="footer-bottom">
           <div class="column-copyright">
             <p>
-              <small>&copy; Copyright 2010-{% now "Y" %}, {% trans "Read the Docs, Inc & contributors" %}</small>
+              <small>
+                &copy; Copyright {% now "Y" %}, {% trans "Read the Docs, Inc & contributors" %} -
+                {% trans "Version" %} {% readthedocs_version %}
+              </small>
             </p>
           </div>
 
