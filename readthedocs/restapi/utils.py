@@ -141,11 +141,10 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
                     'weight': page_scale,
                 })
             for route in routes:
-                section_obj.bulk_index(section_index_list, parent=page_id,
-                                       routing=route)
+                section_obj.bulk_index(section_index_list, routing=route)
 
     for route in routes:
-        page_obj.bulk_index(index_list, parent=project.slug, routing=route)
+        page_obj.bulk_index(index_list, routing=route)
 
     if delete:
         log.info("Deleting files not in commit: %s", commit)

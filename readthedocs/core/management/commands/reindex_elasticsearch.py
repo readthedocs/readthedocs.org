@@ -29,7 +29,7 @@ class Command(BaseCommand):
         """Build/index all versions or a single project's version"""
         project = options['project']
 
-        queryset = Version.objects.all()
+        queryset = Version.objects.filter(active=True)
 
         if project:
             queryset = queryset.filter(project__slug=project)
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 raise CommandError(
                     'No project with slug: {slug}'.format(slug=project))
             log.info("Building all versions for %s", project)
-        elif getattr(settings, 'INDEX_ONLY_LATEST', True):
+        if getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = queryset.filter(slug=LATEST)
 
         for version in queryset:
