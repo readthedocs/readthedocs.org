@@ -86,13 +86,13 @@ groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
-    groups.insert(0, [
-        url(r'^sustainability/', include('readthedocsext.donate.urls')),
-    ])
+    groups.insert(0,
+                  [url(r'^sustainability/', include('readthedocsext.donate.urls'))]
+                  )
     for num, _url in enumerate(rtd_urls):
-        if 'search' in _url.name:
+        if _url and hasattr(_url, 'name') and 'search' == _url.name:
             rtd_urls[num] = \
-                url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search'),
+                url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search')
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):
