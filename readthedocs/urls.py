@@ -88,6 +88,7 @@ if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
     groups.append([
         url(r'^sustainability/', include('readthedocsext.donate.urls')),
+        url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search'),
     ])
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)

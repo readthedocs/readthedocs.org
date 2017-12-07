@@ -113,6 +113,7 @@ class CommunityBaseSettings(Settings):
         if donate:
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
+            apps.append('readthedocsext.search')
         return apps
 
     TEMPLATE_LOADERS = (
