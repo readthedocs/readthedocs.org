@@ -20,7 +20,7 @@ from django.template import loader as template_loader
 from django.template.loader import render_to_string
 
 from readthedocs.builds import utils as version_utils
-from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.utils import safe_write
 from readthedocs.restapi.client import api
 
@@ -42,7 +42,7 @@ class BaseSphinx(BaseBuilder):
         try:
             self.old_artifact_path = os.path.join(
                 self.project.conf_dir(self.version.slug), self.sphinx_build_dir)
-        except ProjectImportError:
+        except ProjectConfigurationError:
             docs_dir = self.docs_dir()
             self.old_artifact_path = os.path.join(
                 docs_dir,
@@ -145,16 +145,22 @@ class BaseSphinx(BaseBuilder):
         """Modify given ``conf.py`` file from a whitelisted user's project."""
         try:
             self.version.get_conf_py_path()
-        except ProjectImportError:
+        except ProjectConfigurationError:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
         try:
             outfile_path = self.project.conf_file(self.version.slug)
             outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
-        except (ProjectImportError, IOError):
+        except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
-            six.reraise(ProjectImportError('Conf file not found'), None, trace)
+            six.reraise(
+                ProjectConfigurationError(
+                    ProjectConfigurationError.NOT_FOUND
+                ),
+                None,
+                trace
+            )
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
