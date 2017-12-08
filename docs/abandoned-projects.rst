@@ -1,7 +1,7 @@
 Policy for Abandoned Projects
 =============================
 
-This policy describes the process by which a RTD project name may be changed.
+This policy describes the process by which a Read the Docs project name may be changed.
 
 
 Rationale
@@ -15,11 +15,11 @@ guidelines for solving the most typical cases of such conflicts.
 Specification
 -------------
 
-The main idea behind this policy is that RTD serves the community.  Every
+The main idea behind this policy is that Read the Docs serves the community.  Every
 user is invited to upload content under the Terms of Use, understanding that it
 is at the sole risk of the user.
 
-While RTD is not a backup service, the maintainers do their best to keep that
+While Read the Docs is not a backup service, the maintainers do their best to keep that
 content accessible indefinitely in its published form.  However, in certain
 edge cases the greater community's needs might outweigh the individual's
 expectation of ownership of a project name.
@@ -42,7 +42,7 @@ Implementation
 Reachability
 ~~~~~~~~~~~~
 
-The user of RTD is solely responsible for being reachable by the maintainers
+The user of Read the Docs is solely responsible for being reachable by the maintainers
 for matters concerning projects that the user owns.  In every case where
 contacting the user is necessary, the maintainers will try to do so at least
 three times, using the following means of contact:
@@ -92,7 +92,7 @@ following are met:
 Name conflict resolution for active projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The maintainers of RTD are not arbiters in disputes around *active* projects.
+The maintainers of Read the Docs are not arbiters in disputes around *active* projects.
 The maintainers recommend users to get in touch with each other and solve the
 issue by respectful communication.
 
