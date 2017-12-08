@@ -294,7 +294,7 @@ class BuildEnvironment(object):
                               successful
     """
 
-    def __init__(self, project=None, version=None, build=None, config=None, 
+    def __init__(self, project=None, version=None, build=None, config=None,
                  record=True, environment=None, update_on_success=True):
         self.project = project
         self.version = version
