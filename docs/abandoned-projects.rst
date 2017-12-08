@@ -61,6 +61,7 @@ Abandoned projects
 A project is considered *abandoned* when ALL of the following are met:
 
 * owner is unreachable (see Reachability above);
+* The project has no proper documentation being served (no successful builds); or
 * no releases within the past twelve months; and
 * no activity from the owner on the project's home page (or no home page
   found).
@@ -84,8 +85,7 @@ following are met:
   name already exists and meets notability requirements;
 * the candidate is able to demonstrate why a fork under a different name is not
   an acceptable workaround;
-* access statistics for the existing project indicate the project is not being
-  heavily used; and
+* the project has fewer than 100 monthly pageviews; and
 * the maintainers do not have any additional reservations.
 
 
