@@ -25,7 +25,7 @@ from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
-from .exceptions import ProjectImportError
+from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
 from readthedocs.builds.constants import (LATEST,
@@ -75,7 +75,6 @@ class UpdateDocsTask(Task):
         Whether or not to keep a record of the update in the database. Useful
         for preventing changes visible to the end-user when running commands
         from the shell, for example.
-
     """
 
     max_retries = 5
@@ -114,9 +113,30 @@ class UpdateDocsTask(Task):
         """
         Run a documentation build.
 
-        This is fully wrapped in exception handling to account for a number of failure cases.
+        This is fully wrapped in exception handling to account for a number of
+        failure cases. We first run a few commands in a local build environment,
+        but do not report on environment success. This avoids a flicker on the
+        build output page where the build is marked as finished in between the
+        local environment steps and the docker build steps.
+
+        If a failure is raised, or the build is not successful, return ``False``,
+        otherwise, ``True``.
+
+        Unhandled exceptions raise a generic user facing error, which directs
+        the user to bug us. It is therefore a benefit to have as few unhandled
+        errors as possible.
+
+        :param pk int: Project id
+        :param version_pk int: Project Version id
+        :param build_pk int: Build id
+        :param record bool: record a build object in the database
+        :param docker bool: use docker to build the project
+        :param search bool: update search
+        :param force bool: force Sphinx build
+        :param localmedia: update localmedia
+        :returns: if build was successful or not
+        :rtype: bool
         """
-        unhandled_failure = ''
         try:
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
@@ -127,36 +147,52 @@ class UpdateDocsTask(Task):
             self.config = None
 
             setup_successful = self.run_setup(record=record)
-            if setup_successful:
-                self.run_build(record=record, docker=docker)
+            if not setup_successful:
+                return False
+        # Catch unhandled errors in the setup step
         except Exception as e:  # noqa
             log.exception(
-                'An unhandled exception was raised outside the build environment',
+                'An unhandled exception was raised during build setup',
                 extra={'tags': {'build': build_pk}}
             )
-            unhandled_failure = _(
-                'Unknown error encountered. '
-                'Please include the build id ({build_id}) in any bug reports.'.format(
-                    build_id=build_pk
-                ))
-        finally:
-            if unhandled_failure:
-                self.build_env.build['error'] = unhandled_failure
-            self.build_env.update_build(BUILD_STATE_FINISHED)
+            self.setup_env.failure = BuildEnvironmentError(
+                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=build_pk,
+                )
+            )
+            self.setup_env.update_build(BUILD_STATE_FINISHED)
+            return False
+        else:
+            # No exceptions in the setup step, catch unhandled errors in the
+            # build steps
+            try:
+                self.run_build(record=record, docker=docker)
+            except Exception as e:  # noqa
+                log.exception(
+                    'An unhandled exception was raised during project build',
+                    extra={'tags': {'build': build_pk}}
+                )
+                self.build_env.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=build_pk,
+                    )
+                )
+                self.build_env.update_build(BUILD_STATE_FINISHED)
+                return False
 
-        return self.build_env.build
+        return True
 
     def run_setup(self, record=True):
         """Run setup in the local environment.
 
         Return True if successful.
-
         """
         self.setup_env = LocalEnvironment(
             project=self.project,
             version=self.version,
             build=self.build,
-            record=record
+            record=record,
+            update_on_success=False,
         )
 
         # Environment used for code checkout & initial configuration reading
@@ -189,7 +225,6 @@ class UpdateDocsTask(Task):
             if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
                 self.send_notifications()
 
-            self.setup_env.update_build(state=BUILD_STATE_FINISHED)
             return False
 
         if self.setup_env.successful and not self.project.has_valid_clone:
@@ -252,7 +287,6 @@ class UpdateDocsTask(Task):
         if self.build_env.failed:
             self.send_notifications()
 
-        self.build_env.update_build(state=BUILD_STATE_FINISHED)
         build_complete.send(sender=Build, build=self.build_env.build)
 
     @staticmethod
@@ -297,19 +331,10 @@ class UpdateDocsTask(Task):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         self._log(msg='Updating docs from VCS')
-        try:
-            update_imported_docs(self.version.pk)
-            commit = self.project.vcs_repo(self.version.slug).commit
-            if commit:
-                self.build['commit'] = commit
-        except ProjectImportError as e:
-            log.exception(
-                LOG_TEMPLATE.format(project=self.project.slug,
-                                    version=self.version.slug,
-                                    msg='Failed to import Project: '),
-            )
-            raise BuildEnvironmentError('Failed to import project: %s' % e,
-                                        status_code=404)
+        update_imported_docs(self.version.pk)
+        commit = self.project.vcs_repo(self.version.slug).commit
+        if commit:
+            self.build['commit'] = commit
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
@@ -529,7 +554,11 @@ def update_imported_docs(version_pk):
         os.makedirs(project.doc_path)
 
     if not project.vcs_repo():
-        raise ProjectImportError(("Repo type '{0}' unknown".format(project.repo_type)))
+        raise RepositoryError(
+            _('Repository type "{repo_type}" unknown').format(
+                repo_type=project.repo_type
+            )
+        )
 
     with project.repo_nonblockinglock(
             version=version,

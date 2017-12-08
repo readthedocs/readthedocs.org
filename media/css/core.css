@@ -479,7 +479,7 @@ p.build-failure { font-size: .8em; color: #dc1020; margin: 0 0 3px; }
 p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 .navigable .profile_image { position:relative; left:-8px; top:-1px; width:184px; overflow:hidden; }
-.navigable .profile_image img { border-radius:5px; } 
+.navigable .profile_image img { border-radius:5px; }
 
 .profile #content { padding-top:8px; }
 /* build page */
@@ -551,7 +551,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .navigable > ul > li.active:after { content:"•"; position:absolute; right:8px; top:6px; font-size:1.2em; color:#465158; }
 
 .navigable > ul > li > a:hover { background:#E8ECEF; }
-.navigable > div { width:600px; float: left; padding-top:4px; } 
+.navigable > div { width:600px; float: left; padding-top:4px; }
 
 /* autocomplete */
 
@@ -694,6 +694,12 @@ div.project-import-remote form.import-connect-github button:before,
 a.socialaccount-provider.github:before {
     font-family: FontAwesome;
     content: "\f09b";
+}
+
+div.project-import-remote form.import-connect-gitlab button:before,
+a.socialaccount-provider.gitlab:before {
+    font-family: FontAwesome;
+    content: "\f1d3";
 }
 
 div.project-import-remote form.import-connect-bitbucket button:before,
@@ -934,7 +940,7 @@ span.build-state.build-state-failing { color: #a55; }
 
 .edit { cursor: pointer; -webkit-user-select: none; overflow:hidden; position:relative; }
 .edit { background:url(../images/edit.png) no-repeat; display:block; width:16px; height:16px; background-size:100% 100%; }
-.edit > span {text-indent:-9999em; text-direction:ltr; display:block; } 
+.edit > span {text-indent:-9999em; text-direction:ltr; display:block; }
 body .edit-toggle { display: none; }
 
 .edit-input { display: none; }
@@ -1018,50 +1024,50 @@ select.dropdown { display: none; }
 }
 
     /* CHART LISTS */
-    .chartlist { 
-      float: left; 
-      border-top: 1px solid #EEE; 
+    .chartlist {
+      float: left;
+      border-top: 1px solid #EEE;
       width: 15em;
     }
-    .chartlist li { 
+    .chartlist li {
       position: relative;
-      display: block;  
-      border-bottom: 1px solid #EEE; 
+      display: block;
+      border-bottom: 1px solid #EEE;
       _zoom: 1;
     }
-    .chartlist li a { 
-      display: block; 
+    .chartlist li a {
+      display: block;
       padding: 0.4em 4.5em 0.4em 0.5em;
-      position: relative; 
-      z-index: 2; 
+      position: relative;
+      z-index: 2;
     }
-    .chartlist .count { 
-      display: block; 
-      position: absolute; 
-      top: 0; 
-      right: 0; 
-      margin: 0 0.3em; 
-      text-align: right; 
-      color: #999; 
-      font-weight: bold; 
-      font-size: 0.875em; 
-      line-height: 2em; 
-      z-index: 5; 
-    }
-    .chartlist .index { 
-      display: block; 
-      position: absolute; 
-      top: 0; 
-      left: 0; 
-      height: 100%; 
-      background: #B8E4F5; 
-      text-indent: -9999px; 
-      overflow: hidden; 
+    .chartlist .count {
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0 0.3em;
+      text-align: right;
+      color: #999;
+      font-weight: bold;
+      font-size: 0.875em;
       line-height: 2em;
-      z-index: 1; 
+      z-index: 5;
     }
-    .chartlist li:hover { 
-      background: #EFEFEF; 
+    .chartlist .index {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #B8E4F5;
+      text-indent: -9999px;
+      overflow: hidden;
+      line-height: 2em;
+      z-index: 1;
+    }
+    .chartlist li:hover {
+      background: #EFEFEF;
     }
 
 

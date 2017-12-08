@@ -1,6 +1,6 @@
 """Mercurial-related utilities."""
 from __future__ import absolute_import
-from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
@@ -22,26 +22,17 @@ class Backend(BaseVCS):
     def pull(self):
         (pull_retcode, _, _) = self.run('hg', 'pull')
         if pull_retcode != 0:
-            raise ProjectImportError(
-                ("Failed to pull code from '%s': retcode=%s"
-                 % (self.repo_url, pull_retcode))
-            )
+            raise RepositoryError
         (update_retcode, stdout, stderr) = self.run('hg', 'update', '-C')
         if update_retcode != 0:
-            raise ProjectImportError(
-                ("Failed to update code from '%s': retcode=%s"
-                 % (self.repo_url, update_retcode))
-            )
+            raise RepositoryError
         return (update_retcode, stdout, stderr)
 
     def clone(self):
         self.make_clean_working_dir()
         output = self.run('hg', 'clone', self.repo_url, '.')
         if output[0] != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (hg clone): %s"
-                 % (self.repo_url, output[0]))
-            )
+            raise RepositoryError
         return output
 
     @property

@@ -12,6 +12,9 @@
   <form method="POST" action=".">
     {% csrf_token %}
     {{ form }}
+    <div>
+      <strong>{% trans "Be careful! This can not be undone!" %}</strong>
+    </div>
     <input type="submit" name="submit" value="{% trans "Delete Account" %}" id="submit"/>
   </form>
 {% endblock %}
