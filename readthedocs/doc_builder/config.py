@@ -133,7 +133,6 @@ def load_yaml_config(version):
     parsing consistent between projects.
     """
     checkout_path = version.project.checkout_path(version.slug)
-    env_config = {}
 
     # Get build image to set up the python version validation. Pass in the
     # build image python limitations to the loaded config so that the versions
@@ -148,6 +147,7 @@ def load_yaml_config(version):
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
     if img_settings:
         env_config.update(img_settings)
+        env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
     try:
         sphinx_env_config = env_config.copy()
