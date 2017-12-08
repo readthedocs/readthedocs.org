@@ -61,7 +61,7 @@ Information about development is also available:
    sponsors
    open-source-philosophy
    story
-   talks
+   abandoned-projects
    dmca/index
 
 .. _feature-docs:
