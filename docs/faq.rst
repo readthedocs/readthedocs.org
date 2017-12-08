@@ -20,6 +20,21 @@ You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
+Help, my build passed but my documentation page is 404 Not Found!
+-----------------------------------------------------------------
+
+This often happens becuase you don't have an `index.html` file being generated.
+Make sure you have one of the following files:
+
+    * `index.rst`
+    * `index.md`
+
+At the top level of your built documentation,
+otherwise we aren't able to serve a "default" index page.
+
+To test if your docs actually built correctly,
+you can navigate to a specific page (`/en/latest/README.html` for example).
+
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
