@@ -958,6 +958,8 @@ def update_static_metadata(project_pk, path=None):
         'language': project.language,
         'languages': list(languages),
         'single_version': project.single_version,
+        'subdomain': project.subdomain(),
+        'canonical_url': project.get_canonical_url(),
     }
     try:
         fh = open(path, 'w+')
