@@ -90,7 +90,7 @@ if 'readthedocsext.donate' in settings.INSTALLED_APPS:
                   [url(r'^sustainability/', include('readthedocsext.donate.urls'))]
                   )
     for num, _url in enumerate(rtd_urls):
-        if _url and hasattr(_url, 'name') and 'search' == _url.name:
+        if _url and hasattr(_url, 'name') and _url.name == 'search':
             rtd_urls[num] = \
                 url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search')
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
