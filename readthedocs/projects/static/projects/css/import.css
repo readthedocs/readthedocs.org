@@ -49,12 +49,14 @@ div.project-import-remote li.remote-repo ul.remote-repo-menu {
   top: 10px;
   right: 10px;
 }
-div.project-import-remote form.import-connect {
-  overflow: auto;
-  display: inline;
+div.project-import-remote div.project-import-providers ul {
+  overflow: hidden;
 }
-div.project-import-remote form.import-connect button {
-  display: inline;
+div.project-import-remote div.project-import-providers ul li {
+  float: left;
+}
+div.project-import-remote a.socialaccount-provider {
+  display: block;
   margin-bottom: .5em;
   font-size: 1em;
   font-weight: normal;

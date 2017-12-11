@@ -8,7 +8,7 @@
     {% for brand in provider.get_brands %}
       <li>
         <a title="{{ brand.name }}"
-           class="socialaccount-provider {{ provider.id }} {{ brand.id }}"
+           class="socialaccount-provider {{ provider.id }} {{ brand.id }} button"
            href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
            >
            {% blocktrans with brand_name=brand.name %}
