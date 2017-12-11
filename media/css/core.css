@@ -697,7 +697,7 @@ a.socialaccount-provider.github:before {
 
 a.socialaccount-provider.gitlab:before {
     font-family: FontAwesome;
-    content: "\f1d3";
+    content: "\f296";
 }
 
 a.socialaccount-provider.bitbucket:before,
