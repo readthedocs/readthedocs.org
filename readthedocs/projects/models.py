@@ -541,11 +541,9 @@ class Project(models.Model):
         # If the project has more than one conf.py file but none of them have
         # the `doc` word in the path, we raise an error informing this to the user
         if len(files) > 1:
-            raise ProjectConfigurationError(_(
-                "There are more than one conf.py file and none of them say doc "
-                "in their path, we don't know which one use. Please, select "
-                "the correct one under the Advanced settings tab in the "
-                "project's Admin."))
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.MULTIPLE_CONF_FILES
+            )
 
         raise ProjectConfigurationError(
             ProjectConfigurationError.NOT_FOUND

@@ -15,6 +15,12 @@ class ProjectConfigurationError(BuildEnvironmentError):
         'Make sure you have a conf.py file in your repository.'
     )
 
+    MULTIPLE_CONF_FILES = _(
+        "There are more than one conf.py file and none of them say doc "
+        "in their path, we don't know which one use. Please, select "
+        "the correct one under the Advanced settings tab in the "
+        "project's Admin."
+    )
 
 class RepositoryError(BuildEnvironmentError):
 
