@@ -191,4 +191,4 @@ class MkdocsJSON(BaseMkdocs):
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
         )
-        super(MkdocsJSON, self).build()
+        return super(MkdocsJSON, self).build()

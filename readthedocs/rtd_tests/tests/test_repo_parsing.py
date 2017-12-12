@@ -1,5 +1,6 @@
-from __future__ import absolute_import
-import json
+# -*- coding: utf-8 -*-
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 from django.test import TestCase
 
@@ -7,7 +8,7 @@ from readthedocs.projects.models import Project
 
 
 class TestRepoParsing(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
@@ -23,6 +24,16 @@ class TestRepoParsing(TestCase):
 
         self.pip.repo = 'https://github.com/user/repo.git'
         self.assertEqual(self.version.get_github_url(docroot='/docs/', filename='file'), 'https://github.com/user/repo/blob/master/docs/file.rst')
+
+    def test_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/user/repo'
+        self.assertEqual(self.version.get_gitlab_url(docroot='/foo/bar/', filename='file'), 'https://gitlab.com/user/repo/blob/master/foo/bar/file.rst')
+
+        self.pip.repo = 'https://gitlab.com/user/repo/'
+        self.assertEqual(self.version.get_gitlab_url(docroot='/foo/bar/', filename='file'), 'https://gitlab.com/user/repo/blob/master/foo/bar/file.rst')
+
+        self.pip.repo = 'https://gitlab.com/user/repo.git'
+        self.assertEqual(self.version.get_gitlab_url(docroot='/foo/bar/', filename='file'), 'https://gitlab.com/user/repo/blob/master/foo/bar/file.rst')
 
     def test_bitbucket(self):
         self.pip.repo = 'https://bitbucket.org/user/repo'

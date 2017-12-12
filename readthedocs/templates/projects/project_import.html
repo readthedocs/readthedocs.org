@@ -107,6 +107,17 @@ $(document).ready(function() {
 
                       <form
                           method="get"
+                          action="{% provider_login_url "gitlab" %}"
+                          class="import-connect import-connect-gitlab">
+                        <button>
+                          {% trans "Connect to GitLab" %}
+                        </button>
+                        <input type="hidden" name="process" value="connect">
+                        <input type="hidden" name="next" value="/dashboard/import/">
+                      </form>
+
+                      <form
+                          method="get"
                           action="{% provider_login_url "bitbucket_oauth2" %}"
                           class="import-connect import-connect-bitbucket">
                         <button>
