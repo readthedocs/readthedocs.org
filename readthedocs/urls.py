@@ -94,6 +94,11 @@ if 'readthedocsext.search' in settings.INSTALLED_APPS:
         if _url and hasattr(_url, 'name') and _url.name == 'search':
             rtd_urls[num] = \
                 url(r'^search/', 'readthedocsext.search.mainsearch.elastic_search', name='search')
+if 'readthedocsext.embed' in settings.INSTALLED_APPS:
+    api_urls.insert(
+        0,
+        url(r'^api/v1/embed/', include('readthedocsext.embed.urls'))
+    )
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):

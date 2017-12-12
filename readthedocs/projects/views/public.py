@@ -420,7 +420,7 @@ def project_embed(request, project_slug):
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
     version = project.versions.get(slug=LATEST)
-    files = version.imported_files.order_by('path')
+    files = version.imported_files.filter(name__endswith='.html').order_by('path')
 
     return render_to_response(
         'projects/project_embed.html',
@@ -428,7 +428,7 @@ def project_embed(request, project_slug):
             'project': project,
             'files': files,
             'settings': {
-                'GROK_API_HOST': settings.GROK_API_HOST,
+                'PUBLIC_API_URL': settings.PUBLIC_API_URL,
                 'URI': request.build_absolute_uri(location='/').rstrip('/')
             }
         },
