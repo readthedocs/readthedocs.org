@@ -96,7 +96,7 @@ $(document).ready(function() {
 
                     <div class="project-import-providers">
                       <ul class="socialaccount_providers">
-                        {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+                        {% include "socialaccount/snippets/provider_list.html" with process="connect" next="/dashboard/import/" %}
                       </ul>
                     </div>
                   {% endif %}
