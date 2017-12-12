@@ -1,20 +1,23 @@
+# -*- coding: utf-8 -*-
 """Views for the bookmarks app."""
 
-from __future__ import absolute_import
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
-from django.http import HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render
-from django.views.generic import ListView, View
-from django.core.urlresolvers import reverse
-from django.utils.decorators import method_decorator
-from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.csrf import csrf_exempt
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import json
+
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.http import (
+    HttpResponse, HttpResponseBadRequest, HttpResponseRedirect)
+from django.shortcuts import get_object_or_404, render
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView, View
 
 from readthedocs.bookmarks.models import Bookmark
 from readthedocs.projects.models import Project
-
 
 # These views are CSRF exempt because of Django's CSRF middleware failing here
 # https://github.com/django/django/blob/stable/1.6.x/django/middleware/csrf.py#L135-L159
@@ -25,24 +28,23 @@ class BookmarkExistsView(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(BookmarkExistsView, self).dispatch(request, *args, **kwargs)
+        return super(BookmarkExistsView,
+                     self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
         return HttpResponse(
-            content=json.dumps(
-                {'error': 'You must POST!'}
-            ),
+            content=json.dumps({'error': 'You must POST!'}),
             content_type='application/json',
-            status=405
+            status=405,
         )
 
     def post(self, request, *args, **kwargs):
         """
         Returns:
 
-            200 response with exists = True in json if bookmark exists.
-            404 with exists = False in json if no matching bookmark is found.
-            400 if json data is missing any one of: project, version, page.
+        - 200 response with exists = True in json if bookmark exists.
+        - 404 with exists = False in json if no matching bookmark is found.
+        - 400 if json data is missing any one of: project, version, page.
         """
         post_json = json.loads(request.body)
         try:
@@ -51,31 +53,31 @@ class BookmarkExistsView(View):
             page = post_json['page']
         except KeyError:
             return HttpResponseBadRequest(
-                content=json.dumps({'error': 'Invalid parameters'})
+                content=json.dumps({'error': 'Invalid parameters'}),
             )
         try:
             Bookmark.objects.get(
                 project__slug=project,
                 version__slug=version,
-                page=page
+                page=page,
             )
         except ObjectDoesNotExist:
             return HttpResponse(
                 content=json.dumps({'exists': False}),
                 status=404,
-                content_type="application/json"
+                content_type='application/json',
             )
 
         return HttpResponse(
             content=json.dumps({'exists': True}),
             status=200,
-            content_type="application/json"
+            content_type='application/json',
         )
 
 
 class BookmarkListView(ListView):
 
-    """Displays all of a logged-in user's bookmarks"""
+    """Displays all of a logged-in user's bookmarks."""
 
     model = Bookmark
 
@@ -89,7 +91,7 @@ class BookmarkListView(ListView):
 
 class BookmarkAddView(View):
 
-    """Adds bookmarks in response to POST requests"""
+    """Adds bookmarks in response to POST requests."""
 
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
@@ -98,11 +100,9 @@ class BookmarkAddView(View):
 
     def get(self, request):
         return HttpResponse(
-            content=json.dumps(
-                {'error': 'You must POST!'}
-            ),
+            content=json.dumps({'error': 'You must POST!'}),
             content_type='application/json',
-            status=405
+            status=405,
         )
 
     def post(self, request, *args, **kwargs):
@@ -119,7 +119,7 @@ class BookmarkAddView(View):
             url = post_json['url']
         except KeyError:
             return HttpResponseBadRequest(
-                content=json.dumps({'error': "Invalid parameters"})
+                content=json.dumps({'error': 'Invalid parameters'}),
             )
 
         try:
@@ -128,8 +128,7 @@ class BookmarkAddView(View):
         except ObjectDoesNotExist:
             return HttpResponseBadRequest(
                 content=json.dumps(
-                    {'error': "Project or Version does not exist"}
-                )
+                    {'error': 'Project or Version does not exist'}),
             )
 
         Bookmark.objects.get_or_create(
@@ -142,7 +141,7 @@ class BookmarkAddView(View):
         return HttpResponse(
             json.dumps({'added': True}),
             status=201,
-            content_type='application/json'
+            content_type='application/json',
         )
 
 
@@ -157,7 +156,8 @@ class BookmarkRemoveView(View):
     @method_decorator(login_required)
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
-        return super(BookmarkRemoveView, self).dispatch(request, *args, **kwargs)
+        return super(BookmarkRemoveView,
+                     self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         return render(request, 'bookmarks/bookmark_delete.html')
@@ -180,7 +180,7 @@ class BookmarkRemoveView(View):
             page = post_json['page']
         except KeyError:
             return HttpResponseBadRequest(
-                json.dumps({'error': "Invalid parameters"})
+                json.dumps({'error': 'Invalid parameters'}),
             )
 
         bookmark = get_object_or_404(
@@ -189,12 +189,12 @@ class BookmarkRemoveView(View):
             url=url,
             project=project,
             version=version,
-            page=page
+            page=page,
         )
         bookmark.delete()
 
         return HttpResponse(
             json.dumps({'removed': True}),
             status=200,
-            content_type="application/json"
+            content_type='application/json',
         )

@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """Search views."""
-from __future__ import absolute_import
-from __future__ import print_function
-from pprint import pprint
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import collections
 import logging
+from pprint import pprint
 
 from django.conf import settings
 from django.shortcuts import render
@@ -11,26 +13,33 @@ from django.shortcuts import render
 from readthedocs.builds.constants import LATEST
 from readthedocs.search import lib as search_lib
 
-
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = u"(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}"
-
+LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
 
 UserInput = collections.namedtuple(
-    'UserInput', ('query', 'type', 'project', 'version', 'taxonomy', 'language'))
+    'UserInput',
+    (
+        'query',
+        'type',
+        'project',
+        'version',
+        'taxonomy',
+        'language',
+    ),
+)
 
 
 def elastic_search(request):
-    """Use Elasticsearch for global search"""
+    """Use Elasticsearch for global search."""
     user_input = UserInput(
         query=request.GET.get('q'),
         type=request.GET.get('type', 'project'),
         project=request.GET.get('project'),
         version=request.GET.get('version', LATEST),
         taxonomy=request.GET.get('taxonomy'),
-        language=request.GET.get('language')
+        language=request.GET.get('language'),
     )
-    results = ""
+    results = ''
 
     facets = {}
 
@@ -65,21 +74,23 @@ def elastic_search(request):
         user = ''
         if request.user.is_authenticated():
             user = request.user
-        log.info(LOG_TEMPLATE.format(
-            user=user,
-            project=user_input.project or '',
-            type=user_input.type or '',
-            version=user_input.version or '',
-            language=user_input.language or '',
-            msg=user_input.query or '',
-        ))
+        log.info(
+            LOG_TEMPLATE.format(
+                user=user,
+                project=user_input.project or '',
+                type=user_input.type or '',
+                version=user_input.version or '',
+                language=user_input.language or '',
+                msg=user_input.query or '',
+            ))
 
     template_vars = user_input._asdict()
     template_vars.update({
         'results': results,
         'facets': facets,
     })
-    return render(request, 
+    return render(
+        request,
         'search/elastic_search.html',
         template_vars,
     )
