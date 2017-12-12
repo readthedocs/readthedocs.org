@@ -77,7 +77,7 @@ def delete_versions(project, version_data):
 
 
 def index_search_request(version, page_list, commit, project_scale, page_scale,
-                         section=True, delete=True):
+                         section=False, delete=True):
     """Update search indexes with build output JSON
 
     In order to keep sub-projects all indexed on the same shard, indexes will be

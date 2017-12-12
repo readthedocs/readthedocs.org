@@ -32,7 +32,7 @@ def index_search(request):
 
     utils.index_search_request(
         version=version, page_list=data['page_list'], commit=commit,
-        project_scale=project_scale, page_scale=page_scale)
+        project_scale=project_scale, page_scale=page_scale, section=False)
 
     return Response({'indexed': True})
 
