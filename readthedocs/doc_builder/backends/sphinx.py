@@ -98,6 +98,7 @@ class BaseSphinx(BaseBuilder):
         data = {
             'current_version': self.version.verbose_name,
             'project': self.project,
+            'version': self.version,
             'settings': settings,
             'static_path': SPHINX_STATIC_DIR,
             'template_path': SPHINX_TEMPLATE_DIR,

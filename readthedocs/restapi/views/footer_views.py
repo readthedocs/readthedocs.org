@@ -81,7 +81,7 @@ def footer_html(request):
     version = get_object_or_404(
         Version.objects.public(
             request.user, project=project, only_active=False),
-        slug=version_slug)
+        slug__iexact=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != 'index':
@@ -94,13 +94,6 @@ def footer_html(request):
             path = page_slug + '.html'
     else:
         path = ''
-
-    if version.type == TAG and version.project.has_pdf(version.slug):
-        print_url = (
-            'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'  # noqa
-            .format(project=project.slug, version=version.slug))
-    else:
-        print_url = None
 
     version_compare_data = get_version_compare_data(project, version)
 
@@ -118,7 +111,6 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
-        'print_url': print_url,
         'github_edit_url': version.get_github_url(
             docroot,
             page_slug,
