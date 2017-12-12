@@ -86,9 +86,9 @@ groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # Include donation URL's
-    groups.insert(0,
-                  [url(r'^sustainability/', include('readthedocsext.donate.urls'))]
-                  )
+    groups.append([
+        url(r'^sustainability/', include('readthedocsext.donate.urls'))
+    ])
 if 'readthedocsext.search' in settings.INSTALLED_APPS:
     for num, _url in enumerate(rtd_urls):
         if _url and hasattr(_url, 'name') and _url.name == 'search':
