@@ -56,7 +56,6 @@ def map_subproject_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
-
     @wraps(view_func)
     def inner_view(
             request, subproject=None, subproject_slug=None, *args, **kwargs):
@@ -86,7 +85,6 @@ def map_project_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
-
     @wraps(view_func)
     def inner_view(request, project=None, project_slug=None, *args, **kwargs):
         if project is None:
@@ -152,8 +150,7 @@ def _serve_file(request, filename, basepath):
 def serve_docs(
         request, project, subproject, lang_slug=None, version_slug=None,
         filename=''):
-    """Exists to map existing proj, lang, version, filename views to the file
-    format."""
+    """Exists to map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:
@@ -198,7 +195,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
 
-    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable
+    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -206,8 +203,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         else:
             files_tried.append(os.path.join(basepath, filename))
 
-    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable
-
+    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root
