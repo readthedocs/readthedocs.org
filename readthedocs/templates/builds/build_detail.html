@@ -108,7 +108,7 @@ $(document).ready(function () {
       <p>
         {% url 'projects_advanced' build.version.project.slug as advanced_url %}
         {% blocktrans %}
-        Don't want <pre>setup.py install</pre> called?
+        Don't want <em>setup.py install</em> called?
         Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
         {% endblocktrans %}
       </p>

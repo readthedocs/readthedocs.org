@@ -120,8 +120,8 @@ class Virtualenv(PythonEnvironment):
             # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<37',
-                negative='setuptools==28.8.0',
+                positive='setuptools<40',
+                negative='setuptools==37.0.0',
             ),
             'docutils==0.13.1',
             'mock==1.0.1',
@@ -140,7 +140,7 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
                     positive='sphinx<2',
-                    negative='sphinx==1.5.6',
+                    negative='sphinx==1.6.5',
                 ),
                 'sphinx-rtd-theme<0.3',
                 'readthedocs-sphinx-ext<0.6'
