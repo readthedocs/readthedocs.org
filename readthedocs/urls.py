@@ -89,6 +89,7 @@ if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     groups.insert(0,
                   [url(r'^sustainability/', include('readthedocsext.donate.urls'))]
                   )
+if 'readthedocsext.search' in settings.INSTALLED_APPS:
     for num, _url in enumerate(rtd_urls):
         if _url and hasattr(_url, 'name') and _url.name == 'search':
             rtd_urls[num] = \
