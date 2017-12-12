@@ -1023,7 +1023,7 @@ def finish_inactive_builds():
     ``error`` to be communicated to the user.
     """
     time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    delta = datetime.timedelta(minutes=time_limit)
+    delta = datetime.timedelta(seconds=time_limit)
     query = (~Q(state=BUILD_STATE_FINISHED) &
              Q(date__lte=datetime.datetime.now() - delta))
 
@@ -1033,7 +1033,7 @@ def finish_inactive_builds():
 
         if build.project.container_time_limit:
             custom_delta = datetime.timedelta(
-                minutes=int(build.project.container_time_limit))
+                seconds=int(build.project.container_time_limit))
             if build.date + custom_delta > datetime.datetime.now():
                 # Do not mark as FINISHED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
