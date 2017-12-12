@@ -786,20 +786,17 @@ def fileify(version_pk, commit):
     """
     Create ImportedFile objects for all of a version's files.
 
-    This is a prereq for indexing the docs for search.
-    It also causes celery-haystack to kick off an index of the file.
+    This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get(pk=version_pk)
     project = version.project
-
-    if not project.cdn_enabled:
-        return
 
     if not commit:
         log.info(LOG_TEMPLATE
                  .format(project=project.slug, version=version.slug,
                          msg=('Imported File not being built because no commit '
                               'information')))
+        return
 
     path = project.rtd_build_path(version.slug)
     if path:
@@ -848,12 +845,12 @@ def _manage_imported_files(version, path, commit):
                                 version=version
                                 ).exclude(commit=commit).delete()
     # Purge Cache
-    changed_files = [resolve_path(
-        version.project, filename=fname, version_slug=version.slug,
-    ) for fname in changed_files]
     cdn_ids = getattr(settings, 'CDN_IDS', None)
     if cdn_ids:
         if version.project.slug in cdn_ids:
+            changed_files = [resolve_path(
+                version.project, filename=fname, version_slug=version.slug,
+            ) for fname in changed_files]
             purge(cdn_ids[version.project.slug], changed_files)
 
 

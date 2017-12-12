@@ -45,6 +45,11 @@ urlpatterns = [
         public.project_embed,
         name='project_embed'),
 
+    # url((r'^(?P<project_slug>{project_slug})/tools/analytics/$'
+    #      .format(**pattern_opts)),
+    #     public.project_analytics,
+    #     name='project_analytics'),
+
     url(r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
         public.elastic_project_search,
         name='elastic_project_search'),
