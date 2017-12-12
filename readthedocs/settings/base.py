@@ -235,7 +235,6 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_IMAGE = 'readthedocs/build:2.0'
-    DOCKER_VERSION = '1.19'
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'

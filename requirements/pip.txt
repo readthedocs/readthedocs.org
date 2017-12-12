@@ -21,7 +21,10 @@ djangorestframework==3.5.4
 django-vanilla-views==1.0.4
 jsonfield==1.0.3
 
-requests==2.3.0
+# Fixed to 2.15.1 because incompatibility with docker client
+# See: https://github.com/requests/requests/issues/4160
+requests==2.15.1
+
 slumber==0.7.1
 lxml==3.3.5
 defusedxml==0.5.0
@@ -52,7 +55,7 @@ stripe==1.20.2
 django-copyright==1.0.0
 django-formtools==1.0
 django-dynamic-fixture==1.8.5
-docker-py==1.10.6
+docker==2.6.1
 django-textclassifier==1.0
 django-annoying==0.10.1
 django-messages-extends==0.5

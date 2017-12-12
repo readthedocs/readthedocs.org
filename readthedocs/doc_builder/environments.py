@@ -14,8 +14,7 @@ from datetime import datetime
 
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _, ugettext_noop
-from docker import Client
-from docker.utils import create_host_config
+from docker import APIClient
 from docker.errors import APIError as DockerAPIError, DockerException
 from slumber.exceptions import HttpClientError
 
@@ -627,10 +626,9 @@ class DockerEnvironment(BuildEnvironment):
         """Create Docker client connection"""
         try:
             if self.client is None:
-                self.client = Client(
+                self.client = APIClient(
                     base_url=self.docker_socket,
                     version=DOCKER_VERSION,
-                    timeout=None
                 )
             return self.client
         except DockerException as e:
