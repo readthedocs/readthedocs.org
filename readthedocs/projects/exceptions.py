@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """Project exceptions."""
+
+from __future__ import division, print_function, unicode_literals
 
 from django.conf import settings
 from django.utils.translation import ugettext_noop as _
@@ -16,11 +19,12 @@ class ProjectConfigurationError(BuildEnvironmentError):
     )
 
     MULTIPLE_CONF_FILES = _(
-        "There are more than one conf.py file and none of them say doc "
+        'There are more than one conf.py file and none of them say doc '
         "in their path, we don't know which one use. Please, select "
-        "the correct one under the Advanced settings tab in the "
+        'the correct one under the Advanced settings tab in the '
         "project's Admin."
     )
+
 
 class RepositoryError(BuildEnvironmentError):
 
