@@ -40,13 +40,19 @@ def prepare(ctx, version):
         'contrib',
         'changelog.hbs',
     )
+    bin_path = os.path.join(
+        os.path.dirname(__file__),
+        'node_modules',
+        '.bin',
+    )
     cmd = (
-        'gh-changelog '
+        '{bin_path}/gh-changelog '
         '-o rtfd -r readthedocs.org '
         '--file {changelog_path} '
         '--template {template_path} '
         '--header "Version {version}"'
     ).format(
+        bin_path=bin_path,
         version=version,
         template_path=template_path,
         changelog_path=changelog_path,
