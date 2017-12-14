@@ -74,7 +74,8 @@ function injectFooter(data) {
             data.promo_data.link,
             data.promo_data.image,
             config.theme,
-            data.promo_data.display_type
+            data.promo_data.display_type,
+            data.promo_data.pixel
         )
         if (promo) {
             promo.display();
