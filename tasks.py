@@ -41,7 +41,7 @@ def prepare(ctx, version):
         'changelog.hbs',
     )
     cmd = (
-        'gh-changelog '
+        './node_modules/.bin/gh-changelog '
         '-o rtfd -r readthedocs.org '
         '--file {changelog_path} '
         '--template {template_path} '
