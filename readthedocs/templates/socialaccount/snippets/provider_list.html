@@ -8,8 +8,8 @@
     {% for brand in provider.get_brands %}
       <li>
         <a title="{{ brand.name }}"
-           class="socialaccount-provider {{ provider.id }} {{ brand.id }}"
-           href="{% provider_login_url provider.id openid=brand.openid_url process=process %}"
+           class="socialaccount-provider {{ provider.id }} {{ brand.id }} button"
+           href="{% provider_login_url provider.id openid=brand.openid_url process=process next=next %}"
            >
            {% blocktrans with brand_name=brand.name %}
              Connect to {{ brand_name }}
@@ -22,7 +22,7 @@
     <li>
       <a title="{{ provider.name }}"
          class="socialaccount-provider {{ provider.id }} button"
-         href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}"
+         href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params next=next %}"
          >
          {% blocktrans with provider_name=provider.name %}
            Connect to {{ provider_name }}
