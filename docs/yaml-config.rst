@@ -103,7 +103,7 @@ https://goo.gl/forms/AKEoeWHixlzVfqKT2
 python.setup_py_install
 ```````````````````````
 
-* Default: `False`
+* Default: `True`
 * Type: Boolean
 
 When true, install your project into the Virtualenv with
