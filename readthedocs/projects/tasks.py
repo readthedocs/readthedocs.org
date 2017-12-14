@@ -6,6 +6,7 @@ rebuilding documentation.
 
 from __future__ import absolute_import
 
+import datetime
 import hashlib
 import json
 import logging
@@ -20,6 +21,7 @@ from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
@@ -41,6 +43,7 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (LocalEnvironment,
                                                   DockerEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
@@ -1033,3 +1036,48 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
     fileify(version_pk, commit=commit)
     update_search(version_pk, commit=commit)
+
+
+@app.task()
+def finish_inactive_builds():
+    """
+    Finish inactive builds.
+
+    A build is consider inactive if it's not in ``FINISHED`` state and it has been
+    "running" for more time that the allowed one (``Project.container_time_limit``
+    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+
+    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
+    ``error`` to be communicated to the user.
+    """
+    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    delta = datetime.timedelta(seconds=time_limit)
+    query = (~Q(state=BUILD_STATE_FINISHED) &
+             Q(date__lte=datetime.datetime.now() - delta))
+
+    builds_finished = 0
+    builds = Build.objects.filter(query)[:50]
+    for build in builds:
+
+        if build.project.container_time_limit:
+            custom_delta = datetime.timedelta(
+                seconds=int(build.project.container_time_limit))
+            if build.date + custom_delta > datetime.datetime.now():
+                # Do not mark as FINISHED builds with a custom time limit that wasn't
+                # expired yet (they are still building the project version)
+                continue
+
+        build.success = False
+        build.state = BUILD_STATE_FINISHED
+        build.error = _(
+            'This build was terminated due to inactivity. If you '
+            'continue to encounter this error, file a support '
+            'request with and reference this build id ({0}).'.format(build.pk)
+        )
+        build.save()
+        builds_finished += 1
+
+    log.info(
+        'Builds marked as "Terminated due inactivity": %s',
+        builds_finished,
+    )
