@@ -77,7 +77,8 @@ if globals().get('websupport2_base_url', False):
 context = {
     'using_theme': using_rtd_theme,
     'html_theme': html_theme,
-    'current_version': "{{ current_version }}",
+    'current_version': "{{ version.verbose_name }}",
+    'version_slug': "{{ version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
     'versions': [{% for version in versions %}

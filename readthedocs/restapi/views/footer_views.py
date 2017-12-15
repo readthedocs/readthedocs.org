@@ -43,7 +43,7 @@ def get_version_compare_data(project, base_version=None):
     }
     if highest_version_obj:
         ret_val['url'] = highest_version_obj.get_absolute_url()
-        ret_val['slug'] = highest_version_obj.slug,
+        ret_val['slug'] = (highest_version_obj.slug,)
     if base_version and base_version.slug != LATEST:
         try:
             base_version_comparable = parse_version_failsafe(
@@ -81,7 +81,7 @@ def footer_html(request):
     version = get_object_or_404(
         Version.objects.public(
             request.user, project=project, only_active=False),
-        slug=version_slug)
+        slug__iexact=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != 'index':
@@ -94,13 +94,6 @@ def footer_html(request):
             path = page_slug + '.html'
     else:
         path = ''
-
-    if version.type == TAG and version.project.has_pdf(version.slug):
-        print_url = (
-            'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'  # noqa
-            .format(project=project.slug, version=version.slug))
-    else:
-        print_url = None
 
     version_compare_data = get_version_compare_data(project, version)
 
@@ -118,7 +111,6 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
-        'print_url': print_url,
         'github_edit_url': version.get_github_url(
             docroot,
             page_slug,
