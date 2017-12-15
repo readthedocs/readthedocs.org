@@ -28,7 +28,7 @@ def prepare(ctx, version):
     # Ensure we're on the master branch first
     git_rev_parse = ctx.run('git rev-parse --abbrev-ref HEAD', hide=True)
     current_branch = git_rev_parse.stdout.strip()
-    if current_branch != 'rel':
+    if current_branch != 'master':
         print('You must be on master branch!')
         raise Exit(1)
 
