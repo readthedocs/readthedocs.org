@@ -1,6 +1,21 @@
+Version 2.1.2
+-------------
+
+ * `@agjohnson <http://github.com/agjohnson>`_: Update changelog more consistently (`#3405 <https://github.com/rtfd/readthedocs.org/pull/3405>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Update prerelease invoke command to call with explicit path (`#3404 <https://github.com/rtfd/readthedocs.org/pull/3404>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Fix lint error (`#3402 <https://github.com/rtfd/readthedocs.org/pull/3402>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Remove copyright application (`#3400 <https://github.com/rtfd/readthedocs.org/pull/3400>`_)
+ * `@humitos <http://github.com/humitos>`_: Show connect buttons for installed apps only (`#3394 <https://github.com/rtfd/readthedocs.org/pull/3394>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Don't display the build suggestions div if there are no suggestions (`#3389 <https://github.com/rtfd/readthedocs.org/pull/3389>`_)
+ * `@jonrkarr <http://github.com/jonrkarr>`_: Error in YAML configuration docs: default value for `python.setup_py_install` should be `true` (`#3334 <https://github.com/rtfd/readthedocs.org/issues/3334>`_)
+ * `@humitos <http://github.com/humitos>`_: Simple task to finish inactive builds (`#3312 <https://github.com/rtfd/readthedocs.org/pull/3312>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Cleanup misreported failed builds (`#3230 <https://github.com/rtfd/readthedocs.org/issues/3230>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Remove copyright application (`#3199 <https://github.com/rtfd/readthedocs.org/issues/3199>`_)
+
 Version 2.1.1
 -------------
 
+Release information missing
 
 Version 2.1.0
 -------------
