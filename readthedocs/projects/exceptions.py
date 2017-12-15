@@ -19,10 +19,9 @@ class ProjectConfigurationError(BuildEnvironmentError):
     )
 
     MULTIPLE_CONF_FILES = _(
-        'There are more than one conf.py file and none of them say doc '
-        "in their path, we don't know which one use. Please, select "
-        'the correct one under the Advanced settings tab in the '
-        "project's Admin."
+        'We found more than one conf.py and are not sure which one to use. '
+        'Please, specify the correct file under the Advanced settings tab '
+        "in the project's Admin."
     )
 
 
