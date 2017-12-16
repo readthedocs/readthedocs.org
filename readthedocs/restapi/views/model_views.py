@@ -57,9 +57,7 @@ class UserSelectViewSet(viewsets.ModelViewSet):
 
 class ProjectViewSet(UserSelectViewSet):
 
-    """
-    List, filter, etc. Projects.
-    """
+    """List, filter, etc. Projects."""
 
     permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer,)
