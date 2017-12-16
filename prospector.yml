@@ -35,6 +35,9 @@ pep257:
     - D105
     - D211
     - D104
+    - D212  # Multi-line docstring summary should start at the first line
+    - D107  # Missing docstring in __init__
+    - D106  # Missing docstring in public nested class
 
 pyflakes:
   disable:
