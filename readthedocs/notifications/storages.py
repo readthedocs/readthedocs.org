@@ -10,7 +10,8 @@ from messages_extends.constants import PERSISTENT_MESSAGE_LEVELS
 
 class FallbackUniqueStorage(FallbackStorage):
 
-    """Persistent message fallback storage, but only stores unique notifications
+    """
+    Persistent message fallback storage, but only stores unique notifications.
 
     This loops through all backends to find messages to store, but will skip
     this step if the message already exists for the user in the database.

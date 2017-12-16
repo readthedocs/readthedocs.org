@@ -1,7 +1,8 @@
-"""Classes to copy files between build and web servers
+"""
+Classes to copy files between build and web servers.
 
-"Syncers" copy files from the local machine, while "Pullers" copy files to
-the local machine.
+"Syncers" copy files from the local machine, while "Pullers" copy files to the
+local machine.
 """
 
 from __future__ import absolute_import

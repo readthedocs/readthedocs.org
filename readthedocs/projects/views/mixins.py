@@ -1,4 +1,4 @@
-"""Mixin classes for project views"""
+"""Mixin classes for project views."""
 
 from __future__ import absolute_import
 from builtins import object
@@ -9,7 +9,8 @@ from readthedocs.projects.models import Project
 
 class ProjectRelationMixin(object):
 
-    """Mixin class for constructing model views for project dashboard
+    """
+    Mixin class for constructing model views for project dashboard.
 
     This mixin class is used for model views on models that have a relation
     to the :py:cls:`Project` model.

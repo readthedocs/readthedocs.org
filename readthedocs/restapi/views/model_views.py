@@ -34,7 +34,8 @@ log = logging.getLogger(__name__)
 
 class UserSelectViewSet(viewsets.ModelViewSet):
 
-    """View set that varies serializer class based on request user credentials
+    """
+    View set that varies serializer class based on request user credentials.
 
     Viewsets using this class should have an attribute `admin_serializer_class`,
     which is a serializer that might have more fields that only admin/staff
@@ -50,13 +51,15 @@ class UserSelectViewSet(viewsets.ModelViewSet):
         return self.serializer_class
 
     def get_queryset(self):
-        """Use our API manager method to determine authorization on queryset"""
+        """Use our API manager method to determine authorization on queryset."""
         return self.model.objects.api(self.request.user)
 
 
 class ProjectViewSet(UserSelectViewSet):
 
-    """List, filter, etc. Projects."""
+    """
+    List, filter, etc. Projects.
+    """
 
     permission_classes = [APIPermission]
     renderer_classes = (JSONRenderer,)
@@ -131,7 +134,8 @@ class ProjectViewSet(UserSelectViewSet):
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser], methods=['post'])
     def sync_versions(self, request, **kwargs):
         """
-        Sync the version data in the repo (on the build server) with what we have in the database.
+        Sync the version data in the repo (on the build server) with what we
+        have in the database.
 
         Returns the identifiers for the versions that have been deleted.
         """

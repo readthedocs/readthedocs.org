@@ -1,4 +1,4 @@
-"""Payment forms"""
+"""Payment forms."""
 
 from __future__ import absolute_import
 from builtins import str
@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 class StripeResourceMixin(object):
 
-    """Stripe actions for resources, available as a Form mixin class"""
+    """Stripe actions for resources, available as a Form mixin class."""
 
     def ensure_stripe_resource(self, resource, attrs):
         try:
@@ -59,7 +59,8 @@ class StripeResourceMixin(object):
 
 class StripeModelForm(forms.ModelForm):
 
-    """Payment form base for Stripe interaction
+    """
+    Payment form base for Stripe interaction.
 
     Use this as a base class for payment forms. It includes the necessary fields
     for card input and manipulates the Knockout field data bindings correctly.
@@ -114,7 +115,8 @@ class StripeModelForm(forms.ModelForm):
         super(StripeModelForm, self).__init__(*args, **kwargs)
 
     def validate_stripe(self):
-        """Run validation against Stripe
+        """
+        Run validation against Stripe.
 
         This is what will create several objects using the Stripe API. We need
         to actually create the objects, as that is what will provide us with
@@ -133,12 +135,12 @@ class StripeModelForm(forms.ModelForm):
         return data
 
     def clean(self):
-        """Clean form to add Stripe objects via API during validation phase
+        """
+        Clean form to add Stripe objects via API during validation phase.
 
         This will handle ensuring a customer and subscription exist and will
-        raise any issues as validation errors.  This is required because part
-        of Stripe's validation happens on the API call to establish a
-        subscription.
+        raise any issues as validation errors.  This is required because part of
+        Stripe's validation happens on the API call to establish a subscription.
         """
         cleaned_data = super(StripeModelForm, self).clean()
 
@@ -171,7 +173,8 @@ class StripeModelForm(forms.ModelForm):
         return cleaned_data
 
     def clear_card_data(self):
-        """Clear card data on validation errors
+        """
+        Clear card data on validation errors.
 
         This requires the form was created by passing in a mutable QueryDict
         instance, see :py:class:`readthedocs.payments.mixin.StripeMixin`

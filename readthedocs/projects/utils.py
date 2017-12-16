@@ -1,4 +1,4 @@
-"""Utility functions used by projects"""
+"""Utility functions used by projects."""
 
 from __future__ import absolute_import
 
@@ -32,7 +32,8 @@ def version_from_slug(slug, version):
 
 
 def find_file(filename):
-    """Recursively find matching file from the current working path
+    """
+    Recursively find matching file from the current working path.
 
     :param file: Filename to match
     :returns: A list of matching filenames.
@@ -45,7 +46,8 @@ def find_file(filename):
 
 
 def run(*commands):
-    """Run one or more commands
+    """
+    Run one or more commands.
 
     Each argument in `commands` can be passed as a string or as a list. Passing
     as a list is the preferred method, as space escaping is more explicit and it
@@ -106,7 +108,8 @@ def run(*commands):
 
 
 def safe_write(filename, contents):
-    """Normalize and write to filename
+    """
+    Normalize and write to filename.
 
     Write ``contents`` to the given ``filename``. If the filename's
     directory does not exist, it is created. Contents are written as UTF-8,

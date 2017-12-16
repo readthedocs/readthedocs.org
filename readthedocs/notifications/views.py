@@ -9,7 +9,8 @@ from .forms import SendNotificationForm
 
 class SendNotificationView(FormView):
 
-    """Form view for sending notifications to users from admin pages
+    """
+    Form view for sending notifications to users from admin pages.
 
     Accepts the following additional parameters:
 
@@ -28,7 +29,8 @@ class SendNotificationView(FormView):
     notification_classes = []
 
     def get_form_kwargs(self):
-        """Override form kwargs based on input fields
+        """
+        Override form kwargs based on input fields.
 
         The admin posts to this view initially, so detect the send button on
         form post variables. Drop additional fields if we see the send button.
@@ -41,14 +43,14 @@ class SendNotificationView(FormView):
         return kwargs
 
     def get_initial(self):
-        """Add selected ids to initial form data"""
+        """Add selected ids to initial form data."""
         initial = super(SendNotificationView, self).get_initial()
         initial['_selected_action'] = self.request.POST.getlist(
             admin.ACTION_CHECKBOX_NAME)
         return initial
 
     def form_valid(self, form):
-        """If form is valid, send notification to recipients"""
+        """If form is valid, send notification to recipients."""
         count = 0
         notification_cls = form.cleaned_data['source']
         for obj in self.get_queryset().all():
@@ -65,7 +67,8 @@ class SendNotificationView(FormView):
         return HttpResponseRedirect(self.request.get_full_path())
 
     def get_object_recipients(self, obj):
-        """Iterate over queryset objects and return User objects
+        """
+        Iterate over queryset objects and return User objects.
 
         This allows for non-User querysets to pass back a list of Users to send
         to. By default, assume we're working with :py:class:`User` objects and
@@ -85,7 +88,7 @@ class SendNotificationView(FormView):
         return self.kwargs.get('queryset')
 
     def get_context_data(self, **kwargs):
-        """Return queryset in context"""
+        """Return queryset in context."""
         context = super(SendNotificationView, self).get_context_data(**kwargs)
         recipients = []
         for obj in self.get_queryset().all():
@@ -96,7 +99,8 @@ class SendNotificationView(FormView):
 
     def message_user(self, message, level=messages.INFO, extra_tags='',
                      fail_silently=False):
-        """Implementation of :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
+        """
+        Implementation of :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
 
         Send message through messages framework
         """
