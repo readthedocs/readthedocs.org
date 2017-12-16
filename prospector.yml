@@ -39,6 +39,12 @@ pep257:
     - D107  # Missing docstring in __init__
     - D106  # Missing docstring in public nested class
 
+    # pydocstyle
+    - D406  # Section name should end with a newline ('Examples', not 'Examples::')
+    - D407  # Missing dashed underline after section ('Examples')
+    - D412  # No blank lines allowed between a section header and its content ('Examples')
+    - D413  # Missing blank line after last section ('Examples')
+
 pyflakes:
   disable:
     - F999
