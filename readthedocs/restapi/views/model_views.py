@@ -130,7 +130,7 @@ class ProjectViewSet(UserSelectViewSet):
         })
 
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser], methods=['post'])
-    def sync_versions(self, request, **kwargs):
+    def sync_versions(self, request, **kwargs):  # noqa: D205
         """
         Sync the version data in the repo (on the build server) with what we
         have in the database.

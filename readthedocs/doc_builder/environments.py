@@ -391,8 +391,7 @@ class BuildEnvironment(object):
 
     @property
     def successful(self):
-        """Is build completed, without top level failures or failing
-        commands."""
+        """Is build completed, without top level failures or failing commands."""  # noqa
         return (self.done and self.failure is None and
                 all(cmd.successful for cmd in self.commands))
 
