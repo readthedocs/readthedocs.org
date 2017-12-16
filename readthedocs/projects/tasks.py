@@ -1042,7 +1042,7 @@ def clear_html_artifacts(version):
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
-    This will be called once the sync_files tasks are done.
+    Called once the sync_files tasks are done.
 
     The first argument is the result from previous tasks, which we discard.
     """

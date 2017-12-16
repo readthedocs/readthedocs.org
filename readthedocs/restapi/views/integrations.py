@@ -313,7 +313,7 @@ class APIWebhookView(WebhookMixin, APIView):
 class WebhookView(APIView):
 
     """
-    This is the main webhook view for webhooks with an ID.
+    Main webhook view for webhooks with an ID.
 
     The handling of each view is handed off to another view. This should only
     ever get webhook requests for established webhooks on our side. The other

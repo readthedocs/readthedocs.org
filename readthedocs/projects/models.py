@@ -378,13 +378,13 @@ class Project(models.Model):
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
-        This is used to see if these files exist so we can offer them for
-        download.
+        Used to see if these files exist so we can offer them for download.
 
         :param type_: Media content type, ie - 'pdf', 'zip'
         :param version_slug: Project version slug for lookup
         :param include_file: Include file name in return
         :type include_file: bool
+
         :returns: Full path to media file or path
         """
         if getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public') == 'public' or settings.DEBUG:
