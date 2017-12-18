@@ -76,7 +76,8 @@ class PythonEnvironment(object):
                 )
 
     def venv_bin(self, filename=None):
-        """Return path to the virtualenv bin path, or a specific binary
+        """
+        Return path to the virtualenv bin path, or a specific binary.
 
         :param filename: If specified, add this filename to the path return
         :returns: Path to virtualenv bin or filename in virtualenv bin
@@ -89,10 +90,10 @@ class PythonEnvironment(object):
 
 class Virtualenv(PythonEnvironment):
 
-    """A virtualenv_ environment.
+    """
+    A virtualenv_ environment.
 
     .. _virtualenv: https://virtualenv.pypa.io/
-
     """
 
     def venv_path(self):
@@ -203,10 +204,10 @@ class Virtualenv(PythonEnvironment):
 
 class Conda(PythonEnvironment):
 
-    """A Conda_ environment.
+    """
+    A Conda_ environment.
 
     .. _Conda: https://conda.io/docs/
-
     """
 
     def venv_path(self):

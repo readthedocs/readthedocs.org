@@ -1,4 +1,4 @@
-"""Django admin interface for core models"""
+"""Django admin interface for core models."""
 
 from __future__ import absolute_import
 from datetime import datetime, timedelta
@@ -22,7 +22,7 @@ class UserProjectInline(admin.TabularInline):
 
 class UserProjectFilter(admin.SimpleListFilter):
 
-    """Filter users based on project properties"""
+    """Filter users based on project properties."""
 
     parameter_name = 'project_state'
     title = _('user projects')
@@ -39,7 +39,8 @@ class UserProjectFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        """Add filters to queryset filter
+        """
+        Add filters to queryset filter.
 
         ``PROJECT_ACTIVE`` and ``PROJECT_BUILT`` look for versions on projects,
         ``PROJECT_RECENT`` looks for projects with builds in the last year

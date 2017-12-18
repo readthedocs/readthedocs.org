@@ -15,7 +15,7 @@ from readthedocs.search.signals import (before_project_search,
 
 
 def search_project(request, query, language=None):
-    """Search index for projects matching query"""
+    """Search index for projects matching query."""
     body = {
         "query": {
             "bool": {
@@ -50,7 +50,8 @@ def search_project(request, query, language=None):
 
 
 def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy=None):
-    """Search index for files matching query
+    """
+    Search index for files matching query.
 
     Raises a 404 error on missing project
 
@@ -163,7 +164,8 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
 
 def search_section(request, query, project_slug=None, version_slug=LATEST,
                    path=None):
-    """Search for a section of content
+    """
+    Search for a section of content.
 
     When you search, you will have a ``project`` facet, which includes the
     number of matching sections per project. When you search inside a project,

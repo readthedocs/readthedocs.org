@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Project search indexes
+Project search indexes.
 
 .. deprecated::
-    Read the Docs no longer uses Haystack in production and the core team does
-    not maintain this code. Use at your own risk, this may go away soon.
+
+    Read the Docs no longer uses Haystack in production and the core team does not
+    maintain this code. Use at your own risk, this may go away soon.
 """
 
 from __future__ import absolute_import
@@ -26,7 +27,7 @@ log = logging.getLogger(__name__)
 
 class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
 
-    """Project search index"""
+    """Project search index."""
 
     text = CharField(document=True, use_template=True)
     author = CharField()
@@ -45,14 +46,14 @@ class ProjectIndex(indexes.SearchIndex, indexes.Indexable):
         return Project
 
     def index_queryset(self, using=None):
-        """Used when the entire index for model is updated"""
+        """Used when the entire index for model is updated."""
         return self.get_model().objects.public()
 
 
 # TODO Should prob make a common subclass for this and FileIndex
 class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
 
-    """Search index for imported files"""
+    """Search index for imported files."""
 
     text = CharField(document=True)
     author = CharField()
@@ -71,7 +72,8 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         return obj.get_absolute_url()
 
     def prepare_text(self, obj):
-        """Prepare the text of the html file
+        """
+        Prepare the text of the html file.
 
         This only works on machines that have the html files for the projects
         checked out.
@@ -107,6 +109,6 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         return ImportedFile
 
     def index_queryset(self, using=None):
-        """Used when the entire index for model is updated"""
+        """Used when the entire index for model is updated."""
         return (self.get_model().objects
                 .filter(project__privacy_level=constants.PUBLIC))
