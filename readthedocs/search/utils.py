@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def process_mkdocs_json(version, build_dir=True):
-    """Given a version object, return a list of page dicts from disk content"""
+    """Given a version object, return a list of page dicts from disk content."""
     if build_dir:
         full_path = version.project.full_json_path(version.slug)
     else:
@@ -215,7 +215,8 @@ def parse_sphinx_sections(content):
 
 
 def parse_mkdocs_sections(content):
-    """Generate a list of sections from mkdocs-style html.
+    """
+    Generate a list of sections from mkdocs-style html.
 
     May raise a ValueError
     """

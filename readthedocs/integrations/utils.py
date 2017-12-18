@@ -1,8 +1,9 @@
-"""Integration utility functions"""
+"""Integration utility functions."""
 
 
 def normalize_request_payload(request):
-    """Normalize the request body, hopefully to JSON
+    """
+    Normalize the request body, hopefully to JSON.
 
     This will attempt to return a JSON body, backing down to a string body next.
 

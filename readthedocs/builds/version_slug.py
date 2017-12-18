@@ -1,4 +1,5 @@
-"""Contains logic for handling version slugs.
+"""
+Contains logic for handling version slugs.
 
 Handling slugs for versions is not too straightforward. We need to allow some
 characters which are uncommon in usual slugs. They are dots and underscores.
@@ -32,8 +33,8 @@ def get_fields_with_model(cls):
     """
     Replace deprecated function of the same name in Model._meta.
 
-    This replaces deprecated function (as of Django 1.10) in
-    Model._meta as prescrived in the Django docs.
+    This replaces deprecated function (as of Django 1.10) in Model._meta as
+    prescrived in the Django docs.
     https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
     """
     return [
