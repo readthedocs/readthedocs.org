@@ -313,7 +313,7 @@ class CommunityBaseSettings(Settings):
 
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
-    DASHBOARD_ANALYTICS_CODE = None # For the dashboard, not docs
+    DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
     GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
