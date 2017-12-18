@@ -19,7 +19,7 @@
       {% csrf_token %}
       {{ form.as_p }}
       <p>
-        <input type="submit" value="Save">
+        <input style="display: inline;" type="submit" value="Save">
         or
         <a href="{% url "wipe_version" version.project.slug version.slug %}">{% trans "wipe "%}</a>
       </p>
