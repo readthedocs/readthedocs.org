@@ -213,6 +213,7 @@ LANGUAGES = (
     ('or', 'Oriya'),
     ('pa', 'Panjabi'),
     ('pl', 'Polish'),
+    ('pnb', 'Western Punjabi'),
     ('poc', 'Poqomam'),
     ('poh', 'Poqomchi'),
     ('ps', 'Pashto'),
