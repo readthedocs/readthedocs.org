@@ -1,4 +1,4 @@
-"""Public project views"""
+"""Public project views."""
 
 from __future__ import absolute_import
 from collections import OrderedDict
@@ -38,7 +38,7 @@ mimetypes.add_type("application/epub+zip", ".epub")
 
 class ProjectIndex(ListView):
 
-    """List view of public :py:class:`Project` instances"""
+    """List view of public :py:class:`Project` instances."""
 
     model = Project
 
@@ -70,7 +70,7 @@ project_index = ProjectIndex.as_view()
 
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
-    """Display project onboard steps"""
+    """Display project onboard steps."""
 
     model = Project
     slug_url_kwarg = 'project_slug'
@@ -106,7 +106,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
 @never_cache
 def project_badge(request, project_slug):
-    """Return a sweet badge for the project"""
+    """Return a sweet badge for the project."""
     badge_path = "projects/badges/%s.svg"
     version_slug = request.GET.get('version', LATEST)
     try:
@@ -128,7 +128,7 @@ def project_badge(request, project_slug):
 
 
 def project_downloads(request, project_slug):
-    """A detail view for a project with various dataz"""
+    """A detail view for a project with various dataz."""
     project = get_object_or_404(Project.objects.protected(request.user), slug=project_slug)
     versions = Version.objects.public(user=request.user, project=project)
     version_data = OrderedDict()
@@ -158,7 +158,6 @@ def project_download_media(request, project_slug, type_, version_slug):
     .. warning:: This is linked directly from the HTML pages.
                  It should only care about the Version permissions,
                  not the actual Project permissions.
-
     """
     version = get_object_or_404(
         Version.objects.public(user=request.user),
@@ -189,7 +188,7 @@ def project_download_media(request, project_slug, type_, version_slug):
 
 
 def search_autocomplete(request):
-    """Return a json list of project names"""
+    """Return a json list of project names."""
     if 'term' in request.GET:
         term = request.GET['term']
     else:
@@ -208,7 +207,7 @@ def search_autocomplete(request):
 
 
 def version_autocomplete(request, project_slug):
-    """Return a json list of version names"""
+    """Return a json list of version names."""
     queryset = Project.objects.public(request.user)
     get_object_or_404(queryset, slug=project_slug)
     versions = Version.objects.public(request.user)
@@ -247,7 +246,7 @@ def version_filter_autocomplete(request, project_slug):
 
 
 def file_autocomplete(request, project_slug):
-    """Return a json list of file names"""
+    """Return a json list of file names."""
     if 'term' in request.GET:
         term = request.GET['term']
     else:
@@ -266,7 +265,7 @@ def file_autocomplete(request, project_slug):
 
 
 def elastic_project_search(request, project_slug):
-    """Use elastic search to search in a project"""
+    """Use elastic search to search in a project."""
     queryset = Project.objects.protected(request.user)
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', LATEST)
@@ -340,7 +339,8 @@ def elastic_project_search(request, project_slug):
 
 
 def project_versions(request, project_slug):
-    """Project version list view
+    """
+    Project version list view.
 
     Shows the available versions and lets the user choose which ones to build.
     """
@@ -371,7 +371,7 @@ def project_versions(request, project_slug):
 
 
 def project_analytics(request, project_slug):
-    """Have a analytics API placeholder"""
+    """Have a analytics API placeholder."""
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
     analytics_cache = cache.get('analytics:%s' % project_slug)
@@ -416,11 +416,11 @@ def project_analytics(request, project_slug):
 
 
 def project_embed(request, project_slug):
-    """Have a content API placeholder"""
+    """Have a content API placeholder."""
     project = get_object_or_404(Project.objects.protected(request.user),
                                 slug=project_slug)
     version = project.versions.get(slug=LATEST)
-    files = version.imported_files.order_by('path')
+    files = version.imported_files.filter(name__endswith='.html').order_by('path')
 
     return render_to_response(
         'projects/project_embed.html',
@@ -428,7 +428,7 @@ def project_embed(request, project_slug):
             'project': project,
             'files': files,
             'settings': {
-                'GROK_API_HOST': settings.GROK_API_HOST,
+                'PUBLIC_API_URL': settings.PUBLIC_API_URL,
                 'URI': request.build_absolute_uri(location='/').rstrip('/')
             }
         },

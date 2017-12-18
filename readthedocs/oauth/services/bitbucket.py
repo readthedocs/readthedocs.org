@@ -1,4 +1,4 @@
-"""OAuth utility functions"""
+"""OAuth utility functions."""
 
 from __future__ import absolute_import
 from builtins import str
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 class BitbucketService(Service):
 
-    """Provider service for Bitbucket"""
+    """Provider service for Bitbucket."""
 
     adapter = BitbucketOAuth2Adapter
     # TODO replace this with a less naive check
@@ -34,12 +34,12 @@ class BitbucketService(Service):
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
     def sync(self):
-        """Sync repositories and teams from Bitbucket API"""
+        """Sync repositories and teams from Bitbucket API."""
         self.sync_repositories()
         self.sync_teams()
 
     def sync_repositories(self):
-        """Sync repositories from Bitbucket API"""
+        """Sync repositories from Bitbucket API."""
         # Get user repos
         try:
             repos = self.paginate(
@@ -71,7 +71,7 @@ class BitbucketService(Service):
             pass
 
     def sync_teams(self):
-        """Sync Bitbucket teams and team repositories"""
+        """Sync Bitbucket teams and team repositories."""
         try:
             teams = self.paginate(
                 'https://api.bitbucket.org/2.0/teams/?role=member'
@@ -89,7 +89,8 @@ class BitbucketService(Service):
 
     def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
                           organization=None):
-        """Update or create a repository from Bitbucket API response
+        """
+        Update or create a repository from Bitbucket API response.
 
         .. note::
             The :py:data:`admin` property is not set during creation, as
@@ -145,7 +146,8 @@ class BitbucketService(Service):
                       fields['name'])
 
     def create_organization(self, fields):
-        """Update or create remote organization from Bitbucket API response
+        """
+        Update or create remote organization from Bitbucket API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
@@ -171,7 +173,7 @@ class BitbucketService(Service):
         return response.json().get('values', [])
 
     def get_webhook_data(self, project, integration):
-        """Get webhook JSON data to post to the API"""
+        """Get webhook JSON data to post to the API."""
         return json.dumps({
             'description': 'Read the Docs ({domain})'.format(domain=settings.PRODUCTION_DOMAIN),
             'url': 'https://{domain}{path}'.format(
@@ -187,7 +189,8 @@ class BitbucketService(Service):
         })
 
     def setup_webhook(self, project):
-        """Set up Bitbucket project webhook for project
+        """
+        Set up Bitbucket project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
@@ -231,7 +234,8 @@ class BitbucketService(Service):
             return (False, resp)
 
     def update_webhook(self, project, integration):
-        """Update webhook integration
+        """
+        Update webhook integration.
 
         :param project: project to set up webhook for
         :type project: Project

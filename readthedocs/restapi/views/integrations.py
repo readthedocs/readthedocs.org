@@ -39,7 +39,7 @@ class WebhookMixin(object):
     integration_type = None
 
     def post(self, request, project_slug):
-        """Set up webhook post view with request and project objects"""
+        """Set up webhook post view with request and project objects."""
         self.request = request
         self.project = None
         try:
@@ -57,7 +57,7 @@ class WebhookMixin(object):
         return Project.objects.get(**kwargs)
 
     def finalize_response(self, req, *args, **kwargs):
-        """If the project was set on POST, store an HTTP exchange"""
+        """If the project was set on POST, store an HTTP exchange."""
         resp = super(WebhookMixin, self).finalize_response(req, *args, **kwargs)
         if hasattr(self, 'project') and self.project:
             HttpExchange.objects.from_exchange(
@@ -69,15 +69,16 @@ class WebhookMixin(object):
         return resp
 
     def get_data(self):
-        """Normalize posted data"""
+        """Normalize posted data."""
         return normalize_request_payload(self.request)
 
     def handle_webhook(self):
-        """Handle webhook payload"""
+        """Handle webhook payload."""
         raise NotImplementedError
 
     def get_integration(self):
-        """Get or create an inbound webhook to track webhook requests
+        """
+        Get or create an inbound webhook to track webhook requests.
 
         We shouldn't need this, but to support legacy webhooks, we can't assume
         that a webhook has ever been created on our side. Most providers don't
@@ -97,7 +98,8 @@ class WebhookMixin(object):
         return integration
 
     def get_response_push(self, project, branches):
-        """Build branches on push events and return API response
+        """
+        Build branches on push events and return API response.
 
         Return a JSON response with the following::
 
@@ -124,7 +126,8 @@ class WebhookMixin(object):
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
-    """Webhook consumer for GitHub
+    """
+    Webhook consumer for GitHub.
 
     Accepts webhook events from GitHub, 'push' events trigger builds. Expects the
     webhook event type will be included in HTTP header ``X-GitHub-Event``, and
@@ -164,7 +167,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
 class GitLabWebhookView(WebhookMixin, APIView):
 
-    """Webhook consumer for GitLab
+    """
+    Webhook consumer for GitLab.
 
     Accepts webhook events from GitLab, 'push' events trigger builds.
 
@@ -195,7 +199,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
 class BitbucketWebhookView(WebhookMixin, APIView):
 
-    """Webhook consumer for Bitbucket
+    """
+    Webhook consumer for Bitbucket.
 
     Accepts webhook events from Bitbucket, 'repo:push' events trigger builds.
 
@@ -236,7 +241,8 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
-    """Allow authenticated users and requests with token auth through
+    """
+    Allow authenticated users and requests with token auth through.
 
     This does not check for instance-level permissions, as the check uses
     methods from the view to determine if the token matches.
@@ -250,7 +256,8 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
 class APIWebhookView(WebhookMixin, APIView):
 
-    """API webhook consumer
+    """
+    API webhook consumer.
 
     Expects the following JSON::
 
@@ -263,7 +270,8 @@ class APIWebhookView(WebhookMixin, APIView):
     permission_classes = [IsAuthenticatedOrHasToken]
 
     def get_project(self, **kwargs):
-        """Get authenticated user projects, or token authed projects
+        """
+        Get authenticated user projects, or token authed projects.
 
         Allow for a user to either be authed to receive a project, or require
         the integration token to be specified as a POST argument.
@@ -304,7 +312,8 @@ class APIWebhookView(WebhookMixin, APIView):
 
 class WebhookView(APIView):
 
-    """This is the main webhook view for webhooks with an ID
+    """
+    Main webhook view for webhooks with an ID.
 
     The handling of each view is handed off to another view. This should only
     ever get webhook requests for established webhooks on our side. The other
@@ -320,7 +329,7 @@ class WebhookView(APIView):
     }
 
     def post(self, request, project_slug, integration_pk):
-        """Set up webhook post view with request and project objects"""
+        """Set up webhook post view with request and project objects."""
         integration = get_object_or_404(
             Integration,
             project__slug=project_slug,

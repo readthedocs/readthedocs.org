@@ -1,4 +1,4 @@
-"""Project models"""
+"""Project models."""
 
 from __future__ import absolute_import
 
@@ -43,7 +43,8 @@ log = logging.getLogger(__name__)
 @python_2_unicode_compatible
 class ProjectRelationship(models.Model):
 
-    """Project to project relationship
+    """
+    Project to project relationship.
 
     This is used for subprojects
     """
@@ -72,7 +73,7 @@ class ProjectRelationship(models.Model):
 @python_2_unicode_compatible
 class Project(models.Model):
 
-    """Project model"""
+    """Project model."""
 
     # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
@@ -343,7 +344,8 @@ class Project(models.Model):
         return reverse('projects_detail', args=[self.slug])
 
     def get_docs_url(self, version_slug=None, lang_slug=None, private=None):
-        """Return a URL for the docs
+        """
+        Return a URL for the docs.
 
         Always use http for now, to avoid content warnings.
         """
@@ -360,7 +362,8 @@ class Project(models.Model):
         return self.get_docs_url()
 
     def get_subproject_urls(self):
-        """List subproject URLs
+        """
+        List subproject URLs.
 
         This is used in search result linking
         """
@@ -375,12 +378,13 @@ class Project(models.Model):
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
-        This is used to see if these files exist so we can offer them for download.
+        Used to see if these files exist so we can offer them for download.
 
         :param type_: Media content type, ie - 'pdf', 'zip'
         :param version_slug: Project version slug for lookup
         :param include_file: Include file name in return
         :type include_file: bool
+
         :returns: Full path to media file or path
         """
         if getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public') == 'public' or settings.DEBUG:
@@ -409,7 +413,7 @@ class Project(models.Model):
         return path
 
     def subdomain(self):
-        """Get project subdomain from resolver"""
+        """Get project subdomain from resolver."""
         return resolve_domain(self)
 
     def get_downloads(self):
@@ -440,7 +444,7 @@ class Project(models.Model):
 
     @property
     def pip_cache_path(self):
-        """Path to pip cache"""
+        """Path to pip cache."""
         if getattr(settings, 'GLOBAL_PIP_CACHE', False):
             return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
@@ -449,7 +453,7 @@ class Project(models.Model):
     # Paths for symlinks in project doc_path.
     #
     def translations_symlink_path(self, language=None):
-        """Path in the doc_path that we symlink translations"""
+        """Path in the doc_path that we symlink translations."""
         if not language:
             language = self.language
         return os.path.join(self.doc_path, 'translations', language)
@@ -459,7 +463,7 @@ class Project(models.Model):
     #
 
     def full_doc_path(self, version=LATEST):
-        """The path to the documentation root in the project"""
+        """The path to the documentation root in the project."""
         doc_base = self.checkout_path(version)
         for possible_path in ['docs', 'doc', 'Doc']:
             if os.path.exists(os.path.join(doc_base, '%s' % possible_path)):
@@ -468,19 +472,19 @@ class Project(models.Model):
         return doc_base
 
     def artifact_path(self, type_, version=LATEST):
-        """The path to the build html docs in the project"""
+        """The path to the build html docs in the project."""
         return os.path.join(self.doc_path, "artifacts", version, type_)
 
     def full_build_path(self, version=LATEST):
-        """The path to the build html docs in the project"""
+        """The path to the build html docs in the project."""
         return os.path.join(self.conf_dir(version), "_build", "html")
 
     def full_latex_path(self, version=LATEST):
-        """The path to the build LaTeX docs in the project"""
+        """The path to the build LaTeX docs in the project."""
         return os.path.join(self.conf_dir(version), "_build", "latex")
 
     def full_epub_path(self, version=LATEST):
-        """The path to the build epub docs in the project"""
+        """The path to the build epub docs in the project."""
         return os.path.join(self.conf_dir(version), "_build", "epub")
 
     # There is currently no support for building man/dash formats, but we keep
@@ -488,34 +492,34 @@ class Project(models.Model):
     # legacy builds.
 
     def full_man_path(self, version=LATEST):
-        """The path to the build man docs in the project"""
+        """The path to the build man docs in the project."""
         return os.path.join(self.conf_dir(version), "_build", "man")
 
     def full_dash_path(self, version=LATEST):
-        """The path to the build dash docs in the project"""
+        """The path to the build dash docs in the project."""
         return os.path.join(self.conf_dir(version), "_build", "dash")
 
     def full_json_path(self, version=LATEST):
-        """The path to the build json docs in the project"""
+        """The path to the build json docs in the project."""
         if 'sphinx' in self.documentation_type:
             return os.path.join(self.conf_dir(version), "_build", "json")
         elif 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), "_build", "json")
 
     def full_singlehtml_path(self, version=LATEST):
-        """The path to the build singlehtml docs in the project"""
+        """The path to the build singlehtml docs in the project."""
         return os.path.join(self.conf_dir(version), "_build", "singlehtml")
 
     def rtd_build_path(self, version=LATEST):
-        """The destination path where the built docs are copied"""
+        """The destination path where the built docs are copied."""
         return os.path.join(self.doc_path, 'rtd-builds', version)
 
     def static_metadata_path(self):
-        """The path to the static metadata JSON settings file"""
+        """The path to the static metadata JSON settings file."""
         return os.path.join(self.doc_path, 'metadata.json')
 
     def conf_file(self, version=LATEST):
-        """Find a ``conf.py`` file in the project checkout"""
+        """Find a ``conf.py`` file in the project checkout."""
         if self.conf_py_file:
             conf_path = os.path.join(self.checkout_path(version), self.conf_py_file)
             if os.path.exists(conf_path):
@@ -542,12 +546,12 @@ class Project(models.Model):
 
     @property
     def is_type_sphinx(self):
-        """Is project type Sphinx"""
+        """Is project type Sphinx."""
         return 'sphinx' in self.documentation_type
 
     @property
     def is_type_mkdocs(self):
-        """Is project type Mkdocs"""
+        """Is project type Mkdocs."""
         return 'mkdocs' in self.documentation_type
 
     @property
@@ -603,7 +607,8 @@ class Project(models.Model):
         return Lock(self, version, timeout, polling_interval)
 
     def find(self, filename, version):
-        """Find files inside the project's ``doc`` path
+        """
+        Find files inside the project's ``doc`` path.
 
         :param filename: Filename to search for in project checkout
         :param version: Version instance to set version checkout path
@@ -615,7 +620,8 @@ class Project(models.Model):
         return matches
 
     def full_find(self, filename, version):
-        """Find files inside a project's checkout path
+        """
+        Find files inside a project's checkout path.
 
         :param filename: Filename to search for in project checkout
         :param version: Version instance to set version checkout path
@@ -628,10 +634,9 @@ class Project(models.Model):
 
     def get_latest_build(self, finished=True):
         """
-        Get latest build for project
+        Get latest build for project.
 
-        finished
-            Return only builds that are in a finished state
+        finished -- Return only builds that are in a finished state
         """
         kwargs = {'type': 'html'}
         if finished:
@@ -664,7 +669,8 @@ class Project(models.Model):
         return sort_version_aware(versions)
 
     def all_active_versions(self):
-        """Get queryset with all active versions
+        """
+        Get queryset with all active versions.
 
         .. note::
             This is a temporary workaround for activate_versions filtering out
@@ -675,7 +681,8 @@ class Project(models.Model):
         return self.versions.filter(active=True)
 
     def supported_versions(self):
-        """Get the list of supported versions
+        """
+        Get the list of supported versions.
 
         :returns: List of version strings.
         """
@@ -693,7 +700,8 @@ class Project(models.Model):
         return self.versions.filter(slug=STABLE).first()
 
     def update_stable_version(self):
-        """Returns the version that was promoted to be the new stable version
+        """
+        Returns the version that was promoted to be the new stable version.
 
         Return ``None`` if no update was mode or if there is no version on the
         project that can be considered stable.
@@ -749,7 +757,7 @@ class Project(models.Model):
         return LATEST
 
     def get_default_branch(self):
-        """Get the version representing 'latest'"""
+        """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
         return self.vcs_repo().fallback_branch
@@ -776,7 +784,8 @@ class Project(models.Model):
         return queue
 
     def add_node(self, content_hash, page, version, commit):
-        """Add comment node
+        """
+        Add comment node.
 
         :param content_hash: Hash of node content
         :param page: Doc page for node
@@ -804,7 +813,8 @@ class Project(models.Model):
         return True  # ie, it's True that a new node was created.
 
     def add_comment(self, version_slug, page, content_hash, commit, user, text):
-        """Add comment to node
+        """
+        Add comment to node.
 
         :param version_slug: Version slug to use for node lookup
         :param page: Page to attach comment to
@@ -827,7 +837,8 @@ class Project(models.Model):
         return Feature.objects.for_project(self)
 
     def has_feature(self, feature_id):
-        """Does project have existing feature flag
+        """
+        Does project have existing feature flag.
 
         If the feature has a historical True value before the feature was added,
         we consider the project to have the flag. This is used for deprecating a
@@ -836,7 +847,8 @@ class Project(models.Model):
         return self.features.filter(feature_id=feature_id).exists()
 
     def get_feature_value(self, feature, positive, negative):
-        """Look up project feature, return corresponding value
+        """
+        Look up project feature, return corresponding value.
 
         If a project has a feature, return ``positive``, otherwise return
         ``negative``
@@ -846,7 +858,8 @@ class Project(models.Model):
 
 class APIProject(Project):
 
-    """Project proxy model for API data deserialization
+    """
+    Project proxy model for API data deserialization.
 
     This replaces the pattern where API data was deserialized into a mocked
     :py:cls:`Project` object. This pattern was confusing, as it was not explicit
@@ -885,7 +898,8 @@ class APIProject(Project):
 @python_2_unicode_compatible
 class ImportedFile(models.Model):
 
-    """Imported files model
+    """
+    Imported files model.
 
     This tracks files that are output from documentation builds, useful for
     things like CDN invalidation.
@@ -986,7 +1000,8 @@ class Domain(models.Model):
 @python_2_unicode_compatible
 class Feature(models.Model):
 
-    """Project feature flags
+    """
+    Project feature flags.
 
     Features should generally be added here as choices, however features may
     also be added dynamically from a signal in other packages. Features can be
@@ -1041,7 +1056,8 @@ class Feature(models.Model):
         )
 
     def get_feature_display(self):
-        """Implement display name field for fake ChoiceField
+        """
+        Implement display name field for fake ChoiceField.
 
         Because the field is not a ChoiceField here, we need to manually
         implement this behavior.

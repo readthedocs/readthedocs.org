@@ -9,10 +9,10 @@ import os
 from readthedocs.core.settings import Settings
 
 try:
-    import readthedocsext.donate  # noqa
-    donate = True
+    import readthedocsext  # noqa
+    ext = True
 except ImportError:
-    donate = False
+    ext = False
 
 
 _ = gettext = lambda s: s
@@ -77,7 +77,6 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'corsheaders',
-            'copyright',
             'textclassifier',
             'annoying',
             'django_extensions',
@@ -113,9 +112,10 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
-        if donate:
+        if ext:
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
+            apps.append('readthedocsext.embed')
         return apps
 
     TEMPLATE_LOADERS = (
@@ -314,7 +314,6 @@ class CommunityBaseSettings(Settings):
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
     GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
-    COPY_START_YEAR = 2010
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,

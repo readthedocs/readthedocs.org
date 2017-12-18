@@ -74,7 +74,8 @@ class DomainInline(admin.TabularInline):
 
 class ProjectOwnerBannedFilter(admin.SimpleListFilter):
 
-    """Filter for projects with banned owners
+    """
+    Filter for projects with banned owners.
 
     There are problems adding `users__profile__banned` to the `list_filter`
     attribute, so we'll create a basic filter to capture banned owners.
@@ -98,7 +99,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
 
 class ProjectAdmin(GuardedModelAdmin):
 
-    """Project model admin view"""
+    """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'repo', 'repo_type', 'allow_comments', 'featured', 'theme')
@@ -121,7 +122,8 @@ class ProjectAdmin(GuardedModelAdmin):
     send_owner_email.short_description = 'Notify project owners'
 
     def ban_owner(self, request, queryset):
-        """Ban project owner
+        """
+        Ban project owner.
 
         This will only ban single owners, because a malicious user could add a
         user as a co-owner of the project. We don't want to induce and
@@ -146,7 +148,8 @@ class ProjectAdmin(GuardedModelAdmin):
     ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
-        """Remove HTML/etc artifacts from application instances
+        """
+        Remove HTML/etc artifacts from application instances.
 
         Prior to the query delete, broadcast tasks to delete HTML artifacts from
         application instances.

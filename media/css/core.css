@@ -690,19 +690,16 @@ div.project-import-remote button.remote-sync:before {
     content: "\f021";
 }
 
-div.project-import-remote form.import-connect-github button:before,
 a.socialaccount-provider.github:before {
     font-family: FontAwesome;
     content: "\f09b";
 }
 
-div.project-import-remote form.import-connect-gitlab button:before,
 a.socialaccount-provider.gitlab:before {
     font-family: FontAwesome;
-    content: "\f1d3";
+    content: "\f296";
 }
 
-div.project-import-remote form.import-connect-bitbucket button:before,
 a.socialaccount-provider.bitbucket:before,
 a.socialaccount-provider.bitbucket_oauth2:before {
     font-family: FontAwesome;

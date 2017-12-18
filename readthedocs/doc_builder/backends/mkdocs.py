@@ -1,7 +1,7 @@
-"""MkDocs_ backend for building docs.
+"""
+MkDocs_ backend for building docs.
 
 .. _MkDocs: http://www.mkdocs.org/
-
 """
 from __future__ import absolute_import
 import os
@@ -22,10 +22,10 @@ OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.S
 
 
 def get_absolute_media_url():
-    """Get the fully qualified media URL from settings.
+    """
+    Get the fully qualified media URL from settings.
 
     Mkdocs needs a full domain because it tries to link to local media files.
-
     """
     media_url = settings.MEDIA_URL
 
@@ -38,7 +38,7 @@ def get_absolute_media_url():
 
 class BaseMkdocs(BaseBuilder):
 
-    """Mkdocs builder"""
+    """Mkdocs builder."""
 
     use_theme = True
 
@@ -50,10 +50,10 @@ class BaseMkdocs(BaseBuilder):
         self.root_path = self.version.project.checkout_path(self.version.slug)
 
     def load_yaml_config(self):
-        """Load a YAML config.
+        """
+        Load a YAML config.
 
         Raise BuildEnvironmentError if failed due to syntax errors.
-
         """
         try:
             return yaml.safe_load(
@@ -74,7 +74,7 @@ class BaseMkdocs(BaseBuilder):
                     note,))
 
     def append_conf(self, **__):
-        """Set mkdocs config values"""
+        """Set mkdocs config values."""
         # Pull mkdocs config data
         user_config = self.load_yaml_config()
 
