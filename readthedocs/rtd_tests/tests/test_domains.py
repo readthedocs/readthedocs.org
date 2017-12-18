@@ -81,6 +81,20 @@ class FormTests(TestCase):
                           project=self.project)
         self.assertFalse(form.is_valid())
 
+    def test_canonical_change(self):
+        """Make sure https is an admin-only attribute"""
+        form = DomainForm({'domain': 'example.com', 'canonical': True},
+                          project=self.project)
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertTrue(domain.canonical, 'example.com')
+
+        form = DomainForm({'domain': 'example2.com', 'canonical': True},
+                          project=self.project)
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertTrue(domain.canonical, 'example2.com')
+
 
 class TestAPI(TestCase):
 
