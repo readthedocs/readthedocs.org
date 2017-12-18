@@ -162,7 +162,10 @@ class GitLabService(Service):
 
             owner = fields.get('owner') or {}
             repo.avatar_url = (
-                fields.get('avatar_url') or owner.get('avatar_url'))
+                fields.get('avatar_url') or owner.get('avatar_url')
+            )
+            if not repo.avatar_url:
+                repo.avatar_url = self.default_user_avatar_url
 
             repo.json = json.dumps(fields)
             repo.save()
@@ -201,6 +204,8 @@ class GitLabService(Service):
             path=fields.get('path'),
         )
         organization.avatar_url = fields.get('avatar_url')
+        if not organization.avatar_url:
+            organization.avatar_url = self.default_user_avatar_url
         organization.json = json.dumps(fields)
         organization.save()
         return organization

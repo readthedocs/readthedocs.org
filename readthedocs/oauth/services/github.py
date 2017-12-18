@@ -114,6 +114,8 @@ class GitHubService(Service):
             repo.vcs = 'git'
             repo.account = self.account
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+            if not repo.avatar_url:
+                repo.avatar_url = self.default_user_avatar_url
             repo.json = json.dumps(fields)
             repo.save()
             return repo
@@ -143,6 +145,8 @@ class GitHubService(Service):
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
+        if not organization.avatar_url:
+            organization.avatar_url = self.default_org_avatar_url
         organization.json = json.dumps(fields)
         organization.account = self.account
         organization.save()

@@ -136,6 +136,8 @@ class BitbucketService(Service):
 
             avatar_url = fields['links']['avatar']['href'] or ''
             repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
+            if not repo.avatar_url:
+                repo.avatar_url = self.default_user_avatar_url
 
             repo.json = json.dumps(fields)
             repo.save()
@@ -157,6 +159,8 @@ class BitbucketService(Service):
         organization.name = fields.get('display_name')
         organization.email = fields.get('email')
         organization.avatar_url = fields['links']['avatar']['href']
+        if not organization.avatar_url:
+            organization.avatar_url = self.default_org_avatar_url
         organization.url = fields['links']['html']['href']
         organization.json = json.dumps(fields)
         organization.account = self.account
