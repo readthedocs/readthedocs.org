@@ -3,6 +3,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import mock
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -42,7 +43,10 @@ class GitHubOAuthTests(TestCase):
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testuser/testrepo')
         self.assertEqual(repo.description, 'Test Repo')
-        self.assertIsNone(repo.avatar_url)
+        self.assertEqual(
+            repo.avatar_url,
+            settings.OAUTH_AVATAR_USER_DEFAULT_URL,
+        )
         self.assertIn(self.user, repo.users.all())
         self.assertEqual(repo.organization, self.org)
         self.assertEqual(

@@ -1,4 +1,4 @@
-"""Basic tasks"""
+"""Basic tasks."""
 
 from __future__ import absolute_import
 import logging
@@ -19,7 +19,8 @@ EMAIL_TIME_LIMIT = 30
 @app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
 def send_email_task(recipient, subject, template, template_html,
                     context=None, from_email=None, **kwargs):
-    """Send multipart email
+    """
+    Send multipart email.
 
     recipient
         Email recipient address

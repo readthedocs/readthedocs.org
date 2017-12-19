@@ -107,7 +107,8 @@ def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
 
-    Check each of the ``branches`` to see if they are active and should be built.
+    Check each of the ``branches`` to see if they are active and should be
+    built.
     """
     ret = ""
     all_built = {}
@@ -152,7 +153,7 @@ def _build_url(url, projects, branches):
 @csrf_exempt
 def github_build(request):  # noqa: D205
     """
-    GitHub webhook consumer
+    GitHub webhook consumer.
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.integrations.GitHubWebhookView`
@@ -206,7 +207,8 @@ def github_build(request):  # noqa: D205
 
 @csrf_exempt
 def gitlab_build(request):  # noqa: D205
-    """GitLab webhook consumer
+    """
+    GitLab webhook consumer.
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.integrations.GitLabWebhookView`
@@ -239,7 +241,8 @@ def gitlab_build(request):  # noqa: D205
 
 @csrf_exempt
 def bitbucket_build(request):
-    """Consume webhooks from multiple versions of Bitbucket's API
+    """
+    Consume webhooks from multiple versions of Bitbucket's API.
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
@@ -307,11 +310,13 @@ def bitbucket_build(request):
 
 @csrf_exempt
 def generic_build(request, project_id_or_slug=None):
-    """Generic webhook build endpoint
+    """
+    Generic webhook build endpoint.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
-        instead of this view function
+
+      Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
+      instead of this view function
     """
     try:
         project = Project.objects.get(pk=project_id_or_slug)

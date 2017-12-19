@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 @decorators.permission_classes((permissions.IsAdminUser,))
 @decorators.renderer_classes((JSONRenderer,))
 def index_search(request):
-    """Add things to the search index"""
+    """Add things to the search index."""
     data = request.data['data']
     version_pk = data['version_pk']
     commit = data.get('commit')
@@ -41,7 +41,7 @@ def index_search(request):
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer,))
 def search(request):
-    """Perform search, supplement links by resolving project domains"""
+    """Perform search, supplement links by resolving project domains."""
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
@@ -100,7 +100,8 @@ def project_search(request):
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer,))
 def section_search(request):
-    """Section search
+    """
+    Section search.
 
     Queries with query ``q`` across all documents and projects. Queries can be
     limited to a single project or version by using the ``project`` and
@@ -129,7 +130,6 @@ def section_search(request):
     Example::
 
         GET /api/v2/search/section/?q=virtualenv&project=django
-
     """
     query = request.GET.get('q', None)
     if not query:

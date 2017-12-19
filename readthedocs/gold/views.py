@@ -1,4 +1,4 @@
-"""Gold subscription views"""
+"""Gold subscription views."""
 
 from __future__ import absolute_import
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -22,7 +22,7 @@ from .models import GoldUser
 
 class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin):
 
-    """Gold subscription mixin for view classes"""
+    """Gold subscription mixin for view classes."""
 
     model = GoldUser
     form_class = GoldSubscriptionForm
@@ -34,7 +34,7 @@ class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin
             return None
 
     def get_form(self, data=None, files=None, **kwargs):
-        """Pass in copy of POST data to avoid read only QueryDicts"""
+        """Pass in copy of POST data to avoid read only QueryDicts."""
         kwargs['customer'] = self.request.user
         return super(GoldSubscriptionMixin, self).get_form(data, files, **kwargs)
 
@@ -57,7 +57,8 @@ class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin, LoginRequiredMixin
 class DetailGoldSubscription(GoldSubscriptionMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
-        """GET handling for this view
+        """
+        GET handling for this view.
 
         If there is a gold subscription instance, then we show the normal detail
         page, otherwise show the registration form
@@ -74,7 +75,8 @@ class UpdateGoldSubscription(GoldSubscriptionMixin, UpdateView):
 
 class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
 
-    """Delete Gold subscription view
+    """
+    Delete Gold subscription view.
 
     On object deletion, the corresponding Stripe customer is deleted as well.
     Deletion is triggered on subscription deletion using a signal, ensuring the
@@ -84,7 +86,7 @@ class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
     success_message = _('Your subscription has been cancelled')
 
     def post(self, request, *args, **kwargs):
-        """Add success message to delete post"""
+        """Add success message to delete post."""
         resp = super(DeleteGoldSubscription, self).post(request, *args, **kwargs)
         success_message = self.get_success_message({})
         if success_message:

@@ -37,20 +37,22 @@ class RTDTestCase(TestCase):
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
 class MockBuildTestCase(TestCase):
 
-    """Mock build triggers for test cases"""
+    """Mock build triggers for test cases."""
 
     pass
 
 
 class RequestFactoryTestMixin(object):
 
-    """Adds helper methods for testing with :py:class:`RequestFactory`
+    """
+    Adds helper methods for testing with :py:class:`RequestFactory`
 
     This handles setting up authentication, messages, and session handling
     """
 
     def request(self, *args, **kwargs):
-        """Perform request from factory
+        """
+        Perform request from factory.
 
         :param method: Request method as string
         :returns: Request instance
@@ -88,7 +90,7 @@ class RequestFactoryTestMixin(object):
 
 class WizardTestCase(RequestFactoryTestMixin, TestCase):
 
-    """Test case for testing wizard forms"""
+    """Test case for testing wizard forms."""
 
     step_data = OrderedDict({})
     url = None
@@ -97,7 +99,8 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
 
     @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
     def post_step(self, step, **kwargs):
-        """Post step form data to `url`, using supplementary `kwargs`
+        """
+        Post step form data to `url`, using supplementary `kwargs`
 
         Use data from kwargs to build dict to pass into form
         """
@@ -121,7 +124,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
     # We use camelCase on purpose here to conform with unittest's naming
     # conventions.
     def assertWizardResponse(self, response, step=None):  # noqa
-        """Assert successful wizard response"""
+        """Assert successful wizard response."""
         # This is the last form
         if step is None:
             try:
@@ -149,7 +152,8 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
     # We use camelCase on purpose here to conform with unittest's naming
     # conventions.
     def assertWizardFailure(self, response, field, match=None):  # noqa
-        """Assert field threw a validation error
+        """
+        Assert field threw a validation error.
 
         response
             Client response object
