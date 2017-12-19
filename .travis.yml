@@ -34,3 +34,9 @@ notifications:
       - readthedocs:y3hjODOi7EIz1JAbD1Zb41sz#random
     on_success: change
     on_failure: always
+addons:
+  apt:
+    packages:
+    - binutils
+    - libproj-dev
+    - gdal-bin
