@@ -35,7 +35,7 @@ Promo.prototype.create = function () {
         menu = this.get_sphinx_rtd_theme_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'wy-menu';
     }
-    else if (this.theme == constants.THEME_ALABASTER) {
+    else if (this.theme == constants.THEME_ALABASTER || this.theme == constants.THEME_CELERY) {
         menu = this.get_alabaster_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'alabaster';
     }
