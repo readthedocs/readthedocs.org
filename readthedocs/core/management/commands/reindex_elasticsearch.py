@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import logging
 from optparse import make_option
+import socket
 
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
@@ -38,6 +39,7 @@ class Command(BaseCommand):
                     u'No project with slug: {slug}'.format(slug=project))
             log.info(u"Building all versions for %s", project)
         if getattr(settings, 'INDEX_ONLY_LATEST', True):
+            log.warning('Indexing only latest')
             queryset = queryset.filter(slug=LATEST)
 
         for version in queryset:
@@ -50,7 +52,9 @@ class Command(BaseCommand):
                 commit = None
 
             try:
-                update_search(version.pk, commit,
-                              delete_non_commit_files=False)
+                update_search.apply_async(args=[version.pk, commit],
+                              kwargs=dict(delete_non_commit_files=False),
+                              priority=0,
+                              queue=socket.gethostname())
             except Exception:
                 log.exception(u'Reindex failed for {}'.format(version))
