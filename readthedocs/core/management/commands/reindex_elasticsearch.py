@@ -27,7 +27,8 @@ class Command(BaseCommand):
                     help='Project to index'),
         make_option('-l',
                     dest='only_latest',
-                    default=True,
+                    default=False,
+                    action='store_true',
                     help='Only index latest'),
     )
 
@@ -48,17 +49,18 @@ class Command(BaseCommand):
             log.warning('Indexing only latest')
             queryset = queryset.filter(slug=LATEST)
 
-        for version_pk, version_slug in queryset.values_list('pk', 'slug'):
-            log.info(u'Reindexing %s', version_slug)
+        for version_pk, version_slug, project_slug in queryset.values_list(
+                'pk', 'slug', 'project__slug'):
+            log.info(u'Reindexing %s:%s' % (project_slug, version_slug))
             try:
                 update_search.apply_async(
                     kwargs=dict(
                         version_pk=version_pk,
-                        commit='initial',
+                        commit='reindex',
                         delete_non_commit_files=False
                     ),
                     priority=0,
                     queue=socket.gethostname()
                 )
             except Exception:
-                log.exception(u'Reindex failed for {}'.format(version_slug))
+                log.exception(u'Reindexing failed for %s:%s' % (project_slug, version_slug))
