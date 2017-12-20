@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from haystack.forms import SearchForm
 from haystack.query import SearchQuerySet
 from django import forms
+from django.conf import settings
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
 
@@ -22,8 +23,10 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta(object):
         model = UserProfile
-        # Don't allow users edit someone else's user page,
+        # Don't allow users edit someone else's user page
         fields = ['first_name', 'last_name', 'homepage', 'allow_ads']
+        if not settings.USE_PROMOS:
+            del fields[fields.index('allow_ads')]
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
