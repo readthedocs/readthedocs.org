@@ -8,6 +8,7 @@ import mock
 from builtins import str
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -508,3 +509,58 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
+
+
+class APIVersionTests(TestCase):
+    fixtures = ['eric', 'test_data']
+
+    def test_get_version_by_id(self):
+        pip = Project.objects.get(slug='pip')
+        version = pip.versions.get(slug='0.8')
+
+        data = {
+            'pk': version.pk,
+        }
+        resp = self.client.get(
+            reverse('version-detail', kwargs=data),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Basic %s' % eric_auth,
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        version_data = {
+            'type': 'tag', 'verbose_name': '0.8', 'built': False, 'id': 18, 'active': True,
+            'project': {
+                'analytics_code': None,
+                'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
+                'cdn_enabled': False,
+                'conf_py_file': '',
+                'container_image': None,
+                'container_mem_limit': None,
+                'container_time_limit': None,
+                'default_branch': None,
+                'default_version': 'latest',
+                'description': '',
+                'documentation_type': 'sphinx',
+                'enable_epub_build': True,
+                'enable_pdf_build': True,
+                'features': ['allow_deprecated_webhooks'],
+                'id': 6,
+                'install_project': False,
+                'language': 'en',
+                'name': 'Pip',
+                'python_interpreter': 'python',
+                'repo': 'https://github.com/pypa/pip',
+                'repo_type': 'git',
+                'requirements_file': None,
+                'skip': False,
+                'slug': 'pip',
+                'suffix': '.rst',
+                'use_system_packages': False,
+                'users': [1]}, 'downloads': {}, 'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950', 'slug': '0.8'
+        }
+
+        self.assertDictEqual(
+            resp.data,
+            version_data,
+        )
