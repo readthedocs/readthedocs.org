@@ -525,7 +525,7 @@ class APIVersionTests(TestCase):
         resp = self.client.get(
             reverse('version-detail', kwargs=data),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Basic %s' % eric_auth,
+            HTTP_AUTHORIZATION='Basic {}'.format(eric_auth),
         )
         self.assertEqual(resp.status_code, 200)
 
