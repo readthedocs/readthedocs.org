@@ -516,6 +516,12 @@ class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
 
     def test_get_version_by_id(self):
+        """
+        Test the full response of ``/api/v2/version/{pk}`` is what we expects.
+
+        Allows us to notice changes in the fields returned by the endpoint
+        instead of let them pass silently.
+        """
         pip = Project.objects.get(slug='pip')
         version = pip.versions.get(slug='0.8')
 
