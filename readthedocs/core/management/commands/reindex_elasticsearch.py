@@ -7,7 +7,6 @@ from __future__ import (
 import logging
 import socket
 from optparse import make_option
-import socket
 
 from django.core.management.base import BaseCommand, CommandError
 
