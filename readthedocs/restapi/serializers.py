@@ -73,6 +73,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'identifier', 'verbose_name',
             'active', 'built',
             'downloads',
+            'type',
         )
 
 
