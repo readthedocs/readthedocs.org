@@ -74,7 +74,7 @@ class Index(object):
         analyzers['default_icu'] = {
             'type': 'custom',
             'tokenizer': 'icu_tokenizer',
-            'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
+            'filter': ['custom_word_delimiter', 'icu_folding', 'icu_normalizer', 'lowercase'],
         }
 
         # Customize the word_delimiter filter to set various options.
