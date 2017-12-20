@@ -35,7 +35,7 @@ repos:
     - id: yapf
       exclude: 'migrations|settings|scripts'
       additional_dependencies: ['futures']
-      args: ['--style=.style.yapf', '--parallel']
+      args: ['--style=.style.yapf', '--parallel', '--in-place']
 
 - repo: git@github.com:FalconSocial/pre-commit-python-sorter.git
   sha: b57843b0b874df1d16eb0bef00b868792cb245c2
