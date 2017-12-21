@@ -1,6 +1,8 @@
 Version 2.1.3
 -------------
 
+:date: Dec 21, 2017
+
  * `@ericholscher <http://github.com/ericholscher>`_: Upgrade psycopg2 (`#3429 <https://github.com/rtfd/readthedocs.org/pull/3429>`_)
  * `@humitos <http://github.com/humitos>`_: Fix "Edit in Github" link (`#3427 <https://github.com/rtfd/readthedocs.org/pull/3427>`_)
  * `@ericholscher <http://github.com/ericholscher>`_: Add celery theme to supported ad options (`#3425 <https://github.com/rtfd/readthedocs.org/pull/3425>`_)
