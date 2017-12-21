@@ -141,7 +141,8 @@ class PythonEnvironment(object):
         # one coming from the project version config.
         return any([
             env_python_version != Version(self.config.python_version),
-            env_build_image != self.config.build_image,
+            # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
+            env_build_image != getattr(self.config, 'build_image', self.version.project.container_image),
         ])
 
     def save_environment_json(self):
@@ -153,7 +154,8 @@ class PythonEnvironment(object):
                 'version': self.config.python_version,
             },
             'build': {
-                'image': self.config.build_image,
+                # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
+                'image': getattr(self.config, 'build_image', self.version.project.container_image),
             },
         }
         with open(self.environment_json_path(), 'w') as fpath:
