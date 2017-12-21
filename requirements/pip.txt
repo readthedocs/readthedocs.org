@@ -2,34 +2,39 @@
 pip==9.0.1
 appdirs==1.4.3
 virtualenv==15.1.0
-docutils==0.13.1
-Sphinx==1.6.2
+docutils==0.14
+Sphinx==1.6.5
 sphinx_rtd_theme==0.2.5b1
 Pygments==2.2.0
-mkdocs==0.16.3
-django==1.9.12
-six==1.10.0
+mkdocs==0.17.2
+django==1.9.13
+six==1.11.0
 future==0.16.0
 readthedocs-build<2.1
 
-django-tastypie==0.13.3
+# django-tastypie 0.13.x and 0.14.0 are not compatible with our code
+django-tastypie==0.13.0
+
 django-haystack==2.6.1
 celery-haystack==0.10
-django-guardian==1.4.8
-django-extensions==1.7.9
-djangorestframework==3.6.3
-django-vanilla-views==1.0.4
-jsonfield==2.0.1
+django-guardian==1.4.9
+django-extensions==1.9.8
 
-requests==2.16.5
+# djangorestframework 3.7.x drops support for django 1.9.x
+djangorestframework==3.6.4
+
+django-vanilla-views==1.0.4
+jsonfield==2.0.2
+
+requests==2.18.4
 slumber==0.7.1
-lxml==3.7.3
+lxml==4.1.1
 defusedxml==0.5.0
 
 # Basic tools
 redis==2.10.6
 celery==4.1.0
-django-allauth==0.32.0
+django-allauth==0.34.0
 dnspython==1.15.0
 
 # VCS
@@ -38,22 +43,26 @@ httplib2==0.10.3
 # Search
 elasticsearch==1.5.0
 pyelasticsearch==0.7.1
-pyquery==1.2.17
+pyquery==1.3.0
 
 # Utils
-django-gravatar2==1.4.0
-pytz==2013b
+django-gravatar2==1.4.2
+pytz==2017.3
 beautifulsoup4==4.6.0
 Unipath==1.1
 django-kombu==0.9.4
 mimeparse==0.1.3
 mock==2.0.0
-stripe==1.56.0
-django-formtools==2.0
-django-dynamic-fixture==1.9.5
+
+# stripe 1.20.2 is the latest compatible with our code base (otherwise
+# gold/tests/test_forms.py fails)
+stripe==1.20.2
+
+django-formtools==2.1
+django-dynamic-fixture==2.0.0
 docker-py==1.3.1
 django-textclassifier==1.0
-django-annoying==0.10.3
+django-annoying==0.10.4
 django-messages-extends==0.5
 djangorestframework-jsonp==1.0.2
 django-taggit==0.22.2
@@ -61,7 +70,7 @@ dj-pagination==2.3.2
 
 # Docs
 sphinxcontrib-httpdomain==1.5.0
-commonmark==0.7.3
+commonmark==0.7.4
 recommonmark==0.4.0
 
 # Version comparison stuff
