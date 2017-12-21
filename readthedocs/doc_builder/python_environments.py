@@ -128,10 +128,11 @@ class PythonEnvironment(object):
             return False
 
         try:
-            environment_conf = json.load(self.environment_json_path())
+            with open(self.environment_json_path(), 'r') as fpath:
+                environment_conf = json.load(fpath)
             env_python_version = Version(environment_conf['python']['version'])
             env_build_image = Version(environment_conf['build']['image'])
-        except (TypeError, KeyError, json.decoder.JSONDecodeError):
+        except (TypeError, KeyError, ValueError):
             return False
 
         # If the user define the Python version just as a major version
