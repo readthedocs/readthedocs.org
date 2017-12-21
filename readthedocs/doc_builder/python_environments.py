@@ -11,9 +11,9 @@ import shutil
 from builtins import object
 
 from django.conf import settings
-from packaging.version import Version
 
 from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
@@ -51,7 +51,7 @@ class PythonEnvironment(object):
             self._log('Removing existing build directory')
             shutil.rmtree(build_dir)
 
-    def delete_existing_env_dir(self):
+    def delete_existing_venv_dir(self):
         venv_dir = self.venv_path()
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
@@ -130,32 +130,37 @@ class PythonEnvironment(object):
         try:
             with open(self.environment_json_path(), 'r') as fpath:
                 environment_conf = json.load(fpath)
-            env_python_version = Version(environment_conf['python']['version'])
-            env_build_image = Version(environment_conf['build']['image'])
+            env_python_version = environment_conf['python']['version']
+            env_build_image = environment_conf['build']['image']
         except (TypeError, KeyError, ValueError):
+            log.error('Unable to read/parse environment.json file')
             return False
+
+        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
+        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE
 
         # If the user define the Python version just as a major version
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
         # used to create the venv but we can still compare it against the new
         # one coming from the project version config.
         return any([
-            env_python_version != Version(self.config.python_version),
-            # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-            env_build_image != getattr(self.config, 'build_image', self.version.project.container_image),
+            env_python_version != self.config.python_version,
+            env_build_image != build_image,
         ])
 
     def save_environment_json(self):
         """
         Save on disk Python and build image versions used to create the venv.
         """
+        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
+        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE
+
         data = {
             'python': {
                 'version': self.config.python_version,
             },
             'build': {
-                # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-                'image': getattr(self.config, 'build_image', self.version.project.container_image),
+                'image': build_image,
             },
         }
         with open(self.environment_json_path(), 'w') as fpath:
