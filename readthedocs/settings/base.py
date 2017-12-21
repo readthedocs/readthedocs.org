@@ -118,6 +118,10 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.embed')
         return apps
 
+    @property
+    def USE_PROMOS(self):  # noqa
+        return 'readthedocsext.donate' in self.INSTALLED_APPS
+
     TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
@@ -145,17 +149,6 @@ class CommunityBaseSettings(Settings):
         'allauth.account.auth_backends.AuthenticationBackend',
     )
 
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        'django.contrib.auth.context_processors.auth',
-        'django.contrib.messages.context_processors.messages',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.request',
-        # Read the Docs processor
-        'readthedocs.core.context_processors.readthedocs_processor',
-    )
-
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
 
     NOTIFICATION_BACKENDS = [
@@ -181,9 +174,30 @@ class CommunityBaseSettings(Settings):
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
     STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
-    TEMPLATE_DIRS = (
-        TEMPLATE_ROOT,
-    )
+
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [TEMPLATE_ROOT],
+            'OPTIONS': {
+                'debug': DEBUG,
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.request',
+                    # Read the Docs processor
+                    'readthedocs.core.context_processors.readthedocs_processor',
+                ],
+                'loaders': [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ],
+            },
+        },
+    ]
 
     # Cache
     CACHES = {
@@ -312,8 +326,11 @@ class CommunityBaseSettings(Settings):
     STRIPE_PUBLISHABLE = None
 
     # Misc application settings
-    GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
+    GLOBAL_ANALYTICS_CODE = None
+    DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
     GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
+    OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
+    OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,

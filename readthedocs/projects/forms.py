@@ -570,9 +570,10 @@ class DomainForm(forms.ModelForm):
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
+        _id = self.initial.get('id')
         if canonical and Domain.objects.filter(
-                project=self.project, canonical=True).exclude(
-                    domain=self.cleaned_data['domain']).exists():
+                project=self.project, canonical=True
+        ).exclude(pk=_id).exists():
             raise forms.ValidationError(
                 _('Only 1 Domain can be canonical at a time.'))
         return canonical

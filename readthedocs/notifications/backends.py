@@ -1,9 +1,9 @@
-"""Pluggable backends for the delivery of notifications.
+"""
+Pluggable backends for the delivery of notifications.
 
 Delivery of notifications to users depends on a list of backends configured in
 Django settings. For example, they might be e-mailed to users as well as
 displayed on the site.
-
 """
 
 from __future__ import absolute_import
@@ -19,7 +19,8 @@ from .constants import LEVEL_MAPPING, REQUIREMENT, HTML
 
 
 def send_notification(request, notification):
-    """Send notifications through all backends defined by settings
+    """
+    Send notifications through all backends defined by settings.
 
     Backends should be listed in the settings ``NOTIFICATION_BACKENDS``, which
     should be a list of class paths to be loaded, using the standard Django
@@ -42,7 +43,8 @@ class Backend(object):
 
 class EmailBackend(Backend):
 
-    """Send templated notification emails through our standard email backend
+    """
+    Send templated notification emails through our standard email backend.
 
     The content body is first rendered from an on-disk template, then passed
     into the standard email templates as a string.
@@ -66,7 +68,8 @@ class EmailBackend(Backend):
 
 class SiteBackend(Backend):
 
-    """Add messages through Django messages application
+    """
+    Add messages through Django messages application.
 
     This uses persistent messageing levels provided by :py:mod:`message_extends`
     and stores persistent messages in the database.

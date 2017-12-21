@@ -35,6 +35,16 @@ pep257:
     - D105
     - D211
     - D104
+    - D212  # Multi-line docstring summary should start at the first line
+    - D107  # Missing docstring in __init__
+    - D106  # Missing docstring in public nested class
+
+    # pydocstyle
+    - D403  # First word of the first line should be properly capitalized ('Github', not 'GitHub')
+    - D406  # Section name should end with a newline ('Examples', not 'Examples::')
+    - D407  # Missing dashed underline after section ('Examples')
+    - D412  # No blank lines allowed between a section header and its content ('Examples')
+    - D413  # Missing blank line after last section ('Examples')
 
 pyflakes:
   disable:

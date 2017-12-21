@@ -1,4 +1,4 @@
-"""Patterns for extending Read the Docs"""
+"""Patterns for extending Read the Docs."""
 
 from __future__ import absolute_import
 import inspect
@@ -9,7 +9,8 @@ import six
 
 
 def get_override_class(proxy_class, default_class=None):
-    """Determine which class to use in an override class
+    """
+    Determine which class to use in an override class.
 
     The `proxy_class` is the main class that is used, and `default_class` is the
     default class that this proxy class will instantiate.  If `default_class` is
@@ -33,7 +34,7 @@ def get_override_class(proxy_class, default_class=None):
 
 class SettingsOverrideMeta(type):
 
-    """Meta class for passing along classmethod class to the underlying class"""
+    """Meta class for passing along classmethod class to the underlying class."""  # noqa
 
     def __getattr__(cls, attr):  # noqa: pep8 false positive
         proxy_class = get_override_class(cls, getattr(cls, '_default_class'))
@@ -42,7 +43,8 @@ class SettingsOverrideMeta(type):
 
 class SettingsOverrideObject(six.with_metaclass(SettingsOverrideMeta, object)):
 
-    """Base class for creating class that can be overridden
+    """
+    Base class for creating class that can be overridden.
 
     This is used for extension points in the code, where we want to extend a
     class without monkey patching it. This class will proxy classmethod calls
@@ -68,7 +70,8 @@ class SettingsOverrideObject(six.with_metaclass(SettingsOverrideMeta, object)):
     _override_setting = None
 
     def __new__(cls, *args, **kwargs):
-        """Set up wrapped object
+        """
+        Set up wrapped object.
 
         Create an instance of the underlying target class and return instead of
         this class.

@@ -1,15 +1,19 @@
+# -*- coding: utf-8 -*-
 """Forms for core app."""
 
-from __future__ import absolute_import
-from builtins import object
-import logging
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
-from django.contrib.auth.models import User
-from haystack.forms import SearchForm
-from haystack.query import SearchQuerySet
+import logging
+from builtins import object
+
 from django import forms
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
+from haystack.forms import SearchForm
+from haystack.query import SearchQuerySet
 
 from .models import UserProfile
 
@@ -22,8 +26,10 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta(object):
         model = UserProfile
-        # Don't allow users edit someone else's user page,
-        fields = ['first_name', 'last_name', 'homepage', 'allow_ads']
+        # Don't allow users edit someone else's user page
+        fields = ['first_name', 'last_name', 'homepage']
+        if settings.USE_PROMOS:
+            fields.append('allow_ads')
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
@@ -46,7 +52,10 @@ class UserProfileForm(forms.ModelForm):
 
 
 class UserDeleteForm(forms.ModelForm):
-    username = CharField(label=_('Username'), help_text=_('Please type your username to confirm.'))
+    username = CharField(
+        label=_('Username'),
+        help_text=_('Please type your username to confirm.'),
+    )
 
     class Meta(object):
         model = User
@@ -56,7 +65,7 @@ class UserDeleteForm(forms.ModelForm):
         data = self.cleaned_data['username']
 
         if self.instance.username != data:
-            raise forms.ValidationError(_("Username does not match!"))
+            raise forms.ValidationError(_('Username does not match!'))
 
         return data
 
@@ -73,10 +82,10 @@ class FacetField(forms.MultipleChoiceField):
         """
         Although this is a choice field, no choices need to be supplied.
 
-        Instead, we just validate that the value is in the correct format
-        for facet filtering (facet_name:value)
+        Instead, we just validate that the value is in the correct format for
+        facet filtering (facet_name:value)
         """
-        if ":" not in value:
+        if ':' not in value:
             return False
         return True
 
@@ -109,7 +118,7 @@ class FacetedSearchForm(SearchForm):
         cleaned_facets = []
         clean = SearchQuerySet().query.clean
         for facet in facets:
-            field, value = facet.split(":", 1)
+            field, value = facet.split(':', 1)
             if not value:  # Ignore empty values
                 continue
             value = clean(value)

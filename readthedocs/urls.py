@@ -84,7 +84,7 @@ debug_urls = add(
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
           deprecated_urls]
 
-if 'readthedocsext.donate' in settings.INSTALLED_APPS:
+if settings.USE_PROMOS:
     # Include donation URL's
     groups.append([
         url(r'^sustainability/', include('readthedocsext.donate.urls')),

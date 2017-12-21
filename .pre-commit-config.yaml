@@ -35,7 +35,7 @@ repos:
     - id: yapf
       exclude: 'migrations|settings|scripts'
       additional_dependencies: ['futures']
-      args: ['--style=.style.yapf', '--parallel']
+      args: ['--style=.style.yapf', '--parallel', '--in-place']
 
 - repo: git@github.com:FalconSocial/pre-commit-python-sorter.git
   sha: b57843b0b874df1d16eb0bef00b868792cb245c2
@@ -44,7 +44,7 @@ repos:
       args: ['--silent-overwrite']
 
 - repo: git@github.com:humitos/mirrors-docformatter.git
-  sha: v0.8
+  sha: v0.0.1
   hooks:
     - id: docformatter
       args: ['--in-place', '--wrap-summaries=80', '--wrap-descriptions=80', '--pre-summary-newline', '--no-blank']

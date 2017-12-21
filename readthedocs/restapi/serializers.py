@@ -28,7 +28,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectAdminSerializer(ProjectSerializer):
 
-    """Project serializer for admin only access
+    """
+    Project serializer for admin only access.
 
     Includes special internal fields that don't need to be exposed through the
     general API, mostly for fields used in the build process
@@ -72,12 +73,13 @@ class VersionSerializer(serializers.ModelSerializer):
             'identifier', 'verbose_name',
             'active', 'built',
             'downloads',
+            'type',
         )
 
 
 class VersionAdminSerializer(VersionSerializer):
 
-    """Version serializer that returns admin project data"""
+    """Version serializer that returns admin project data."""
 
     project = ProjectAdminSerializer()
 
@@ -93,7 +95,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 class BuildSerializer(serializers.ModelSerializer):
 
-    """Build serializer for user display, doesn't display internal fields"""
+    """Build serializer for user display, doesn't display internal fields."""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
     state_display = serializers.ReadOnlyField(source='get_state_display')
@@ -105,7 +107,7 @@ class BuildSerializer(serializers.ModelSerializer):
 
 class BuildAdminSerializer(BuildSerializer):
 
-    """Build serializer for display to admin users and build instances"""
+    """Build serializer for display to admin users and build instances."""
 
     class Meta(BuildSerializer.Meta):
         exclude = ()
@@ -142,7 +144,7 @@ class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):
 
-    """Remote service repository serializer"""
+    """Remote service repository serializer."""
 
     organization = RemoteOrganizationSerializer()
     matches = serializers.SerializerMethodField()

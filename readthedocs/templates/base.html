@@ -187,12 +187,20 @@
 
 </body>
 
+{% if GLOBAL_ANALYTICS_CODE %}
 <!-- BEGIN google analytics -->
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', '{{ GLOBAL_ANALYTICS_CODE }}']);
   _gaq.push(['_trackPageview']);
+
+  {% if DASHBOARD_ANALYTICS_CODE %}
+  // Dashboard Analytics Code
+  _gaq.push(['user._setAccount', '{{ DASHBOARD_ANALYTICS_CODE }}']);
+  _gaq.push(['user._trackPageview']);
+  // End Dashboard Analytics Code
+  {% endif %}
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -204,5 +212,6 @@
 
 </script>
 <!-- END google analytics -->
+{% endif %}
 
 </html>

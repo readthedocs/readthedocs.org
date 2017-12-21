@@ -1,4 +1,5 @@
-"""Extensions to Django messages to support notifications to users.
+"""
+Extensions to Django messages to support notifications to users.
 
 Notifications are important communications to users that need to be as visible
 as possible. We support different backends to make notifications visible in
@@ -10,7 +11,6 @@ on the site.
 
 .. _`django-messages-extends`: https://github.com
                                /AliLozano/django-messages-extends/
-
 """
 from .notification import Notification
 from .backends import send_notification
