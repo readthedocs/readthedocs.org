@@ -1,12 +1,17 @@
+# -*- coding: utf-8 -*-
 """An abstraction over virtualenv and Conda environments."""
 
-from __future__ import absolute_import
-from builtins import object
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
+import json
 import logging
 import os
 import shutil
+from builtins import object
 
 from django.conf import settings
+from packaging.version import Version
 
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.loader import get_builder_class
@@ -38,7 +43,6 @@ class PythonEnvironment(object):
                          msg=msg))
 
     def delete_existing_build_dir(self):
-
         # Handle deleting old build dir
         build_dir = os.path.join(
             self.venv_path(),
@@ -46,6 +50,13 @@ class PythonEnvironment(object):
         if os.path.exists(build_dir):
             self._log('Removing existing build directory')
             shutil.rmtree(build_dir)
+
+    def delete_existing_env_dir(self):
+        venv_dir = self.venv_path()
+        # Handle deleting old venv dir
+        if os.path.exists(venv_dir):
+            self._log('Removing existing venv directory')
+            shutil.rmtree(venv_dir)
 
     def install_package(self):
         if self.config.install_project:
@@ -95,6 +106,50 @@ class Virtualenv(PythonEnvironment):
 
     .. _virtualenv: https://virtualenv.pypa.io/
     """
+
+    @property
+    def is_obsolete(self):
+        """
+        Determine if the Python version of the venv obsolete.
+
+        It checks the the data stored at ``environment.json`` and compares it
+        against the Python version in the project version to be built and the
+        Docker image used to create the venv against the one in the project
+        version config.
+
+        :returns: ``True`` when it's obsolete and ``False`` otherwise
+
+        :rtype: bool
+        """
+        # Always return True if we don't have information about what Python
+        # version/Docker image was used to create the venv as backward
+        # compatibility.
+        if not os.path.exists(self.environment_json_path()):
+            return False
+
+        try:
+            environment_conf = json.load(self.environment_json_path())
+            env_python_version = Version(environment_conf['python']['version'])
+            env_build_image = Version(environment_conf['build']['image'])
+        except (TypeError, KeyError, json.decoder.JSONDecodeError):
+            return False
+
+        # If the user define the Python version just as a major version
+        # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
+        # used to create the venv but we can still compare it against the new
+        # one coming from the project version config.
+        return any([
+            env_python_version != Version(self.config.python_version),
+            env_build_image != self.config.build_image,
+        ])
+
+    def environment_json_path(self):
+        return os.path.join(
+            self.project.doc_path,
+            'envs',
+            self.version.slug,
+            'environment.json',
+        )
 
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
