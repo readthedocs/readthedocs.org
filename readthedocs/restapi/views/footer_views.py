@@ -75,6 +75,10 @@ def footer_html(request):
     subproject = request.GET.get('subproject', False)
     source_suffix = request.GET.get('source_suffix', '.rst')
 
+    # Hack in a fix for missing version slug deploy that went out a while back
+    if version_slug == '':
+        version_slug = LATEST
+
     new_theme = (theme == 'sphinx_rtd_theme')
     using_theme = (theme == 'default')
     project = get_object_or_404(Project, slug=project_slug)
