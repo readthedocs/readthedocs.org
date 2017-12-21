@@ -10,6 +10,9 @@ import re
 class Migration(migrations.Migration):
 
     def migrate_data(apps, schema_editor):
+        # Keep things that slugify wouldn't normally accept,
+        # so that we don't break a bunch of folks URL's.
+        # They will have to change them on update.
         invalid_chars_re = re.compile('[^-._a-zA-Z0-9]')
         ProjectRelationship = apps.get_model("projects", "ProjectRelationship")
         for p in ProjectRelationship.objects.all():
