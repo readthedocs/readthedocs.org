@@ -52,7 +52,7 @@ class ProjectRelationship(models.Model):
                                related_name='subprojects')
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
-    alias = models.CharField(_('Alias'), max_length=255, null=True, blank=True)
+    alias = models.SlugField(_('Alias'), max_length=255, null=True, blank=True)
 
     objects = ChildRelatedProjectQuerySet.as_manager()
 
