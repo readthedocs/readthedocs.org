@@ -149,17 +149,6 @@ class CommunityBaseSettings(Settings):
         'allauth.account.auth_backends.AuthenticationBackend',
     )
 
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        'django.contrib.auth.context_processors.auth',
-        'django.contrib.messages.context_processors.messages',
-        'django.core.context_processors.debug',
-        'django.core.context_processors.i18n',
-        'django.core.context_processors.media',
-        'django.core.context_processors.request',
-        # Read the Docs processor
-        'readthedocs.core.context_processors.readthedocs_processor',
-    )
-
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
 
     NOTIFICATION_BACKENDS = [
@@ -185,9 +174,30 @@ class CommunityBaseSettings(Settings):
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
     STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
-    TEMPLATE_DIRS = (
-        TEMPLATE_ROOT,
-    )
+
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [TEMPLATE_ROOT],
+            'OPTIONS': {
+                'debug': DEBUG,
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.request',
+                    # Read the Docs processor
+                    'readthedocs.core.context_processors.readthedocs_processor',
+                ],
+                'loaders': [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ],
+            },
+        },
+    ]
 
     # Cache
     CACHES = {
