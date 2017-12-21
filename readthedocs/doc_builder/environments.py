@@ -12,7 +12,7 @@ import traceback
 import socket
 from datetime import datetime
 
-from django.utils.text import slugify
+from readthedocs.core.utils import slugify
 from django.utils.translation import ugettext_lazy as _, ugettext_noop
 from docker import Client
 from docker.utils import create_host_config
