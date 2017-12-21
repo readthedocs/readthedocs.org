@@ -118,6 +118,10 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.embed')
         return apps
 
+    @property
+    def USE_PROMOS(self):  # noqa
+        return 'readthedocsext.donate' in self.INSTALLED_APPS
+
     TEMPLATE_LOADERS = (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
@@ -314,7 +318,6 @@ class CommunityBaseSettings(Settings):
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
-    USE_PROMOS = False
     GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
