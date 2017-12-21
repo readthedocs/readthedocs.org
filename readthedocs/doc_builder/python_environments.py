@@ -99,9 +99,7 @@ class PythonEnvironment(object):
         return os.path.join(*parts)
 
     def environment_json_path(self):
-        """
-        Return the path to the ``environment.json`` file for this venv.
-        """
+        """Return the path to the ``environment.json`` file for this venv."""
         return os.path.join(
             self.venv_path(),
             'environment.json',
@@ -137,7 +135,7 @@ class PythonEnvironment(object):
             return False
 
         # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE
+        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
 
         # If the user define the Python version just as a major version
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
@@ -149,11 +147,9 @@ class PythonEnvironment(object):
         ])
 
     def save_environment_json(self):
-        """
-        Save on disk Python and build image versions used to create the venv.
-        """
+        """Save on disk Python and build image versions used to create the venv."""
         # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE
+        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
 
         data = {
             'python': {
@@ -165,7 +161,6 @@ class PythonEnvironment(object):
         }
         with open(self.environment_json_path(), 'w') as fpath:
             json.dump(data, fpath)
-
 
 
 class Virtualenv(PythonEnvironment):
