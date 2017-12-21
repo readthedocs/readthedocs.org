@@ -98,14 +98,14 @@ class PythonEnvironment(object):
             parts.append(filename)
         return os.path.join(*parts)
 
-
-class Virtualenv(PythonEnvironment):
-
-    """
-    A virtualenv_ environment.
-
-    .. _virtualenv: https://virtualenv.pypa.io/
-    """
+    def environment_json_path(self):
+        """
+        Return the path to the ``environment.json`` file for this venv.
+        """
+        return os.path.join(
+            self.venv_path(),
+            'environment.json',
+        )
 
     @property
     def is_obsolete(self):
@@ -143,13 +143,30 @@ class Virtualenv(PythonEnvironment):
             env_build_image != self.config.build_image,
         ])
 
-    def environment_json_path(self):
-        return os.path.join(
-            self.project.doc_path,
-            'envs',
-            self.version.slug,
-            'environment.json',
-        )
+    def save_environment_json(self):
+        """
+        Save on disk Python and build image versions used to create the venv.
+        """
+        data = {
+            'python': {
+                'version': self.config.python_version,
+            },
+            'build': {
+                'image': self.config.build_image,
+            },
+        }
+        with open(self.environment_json_path(), 'w') as fpath:
+            json.dump(data, fpath)
+
+
+
+class Virtualenv(PythonEnvironment):
+
+    """
+    A virtualenv_ environment.
+
+    .. _virtualenv: https://virtualenv.pypa.io/
+    """
 
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
