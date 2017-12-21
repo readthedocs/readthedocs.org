@@ -8,19 +8,23 @@ import re
 
 
 class Migration(migrations.Migration):
+
     def migrate_data(apps, schema_editor):
         invalid_chars_re = re.compile('[^-._a-zA-Z0-9]')
         ProjectRelationship = apps.get_model("projects", "ProjectRelationship")
         for p in ProjectRelationship.objects.all():
             if p.alias and invalid_chars_re.match(p.alias):
-                new_alias = invalid_chars_re.sub('-', p.alias)
+                new_alias = invalid_chars_re.sub('', p.alias)
                 p.alias = new_alias
                 p.save()
+
+    def reverse(apps, schema_editor):
+        pass
 
     dependencies = [
         ('projects', '0022_add-alias-slug'),
     ]
 
     operations = [
-        migrations.RunPython(migrate_data)
+        migrations.RunPython(migrate_data, reverse)
     ]
