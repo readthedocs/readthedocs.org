@@ -1,4 +1,5 @@
-"""Public project views"""
+# -*- coding: utf-8 -*-
+"""Public project views."""
 
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
@@ -441,7 +442,7 @@ def project_embed(request, project_slug):
     files = version.imported_files.filter(name__endswith='.html').order_by('path')
 
     return render(
-        request, 
+        request,
         'projects/project_embed.html',
         {
             'project': project,
@@ -451,4 +452,4 @@ def project_embed(request, project_slug):
                 'URI': request.build_absolute_uri(location='/').rstrip('/'),
             },
         },
-      )
+    )

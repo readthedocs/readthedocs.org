@@ -79,11 +79,11 @@ class ProjectResource(ModelResource, SearchMixin):
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
     def sync_versions(self, request, **kwargs):
-        """Sync the version data in the repo (on the build server) with what we have in the database.
+        """
+        Sync the version data in the repo (on the build server) with what we have in the database.
 
         Returns the identifiers for the versions that have been deleted.
         """
-
         project = get_object_or_404(Project, pk=kwargs['pk'])
         try:
             post_data = self.deserialize(

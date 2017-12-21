@@ -1,4 +1,5 @@
-"""Project views for authenticated users"""
+# -*- coding: utf-8 -*-
+"""Project views for authenticated users."""
 
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
@@ -210,7 +211,10 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     """Project import wizard."""
 
-    form_list = [('basics', ProjectBasicsForm), ('extra', ProjectExtraForm),]
+    form_list = [
+        ('basics', ProjectBasicsForm),
+        ('extra', ProjectExtraForm),
+    ]
     condition_dict = {'extra': lambda self: self.is_advanced()}
 
     def get_form_kwargs(self, step=None):
