@@ -3,17 +3,19 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-from django.utils.text import slugify
+
+import re
 
 
 class Migration(migrations.Migration):
     def migrate_data(apps, schema_editor):
+        invalid_chars_re = re.compile('[^-._a-zA-Z0-9]')
         ProjectRelationship = apps.get_model("projects", "ProjectRelationship")
-        for rel in ProjectRelationship.objects.all():
-            if rel.alias:
-                print('Changing ProjectRelationship alias: {}:{}'.format(rel, rel.alias))
-                rel.alias = slugify(rel.alias)
-                rel.save()
+        for p in ProjectRelationship.objects.all():
+            if p.alias and invalid_chars_re.match(p.alias):
+                new_alias = invalid_chars_re.sub('-', p.alias)
+                p.alias = new_alias
+                p.save()
 
     dependencies = [
         ('projects', '0022_add-alias-slug'),
