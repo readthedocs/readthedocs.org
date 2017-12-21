@@ -77,7 +77,7 @@ def footer_html(request):
 
     # Hack in a fix for missing version slug deploy that went out a while back
     if version_slug == '':
-        version_slug = 'latest'
+        version_slug = LATEST
 
     new_theme = (theme == 'sphinx_rtd_theme')
     using_theme = (theme == 'default')

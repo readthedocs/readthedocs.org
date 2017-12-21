@@ -26,4 +26,7 @@ class Command(BaseCommand):
         else:
             pks = Project.objects.filter(slug__in=projects).values_list('pk', flat=True)
         for proj in pks:
-            tasks.symlink_project(project_pk=proj)
+            try:
+                tasks.symlink_project(project_pk=proj)
+            except Exception:
+                log.exception('Failed symlink management command')
