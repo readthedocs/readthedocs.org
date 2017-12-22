@@ -85,20 +85,20 @@ class Project(models.Model):
     slug = models.SlugField(_('Slug'), max_length=255, unique=True)
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
-                                               'description of the project'))
+                                               'description of the project.'))
     repo = models.CharField(_('Repository URL'), max_length=255,
-                            help_text=_('Hosted documentation repository URL'))
+                            help_text=_('Hosted documentation repository URL.'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
     project_url = models.URLField(_('Project homepage'), blank=True,
-                                  help_text=_('The project\'s homepage'))
+                                  help_text=_('The project\'s homepage.'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
-                                    help_text=_('URL that documentation is expected to serve from'))
+                                    help_text=_('URL that documentation is expected to serve from.'))
     version = models.CharField(_('Version'), max_length=100, blank=True,
                                help_text=_('Project version these docs apply '
-                                           'to, i.e. 1.0a'))
+                                           'to, i.e. 1.0a.'))
     copyright = models.CharField(_('Copyright'), max_length=255, blank=True,
-                                 help_text=_('Project copyright information'))
+                                 help_text=_('Project copyright information.'))
     theme = models.CharField(
         _('Theme'), max_length=20, choices=constants.DEFAULT_THEME_CHOICES,
         default=constants.THEME_DEFAULT,
@@ -114,7 +114,7 @@ class Project(models.Model):
                     'have multiple versions of your docs.'))
     default_version = models.CharField(
         _('Default version'), max_length=255, default=LATEST,
-        help_text=_('The version of your project that / redirects to'))
+        help_text=_('The version of your project that / redirects to.'))
     # In default_branch, None means the backend should choose the
     # appropriate branch. Eg 'master' for git
     default_branch = models.CharField(
@@ -151,7 +151,7 @@ class Project(models.Model):
     container_mem_limit = models.CharField(
         _('Container memory limit'), max_length=10, null=True, blank=True,
         help_text=_('Memory limit in Docker format '
-                    '-- example: <code>512m</code> or <code>1g</code>'))
+                    '-- example: <code>512m</code> or <code>1g</code>.'))
     container_time_limit = models.CharField(
         _('Container time limit'), max_length=10, null=True, blank=True)
     build_queue = models.CharField(
@@ -173,7 +173,7 @@ class Project(models.Model):
     # Other model data.
     path = models.CharField(_('Path'), max_length=255, editable=False,
                             help_text=_('The directory where '
-                                        '<code>conf.py</code> lives'))
+                                        '<code>conf.py</code> lives.'))
     conf_py_file = models.CharField(
         _('Python configuration file'), max_length=255, default='', blank=True,
         help_text=_('Path from project root to <code>conf.py</code> file '
@@ -185,8 +185,8 @@ class Project(models.Model):
     mirror = models.BooleanField(_('Mirror'), default=False)
     install_project = models.BooleanField(
         _('Install Project'),
-        help_text=_('Install your project inside a virtualenv using <code>setup.py '
-                    'install</code>'),
+        help_text=_('Install your project inside a virtualenv using '
+                    '<code>setup.py install</code>.'),
         default=False
     )
 
@@ -254,28 +254,29 @@ class Project(models.Model):
         default=2,
         null=True,
         blank=True,
-        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X')
+        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X.')
     )
     num_minor = models.IntegerField(
         _('Number of Minor versions'),
         default=2,
         null=True,
         blank=True,
-        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X')
+        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X.')
     )
     num_point = models.IntegerField(
         _('Number of Point versions'),
         default=2,
         null=True,
         blank=True,
-        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0')
+        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0.')
     )
 
     has_valid_webhook = models.BooleanField(
-        default=False, help_text=_('This project has been built with a webhook')
+        default=False,
+        help_text=_('This project has been built with a webhook.')
     )
     has_valid_clone = models.BooleanField(
-        default=False, help_text=_('This project has been successfully cloned')
+        default=False, help_text=_('This project has been successfully cloned.')
     )
 
     tags = TaggableManager(blank=True)
