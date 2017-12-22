@@ -119,7 +119,7 @@ class PythonEnvironment(object):
 
         :rtype: bool
         """
-        # Always return True if we don't have information about what Python
+        # Always returns False if we don't have information about what Python
         # version/Docker image was used to create the venv as backward
         # compatibility.
         if not os.path.exists(self.environment_json_path()):
