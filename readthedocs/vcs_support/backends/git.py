@@ -86,8 +86,8 @@ class Backend(BaseVCS):
         # of annotated tags pointing to tagged commits.
         retcode, stdout, _ = self.run(
             'git', 'for-each-ref',
-            '--format=%(if)%(*objectname)%(then)%(*objectname)'
-            '%(else)%(objectname)%(end) %(refname)',
+            '--format="%(if)%(*objectname)%(then)%(*objectname)'
+            '%(else)%(objectname)%(end) %(refname)"',
             'refs/tags')
         # error (or no tags found)
         if retcode != 0:
