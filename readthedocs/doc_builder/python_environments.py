@@ -99,10 +99,10 @@ class PythonEnvironment(object):
         return os.path.join(*parts)
 
     def environment_json_path(self):
-        """Return the path to the ``environment.json`` file for this venv."""
+        """Return the path to the ``readthedocs-environment.json`` file."""
         return os.path.join(
             self.venv_path(),
-            'environment.json',
+            'readthedocs-environment.json',
         )
 
     @property
@@ -110,10 +110,10 @@ class PythonEnvironment(object):
         """
         Determine if the Python version of the venv obsolete.
 
-        It checks the the data stored at ``environment.json`` and compares it
-        against the Python version in the project version to be built and the
-        Docker image used to create the venv against the one in the project
-        version config.
+        It checks the the data stored at ``readthedocs-environment.json`` and
+        compares it against the Python version in the project version to be
+        built and the Docker image used to create the venv against the one in
+        the project version config.
 
         :returns: ``True`` when it's obsolete and ``False`` otherwise
 
@@ -131,7 +131,7 @@ class PythonEnvironment(object):
             env_python_version = environment_conf['python']['version']
             env_build_image = environment_conf['build']['image']
         except (IOError, TypeError, KeyError, ValueError):
-            log.error('Unable to read/parse environment.json file')
+            log.error('Unable to read/parse readthedocs-environment.json file')
             return False
 
         # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
