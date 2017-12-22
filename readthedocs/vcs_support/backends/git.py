@@ -80,15 +80,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        # Hash for non-annotated tag is its commit hash, but for annotated tag it
-        # points to tag itself, so we need to dereference annotated tags.
-        # The output format is the same as `git show-ref --tags`, but with hashes
-        # of annotated tags pointing to tagged commits.
-        retcode, stdout, _ = self.run(
-            'git', 'for-each-ref',
-            '--format="%(if)%(*objectname)%(then)%(*objectname)'
-            '%(else)%(objectname)%(end) %(refname)"',
-            'refs/tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -96,7 +88,7 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of `git show-ref --tags`, eg:
+        Parses output of show-ref --tags, eg:
 
             3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
             bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
