@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import shutil
-from builtins import object
+from builtins import object, open
 
 from django.conf import settings
 
@@ -130,7 +130,7 @@ class PythonEnvironment(object):
                 environment_conf = json.load(fpath)
             env_python_version = environment_conf['python']['version']
             env_build_image = environment_conf['build']['image']
-        except (TypeError, KeyError, ValueError):
+        except (IOError, TypeError, KeyError, ValueError):
             log.error('Unable to read/parse environment.json file')
             return False
 
