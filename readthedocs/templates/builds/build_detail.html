@@ -55,10 +55,50 @@ $(document).ready(function () {
       {% endif %}
     </ul>
 
-    <div class="build-id">
-      {% blocktrans with build_id=build.pk %}
-        Build #{{ build_id }}
-      {% endblocktrans %}
+    <div class="build-title">
+
+      <span class="build-id">
+        <span class="build-state-normal"
+              data-bind="visible: !finished()">
+          {% blocktrans with build_id=build.pk %}
+            Build #{{ build_id }}
+          {% endblocktrans %}
+        </span>
+
+        <span class="build-state-successful"
+              data-bind="visible: finished() && success()"
+              style="display: none;">
+          {% blocktrans with build_id=build.pk %}
+            Build #{{ build_id }}
+          {% endblocktrans %}
+        </span>
+
+        <span class="build-state-failed"
+              data-bind="visible: finished() && !success()"
+              style="display: none;">
+          {% blocktrans with build_id=build.pk %}
+            Build #{{ build_id }}
+          {% endblocktrans %}
+        </span>
+      </span>
+
+      <span class="build-state-detail">
+        <span data-bind="visible: !finished(), text: state_display"
+              style="display: none;">
+          {{ build.get_state_display }}
+        </span>
+        <img src="{% static 'core/img/loader.gif' %}"
+            data-bind="visible: !finished()"
+            style="display: none;" />
+
+        <span data-bind="visible: finished() && success()"
+              style="display: none;">
+          <a class="" href="{{ build.version.get_absolute_url }}">
+            {% trans "view docs" %}
+          </a>
+        </span>
+      </span>
+
     </div>
 
     <div class="build-version">
@@ -72,28 +112,6 @@ $(document).ready(function () {
       <span class="build-commit"
             data-bind="visible: commit">
         (<span data-bind="text: commit">{{ build.commit }}</span>)
-      </span>
-    </div>
-
-    <div class="build-state">
-      <span>
-        <span data-bind="visible: !finished(), text: state_display"
-              style="display: none;">
-          {{ build.get_state_display }}
-        </span>
-        <img src="{% static 'core/img/loader.gif' %}"
-            data-bind="visible: !finished()"
-            style="display: none;" />
-      </span>
-      <span class="build-state-successful"
-            data-bind="visible: finished() && success()"
-            style="display: none;">
-        {% trans "Build completed" %}
-      </span>
-      <span class="build-state-failed"
-            data-bind="visible: finished() && !success()"
-            style="display: none;">
-        {% trans "Build failed" %}
       </span>
     </div>
 
