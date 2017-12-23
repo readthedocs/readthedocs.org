@@ -212,7 +212,7 @@ class Project(models.Model):
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Level of privacy that you want on the project. '
+        help_text=_('Level of privacy that you want on the project. '
                     'Protected means public but not in listings. Note that '
                     'the project documentation is still seen by everyone, <a '
                     'href="http://docs.readthedocs.io/en/latest/privacy.html" '
