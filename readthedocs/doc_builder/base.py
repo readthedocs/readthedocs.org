@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 """Base classes for Builders."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
+import logging
+import os
+import shutil
 from builtins import object
 from functools import wraps
-import os
-import logging
-import shutil
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +22,7 @@ def restoring_chdir(fn):
             return fn(*args, **kw)
         finally:
             os.chdir(path)
+
     return decorator
 
 
@@ -27,11 +31,12 @@ class BaseBuilder(object):
     """
     The Base for all Builders. Defines the API for subclasses.
 
-    Expects subclasses to define ``old_artifact_path``,
-    which points at the directory where artifacts should be copied from.
+    Expects subclasses to define ``old_artifact_path``, which points at the
+    directory where artifacts should be copied from.
     """
 
     _force = False
+
     # old_artifact_path = ..
 
     def __init__(self, build_env, python_env, force=False):
@@ -41,13 +46,11 @@ class BaseBuilder(object):
         self.project = build_env.project
         self._force = force
         self.target = self.project.artifact_path(
-            version=self.version.slug,
-            type_=self.type
-        )
+            version=self.version.slug, type_=self.type)
 
     def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
-        log.info("Forcing a build")
+        log.info('Forcing a build')
         self._force = True
 
     def build(self):
@@ -59,16 +62,16 @@ class BaseBuilder(object):
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
-            log.info("Copying %s on the local filesystem", self.type)
+            log.info('Copying %s on the local filesystem', self.type)
             shutil.copytree(self.old_artifact_path, self.target)
         else:
-            log.warning("Not moving docs, because the build dir is unknown.")
+            log.warning('Not moving docs, because the build dir is unknown.')
 
     def clean(self, **__):
-        """Clean the path where documentation will be built"""
+        """Clean the path where documentation will be built."""
         if os.path.exists(self.old_artifact_path):
             shutil.rmtree(self.old_artifact_path)
-            log.info("Removing old artifact path: %s", self.old_artifact_path)
+            log.info('Removing old artifact path: %s', self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
@@ -87,9 +90,11 @@ class BaseBuilder(object):
         """Create an index file if it needs it."""
         docs_dir = self.docs_dir()
 
-        index_filename = os.path.join(docs_dir, 'index.{ext}'.format(ext=extension))
+        index_filename = os.path.join(
+            docs_dir, 'index.{ext}'.format(ext=extension))
         if not os.path.exists(index_filename):
-            readme_filename = os.path.join(docs_dir, 'README.{ext}'.format(ext=extension))
+            readme_filename = os.path.join(
+                docs_dir, 'README.{ext}'.format(ext=extension))
             if os.path.exists(readme_filename):
                 return 'README'
             else:
@@ -112,5 +117,5 @@ If you want to use another markup, choose a different builder in your settings.
         return 'index'
 
     def run(self, *args, **kwargs):
-        """Proxy run to build environment"""
+        """Proxy run to build environment."""
         return self.build_env.run(*args, **kwargs)
