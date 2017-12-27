@@ -93,7 +93,7 @@ connect your account to your provider first. Connecting your account allows for
 easier importing and enables Read the Docs to configure your repository webhooks
 automatically.
 
-To connect your account, got to your *Settings* dashboard and select *Connected
+To connect your account, go to your *Settings* dashboard and select *Connected
 Services*. From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
 account. This process will ask you to authorize a connection to Read the Docs,
 that allows us to read information about and clone your repositories.
