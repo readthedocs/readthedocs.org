@@ -112,7 +112,7 @@ under the root (or ``/docs``) directory in your repository.
 If you want to use another markup, choose a different builder in your settings.
 Check out our `Getting Started Guide
 <https://docs.readthedocs.io/en/latest/getting_started.html>`_ to become more
-familiar with Read The Docs.
+familiar with Read the Docs.
                 """
 
                 index_file.write(index_text.format(dir=docs_dir, ext=extension))
