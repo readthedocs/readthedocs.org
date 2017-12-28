@@ -919,6 +919,32 @@ class TestAutoWipeEnvironment(TestCase):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
+    def test_is_obsolete_with_project_different_build_image(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        # Set container_image manually
+        self.pip.container_image = 'readthedocs/build:latest'
+        self.pip.save()
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=None,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 2.7}}'
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertTrue(python_env.is_obsolete)
+
     def test_is_obsolete_with_json_same_data_as_version(self):
         config_data = {
             'build': {
