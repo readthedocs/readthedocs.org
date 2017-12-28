@@ -239,6 +239,11 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 "changes": [{
                     "new": {
                         "name": "branch-name",
+                        "target": {
+                            "hash": "sha",
+                            "message": "Update README.md",
+                            ...
+                        }
                         ...
                     },
                     ...
@@ -247,6 +252,9 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             },
             ...
         }
+
+    See full payload here:
+    https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-Push
     """
 
     integration_type = Integration.BITBUCKET_WEBHOOK
@@ -260,11 +268,31 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         if event == BITBUCKET_PUSH:
             try:
                 changes = self.request.data['push']['changes']
-                branches = [change['new']['name']
-                            for change in changes]
+                branches = [
+                    {
+                        'name': change['new']['name'],
+                        'last_commit': self._normalize_commit(
+                            change['new']['target']
+                        ),
+                    }
+                    for change in changes
+                ]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Invalid request')
+
+    def _normalize_commit(self, commit):
+        """
+        All commit dicts must have this elements at least::
+            {
+                'id': 'sha',
+                'message': 'Update README.md',
+            }
+        """
+        return {
+            'id': commit['hash'],
+            'message': commit['message'],
+        }
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
