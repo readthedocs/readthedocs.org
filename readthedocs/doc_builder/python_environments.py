@@ -159,8 +159,11 @@ class PythonEnvironment(object):
                 'image': build_image,
             },
         }
+
         with open(self.environment_json_path(), 'w') as fpath:
-            json.dump(data, fpath)
+            # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
+            # unicode but ``json.dumps`` returns str in Py2.
+            fpath.write(unicode(json.dumps(data)))
 
 
 class Virtualenv(PythonEnvironment):
