@@ -137,8 +137,16 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         {
             "ref": "branch-name",
+            "head_commit": {
+                "id": "sha",
+                "message": "Update README.md",
+                ...
+            }
             ...
         }
+
+    See full payload here:
+    https://developer.github.com/v3/activity/events/types/#pushevent
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
@@ -159,7 +167,13 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
             try:
-                branches = [self.data['ref'].replace('refs/heads/', '')]
+                branch = {
+                    'name': self.data['ref'].replace('refs/heads/', ''),
+                    'last_commit': self.data['head_commit'],
+                }
+
+                # GitHub only returns one branch.
+                branches = [branch]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
