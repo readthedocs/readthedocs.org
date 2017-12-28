@@ -118,7 +118,9 @@ class ConfigWrapper(object):
         if self._project.container_image:
             # Allow us to override per-project still
             return self._project.container_image
-        return self._yaml_config['build']['image']
+        if 'build' in self._yaml_config:
+            return self._yaml_config['build']['image']
+        return None
 
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.
