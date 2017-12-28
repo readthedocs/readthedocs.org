@@ -66,6 +66,23 @@ def _build_version(project, slug, already_built=()):
         return None
 
 
+def _contains_skip_mark(commit):
+    """
+    Check if a commit message has a skip mark, for example: [skip docs],
+    [docs skip].
+    """
+    skip_marks = [
+        r'\[skip docs?\]',
+        r'\[docs? skip\]',
+    ]
+    message = commit['message']
+    for skip_mark in skip_marks:
+        mark = re.compile(skip_mark, re.IGNORECASE)
+        if mark.search(message):
+            return True
+    return False
+
+
 def build_branches(project, branch_list):
     """
     Build the branches for a specific project.
@@ -75,9 +92,17 @@ def build_branches(project, branch_list):
         not_building - a list of branches that we won't build
     """
     for branch in branch_list:
-        versions = project.versions_from_branch_name(branch)
+        commit = branch['last_commit']
+        versions = project.versions_from_branch_name(branch['name'])
         to_build = set()
         not_building = set()
+        if _contains_skip_mark(commit):
+            log.info('(Branch Build) Skip build %s', project.slug)
+            not_building = {
+                version.slug
+                for version in versions
+            }
+            return (to_build, not_building)
         for version in versions:
             log.info("(Branch Build) Processing %s:%s",
                      project.slug, version.slug)
