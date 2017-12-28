@@ -250,7 +250,7 @@ class UpdateDocsTask(Task):
             env_cls = DockerEnvironment
         else:
             env_cls = LocalEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version,
+        self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
                                  build=self.build, record=record, environment=env_vars)
 
         # Environment used for building code, usually with Docker

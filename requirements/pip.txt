@@ -10,7 +10,7 @@ mkdocs==0.14.0
 django==1.9.12
 six==1.10.0
 future==0.16.0
-readthedocs-build==2.0.7
+readthedocs-build==2.0.8
 
 django-tastypie==0.13.0
 django-haystack==2.6.0

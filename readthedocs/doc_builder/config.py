@@ -8,7 +8,7 @@ from builtins import filter, object
 from readthedocs_build.config import load as load_config
 from readthedocs_build.config import BuildConfig, ConfigError, InvalidConfig
 
-from .constants import DOCKER_BUILD_IMAGES, DOCKER_IMAGE
+from .constants import DOCKER_IMAGE_SETTINGS, DOCKER_IMAGE
 
 
 class ConfigWrapper(object):
@@ -113,6 +113,13 @@ class ConfigWrapper(object):
             formats += ['pdf']
         return formats
 
+    @property
+    def build_image(self):
+        if self._project.container_image:
+            # Allow us to override per-project still
+            return self._project.container_image
+        return self._yaml_config['build']['image']
+
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.
     # @property
@@ -131,19 +138,21 @@ def load_yaml_config(version):
     parsing consistent between projects.
     """
     checkout_path = version.project.checkout_path(version.slug)
-    env_config = {}
 
     # Get build image to set up the python version validation. Pass in the
     # build image python limitations to the loaded config so that the versions
     # can be rejected at validation
-    build_image = DOCKER_BUILD_IMAGES.get(
-        version.project.container_image,
-        DOCKER_BUILD_IMAGES.get(DOCKER_IMAGE, None),
-    )
-    if build_image:
-        env_config = {
-            'python': build_image['python'],
+
+    img_name = version.project.container_image or DOCKER_IMAGE
+    env_config = {
+        'build': {
+            'image': img_name,
         }
+    }
+    img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
+    if img_settings:
+        env_config.update(img_settings)
+        env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
     try:
         sphinx_env_config = env_config.copy()
