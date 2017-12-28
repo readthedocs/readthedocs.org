@@ -191,8 +191,16 @@ class GitLabWebhookView(WebhookMixin, APIView):
         {
             "object_kind": "push",
             "ref": "branch-name",
+            "commits": [
+                "id": "sha",
+                "message": "Update README.md",
+                ...
+            ]
             ...
         }
+
+    See full payload here:
+    https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#push-events
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
@@ -205,7 +213,13 @@ class GitLabWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event == GITLAB_PUSH:
             try:
-                branches = [self.request.data['ref'].replace('refs/heads/', '')]
+                # GitLab only returns one branch.
+                branch = {
+                    'name': self.request.data['ref'].replace('refs/heads/', ''),
+                    # Assuming the first element is the last commit.
+                    'commit': self.request.data['commits'][0],
+                }
+                branches = [branch]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
