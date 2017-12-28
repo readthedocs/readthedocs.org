@@ -142,7 +142,7 @@ class PythonEnvironment(object):
         # used to create the venv but we can still compare it against the new
         # one coming from the project version config.
         return any([
-            env_python_version != self.config.python_version,
+            env_python_version != self.config.python_full_version,
             env_build_image != build_image,
         ])
 
@@ -153,7 +153,7 @@ class PythonEnvironment(object):
 
         data = {
             'python': {
-                'version': self.config.python_version,
+                'version': self.config.python_full_version,
             },
             'build': {
                 'image': build_image,

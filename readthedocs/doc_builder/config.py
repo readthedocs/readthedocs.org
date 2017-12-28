@@ -51,16 +51,7 @@ class ConfigWrapper(object):
 
     @property
     def python_interpreter(self):
-        ver = self.python_version
-        if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                list(
-                    filter(
-                        lambda x: x < ver + 1,
-                        self._yaml_config.get_valid_python_versions(),
-                    )))
+        ver = self.python_full_version
         return 'python{0}'.format(ver)
 
     @property
@@ -74,6 +65,20 @@ class ConfigWrapper(object):
         if version == 2 and self._project.python_interpreter == 'python3':
             version = 3
         return version
+
+    @property
+    def python_full_version(self):
+        ver = self.python_version
+        if ver in [2, 3]:
+            # Get the highest version of the major series version if user only
+            # gave us a version of '2', or '3'
+            ver = max(
+                list(
+                    filter(
+                        lambda x: x < ver + 1,
+                        self._yaml_config.get_valid_python_versions(),
+                    )))
+        return ver
 
     @property
     def use_system_site_packages(self):
