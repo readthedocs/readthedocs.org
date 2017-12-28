@@ -320,6 +320,19 @@ class APIWebhookView(WebhookMixin, APIView):
         {
             "branches": ["master"]
         }
+
+    Or the following JSON::
+
+        {
+            "branches": [{
+                "name": "branch-name",
+                "last_commit": {
+                    "id": "sha",
+                    "message": "Update README.md"
+                }
+            }]
+        }
+
     """
 
     integration_type = Integration.API_WEBHOOK
