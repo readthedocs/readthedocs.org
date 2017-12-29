@@ -339,9 +339,16 @@ class IntegrationsTests(TestCase):
     def test_github_webhook(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
+        payload = {
+            'ref': 'master',
+            'head_commit': {
+                'id': '3eea78b2',
+                'message': 'Update README.md',
+            },
+        }
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'master'},
+            payload,
             format='json',
         )
         trigger_build.assert_has_calls(
@@ -369,9 +376,17 @@ class IntegrationsTests(TestCase):
     def test_gitlab_webhook(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
+        payload = {
+            'object_kind': 'push',
+            'ref': 'master',
+            'commits': [{
+                'id': '3eea78b2',
+                'message': 'Update README.md',
+            }],
+        }
         client.post(
             '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
-            {'object_kind': 'push', 'ref': 'master'},
+            payload,
             format='json',
         )
         trigger_build.assert_has_calls(
@@ -398,17 +413,22 @@ class IntegrationsTests(TestCase):
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
         client = APIClient()
+        payload = {
+            'push': {
+                'changes': [{
+                    'new': {
+                        'name': 'master',
+                        'target': {
+                            'hash': '3eea78b2',
+                            'message': 'Update README.md',
+                        },
+                    },
+                }],
+            },
+        }
         client.post(
             '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
-            {
-                'push': {
-                    'changes': [{
-                        'new': {
-                            'name': 'master',
-                        },
-                    }],
-                },
-            },
+            payload,
             format='json',
         )
         trigger_build.assert_has_calls(
