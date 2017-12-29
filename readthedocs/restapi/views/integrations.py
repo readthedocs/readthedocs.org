@@ -216,7 +216,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 branch = {
                     'name': self.request.data['ref'].replace('refs/heads/', ''),
                     # Assuming the first element is the last commit.
-                    'commit': self.request.data['commits'][0],
+                    'last_commit': self.request.data['commits'][0],
                 }
                 branches = [branch]
                 return self.get_response_push(self.project, branches)
