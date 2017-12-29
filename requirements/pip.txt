@@ -1,7 +1,7 @@
 # Base packages
 pip==9.0.1
 appdirs==1.4.3
-virtualenv==15.0.1
+virtualenv==15.1.0
 docutils==0.11
 Sphinx==1.5.3
 sphinx_rtd_theme==0.2.5b1
