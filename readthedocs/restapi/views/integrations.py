@@ -167,12 +167,11 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
             try:
+                # GitHub only returns one branch.
                 branch = {
                     'name': self.data['ref'].replace('refs/heads/', ''),
                     'last_commit': self.data['head_commit'],
                 }
-
-                # GitHub only returns one branch.
                 branches = [branch]
                 return self.get_response_push(self.project, branches)
             except KeyError:
@@ -191,11 +190,11 @@ class GitLabWebhookView(WebhookMixin, APIView):
         {
             "object_kind": "push",
             "ref": "branch-name",
-            "commits": [
+            "commits": [{
                 "id": "sha",
                 "message": "Update README.md",
                 ...
-            ]
+            }]
             ...
         }
 
