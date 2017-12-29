@@ -81,7 +81,8 @@ class Project(models.Model):
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
     name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    # A DNS label can contain up to 63 characters.
+    slug = models.SlugField(_('Slug'), max_length=63, unique=True)
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
