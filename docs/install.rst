@@ -93,11 +93,11 @@ activate it::
     cd rtd
     source bin/activate
 
-Create a folder in here, and clone the repository::
+Create a folder in here, and clone the release branch::
 
     mkdir checkouts
     cd checkouts
-    git clone https://github.com/rtfd/readthedocs.org.git
+    git clone --branch=rel --depth=1 https://github.com/rtfd/readthedocs.org.git
 
 Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
 
