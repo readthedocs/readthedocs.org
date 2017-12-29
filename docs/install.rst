@@ -126,6 +126,9 @@ By now, it is the right time to load in a couple users and a test project::
     If you do not opt to install test data, you'll need to create an account for
     API use and set ``SLUMBER_USERNAME`` and ``SLUMBER_PASSWORD`` in order for
     everything to work properly.
+    This can be done by using ``createsuperuser``, then attempting a manual login to
+    create an ``EmailAddress`` entry for the user, then you can use ``shell_plus`` to
+    update the object with ``primary=True``, ``verified=True``.
 
 Finally, you're ready to start the webserver::
 
