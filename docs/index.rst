@@ -128,5 +128,5 @@ Information about development is also available:
    :caption: Designer Documentation
 
    design
-   theme
+   Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
 

@@ -250,7 +250,7 @@ class UpdateDocsTask(Task):
             env_cls = DockerEnvironment
         else:
             env_cls = LocalEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version,
+        self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
                                  build=self.build, record=record, environment=env_vars)
 
         # Environment used for building code, usually with Docker
@@ -435,8 +435,16 @@ class UpdateDocsTask(Task):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
-            self.python_env.delete_existing_build_dir()
+            # Check if the python version/build image in the current venv is the
+            # same to be used in this build and if it differs, wipe the venv to
+            # avoid conflicts.
+            if self.python_env.is_obsolete:
+                self.python_env.delete_existing_venv_dir()
+            else:
+                self.python_env.delete_existing_build_dir()
+
             self.python_env.setup_base()
+            self.python_env.save_environment_json()
             self.python_env.install_core_requirements()
             self.python_env.install_user_requirements()
             self.python_env.install_package()

@@ -28,6 +28,9 @@ need to install Python 3 with virtualenv in your system as well.
 .. _PostgreSQL: https://www.postgresql.org/
 .. _Redis: https://redis.io/
 
+.. note::
+
+    Requires Git version >=1.9
 
 .. note::
 
@@ -49,6 +52,10 @@ need to install Python 3 with virtualenv in your system as well.
         sudo apt-get install build-essential
         sudo apt-get install python-dev python-pip python-setuptools
         sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
+
+    CentOS/RHEL 7 will require::
+
+        sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
     Users of other Linux distributions may need to install the equivalent
     packages, depending on their system configuration.

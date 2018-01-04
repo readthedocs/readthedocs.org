@@ -1,14 +1,19 @@
+# -*- coding: utf-8 -*-
 """An abstraction over virtualenv and Conda environments."""
 
-from __future__ import absolute_import
-from builtins import object
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
+import json
 import logging
 import os
 import shutil
+from builtins import object, open
 
 from django.conf import settings
 
 from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
@@ -38,7 +43,6 @@ class PythonEnvironment(object):
                          msg=msg))
 
     def delete_existing_build_dir(self):
-
         # Handle deleting old build dir
         build_dir = os.path.join(
             self.venv_path(),
@@ -46,6 +50,13 @@ class PythonEnvironment(object):
         if os.path.exists(build_dir):
             self._log('Removing existing build directory')
             shutil.rmtree(build_dir)
+
+    def delete_existing_venv_dir(self):
+        venv_dir = self.venv_path()
+        # Handle deleting old venv dir
+        if os.path.exists(venv_dir):
+            self._log('Removing existing venv directory')
+            shutil.rmtree(venv_dir)
 
     def install_package(self):
         if self.config.install_project:
@@ -86,6 +97,73 @@ class PythonEnvironment(object):
         if filename is not None:
             parts.append(filename)
         return os.path.join(*parts)
+
+    def environment_json_path(self):
+        """Return the path to the ``readthedocs-environment.json`` file."""
+        return os.path.join(
+            self.venv_path(),
+            'readthedocs-environment.json',
+        )
+
+    @property
+    def is_obsolete(self):
+        """
+        Determine if the Python version of the venv obsolete.
+
+        It checks the the data stored at ``readthedocs-environment.json`` and
+        compares it against the Python version in the project version to be
+        built and the Docker image used to create the venv against the one in
+        the project version config.
+
+        :returns: ``True`` when it's obsolete and ``False`` otherwise
+
+        :rtype: bool
+        """
+        # Always returns False if we don't have information about what Python
+        # version/Docker image was used to create the venv as backward
+        # compatibility.
+        if not os.path.exists(self.environment_json_path()):
+            return False
+
+        try:
+            with open(self.environment_json_path(), 'r') as fpath:
+                environment_conf = json.load(fpath)
+            env_python_version = environment_conf['python']['version']
+            env_build_image = environment_conf['build']['image']
+        except (IOError, TypeError, KeyError, ValueError):
+            log.error('Unable to read/parse readthedocs-environment.json file')
+            return False
+
+        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
+        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
+
+        # If the user define the Python version just as a major version
+        # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
+        # used to create the venv but we can still compare it against the new
+        # one coming from the project version config.
+        return any([
+            env_python_version != self.config.python_full_version,
+            env_build_image != build_image,
+        ])
+
+    def save_environment_json(self):
+        """Save on disk Python and build image versions used to create the venv."""
+        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
+        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
+
+        data = {
+            'python': {
+                'version': self.config.python_full_version,
+            },
+            'build': {
+                'image': build_image,
+            },
+        }
+
+        with open(self.environment_json_path(), 'w') as fpath:
+            # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
+            # unicode but ``json.dumps`` returns str in Py2.
+            fpath.write(unicode(json.dumps(data)))
 
 
 class Virtualenv(PythonEnvironment):
