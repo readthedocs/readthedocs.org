@@ -74,10 +74,10 @@ def build_branches(project, branch_list):
         to_build - a list of branches that were built
         not_building - a list of branches that we won't build
     """
+    to_build = set()
+    not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-        to_build = set()
-        not_building = set()
         for version in versions:
             log.info("(Branch Build) Processing %s:%s",
                      project.slug, version.slug)
