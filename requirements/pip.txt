@@ -34,6 +34,7 @@ dnspython==1.15.0
 
 # VCS
 httplib2==0.7.7
+Mercurial==4.4.2
 
 # Search
 elasticsearch==1.5.0
