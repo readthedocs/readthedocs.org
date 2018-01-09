@@ -152,8 +152,8 @@ What's available
 After registering with the site (or creating yourself a superuser account), you
 will be able to log in and view the `dashboard <http://localhost:8000/dashboard/>`_.
 
-Importing existing docs
-^^^^^^^^^^^^^^^^^^^^^^^
+Importing your docs
+^^^^^^^^^^^^^^^^^^^
 
 One of the goals of readthedocs.org is to make it easy for any open source
 developer to get high quality hosted docs with great visibility! Simply provide
