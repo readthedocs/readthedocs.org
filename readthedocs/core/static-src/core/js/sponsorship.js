@@ -18,14 +18,15 @@ function Promo (id, text, link, image, theme, display_type, pixel) {
 
     // Handler when a promo receives a click
     this.click_handler = function () {
-        if (_gaq) {
+        // This needs to handle both old style legacy analytics for previously built docs
+        // as well as the newer universal analytics
+        if (typeof ga !== 'undefined') {
+            ga('rtfd.send', 'event', 'Promo', 'Click', self.id);
+        } else if (typeof _gaq !== 'undefined') {
             _gaq.push(
                 ['rtfd._setAccount', 'UA-17997319-1'],
                 ['rtfd._trackEvent', 'Promo', 'Click', self.id]
             );
-        }
-        if (ga) {
-            ga('rtfd.send', 'event', 'Promo', 'Click', self.id);
         }
     };
 }

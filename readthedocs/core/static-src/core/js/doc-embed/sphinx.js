@@ -12,10 +12,18 @@ function init() {
 
     /// Click tracking on flyout
     $(document).on('click', "[data-toggle='rst-current-version']", function() {
-      var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed'
-      if (ga) {
-        ga('rtfd.send', 'event', 'Flyout', 'Click', flyout_state);
-      }
+        var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed';
+
+        // This needs to handle both old style legacy analytics for previously built docs
+        // as well as the newer universal analytics
+        if (typeof ga !== 'undefined') {
+            ga('rtfd.send', 'event', 'Flyout', 'Click', flyout_state);
+        } else if (typeof _gaq !== 'undefined') {
+            _gaq.push(
+                ['rtfd._setAccount', 'UA-17997319-1'],
+                ['rtfd._trackEvent', 'Flyout', 'Click', flyout_state]
+            );
+        }
     });
 
     /// Read the Docs Sphinx theme code
