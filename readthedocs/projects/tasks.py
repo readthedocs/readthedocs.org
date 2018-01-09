@@ -54,7 +54,6 @@ from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
-from readthedocs.search.utils import process_mkdocs_json
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -738,8 +737,6 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
 
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
-    elif version.project.is_type_mkdocs:
-        page_list = process_mkdocs_json(version, build_dir=False)
     else:
         log.error('Unknown documentation type: %s',
                   version.project.documentation_type)

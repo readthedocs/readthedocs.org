@@ -10,6 +10,6 @@ $(document).ready(function () {
     footer.init();
     sphinx.init();
     // grokthedocs.init();
-    mkdocs.init();
+    // mkdocs.init();
     search.init();
 });
