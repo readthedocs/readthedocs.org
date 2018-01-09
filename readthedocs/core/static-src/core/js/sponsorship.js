@@ -24,6 +24,9 @@ function Promo (id, text, link, image, theme, display_type, pixel) {
                 ['rtfd._trackEvent', 'Promo', 'Click', self.id]
             );
         }
+        if (ga) {
+            ga('rtfd.send', 'event', 'Promo', 'Click', self.id);
+        }
     };
 }
 
