@@ -727,14 +727,6 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                 type_='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
 
-    if 'mkdocs' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(version=version.slug,
-                                                      type_='mkdocs_json')
-            to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
 
 @app.task(queue='web')
 def update_search(version_pk, commit, delete_non_commit_files=True):
