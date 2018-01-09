@@ -1,25 +1,7 @@
 /* Build detail styles */
 
-div.build-detail div.build-title {
-    margin: .1em 0em .2em 0em;
-}
-
-div.build-detail div.build-title span.build-id {
+div.build-detail div.build-id {
     font-size: 1.5em;
-    font-weight: bold;
-}
-
-div.build-detail div.build-title span.build-id > span.build-state-normal {
-}
-div.build-detail div.build-title span.build-id > span.build-state-failed {
-    color: #a55;
-}
-div.build-detail div.build-title span.build-id > span.build-state-successful {
-    color: #5a5;
-}
-
-div.build-detail div.build-title span.build-state-detail {
-    margin-left: .5em;
 }
 
 div.build-detail div.build-version {
@@ -29,6 +11,28 @@ div.build-detail div.build-version {
 div.build-detail div.build-version span.build-commit {
     color: #887;
     font-style: italic;
+}
+
+div.build-detail div.build-state {
+    margin: .7em 0em 1em 0em;
+    font-size: 1.2em;
+}
+
+div.build-detail div.build-state > span.build-state-successful,
+div.build-detail div.build-state > span.build-state-failed {
+    padding: .3em .5em;
+    border-radius: .3em;
+    -moz-border-radius: .3em;
+    -ms-border-radius: .3em;
+    -webkit-border-radius: .3em;
+    color: white;
+}
+
+div.build-detail div.build-state > span.build-state-failed {
+    background: #a55;
+}
+div.build-detail div.build-state > span.build-state-successful {
+    background: #5a5;
 }
 
 div.build-detail div.build-ideas {
