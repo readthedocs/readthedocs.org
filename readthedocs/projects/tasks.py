@@ -502,11 +502,8 @@ class UpdateDocsTask(Task):
 
     def build_docs_search(self):
         """Build search data with separate build."""
-        if self.build_search:
-            if self.project.is_type_mkdocs:
-                return self.build_docs_class('mkdocs_json')
-            if self.project.is_type_sphinx:
-                return self.build_docs_class('sphinx_search')
+        if self.build_search and self.project.is_type_sphinx:
+            return self.build_docs_class('sphinx_search')
         return False
 
     def build_docs_localmedia(self):
