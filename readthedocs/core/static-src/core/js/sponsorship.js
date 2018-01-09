@@ -117,14 +117,15 @@ Promo.prototype.place_promo = function (selector, promo_class) {
 Promo.prototype.get_alabaster_promo_selector = function () {
     // Return a jQuery selector where the promo goes on the Alabaster theme
     var self = this,
-        selector;
+        selector, wrapper;
 
     if (self.display_type === constants.PROMO_TYPES.FOOTER) {
-        selector = $('<div />')
+        wrapper = $('<div />')
             .attr('class', 'rtd-pro-footer-wrapper body')
             .appendTo('div.bodywrapper');
-        $('<hr />').insertBefore(selector);
-        $('<hr />').insertAfter(selector);
+        $('<hr />').appendTo(wrapper);
+        selector = $('<div />').appendTo(wrapper);
+        $('<hr />').appendTo(wrapper);
     } else {
         selector = $('div.sphinxsidebar > div.sphinxsidebarwrapper');
     }
