@@ -23,6 +23,11 @@ dictionary. Note that this dictionary is injected under the main key
             'slug': str,
             'latest': bool,
             'stable': bool,
+            'downloads': {
+                'pdf: str,
+                'htmlzip': str,
+                'epub': str
+            }
         },
         'project': {
             'name': str,
