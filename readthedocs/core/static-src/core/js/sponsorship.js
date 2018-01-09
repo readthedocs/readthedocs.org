@@ -117,7 +117,8 @@ Promo.prototype.place_promo = function (selector, promo_class) {
 Promo.prototype.get_alabaster_promo_selector = function () {
     // Return a jQuery selector where the promo goes on the Alabaster theme
     var self = this,
-        selector, wrapper;
+        selector,
+        wrapper;
 
     if (self.display_type === constants.PROMO_TYPES.FOOTER) {
         wrapper = $('<div />')
