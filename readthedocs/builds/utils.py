@@ -7,23 +7,23 @@ from __future__ import (
 import re
 
 GH_REGEXS = [
-    re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
+    re.compile('github.com/(.+)/(.+)(?:\.git){1}$'),
     re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+).git'),
+    re.compile('github.com:(.+)/(.+).git$'),
 ]
 
 BB_REGEXS = [
     re.compile('bitbucket.org/(.+)/(.+)/'),
     re.compile('bitbucket.org/(.+)/(.+)'),
-    re.compile('bitbucket.org:(.+)/(.+)\.git'),
+    re.compile('bitbucket.org:(.+)/(.+)\.git$'),
 ]
 
 # TODO: I think this can be different than `gitlab.com`
 # self.adapter.provider_base_url
 GL_REGEXS = [
-    re.compile('gitlab.com/(.+)/(.+)(?:\.git){1}'),
+    re.compile('gitlab.com/(.+)/(.+)(?:\.git){1}$'),
     re.compile('gitlab.com/(.+)/(.+)'),
-    re.compile('gitlab.com:(.+)/(.+)\.git'),
+    re.compile('gitlab.com:(.+)/(.+)\.git$'),
 ]
 
 
