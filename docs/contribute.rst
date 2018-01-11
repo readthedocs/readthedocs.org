@@ -209,7 +209,7 @@ few more at hand to further categorize issues.
     have the resources to work on. We encourage community members to work
     on these tickets and to submit a pull request.
 
-*Good First Bug*
+*Good First Issue*
     This label marks tickets that are easy to get started with. The ticket
     should be ideal for beginners to dive into the code base. Better is if the
     fix for the issue only involves touching one part of the code.
