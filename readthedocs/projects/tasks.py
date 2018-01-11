@@ -54,7 +54,6 @@ from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
-from readthedocs.search.utils import process_mkdocs_json
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -502,11 +501,8 @@ class UpdateDocsTask(Task):
 
     def build_docs_search(self):
         """Build search data with separate build."""
-        if self.build_search:
-            if self.project.is_type_mkdocs:
-                return self.build_docs_class('mkdocs_json')
-            if self.project.is_type_sphinx:
-                return self.build_docs_class('sphinx_search')
+        if self.build_search and self.project.is_type_sphinx:
+            return self.build_docs_class('sphinx_search')
         return False
 
     def build_docs_localmedia(self):
@@ -727,14 +723,6 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                 type_='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
 
-    if 'mkdocs' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(version=version.slug,
-                                                      type_='mkdocs_json')
-            to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
 
 @app.task(queue='web')
 def update_search(version_pk, commit, delete_non_commit_files=True):
@@ -749,8 +737,6 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
 
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
-    elif version.project.is_type_mkdocs:
-        page_list = process_mkdocs_json(version, build_dir=False)
     else:
         log.error('Unknown documentation type: %s',
                   version.project.documentation_type)
