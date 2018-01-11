@@ -2,10 +2,11 @@ Read the Docs data passed to Sphinx build context
 =================================================
 
 Before calling `sphinx-build` to render your docs, Read the Docs injects some
-extra context in the templates by using the ``html_context`` Sphinx setting in
+extra context in the templates by using the `html_context Sphinx setting`_ in
 the ``conf.py`` file. This extra context allows Read the Docs to add some
-features like "Edit on GitHub" and use a custom Analytics code, among others.
+features like "Edit on GitHub" and use a user custom Analytics code, among others.
 
+.. _html_context Sphinx setting: http://www.sphinx-doc.org/en/stable/config.html#confval-html_context
 
 Context injected by default
 ---------------------------
@@ -19,39 +20,28 @@ dictionary. Note that this dictionary is injected under the main key
 
     'readthedocs': {
         'version': {
+            'pk': int,
             'name': str,
             'slug': str,
-            'latest': bool,
-            'stable': bool,
             'downloads': {
                 'pdf: str,
                 'htmlzip': str,
                 'epub': str
-            }
+            },
+            'resource_uri': '/api/v2/version/{pk}/'
         },
         'project': {
+            'pk': int
             'name': str,
             'slug': str,
-            'rtd_language': str,  # can be different than language in conf.py
             'canonical_url': str,
-            'single_version': bool,
-            'versions': [
-                {
-                    'slug': str,
-                    'href': str
-                }
-            ],
-            'subprojects': [
-                {
-                    'slug': str,
-                    'href': str
-                }
-            ]
+            'resource_uri': '/api/v2/project/{pk}/'
         },
-        'build': {
+        'sphinx': {
             'html_theme': str,
             'source_suffix': str,
-            'api_host': str,
+        },
+        'analytics': {
             'user_analytics_code': str,
             'global_analytics_code': str
         },
@@ -61,15 +51,25 @@ dictionary. Note that this dictionary is injected under the main key
             'repo': str,
             'commit': str,
             'version': str,
-            'display': bool
+            'display': bool,
             'conf_py_path': str
         },
         'meta': {
-            'READTHEDOCS': True,
+            'API_HOST': str,
             'MEDIA_URL': str, 
-            'PRODUCTION_DOMAIN': str
+            'PRODUCTION_DOMAIN': str,
+            'READTHEDOCS': True
         }
     }
+
+
+.. note::
+
+   By design, Read the Docs passes only static information to `sphinx-build`
+   to avoid versions to be inconsistent in case the project is updated after the version is built.
+   In case you need more information than the context supplied here, you will
+   need to use :doc:`Read the Docs Public API <api>` to retrieve fresh data about the project
+   (e.g. know if the current version is the `latest` or `stable`, get all versions of a project, etc).
 
 
 Using Read the Docs context in your theme
@@ -115,3 +115,9 @@ and use it inside your theme as:
 .. code:: html
 
     <p>This documentation was written by {{ author }} on {{ date }}.</p>
+
+
+.. note::
+
+   Take into account that the Read the Docs context is inject after your definition of ``html_context`` so,
+   it's not possible to override Read the Docs context values.
