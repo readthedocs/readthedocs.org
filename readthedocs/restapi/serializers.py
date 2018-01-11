@@ -18,7 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name', 'slug', 'description', 'language',
-            'repo', 'repo_type',
+            'programming_language', 'repo', 'repo_type',
             'default_version', 'default_branch',
             'documentation_type',
             'users',

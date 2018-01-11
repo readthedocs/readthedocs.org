@@ -560,6 +560,7 @@ class APIVersionTests(TestCase):
                 'install_project': False,
                 'language': 'en',
                 'name': 'Pip',
+                'programming_language': 'words',
                 'python_interpreter': 'python',
                 'repo': 'https://github.com/pypa/pip',
                 'repo_type': 'git',
