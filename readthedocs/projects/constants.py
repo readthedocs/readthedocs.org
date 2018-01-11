@@ -297,6 +297,7 @@ GITHUB_REGEXS = [
     re.compile('github.com:(.+)/(.+).git$'),
 ]
 BITBUCKET_REGEXS = [
+    re.compile('@bitbucket.org/(.+)/(.+)\.git$'),
     re.compile('bitbucket.org/(.+)/(.+)/'),
     re.compile('bitbucket.org/(.+)/(.+)'),
     re.compile('bitbucket.org:(.+)/(.+)\.git$'),
