@@ -294,7 +294,7 @@ PROJECT_SLUG_REGEX = '(?:[-\w]+)'
 GITHUB_REGEXS = [
     re.compile('github.com/(.+)/(.+)(?:\.git){1}$'),
     re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+).git$'),
+    re.compile('github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
     re.compile('@bitbucket.org/(.+)/(.+)\.git$'),
