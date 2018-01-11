@@ -4,32 +4,13 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-import re
-
-GH_REGEXS = [
-    re.compile('github.com/(.+)/(.+)(?:\.git){1}$'),
-    re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+).git$'),
-]
-
-BB_REGEXS = [
-    re.compile('bitbucket.org/(.+)/(.+)/'),
-    re.compile('bitbucket.org/(.+)/(.+)'),
-    re.compile('bitbucket.org:(.+)/(.+)\.git$'),
-]
-
-# TODO: I think this can be different than `gitlab.com`
-# self.adapter.provider_base_url
-GL_REGEXS = [
-    re.compile('gitlab.com/(.+)/(.+)(?:\.git){1}$'),
-    re.compile('gitlab.com/(.+)/(.+)'),
-    re.compile('gitlab.com:(.+)/(.+)\.git$'),
-]
+from readthedocs.projects.constants import (
+    BITBUCKET_REGEXS, GITHUB_REGEXS, GITLAB_REGEXS)
 
 
 def get_github_username_repo(url):
     if 'github' in url:
-        for regex in GH_REGEXS:
+        for regex in GITHUB_REGEXS:
             match = regex.search(url)
             if match:
                 return match.groups()
@@ -38,7 +19,7 @@ def get_github_username_repo(url):
 
 def get_bitbucket_username_repo(url=None):
     if 'bitbucket' in url:
-        for regex in BB_REGEXS:
+        for regex in BITBUCKET_REGEXS:
             match = regex.search(url)
             if match:
                 return match.groups()
@@ -47,7 +28,7 @@ def get_bitbucket_username_repo(url=None):
 
 def get_gitlab_username_repo(url=None):
     if 'gitlab' in url:
-        for regex in GL_REGEXS:
+        for regex in GITLAB_REGEXS:
             match = regex.search(url)
             if match:
                 return match.groups()
