@@ -14,6 +14,16 @@
   <!-- END onboard -->
   {% endif %}
 
+  <div id="project_description">
+    {% if project.description %}
+      <h3>{% trans "Description" %}</h3>
+      <div id="project_description">
+        <p>
+          {{ project.description|restructuredtext }}
+        </p>
+      </div>
+    {% endif %}
+  </div>
 
   <div class="module-header">
     <h3>{% trans "Versions" %}</h3>
@@ -72,17 +82,6 @@
   </div>
 {% endif %}
 {% endblock %}
-
-<div id="project_description">
-{% if project.description %}
-  <h3>{% trans "Description" %}</h3>
-  <div id="project_description">
-  <p>
-    {{ project.description|restructuredtext }}
-  </p>
-  </div>
-{% endif %}
-</div>
 
 
 </div>{# END .module #}
