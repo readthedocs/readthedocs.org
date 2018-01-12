@@ -27,7 +27,7 @@ SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 from __future__ import absolute_import
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.static import serve
 
@@ -67,10 +67,7 @@ def map_subproject_slug(view_func):
                 )
                 subproject = rel.child
             except (ProjectRelationship.DoesNotExist, KeyError):
-                try:
-                    subproject = Project.objects.get(slug=subproject_slug)
-                except Project.DoesNotExist:
-                    raise Http404
+                get_object_or_404(Project, slug=subproject_slug)
         return view_func(request, subproject=subproject, *args, **kwargs)
     return inner_view
 
