@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Check Nginx config on readthedocs.org."""
+from __future__ import print_function
 
 import sys
 import requests
@@ -66,15 +67,15 @@ def run_test(fn, *args):
     ret_value = fn(*args)
     result = 'ok' if ret_value else 'ERROR'
     url = args[0]
-    print "{url: <65} ...  {result}".format(url=url, result=result)
+    print("{url: <65} ...  {result}".format(url=url, result=result))
     return ret_value
 
 
 def header(msg):
     """Give each test a sexy header."""
-    print
-    print msg
-    print "-----------------------------"
+    print()
+    print(msg)
+    print("-----------------------------")
 
 
 def summary_results(num_tests, num_fails):
@@ -115,7 +116,7 @@ def main():
     for url, redirect in redirected_urls:
         run_test(redirected, url, redirect)
 
-    print summary_results(TESTS, FAILS)
+    print(summary_results(TESTS, FAILS))
 
     exit_code = 1 if (FAILS > 0) else 0
     return exit_code

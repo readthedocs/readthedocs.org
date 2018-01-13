@@ -20,6 +20,11 @@ from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
+try:
+    unicode        # Python 2
+except NameError:
+    unicode = str  # Python 3
+
 
 class PythonEnvironment(object):
 
