@@ -20,10 +20,10 @@
 }
 
 
-/* Fix RTD theme versions below 0.2.5 bottom margin */		
-.rst-content .line-block {		
-	margin-bottom: 24px		
-}		
+/* Fix RTD theme versions below 0.2.5 bottom margin */
+.rst-content .line-block {
+	margin-bottom: 24px;
+}
 
 /* Fix for nav bottom padding with flyout */
 nav.wy-nav-side {
