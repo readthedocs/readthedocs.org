@@ -35,6 +35,8 @@ Want to get involved?
 
 If you're interested in participating in GSoC as a student, you can also post an `issue <https://github.com/rtfd/readthedocs.org/issues>`_ on GitHub to let us know. We will be happy to help direct you or answer any questions you may have there.
 
+You can also reach out to folks on IRC at `#readthedocs` on Freenode.
+
 Project Ideas
 -------------
 
