@@ -8,7 +8,7 @@ import json
 import logging
 import os
 import shutil
-from builtins import object, open
+from builtins import object, open, str
 
 from django.conf import settings
 
@@ -19,11 +19,6 @@ from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
-
-try:
-    unicode        # Python 2
-except NameError:
-    unicode = str  # Python 3
 
 
 class PythonEnvironment(object):
@@ -168,7 +163,7 @@ class PythonEnvironment(object):
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
             # unicode but ``json.dumps`` returns str in Py2.
-            fpath.write(unicode(json.dumps(data)))
+            fpath.write(str(json.dumps(data)))
 
 
 class Virtualenv(PythonEnvironment):
