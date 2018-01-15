@@ -9,7 +9,7 @@ Required Skills
 
 Incoming students will need the following skills:
 
-* Intermediate python programming
+* Intermediate Python & Django programming
 * Familiarity with Markdown, reStructuredText, or some other plain text markup language
 * Familiarity with git, or some other source control
 * Ability to set up your own development environment for Read the Docs
