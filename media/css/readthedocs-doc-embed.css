@@ -19,12 +19,6 @@
 	margin: 0;
 }
 
-
-/* Fix RTD theme bottom margin */
-.rst-content .line-block {
-	margin-bottom: 24px
-}
-
 /* Fix for nav bottom padding with flyout */
 nav.wy-nav-side {
     padding-bottom: 3em;
