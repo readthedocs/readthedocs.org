@@ -9,7 +9,7 @@ Instead of using an existing ad network, we are building the model we want to ex
 We don't track you, sell your data, or anything else.
 We simply show ads to users, based on the content of the pages you look at.
 We also give 10% of our ad space to :ref:`community projects <community-ads>`,
-as our way of saying thanks to the open source community
+as our way of saying thanks to the open source community.
 
 We talk a bit below about :ref:`our worldview on advertising <ethical-info>`,
 if you want to know more.

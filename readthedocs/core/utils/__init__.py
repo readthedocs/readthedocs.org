@@ -1,4 +1,4 @@
-"""Common utilty functions"""
+"""Common utilty functions."""
 
 from __future__ import absolute_import
 
@@ -77,7 +77,8 @@ def cname_to_slug(host):
 
 
 def trigger_build(project, version=None, record=True, force=False, basic=False):
-    """Trigger build for project and version
+    """
+    Trigger build for project and version.
 
     If project has a ``build_queue``, execute task on this build queue. Queue
     will be prefixed with ``build-`` to unify build queue names.
@@ -135,7 +136,8 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
 
 def send_email(recipient, subject, template, template_html, context=None,
                request=None, from_email=None, **kwargs):  # pylint: disable=unused-argument
-    """Alter context passed in and call email send task
+    """
+    Alter context passed in and call email send task.
 
     .. seealso::
 
@@ -152,7 +154,8 @@ def send_email(recipient, subject, template, template_html, context=None,
 
 
 def slugify(value, *args, **kwargs):
-    """Add a DNS safe option to slugify
+    """
+    Add a DNS safe option to slugify.
 
     :param dns_safe: Remove underscores from slug as well
     """
@@ -170,9 +173,9 @@ def safe_makedirs(directory_name):
     """
     Safely create a directory.
 
-    Makedirs has an issue where it has a race condition around
-    checking for a directory and then creating it.
-    This catches the exception in the case where the dir already exists.
+    Makedirs has an issue where it has a race condition around checking for a
+    directory and then creating it. This catches the exception in the case where
+    the dir already exists.
     """
     try:
         os.makedirs(directory_name)

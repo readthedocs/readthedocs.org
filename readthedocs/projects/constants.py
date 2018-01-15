@@ -273,6 +273,16 @@ PROGRAMMING_LANGUAGES = (
     ('csharp', 'C#'),
     ('cpp', 'C++'),
     ('objc', 'Objective-C'),
+    ('css', 'CSS'),
+    ('ts', 'TypeScript'),
+    ('swift', 'Swift'),
+    ('vb', 'Visual Basic'),
+    ('r', 'R'),
+    ('scala', 'Scala'),
+    ('groovy', 'Groovy'),
+    ('coffee', 'CoffeeScript'),
+    ('lua', 'Lua'),
+    ('haskell', 'Haskell'),
     ('other', 'Other'),
 )
 

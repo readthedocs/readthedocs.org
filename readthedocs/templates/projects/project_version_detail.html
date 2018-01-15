@@ -16,8 +16,12 @@
 {% block content %}
     <h2> Editing {{ version.slug }} </h2>
     <form method="post" action=".">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Save">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <p>
+        <input style="display: inline;" type="submit" value="{% trans "Save" %}">
+        {% trans "or" %}
+        <a href="{% url "wipe_version" version.project.slug version.slug %}">{% trans "wipe "%}</a>
+      </p>
     </form>
 {% endblock %}

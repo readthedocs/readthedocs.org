@@ -31,10 +31,11 @@ SINGLE_VERSION_URLCONF = getattr(
 
 class SubdomainMiddleware(object):
 
-    """Middleware to display docs for non-dashboard domains"""
+    """Middleware to display docs for non-dashboard domains."""
 
     def process_request(self, request):
-        """Process requests for unhandled domains
+        """
+        Process requests for unhandled domains.
 
         If the request is not for our ``PUBLIC_DOMAIN``, or if ``PUBLIC_DOMAIN``
         is not set and the request is for a subdomain on ``PRODUCTION_DOMAIN``,
@@ -132,22 +133,22 @@ class SubdomainMiddleware(object):
 
 class SingleVersionMiddleware(object):
 
-    """Reset urlconf for requests for 'single_version' docs.
+    """
+    Reset urlconf for requests for 'single_version' docs.
 
-    In settings.MIDDLEWARE_CLASSES, SingleVersionMiddleware must follow
-    after SubdomainMiddleware.
-
+    In settings.MIDDLEWARE_CLASSES, SingleVersionMiddleware must follow after
+    SubdomainMiddleware.
     """
 
     def _get_slug(self, request):
-        """Get slug from URLs requesting docs.
+        """
+        Get slug from URLs requesting docs.
 
         If URL is like '/docs/<project_name>/', we split path
         and pull out slug.
 
         If URL is subdomain or CNAME, we simply read request.slug, which is
         set by SubdomainMiddleware.
-
         """
         slug = None
         if hasattr(request, 'slug'):
@@ -187,16 +188,16 @@ class SingleVersionMiddleware(object):
 class ProxyMiddleware(object):
 
     """
-    Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the
+    Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the.
 
     latter is set. This is useful if you're sitting behind a reverse proxy that
-    causes each request's REMOTE_ADDR to be set to 127.0.0.1.
-    Note that this does NOT validate HTTP_X_FORWARDED_FOR. If you're not behind
-    a reverse proxy that sets HTTP_X_FORWARDED_FOR automatically, do not use
-    this middleware. Anybody can spoof the value of HTTP_X_FORWARDED_FOR, and
-    because this sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, that means
-    anybody can "fake" their IP address. Only use this when you can absolutely
-    trust the value of HTTP_X_FORWARDED_FOR.
+    causes each request's REMOTE_ADDR to be set to 127.0.0.1. Note that this
+    does NOT validate HTTP_X_FORWARDED_FOR. If you're not behind a reverse proxy
+    that sets HTTP_X_FORWARDED_FOR automatically, do not use this middleware.
+    Anybody can spoof the value of HTTP_X_FORWARDED_FOR, and because this sets
+    REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, that means anybody can "fake"
+    their IP address. Only use this when you can absolutely trust the value of
+    HTTP_X_FORWARDED_FOR.
     """
 
     def process_request(self, request):

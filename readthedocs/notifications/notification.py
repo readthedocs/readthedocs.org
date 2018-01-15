@@ -13,14 +13,14 @@ from . import constants
 
 class Notification(object):
 
-    """An unsent notification linked to an object.
+    """
+    An unsent notification linked to an object.
 
     This class provides an interface to construct notification messages by
     rendering Django templates. The ``Notification`` itself is not expected
     to be persisted by the backends.
 
     Call .send() to send the notification.
-
     """
 
     name = None
@@ -75,7 +75,8 @@ class Notification(object):
         )
 
     def send(self):
-        """Trigger notification send through all notification backends
+        """
+        Trigger notification send through all notification backends.
 
         In order to limit which backends a notification will send out from,
         override this method and duplicate the logic from

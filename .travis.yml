@@ -34,3 +34,7 @@ notifications:
       - readthedocs:y3hjODOi7EIz1JAbD1Zb41sz#random
     on_success: change
     on_failure: always
+
+branches:
+  only:
+  - master

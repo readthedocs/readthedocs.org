@@ -35,7 +35,7 @@ Promo.prototype.create = function () {
         menu = this.get_sphinx_rtd_theme_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'wy-menu';
     }
-    else if (this.theme == constants.THEME_ALABASTER) {
+    else if (this.theme == constants.THEME_ALABASTER || this.theme == constants.THEME_CELERY) {
         menu = this.get_alabaster_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'alabaster';
     }
@@ -117,14 +117,16 @@ Promo.prototype.place_promo = function (selector, promo_class) {
 Promo.prototype.get_alabaster_promo_selector = function () {
     // Return a jQuery selector where the promo goes on the Alabaster theme
     var self = this,
-        selector;
+        selector,
+        wrapper;
 
     if (self.display_type === constants.PROMO_TYPES.FOOTER) {
-        selector = $('<div />')
+        wrapper = $('<div />')
             .attr('class', 'rtd-pro-footer-wrapper body')
             .appendTo('div.bodywrapper');
-        $('<hr />').insertBefore(selector);
-        $('<hr />').insertAfter(selector);
+        $('<hr />').appendTo(wrapper);
+        selector = $('<div />').appendTo(wrapper);
+        $('<hr />').appendTo(wrapper);
     } else {
         selector = $('div.sphinxsidebar > div.sphinxsidebarwrapper');
     }

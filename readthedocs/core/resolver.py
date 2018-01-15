@@ -1,4 +1,4 @@
-"""URL resolver for documentation"""
+"""URL resolver for documentation."""
 
 from __future__ import absolute_import
 from builtins import object
@@ -54,7 +54,7 @@ class ResolverBase(object):
     def base_resolve_path(self, project_slug, filename, version_slug=None,
                           language=None, private=False, single_version=None,
                           subproject_slug=None, subdomain=None, cname=None):
-        """Resolve a with nothing smart, just filling in the blanks"""
+        """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
         # pylint: disable=unused-argument
@@ -80,7 +80,7 @@ class ResolverBase(object):
     def resolve_path(self, project, filename='', version_slug=None,
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
-        """Resolve a URL with a subset of fields defined"""
+        """Resolve a URL with a subset of fields defined."""
         relation = project.superprojects.first()
         cname = cname or project.domains.filter(canonical=True).first()
         main_language_project = project.main_language_project
@@ -145,7 +145,8 @@ class ResolverBase(object):
         )
 
     def _get_canonical_project(self, project):
-        """Get canonical project in the case of subproject or translations
+        """
+        Get canonical project in the case of subproject or translations.
 
         :type project: Project
         :rtype: Project
@@ -159,7 +160,7 @@ class ResolverBase(object):
         return project
 
     def _get_project_subdomain(self, project):
-        """Determine canonical project domain as subdomain"""
+        """Determine canonical project domain as subdomain."""
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
         if self._use_subdomain():
             project = self._get_canonical_project(project)
@@ -177,9 +178,10 @@ class ResolverBase(object):
 
     def _fix_filename(self, project, filename):
         """
-        Force filenames that might be HTML file paths into proper URL's
+        Force filenames that might be HTML file paths into proper URL's.
 
-        This basically means stripping / and .html endings and then re-adding them properly.
+        This basically means stripping / and .html endings and then re-adding
+        them properly.
         """
         # Bail out on non-html files
         if '.' in filename and '.html' not in filename:
@@ -203,7 +205,7 @@ class ResolverBase(object):
         return path
 
     def _use_subdomain(self):
-        """Make decision about whether to use a subdomain to serve docs"""
+        """Make decision about whether to use a subdomain to serve docs."""
         use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
         return use_subdomain and public_domain is not None

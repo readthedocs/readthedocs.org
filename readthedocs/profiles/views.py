@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -8,18 +10,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import Http404
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render, redirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.context import RequestContext
 
 from readthedocs.core.forms import UserDeleteForm
 
 
-def create_profile(request, form_class, success_url=None,
-                   template_name='profiles/private/create_profile.html',
-                   extra_context=None):
+def create_profile(
+        request, form_class, success_url=None,
+        template_name='profiles/private/create_profile.html',
+        extra_context=None):
     """
     Create a profile for the current user, if one doesn't already exist.
 
@@ -65,7 +66,6 @@ def create_profile(request, form_class, success_url=None,
 
     ``template_name`` keyword argument, or
     :template:`profiles/create_profile.html`.
-
     """
     try:
         profile_obj = request.user.profile
@@ -83,8 +83,9 @@ def create_profile(request, form_class, success_url=None,
     #
 
     if success_url is None:
-        success_url = reverse('profiles_profile_detail',
-                              kwargs={'username': request.user.username})
+        success_url = reverse(
+            'profiles_profile_detail',
+            kwargs={'username': request.user.username})
     if request.method == 'POST':
         form = form_class(data=request.POST, files=request.FILES)
         if form.is_valid():
@@ -103,15 +104,16 @@ def create_profile(request, form_class, success_url=None,
     for key, value in list(extra_context.items()):
         context[key] = (value() if callable(value) else value)
 
-    return render_to_response(template_name,
-                              {'form': form},
-                              context_instance=context)
+    context.update({'form': form})
+    return render(request, template_name, context=context)
+
+
 create_profile = login_required(create_profile)
 
 
-def edit_profile(request, form_class, success_url=None,
-                 template_name='profiles/private/edit_profile.html',
-                 extra_context=None):
+def edit_profile(
+        request, form_class, success_url=None,
+        template_name='profiles/private/edit_profile.html', extra_context=None):
     """
     Edit the current user's profile.
 
@@ -156,7 +158,6 @@ def edit_profile(request, form_class, success_url=None,
 
     ``template_name`` keyword argument or
     :template:`profiles/edit_profile.html`.
-
     """
     try:
         profile_obj = request.user.profile
@@ -164,10 +165,12 @@ def edit_profile(request, form_class, success_url=None,
         return HttpResponseRedirect(reverse('profiles_profile_create'))
 
     if success_url is None:
-        success_url = reverse('profiles_profile_detail',
-                              kwargs={'username': request.user.username})
+        success_url = reverse(
+            'profiles_profile_detail',
+            kwargs={'username': request.user.username})
     if request.method == 'POST':
-        form = form_class(data=request.POST, files=request.FILES, instance=profile_obj)
+        form = form_class(
+            data=request.POST, files=request.FILES, instance=profile_obj)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(success_url)
@@ -180,11 +183,14 @@ def edit_profile(request, form_class, success_url=None,
     for key, value in list(extra_context.items()):
         context[key] = (value() if callable(value) else value)
 
-    return render_to_response(template_name, {
+    context.update({
         'form': form,
         'profile': profile_obj,
         'user': profile_obj.user,
-    }, context_instance=context)
+    })
+    return render(request, template_name, context=context)
+
+
 edit_profile = login_required(edit_profile)
 
 
@@ -207,9 +213,10 @@ def delete_account(request):
     return render(request, template_name, {'form': form})
 
 
-def profile_detail(request, username, public_profile_field=None,
-                   template_name='profiles/public/profile_detail.html',
-                   extra_context=None):
+def profile_detail(
+        request, username, public_profile_field=None,
+        template_name='profiles/public/profile_detail.html',
+        extra_context=None):
     """
     Detail view of a user's profile.
 
@@ -254,7 +261,6 @@ def profile_detail(request, username, public_profile_field=None,
 
     ``template_name`` keyword argument or
     :template:`profiles/profile_detail.html`.
-
     """
     user = get_object_or_404(User, username=username)
     try:
@@ -271,6 +277,5 @@ def profile_detail(request, username, public_profile_field=None,
     for key, value in list(extra_context.items()):
         context[key] = (value() if callable(value) else value)
 
-    return render_to_response(template_name,
-                              {'profile': profile_obj},
-                              context_instance=context)
+    context.update({'profile': profile_obj})
+    return render(request, template_name, context=context)

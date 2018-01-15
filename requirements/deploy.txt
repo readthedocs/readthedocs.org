@@ -1,5 +1,5 @@
 -r pip.txt
-psycopg2==2.4.6
+psycopg2==2.7.3.2
 gunicorn==19.1.0
 pysolr==2.0.13
 django-redis-cache==1.6.3

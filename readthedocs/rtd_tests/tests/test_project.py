@@ -7,11 +7,13 @@ import json
 
 from django.test import TestCase
 from django_dynamic_fixture import get
+from mock import patch
 from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING, BUILD_STATE_FINISHED, BUILD_STATE_TRIGGERED, LATEST)
 from readthedocs.builds.models import Build
+from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
@@ -115,6 +117,45 @@ class TestProject(TestCase):
         self.pip.enable_epub_build = False
         with fake_paths_by_regex('\.epub$'):
             self.assertFalse(self.pip.has_epub(LATEST))
+
+    @patch('readthedocs.projects.models.Project.find')
+    def test_conf_file_found(self, find_method):
+        find_method.return_value = [
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+        ]
+        self.assertEqual(
+            self.pip.conf_file(),
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+        )
+
+    @patch('readthedocs.projects.models.Project.find')
+    def test_multiple_conf_file_one_doc_in_path(self, find_method):
+        find_method.return_value = [
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
+        ]
+        self.assertEqual(
+            self.pip.conf_file(),
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
+        )
+
+    def test_conf_file_not_found(self):
+        with self.assertRaisesMessage(
+                ProjectConfigurationError,
+                ProjectConfigurationError.NOT_FOUND) as cm:
+            self.pip.conf_file()
+
+    @patch('readthedocs.projects.models.Project.find')
+    def test_multiple_conf_files(self, find_method):
+        find_method.return_value = [
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/conf.py',
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/conf.py',
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/src/conf.py',
+        ]
+        with self.assertRaisesMessage(
+                ProjectConfigurationError,
+                ProjectConfigurationError.MULTIPLE_CONF_FILES) as cm:
+            self.pip.conf_file()
 
 
 class TestFinishInactiveBuildsTask(TestCase):

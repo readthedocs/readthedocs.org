@@ -1,4 +1,5 @@
-"""Tasks related to projects
+"""
+Tasks related to projects.
 
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
@@ -53,7 +54,6 @@ from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
-from readthedocs.search.utils import process_mkdocs_json
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -186,7 +186,8 @@ class UpdateDocsTask(Task):
         return True
 
     def run_setup(self, record=True):
-        """Run setup in the local environment.
+        """
+        Run setup in the local environment.
 
         Return True if successful.
         """
@@ -236,11 +237,11 @@ class UpdateDocsTask(Task):
         return True
 
     def run_build(self, docker=False, record=True):
-        """Build the docs in an environment.
+        """
+        Build the docs in an environment.
 
         If `docker` is True, or Docker is enabled by the settings.DOCKER_ENABLE
         setting, then build in a Docker environment. Otherwise build locally.
-
         """
         env_vars = self.get_env_vars()
 
@@ -248,7 +249,7 @@ class UpdateDocsTask(Task):
             env_cls = DockerEnvironment
         else:
             env_cls = LocalEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version,
+        self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
                                  build=self.build, record=record, environment=env_vars)
 
         # Environment used for building code, usually with Docker
@@ -294,13 +295,13 @@ class UpdateDocsTask(Task):
 
     @staticmethod
     def get_project(project_pk):
-        """Get project from API"""
+        """Get project from API."""
         project_data = api_v2.project(project_pk).get()
         return APIProject(**project_data)
 
     @staticmethod
     def get_version(project, version_pk):
-        """Ensure we're using a sane version"""
+        """Ensure we're using a sane version."""
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -312,7 +313,7 @@ class UpdateDocsTask(Task):
     @staticmethod
     def get_build(build_pk):
         """
-        Retrieve build object from API
+        Retrieve build object from API.
 
         :param build_pk: Build primary key
         """
@@ -369,7 +370,7 @@ class UpdateDocsTask(Task):
 
     def update_documentation_type(self):
         """
-        Force Sphinx for 'auto' documentation type
+        Force Sphinx for 'auto' documentation type.
 
         This used to determine the type and automatically set the documentation
         type to Sphinx for rST and Mkdocs for markdown. It now just forces
@@ -383,7 +384,8 @@ class UpdateDocsTask(Task):
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
-        """Update application instances with build artifacts
+        """
+        Update application instances with build artifacts.
 
         This triggers updates across application instances for html, pdf, epub,
         downloads, and search. Tasks are broadcast to all web servers from here.
@@ -432,14 +434,23 @@ class UpdateDocsTask(Task):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
-            self.python_env.delete_existing_build_dir()
+            # Check if the python version/build image in the current venv is the
+            # same to be used in this build and if it differs, wipe the venv to
+            # avoid conflicts.
+            if self.python_env.is_obsolete:
+                self.python_env.delete_existing_venv_dir()
+            else:
+                self.python_env.delete_existing_build_dir()
+
             self.python_env.setup_base()
+            self.python_env.save_environment_json()
             self.python_env.install_core_requirements()
             self.python_env.install_user_requirements()
             self.python_env.install_package()
 
     def build_docs(self):
-        """Wrapper to all build functions
+        """
+        Wrapper to all build functions.
 
         Executes the necessary builds for this task and returns whether the
         build was successful or not.
@@ -465,7 +476,7 @@ class UpdateDocsTask(Task):
         return outcomes
 
     def build_docs_html(self):
-        """Build HTML docs"""
+        """Build HTML docs."""
         html_builder = get_builder_class(self.project.documentation_type)(
             build_env=self.build_env,
             python_env=self.python_env,
@@ -489,16 +500,13 @@ class UpdateDocsTask(Task):
         return success
 
     def build_docs_search(self):
-        """Build search data with separate build"""
-        if self.build_search:
-            if self.project.is_type_mkdocs:
-                return self.build_docs_class('mkdocs_json')
-            if self.project.is_type_sphinx:
-                return self.build_docs_class('sphinx_search')
+        """Build search data with separate build."""
+        if self.build_search and self.project.is_type_sphinx:
+            return self.build_docs_class('sphinx_search')
         return False
 
     def build_docs_localmedia(self):
-        """Get local media files with separate build"""
+        """Get local media files with separate build."""
         if 'htmlzip' not in self.config.formats:
             return False
 
@@ -508,7 +516,7 @@ class UpdateDocsTask(Task):
         return False
 
     def build_docs_pdf(self):
-        """Build PDF docs"""
+        """Build PDF docs."""
         if ('pdf' not in self.config.formats or
             self.project.slug in HTML_ONLY or
                 not self.project.is_type_sphinx):
@@ -516,7 +524,7 @@ class UpdateDocsTask(Task):
         return self.build_docs_class('sphinx_pdf')
 
     def build_docs_epub(self):
-        """Build ePub docs"""
+        """Build ePub docs."""
         if ('epub' not in self.config.formats or
             self.project.slug in HTML_ONLY or
                 not self.project.is_type_sphinx):
@@ -524,7 +532,8 @@ class UpdateDocsTask(Task):
         return self.build_docs_class('sphinx_epub')
 
     def build_docs_class(self, builder_class):
-        """Build docs with additional doc backends
+        """
+        Build docs with additional doc backends.
 
         These steps are not necessarily required for the build to halt, so we
         only raise a warning exception here. A hard error will halt the build
@@ -536,14 +545,14 @@ class UpdateDocsTask(Task):
         return success
 
     def send_notifications(self):
-        """Send notifications on build failure"""
+        """Send notifications on build failure."""
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
 
 
 @app.task()
 def update_imported_docs(version_pk):
     """
-    Check out or update the given project's repository
+    Check out or update the given project's repository.
 
     :param version_pk: Version id to update
     """
@@ -626,10 +635,11 @@ def update_imported_docs(version_pk):
 @app.task(queue='web')
 def sync_files(project_pk, version_pk, hostname=None, html=False,
                localmedia=False, search=False, pdf=False, epub=False):
-    """Sync build artifacts to application instances
+    """
+    Sync build artifacts to application instances.
 
-    This task broadcasts from a build instance on build completion and
-    performs synchronization of build artifacts on each application instance.
+    This task broadcasts from a build instance on build completion and performs
+    synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
     if not pdf:
@@ -658,7 +668,8 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 @app.task(queue='web')
 def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                pdf=False, epub=False):
-    """Task to move built documentation to web servers
+    """
+    Task to move built documentation to web servers.
 
     :param version_pk: Version id to sync files for
     :param hostname: Hostname to sync to
@@ -712,18 +723,11 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                 type_='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
 
-    if 'mkdocs' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(version=version.slug,
-                                                      type_='mkdocs_json')
-            to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
 
 @app.task(queue='web')
 def update_search(version_pk, commit, delete_non_commit_files=True):
-    """Task to update search indexes
+    """
+    Task to update search indexes.
 
     :param version_pk: Version id to update
     :param commit: Commit that updated index
@@ -733,8 +737,6 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
 
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
-    elif version.project.is_type_mkdocs:
-        page_list = process_mkdocs_json(version, build_dir=False)
     else:
         log.error('Unknown documentation type: %s',
                   version.project.documentation_type)
@@ -814,7 +816,8 @@ def fileify(version_pk, commit):
 
 
 def _manage_imported_files(version, path, commit):
-    """Update imported files for version
+    """
+    Update imported files for version.
 
     :param version: Version instance
     :param path: Path to search
@@ -869,7 +872,8 @@ def send_notifications(version_pk, build_pk):
 
 
 def email_notification(version, build, email):
-    """Send email notifications for build failure
+    """
+    Send email notifications for build failure.
 
     :param version: :py:class:`Version` instance that failed
     :param build: :py:class:`Build` instance that failed
@@ -903,7 +907,8 @@ def email_notification(version, build, email):
 
 
 def webhook_notification(version, build, hook_url):
-    """Send webhook notification for project webhook
+    """
+    Send webhook notification for project webhook.
 
     :param version: Version instance to send hook for
     :param build: Build instance that failed
@@ -928,7 +933,8 @@ def webhook_notification(version, build, hook_url):
 
 @app.task(queue='web')
 def update_static_metadata(project_pk, path=None):
-    """Update static metadata JSON file
+    """
+    Update static metadata JSON file.
 
     Metadata settings include the following project settings:
 
@@ -979,8 +985,8 @@ def remove_dir(path):
     """
     Remove a directory on the build/celery server.
 
-    This is mainly a wrapper around shutil.rmtree so that app servers
-    can kill things on the build server.
+    This is mainly a wrapper around shutil.rmtree so that app servers can kill
+    things on the build server.
     """
     log.info("Removing %s", path)
     shutil.rmtree(path, ignore_errors=True)
@@ -988,7 +994,7 @@ def remove_dir(path):
 
 @app.task()
 def clear_artifacts(version_pk):
-    """Remove artifacts from the web servers"""
+    """Remove artifacts from the web servers."""
     version = Version.objects.get(pk=version_pk)
     clear_pdf_artifacts(version)
     clear_epub_artifacts(version)
@@ -1030,7 +1036,7 @@ def clear_html_artifacts(version):
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
-    This will be called once the sync_files tasks are done.
+    Called once the sync_files tasks are done.
 
     The first argument is the result from previous tasks, which we discard.
     """
