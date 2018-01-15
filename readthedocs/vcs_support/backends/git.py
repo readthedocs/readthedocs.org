@@ -81,10 +81,16 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self, env=None):
-
-        # TODO: use env if it exists
-        code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
-                              self.repo_url, '.')
+        if env:
+            build_cmd = env.run(
+                'git', 'clone', '--recursive', '--quiet',
+                self.repo_url, '.',
+                cwd=self.working_dir,
+            )
+            code, out, err = build_cmd.exit_code, build_cmd.output, build_cmd.error
+        else:
+            code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
+                                  self.repo_url, '.')
         if code != 0:
             raise RepositoryError
 
@@ -180,7 +186,7 @@ class Backend(BaseVCS):
             self.fetch()
         else:
             self.make_clean_working_dir()
-            self.clone()
+            self.clone(env)
 
         # Find proper identifier
         if not identifier:
