@@ -233,7 +233,8 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             try:
                 changes = self.request.data['push']['changes']
                 branches = [change['new']['name']
-                            for change in changes]
+                            for change in changes
+                            if change.get('new')]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Invalid request')
