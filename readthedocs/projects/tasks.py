@@ -335,7 +335,7 @@ class UpdateDocsTask(Task):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         self._log(msg='Updating docs from VCS')
-        update_imported_docs(self.version.pk)
+        update_imported_docs(self.version.pk, self.setup_env)
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
@@ -550,7 +550,7 @@ class UpdateDocsTask(Task):
 
 
 @app.task()
-def update_imported_docs(version_pk):
+def update_imported_docs(version_pk, env=None):
     """
     Check out or update the given project's repository.
 
@@ -593,7 +593,7 @@ def update_imported_docs(version_pk):
                 version_slug = version.slug
                 version_repo = project.vcs_repo(version_slug)
 
-                ret_dict['checkout'] = version_repo.checkout(version.identifier)
+                ret_dict['checkout'] = version_repo.checkout(version.identifier, env)
             else:
                 # Does this ever get called?
                 log.info(LOG_TEMPLATE.format(
