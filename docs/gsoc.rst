@@ -13,6 +13,7 @@ Incoming students will need the following skills:
 * Familiarity with Markdown, reStructuredText, or some other plain text markup language
 * Familiarity with git, or some other source control
 * Ability to set up your own development environment for Read the Docs
+* Basic understanding of web technologies (HTML/CSS/JS)
 * An interest in documentation and improving open source documentation tools would be great too!
 
 We're happy to help you get up to speed,
