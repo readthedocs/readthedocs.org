@@ -3,17 +3,16 @@ Read the Docs data passed to Sphinx build context
 
 Before calling `sphinx-build` to render your docs, Read the Docs injects some
 extra context in the templates by using the `html_context Sphinx setting`_ in
-the ``conf.py`` file. This extra context allows Read the Docs to add some
-features like "Edit on GitHub" and use a user custom Analytics code, among others.
+the ``conf.py`` file. This extra context is used by the Read the Docs Sphinx Theme
+to add additional features to the built documentation
 
 .. _html_context Sphinx setting: http://www.sphinx-doc.org/en/stable/config.html#confval-html_context
 
-Context injected by default
----------------------------
+Context injected
+----------------
 
-Here is the full list of values injected by Read the Docs as a Python
-dictionary. Note that this dictionary is injected under the main key
-`readthedocs`:
+Here is the full list of values injected by Read the Docs as a Python dictionary.
+Note that this dictionary is injected under the main key `readthedocs`:
 
 
 .. code:: python
@@ -67,7 +66,7 @@ dictionary. Note that this dictionary is injected under the main key
 
    By design, Read the Docs passes only static information to `sphinx-build`
    to avoid versions to be inconsistent in case the project is updated after the version is built.
-   In case you need more information than the context supplied here, you will
+   In case you need more information than the context supplies here, you will
    need to use :doc:`Read the Docs Public API <api>` to retrieve fresh data about the project
    (e.g. know if the current version is the `latest` or `stable`, get all versions of a project, etc).
 
@@ -75,8 +74,7 @@ dictionary. Note that this dictionary is injected under the main key
 Using Read the Docs context in your theme
 -----------------------------------------
 
-In case you want to access to this data from your theme, you can use it like
-this:
+In case you want to access to this data from your theme, you can use it like this:
 
 .. code:: html
 
@@ -119,5 +117,5 @@ and use it inside your theme as:
 
 .. note::
 
-   Take into account that the Read the Docs context is inject after your definition of ``html_context`` so,
+   Take into account that the Read the Docs context is injected after your definition of ``html_context`` so,
    it's not possible to override Read the Docs context values.
