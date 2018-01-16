@@ -22,19 +22,26 @@ Note that this dictionary is injected under the main key `readthedocs`:
             'pk': int,
             'name': str,
             'slug': str,
+            'build_date': str,
             'downloads': {
                 'pdf: str,
                 'htmlzip': str,
                 'epub': str
             },
-            'resource_uri': '/api/v2/version/{pk}/'
+            'links': [{
+                'href': 'https://readthedocs.org/api/v2/version/{pk}/',
+                'rel': 'self
+            }],
         },
         'project': {
             'pk': int
             'name': str,
             'slug': str,
             'canonical_url': str,
-            'resource_uri': '/api/v2/project/{pk}/'
+            'links': [{
+                'href': 'https://readthedocs.org/api/v2/project/{pk}/',
+                'rel': 'self
+            }],
         },
         'sphinx': {
             'html_theme': str,
@@ -115,7 +122,7 @@ and use it inside your theme as:
     <p>This documentation was written by {{ author }} on {{ date }}.</p>
 
 
-.. note::
+.. warning::
 
    Take into account that the Read the Docs context is injected after your definition of ``html_context`` so,
    it's not possible to override Read the Docs context values.
