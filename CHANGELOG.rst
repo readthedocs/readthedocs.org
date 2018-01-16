@@ -1,3 +1,17 @@
+Version 2.1.5
+-------------
+
+ * `@ericholscher <http://github.com/ericholscher>`_: Add GSOC 2018 page (`#3518 <https://github.com/rtfd/readthedocs.org/pull/3518>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Move project description to the top (`#3510 <https://github.com/rtfd/readthedocs.org/pull/3510>`_)
+ * `@RichardLitt <http://github.com/RichardLitt>`_: Docs: Rename "Good First Bug" to "Good First Issue" (`#3505 <https://github.com/rtfd/readthedocs.org/pull/3505>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Fix regex for getting project and user (`#3501 <https://github.com/rtfd/readthedocs.org/pull/3501>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/rtfd/readthedocs.org/pull/3480>`_)
+ * `@andrewgodwin <http://github.com/andrewgodwin>`_: "stable" appearing to track future release branches (`#3268 <https://github.com/rtfd/readthedocs.org/issues/3268>`_)
+ * `@cdeil <http://github.com/cdeil>`_: No module named pip in conda build (`#2827 <https://github.com/rtfd/readthedocs.org/issues/2827>`_)
+ * `@Yaseenh <http://github.com/Yaseenh>`_: building project does not generate new pdf with changes in it (`#2758 <https://github.com/rtfd/readthedocs.org/issues/2758>`_)
+ * `@chummels <http://github.com/chummels>`_: RTD building old "stable" docs instead of "latest" when auto-triggered from recent push (`#2351 <https://github.com/rtfd/readthedocs.org/issues/2351>`_)
+ * `@KeithWoods <http://github.com/KeithWoods>`_: GitHub edit link is aggressively stripped (`#1788 <https://github.com/rtfd/readthedocs.org/issues/1788>`_)
+
 Version 2.1.4
 -------------
 
