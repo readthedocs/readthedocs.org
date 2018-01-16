@@ -74,7 +74,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
                 'global_analytics_code': str
             },
             'vcs': {
-                'type': str,  # 'bitbucket', 'github' or 'gitlab'
+                'type': str,  # 'bitbucket', 'github', 'gitlab' or 'svn'
                 'user': str,
                 'repo': str,
                 'commit': str,
