@@ -2,11 +2,16 @@ Read the Docs data passed to Sphinx build context
 =================================================
 
 Before calling `sphinx-build` to render your docs, Read the Docs injects some
-extra context in the templates by using the `html_context Sphinx setting`_ in
-the ``conf.py`` file. This extra context is used by the Read the Docs Sphinx Theme
-to add additional features to the built documentation
+extra context in the templates by using the `html_context Sphinx setting`_ in the ``conf.py`` file.
+This extra context can be used to build some awesome features in your own theme.
 
 .. _html_context Sphinx setting: http://www.sphinx-doc.org/en/stable/config.html#confval-html_context
+
+.. note::
+
+   The `Read the Docs Sphinx Theme`_ uses this context to add additional features to the built documentation.
+
+.. _Read the Docs Sphinx Theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/
 
 Context injected
 ----------------
@@ -18,64 +23,68 @@ Note that this dictionary is injected under the main key `readthedocs`:
 .. code:: python
 
     'readthedocs': {
-        'version': {
-            'pk': int,
-            'name': str,
-            'slug': str,
-            'build_date': str,
-            'downloads': {
-                'pdf: str,
-                'htmlzip': str,
-                'epub': str
+        'v1': {
+            'version': {
+                'pk': int,
+                'name': str,
+                'slug': str,
+                'build_date': str,
+                'downloads': {
+                    'pdf: str,
+                    'htmlzip': str,
+                    'epub': str
+                },
+                'links': [{
+                    'href': 'https://readthedocs.org/api/v2/version/{pk}/',
+                    'rel': 'self
+                }],
             },
-            'links': [{
-                'href': 'https://readthedocs.org/api/v2/version/{pk}/',
-                'rel': 'self
-            }],
-        },
-        'project': {
-            'pk': int
-            'name': str,
-            'slug': str,
-            'canonical_url': str,
-            'links': [{
-                'href': 'https://readthedocs.org/api/v2/project/{pk}/',
-                'rel': 'self
-            }],
-        },
-        'sphinx': {
-            'html_theme': str,
-            'source_suffix': str,
-        },
-        'analytics': {
-            'user_analytics_code': str,
-            'global_analytics_code': str
-        },
-        'vcs': {
-            'type': str,  # 'bitbucket', 'github' or 'gitlab'
-            'user': str,
-            'repo': str,
-            'commit': str,
-            'version': str,
-            'display': bool,
-            'conf_py_path': str
-        },
-        'meta': {
-            'API_HOST': str,
-            'MEDIA_URL': str, 
-            'PRODUCTION_DOMAIN': str,
-            'READTHEDOCS': True
+            'project': {
+                'pk': int
+                'name': str,
+                'slug': str,
+                'canonical_url': str,
+                'links': [{
+                    'href': 'https://readthedocs.org/api/v2/project/{pk}/',
+                    'rel': 'self
+                }],
+            },
+            'sphinx': {
+                'html_theme': str,
+                'source_suffix': str,
+            },
+            'analytics': {
+                'user_analytics_code': str,
+                'global_analytics_code': str
+            },
+            'vcs': {
+                'type': str,  # 'bitbucket', 'github' or 'gitlab'
+                'user': str,
+                'repo': str,
+                'commit': str,
+                'version': str,
+                'display': bool,
+                'conf_py_path': str
+            },
+            'meta': {
+                'API_HOST': str,
+                'MEDIA_URL': str,
+                'PRODUCTION_DOMAIN': str,
+                'READTHEDOCS': True
+            }
         }
     }
 
 
-.. note::
+.. warning::
 
-   By design, Read the Docs passes only static information to `sphinx-build`
-   to avoid versions to be inconsistent in case the project is updated after the version is built.
-   In case you need more information than the context supplies here, you will
-   need to use :doc:`Read the Docs Public API <api>` to retrieve fresh data about the project
-   (e.g. know if the current version is the `latest` or `stable`, get all versions of a project, etc).
+   Read the Docs passes information to `sphinx-build` that may change in the future
+   (e.g. at the moment of building the version `0.6` this was the `latest`
+   but then `0.7` and `0.8` were added to the project and also built under Read the Docs)
+   so it's your responsibility to use this context in a proper way.
+
+   In case you want *fresh data* at the moment of reading your documentation,
+   you should consider using the :doc:`Read the Docs Public API <api>` via Javascript.
 
 
 Using Read the Docs context in your theme
@@ -85,9 +94,9 @@ In case you want to access to this data from your theme, you can use it like thi
 
 .. code:: html
 
-    {% if readthedocs.vcs.type == 'github' %}
-        <a href="https://github.com/{{ readthedocs.vcs.user }}/{{ readthedocs.vcs.repo }}
-        /blob/{{ readthedocs.vcs.version }}{{ readthedocs.vcs.conf_py_path }}{{ pagename }}.rst">
+    {% if readthedocs.v1.vcs.type == 'github' %}
+        <a href="https://github.com/{{ readthedocs.v1.vcs.user }}/{{ readthedocs.v1.vcs.repo }}
+        /blob/{{ readthedocs.v1.vcs.version }}{{ readthedocs.v1.vcs.conf_py_path }}{{ pagename }}.rst">
         Show on GitHub</a>
     {% endif %}
 
