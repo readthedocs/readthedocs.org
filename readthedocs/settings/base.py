@@ -122,11 +122,6 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
-
     MIDDLEWARE_CLASSES = (
         'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',

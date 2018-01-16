@@ -429,6 +429,22 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=mock.ANY, project=self.project)])
 
+        client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            {
+                'push': {
+                    'changes': [
+                        {
+                            'new': None,
+                        },
+                    ],
+                },
+            },
+            format='json',
+        )
+        trigger_build.assert_not_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
         client = APIClient()
@@ -560,6 +576,7 @@ class APIVersionTests(TestCase):
                 'install_project': False,
                 'language': 'en',
                 'name': 'Pip',
+                'programming_language': 'words',
                 'python_interpreter': 'python',
                 'repo': 'https://github.com/pypa/pip',
                 'repo_type': 'git',

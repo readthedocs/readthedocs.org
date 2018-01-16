@@ -89,11 +89,11 @@ This lets users specify a more experimental build image,
 if they want to be on the cutting edge.
 
 Certain Python versions require a certain build image,
-as defined here::
+as defined here:
 
-* `'1.0': 2, 2.7, 3, 3.4`
-* `'2.0': 2, 2.7, 3, 3.5`
-* `'latest': 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6`
+* ``1.0``: 2, 2.7, 3, 3.4
+* ``2.0``: 2, 2.7, 3, 3.5
+* ``latest``: 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6
 
 .. code-block:: yaml
 

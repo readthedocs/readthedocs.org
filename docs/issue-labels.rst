@@ -32,7 +32,7 @@ what they stand for.
     idea. See the milestone of the feature overview ticket for all related
     tickets.
 
-*Good First Bug*
+*Good First Issue*
     This label marks tickets that are easy to get started with. The ticket
     should be ideal for beginners to dive into the code base.
 
