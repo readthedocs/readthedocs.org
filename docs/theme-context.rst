@@ -25,9 +25,11 @@ Note that this dictionary is injected under the main key `readthedocs`:
     'readthedocs': {
         'v1': {
             'version': {
-                'pk': int,
-                'name': str,
+                'id': int,
                 'slug': str,
+                'verbose_name': str,
+                'identifier': str,
+                'type': str,
                 'build_date': str,
                 'downloads': {
                     'pdf: str,
@@ -35,23 +37,25 @@ Note that this dictionary is injected under the main key `readthedocs`:
                     'epub': str
                 },
                 'links': [{
-                    'href': 'https://readthedocs.org/api/v2/version/{pk}/',
+                    'href': 'https://readthedocs.org/api/v2/version/{id}/',
                     'rel': 'self
-                }],
+                }]
             },
             'project': {
-                'pk': int
+                'id': int
                 'name': str,
                 'slug': str,
+                'description': str,
+                'language': str,
                 'canonical_url': str,
                 'links': [{
-                    'href': 'https://readthedocs.org/api/v2/project/{pk}/',
+                    'href': 'https://readthedocs.org/api/v2/project/{id}/',
                     'rel': 'self
-                }],
+                }]
             },
             'sphinx': {
                 'html_theme': str,
-                'source_suffix': str,
+                'source_suffix': str
             },
             'analytics': {
                 'user_analytics_code': str,
