@@ -48,6 +48,18 @@ Note that this dictionary is injected under the main key `readthedocs`:
                 'description': str,
                 'language': str,
                 'canonical_url': str,
+                'subprojects': [{
+                    'id': int
+                    'name': str,
+                    'slug': str,
+                    'description': str,
+                    'language': str,
+                    'canonical_url': str,
+                    'links': [{
+                        'href': 'https://readthedocs.org/api/v2/project/{id}/',
+                        'rel': 'self
+                    }]
+                }],
                 'links': [{
                     'href': 'https://readthedocs.org/api/v2/project/{id}/',
                     'rel': 'self
