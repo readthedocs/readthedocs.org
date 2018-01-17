@@ -8,7 +8,8 @@ import json
 import logging
 import os
 import shutil
-from builtins import object, open, str
+from builtins import object, open
+from six import text_type
 
 from django.conf import settings
 
@@ -163,7 +164,7 @@ class PythonEnvironment(object):
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
             # unicode but ``json.dumps`` returns str in Py2.
-            fpath.write(str(json.dumps(data)))
+            fpath.write(text_type(json.dumps(data)))
 
 
 class Virtualenv(PythonEnvironment):
