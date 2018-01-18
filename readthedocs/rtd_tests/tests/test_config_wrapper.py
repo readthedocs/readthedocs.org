@@ -3,12 +3,10 @@ import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-import six
-
 from readthedocs_build.config import BuildConfig, ProjectConfig, InvalidConfig
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
+from readthedocs.doc_builder.config import load_yaml_config
 
 
 def create_load(config=None):
@@ -56,45 +54,37 @@ class LoadConfigTests(TestCase):
         self.assertEqual(load_config.call_count, 1)
         load_config.assert_has_calls([
             mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.4]},
+                'build': {'image': 'readthedocs/build:1.0'},
                 'type': 'sphinx',
                 'output_base': '',
                 'name': mock.ANY
             }),
         ])
         self.assertEqual(config.python_version, 2)
+
+    def test_python_supported_versions_image_1_0(self, load_config):
+        load_config.side_effect = create_load()
+        self.project.container_image = 'readthedocs/build:1.0'
+        self.project.save()
+        config = load_yaml_config(self.version)
+        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+                         [2, 2.7, 3, 3.4])
 
     def test_python_supported_versions_image_2_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(load_config.call_count, 1)
-        load_config.assert_has_calls([
-            mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-                'type': 'sphinx',
-                'output_base': '',
-                'name': mock.ANY
-            }),
-        ])
-        self.assertEqual(config.python_version, 2)
+        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+                         [2, 2.7, 3, 3.5])
 
     def test_python_supported_versions_image_latest(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:latest'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(load_config.call_count, 1)
-        load_config.assert_has_calls([
-            mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-                'type': 'sphinx',
-                'output_base': '',
-                'name': mock.ANY
-            }),
-        ])
-        self.assertEqual(config.python_version, 2)
+        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+                         [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
 
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
@@ -128,7 +118,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         with self.assertRaises(InvalidConfig):
-            config = load_yaml_config(self.version)
+            load_yaml_config(self.version)
 
     def test_install_project(self, load_config):
         load_config.side_effect = create_load()
@@ -189,11 +179,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.conda_file, None)
 
     def test_requirements_file(self, load_config):
-        if six.PY3:
-            import pytest
-            pytest.xfail("test_requirements_file is known to fail on 3.6")
-
-        requirements_file = 'wsgi.py' if six.PY2 else 'readthedocs/wsgi.py'
+        requirements_file = 'wsgi.py'
         load_config.side_effect = create_load({
             'requirements_file': requirements_file
         })

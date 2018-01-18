@@ -8,21 +8,21 @@
 }
 
 .rst-other-versions {
-	text-align: left;
+    text-align: left;
 }
 
 .rst-other-versions a {
-	border: 0;
+    border: 0;
 }
 
 .rst-other-versions dl {
-	margin: 0;
+    margin: 0;
 }
 
 
 /* Fix RTD theme bottom margin */
 .rst-content .line-block {
-	margin-bottom: 24px
+    margin-bottom: 24px
 }
 
 /* Fix for nav bottom padding with flyout */
@@ -36,38 +36,66 @@ nav.wy-nav-side {
 .bookmark-inactive {display: none;}
 
 
-/* Read the Docs promotional block, only applicable to RTD.org */
-div.wy-menu.rst-pro {
+/* Read the Docs promotional block, only applicable to RTD.org
+
+To support sphinx_rtd_theme, a `wy-menu` element is added. Other themes are
+targeted using the theme identifier and use custom elements instead of a CSS
+framework html structure.
+
+div.rst-pro is deprecated in favor of div.rtd-pro here, though we still need
+both rules for historical docs.
+*/
+
+div.rtd-pro,
+div.rst-pro {
     display: block;
-    bottom: 60px;
-    width: 300px;
     padding: .5em;
     margin: 1em 0em 1em 0em;
     text-align: center;
+}
+div.rtd-pro.wy-menu,
+div.rtd-pro.wy-menu {
+    width: 300px;
+}
+div.rtd-pro.alabaster {
+    width: 100%;
+    box-sizing: border-box;
+}
 
+div.rtd-pro.wy-menu,
+div.rst-pro.wy-menu {
+    bottom: 60px;
     background: rgba(0, 0, 0, .06);
 }
 
-@media (max-width: 768px) {
-    div.wy-menu.rst-pro {
-        display: none;
-    }
+div.rtd-pro.alabaster {
+    background: rgba(220, 220, 220, .1);
 }
 
-div.wy-menu.rst-pro > span {
+div.rtd-pro > span,
+div.rst-pro > span {
     display: block;
-    color: #838383;
     font-size: 90%;
 }
 
-div.wy-menu.rst-pro a,
-div.wy-menu.rst-pro a:link,
-div.wy-menu.rst-pro a:visited { color: #b3b3b3; }
+div.rtd-pro.wy-menu > span,
+div.rst-pro.wy-menu > span {
+    color: #838383;
+}
 
-div.wy-menu.rst-pro a:hover,
-div.wy-menu.rst-pro a:active { color: #c3c3c3; }
+div.rtd-pro.wy-menu a,
+div.rtd-pro.wy-menu a:link,
+div.rtd-pro.wy-menu a:visited,
+div.rst-pro.wy-menu a,
+div.rst-pro.wy-menu a:link,
+div.rst-pro.wy-menu a:visited { color: #b3b3b3; }
 
-div.wy-menu.rst-pro a.rst-pro-image-wrapper {
+div.rtd-pro.wy-menu a:hover,
+div.rtd-pro.wy-menu a:active,
+div.rst-pro.wy-menu a:hover,
+div.rst-pro.wy-menu a:active { color: #c3c3c3; }
+
+div.rtd-pro a.rtd-pro-image-wrapper {
     display: inline-block;
     padding: 6px;
     margin: 5px 0px 10px 0px;
@@ -77,14 +105,82 @@ div.wy-menu.rst-pro a.rst-pro-image-wrapper {
     -webkit-border-radius: 3px;
 }
 
-div.wy-menu.rst-pro img {
+div.rtd-pro.wy-menu a.rtd-pro-image-wrapper,
+div.rst-pro.wy-menu a.rst-pro-image-wrapper {
+    border-color: #434343;
+}
+
+div.rtd-pro.alabaster a.rtd-pro-image-wrapper {
+    border-color: #d3d3d3;
+}
+
+div.rtd-pro img,
+div.rst-pro.wy-menu img {
     width: 120px;
     height: 90px;
 }
 
-div.wy-menu.rst-pro div.rst-pro-about {
+div.rtd-pro div.rtd-pro-about {
     float: right;
     text-align: right;
-    color: white;
     font-size: 90%;
+}
+div.rtd-pro.wy-menu div.rtd-pro-about,
+div.rst-pro.wy-menu div.rst-pro-about {
+    color: white;
+}
+
+div.rtd-pro.alabaster div.rtd-pro-about a {
+    border-bottom: 0px;
+}
+
+div.rtd-pro.alabaster div.rtd-pro-about i.fa-info-circle:before,
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about i.fa-info-circle:before {
+    content: "";
+    color: #a3a3a3;
+}
+
+/* Hide the "sponsored" note in the left navigation */
+div.rtd-pro-about span {
+    display: none;
+}
+
+/* Footer promos */
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about span {
+    display: inline;
+}
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about {
+    float: none;
+}
+div.rtd-pro.rtd-pro-footer div.rtd-pro-about a {
+    text-decoration: none;
+}
+div.rtd-pro.rtd-pro-footer {
+    text-align: left;
+}
+div.rtd-pro.rtd-pro-footer a.rtd-pro-image-wrapper {
+    float: right;
+    margin-left: 25px;
+}
+
+div.rtd-pro-wrapper {
+    clear: both;
+}
+
+@media (max-width: 768px) {
+    div.rst-pro.wy-menu {
+        display: none;
+    }
+
+    div.rtd-pro.alabaster {
+        background: rgba(220, 220, 220, .05);
+    }
+
+    div.rtd-pro.alabaster a.rtd-pro-image-wrapper {
+        border-color: #656565;
+    }
+}
+
+div.rtd-pro > p.ethical-callout {
+    margin-top: 1em;
 }

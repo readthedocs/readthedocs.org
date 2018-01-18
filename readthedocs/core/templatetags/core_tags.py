@@ -7,15 +7,13 @@ import hashlib
 from builtins import str  # pylint: disable=redefined-builtin
 from django import template
 from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.utils.encoding import force_bytes, force_text
+from django.utils.safestring import mark_safe
+from future.backports.urllib.parse import urlencode
 
-from readthedocs.projects.models import Project
+from readthedocs import __version__
 from readthedocs.core.resolver import resolve
-
-from future import standard_library
-standard_library.install_aliases()
-import urllib.request, urllib.parse, urllib.error  # noqa
+from readthedocs.projects.models import Project
 
 
 register = template.Library()
@@ -29,7 +27,7 @@ def gravatar(email, size=48):
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading
     """
-    url = "http://www.gravatar.com/avatar.php?%s" % urllib.parse.urlencode({
+    url = "http://www.gravatar.com/avatar.php?%s" % urlencode({
         'gravatar_id': hashlib.md5(email).hexdigest(),
         'size': str(size)
     })
@@ -98,3 +96,8 @@ def url_replace(request, field, value):
 @register.filter
 def key(d, key_name):
     return d[key_name]
+
+
+@register.simple_tag
+def readthedocs_version():
+    return __version__

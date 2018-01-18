@@ -50,7 +50,6 @@ Example layout
             ja/
 
         fabric -> rtd-builds/fabric/en/latest/ # single version
-
 """
 
 from __future__ import absolute_import
@@ -121,9 +120,8 @@ class Symlink(object):
         """
         Create proper symlinks in the right order.
 
-        Since we have a small nest of directories and symlinks,
-        the ordering of these calls matter,
-        so we provide this helper to make life easier.
+        Since we have a small nest of directories and symlinks, the ordering of
+        these calls matter, so we provide this helper to make life easier.
         """
         # Outside of the web root
         self.symlink_cnames()
@@ -138,7 +136,8 @@ class Symlink(object):
             self.symlink_versions()
 
     def symlink_cnames(self, domain=None):
-        """Symlink project CNAME domains
+        """
+        Symlink project CNAME domains.
 
         Link from HOME/$CNAME_ROOT/<cname> ->
                   HOME/$WEB_ROOT/<project>
@@ -157,20 +156,21 @@ class Symlink(object):
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
-            run('ln -nsf {0} {1}'.format(self.project_root, symlink))
+            run(['ln', '-nsf', self.project_root, symlink])
 
             # Project symlink
             project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom.domain)
-            run('ln -nsf %s %s' % (self.project.doc_path, project_cname_symlink))
+            run(['ln', '-nsf', self.project.doc_path, project_cname_symlink])
 
     def remove_symlink_cname(self, domain):
-        """Remove CNAME symlink"""
+        """Remove CNAME symlink."""
         self._log(u"Removing symlink for CNAME {0}".format(domain.domain))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
         os.unlink(symlink)
 
     def symlink_subprojects(self):
-        """Symlink project subprojects
+        """
+        Symlink project subprojects.
 
         Link from $WEB_ROOT/projects/<project> ->
                   $WEB_ROOT/<project>
@@ -198,7 +198,13 @@ class Symlink(object):
                 symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
                 if not os.path.lexists(symlink_dir):
                     safe_makedirs(symlink_dir)
-                run('ln -nsf %s %s' % (docs_dir, symlink))
+                # TODO this should use os.symlink, not a call to shell. For now,
+                # this passes command as a list to be explicit about escaping
+                # characters like spaces.
+                status, _, stderr = run(['ln', '-nsf', docs_dir, symlink])
+                if status > 0:
+                    log.error('Could not symlink path: status=%d error=%s',
+                              status, stderr)
 
         # Remove old symlinks
         if os.path.exists(self.subproject_root):
@@ -207,7 +213,8 @@ class Symlink(object):
                     os.unlink(os.path.join(self.subproject_root, subproj))
 
     def symlink_translations(self):
-        """Symlink project translations
+        """
+        Symlink project translations.
 
         Link from $WEB_ROOT/<project>/<language>/ ->
                   $WEB_ROOT/<translation>/<language>/
@@ -228,7 +235,7 @@ class Symlink(object):
             self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
-            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run(['ln', '-nsf', docs_dir, symlink])
 
         # Remove old symlinks
         for lang in os.listdir(self.project_root):
@@ -241,7 +248,8 @@ class Symlink(object):
                     shutil.rmtree(to_delete)
 
     def symlink_single_version(self):
-        """Symlink project single version
+        """
+        Symlink project single version.
 
         Link from $WEB_ROOT/<project> ->
                   HOME/user_builds/<project>/rtd-builds/latest/
@@ -259,10 +267,11 @@ class Symlink(object):
         if version is not None:
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
                                     'rtd-builds', version.slug)
-            run('ln -nsf %s/ %s' % (docs_dir, symlink))
+            run(['ln', '-nsf', docs_dir, symlink])
 
     def symlink_versions(self):
-        """Symlink project's versions
+        """
+        Symlink project's versions.
 
         Link from $WEB_ROOT/<project>/<language>/<version>/ ->
                   HOME/user_builds/<project>/rtd-builds/<version>
@@ -279,7 +288,7 @@ class Symlink(object):
             self._log(u"Symlinking Version: %s" % version)
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
-            run('ln -nsf {0} {1}'.format(docs_dir, symlink))
+            run(['ln', '-nsf', docs_dir, symlink])
             versions.add(version.slug)
 
         # Remove old symlinks
@@ -289,7 +298,7 @@ class Symlink(object):
                     os.unlink(os.path.join(version_dir, old_ver))
 
     def get_default_version(self):
-        """Look up project default version, return None if not found"""
+        """Look up project default version, return None if not found."""
         default_version = self.project.get_default_version()
         try:
             return self.get_version_queryset().get(slug=default_version)

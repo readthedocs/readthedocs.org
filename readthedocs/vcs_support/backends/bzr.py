@@ -6,12 +6,10 @@ import csv
 import re
 
 from builtins import bytes, str  # pylint: disable=redefined-builtin
-from readthedocs.projects.exceptions import ProjectImportError
-from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from six import StringIO
 
-from future import standard_library
-standard_library.install_aliases()
-from io import StringIO  # noqa
+from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 
 class Backend(BaseVCS):
@@ -32,26 +30,17 @@ class Backend(BaseVCS):
     def up(self):
         retcode = self.run('bzr', 'revert')[0]
         if retcode != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (bzr revert): %s"
-                 % (self.repo_url, retcode))
-            )
+            raise RepositoryError
         up_output = self.run('bzr', 'up')
         if up_output[0] != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (bzr up): %s"
-                 % (self.repo_url, retcode))
-            )
+            raise RepositoryError
         return up_output
 
     def clone(self):
         self.make_clean_working_dir()
         retcode = self.run('bzr', 'checkout', self.repo_url, '.')[0]
         if retcode != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (bzr checkout): %s"
-                 % (self.repo_url, retcode))
-            )
+            raise RepositoryError
 
     @property
     def tags(self):

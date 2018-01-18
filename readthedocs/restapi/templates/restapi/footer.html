@@ -93,6 +93,16 @@
           <a href="{{ bitbucket_url }}">Edit</a>
         </dd>
       </dl>
+      {% elif gitlab_edit_url %}
+      <dl>
+        <dt>On GitLab</dt>
+        <dd>
+          <a href="{{ gitlab_view_url }}">View</a>
+        </dd>
+        <dd>
+          <a href="{{ gitlab_edit_url }}">Edit</a>
+        </dd>
+      </dl>
       {% endif %}
       {% endblock %}
 
@@ -101,7 +111,7 @@
         <dt>Search</dt>
         <dd>
           <div style="padding: 6px;">
-            <form id="flyout-search-form" class="wy-form" target="_blank" action="https://readthedocs.org{% url 'elastic_project_search' project.slug %}" method="get">
+            <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}{% url 'elastic_project_search' project.slug %}" method="get">
               <input type="text" name="q" placeholder="Search docs">
               </form>
           </div>
@@ -113,7 +123,7 @@
 
       <hr/>
       {% block footer %}
-      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+      Free document hosting provided by <a href="https://readthedocs.org">Read the Docs</a>.
       {% endblock %}
 
       {% if not new_theme %}

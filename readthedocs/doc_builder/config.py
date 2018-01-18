@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 """An API to load config from a readthedocs.yml file."""
-from __future__ import absolute_import
 
-from builtins import (filter, object)
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
-from readthedocs_build.config import (ConfigError, BuildConfig, InvalidConfig,
-                                      load as load_config)
-from .constants import BUILD_IMAGES, DOCKER_IMAGE
+from builtins import filter, object
+from readthedocs_build.config import load as load_config
+from readthedocs_build.config import BuildConfig, ConfigError, InvalidConfig
+
+from .constants import DOCKER_IMAGE_SETTINGS, DOCKER_IMAGE
 
 
 class ConfigWrapper(object):
@@ -18,7 +21,6 @@ class ConfigWrapper(object):
     We only currently implement a subset of the existing YAML config.
     This should be the canonical source for our usage of the YAML files,
     never accessing the config object directly.
-
     """
 
     def __init__(self, version, yaml_config):
@@ -49,14 +51,7 @@ class ConfigWrapper(object):
 
     @property
     def python_interpreter(self):
-        ver = self.python_version
-        if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(list(filter(
-                lambda x: x < ver + 1,
-                self._yaml_config.get_valid_python_versions(),
-            )))
+        ver = self.python_full_version
         return 'python{0}'.format(ver)
 
     @property
@@ -70,6 +65,20 @@ class ConfigWrapper(object):
         if version == 2 and self._project.python_interpreter == 'python3':
             version = 3
         return version
+
+    @property
+    def python_full_version(self):
+        ver = self.python_version
+        if ver in [2, 3]:
+            # Get the highest version of the major series version if user only
+            # gave us a version of '2', or '3'
+            ver = max(
+                list(
+                    filter(
+                        lambda x: x < ver + 1,
+                        self._yaml_config.get_valid_python_versions(),
+                    )))
+        return ver
 
     @property
     def use_system_site_packages(self):
@@ -104,6 +113,15 @@ class ConfigWrapper(object):
             formats += ['pdf']
         return formats
 
+    @property
+    def build_image(self):
+        if self._project.container_image:
+            # Allow us to override per-project still
+            return self._project.container_image
+        if 'build' in self._yaml_config:
+            return self._yaml_config['build']['image']
+        return None
+
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.
     # @property
@@ -118,23 +136,25 @@ def load_yaml_config(version):
     """
     Load a configuration from `readthedocs.yml` file.
 
-    This uses the configuration logic from `readthedocs-build`,
-    which will keep parsing consistent between projects.
+    This uses the configuration logic from `readthedocs-build`, which will keep
+    parsing consistent between projects.
     """
     checkout_path = version.project.checkout_path(version.slug)
-    env_config = {}
 
     # Get build image to set up the python version validation. Pass in the
     # build image python limitations to the loaded config so that the versions
     # can be rejected at validation
-    build_image = BUILD_IMAGES.get(
-        version.project.container_image,
-        BUILD_IMAGES.get(DOCKER_IMAGE, None),
-    )
-    if build_image:
-        env_config = {
-            'python': build_image['python'],
+
+    img_name = version.project.container_image or DOCKER_IMAGE
+    env_config = {
+        'build': {
+            'image': img_name,
         }
+    }
+    img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
+    if img_settings:
+        env_config.update(img_settings)
+        env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
     try:
         sphinx_env_config = env_config.copy()
@@ -147,7 +167,8 @@ def load_yaml_config(version):
             path=checkout_path,
             env_config=sphinx_env_config,
         )[0]
-    except InvalidConfig:  # This is a subclass of ConfigError, so has to come first
+    except InvalidConfig:
+        # This is a subclass of ConfigError, so has to come first
         raise
     except ConfigError:
         config = BuildConfig(

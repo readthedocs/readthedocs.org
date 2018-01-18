@@ -4,7 +4,8 @@
   "description": "Read the Docs build dependencies",
   "author": "Anthony Johnson <anthony@readthedocs.com>",
   "dependencies": {
-    "cssfilter": "0.0.8"
+    "cssfilter": "0.0.8",
+    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git"
   },
   "devDependencies": {
     "bower": "*",
@@ -24,8 +25,14 @@
     "gulp-watch": "^4.3.3",
     "less": "*",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "git+https://github.com/hughsk/vinyl-source-stream.git#ae1b4e9c75bb4420a0a22e75c985952c37406567"
+    "vinyl-source-stream": "^1.1.0"
   },
   "private": true,
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": "https://github.com/rtfd/readthedocs.org/issues",
+  "homepage": "http://rtfd.org",
+  "keywords": [
+    "docs",
+    "documentation"
+  ]
 }

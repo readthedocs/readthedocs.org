@@ -1,0 +1,20 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Delete Account" %}{% endblock %}
+
+{% block profile-admin-delete-account %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Delete Account" %} {% endblock %}
+
+{% block edit_content %}
+  <form method="POST" action=".">
+    {% csrf_token %}
+    {{ form }}
+    <div>
+      <strong>{% trans "Be careful! This can not be undone!" %}</strong>
+    </div>
+    <input type="submit" name="submit" value="{% trans "Delete Account" %}" id="submit"/>
+  </form>
+{% endblock %}

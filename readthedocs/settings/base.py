@@ -1,22 +1,26 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-from __future__ import absolute_import
-import os
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
-import djcelery
+import os
 
 from readthedocs.core.settings import Settings
 
+try:
+    import readthedocsext  # noqa
+    ext = True
+except ImportError:
+    ext = False
 
-djcelery.setup_loader()
 
 _ = gettext = lambda s: s
 
 
 class CommunityBaseSettings(Settings):
 
-    """Community base settings, don't use this directly"""
+    """Community base settings, don't use this directly."""
 
     # Django settings
     SITE_ID = 1
@@ -45,7 +49,7 @@ class CommunityBaseSettings(Settings):
     MANAGERS = ADMINS
 
     # Email
-    DEFAULT_FROM_EMAIL = "no-reply@readthedocs.org"
+    DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
     # Cookies
@@ -73,15 +77,10 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'corsheaders',
-            'copyright',
             'textclassifier',
             'annoying',
-            'django_countries',
             'django_extensions',
             'messages_extends',
-
-            # Celery bits
-            'djcelery',
 
             # daniellindsleyrocksdahouse
             'haystack',
@@ -99,25 +98,29 @@ class CommunityBaseSettings(Settings):
             'readthedocs.rtd_tests',
             'readthedocs.restapi',
             'readthedocs.gold',
-            'readthedocs.donate',
             'readthedocs.payments',
             'readthedocs.notifications',
             'readthedocs.integrations',
+
 
             # allauth
             'allauth',
             'allauth.account',
             'allauth.socialaccount',
             'allauth.socialaccount.providers.github',
+            'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
         ]
+        if ext:
+            apps.append('django_countries')
+            apps.append('readthedocsext.donate')
+            apps.append('readthedocsext.embed')
         return apps
 
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
+    @property
+    def USE_PROMOS(self):  # noqa
+        return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE_CLASSES = (
         'readthedocs.core.middleware.ProxyMiddleware',
@@ -136,20 +139,9 @@ class CommunityBaseSettings(Settings):
 
     AUTHENTICATION_BACKENDS = (
         # Needed to login by username in Django admin, regardless of `allauth`
-        "django.contrib.auth.backends.ModelBackend",
+        'django.contrib.auth.backends.ModelBackend',
         # `allauth` specific authentication methods, such as login by e-mail
-        "allauth.account.auth_backends.AuthenticationBackend",
-    )
-
-    TEMPLATE_CONTEXT_PROCESSORS = (
-        "django.contrib.auth.context_processors.auth",
-        "django.contrib.messages.context_processors.messages",
-        "django.core.context_processors.debug",
-        "django.core.context_processors.i18n",
-        "django.core.context_processors.media",
-        "django.core.context_processors.request",
-        # Read the Docs processor
-        "readthedocs.core.context_processors.readthedocs_processor",
+        'allauth.account.auth_backends.AuthenticationBackend',
     )
 
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
@@ -177,9 +169,30 @@ class CommunityBaseSettings(Settings):
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
     STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
-    TEMPLATE_DIRS = (
-        TEMPLATE_ROOT,
-    )
+
+    TEMPLATES = [
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [TEMPLATE_ROOT],
+            'OPTIONS': {
+                'debug': DEBUG,
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.request',
+                    # Read the Docs processor
+                    'readthedocs.core.context_processors.readthedocs_processor',
+                ],
+                'loaders': [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ],
+            },
+        },
+    ]
 
     # Cache
     CACHES = {
@@ -227,15 +240,6 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
-    # Wildcards not supported: https://github.com/celery/celery/issues/150
-    CELERY_ROUTES = {
-        'readthedocs.oauth.tasks.SyncBitBucketRepositories': {
-            'queue': 'web',
-        },
-        'readthedocs.oauth.tasks.SyncGitHubRepositories': {
-            'queue': 'web',
-        },
-    }
 
     # Docker
     DOCKER_ENABLE = False
@@ -244,15 +248,26 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
-    ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-    ACCOUNT_AUTHENTICATION_METHOD = "username_email"
+    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+    ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
-            'SCOPE': ['user:email', 'read:org', 'admin:repo_hook', 'repo:status']
-        }
+            'SCOPE': [
+                'user:email',
+                'read:org',
+                'admin:repo_hook',
+                'repo:status',
+            ],
+        },
+        'gitlab': {
+            'SCOPE': [
+                'api',
+                'read_user',
+            ],
+        },
     }
 
     # CORS
@@ -292,7 +307,7 @@ class CommunityBaseSettings(Settings):
     ALLOWED_HOSTS = ['*']
 
     ABSOLUTE_URL_OVERRIDES = {
-        'auth.user': lambda o: "/profiles/%s/" % o.username
+        'auth.user': lambda o: '/profiles/{}/'.format(o.username)
     }
 
     INTERNAL_IPS = ('127.0.0.1',)
@@ -306,9 +321,11 @@ class CommunityBaseSettings(Settings):
     STRIPE_PUBLISHABLE = None
 
     # Misc application settings
-    GLOBAL_ANALYTICS_CODE = 'UA-17997319-1'
-    GRAVATAR_DEFAULT_IMAGE = 'http://media.readthedocs.org/images/silhouette.png'
-    COPY_START_YEAR = 2010
+    GLOBAL_ANALYTICS_CODE = None
+    DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
+    GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
+    OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
+    OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,
@@ -324,7 +341,7 @@ class CommunityBaseSettings(Settings):
         'field_name_limit': 50,
     }
     REST_FRAMEWORK = {
-        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
@@ -349,20 +366,21 @@ class CommunityBaseSettings(Settings):
             'debug': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
-                'filename': 'debug.log',
+                'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
         },
         'loggers': {
+            '': {  # root logger
+                'handlers': ['debug', 'console'],
+                # Always send from the root, handlers can filter levels
+                'level': 'DEBUG',
+            },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
-                'propagate': True,
-            },
-            '': {
-                'handlers': ['debug', 'console'],
-                'level': 'DEBUG',
-                'propagate': True,
+                # Don't double log at the root logger for these.
+                'propagate': False,
             },
         },
     }

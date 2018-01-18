@@ -9,7 +9,7 @@
     <div class="rtfd-header-title">
       <h1>
         {% comment %}Translators: Name of the website{% endcomment %}
-        <a href="{% url "homepage" %}">{% trans "Read the Docs" %}</a>
+        <a href="{% url "homepage" %}">Read the Docs</a>
       </h1>
     </div>
     <!-- END header title -->
@@ -25,14 +25,12 @@
       </div>
       <div class="menu-dropdown">
         <ul>
-          <ul>
-            <li><a href="{% url 'projects_dashboard' %}">{% trans "My Projects" %}</a></li>
-            <li><a href="{% url 'profiles_profile_edit' %}">{% trans "Settings" %}</a></li>
-            <li><a href="{% url 'support' %}">{% trans "Support" %}</a></li>
-          </ul>
-          <ul>
-            <li><a href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
-          </ul>
+          <li><a href="{% url 'projects_dashboard' %}">{% trans "My Projects" %}</a></li>
+          <li><a href="{% url 'profiles_profile_edit' %}">{% trans "Settings" %}</a></li>
+          <li><a href="{% url 'support' %}">{% trans "Support" %}</a></li>
+        </ul>
+        <ul>
+          <li><a href="{% url 'account_logout' %}">{% trans "Log Out" %}</a></li>
         </ul>
       </div>
     </div>
@@ -42,7 +40,7 @@
     </div>
     {% endif %}
     <!-- END header nav -->
-    
+
 
   </div>
 </div>

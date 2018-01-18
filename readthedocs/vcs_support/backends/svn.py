@@ -4,14 +4,11 @@ from __future__ import absolute_import
 
 import csv
 
-from builtins import bytes, str  # pylint: disable=redefined-builtin
+from builtins import str
+from six import StringIO  # noqa
 
-from readthedocs.projects.exceptions import ProjectImportError
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
-from future import standard_library
-standard_library.install_aliases()
-from io import StringIO  # noqa
 
 
 class Backend(BaseVCS):
@@ -45,18 +42,12 @@ class Backend(BaseVCS):
     def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
-            raise ProjectImportError(
-                ("Failed to get code from '%s' (svn revert): %s"
-                 % (self.repo_url, retcode))
-            )
+            raise RepositoryError
         retcode, out, err = self.run(
             'svn', 'up', '--accept', 'theirs-full',
             '--trust-server-cert', '--non-interactive')
         if retcode != 0:
-            raise ProjectImportError(
-                "Failed to get code from '%s' (svn up): %s" % (self.repo_url,
-                                                               retcode)
-            )
+            raise RepositoryError
         return retcode, out, err
 
     def co(self, identifier=None):
@@ -67,10 +58,7 @@ class Backend(BaseVCS):
             url = self.repo_url
         retcode, out, err = self.run('svn', 'checkout', '--quiet', url, '.')
         if retcode != 0:
-            raise ProjectImportError(
-                "Failed to get code from '%s' (svn checkout): %s" % (url,
-                                                                     retcode)
-            )
+            raise RepositoryError
         return retcode, out, err
 
     @property

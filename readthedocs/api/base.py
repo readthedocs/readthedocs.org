@@ -1,28 +1,30 @@
-"""API resources"""
-from __future__ import absolute_import
-from builtins import object
-import logging
+# -*- coding: utf-8 -*-
+"""API resources."""
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import json
+import logging
+from builtins import object
+
 import redis
-
-from django.contrib.auth.models import User
 from django.conf.urls import url
-from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from django.core.cache import cache
-
+from django.shortcuts import get_object_or_404
 from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
-from tastypie.constants import ALL_WITH_RELATIONS, ALL
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from tastypie.http import HttpApplicationError, HttpCreated
 from tastypie.resources import ModelResource
-from tastypie.http import HttpCreated, HttpApplicationError
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.projects.models import ImportedFile, Project
 
-from .utils import SearchMixin, PostAuthentication
+from .utils import PostAuthentication, SearchMixin
 
 log = logging.getLogger(__name__)
 
@@ -41,8 +43,8 @@ class ProjectResource(ModelResource, SearchMixin):
         authorization = DjangoAuthorization()
         excludes = ['path', 'featured', 'programming_language']
         filtering = {
-            "users": ALL_WITH_RELATIONS,
-            "slug": ALL_WITH_RELATIONS,
+            'users': ALL_WITH_RELATIONS,
+            'slug': ALL_WITH_RELATIONS,
         }
 
     def get_object_list(self, request):
@@ -63,13 +65,15 @@ class ProjectResource(ModelResource, SearchMixin):
         If a new resource is created, return ``HttpCreated`` (201 Created).
         """
         deserialized = self.deserialize(
-            request, request.body,
-            format=request.META.get('CONTENT_TYPE', 'application/json')
+            request,
+            request.body,
+            format=request.META.get('CONTENT_TYPE', 'application/json'),
         )
 
         # Force this in an ugly way, at least should do "reverse"
-        deserialized["users"] = ["/api/v1/user/%s/" % request.user.id]
-        bundle = self.build_bundle(data=dict_strip_unicode_keys(deserialized), request=request)
+        deserialized['users'] = ['/api/v1/user/%s/' % request.user.id]
+        bundle = self.build_bundle(
+            data=dict_strip_unicode_keys(deserialized), request=request)
         self.is_valid(bundle)
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
@@ -83,8 +87,9 @@ class ProjectResource(ModelResource, SearchMixin):
         project = get_object_or_404(Project, pk=kwargs['pk'])
         try:
             post_data = self.deserialize(
-                request, request.body,
-                format=request.META.get('CONTENT_TYPE', 'application/json')
+                request,
+                request.body,
+                format=request.META.get('CONTENT_TYPE', 'application/json'),
             )
             data = json.loads(post_data)
             self.method_check(request, allowed=['post'])
@@ -102,19 +107,22 @@ class ProjectResource(ModelResource, SearchMixin):
             )
         return self.create_response(request, deleted_versions)
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/schema/$" % self._meta.resource_name,
-                self.wrap_view('get_schema'), name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/search%s$" % (
-                self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_search'), name="api_get_search"),
-            url(r"^(?P<resource_name>%s)/(?P<pk>\d+)/sync_versions%s$" % (
-                self._meta.resource_name, trailing_slash()),
-                self.wrap_view('sync_versions'), name="api_sync_versions"),
-            url((r"^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$")
-                % self._meta.resource_name, self.wrap_view('dispatch_detail'),
-                name="api_dispatch_detail"),
+            url(
+                r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
+                self.wrap_view('get_schema'), name='api_get_schema'),
+            url(
+                r'^(?P<resource_name>%s)/search%s$' %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('get_search'), name='api_get_search'),
+            url(
+                r'^(?P<resource_name>%s)/(?P<pk>\d+)/sync_versions%s$' %
+                (self._meta.resource_name, trailing_slash()),
+                self.wrap_view('sync_versions'), name='api_sync_versions'),
+            url((r'^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$') %
+                self._meta.resource_name, self.wrap_view('dispatch_detail'),
+                name='api_dispatch_detail'),
         ]
 
 
@@ -131,9 +139,9 @@ class VersionResource(ModelResource):
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
         filtering = {
-            "project": ALL_WITH_RELATIONS,
-            "slug": ALL_WITH_RELATIONS,
-            "active": ALL,
+            'project': ALL_WITH_RELATIONS,
+            'slug': ALL_WITH_RELATIONS,
+            'active': ALL,
         }
 
     def get_object_list(self, request):
@@ -147,21 +155,21 @@ class VersionResource(ModelResource):
         trigger_build(project=project, version=version_obj)
         return self.create_response(request, {'building': True})
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/schema/$"
-                % self._meta.resource_name,
-                self.wrap_view('get_schema'),
-                name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+[a-z0-9-_]+)/$"  # noqa
+            url(
+                r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
+                self.wrap_view('get_schema'), name='api_get_schema'),
+            url(
+                r'^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+[a-z0-9-_]+)/$'  # noqa
                 % self._meta.resource_name,
                 self.wrap_view('dispatch_list'),
-                name="api_version_list"),
-            url((r"^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+)/(?P"
-                 r"<version_slug>[a-z0-9-_.]+)/build/$")
-                % self._meta.resource_name,
-                self.wrap_view('build_version'),
-                name="api_version_build_slug"),
+                name='api_version_list'),
+            url((
+                r'^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+[a-z0-9-_]+)/(?P'
+                r'<version_slug>[a-z0-9-_.]+)/build/$') %
+                self._meta.resource_name, self.wrap_view('build_version'),
+                name='api_version_build_slug'),
         ]
 
 
@@ -180,20 +188,19 @@ class FileResource(ModelResource, SearchMixin):
         authorization = DjangoAuthorization()
         search_facets = ['project']
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/schema/$" %
-                self._meta.resource_name,
-                self.wrap_view('get_schema'),
-                name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/search%s$" %
+            url(
+                r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
+                self.wrap_view('get_schema'), name='api_get_schema'),
+            url(
+                r'^(?P<resource_name>%s)/search%s$' %
                 (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_search'),
-                name="api_get_search"),
-            url(r"^(?P<resource_name>%s)/anchor%s$" %
+                self.wrap_view('get_search'), name='api_get_search'),
+            url(
+                r'^(?P<resource_name>%s)/anchor%s$' %
                 (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_anchor'),
-                name="api_get_anchor"),
+                self.wrap_view('get_anchor'), name='api_get_anchor'),
         ]
 
     def get_anchor(self, request, **__):
@@ -204,12 +211,14 @@ class FileResource(ModelResource, SearchMixin):
         query = request.GET.get('q', '')
         try:
             redis_client = cache.get_client(None)
-            redis_data = redis_client.keys("*redirects:v4*%s*" % query)
+            redis_data = redis_client.keys('*redirects:v4*%s*' % query)
         except (AttributeError, redis.exceptions.ConnectionError):
             redis_data = []
         # -2 because http:
-        urls = [''.join(data.split(':')[6:]) for data in redis_data
-                if 'http://' in data]
+        urls = [
+            ''.join(data.split(':')[6:]) for data in redis_data
+            if 'http://' in data
+        ]
         object_list = {'objects': urls}
 
         self.log_throttled_access(request)
@@ -228,14 +237,13 @@ class UserResource(ModelResource):
             'username': 'exact',
         }
 
-    def override_urls(self):
+    def prepend_urls(self):
         return [
-            url(r"^(?P<resource_name>%s)/schema/$" %
-                self._meta.resource_name,
-                self.wrap_view('get_schema'),
-                name="api_get_schema"),
-            url(r"^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$" %
-                self._meta.resource_name,
-                self.wrap_view('dispatch_detail'),
-                name="api_dispatch_detail"),
+            url(
+                r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
+                self.wrap_view('get_schema'), name='api_get_schema'),
+            url(
+                r'^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$' %
+                self._meta.resource_name, self.wrap_view('dispatch_detail'),
+                name='api_dispatch_detail'),
         ]

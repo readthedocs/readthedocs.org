@@ -110,7 +110,7 @@ function EmbedView (config) {
     self.api_example = ko.observable(null);
 
     self.show_help = function () {
-        var embed = new rtd.Embed();
+        var embed = new rtd.Embed(self.config);
         embed.section(
             'docs', 'latest', 'features/embed', 'Content Embedding',
             _show_modal
@@ -118,7 +118,7 @@ function EmbedView (config) {
     };
 
     self.show_embed = function () {
-        var embed = new rtd.Embed();
+        var embed = new rtd.Embed(self.config);
         _show_modal(self.response());
     };
 }

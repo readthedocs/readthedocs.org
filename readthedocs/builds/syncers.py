@@ -1,7 +1,8 @@
-"""Classes to copy files between build and web servers
+"""
+Classes to copy files between build and web servers.
 
-"Syncers" copy files from the local machine, while "Pullers" copy files to
-the local machine.
+"Syncers" copy files from the local machine, while "Pullers" copy files to the
+local machine.
 """
 
 from __future__ import absolute_import
@@ -15,6 +16,7 @@ from builtins import object
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils import safe_makedirs
 
 
 log = logging.getLogger(__name__)
@@ -102,7 +104,8 @@ class DoubleRemotePuller(object):
                     log.info(mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = (
-                "ssh {user}@{server} 'rsync -av --delete {user}@{host}:{path} {target}'"
+                "ssh {user}@{server} 'rsync -av "
+                "--delete --exclude projects {user}@{host}:{path} {target}'"
                 .format(
                     host=host,
                     path=path,
@@ -127,8 +130,9 @@ class RemotePuller(object):
         sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
         if not is_file:
             path += "/"
-        log.info("Local Copy %s to %s", path, target)
-        os.makedirs(target)
+        log.info("Remote Pull %s to %s", path, target)
+        if not is_file and not os.path.exists(target):
+            safe_makedirs(target)
         # Add a slash when copying directories
         sync_cmd = "rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
             host=host,
@@ -138,7 +142,7 @@ class RemotePuller(object):
         )
         ret = os.system(sync_cmd)
         if ret != 0:
-            log.info("COPY ERROR to app servers.")
+            log.error("COPY ERROR to app servers. Command: [{}] Return: [{}]".format(sync_cmd, ret))
 
 
 class Syncer(SettingsOverrideObject):

@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load copyrighttags %}
+{% load core_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
 
   <!-- title -->
-  <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}{% trans "Read the Docs" %} {% endblock %}</title>
+  <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
 
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
@@ -89,34 +89,97 @@
 
 
         {% block footer-content %}
-        <a href="https://github.com/rtfd/readthedocs.org">GitHub</a> | <a href="http://docs.readthedocs.io">{%  trans "Docs" %}</a>.
 
-        {% url "gold_detail" as gold_detail %}
-        {% blocktrans %}
-        Made by <a href="https://docs.readthedocs.io/en/latest/team.html">humans</a>. Funded by <a href="{{ gold_detail }}">readers like you</a>.
-        {% endblocktrans %}
-        </p>
+        <div class="column-logo">
+          <div class="footerlogo"></div>
+
+          <ul class="social">
+            <li><a href="https://github.com/rtfd/readthedocs.org" rel="noopener noreferrer"><span class="icon github"></span></a></li>
+            <li><a href="https://twitter.com/readthedocs" rel="noopener noreferrer"><span class="icon twitter"></span></a></li>
+          </ul>
+        </div>
+
+        <div class="column-about">
+          <h4>{%  trans "About Us" %}</h4>
+
+          <ul>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/team.html">{%  trans "Team" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/open-source-philosophy.html">{% trans "Open Source Philosophy" %}</a>
+            <li>
+              <a href="http://blog.readthedocs.com/">{% trans "Blog" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/sponsors.html">{% trans "Our Sponsors" %}</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="column-rtd">
+          <h4>{%  trans "Read the Docs" %}</h4>
+
+          <ul>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/getting_started.html">{% trans "Getting Started Guide" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io">{% trans "Documentation" %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/contribute.html">{% trans "Contributing" %}</a>
+            </li>
+            <li>
+              {% url "advertising" as advertising_url %}
+              <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">{%  trans "Advertise with Us" %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.com">{%  trans "Commercial Support" %}</a>
+            </li>
+            <li>
+              {% url "gold_detail" as gold_detail %}
+              <a href="{{ gold_detail }}">{%  trans "Read the Docs Gold" %}</a>
+            </li>
+            <li>
+              {% url "donate" as donate_url %}
+              <a href='{{ donate_url }}'>{% trans "Donate" %}</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="footer-bottom">
+          <div class="column-copyright">
+            <p>
+              <small>
+                &copy; Copyright {% now "Y" %}, {% trans "Read the Docs, Inc & contributors" %} -
+                {% trans "Version" %} {% readthedocs_version %}
+              </small>
+            </p>
+          </div>
+
+          <div class="column-setlang">
+            {% get_current_language as current_lang %}
+            <form action="/i18n/setlang/" method="post" style="float: right">
+              <input name="next" type="hidden" value="/" />
+              {% csrf_token %}
+              <select name="language">
+                {% for lang in LANGUAGES %}
+                  {% if lang.0 == current_lang %}
+                  <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                  {% else %}
+                  <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <input type="submit" value="{% trans 'Change Language' %}" name="submit">
+            </form>
+          </div>
+        </div>
+
         {% endblock %}
-
-        {% get_current_language as current_lang %}
-        <form action="/i18n/setlang/" method="post">{% csrf_token %}
-          <input name="next" type="hidden" value="/" />
-            {% csrf_token %}
-            <select style="float: left; height: 33px;" name="language">
-              {% for lang in LANGUAGES %}
-                {% if lang.0 == current_lang %}
-                <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                {% else %}
-                <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                {% endif %}
-                }
-              {% endfor %}
-            </select>
-            <input style="float: left; height: 33px; margin: 0px;" type="submit" value="Change Language" name="submit" id="change-language-input">
-        </form>
-
-        <br>
-        <br>
 
       </div>
     </div>
@@ -124,12 +187,20 @@
 
 </body>
 
+{% if GLOBAL_ANALYTICS_CODE %}
 <!-- BEGIN google analytics -->
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', '{{ GLOBAL_ANALYTICS_CODE }}']);
   _gaq.push(['_trackPageview']);
+
+  {% if DASHBOARD_ANALYTICS_CODE %}
+  // Dashboard Analytics Code
+  _gaq.push(['user._setAccount', '{{ DASHBOARD_ANALYTICS_CODE }}']);
+  _gaq.push(['user._trackPageview']);
+  // End Dashboard Analytics Code
+  {% endif %}
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
@@ -141,5 +212,6 @@
 
 </script>
 <!-- END google analytics -->
+{% endif %}
 
 </html>

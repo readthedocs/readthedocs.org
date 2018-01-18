@@ -1,4 +1,4 @@
-"""OAuth utility functions"""
+"""OAuth utility functions."""
 
 from __future__ import absolute_import
 from builtins import str
@@ -27,19 +27,19 @@ log = logging.getLogger(__name__)
 
 class GitHubService(Service):
 
-    """Provider service for GitHub"""
+    """Provider service for GitHub."""
 
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
 
     def sync(self):
-        """Sync repositories and organizations"""
+        """Sync repositories and organizations."""
         self.sync_repositories()
         self.sync_organizations()
 
     def sync_repositories(self):
-        """Sync repositories from GitHub API"""
+        """Sync repositories from GitHub API."""
         repos = self.paginate('https://api.github.com/user/repos?per_page=100')
         try:
             for repo in repos:
@@ -51,7 +51,7 @@ class GitHubService(Service):
                             'try reconnecting your account')
 
     def sync_organizations(self):
-        """Sync organizations from GitHub API"""
+        """Sync organizations from GitHub API."""
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
@@ -72,7 +72,8 @@ class GitHubService(Service):
 
     def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
                           organization=None):
-        """Update or create a repository from GitHub API response
+        """
+        Update or create a repository from GitHub API response.
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
@@ -114,6 +115,8 @@ class GitHubService(Service):
             repo.vcs = 'git'
             repo.account = self.account
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+            if not repo.avatar_url:
+                repo.avatar_url = self.default_user_avatar_url
             repo.json = json.dumps(fields)
             repo.save()
             return repo
@@ -122,7 +125,8 @@ class GitHubService(Service):
                       fields['name'])
 
     def create_organization(self, fields):
-        """Update or create remote organization from GitHub API response
+        """
+        Update or create remote organization from GitHub API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
@@ -143,27 +147,21 @@ class GitHubService(Service):
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
+        if not organization.avatar_url:
+            organization.avatar_url = self.default_org_avatar_url
         organization.json = json.dumps(fields)
         organization.account = self.account
         organization.save()
         return organization
 
-    def paginate(self, url):
-        """Combines return from GitHub pagination
+    def get_next_url_to_paginate(self, response):
+        return response.links.get('next', {}).get('url')
 
-        :param url: start url to get the data from.
-
-        See https://developer.github.com/v3/#pagination
-        """
-        resp = self.get_session().get(url)
-        result = resp.json()
-        next_url = resp.links.get('next', {}).get('url')
-        if next_url:
-            result.extend(self.paginate(next_url))
-        return result
+    def get_paginated_results(self, response):
+        return response.json()
 
     def get_webhook_data(self, project, integration):
-        """Get webhook JSON data to post to the API"""
+        """Get webhook JSON data to post to the API."""
         return json.dumps({
             'name': 'web',
             'active': True,
@@ -182,7 +180,8 @@ class GitHubService(Service):
         })
 
     def setup_webhook(self, project):
-        """Set up GitHub project webhook for project
+        """
+        Set up GitHub project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
@@ -229,7 +228,8 @@ class GitHubService(Service):
             return (False, resp)
 
     def update_webhook(self, project, integration):
-        """Update webhook integration
+        """
+        Update webhook integration.
 
         :param project: project to set up webhook for
         :type project: Project
@@ -273,7 +273,7 @@ class GitHubService(Service):
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
-        """Get access token for project by iterating over project users"""
+        """Get access token for project by iterating over project users."""
         # TODO why does this only target GitHub?
         if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
             return None
@@ -289,5 +289,5 @@ class GitHubService(Service):
                     if tokens.exists():
                         token = tokens[0].token
         except Exception:
-            log.error('Failed to get token for project', exc_info=True)
+            log.exception('Failed to get token for project')
         return token

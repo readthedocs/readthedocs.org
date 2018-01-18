@@ -14,7 +14,8 @@ from tastypie.api import Api
 from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
-from readthedocs.core.views import HomepageView, SupportView
+from readthedocs.core.views import (HomepageView, SupportView,
+                                    server_error_404, server_error_500)
 from readthedocs.search import views as search_views
 
 
@@ -26,12 +27,8 @@ v1_api.register(FileResource())
 
 admin.autodiscover()
 
-if 'readthedocs.donate' in settings.INSTALLED_APPS:
-    handler404 = 'readthedocs.donate.views.promo_404'
-    handler500 = 'readthedocs.donate.views.promo_500'
-else:
-    handler404 = 'readthedocs.core.views.server_error_404'
-    handler500 = 'readthedocs.core.views.server_error_500'
+handler404 = server_error_404
+handler500 = server_error_500
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
@@ -47,6 +44,7 @@ rtd_urls = [
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^notifications/', include('readthedocs.notifications.urls')),
+    url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 404's with DEBUG on.
@@ -86,12 +84,18 @@ debug_urls = add(
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
           deprecated_urls]
 
-if 'readthedocs.donate' in settings.INSTALLED_APPS:
+if settings.USE_PROMOS:
     # Include donation URL's
     groups.append([
-        url(r'^sustainability/', include('readthedocs.donate.urls')),
-        url(r'^accounts/gold/', include('readthedocs.gold.urls')),
+        url(r'^sustainability/', include('readthedocsext.donate.urls')),
     ])
+
+if 'readthedocsext.embed' in settings.INSTALLED_APPS:
+    api_urls.insert(
+        0,
+        url(r'^api/v1/embed/', include('readthedocsext.embed.urls'))
+    )
+
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
 if getattr(settings, 'ALLOW_ADMIN', True):

@@ -1,4 +1,4 @@
-Welcome to Read The Docs
+Welcome to Read the Docs
 ========================
 
 |build-status| |docs|
@@ -31,7 +31,7 @@ the Docs site`_.
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html#contributing-to-development>`_
+You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html>`_.
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
@@ -69,3 +69,9 @@ when you push to GitHub.
     :scale: 100%
     :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
+License
+-------
+
+`MIT`_ © 2010-2017 Read the Docs, Inc & contributors
+
+.. _MIT: LICENSE

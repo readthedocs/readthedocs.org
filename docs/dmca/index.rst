@@ -10,7 +10,7 @@ request or counter request.
 
 We aim to keep this entire process as transparent as possible. Our process is
 modeled after `GitHub's DMCA takedown process <github-dmca_>`_, which we
-appreciate for it's focus on transparency and fairness. All requests and counter
+appreciate for its focus on transparency and fairness. All requests and counter
 requests will be posted to this page below, in the `Request Archive`_. These
 requests will be redacted to remove all identifying information, except for Read
 the Docs user and project names.
@@ -131,7 +131,7 @@ Include your signature
 Request Archive
 ---------------
 
-Currently, Read the Docs has not recieved any takedown requests.
+Currently, Read the Docs has not received any takedown requests.
 
 ..
     * :download:`Some Company, Inc <archive/2017-01-22.txt>`

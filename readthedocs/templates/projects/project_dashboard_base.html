@@ -74,11 +74,11 @@
                         {% else %}
                           <span class="right quiet">
                             <span class="build-count">
-                              {% if builds == 1 %}
-                                {% trans "1 build" %}
-                              {% else %}
-                                {{ builds }} {% trans "builds" %}
-                              {% endif %}
+                              {% blocktrans count counter=builds %}
+                                1 build
+                              {% plural %}
+                                {{ builds }} builds
+                              {% endblocktrans %}
                             </span>
                             {% with build=project.get_latest_build %}
                               {% if build.success %}

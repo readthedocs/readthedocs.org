@@ -1,7 +1,6 @@
 """Utilities for retrieving task data."""
 
 from __future__ import absolute_import
-from djcelery import celery as celery_app
 from celery.result import AsyncResult
 
 
@@ -20,6 +19,8 @@ def get_task_data(task_id):
 
     meta data has no ``'task_name'`` key set.
     """
+    from readthedocs.worker import app
+
     result = AsyncResult(task_id)
     state, info = result.state, result.info
     if state == 'PENDING':
@@ -27,7 +28,7 @@ def get_task_data(task_id):
     if 'task_name' not in info:
         raise TaskNotFound(task_id)
     try:
-        task = celery_app.tasks[info['task_name']]
+        task = app.tasks[info['task_name']]
     except KeyError:
         raise TaskNotFound(task_id)
     return task, state, info

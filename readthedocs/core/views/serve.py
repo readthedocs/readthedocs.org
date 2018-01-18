@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Doc serving from Python.
 
@@ -24,24 +25,26 @@ PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
+import logging
+import mimetypes
+import os
+from functools import wraps
+
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
-from readthedocs.projects import constants
-from readthedocs.projects.models import Project, ProjectRelationship
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-
-import mimetypes
-import os
-import logging
-from functools import wraps
+from readthedocs.projects import constants
+from readthedocs.projects.models import Project, ProjectRelationship
 
 log = logging.getLogger(__name__)
 
@@ -55,7 +58,8 @@ def map_subproject_slug(view_func):
     .. warning:: Does not take into account any kind of privacy settings.
     """
     @wraps(view_func)
-    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):
+    def inner_view(
+            request, subproject=None, subproject_slug=None, *args, **kwargs):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
@@ -69,6 +73,7 @@ def map_subproject_slug(view_func):
             except (ProjectRelationship.DoesNotExist, KeyError):
                 get_object_or_404(Project, slug=subproject_slug)
         return view_func(request, subproject=subproject, *args, **kwargs)
+
     return inner_view
 
 
@@ -90,13 +95,14 @@ def map_project_slug(view_func):
             except Project.DoesNotExist:
                 raise Http404('Project does not exist.')
         return view_func(request, project=project, *args, **kwargs)
+
     return inner_view
 
 
 @map_project_slug
 @map_subproject_slug
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
-    """Handle / -> /en/latest/ directs on subdomains"""
+    """Handle / -> /en/latest/ directs on subdomains."""
     return HttpResponseRedirect(resolve(subproject or project))
 
 
@@ -104,12 +110,12 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
-    return HttpResponseRedirect(resolve(subproject or project, filename=filename))
+    return HttpResponseRedirect(
+        resolve(subproject or project, filename=filename))
 
 
 def _serve_401(request, project):
-    res = render_to_response('401.html',
-                             context_instance=RequestContext(request))
+    res = render(request, '401.html')
     res.status_code = 401
     log.error('Unauthorized access to {0} documentation'.format(project.slug))
     return res
@@ -122,15 +128,16 @@ def _serve_file(request, filename, basepath):
         return serve(request, filename, basepath)
     else:
         # Serve from Nginx
-        content_type, encoding = mimetypes.guess_type(os.path.join(basepath, filename))
+        content_type, encoding = mimetypes.guess_type(
+            os.path.join(basepath, filename))
         content_type = content_type or 'application/octet-stream'
         response = HttpResponse(content_type=content_type)
         if encoding:
-            response["Content-Encoding"] = encoding
+            response['Content-Encoding'] = encoding
         try:
             response['X-Accel-Redirect'] = os.path.join(
                 basepath[len(settings.SITE_ROOT):],
-                filename
+                filename,
             )
         except UnicodeEncodeError:
             raise Http404
@@ -140,8 +147,9 @@ def _serve_file(request, filename, basepath):
 
 @map_project_slug
 @map_subproject_slug
-def serve_docs(request, project, subproject,
-               lang_slug=None, version_slug=None, filename=''):
+def serve_docs(
+        request, project, subproject, lang_slug=None, version_slug=None,
+        filename=''):
     """Exists to map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
@@ -154,18 +162,20 @@ def serve_docs(request, project, subproject,
         raise Http404('Version does not exist.')
     filename = resolve_path(
         subproject or project,  # Resolve the subproject if it exists
-        version_slug=version_slug, language=lang_slug, filename=filename,
+        version_slug=version_slug,
+        language=lang_slug,
+        filename=filename,
         subdomain=True,  # subdomain will make it a "full" path without a URL prefix
     )
-    if (
-        version.privacy_level == constants.PRIVATE and
-        not AdminPermission.is_member(user=request.user, obj=project)
-    ):
+    if (version.privacy_level == constants.PRIVATE and
+            not AdminPermission.is_member(user=request.user, obj=project)):
         return _serve_401(request, project)
-    return _serve_symlink_docs(request,
-                               filename=filename,
-                               project=project,
-                               privacy_level=version.privacy_level)
+    return _serve_symlink_docs(
+        request,
+        filename=filename,
+        project=project,
+        privacy_level=version.privacy_level,
+    )
 
 
 @map_project_slug
@@ -185,7 +195,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
 
-    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:
+    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -193,8 +203,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         else:
             files_tried.append(os.path.join(basepath, filename))
 
-    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:
-
+    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root
@@ -204,4 +213,5 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         else:
             files_tried.append(os.path.join(basepath, filename))
 
-    raise Http404('File not found. Tried these files: %s' % ','.join(files_tried))
+    raise Http404(
+        'File not found. Tried these files: %s' % ','.join(files_tried))

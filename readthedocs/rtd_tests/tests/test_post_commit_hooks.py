@@ -1,17 +1,16 @@
 from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
+
 import json
 import logging
-from urllib.parse import urlencode
 
 import mock
-from django_dynamic_fixture import get
 from django.test import TestCase
+from django_dynamic_fixture import get
+from future.backports.urllib.parse import urlencode
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
-from readthedocs.projects import tasks
+from readthedocs.projects.models import Project, Feature
+
 
 log = logging.getLogger(__name__)
 
@@ -32,6 +31,11 @@ class BasePostCommitTest(TestCase):
 
         self.mocks = [mock.patch('readthedocs.core.views.hooks.trigger_build')]
         self.patches = [m.start() for m in self.mocks]
+
+        self.feature = Feature.objects.get(feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS)
+        self.feature.projects.add(self.pip)
+        self.feature.projects.add(self.rtfd)
+        self.feature.projects.add(self.sphinx)
 
         self.client.login(username='eric', password='test')
 
@@ -141,6 +145,23 @@ class GitLabWebHookTest(BasePostCommitTest):
 
         rtd.default_branch = old_default
         rtd.save()
+
+    def test_gitlab_webhook_is_deprecated(self):
+        # Project is created after feature, not included in historical allowance
+        url = 'https://github.com/rtfd/readthedocs-build'
+        payload = self.payload.copy()
+        payload['project']['http_url'] = url
+        project = get(
+            Project,
+            main_language_project=None,
+            repo=url,
+        )
+        r = self.client.post(
+            '/gitlab/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(r.status_code, 403)
 
 
 class GitHubPostCommitTest(BasePostCommitTest):
@@ -298,6 +319,23 @@ class GitHubPostCommitTest(BasePostCommitTest):
         rtd.default_branch = old_default
         rtd.save()
 
+    def test_github_webhook_is_deprecated(self):
+        # Project is created after feature, not included in historical allowance
+        url = 'https://github.com/rtfd/readthedocs-build'
+        payload = self.payload.copy()
+        payload['repository']['url'] = url
+        project = get(
+            Project,
+            main_language_project=None,
+            repo=url,
+        )
+        r = self.client.post(
+            '/github/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(r.status_code, 403)
+
 
 class CorePostCommitTest(BasePostCommitTest):
     fixtures = ["eric"]
@@ -320,6 +358,12 @@ class CorePostCommitTest(BasePostCommitTest):
         self.client.post('/build/%s' % rtd.pk, {'version_slug': 'latest'})
         # Need to re-query to get updated DB entry
         self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, True)
+
+    def test_generic_webhook_is_deprecated(self):
+        # Project is created after feature, not included in historical allowance
+        project = get(Project, main_language_project=None)
+        r = self.client.post('/build/%s' % project.pk, {'version_slug': 'master'})
+        self.assertEqual(r.status_code, 403)
 
 
 class BitBucketHookTests(BasePostCommitTest):
@@ -477,6 +521,7 @@ class BitBucketHookTests(BasePostCommitTest):
             Project, repo='HTTPS://bitbucket.org/test/project', slug='test-project',
             default_branch='integration', repo_type='git',
         )
+        self.feature.projects.add(self.test_project)
 
         self.git_payload['commits'] = [{
             "branch": "integration",
@@ -488,3 +533,20 @@ class BitBucketHookTests(BasePostCommitTest):
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
         self.assertContains(r, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
+
+    def test_bitbucket_webhook_is_deprecated(self):
+        # Project is created after feature, not included in historical allowance
+        url = 'https://bitbucket.org/rtfd/readthedocs-build'
+        payload = self.git_payload.copy()
+        payload['repository']['absolute_url'] = '/rtfd/readthedocs-build'
+        project = get(
+            Project,
+            main_language_project=None,
+            repo=url,
+        )
+        r = self.client.post(
+            '/bitbucket/',
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        self.assertEqual(r.status_code, 403)

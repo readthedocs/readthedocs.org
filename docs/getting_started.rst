@@ -48,7 +48,7 @@ or `this template`_ if you need help). Build them to see how they look::
 
     $ make html
 
-.. note:: You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-autobuild . _build_html`` instead.
+.. note:: You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-autobuild . _build/html`` instead.
 
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs.
@@ -88,15 +88,13 @@ Then in your ``conf.py``:
 Sign Up and Connect an External Account
 ---------------------------------------
 
-.. TODO Update this with GitLab support later
-
-If you are going to import a repository from GitHub or Bitbucket, you should
+If you are going to import a repository from GitHub, Bitbucket or GitLab, you should
 connect your account to your provider first. Connecting your account allows for
 easier importing and enables Read the Docs to configure your repository webhooks
 automatically.
 
-To connect your account, got to your *Settings* dashboard and select *Connected
-Services*. From here, you'll be able to connect to your GitHub or Bitbucket
+To connect your account, go to your *Settings* dashboard and select *Connected
+Services*. From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
 account. This process will ask you to authorize a connection to Read the Docs,
 that allows us to read information about and clone your repositories.
 
@@ -154,7 +152,7 @@ If you have any more trouble, don't hesitate to reach out to us. The :doc:`suppo
 .. _install Sphinx: http://sphinx-doc.org/latest/install.html
 .. _install Mkdocs: http://www.mkdocs.org/#installation
 .. _reStructuredText: http://sphinx-doc.org/rest.html
-.. _this template: http://docs.writethedocs.org/writing/beginners-guide-to-docs/#id1
+.. _this template: http://docs.writethedocs.org/guide/writing/beginners-guide-to-docs/#id1
 .. _Sign up: http://readthedocs.org/accounts/signup
 .. _log in: http://readthedocs.org/accounts/login
 .. _dashboard: http://readthedocs.org/dashboard

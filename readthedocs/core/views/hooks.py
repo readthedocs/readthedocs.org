@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.tasks import update_imported_docs
 
 import logging
@@ -21,6 +21,10 @@ log = logging.getLogger(__name__)
 
 class NoProjectException(Exception):
     pass
+
+
+def _allow_deprecated_webhook(project):
+    return project.has_feature(Feature.ALLOW_DEPRECATED_WEBHOOKS)
 
 
 def _build_version(project, slug, already_built=()):
@@ -70,10 +74,10 @@ def build_branches(project, branch_list):
         to_build - a list of branches that were built
         not_building - a list of branches that we won't build
     """
+    to_build = set()
+    not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-        to_build = set()
-        not_building = set()
         for version in versions:
             log.info("(Branch Build) Processing %s:%s",
                      project.slug, version.slug)
@@ -103,11 +107,19 @@ def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
 
-    Check each of the ``branches`` to see if they are active and should be built.
+    Check each of the ``branches`` to see if they are active and should be
+    built.
     """
     ret = ""
     all_built = {}
     all_not_building = {}
+
+    # This endpoint doesn't require authorization, we shouldn't allow builds to
+    # be triggered from this any longer. Deprecation plan is to selectively
+    # allow access to this endpoint for now.
+    if not any(_allow_deprecated_webhook(project) for project in projects):
+        return HttpResponse('This API endpoint is deprecated', status=403)
+
     for project in projects:
         (built, not_building) = build_branches(project, branches)
         if not built:
@@ -141,10 +153,10 @@ def _build_url(url, projects, branches):
 @csrf_exempt
 def github_build(request):  # noqa: D205
     """
-    GitHub webhook consumer
+    GitHub webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.intergrations.GitHubWebhookView`
+        Use :py:cls:`readthedocs.restapi.views.integrations.GitHubWebhookView`
         instead of this view function
 
     This will search for projects matching either a stripped down HTTP or SSH
@@ -167,7 +179,7 @@ def github_build(request):  # noqa: D205
             ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
             branches = [data['ref'].replace('refs/heads/', '')]
         except (ValueError, TypeError, KeyError):
-            log.error('Invalid GitHub webhook payload', exc_info=True)
+            log.exception('Invalid GitHub webhook payload')
             return HttpResponse('Invalid request', status=400)
         try:
             repo_projects = get_project_from_url(http_search_url)
@@ -187,7 +199,7 @@ def github_build(request):  # noqa: D205
             projects = repo_projects | ssh_projects
             return _build_url(http_search_url, projects, branches)
         except NoProjectException:
-            log.error('Project match not found: url=%s', http_search_url)
+            log.exception('Project match not found: url=%s', http_search_url)
             return HttpResponseNotFound('Project not found')
     else:
         return HttpResponse('Method not allowed, POST is required', status=405)
@@ -195,10 +207,11 @@ def github_build(request):  # noqa: D205
 
 @csrf_exempt
 def gitlab_build(request):  # noqa: D205
-    """GitLab webhook consumer
+    """
+    GitLab webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.intergrations.GitLabWebhookView`
+        Use :py:cls:`readthedocs.restapi.views.integrations.GitLabWebhookView`
         instead of this view function
 
     Search project repository URLs using the site URL from GitLab webhook payload.
@@ -211,7 +224,7 @@ def gitlab_build(request):  # noqa: D205
             search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
             branches = [data['ref'].replace('refs/heads/', '')]
         except (ValueError, TypeError, KeyError):
-            log.error('Invalid GitLab webhook payload', exc_info=True)
+            log.exception('Invalid GitLab webhook payload')
             return HttpResponse('Invalid request', status=400)
         log.info(
             'GitLab webhook search: url=%s branches=%s',
@@ -228,10 +241,11 @@ def gitlab_build(request):  # noqa: D205
 
 @csrf_exempt
 def bitbucket_build(request):
-    """Consume webhooks from multiple versions of Bitbucket's API
+    """
+    Consume webhooks from multiple versions of Bitbucket's API.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.intergrations.BitbucketWebhookView`
+        Use :py:cls:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
         instead of this view function
 
     New webhooks are set up with v2, but v1 webhooks will still point to this
@@ -270,7 +284,7 @@ def bitbucket_build(request):
                     data['repository']['full_name']
                 )
         except (TypeError, ValueError, KeyError):
-            log.error('Invalid Bitbucket webhook payload', exc_info=True)
+            log.exception('Invalid Bitbucket webhook payload')
             return HttpResponse('Invalid request', status=400)
 
         log.info(
@@ -296,11 +310,13 @@ def bitbucket_build(request):
 
 @csrf_exempt
 def generic_build(request, project_id_or_slug=None):
-    """Generic webhook build endpoint
+    """
+    Generic webhook build endpoint.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.intergrations.GenericWebhookView`
-        instead of this view function
+
+      Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
+      instead of this view function
     """
     try:
         project = Project.objects.get(pk=project_id_or_slug)
@@ -309,11 +325,16 @@ def generic_build(request, project_id_or_slug=None):
         try:
             project = Project.objects.get(slug=project_id_or_slug)
         except (Project.DoesNotExist, ValueError):
-            log.error(
+            log.exception(
                 "(Incoming Generic Build) Repo not found:  %s",
                 project_id_or_slug)
             return HttpResponseNotFound(
                 'Repo not found: %s' % project_id_or_slug)
+    # This endpoint doesn't require authorization, we shouldn't allow builds to
+    # be triggered from this any longer. Deprecation plan is to selectively
+    # allow access to this endpoint for now.
+    if not _allow_deprecated_webhook(project):
+        return HttpResponse('This API endpoint is deprecated', status=403)
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(

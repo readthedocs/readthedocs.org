@@ -4,10 +4,15 @@
  * module for cleaner usage.
  */
 
+var constants = require('./constants');
 
 var configMethods = {
     is_rtd_theme: function () {
-        return this.get_theme_name() === 'sphinx_rtd_theme';
+        return this.get_theme_name() === constants.THEME_RTD;
+    },
+
+    theme_supports_promo: function () {
+        return constants.PROMO_SUPPORTED_THEMES.indexOf(this.get_theme_name()) > -1;
     },
 
     is_sphinx_builder: function () {
@@ -17,9 +22,9 @@ var configMethods = {
     get_theme_name: function () {
         // Crappy heuristic, but people change the theme name on us.  So we have to
         // do some duck typing.
-        if (this.theme !== 'sphinx_rtd_theme') {
+        if (this.theme !== constants.THEME_RTD) {
             if ($('div.rst-other-versions').length === 1) {
-                return 'sphinx_rtd_theme';
+                return constants.THEME_RTD;
             }
         }
         return this.theme;
@@ -29,7 +34,7 @@ var configMethods = {
         return (
             this.api_host !== 'https://readthedocs.com' &&
             this.is_sphinx_builder() &&
-            this.is_rtd_theme());
+            this.theme_supports_promo());
     }
 };
 

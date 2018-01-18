@@ -13,12 +13,9 @@ log = logging.getLogger(__name__)
 
 def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
-    # Bookkeeping for keeping tag/branch identifies correct
-    verbose_names = [v['verbose_name'] for v in versions]
-    project.versions.filter(verbose_name__in=verbose_names).update(type=type)
-
     old_versions = {}
-    old_version_values = project.versions.values('identifier', 'verbose_name')
+    old_version_values = project.versions.filter(type=type).values(
+        'identifier', 'verbose_name')
     for version in old_version_values:
         old_versions[version['verbose_name']] = version['identifier']
 
@@ -81,7 +78,8 @@ def delete_versions(project, version_data):
 
 def index_search_request(version, page_list, commit, project_scale, page_scale,
                          section=True, delete=True):
-    """Update search indexes with build output JSON
+    """
+    Update search indexes with build output JSON.
 
     In order to keep sub-projects all indexed on the same shard, indexes will be
     updated using the parent project's slug as the routing value.
@@ -115,9 +113,8 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
     routes.extend([p.parent.slug for p in project.superprojects.all()])
     for page in page_list:
         log.debug("Indexing page: %s:%s", project.slug, page['path'])
-        page_id = (hashlib
-                   .md5('-'.join([project.slug, version.slug, page['path']]))
-                   .hexdigest())
+        to_hash = '-'.join([project.slug, version.slug, page['path']])
+        page_id = hashlib.md5(to_hash.encode('utf-8')).hexdigest()
         index_list.append({
             'id': page_id,
             'project': project.slug,
@@ -132,11 +129,10 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
         })
         if section:
             for sect in page['sections']:
+                id_to_hash = '-'.join([project.slug, version.slug,
+                                       page['path'], sect['id']])
                 section_index_list.append({
-                    'id': (hashlib
-                           .md5('-'.join([project.slug, version.slug,
-                                         page['path'], sect['id']]))
-                           .hexdigest()),
+                    'id': (hashlib.md5(id_to_hash.encode('utf-8')).hexdigest()),
                     'project': project.slug,
                     'version': version.slug,
                     'path': page['path'],

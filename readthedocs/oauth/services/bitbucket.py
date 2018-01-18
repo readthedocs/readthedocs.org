@@ -1,4 +1,4 @@
-"""OAuth utility functions"""
+"""OAuth utility functions."""
 
 from __future__ import absolute_import
 from builtins import str
@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 class BitbucketService(Service):
 
-    """Provider service for Bitbucket"""
+    """Provider service for Bitbucket."""
 
     adapter = BitbucketOAuth2Adapter
     # TODO replace this with a less naive check
@@ -34,12 +34,12 @@ class BitbucketService(Service):
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
     def sync(self):
-        """Sync repositories and teams from Bitbucket API"""
+        """Sync repositories and teams from Bitbucket API."""
         self.sync_repositories()
         self.sync_teams()
 
     def sync_repositories(self):
-        """Sync repositories from Bitbucket API"""
+        """Sync repositories from Bitbucket API."""
         # Get user repos
         try:
             repos = self.paginate(
@@ -71,7 +71,7 @@ class BitbucketService(Service):
             pass
 
     def sync_teams(self):
-        """Sync Bitbucket teams and team repositories"""
+        """Sync Bitbucket teams and team repositories."""
         try:
             teams = self.paginate(
                 'https://api.bitbucket.org/2.0/teams/?role=member'
@@ -89,7 +89,8 @@ class BitbucketService(Service):
 
     def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
                           organization=None):
-        """Update or create a repository from Bitbucket API response
+        """
+        Update or create a repository from Bitbucket API response.
 
         .. note::
             The :py:data:`admin` property is not set during creation, as
@@ -136,6 +137,8 @@ class BitbucketService(Service):
 
             avatar_url = fields['links']['avatar']['href'] or ''
             repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
+            if not repo.avatar_url:
+                repo.avatar_url = self.default_user_avatar_url
 
             repo.json = json.dumps(fields)
             repo.save()
@@ -145,7 +148,8 @@ class BitbucketService(Service):
                       fields['name'])
 
     def create_organization(self, fields):
-        """Update or create remote organization from Bitbucket API response
+        """
+        Update or create remote organization from Bitbucket API response.
 
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
@@ -157,6 +161,8 @@ class BitbucketService(Service):
         organization.name = fields.get('display_name')
         organization.email = fields.get('email')
         organization.avatar_url = fields['links']['avatar']['href']
+        if not organization.avatar_url:
+            organization.avatar_url = self.default_org_avatar_url
         organization.url = fields['links']['html']['href']
         organization.json = json.dumps(fields)
         organization.account = self.account
@@ -164,21 +170,14 @@ class BitbucketService(Service):
         organization.save()
         return organization
 
-    def paginate(self, url):
-        """Recursively combine results from Bitbucket pagination
+    def get_next_url_to_paginate(self, response):
+        return response.json().get('next')
 
-        :param url: start url to get the data from.
-        """
-        resp = self.get_session().get(url)
-        data = resp.json()
-        results = data.get('values', [])
-        next_url = data.get('next')
-        if next_url:
-            results.extend(self.paginate(next_url))
-        return results
+    def get_paginated_results(self, response):
+        return response.json().get('values', [])
 
     def get_webhook_data(self, project, integration):
-        """Get webhook JSON data to post to the API"""
+        """Get webhook JSON data to post to the API."""
         return json.dumps({
             'description': 'Read the Docs ({domain})'.format(domain=settings.PRODUCTION_DOMAIN),
             'url': 'https://{domain}{path}'.format(
@@ -194,7 +193,8 @@ class BitbucketService(Service):
         })
 
     def setup_webhook(self, project):
-        """Set up Bitbucket project webhook for project
+        """
+        Set up Bitbucket project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
@@ -238,7 +238,8 @@ class BitbucketService(Service):
             return (False, resp)
 
     def update_webhook(self, project, integration):
-        """Update webhook integration
+        """
+        Update webhook integration.
 
         :param project: project to set up webhook for
         :type project: Project

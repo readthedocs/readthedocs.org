@@ -23,4 +23,4 @@ class Command(BaseCommand):
             try:
                 broadcast(type='app', task=tasks.update_static_metadata, args=[p.pk])
             except Exception:
-                log.error('Build failed for %s', p, exc_info=True)
+                log.exception('Build failed for %s', p)

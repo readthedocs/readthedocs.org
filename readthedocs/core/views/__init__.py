@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Core views, including the main homepage,
 
@@ -10,11 +11,9 @@ from past.utils import old_div
 import os
 import logging
 
-
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.template import RequestContext
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
@@ -38,7 +37,7 @@ class HomepageView(TemplateView):
     template_name = 'homepage.html'
 
     def get_context_data(self, **kwargs):
-        """Add latest builds and featured projects"""
+        """Add latest builds and featured projects."""
         context = super(HomepageView, self).get_context_data(**kwargs)
         latest = []
         latest_builds = (
@@ -48,7 +47,7 @@ class HomepageView(TemplateView):
                 success=True,
             )
             .order_by('-date')
-        )[:100]
+        )[:100]  # yapf: disable
         for build in latest_builds:
             if (build.project not in latest and len(latest) < 10):
                 latest.append(build.project)
@@ -65,7 +64,8 @@ class SupportView(TemplateView):
         support_email = getattr(settings, 'SUPPORT_EMAIL', None)
         if not support_email:
             support_email = 'support@{domain}'.format(
-                domain=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+                domain=getattr(
+                    settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
 
         context['support_email'] = support_email
         return context
@@ -84,10 +84,13 @@ def random_page(request, project_slug=None):  # pylint: disable=unused-argument
 
 @csrf_exempt
 def wipe_version(request, project_slug, version_slug):
-    version = get_object_or_404(Version, project__slug=project_slug,
-                                slug=version_slug)
+    version = get_object_or_404(
+        Version,
+        project__slug=project_slug,
+        slug=version_slug,
+    )
     if request.user not in version.project.users.all():
-        raise Http404("You must own this project to wipe it.")
+        raise Http404('You must own this project to wipe it.')
 
     if request.method == 'POST':
         del_dirs = [
@@ -98,28 +101,27 @@ def wipe_version(request, project_slug, version_slug):
         for del_dir in del_dirs:
             broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
-    return render_to_response('wipe_version.html',
-                              context_instance=RequestContext(request))
+    return render(
+        request, 'wipe_version.html',
+        {'version': version, 'project': version.project})
 
 
 def divide_by_zero(request):  # pylint: disable=unused-argument
     return old_div(1, 0)
 
 
-def server_error_500(request, exception, template_name='500.html'):  # pylint: disable=unused-argument  # noqa
-    """A simple 500 handler so we get media"""
-    r = render_to_response(template_name,
-                           context_instance=RequestContext(request))
+def server_error_500(request, template_name='500.html'):
+    """A simple 500 handler so we get media."""
+    r = render(request, template_name)
     r.status_code = 500
     return r
 
 
 def server_error_404(request, exception, template_name='404.html'):  # pylint: disable=unused-argument  # noqa
-    """A simple 404 handler so we get media"""
+    """A simple 404 handler so we get media."""
     response = get_redirect_response(request, path=request.get_full_path())
     if response:
         return response
-    r = render_to_response(template_name,
-                           context_instance=RequestContext(request))
+    r = render(request, template_name)
     r.status_code = 404
     return r

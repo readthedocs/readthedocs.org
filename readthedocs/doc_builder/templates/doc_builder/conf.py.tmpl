@@ -77,7 +77,8 @@ if globals().get('websupport2_base_url', False):
 context = {
     'using_theme': using_rtd_theme,
     'html_theme': html_theme,
-    'current_version': "{{ current_version }}",
+    'current_version': "{{ version.verbose_name }}",
+    'version_slug': "{{ version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
     'versions': [{% for version in versions %}
@@ -92,6 +93,7 @@ context = {
     'slug': '{{ project.slug }}',
     'name': u'{{ project.name }}',
     'rtd_language': u'{{ project.language }}',
+    'programming_language': u'{{ project.programming_language }}',
     'canonical_url': '{{ project.get_canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'single_version': {{ project.single_version }},
@@ -105,6 +107,10 @@ context = {
     'bitbucket_repo': '{{ bitbucket_repo }}',
     'bitbucket_version': '{{ bitbucket_version }}',
     'display_bitbucket': {{ display_bitbucket }},
+    'gitlab_user': '{{ gitlab_user }}',
+    'gitlab_repo': '{{ gitlab_repo }}',
+    'gitlab_version': '{{ gitlab_version }}',
+    'display_gitlab': {{ display_gitlab }},
     'READTHEDOCS': True,
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
@@ -117,6 +123,10 @@ context = {
     'commit': '{{ commit }}',
     {% endif %}
 }
+
+{# Provide block for extending context data from child template #}
+{% block extra_context %}{% endblock %}
+
 if 'html_context' in globals():
     html_context.update(context)
 else:

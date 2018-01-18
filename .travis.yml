@@ -23,6 +23,7 @@ install:
   - source ~/.nvm/nvm.sh
   - nvm install --lts
   - nvm use --lts
+  - npm install -g bower gulp
   - npm install
   - bower install
 script:
@@ -33,3 +34,7 @@ notifications:
       - readthedocs:y3hjODOi7EIz1JAbD1Zb41sz#random
     on_success: change
     on_failure: always
+
+branches:
+  only:
+  - master

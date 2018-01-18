@@ -1,8 +1,13 @@
 -r pip.txt
 maxcdn
 astroid
-pylint
-# prospector==0.12.6 currently has issues with pydocstyle
-prospector==0.12.5
+
+# pylint 1.8.0 is having problems:
+# File "/home/humitos/.pyenv/versions/2.7.14/envs/pylint/lib/python2.7/site-packages/pylint_django/plugin.py", line 22, in register
+#     start = name_checker.config.const_rgx.pattern[:-2]
+# AttributeError: 'NoneType' object has no attribute 'pattern
+pylint==1.7.5
+
+prospector
 pylint-django
 pyflakes

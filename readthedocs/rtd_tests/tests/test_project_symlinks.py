@@ -322,6 +322,53 @@ class BaseSubprojects(TempSiterootCase):
             filesystem['private_web_root'] = public_root
         self.assertFilesystem(filesystem)
 
+    def test_subproject_alias_with_spaces(self):
+        """Symlink pass adds symlink for subproject alias"""
+        self.project.add_subproject(self.subproject, alias='Sweet Alias')
+        self.symlink.symlink_subprojects()
+        filesystem = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'kong': {'en': {}},
+                'sub': {'en': {}},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'kong': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/kong/rtd-builds/latest',
+                    }},
+                    'projects': {
+                        'sub': {
+                            'type': 'link',
+                            'target': 'public_web_root/sub',
+                        },
+                        'Sweet Alias': {
+                            'type': 'link',
+                            'target': 'public_web_root/sub',
+                        },
+                    }
+                },
+                'sub': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/sub/rtd-builds/latest',
+                    }}
+                }
+            }
+        }
+        if self.privacy == 'private':
+            public_root = filesystem['public_web_root'].copy()
+            private_root = filesystem['private_web_root'].copy()
+            public_root['kong']['projects']['sub']['target'] = 'private_web_root/sub'
+            public_root['kong']['projects']['Sweet Alias']['target'] = 'private_web_root/sub'
+            filesystem['public_web_root'] = private_root
+            filesystem['private_web_root'] = public_root
+        self.assertFilesystem(filesystem)
+
     def test_remove_subprojects(self):
         """Nonexistant subprojects are unlinked"""
         self.project.add_subproject(self.subproject)

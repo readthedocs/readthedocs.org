@@ -1,4 +1,4 @@
-"""Gold subscription forms"""
+"""Gold subscription forms."""
 
 from __future__ import absolute_import
 from builtins import object
@@ -12,7 +12,8 @@ from .models import LEVEL_CHOICES, GoldUser
 
 class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
-    """Gold subscription payment form
+    """
+    Gold subscription payment form.
 
     This extends the common base form for handling Stripe subscriptions. Credit
     card fields for card number, expiry, and CVV are extended from

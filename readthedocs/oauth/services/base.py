@@ -1,15 +1,18 @@
-"""OAuth utility functions"""
+# -*- coding: utf-8 -*-
+"""OAuth utility functions."""
 
-from __future__ import absolute_import
-from builtins import str
-from builtins import object
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import logging
 from datetime import datetime
 
-from django.conf import settings
-from requests_oauthlib import OAuth2Session
 from allauth.socialaccount.models import SocialAccount
-
+from builtins import object
+from django.conf import settings
+from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
+from requests.exceptions import RequestException
+from requests_oauthlib import OAuth2Session
 
 DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
 
@@ -18,7 +21,8 @@ log = logging.getLogger(__name__)
 
 class Service(object):
 
-    """Service mapping for local accounts
+    """
+    Service mapping for local accounts.
 
     :param user: User to use in token lookup and session creation
     :param account: :py:class:`SocialAccount` instance for user
@@ -27,6 +31,9 @@ class Service(object):
     adapter = None
     url_pattern = None
 
+    default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
+    default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
+
     def __init__(self, user, account):
         self.session = None
         self.user = user
@@ -34,11 +41,11 @@ class Service(object):
 
     @classmethod
     def for_user(cls, user):
-        """Return a list of instances if user has an account for the provider"""
+        """Return list of instances if user has an account for the provider."""
         try:
             accounts = SocialAccount.objects.filter(
                 user=user,
-                provider=cls.adapter.provider_id
+                provider=cls.adapter.provider_id,
             )
             return [cls(user=user, account=account) for account in accounts]
         except SocialAccount.DoesNotExist:
@@ -57,25 +64,25 @@ class Service(object):
         return self.session
 
     def create_session(self):
-        """Create OAuth session for user
+        """
+        Create OAuth session for user.
 
         This configures the OAuth session based on the :py:class:`SocialToken`
         attributes. If there is an ``expires_at``, treat the session as an auto
-        renewing token. Some providers expire tokens after as little as 2
-        hours.
+        renewing token. Some providers expire tokens after as little as 2 hours.
         """
         token = self.account.socialtoken_set.first()
         if token is None:
             return None
 
         token_config = {
-            'access_token': str(token.token),
+            'access_token': token.token,
             'token_type': 'bearer',
         }
         if token.expires_at is not None:
             token_expires = (token.expires_at - datetime.now()).total_seconds()
             token_config.update({
-                'refresh_token': str(token.token_secret),
+                'refresh_token': token.token_secret,
                 'expires_in': token_expires,
             })
 
@@ -87,13 +94,14 @@ class Service(object):
                 'client_secret': token.app.secret,
             },
             auto_refresh_url=self.get_adapter().access_token_url,
-            token_updater=self.token_updater(token)
+            token_updater=self.token_updater(token),
         )
 
         return self.session or None
 
     def token_updater(self, token):
-        """Update token given data from OAuth response
+        """
+        Update token given data from OAuth response.
 
         Expect the following response into the closure::
 
@@ -114,14 +122,65 @@ class Service(object):
 
         return _updater
 
+    def paginate(self, url, **kwargs):
+        """
+        Recursively combine results from service's pagination.
+
+        :param url: start url to get the data from.
+        :type url: unicode
+        :param kwargs: optional parameters passed to .get() method
+        :type kwargs: dict
+        """
+        try:
+            resp = self.get_session().get(url, data=kwargs)
+            next_url = self.get_next_url_to_paginate(resp)
+            results = self.get_paginated_results(resp)
+            if next_url:
+                results.extend(self.paginate(next_url))
+            return results
+        # Catch specific exception related to OAuth
+        except InvalidClientIdError:
+            log.error('access_token or refresh_token failed: %s', url)
+            raise Exception('You should reconnect your account')
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            # Response data should always be JSON, still try to log if not
+            # though
+            try:
+                debug_data = resp.json()
+            except ValueError:
+                debug_data = resp.content
+            log.debug(
+                'paginate failed at %s with response: %s', url, debug_data)
+        else:
+            return []
+
     def sync(self):
         raise NotImplementedError
 
-    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
-                          organization=None):
+    def create_repository(
+            self, fields, privacy=DEFAULT_PRIVACY_LEVEL, organization=None):
         raise NotImplementedError
 
     def create_organization(self, fields):
+        raise NotImplementedError
+
+    def get_next_url_to_paginate(self, response):
+        """
+        Return the next url to feed the `paginate` method.
+
+        :param response: response from where to get the `next_url` attribute
+        :type response: requests.Response
+        """
+        raise NotImplementedError
+
+    def get_paginated_results(self, response):
+        """
+        Return the results for the current response/page.
+
+        :param response: response from where to get the results.
+        :type response: requests.Response
+        """
         raise NotImplementedError
 
     def setup_webhook(self, project):
@@ -132,15 +191,16 @@ class Service(object):
 
     @classmethod
     def is_project_service(cls, project):
-        """Determine if this is the service the project is using
+        """
+        Determine if this is the service the project is using.
 
         .. note::
+
             This should be deprecated in favor of attaching the
-            :py:class:`RemoteRepository` to the project instance. This is a slight
-            improvement on the legacy check for webhooks
+            :py:class:`RemoteRepository` to the project instance. This is a
+            slight improvement on the legacy check for webhooks
         """
         # TODO Replace this check by keying project to remote repos
         return (
             cls.url_pattern is not None and
-            cls.url_pattern.search(project.repo) is not None
-        )
+            cls.url_pattern.search(project.repo) is not None)

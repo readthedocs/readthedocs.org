@@ -8,12 +8,14 @@
 .coverage
 .idea
 .vagrant
+.vscode
 .tox
 .env
 .rope_project/
 .ropeproject/
 _build
 bower_components/
+contrib/supervisord.log
 deploy/.vagrant
 dist/*
 local_settings.py
@@ -41,3 +43,5 @@ private_*
 .rope_project/
 readthedocs/htmlcov
 tags
+.python-version
+*.pyo

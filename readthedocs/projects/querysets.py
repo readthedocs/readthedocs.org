@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 from django.db import models
+from django.db.models import Q
 from guardian.shortcuts import get_objects_for_user
 
 from . import constants
@@ -148,3 +149,13 @@ class ChildRelatedProjectQuerySetBase(RelatedProjectQuerySetBase):
 class ChildRelatedProjectQuerySet(SettingsOverrideObject):
     _default_class = ChildRelatedProjectQuerySetBase
     _override_setting = 'RELATED_PROJECT_MANAGER'
+
+
+class FeatureQuerySet(models.QuerySet):
+    use_for_related_fields = True
+
+    def for_project(self, project):
+        return self.filter(
+            Q(projects=project) |
+            Q(default_true=True, add_date__gt=project.pub_date)
+        ).distinct()

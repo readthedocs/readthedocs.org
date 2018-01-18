@@ -16,7 +16,8 @@ __all__ = ['VersionManager']
 
 class VersionManagerBase(models.Manager):
 
-    """Version manager for manager only queries
+    """
+    Version manager for manager only queries.
 
     For queries not suitable for the :py:cls:`VersionQuerySet`, such as create
     queries.

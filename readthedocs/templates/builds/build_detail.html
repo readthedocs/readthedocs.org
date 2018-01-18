@@ -1,6 +1,7 @@
 {% extends "projects/base_project.html" %}
 
 {% load i18n %}
+{% load privacy_tags %}
 {% load static %}
 
 {% block title %}{{ build.project.name }}{% endblock %}
@@ -62,7 +63,11 @@ $(document).ready(function () {
 
     <div class="build-version">
       <span class="build-version-slug">
-        {{ build.version.slug }}
+        {% if request.user|is_admin:project %}
+          <a href="{% url "project_version_detail" build.version.project.slug build.version.slug %}">{{ build.version.slug }}</a>
+        {% else  %}
+          {{ build.version.slug }}
+        {% endif %}
       </span>
       <span class="build-commit"
             data-bind="visible: commit">
@@ -91,6 +96,30 @@ $(document).ready(function () {
         {% trans "Build failed" %}
       </span>
     </div>
+
+    {% if request.user|is_admin:project %}
+      {% if not build.success and build.commands.count < 4 %}
+        <div class="build-ideas">
+          <p>
+            {% url 'wipe_version' build.version.project.slug build.version.slug as wipe_url %}
+            {% blocktrans %}
+              Having trouble with your build environment?
+              Try <a href="{{ wipe_url }}">resetting it</a>.
+            {% endblocktrans %}
+          </p>
+        </div>
+      {% elif not build.success and "setup.py install" in build.commands.last.output %}
+        <div class="build-ideas">
+          <p>
+            {% url 'projects_advanced' build.version.project.slug as advanced_url %}
+            {% blocktrans %}
+              Don't want <em>setup.py install</em> called?
+              Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
+            {% endblocktrans %}
+          </p>
+        </div>
+      {% endif %}
+    {% endif %}
 
     {% if build.output %}
       {# If we have build output, this is an old build #}

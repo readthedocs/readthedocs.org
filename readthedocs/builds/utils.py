@@ -1,25 +1,16 @@
+# -*- coding: utf-8 -*-
 """Utilities for the builds app."""
 
-from __future__ import absolute_import
-import re
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
-
-GH_REGEXS = [
-    re.compile('github.com/(.+)/(.+)(?:\.git){1}'),
-    re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+).git'),
-]
-
-BB_REGEXS = [
-    re.compile('bitbucket.org/(.+)/(.+)/'),
-    re.compile('bitbucket.org/(.+)/(.+)'),
-    re.compile('bitbucket.org:(.+)/(.+)\.git'),
-]
+from readthedocs.projects.constants import (
+    BITBUCKET_REGEXS, GITHUB_REGEXS, GITLAB_REGEXS)
 
 
 def get_github_username_repo(url):
     if 'github' in url:
-        for regex in GH_REGEXS:
+        for regex in GITHUB_REGEXS:
             match = regex.search(url)
             if match:
                 return match.groups()
@@ -28,7 +19,16 @@ def get_github_username_repo(url):
 
 def get_bitbucket_username_repo(url=None):
     if 'bitbucket' in url:
-        for regex in BB_REGEXS:
+        for regex in BITBUCKET_REGEXS:
+            match = regex.search(url)
+            if match:
+                return match.groups()
+    return (None, None)
+
+
+def get_gitlab_username_repo(url=None):
+    if 'gitlab' in url:
+        for regex in GITLAB_REGEXS:
             match = regex.search(url)
             if match:
                 return match.groups()

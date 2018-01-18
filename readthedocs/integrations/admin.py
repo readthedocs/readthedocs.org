@@ -1,4 +1,4 @@
-"""Integration admin models"""
+"""Integration admin models."""
 
 from __future__ import absolute_import
 from django.contrib import admin
@@ -30,7 +30,8 @@ def pretty_json_field(field, description, include_styles=False):
 
 class HttpExchangeAdmin(admin.ModelAdmin):
 
-    """Admin model for HttpExchange
+    """
+    Admin model for HttpExchange.
 
     This adds some read-only display to the admin model.
     """
@@ -78,7 +79,8 @@ class HttpExchangeAdmin(admin.ModelAdmin):
 
 class IntegrationAdmin(admin.ModelAdmin):
 
-    """Admin model for Integration
+    """
+    Admin model for Integration.
 
     Because of some problems using JSONField with admin model inlines, this
     instead just links to the queryset.
@@ -88,7 +90,8 @@ class IntegrationAdmin(admin.ModelAdmin):
     readonly_fields = ['exchanges']
 
     def exchanges(self, obj):
-        """Manually make an inline-ish block
+        """
+        Manually make an inline-ish block.
 
         JSONField doesn't do well with fieldsets for whatever reason. This is
         just to link to the exchanges.

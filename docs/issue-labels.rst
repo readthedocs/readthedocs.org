@@ -32,7 +32,7 @@ what they stand for.
     idea. See the milestone of the feature overview ticket for all related
     tickets.
 
-*Good First Bug*
+*Good First Issue*
     This label marks tickets that are easy to get started with. The ticket
     should be ideal for beginners to dive into the code base.
 
@@ -62,6 +62,10 @@ what they stand for.
 *Needed: tests*
     This label indicates that a better test coverage is required to resolve
     the ticket. New tests should be proposed via a pull request on GitHub.
+
+*Needed: replication*
+    This label indicates that a bug has been reported, but has not been
+    successfully replicated by another user or contributor yet.
 
 *Operations*
     Tickets that require changes in the server infrastructure.

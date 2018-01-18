@@ -61,7 +61,7 @@ Information about development is also available:
    sponsors
    open-source-philosophy
    story
-   talks
+   abandoned-projects
    dmca/index
 
 .. _feature-docs:
@@ -92,18 +92,18 @@ Information about development is also available:
    :maxdepth: 2
    :caption: Developer Documentation
 
-   install
-   api/index
    changelog
+   install
+   architecture
    tests
    docs
-   architecture
    development/standards
    development/buildenvironments
    symlinks
    settings
    i18n
    issue-labels
+   api/index
 
 .. _business-docs:
 
@@ -128,5 +128,5 @@ Information about development is also available:
    :caption: Designer Documentation
 
    design
-   theme
+   Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
 

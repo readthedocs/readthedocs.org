@@ -89,7 +89,8 @@ function build_app_sources (application, minify) {
                     return browserify_stream(
                         file, bundle_config, cb
                     );
-                }));
+                }))
+                .pipe(rename(application + path.sep + entry_path));
 
             if (minify) {
                 bundle = bundle
@@ -159,7 +160,7 @@ function browserify_stream (file, config, cb_output) {
                 gulp_util.beep();
                 gulp_util.log('Browserify error:', ev.message);
             })
-            .pipe(vinyl_source(file.path, file))
+            .pipe(vinyl_source(path.basename(file.path)))
             .pipe(es.map(function (data, cb_inner) {
                 cb_output(null, data);
             }));

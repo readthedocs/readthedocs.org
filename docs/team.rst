@@ -33,7 +33,7 @@ Members
 ~~~~~~~
 
 * `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`_ (Pacific Time)
+* `Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)
 * `Manuel Kaufmann <https://github.com/humitos>`_ (Central Time)
 * Your Name Here
 
@@ -63,7 +63,7 @@ Members
 ~~~~~~~
 
 * `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`_ (Pacific Time)
+* `Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)
 * `Matt Robenolt <https://github.com/mattrobenolt>`_ (Pacific Time)
 * Your Name Here
 
@@ -108,9 +108,9 @@ Members
 
 * `Eric Holscher <https://github.com/ericholscher>`_
 * `Anthony Johnson <https://github.com/agjohnson>`_
-* `Gregor Müllegger <https://github.com/gregmuellegger>`_
-* `Stein Magnus Jodal <https://github.com/jodal>`_
-* Your Name Here
+* `Manuel Kaufmann <https://github.com/humitos>`_
+* `David Fischer <https://github.com/davidfischer>`_
+* Your name here
 
 Feel free to ask any of us if you have questions or want to join!
 

@@ -1,35 +1,41 @@
+# -*- coding: utf-8 -*-
 """Endpoint to generate footer HTML."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
-from django.shortcuts import get_object_or_404
-from django.template import RequestContext, loader as template_loader
+import six
 from django.conf import settings
-
-
+from django.shortcuts import get_object_or_404
+from django.template import loader as template_loader
 from rest_framework import decorators, permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import TAG
+from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.projects.version_handling import highest_version
-from readthedocs.projects.version_handling import parse_version_failsafe
+from readthedocs.projects.version_handling import (
+    highest_version, parse_version_failsafe)
 from readthedocs.restapi.signals import footer_response
-import six
 
 
 def get_version_compare_data(project, base_version=None):
-    """Retrieve metadata about the highest version available for this project.
+    """
+    Retrieve metadata about the highest version available for this project.
 
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
+    versions_qs = project.versions.public().filter(active=True)
+
+    # Take preferences over tags only if the project has at least one tag
+    if versions_qs.filter(type=TAG).exists():
+        versions_qs = versions_qs.filter(type=TAG)
+
     highest_version_obj, highest_version_comparable = highest_version(
-        project.versions.public().filter(active=True))
+        versions_qs)
     ret_val = {
         'project': six.text_type(highest_version_obj),
         'version': six.text_type(highest_version_comparable),
@@ -37,7 +43,7 @@ def get_version_compare_data(project, base_version=None):
     }
     if highest_version_obj:
         ret_val['url'] = highest_version_obj.get_absolute_url()
-        ret_val['slug'] = highest_version_obj.slug,
+        ret_val['slug'] = (highest_version_obj.slug,)
     if base_version and base_version.slug != LATEST:
         try:
             base_version_comparable = parse_version_failsafe(
@@ -69,34 +75,29 @@ def footer_html(request):
     subproject = request.GET.get('subproject', False)
     source_suffix = request.GET.get('source_suffix', '.rst')
 
-    new_theme = (theme == "sphinx_rtd_theme")
-    using_theme = (theme == "default")
+    # Hack in a fix for missing version slug deploy that went out a while back
+    if version_slug == '':
+        version_slug = LATEST
+
+    new_theme = (theme == 'sphinx_rtd_theme')
+    using_theme = (theme == 'default')
     project = get_object_or_404(Project, slug=project_slug)
     version = get_object_or_404(
-        Version.objects.public(request.user, project=project, only_active=False),
-        slug=version_slug)
+        Version.objects.public(
+            request.user, project=project, only_active=False),
+        slug__iexact=version_slug)
     main_project = project.main_language_project or project
 
-    if page_slug and page_slug != "index":
-        if (
-                main_project.documentation_type == "sphinx_htmldir" or
-                main_project.documentation_type == "mkdocs"):
-            path = page_slug + "/"
-        elif main_project.documentation_type == "sphinx_singlehtml":
-            path = "index.html#document-" + page_slug
+    if page_slug and page_slug != 'index':
+        if (main_project.documentation_type == 'sphinx_htmldir' or
+                main_project.documentation_type == 'mkdocs'):
+            path = page_slug + '/'
+        elif main_project.documentation_type == 'sphinx_singlehtml':
+            path = 'index.html#document-' + page_slug
         else:
-            path = page_slug + ".html"
+            path = page_slug + '.html'
     else:
-        path = ""
-
-    if version.type == TAG and version.project.has_pdf(version.slug):
-        print_url = (
-            'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'
-            .format(
-                project=project.slug,
-                version=version.slug))
-    else:
-        print_url = None
+        path = ''
 
     version_compare_data = get_version_compare_data(project, version)
 
@@ -114,15 +115,42 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
-        'print_url': print_url,
-        'github_edit_url': version.get_github_url(docroot, page_slug, source_suffix, 'edit'),
-        'github_view_url': version.get_github_url(docroot, page_slug, source_suffix, 'view'),
-        'bitbucket_url': version.get_bitbucket_url(docroot, page_slug, source_suffix),
+        'github_edit_url': version.get_github_url(
+            docroot,
+            page_slug,
+            source_suffix,
+            'edit',
+        ),
+        'github_view_url': version.get_github_url(
+            docroot,
+            page_slug,
+            source_suffix,
+            'view',
+        ),
+        'gitlab_edit_url': version.get_gitlab_url(
+            docroot,
+            page_slug,
+            source_suffix,
+            'edit',
+        ),
+        'gitlab_view_url': version.get_gitlab_url(
+            docroot,
+            page_slug,
+            source_suffix,
+            'view',
+        ),
+        'bitbucket_url': version.get_bitbucket_url(
+            docroot,
+            page_slug,
+            source_suffix,
+        ),
         'theme': theme,
     }
 
-    request_context = RequestContext(request, context)
-    html = template_loader.get_template('restapi/footer.html').render(request_context)
+    html = template_loader.get_template('restapi/footer.html').render(
+        context,
+        request,
+    )
     resp_data = {
         'html': html,
         'version_active': version.active,
@@ -130,8 +158,13 @@ def footer_html(request):
         'version_supported': version.supported,
     }
 
-    # Allow folks to hook onto the footer response for various information collection,
-    # or to modify the resp_data.
-    footer_response.send(sender=None, request=request, context=context, resp_data=resp_data)
+    # Allow folks to hook onto the footer response for various information
+    # collection, or to modify the resp_data.
+    footer_response.send(
+        sender=None,
+        request=request,
+        context=context,
+        resp_data=resp_data,
+    )
 
     return Response(resp_data)

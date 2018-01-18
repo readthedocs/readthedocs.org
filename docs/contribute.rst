@@ -20,7 +20,7 @@ If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
 :ref:`Installation Guide <installing-read-the-docs>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
-First Bug`_. These are meant to be a great way to get a smooth start and
+First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
 
 If you are up to more challenging tasks with a bigger scope, then there are a
@@ -34,10 +34,51 @@ label. Those tickets are meant to be standalone and can be worked on ad-hoc.
 When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
 
+We have a strict code style that is easy to follow since you just have to
+install `pre-commit`_ and it will automatically run different linting tools
+(`autoflake`_, `autopep8`_, `docformatter`_, `isort`_, `prospector`_, `unify`_
+and `yapf`_) to check your changes before you commit them. `pre-commit` will let
+you know if there were any problems that is wasn't able to fix automatically.
+
+To run the `pre-commit` command and check your changes::
+
+    $ pip install -U pre-commit
+    $ git add <your-modified-files>
+    $ pre-commit run
+
+or to run against a specific file::
+
+    $ pre-commit run --files <file.py>
+
+`pre-commit` can also be run as a git pre-commit hook. You can set this up
+with::
+
+    $ pre-commit install
+
+After this installation, the next time you run `git commit` the `pre-commit run`
+command will be run immediately and will inform you of the changes and errors.
+
+.. note::
+
+    Our code base is still maturing and the core team doesn't yet recommend
+    running this as a pre-commit hook due to the number of changes this will
+    cause while constructing a pull request. Independent pull requests with
+    linting changes would be a great help to making this possible.
+
+
 .. _Feature Overview: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
-.. _Good First Bug: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Bug%22
+.. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
 .. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
+
+.. _pre-commit: https://github.com/pre-commit/pre-commit
+.. _autoflake: https://github.com/myint/autoflake
+.. _autopep8: https://github.com/hhatto/autopep8
+.. _docformatter: https://github.com/myint/docformatter
+.. _isort: https://github.com/timothycrosley/isort
+.. _prospector: https://prospector.landscape.io/en/master
+.. _unify: https://github.com/myint/unify
+.. _yapf: https://github.com/google/yapf
 
 Triaging tickets
 ----------------
@@ -168,7 +209,7 @@ few more at hand to further categorize issues.
     have the resources to work on. We encourage community members to work
     on these tickets and to submit a pull request.
 
-*Good First Bug*
+*Good First Issue*
     This label marks tickets that are easy to get started with. The ticket
     should be ideal for beginners to dive into the code base. Better is if the
     fix for the issue only involves touching one part of the code.

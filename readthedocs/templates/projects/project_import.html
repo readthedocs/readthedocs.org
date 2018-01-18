@@ -79,12 +79,12 @@ $(document).ready(function() {
                   class="remote-repos-empty">
                 <li class="module-item">
                   {% if has_connected_accounts %}
-                    {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
-                      <p>
+                    <p>
+                      {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
                         No remote repositories found,
                         try <a href="#" {{ binding }}>refreshing your accounts</a>.
-                      </p>
-                    {% endblocktrans %}
+                      {% endblocktrans %}
+                    </p>
                   {% else %}
                     <p>
                       {% blocktrans trimmed %}
@@ -93,30 +93,12 @@ $(document).ready(function() {
                       {% endblocktrans %}
                     </p>
 
+
                     <div class="project-import-providers">
-                      <form
-                          method="get"
-                          action="{% provider_login_url "github" %}"
-                          class="import-connect import-connect-github">
-                        <button>
-                          {% trans "Connect to GitHub" %}
-                        </button>
-                        <input type="hidden" name="process" value="connect">
-                        <input type="hidden" name="next" value="/dashboard/import/">
-                      </form>
-
-                      <form
-                          method="get"
-                          action="{% provider_login_url "bitbucket_oauth2" %}"
-                          class="import-connect import-connect-bitbucket">
-                        <button>
-                          {% trans "Connect to Bitbucket" %}
-                        </button>
-                        <input type="hidden" name="process" value="connect">
-                        <input type="hidden" name="next" value="/dashboard/import/">
-                      </form>
+                      <ul class="socialaccount_providers">
+                        {% include "socialaccount/snippets/provider_list.html" with process="connect" next="/dashboard/import/" %}
+                      </ul>
                     </div>
-
                   {% endif %}
                 </li>
               </ul>
@@ -163,7 +145,7 @@ $(document).ready(function() {
                           data-bind="attr: {href: url}"
                           class="remote-repo-view"
                           title="{% trans "This repository has already been imported" %}">
-                        <span>{% trans "View" %}</span>
+                        <span>{% blocktrans context "verb, action to see in detail" %}"View"{% endblocktrans %}</span>
                       </a>
                     </li>
                     <li data-bind="visible: !match() && !is_locked()" style="display: none;">

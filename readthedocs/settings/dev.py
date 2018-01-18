@@ -29,9 +29,11 @@ class CommunityDevSettings(CommunityBaseSettings):
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
     SLUMBER_API_HOST = 'http://localhost:8000'
+    PUBLIC_API_URL = 'http://localhost:8000'
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
 
     HAYSTACK_CONNECTIONS = {
@@ -42,8 +44,6 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
-
-    NGINX_X_ACCEL_REDIRECT = True
 
     # For testing locally. Put this in your /etc/hosts:
     # 127.0.0.1 test

@@ -20,6 +20,21 @@ You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
+Help, my build passed but my documentation page is 404 Not Found!
+-----------------------------------------------------------------
+
+This often happens becuase you don't have an `index.html` file being generated.
+Make sure you have one of the following files:
+
+    * `index.rst`
+    * `index.md`
+
+At the top level of your built documentation,
+otherwise we aren't able to serve a "default" index page.
+
+To test if your docs actually built correctly,
+you can navigate to a specific page (`/en/latest/README.html` for example).
+
 How do I change behavior for Read the Docs?
 -------------------------------------------
 
@@ -94,7 +109,7 @@ following settings::
 Deleting a stale or broken build environment
 --------------------------------------------
 
-If you're having trouble getting your version to build, try wiping out the existing build/environment files.  On your version list page ``/projects/[project]/versions`` there is a "Wipe" button that will remove all of the files associated with your documentation build, but not the documentation itself.
+See :doc:`guides/wipe-environment`.
 
 How do I host multiple projects on one CNAME?
 ---------------------------------------------
@@ -104,7 +119,7 @@ If you add a subproject to a project,
 that documentation will also be served under the parent project's subdomain.
 
 For example,
-Kombu is a subproject of celery,
+Kombu is a subproject of Celery,
 so you can access it on the `celery.readthedocs.io` domain:
 
 http://celery.readthedocs.io/projects/kombu/en/latest/
