@@ -152,10 +152,12 @@ class ResolverBase(TestCase):
             self.owner = create_user(username='owner', password='test')
             self.tester = create_user(username='tester', password='test')
             self.pip = fixture.get(Project, slug='pip', users=[self.owner], main_language_project=None)
-            self.subproject = fixture.get(Project, slug='sub', language='ja', users=[
-                                  self.owner], main_language_project=None)
-            self.translation = fixture.get(Project, slug='trans', language='ja', users=[
-                                   self.owner], main_language_project=None)
+            self.subproject = fixture.get(Project, slug='sub', language='ja',
+                                          users=[ self.owner],
+                                          main_language_project=None)
+            self.translation = fixture.get(Project, slug='trans', language='ja',
+                                           users=[ self.owner],
+                                           main_language_project=None)
             self.pip.add_subproject(self.subproject)
             self.pip.translations.add(self.translation)
 
