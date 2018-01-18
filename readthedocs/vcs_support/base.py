@@ -37,7 +37,7 @@ class BaseVCS(object):
     """
     Base for VCS Classes.
 
-    VCS commands are ran inside a ``LocalEnvironment``.
+    VCS commands are ran inside a ``LocalBuildEnvironment``.
     """
 
     supports_tags = False  # Whether this VCS supports tags or not.
@@ -55,21 +55,8 @@ class BaseVCS(object):
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
 
-        if environment:
-            self.environment = environment
-        else:
-            from readthedocs.doc_builder.environments import LocalEnvironment
-
-            try:
-                # TODO: it's supposed that we will always have the `latest`
-                # version on a Project since it's created at the Project.save()
-                # method, but there are a couple of tests that have inconsistent
-                # data
-                version = project.versions.get(slug=version_slug)
-                self.environment = LocalEnvironment(
-                    project, version, record=False, update_on_success=False)
-            except Exception:
-                log.exception('Project has no version: %s', version_slug)
+        from readthedocs.doc_builder.environments import LocalEnvironment
+        self.environment = environment or LocalEnvironment(project)
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):

@@ -45,8 +45,8 @@ from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.doc_builder.environments import (LocalEnvironment,
-                                                  DockerEnvironment)
+from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
+                                                  DockerBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
@@ -186,7 +186,7 @@ class UpdateDocsTask(Task):
 
         Return True if successful.
         """
-        self.setup_env = LocalEnvironment(
+        self.setup_env = LocalBuildEnvironment(
             project=self.project,
             version=self.version,
             build=self.build,
@@ -241,9 +241,9 @@ class UpdateDocsTask(Task):
         env_vars = self.get_env_vars()
 
         if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
+            env_cls = DockerBuildEnvironment
         else:
-            env_cls = LocalEnvironment
+            env_cls = LocalBuildEnvironment
         self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
                                  build=self.build, record=record, environment=env_vars)
 

@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 __all__ = (
     'api_v2',
     'BuildCommand', 'DockerBuildCommand',
-    'BuildEnvironment', 'LocalEnvironment', 'DockerEnvironment',
+    'BuildEnvironment', 'LocalBuildEnvironment', 'DockerBuildEnvironment',
 )
 
 
@@ -268,7 +268,65 @@ class DockerBuildCommand(BuildCommand):
                                    for part in self.command]))))
 
 
-class BuildEnvironment(object):
+class BaseEnvironment(object):
+
+    # TODO: BuildCommand name doesn't make sense here, should be just Command
+    command_class = BuildCommand
+
+    def __init__(self, project=None):
+        # TODO: maybe we can remove this Project dependency also
+        self.project = project
+
+    def record_command(self, command):
+        pass
+
+    def run(self, *cmd, **kwargs):
+        """Shortcut to run command from environment."""
+        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+
+    def run_command_class(self, cls, cmd, warn_only=False, **kwargs):
+        """
+        Run command from this environment.
+
+        Use ``cls`` to instantiate a command
+
+        :param warn_only: Don't raise an exception on command failure
+        """
+        # Remove PATH from env, and set it to bin_path if it isn't passed in
+        env_path = self.environment.pop('BIN_PATH', None)
+        if 'bin_path' not in kwargs and env_path:
+            kwargs['bin_path'] = env_path
+        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        kwargs['environment'] = self.environment
+
+        # TODO: ``build_env`` is passed as ``kwargs`` when it's called from a ``*BuildEnvironment``
+        # kwargs['build_env'] = self
+
+        build_cmd = cls(cmd, **kwargs)
+        self.commands.append(build_cmd)
+        build_cmd.run()
+
+        # TODO: I don't like how it's handled this entry point here
+        self.record_command(build_cmd)
+
+        if build_cmd.failed:
+            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
+
+            if build_cmd.output:
+                msg += u':\n{out}'.format(out=build_cmd.output)
+
+            if warn_only:
+                # TODO: remove version dependency to log here
+                log.warning(LOG_TEMPLATE
+                            .format(project=self.project.slug,
+                                    version=self.version.slug,
+                                    msg=msg))
+            else:
+                raise BuildEnvironmentWarning(msg)
+        return build_cmd
+
+
+class BuildEnvironment(BaseEnvironment):
 
     """
     Base build environment.
@@ -349,47 +407,17 @@ class BuildEnvironment(object):
             return True
 
     def run(self, *cmd, **kwargs):
-        """Shortcut to run command from environment."""
-        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+        kwargs.update({
+            'build_env': self,
+        })
+        return super(BuildEnvironment, self).run(*cmd, **kwargs)
 
-    def run_command_class(self, cls, cmd, **kwargs):
-        """
-        Run command from this environment.
+    def run_command_class(self, *cmd, **kwargs):
+        kwargs.update({
+            'build_env': self,
+        })
+        return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
 
-        Use ``cls`` to instantiate a command
-
-        :param warn_only: Don't raise an exception on command failure
-        """
-        warn_only = kwargs.pop('warn_only', False)
-        # Remove PATH from env, and set it to bin_path if it isn't passed in
-        env_path = self.environment.pop('BIN_PATH', None)
-        if 'bin_path' not in kwargs and env_path:
-            kwargs['bin_path'] = env_path
-        assert 'environment' not in kwargs, "environment can't be passed in via commands."
-        kwargs['environment'] = self.environment
-        kwargs['build_env'] = self
-        build_cmd = cls(cmd, **kwargs)
-        self.commands.append(build_cmd)
-        build_cmd.run()
-
-        # Save to database
-        if self.record:
-            build_cmd.save()
-
-        if build_cmd.failed:
-            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
-
-            if build_cmd.output:
-                msg += u':\n{out}'.format(out=build_cmd.output)
-
-            if warn_only:
-                log.warning(LOG_TEMPLATE
-                            .format(project=self.project.slug,
-                                    version=self.version.slug,
-                                    msg=msg))
-            else:
-                raise BuildEnvironmentWarning(msg)
-        return build_cmd
 
     @property
     def successful(self):
@@ -497,14 +525,14 @@ class BuildEnvironment(object):
                 log.exception("Unknown build exception")
 
 
-class LocalEnvironment(BuildEnvironment):
+class LocalBuildEnvironment(BuildEnvironment):
 
     """Local execution environment."""
 
     command_class = BuildCommand
 
 
-class DockerEnvironment(BuildEnvironment):
+class DockerBuildEnvironment(BuildEnvironment):
 
     """
     Docker build environment, uses docker to contain builds.
@@ -527,7 +555,7 @@ class DockerEnvironment(BuildEnvironment):
 
     def __init__(self, *args, **kwargs):
         self.docker_socket = kwargs.pop('docker_socket', DOCKER_SOCKET)
-        super(DockerEnvironment, self).__init__(*args, **kwargs)
+        super(DockerBuildEnvironment, self).__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = slugify(
