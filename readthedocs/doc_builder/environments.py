@@ -270,9 +270,10 @@ class DockerBuildCommand(BuildCommand):
 
 class BaseEnvironment(object):
 
-    def __init__(self, project=None):
+    def __init__(self, project, environment=None):
         # TODO: maybe we can remove this Project dependency also
         self.project = project
+        self.environment = environment or {}
 
     def record_command(self, command):
         pass
