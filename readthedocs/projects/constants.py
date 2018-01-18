@@ -299,8 +299,7 @@ GITHUB_REGEXS = [
 BITBUCKET_REGEXS = [
     re.compile('bitbucket.org/(.+)/(.+)\.git$'),
     re.compile('@bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile('bitbucket.org/(.+)/(.+)/'),
-    re.compile('bitbucket.org/(.+)/(.+)'),
+    re.compile('bitbucket.org/(.+)/(.+)/?'),
     re.compile('bitbucket.org:(.+)/(.+)\.git$'),
 ]
 GITLAB_REGEXS = [
