@@ -306,7 +306,16 @@ class BaseEnvironment(object):
         build_cmd.run()
 
         # TODO: I don't like how it's handled this entry point here
-        self.record_command(build_cmd)
+        if not warn_only:
+            # TODO: maybe receive ``record`` as an attribute for skip/record
+            # just specific commands but not all of them ran under the
+            # *BuildEnvironment
+
+            # TODO: do we want to save commands that FAILED but not raised and
+            # exception?  This will cause the first `git status` (when
+            # importing) to fail and be marked with RED in the Build command
+            # details
+            self.record_command(build_cmd)
 
         if build_cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
