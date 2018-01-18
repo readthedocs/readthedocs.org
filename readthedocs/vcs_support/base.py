@@ -67,6 +67,10 @@ class BaseVCS(object):
         shutil.rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
+    @property
+    def env(self):
+        return os.environ.copy()
+
     def update(self):
         """
         Update a local copy of the repository in self.working_dir.
