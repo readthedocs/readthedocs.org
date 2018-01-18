@@ -56,8 +56,10 @@ class BaseVCS(object):
         self.working_dir = project.checkout_path(version_slug)
 
         from readthedocs.doc_builder.environments import LocalEnvironment
-        self.environment = environment or LocalEnvironment(
-            project, environment=self.env)
+        self.environment = environment or LocalEnvironment(project)
+
+        # Update the env variables with the proper VCS env variables
+        self.environment.environment.update(self.env)
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -70,7 +72,12 @@ class BaseVCS(object):
 
     @property
     def env(self):
-        return os.environ.copy()
+        environment = os.environ.copy()
+
+        # TODO: kind of a hack
+        del environment['PATH']
+
+        return environment
 
     def update(self):
         """
