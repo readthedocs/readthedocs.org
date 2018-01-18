@@ -1,12 +1,11 @@
+# -*- coding: utf-8 -*-
+
 """Base classes for VCS backends."""
 from __future__ import absolute_import
 from builtins import object
 import logging
 import os
 import shutil
-import subprocess
-from collections import namedtuple
-from os.path import basename
 
 
 log = logging.getLogger(__name__)
@@ -33,60 +32,12 @@ class VCSVersion(object):
                                        self.verbose_name)
 
 
-class VCSProject(namedtuple("VCSProject",
-                            "name default_branch working_dir repo_url")):
-
-    """Transient object to encapsulate a projects stuff"""
-
-    pass
-
-
-class BaseCLI(object):
-
-    """Helper class for CLI-heavy classes."""
-
-    log_tmpl = u'VCS[{name}:{ident}]: {args}'
-
-    def __call__(self, *args):
-        return self.run(args)
-
-    def run(self, *args):
-        """:param bits: list of command and args. See `subprocess` docs"""
-        process = subprocess.Popen(args, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE,
-                                   cwd=self.working_dir, shell=False,
-                                   env=self.env)
-        try:
-            log.info(self.log_tmpl.format(ident=basename(self.working_dir),
-                                          name=self.name,
-                                          args=' '.join(args)))
-        except UnicodeDecodeError:
-            # >:x
-            pass
-        stdout, stderr = process.communicate()
-        try:
-            log.info(self.log_tmpl.format(ident=basename(self.working_dir),
-                                          name=self.name,
-                                          args=stdout))
-        except UnicodeDecodeError:
-            # >:x
-            pass
-        return (
-            process.returncode,
-            stdout.decode('utf-8'),
-            stderr.decode('utf-8'))
-
-    @property
-    def env(self):
-        return os.environ.copy()
-
-
-class BaseVCS(BaseCLI):
+class BaseVCS(object):
 
     """
     Base for VCS Classes.
 
-    Built on top of the BaseCLI.
+    VCS commands are ran inside a ``LocalEnvironment``.
     """
 
     supports_tags = False  # Whether this VCS supports tags or not.
@@ -98,11 +49,27 @@ class BaseVCS(BaseCLI):
 
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
-    def __init__(self, project, version, **kwargs):
+    def __init__(self, project, version_slug, environment=None, **kwargs):
         self.default_branch = project.default_branch
         self.name = project.name
-        self.repo_url = project.repo_url
-        self.working_dir = project.working_dir
+        self.repo_url = project.clean_repo
+        self.working_dir = project.checkout_path(version_slug)
+
+        if environment:
+            self.environment = environment
+        else:
+            from readthedocs.doc_builder.environments import LocalEnvironment
+
+            try:
+                # TODO: it's supposed that we will always have the `latest`
+                # version on a Project since it's created at the Project.save()
+                # method, but there are a couple of tests that have inconsistent
+                # data
+                version = project.versions.get(slug=version_slug)
+                self.environment = LocalEnvironment(
+                    project, version, record=False, update_on_success=False)
+            except Exception:
+                log.exception('Project has no version: %s', version_slug)
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -121,6 +88,16 @@ class BaseVCS(BaseCLI):
         update the repository, else create a new local copy of the repository.
         """
         self.check_working_dir()
+
+    def run(self, *cmd, **kwargs):
+        kwargs.update({
+            'cwd': self.working_dir,
+            'shell': False,
+        })
+
+        build_cmd = self.environment.run(*cmd, **kwargs)
+        # Return a tuple to keep compatibility
+        return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
 
     # =========================================================================
     # Tag / Branch related methods

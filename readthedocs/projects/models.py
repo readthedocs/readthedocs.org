@@ -33,7 +33,6 @@ from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
-from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 log = logging.getLogger(__name__)
@@ -605,14 +604,25 @@ class Project(models.Model):
     def sponsored(self):
         return False
 
-    def vcs_repo(self, version=LATEST):
+    def vcs_repo(self, version=LATEST, environment=None):
+        """
+        Return a Backend object for this project able to handle VCS commands.
+
+        :param environment: environment to run the commands
+        :type environment: doc_builder.environments.BuildEnvironment
+        :param version: version slug for the backend (``LATEST`` by default)
+        :type version: str
+        """
+
+        # TODO: this seems to be the only method that receives a
+        # ``version.slug`` instead of a ``Version`` instance (I prefer an
+        # instance here)
+
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
         else:
-            proj = VCSProject(
-                self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
-            repo = backend(proj, version)
+            repo = backend(self, version, environment)
         return repo
 
     def repo_nonblockinglock(self, version, max_lock_age=5):

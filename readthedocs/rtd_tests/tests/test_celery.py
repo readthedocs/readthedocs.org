@@ -64,7 +64,7 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
     def test_update_docs(self):
@@ -79,7 +79,7 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs')
@@ -97,7 +97,7 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs')

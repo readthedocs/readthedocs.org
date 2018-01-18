@@ -68,22 +68,16 @@ class UpdateDocsTask(Task):
     """
     The main entry point for updating documentation.
 
-    It handles all of the logic around whether a project is imported or we
-    created it.  Then it will build the html docs and other requested parts.
-
-    `pk`
-        Primary key of the project to update
-
-    `record`
-        Whether or not to keep a record of the update in the database. Useful
-        for preventing changes visible to the end-user when running commands
-        from the shell, for example.
+    It handles all of the logic around whether a project is imported, we created
+    it or a webhook is received. Then it will sync the repository and build the
+    html docs if needed.
     """
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.update_docs'
 
+    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
@@ -114,7 +108,7 @@ class UpdateDocsTask(Task):
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
         """
-        Run a documentation build.
+        Run a documentation sync or sync n' build.
 
         This is fully wrapped in exception handling to account for a number of
         failure cases. We first run a few commands in a local build environment,
@@ -129,15 +123,16 @@ class UpdateDocsTask(Task):
         the user to bug us. It is therefore a benefit to have as few unhandled
         errors as possible.
 
+
         :param pk int: Project id
-        :param version_pk int: Project Version id
-        :param build_pk int: Build id
+        :param version_pk int: Project Version id (latest if None)
+        :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project
         :param search bool: update search
         :param force bool: force Sphinx build
-        :param localmedia: update localmedia
-        :returns: if build was successful or not
+        :param localmedia bool: update localmedia
+        :returns: whether build was successful or not
         :rtype: bool
         """
         try:
@@ -267,7 +262,7 @@ class UpdateDocsTask(Task):
                                              config=self.config)
 
             try:
-                self.setup_environment()
+                self.setup_python_environment()
 
                 # TODO the build object should have an idea of these states, extend
                 # the model to include an idea of these outcomes
@@ -335,10 +330,73 @@ class UpdateDocsTask(Task):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         self._log(msg='Updating docs from VCS')
-        update_imported_docs(self.version.pk, self.setup_env)
+        self.sync_repo()
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
+
+    def sync_repo(self):
+        """
+        Checkout/update the project's repository and hit ``sync_versions`` API.
+        """
+        # Make Dirs
+        if not os.path.exists(self.project.doc_path):
+            os.makedirs(self.project.doc_path)
+
+        if not self.project.vcs_repo():
+            raise RepositoryError(
+                _('Repository type "{repo_type}" unknown').format(
+                    repo_type=self.project.repo_type,
+                ),
+            )
+
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            # Get the actual code on disk
+            try:
+                before_vcs.send(sender=self.version)
+                self._log(
+                    'Checking out version {slug}: {identifier}'.format(
+                        slug=self.version.slug,
+                        identifier=self.version.identifier,
+                    ),
+                )
+                version_repo = self.project.vcs_repo(
+                    self.version.slug,
+                    self.setup_env,
+                )
+                version_repo.checkout(self.version.identifier)
+            finally:
+                after_vcs.send(sender=self.version)
+
+            # Update tags/version
+            version_post_data = {'repo': version_repo.repo_url}
+
+            if version_repo.supports_tags:
+                version_post_data['tags'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.tags
+                ]
+
+            if version_repo.supports_branches:
+                version_post_data['branches'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.branches
+                ]
+
+            try:
+                # Hit the API ``sync_versions`` which may trigger a new build
+                # for the stable version
+                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
+            except HttpClientError:
+                log.exception('Sync Versions Exception')
+            except Exception:
+                log.exception('Unknown Sync Versions Exception')
+
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
@@ -420,7 +478,7 @@ class UpdateDocsTask(Task):
             callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
         )
 
-    def setup_environment(self):
+    def setup_python_environment(self):
         """
         Build the virtualenv and install the project into it.
 
