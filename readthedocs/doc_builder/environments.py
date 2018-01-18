@@ -274,6 +274,7 @@ class BaseEnvironment(object):
         # TODO: maybe we can remove this Project dependency also
         self.project = project
         self.environment = environment or {}
+        self.commands = []
 
     def record_command(self, command):
         pass
@@ -373,7 +374,9 @@ class BuildEnvironment(BaseEnvironment):
         self.environment = environment or {}
         self.update_on_success = update_on_success
 
+        # TODO: remove this one, comes from super
         self.commands = []
+
         self.failure = None
         self.start_time = datetime.utcnow()
 
@@ -409,6 +412,10 @@ class BuildEnvironment(BaseEnvironment):
             if not issubclass(exc_type, BuildEnvironmentWarning):
                 self.failure = exc_value
             return True
+
+    def record_command(self, command):
+        if self.record:
+            command.save()
 
     def run(self, *cmd, **kwargs):
         kwargs.update({
