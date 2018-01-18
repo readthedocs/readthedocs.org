@@ -60,37 +60,23 @@ class Backend(BaseVCS):
         if code != 0:
             raise RepositoryError
 
-    def checkout_revision(self, revision=None, env=None):
+    def checkout_revision(self, revision=None):
         if not revision:
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        if env:
-            build_cmd = env.run(
-                'git', 'checkout',
-                '--force', '--quiet', revision,
-                cwd=self.working_dir,
-            )
-            code, out, err = build_cmd.exit_code, build_cmd.output, build_cmd.error
-        else:
-            code, out, err = self.run('git', 'checkout',
-                                      '--force', '--quiet', revision)
+        command = self.run('git', 'checkout',
+                           '--force', '--quiet', revision)
+        code, out, err = command.exit_code, command.output, command.error
         if code != 0:
             log.warning("Failed to checkout revision '%s': %s",
                         revision, code)
         return [code, out, err]
 
-    def clone(self, env=None):
-        if env:
-            build_cmd = env.run(
-                'git', 'clone', '--recursive', '--quiet',
-                self.repo_url, '.',
-                cwd=self.working_dir,
-            )
-            code, out, err = build_cmd.exit_code, build_cmd.output, build_cmd.error
-        else:
-            code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
-                                  self.repo_url, '.')
+    def clone(self):
+        command = self.run('git', 'clone', '--recursive', '--quiet',
+                           self.repo_url, '.')
+        code, _, _ = command.exit_code, command.output, command.error
         if code != 0:
             raise RepositoryError
 
@@ -177,7 +163,7 @@ class Backend(BaseVCS):
         _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
         return stdout.strip()
 
-    def checkout(self, identifier=None, env=None):
+    def checkout(self, identifier=None):
         self.check_working_dir()
 
         # Clone or update repository
@@ -186,7 +172,7 @@ class Backend(BaseVCS):
             self.fetch()
         else:
             self.make_clean_working_dir()
-            self.clone(env)
+            self.clone()
 
         # Find proper identifier
         if not identifier:
@@ -195,7 +181,7 @@ class Backend(BaseVCS):
         identifier = self.find_ref(identifier)
 
         # Checkout the correct identifier for this branch.
-        code, out, err = self.checkout_revision(identifier, env)
+        code, out, err = self.checkout_revision(identifier)
         if code != 0:
             return code, out, err
 

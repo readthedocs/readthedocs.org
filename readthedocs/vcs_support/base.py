@@ -80,6 +80,7 @@ class BaseVCS(object):
         kwargs.update({
             'cwd': self.working_dir,
             'shell': False,
+            'environment': self.env,
         })
 
         build_cmd = self.environment.run(*cmd, **kwargs)
