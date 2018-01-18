@@ -270,9 +270,6 @@ class DockerBuildCommand(BuildCommand):
 
 class BaseEnvironment(object):
 
-    # TODO: BuildCommand name doesn't make sense here, should be just Command
-    command_class = BuildCommand
-
     def __init__(self, project=None):
         # TODO: maybe we can remove this Project dependency also
         self.project = project
@@ -324,6 +321,12 @@ class BaseEnvironment(object):
             else:
                 raise BuildEnvironmentWarning(msg)
         return build_cmd
+
+
+class LocalEnvironment(BaseEnvironment):
+
+    # TODO: BuildCommand name doesn't make sense here, should be just Command
+    command_class = BuildCommand
 
 
 class BuildEnvironment(BaseEnvironment):
