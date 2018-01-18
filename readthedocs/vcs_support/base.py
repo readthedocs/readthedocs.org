@@ -56,7 +56,8 @@ class BaseVCS(object):
         self.working_dir = project.checkout_path(version_slug)
 
         from readthedocs.doc_builder.environments import LocalEnvironment
-        self.environment = environment or LocalEnvironment(project)
+        self.environment = environment or LocalEnvironment(
+            project, environment=self.env)
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -84,7 +85,6 @@ class BaseVCS(object):
         kwargs.update({
             'cwd': self.working_dir,
             'shell': False,
-            'environment': self.env,
         })
 
         build_cmd = self.environment.run(*cmd, **kwargs)
