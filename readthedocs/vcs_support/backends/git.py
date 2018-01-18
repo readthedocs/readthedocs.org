@@ -52,7 +52,7 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, _, _ = self.run('git', 'status')
+        code, _, _ = self.run('git', 'status', warn_only=True)
         return code == 0
 
     def fetch(self):
@@ -65,18 +65,16 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        command = self.run('git', 'checkout',
+        code, out, err = self.run('git', 'checkout',
                            '--force', '--quiet', revision)
-        code, out, err = command.exit_code, command.output, command.error
         if code != 0:
             log.warning("Failed to checkout revision '%s': %s",
                         revision, code)
         return [code, out, err]
 
     def clone(self):
-        command = self.run('git', 'clone', '--recursive', '--quiet',
+        code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
                            self.repo_url, '.')
-        code, _, _ = command.exit_code, command.output, command.error
         if code != 0:
             raise RepositoryError
 
