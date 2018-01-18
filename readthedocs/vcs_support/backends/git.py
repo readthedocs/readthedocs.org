@@ -80,7 +80,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', warn_only=True)
         # error (or no tags found)
         if retcode != 0:
             return []

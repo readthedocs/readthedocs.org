@@ -37,7 +37,7 @@ class BaseVCS(object):
     """
     Base for VCS Classes.
 
-    VCS commands are ran inside a ``LocalBuildEnvironment``.
+    VCS commands are ran inside a ``LocalEnvironment``.
     """
 
     supports_tags = False  # Whether this VCS supports tags or not.

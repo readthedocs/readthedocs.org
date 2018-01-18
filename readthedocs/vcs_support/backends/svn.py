@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Subversion-related utilities."""
 
 from __future__ import absolute_import
@@ -33,7 +34,7 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
-        retcode = self.run('svn', 'info')[0]
+        retcode = self.run('svn', 'info', warn_only=True)[0]
         if retcode == 0:
             self.up()
         else:
@@ -56,7 +57,7 @@ class Backend(BaseVCS):
             url = self.base_url + identifier
         else:
             url = self.repo_url
-        retcode, out, err = self.run('svn', 'checkout', '--quiet', url, '.')
+        retcode, out, err = self.run('svn', 'checkout', url, '.')
         if retcode != 0:
             raise RepositoryError
         return retcode, out, err
@@ -64,7 +65,7 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         retcode, stdout = self.run('svn', 'list', '%s/tags/'
-                                   % self.base_url)[:2]
+                                   % self.base_url, warn_only=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -98,7 +99,7 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        retcode = self.run('svn', 'info')[0]
+        retcode = self.run('svn', 'info', warn_only=True)[0]
         if retcode == 0:
             result = self.up()
         else:

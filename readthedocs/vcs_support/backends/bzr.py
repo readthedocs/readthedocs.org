@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Bazaar-related utilities."""
 
 from __future__ import absolute_import
@@ -21,7 +22,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        retcode = self.run('bzr', 'status')[0]
+        retcode = self.run('bzr', 'status', warn_only=True)[0]
         if retcode == 0:
             self.up()
         else:
@@ -44,7 +45,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('bzr', 'tags')[:2]
+        retcode, stdout = self.run('bzr', 'tags', warn_only=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []

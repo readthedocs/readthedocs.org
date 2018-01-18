@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Mercurial-related utilities."""
 from __future__ import absolute_import
 from readthedocs.projects.exceptions import RepositoryError
@@ -14,7 +15,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        retcode = self.run('hg', 'status')[0]
+        retcode = self.run('hg', 'status', warn_only=True)[0]
         if retcode == 0:
             return self.pull()
         return self.clone()
@@ -23,7 +24,7 @@ class Backend(BaseVCS):
         (pull_retcode, _, _) = self.run('hg', 'pull')
         if pull_retcode != 0:
             raise RepositoryError
-        (update_retcode, stdout, stderr) = self.run('hg', 'update', '-C')
+        (update_retcode, stdout, stderr) = self.run('hg', 'update', '--clean')
         if update_retcode != 0:
             raise RepositoryError
         return (update_retcode, stdout, stderr)
@@ -37,7 +38,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', '-q')[:2]
+        retcode, stdout = self.run('hg', 'branches', warn_only=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -50,7 +51,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('hg', 'tags')[:2]
+        retcode, stdout = self.run('hg', 'tags', warn_only=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -86,16 +87,16 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout = self.run('hg', 'id', '-i')[:2]
+        _, stdout = self.run('hg', 'identify', '--id')[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         if not identifier:
             identifier = 'tip'
-        retcode = self.run('hg', 'status')[0]
+        retcode = self.run('hg', 'status', warn_only=True)[0]
         if retcode == 0:
             self.run('hg', 'pull')
-            return self.run('hg', 'update', '-C', identifier)
-        self.clone()
-        return self.run('hg', 'update', '-C', identifier)
+        else:
+            self.clone()
+        return self.run('hg', 'update', '--clean', identifier)
