@@ -471,6 +471,7 @@ class UpdateDocsTask(Task):
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
+            outcomes['linguist'] = self.build_linguist_breakdown()
 
         after_build.send(sender=self.version)
         return outcomes
@@ -530,6 +531,14 @@ class UpdateDocsTask(Task):
                 not self.project.is_type_sphinx):
             return False
         return self.build_docs_class('sphinx_epub')
+
+    def build_linguist_breakdown(self):
+        """Build Linguist programming language breakdown"""
+        if not self.version or self.version.slug != LATEST:
+            # Only run linguist on the "latest" build
+            # We only care about the latest programming language breakdown
+            return False
+        return self.build_docs_class('linguist')
 
     def build_docs_class(self, builder_class):
         """

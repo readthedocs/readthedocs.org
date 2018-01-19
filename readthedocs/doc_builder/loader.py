@@ -4,6 +4,8 @@ from importlib import import_module
 
 from django.conf import settings
 
+from .backends import linguist
+
 # Managers
 mkdocs = import_module(
     getattr(settings, 'MKDOCS_BACKEND',
@@ -25,6 +27,8 @@ BUILDER_BY_NAME = {
     # Other markup
     'mkdocs': mkdocs.MkdocsHTML,
     'mkdocs_json': mkdocs.MkdocsJSON,
+    # Linguist programming language breakdown
+    'linguist': linguist.LinguistBuilder,
 }
 
 
