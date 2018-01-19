@@ -117,5 +117,9 @@ class TestCeleryBuilding(RTDTestCase):
 
     def test_update_imported_doc(self):
         with mock_api(self.repo):
-            result = tasks.update_imported_docs.delay(self.project.pk)
+            update_docs = tasks.UpdateDocsTask()
+            result = update_docs.apply_async(
+                args=(self.project.pk,),
+                kwargs={'sync_only': True},
+            )
         self.assertTrue(result.successful())

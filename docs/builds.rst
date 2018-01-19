@@ -75,7 +75,7 @@ An example in code:
 
 .. code-block:: python
 
-    update_imported_docs(version)
+    update_docs_from_vcs(version)
     if exists('setup.py'):
         run('python setup.py install')
     if project.requirements_file:

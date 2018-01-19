@@ -19,6 +19,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if args:
             for slug in args:
-                tasks.update_imported_docs(
-                    utils.version_from_slug(slug, LATEST).pk
+                version = utils.version_from_slug(slug, LATEST)
+                tasks.UpdateDocsTask().run(
+                    version.project,
+                    version.pk,
+                    sync_only=True,
                 )

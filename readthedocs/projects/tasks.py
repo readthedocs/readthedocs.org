@@ -106,7 +106,8 @@ class UpdateDocsTask(Task):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=False, search=True, force=False, localmedia=True, **__):
+            docker=False, search=True, force=False, localmedia=True,
+            sync_only=False, **__):
         """
         Run a documentation sync or sync n' build.
 
@@ -144,9 +145,15 @@ class UpdateDocsTask(Task):
             self.build_force = force
             self.config = None
 
+            if sync_only:
+                self.sync_repo()
+                return True
+
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
+
+
         # Catch unhandled errors in the setup step
         except Exception as e:  # noqa
             log.exception(
@@ -365,7 +372,8 @@ class UpdateDocsTask(Task):
                 )
                 version_repo = self.project.vcs_repo(
                     self.version.slug,
-                    self.setup_env,
+                    # When ``sync_only`` we don't a setup_env
+                    getattr(self, 'setup_env', None),
                 )
                 version_repo.checkout(self.version.identifier)
             finally:
@@ -605,88 +613,6 @@ class UpdateDocsTask(Task):
     def send_notifications(self):
         """Send notifications on build failure."""
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
-
-
-@app.task()
-def update_imported_docs(version_pk, env=None):
-    """
-    Check out or update the given project's repository.
-
-    :param version_pk: Version id to update
-    """
-    version_data = api_v2.version(version_pk).get()
-    version = APIVersion(**version_data)
-    project = version.project
-    ret_dict = {}
-
-    # Make Dirs
-    if not os.path.exists(project.doc_path):
-        os.makedirs(project.doc_path)
-
-    if not project.vcs_repo():
-        raise RepositoryError(
-            _('Repository type "{repo_type}" unknown').format(
-                repo_type=project.repo_type
-            )
-        )
-
-    with project.repo_nonblockinglock(
-            version=version,
-            max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
-        # Get the actual code on disk
-        try:
-            before_vcs.send(sender=version)
-            if version:
-                log.info(
-                    LOG_TEMPLATE.format(
-                        project=project.slug,
-                        version=version.slug,
-                        msg='Checking out version {slug}: {identifier}'.format(
-                            slug=version.slug,
-                            identifier=version.identifier
-                        )
-                    )
-                )
-                version_slug = version.slug
-                version_repo = project.vcs_repo(version_slug)
-
-                ret_dict['checkout'] = version_repo.checkout(version.identifier, env)
-            else:
-                # Does this ever get called?
-                log.info(LOG_TEMPLATE.format(
-                    project=project.slug, version=version.slug, msg='Updating to latest revision'))
-                version_slug = LATEST
-                version_repo = project.vcs_repo(version_slug)
-                ret_dict['checkout'] = version_repo.update()
-        finally:
-            after_vcs.send(sender=version)
-
-        # Update tags/version
-
-        version_post_data = {'repo': version_repo.repo_url}
-
-        if version_repo.supports_tags:
-            version_post_data['tags'] = [
-                {'identifier': v.identifier,
-                 'verbose_name': v.verbose_name,
-                 } for v in version_repo.tags
-            ]
-
-        if version_repo.supports_branches:
-            version_post_data['branches'] = [
-                {'identifier': v.identifier,
-                 'verbose_name': v.verbose_name,
-                 } for v in version_repo.branches
-            ]
-
-        try:
-            api_v2.project(project.pk).sync_versions.post(version_post_data)
-        except HttpClientError:
-            log.exception("Sync Versions Exception")
-        except Exception:
-            log.exception("Unknown Sync Versions Exception")
-    return ret_dict
 
 
 # Web tasks
