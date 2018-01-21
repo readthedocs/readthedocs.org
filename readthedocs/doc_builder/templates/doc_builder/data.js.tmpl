@@ -6,5 +6,8 @@ var doc_slug = "{{ slug }}";
 var page_name = "{{ pagename }}";
 var html_theme = "{{ html_theme }}";
 
-READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
-    0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+// mkdocs_page_input_path isn't available on all pages (e.g. search result)
+if (mkdocs_page_input_path) {
+  READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
+      0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+}
