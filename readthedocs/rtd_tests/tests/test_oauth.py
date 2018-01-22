@@ -6,6 +6,7 @@ import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
@@ -269,6 +270,17 @@ class BitbucketOAuthTests(TestCase):
         repo = self.service.create_repository(
             data, organization=self.org, privacy=self.privacy)
         self.assertIsNone(repo)
+
+    @override_settings(DEFAULT_PRIVACY_LEVEL='private')
+    def test_make_private_project(self):
+        """
+        Test ability to import ``public`` repositories under ``private`` level.
+        """
+        data = self.repo_response_data.copy()
+        data['is_private'] = False
+        repo = self.service.create_repository(
+            data, organization=self.org, privacy=self.privacy)
+        self.assertIsNotNone(repo)
 
     def test_make_organization(self):
         org = self.service.create_organization(self.team_response_data)
