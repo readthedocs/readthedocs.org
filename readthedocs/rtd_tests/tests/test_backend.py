@@ -60,6 +60,7 @@ class TestGitBackend(RTDTestCase):
             a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
             c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
             edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
+            274a5a8c988a804e40da098f59ec6c8f0378fe34 refs/tags/release/foobar
          """
         expected_tags = [
             ('3b32886c8d3cb815df3793b3937b2e91d0fb00f1', '2.0.0'),
@@ -68,6 +69,7 @@ class TestGitBackend(RTDTestCase):
             ('a63a2de628a3ce89034b7d1a5ca5e8159534eef0', '2.1.0.beta2'),
             ('c7fc3d16ed9dc0b19f0d27583ca661a64562d21e', '2.1.0.rc1'),
             ('edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1', '2.1.0.rc2'),
+            ('274a5a8c988a804e40da098f59ec6c8f0378fe34', 'release/foobar'),
         ]
 
         given_ids = [(x.identifier, x.verbose_name) for x in

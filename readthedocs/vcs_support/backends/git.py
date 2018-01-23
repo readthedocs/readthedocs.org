@@ -111,7 +111,7 @@ class Backend(BaseVCS):
             if row == []:
                 continue
             commit_hash, name = row
-            clean_name = name.split('/')[-1]
+            clean_name = name.replace('refs/tags/', '')
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
 
