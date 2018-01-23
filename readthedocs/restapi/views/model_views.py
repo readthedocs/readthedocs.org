@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import logging
 
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators, permissions, viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.renderers import JSONRenderer
@@ -202,6 +203,8 @@ class BuildViewSetBase(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('commit',)
     admin_serializer_class = BuildAdminSerializer
     model = Build
 
