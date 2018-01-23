@@ -4,15 +4,9 @@ Frequently Asked Questions
 My project isn't building with autodoc
 --------------------------------------
 
-First, you should check out the Builds tab of your project. That records all of
-the build attempts that RTD has made to build your project. If you see
-``ImportError`` messages for custom Python modules, you should enable the
-virtualenv feature in the Admin page of your project, which will install your
-project into a virtualenv, and allow you to specify a ``requirements.txt`` file
-for your project.
+First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project.
 
-If you are still seeing errors because of C library dependencies, please see
-the below section about that.
+If you are still seeing errors because of C library dependencies, please see the below section about that.
 
 How do I change my slug (the URL your docs are served at)?
 ----------------------------------------------------------
@@ -63,18 +57,14 @@ environment, and will be set to ``True`` when building on RTD::
     {% endif %}
 
 I get import errors on libraries that depend on C modules
----------------------------------------------------------
+----------------------------------------------------------
 
 .. note::
     Another use case for this is when you have a module with a C extension.
 
-This happens because our build system doesn't have the dependencies for
-building your project. This happens with things like libevent and mysql, and
-other python things that depend on C libraries. We can't support installing
-random C binaries on our system, so there is another way to fix these imports.
+This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-You can mock out the imports for these modules in your ``conf.py`` with the
-following snippet::
+You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
 
     import sys
     from unittest.mock import MagicMock
@@ -89,15 +79,12 @@ following snippet::
 
 Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
 
-.. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier
-   versions install the ``mock`` library from PyPI with (ie ``pip install
-   mock``) and replace the above import::
+.. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
+    from PyPI with (ie ``pip install mock``) and replace the above import::
 
         from mock import Mock as MagicMock
 
-If such libraries are installed via ``setup.py``, you also will need to remove
-all the C-dependent libraries from your ``install_requires`` in the RTD
-environment.
+If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
 `Client Error 401` when building documentation
 ----------------------------------------------
@@ -146,19 +133,12 @@ You can add subprojects in the Admin section for your project.
 Where do I need to put my docs for RTD to find it?
 --------------------------------------------------
 
-Read the Docs will crawl your project looking for a ``conf.py``. Where it finds
-the ``conf.py``, it will run ``sphinx-build`` in that directory. So as long as
-you only have one set of sphinx documentation in your project, it should Just
-Work.
+Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``, it will run ``sphinx-build`` in that directory. So as long as you only have one set of sphinx documentation in your project, it should Just Work.
 
 I want to use the Blue/Default Sphinx theme
 -------------------------------------------
 
-We think that our theme is badass, and better than the default for many
-reasons. Some people don't like change though :), so there is a hack that will
-let you keep using the default theme. If you set the ``html_style`` variable in
-your ``conf.py``, it should default to using the default theme. The value of
-this doesn't matter, and can be set to ``/default.css`` for default behavior.
+We think that our theme is badass, and better than the default for many reasons. Some people don't like change though :), so there is a hack that will let you keep using the default theme. If you set the ``html_style`` variable in your ``conf.py``, it should default to using the default theme. The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
 
 I want to use the Read the Docs theme locally
 ---------------------------------------------
@@ -169,15 +149,12 @@ Simply follow the instructions in the README.
 Image scaling doesn't work in my documentation
 -----------------------------------------------
 
-Image scaling in docutils depends on PIL. PIL is installed in the system that
-RTD runs on. However, if you are using the virtualenv building option, you will
-likely need to include PIL in your requirements for your project.
+Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
 
 I want comments in my docs
 --------------------------
 
-RTD doesn't have explicit support for this. That said, a tool like `Disqus`_
-(and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
+RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
 
 .. _Disqus: http://disqus.com/
 .. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
@@ -242,6 +219,4 @@ file* field.
 What commit of Read the Docs is in production?
 ----------------------------------------------
 
-We deploy readthedocs.org from the `rel` branch in our GitHub repository. You
-can see the latest commits that have been deployed by looking on GitHub:
-https://github.com/rtfd/readthedocs.org/commits/rel
+We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/rtfd/readthedocs.org/commits/rel
