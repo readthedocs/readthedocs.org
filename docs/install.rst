@@ -144,7 +144,7 @@ While the webserver is running, you can build documentation for the latest versi
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
 with the name of any added project::
 
-   python manage.py update_repos pip
+    python manage.py update_repos pip
 
 What's available
 ----------------
