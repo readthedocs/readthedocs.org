@@ -48,9 +48,9 @@ we will generate one for you.
 We will look inside a ``doc`` or ``docs`` directory first,
 and then default to the top-level of your documentation.
 
-Then Mkdocs will build any files with an ``.md`` extension. As MkDocs doesn't
-support automatic PDF generation, Read the Docs cannot create a PDF version of
-your documentation with the *Mkdocs* option.
+Then MkDocs will build any files with a ``.md`` extension.
+As MkDocs doesn't support automatic PDF generation, 
+Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
 
 Understanding what's going on
 -----------------------------
