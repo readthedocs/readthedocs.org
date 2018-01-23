@@ -1,7 +1,7 @@
 .. _installing-read-the-docs:
 
 Installation
-=============
+============
 
 Here is a step by step plan on how to install Read the Docs.
 It will get you to a point of having a local running instance.
