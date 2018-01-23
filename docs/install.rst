@@ -1,10 +1,10 @@
 .. _installing-read-the-docs:
 
 Installation
-============
+=============
 
-Here is a step by step plan on how to install Read the Docs. It will get you to
-a point of having a local running instance.
+Here is a step by step plan on how to install Read the Docs.
+It will get you to a point of having a local running instance.
 
 .. warning::
 
@@ -13,11 +13,11 @@ a point of having a local running instance.
     steps are performed using Python 2.7.
 
 
-First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them.
-Using a virtual environment will make the installation easier, and will help to
-avoid clutter in your system-wide libraries. You will also need Git_ in order
-to clone the repository. If you plan to import Python 3 project to your RTD
-then you'll need to install Python 3 with virtualenv in your system as well.
+First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them. Using a
+virtual environment will make the installation easier, and will help to avoid
+clutter in your system-wide libraries. You will also need Git_ in order to
+clone the repository. If you plan to import Python 3 project to your RTD then you'll
+need to install Python 3 with virtualenv in your system as well.
 
 
 .. _Python 2.7: http://www.python.org/
@@ -78,8 +78,7 @@ then you'll need to install Python 3 with virtualenv in your system as well.
         sudo apt-get install redis-server
 
 
-You will need to verify that your pip version is higher than 1.5 you can do
-this as such::
+You will need to verify that your pip version is higher than 1.5 you can do this as such::
 
     pip --version
 
@@ -141,11 +140,11 @@ you're serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined
 in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
 (By default, it's ``localhost:8000``)
 
-While the webserver is running, you can build documentation for the latest
-version of a project called 'pip' with the ``update_repos`` command.  You can
-replace 'pip' with the name of any added project::
+While the webserver is running, you can build documentation for the latest version of
+a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
+with the name of any added project::
 
-    python manage.py update_repos pip
+   python manage.py update_repos pip
 
 What's available
 ----------------
