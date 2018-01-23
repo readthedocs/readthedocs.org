@@ -299,14 +299,19 @@ class BaseEnvironment(object):
         """Shortcut to run command from environment."""
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
-    def run_command_class(self, cls, cmd, warn_only=False, **kwargs):
+    def run_command_class(self, cls, cmd, record=None, warn_only=False, **kwargs):
         """
         Run command from this environment.
 
-        Use ``cls`` to instantiate a command
-
-        :param warn_only: Don't raise an exception on command failure
+        :param cls: command class to instantiate a command
+        :param cmd: command (as a list) to execute in this environment
+        :param warn_only: don't raise an exception on command failure
+        :param record: whether or not to record this particular command
         """
+        if record is None:
+            # ``self.record`` only exists when called from ``*BuildEnvironment``
+            record = getattr(self, 'record', False)
+
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
@@ -314,23 +319,16 @@ class BaseEnvironment(object):
         assert 'environment' not in kwargs, "environment can't be passed in via commands."
         kwargs['environment'] = self.environment
 
-        # TODO: ``build_env`` is passed as ``kwargs`` when it's called from a ``*BuildEnvironment``
-        # kwargs['build_env'] = self
-
+        # ``build_env`` is passed as ``kwargs`` when it's called from a
+        # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
         self.commands.append(build_cmd)
         build_cmd.run()
 
-        # TODO: I don't like how it's handled this entry point here
-        if not warn_only:
-            # TODO: maybe receive ``record`` as an attribute for skip/record
-            # just specific commands but not all of them ran under the
-            # *BuildEnvironment
-
-            # TODO: do we want to save commands that FAILED but not raised and
-            # exception?  This will cause the first `git status` (when
-            # importing) to fail and be marked with RED in the Build command
-            # details
+        if record and not warn_only:
+            # TODO: I don't like how it's handled this entry point here since
+            # this class should know nothing about a BuildCommand (which are the
+            # only ones that can be saved/recorded)
             self.record_command(build_cmd)
 
         if build_cmd.failed:
