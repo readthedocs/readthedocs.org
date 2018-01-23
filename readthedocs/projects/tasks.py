@@ -63,7 +63,132 @@ log = logging.getLogger(__name__)
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 
-class UpdateDocsTask(Task):
+class SyncRepositoryMixin(object):
+
+    """
+    Mixin that handles the VCS sync/update.
+    """
+
+    @staticmethod
+    def get_version(project=None, version_pk=None):
+        """
+        Retrieve version data from the API.
+
+        :param project: project object to sync
+        :type project: projects.models.Project
+        :param version_pk: version pk to sync
+        :type version_pk: int
+        :returns: a data-complete version object
+        :rtype: builds.models.APIVersion
+        """
+        assert (project or version_pk), 'project or version_pk is needed'
+        if version_pk:
+            version_data = api_v2.version(version_pk).get()
+        else:
+            version_data = (api_v2
+                            .version(project.slug)
+                            .get(slug=LATEST)['objects'][0])
+        return APIVersion(**version_data)
+
+    def sync_repo(self):
+        """
+        Checkout/update the project's repository and hit ``sync_versions`` API.
+        """
+        # Make Dirs
+        if not os.path.exists(self.project.doc_path):
+            os.makedirs(self.project.doc_path)
+
+        if not self.project.vcs_repo():
+            raise RepositoryError(
+                _('Repository type "{repo_type}" unknown').format(
+                    repo_type=self.project.repo_type,
+                ),
+            )
+
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            # Get the actual code on disk
+            try:
+                before_vcs.send(sender=self.version)
+                self._log(
+                    'Checking out version {slug}: {identifier}'.format(
+                        slug=self.version.slug,
+                        identifier=self.version.identifier,
+                    ),
+                )
+                version_repo = self.project.vcs_repo(
+                    self.version.slug,
+                    # When called from ``SyncRepositoryTask.run`` we don't have
+                    # a ``setup_env`` so we use just ``None`` and commands won't
+                    # be recorded
+                    getattr(self, 'setup_env', None),
+                )
+                version_repo.checkout(self.version.identifier)
+            finally:
+                after_vcs.send(sender=self.version)
+
+            # Update tags/version
+            version_post_data = {'repo': version_repo.repo_url}
+
+            if version_repo.supports_tags:
+                version_post_data['tags'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.tags
+                ]
+
+            if version_repo.supports_branches:
+                version_post_data['branches'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.branches
+                ]
+
+            try:
+                # Hit the API ``sync_versions`` which may trigger a new build
+                # for the stable version
+                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
+            except HttpClientError:
+                log.exception('Sync Versions Exception')
+            except Exception:
+                log.exception('Unknown Sync Versions Exception')
+
+
+class SyncRepositoryTask(SyncRepositoryMixin, Task):
+
+    """
+    Entry point to synchronize the VCS documentation.
+    """
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.sync_repository'
+
+    def run(self, version_pk):
+        """
+        Run the VCS synchronization.
+
+        :param version_pk: version pk to sync
+        :type version_pk: int
+        :returns: whether or not the task ended successfully
+        :rtype: bool
+        """
+        try:
+            self.version = self.get_version(version_pk=version_pk)
+            self.project = self.version.project
+            self.sync_repo()
+            return True
+        # Catch unhandled errors when syncing
+        except Exception:
+            log.exception(
+                'An unhandled exception was raised during VCS syncing',
+            )
+            return False
+
+
+class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     """
     The main entry point for updating documentation.
@@ -106,8 +231,7 @@ class UpdateDocsTask(Task):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=False, search=True, force=False, localmedia=True,
-            sync_only=False, **__):
+            docker=False, search=True, force=False, localmedia=True, **__):
         """
         Run a documentation sync or sync n' build.
 
@@ -144,10 +268,6 @@ class UpdateDocsTask(Task):
             self.build_localmedia = localmedia
             self.build_force = force
             self.config = None
-
-            if sync_only:
-                self.sync_repo()
-                return True
 
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
@@ -302,17 +422,6 @@ class UpdateDocsTask(Task):
         return APIProject(**project_data)
 
     @staticmethod
-    def get_version(project, version_pk):
-        """Ensure we're using a sane version."""
-        if version_pk:
-            version_data = api_v2.version(version_pk).get()
-        else:
-            version_data = (api_v2
-                            .version(project.slug)
-                            .get(slug=LATEST)['objects'][0])
-        return APIVersion(**version_data)
-
-    @staticmethod
     def get_build(build_pk):
         """
         Retrieve build object from API.
@@ -341,70 +450,6 @@ class UpdateDocsTask(Task):
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
-
-    def sync_repo(self):
-        """
-        Checkout/update the project's repository and hit ``sync_versions`` API.
-        """
-        # Make Dirs
-        if not os.path.exists(self.project.doc_path):
-            os.makedirs(self.project.doc_path)
-
-        if not self.project.vcs_repo():
-            raise RepositoryError(
-                _('Repository type "{repo_type}" unknown').format(
-                    repo_type=self.project.repo_type,
-                ),
-            )
-
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
-            # Get the actual code on disk
-            try:
-                before_vcs.send(sender=self.version)
-                self._log(
-                    'Checking out version {slug}: {identifier}'.format(
-                        slug=self.version.slug,
-                        identifier=self.version.identifier,
-                    ),
-                )
-                version_repo = self.project.vcs_repo(
-                    self.version.slug,
-                    # When ``sync_only`` we don't a setup_env
-                    getattr(self, 'setup_env', None),
-                )
-                version_repo.checkout(self.version.identifier)
-            finally:
-                after_vcs.send(sender=self.version)
-
-            # Update tags/version
-            version_post_data = {'repo': version_repo.repo_url}
-
-            if version_repo.supports_tags:
-                version_post_data['tags'] = [
-                    {'identifier': v.identifier,
-                     'verbose_name': v.verbose_name,
-                     } for v in version_repo.tags
-                ]
-
-            if version_repo.supports_branches:
-                version_post_data['branches'] = [
-                    {'identifier': v.identifier,
-                     'verbose_name': v.verbose_name,
-                     } for v in version_repo.branches
-                ]
-
-            try:
-                # Hit the API ``sync_versions`` which may trigger a new build
-                # for the stable version
-                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
-            except HttpClientError:
-                log.exception('Sync Versions Exception')
-            except Exception:
-                log.exception('Unknown Sync Versions Exception')
-
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""

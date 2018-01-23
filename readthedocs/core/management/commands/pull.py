@@ -20,8 +20,6 @@ class Command(BaseCommand):
         if args:
             for slug in args:
                 version = utils.version_from_slug(slug, LATEST)
-                tasks.UpdateDocsTask().run(
-                    version.project,
+                tasks.SyncRepositoryTask().run(
                     version.pk,
-                    sync_only=True,
                 )

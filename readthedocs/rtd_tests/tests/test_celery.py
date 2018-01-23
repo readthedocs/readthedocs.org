@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from mock import patch, MagicMock
 
-from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
@@ -115,11 +115,11 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    def test_update_imported_doc(self):
+    def test_sync_repository(self):
+        version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.apply_async(
-                args=(self.project.pk,),
-                kwargs={'sync_only': True},
+            sync_repository = tasks.SyncRepositoryTask()
+            result = sync_repository.apply_async(
+                args=(version.pk,),
             )
         self.assertTrue(result.successful())
