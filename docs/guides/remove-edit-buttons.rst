@@ -10,8 +10,9 @@ new changes.
 The only way to remove these links currently is to override the Read the Docs
 theme templates:
 
-* In your Sphinx project path, add a path called ``_templates``. If you use a
-  different ``templates_path`` option in your ``conf.py``, substitute that path.
+* In your Sphinx project path, create a directory called ``_templates``. If you
+  use a different ``templates_path`` option in your ``conf.py``, substitute that
+  directory name.
 * Create a file in this path called ``breadcrumbs.html``
 
 The new ``breadcrumbs.html`` should look like this::
