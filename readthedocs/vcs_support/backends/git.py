@@ -52,7 +52,7 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, _, _ = self.run('git', 'status', warn_only=True)
+        code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
     def fetch(self):
@@ -80,7 +80,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', warn_only=True)
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', force_success=True)
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -205,7 +205,7 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, _, _ = self.run('git', 'show-ref', ref)
+        code, _, _ = self.run('git', 'show-ref', ref, force_success=True)
         return code == 0
 
     @property

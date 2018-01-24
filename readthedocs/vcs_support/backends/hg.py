@@ -15,7 +15,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super(Backend, self).update()
-        retcode = self.run('hg', 'status', warn_only=True)[0]
+        retcode = self.run('hg', 'status', record=False)[0]
         if retcode == 0:
             return self.pull()
         return self.clone()
@@ -38,7 +38,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', warn_only=True)[:2]
+        retcode, stdout = self.run('hg', 'branches', force_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -51,7 +51,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('hg', 'tags', warn_only=True)[:2]
+        retcode, stdout = self.run('hg', 'tags', force_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -94,7 +94,7 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         if not identifier:
             identifier = 'tip'
-        retcode = self.run('hg', 'status', warn_only=True)[0]
+        retcode = self.run('hg', 'status', record=False)[0]
         if retcode == 0:
             self.run('hg', 'pull')
         else:

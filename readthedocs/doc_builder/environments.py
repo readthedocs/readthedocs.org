@@ -288,7 +288,7 @@ class BaseEnvironment(object):
     def record_command(self, command):
         pass
 
-    def _log_warn_only(self, msg):
+    def _log_warning(self, msg):
         log.warning(LOG_TEMPLATE.format(
             project=self.project.slug,
             version='latest',
@@ -299,18 +299,26 @@ class BaseEnvironment(object):
         """Shortcut to run command from environment."""
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
-    def run_command_class(self, cls, cmd, record=None, warn_only=False, **kwargs):
+    def run_command_class(
+            self, cls, cmd, record=None, warn_only=False, force_success=False,
+            **kwargs):
         """
         Run command from this environment.
 
         :param cls: command class to instantiate a command
         :param cmd: command (as a list) to execute in this environment
-        :param warn_only: don't raise an exception on command failure
         :param record: whether or not to record this particular command
+            (``False`` implies ``warn_only=True``)
+        :param warn_only: don't raise an exception on command failure
+        :param force_success: force command ``exit_code`` to be saved as ``0``
+            (``True`` implies ``warn_only=True``)
         """
         if record is None:
             # ``self.record`` only exists when called from ``*BuildEnvironment``
             record = getattr(self, 'record', False)
+
+        if not record or force_success:
+            warn_only = True
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
@@ -325,20 +333,24 @@ class BaseEnvironment(object):
         self.commands.append(build_cmd)
         build_cmd.run()
 
-        if record and not warn_only:
+        if record:
             # TODO: I don't like how it's handled this entry point here since
             # this class should know nothing about a BuildCommand (which are the
             # only ones that can be saved/recorded)
             self.record_command(build_cmd)
 
         if build_cmd.failed:
+            if force_success:
+                self._log_warning('Forcing command to exit gracefully (exit_code = 0)')
+                build_cmd.exit_code = 0
+
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
 
             if build_cmd.output:
                 msg += u':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
-                self._log_warn_only(msg)
+                self._log_warning(msg)
             else:
                 raise BuildEnvironmentWarning(msg)
         return build_cmd
@@ -436,7 +448,7 @@ class BuildEnvironment(BaseEnvironment):
         if self.record:
             command.save()
 
-    def _log_warn_only(self, msg):
+    def _log_warning(self, msg):
         # :'(
         log.warning(LOG_TEMPLATE.format(
             project=self.project.slug,

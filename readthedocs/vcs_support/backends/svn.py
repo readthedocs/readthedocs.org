@@ -34,7 +34,7 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
-        retcode = self.run('svn', 'info', warn_only=True)[0]
+        retcode = self.run('svn', 'info', force_success=True)[0]
         if retcode == 0:
             self.up()
         else:
@@ -65,7 +65,7 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         retcode, stdout = self.run('svn', 'list', '%s/tags/'
-                                   % self.base_url, warn_only=True)[:2]
+                                   % self.base_url, force_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -99,7 +99,7 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        retcode = self.run('svn', 'info', warn_only=True)[0]
+        retcode = self.run('svn', 'info', record=False)[0]
         if retcode == 0:
             result = self.up()
         else:
