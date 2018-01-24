@@ -148,15 +148,12 @@ class Backend(BaseVCS):
             if branch:
                 branch = branch[0]
                 if branch.startswith('origin/'):
-                    cut_len = len('origin/')
-                    slug = branch[cut_len:].replace('/', '-')
-                    if slug in ['HEAD']:
+                    verbose_name = branch.replace('origin/', '')
+                    if verbose_name in ['HEAD']:
                         continue
-                    clean_branches.append(VCSVersion(self, branch, slug))
+                    clean_branches.append(VCSVersion(self, branch, verbose_name))
                 else:
-                    # Believe this is dead code.
-                    slug = branch.replace('/', '-')
-                    clean_branches.append(VCSVersion(self, branch, slug))
+                    clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
 
     @property

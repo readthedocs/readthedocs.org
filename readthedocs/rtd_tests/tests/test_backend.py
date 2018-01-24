@@ -33,15 +33,17 @@ class TestGitBackend(RTDTestCase):
         origin/HEAD -> origin/master
         origin/master
         origin/release/2.0.0
+        origin/release/foo/bar
         """
 
         expected_ids = [
             ('develop', 'develop'),
             ('master', 'master'),
-            ('release/2.0.0', 'release-2.0.0'),
+            ('release/2.0.0', 'release/2.0.0'),
             ('origin/2.0.X', '2.0.X'),
             ('origin/master', 'master'),
-            ('origin/release/2.0.0', 'release-2.0.0')
+            ('origin/release/2.0.0', 'release/2.0.0'),
+            ('origin/release/foo/bar', 'release/foo/bar'),
         ]
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_branches(data)]
