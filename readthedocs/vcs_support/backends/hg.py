@@ -38,7 +38,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', force_success=True)[:2]
+        retcode, stdout = self.run('hg', 'branches', record_as_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -51,7 +51,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('hg', 'tags', force_success=True)[:2]
+        retcode, stdout = self.run('hg', 'tags', record_as_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []

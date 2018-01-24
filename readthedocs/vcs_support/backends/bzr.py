@@ -45,7 +45,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('bzr', 'tags', force_success=True)[:2]
+        retcode, stdout = self.run('bzr', 'tags', record_as_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
