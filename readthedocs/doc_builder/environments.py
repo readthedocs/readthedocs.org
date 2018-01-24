@@ -73,7 +73,7 @@ class BuildCommand(BuildCommandResultMixin):
 
     def __init__(self, command, cwd=None, shell=False, environment=None,
                  combine_output=True, input_data=None, build_env=None,
-                 bin_path=None, description=None):
+                 bin_path=None, description=None, record_as_success=False):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -96,6 +96,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.description = ''
         if description is not None:
             self.description = description
+        self.record_as_success = record_as_success
         self.exit_code = None
 
     def __str__(self):
@@ -183,12 +184,21 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
+        exit_code = self.exit_code
+
+        # Force record this command as success to avoid Build reporting errors
+        # on commands that are just for checking purposes and do not interferes
+        # in the Build
+        if self.record_as_success:
+            log.warning('Recording command exit_code as success')
+            exit_code = 0
+
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
             'description': self.description,
             'output': self.output,
-            'exit_code': self.exit_code,
+            'exit_code': exit_code,
             'start_time': self.start_time,
             'end_time': self.end_time,
         }
@@ -300,8 +310,8 @@ class BaseEnvironment(object):
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-            self, cls, cmd, record=None, warn_only=False, force_success=False,
-            **kwargs):
+            self, cls, cmd, record=None, warn_only=False,
+            record_as_success=False, **kwargs):
         """
         Run command from this environment.
 
@@ -310,15 +320,21 @@ class BaseEnvironment(object):
         :param record: whether or not to record this particular command
             (``False`` implies ``warn_only=True``)
         :param warn_only: don't raise an exception on command failure
-        :param force_success: force command ``exit_code`` to be saved as ``0``
-            (``True`` implies ``warn_only=True``)
+        :param record_as_success: force command ``exit_code`` to be saved as
+            ``0`` (``True`` implies ``warn_only=True`` and ``record=True``)
         """
         if record is None:
             # ``self.record`` only exists when called from ``*BuildEnvironment``
             record = getattr(self, 'record', False)
 
-        if not record or force_success:
+        if not record:
             warn_only = True
+
+        if record_as_success:
+            record = True
+            warn_only = True
+            # ``record_as_success`` is needed to instantiate the BuildCommand
+            kwargs.update({'record_as_success': record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
@@ -340,10 +356,6 @@ class BaseEnvironment(object):
             self.record_command(build_cmd)
 
         if build_cmd.failed:
-            if force_success:
-                self._log_warning('Forcing command to exit gracefully (exit_code = 0)')
-                build_cmd.exit_code = 0
-
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
 
             if build_cmd.output:
@@ -445,8 +457,7 @@ class BuildEnvironment(BaseEnvironment):
             return True
 
     def record_command(self, command):
-        if self.record:
-            command.save()
+        command.save()
 
     def _log_warning(self, msg):
         # :'(
