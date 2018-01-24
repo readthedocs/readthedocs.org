@@ -3,7 +3,7 @@ pip==9.0.1
 appdirs==1.4.3
 virtualenv==15.1.0
 docutils==0.14
-Sphinx==1.6.5
+Sphinx==1.6.6
 sphinx_rtd_theme==0.2.5b1
 Pygments==2.2.0
 mkdocs==0.17.2
@@ -18,7 +18,7 @@ django-tastypie==0.13.0
 django-haystack==2.6.1
 celery-haystack==0.10
 django-guardian==1.4.9
-django-extensions==1.9.8
+django-extensions==1.9.9
 
 # djangorestframework 3.7.x drops support for django 1.9.x
 djangorestframework==3.6.4
@@ -43,7 +43,7 @@ httplib2==0.10.3
 # Search
 elasticsearch==1.5.0
 pyelasticsearch==0.7.1
-pyquery==1.3.0
+pyquery==1.4.0
 
 # Utils
 django-gravatar2==1.4.2
@@ -69,7 +69,7 @@ django-taggit==0.22.2
 dj-pagination==2.3.2
 
 # Docs
-sphinxcontrib-httpdomain==1.5.0
+sphinxcontrib-httpdomain==1.6.0
 
 # commonmark 0.5.5 is the latest version compatible with our docs, the
 # newer ones make `tox -e docs` to fail
