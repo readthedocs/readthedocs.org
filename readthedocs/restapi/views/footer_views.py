@@ -13,7 +13,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
 
-from readthedocs.builds.constants import LATEST, TAG
+from readthedocs.builds.constants import LATEST, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
@@ -26,7 +26,8 @@ def get_version_compare_data(project, base_version=None):
     Retrieve metadata about the highest version available for this project.
 
     :param base_version: We assert whether or not the base_version is also the
-                         highest version in the resulting "is_highest" value.
+                         highest version in the resulting "is_highest" value
+                         or the stabel version in "is_stable".
     """
     versions_qs = project.versions.public().filter(active=True)
 
@@ -40,10 +41,15 @@ def get_version_compare_data(project, base_version=None):
         'project': six.text_type(highest_version_obj),
         'version': six.text_type(highest_version_comparable),
         'is_highest': True,
+        'is_stable': False,
     }
     if highest_version_obj:
         ret_val['url'] = highest_version_obj.get_absolute_url()
         ret_val['slug'] = (highest_version_obj.slug,)
+    if base_version and base_version.slug == STABLE:
+        ret_val['is_highest'] = False
+        ret_val['is_stable'] = True
+        return ret_val
     if base_version and base_version.slug != LATEST:
         try:
             base_version_comparable = parse_version_failsafe(
