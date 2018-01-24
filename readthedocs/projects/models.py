@@ -613,7 +613,6 @@ class Project(models.Model):
         :param version: version slug for the backend (``LATEST`` by default)
         :type version: str
         """
-
         # TODO: this seems to be the only method that receives a
         # ``version.slug`` instead of a ``Version`` instance (I prefer an
         # instance here)

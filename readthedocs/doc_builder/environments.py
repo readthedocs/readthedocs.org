@@ -473,12 +473,11 @@ class BuildEnvironment(BaseEnvironment):
         })
         return super(BuildEnvironment, self).run(*cmd, **kwargs)
 
-    def run_command_class(self, *cmd, **kwargs):
+    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
         kwargs.update({
             'build_env': self,
         })
         return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
-
 
     @property
     def successful(self):

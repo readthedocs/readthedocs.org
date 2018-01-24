@@ -65,9 +65,7 @@ HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 class SyncRepositoryMixin(object):
 
-    """
-    Mixin that handles the VCS sync/update.
-    """
+    """Mixin that handles the VCS sync/update."""
 
     @staticmethod
     def get_version(project=None, version_pk=None):
@@ -91,9 +89,7 @@ class SyncRepositoryMixin(object):
         return APIVersion(**version_data)
 
     def sync_repo(self):
-        """
-        Checkout/update the project's repository and hit ``sync_versions`` API.
-        """
+        """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
         if not os.path.exists(self.project.doc_path):
             os.makedirs(self.project.doc_path)
@@ -158,15 +154,13 @@ class SyncRepositoryMixin(object):
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
-    """
-    Entry point to synchronize the VCS documentation.
-    """
+    """Entry point to synchronize the VCS documentation."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.sync_repository'
 
-    def run(self, version_pk):
+    def run(self, version_pk):  # pylint: disable=arguments-differ
         """
         Run the VCS synchronization.
 
@@ -272,7 +266,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
-
 
         # Catch unhandled errors in the setup step
         except Exception as e:  # noqa

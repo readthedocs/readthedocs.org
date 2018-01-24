@@ -65,16 +65,16 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout',
-                           '--force', revision)
+        code, out, err = self.run(
+            'git', 'checkout', '--force', revision)
         if code != 0:
             log.warning("Failed to checkout revision '%s': %s",
                         revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run('git', 'clone', '--recursive',
-                           self.repo_url, '.')
+        code, _, _ = self.run(
+            'git', 'clone', '--recursive', self.repo_url, '.')
         if code != 0:
             raise RepositoryError
 
