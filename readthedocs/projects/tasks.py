@@ -227,7 +227,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
         """
-        Run a documentation sync or sync n' build.
+        Run a documentation sync n' build.
 
         This is fully wrapped in exception handling to account for a number of
         failure cases. We first run a few commands in a local build environment,
@@ -235,13 +235,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         build output page where the build is marked as finished in between the
         local environment steps and the docker build steps.
 
-        If a failure is raised, or the build is not successful, return ``False``,
-        otherwise, ``True``.
+        If a failure is raised, or the build is not successful, return
+        ``False``, otherwise, ``True``.
 
         Unhandled exceptions raise a generic user facing error, which directs
         the user to bug us. It is therefore a benefit to have as few unhandled
         errors as possible.
-
 
         :param pk int: Project id
         :param version_pk int: Project Version id (latest if None)
@@ -251,7 +250,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param search bool: update search
         :param force bool: force Sphinx build
         :param localmedia bool: update localmedia
+
         :returns: whether build was successful or not
+
         :rtype: bool
         """
         try:
