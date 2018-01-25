@@ -263,7 +263,10 @@ function ProjectImportView (instance, config) {
     };
 
     self.set_filter_own = function () {
-        self.filter_own(!self.filter_own());
+        // TODO: Since we are modifying two observable items this
+        // trigger the request twice. How I can fix it?
+        self.filter_own(true);
+        self.filter_org(null);
     };
 }
 

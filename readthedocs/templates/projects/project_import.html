@@ -209,10 +209,12 @@ $(document).ready(function() {
         </div>
       {% endblock %}
 
-      <h3>{% trans "Filter by my own User" %}</h3>
+      <h3>{% trans "Filter by Own Repositories" %}</h3>
       <li
         class="remote-org"
         data-bind="click: function () { $root.set_filter_own(); }">
+        <!-- TODO: show all the connected accounts here with corresponding avatar -->
+        <span>humitos (GitHub)</span>
         <!-- <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" /> -->
         <!-- <span data-bind="text: display_name" class="remote-org-name"></span> -->
       </li>
