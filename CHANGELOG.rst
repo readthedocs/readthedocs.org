@@ -1,3 +1,40 @@
+Version 2.1.6
+-------------
+
+ * `@davidfischer <http://github.com/davidfischer>`_: Promo contrast improvements (`#3549 <https://github.com/rtfd/readthedocs.org/pull/3549>`_)
+ * `@humitos <http://github.com/humitos>`_: Refactor run command outside a Build and Environment (`#3542 <https://github.com/rtfd/readthedocs.org/issues/3542>`_)
+ * `@AnatoliyURL <http://github.com/AnatoliyURL>`_: Project in the local read the docs don't see tags. (`#3534 <https://github.com/rtfd/readthedocs.org/issues/3534>`_)
+ * `@malarzm <http://github.com/malarzm>`_: searchtools.js missing init() call (`#3532 <https://github.com/rtfd/readthedocs.org/issues/3532>`_)
+ * `@johanneskoester <http://github.com/johanneskoester>`_: Build failed without details (`#3531 <https://github.com/rtfd/readthedocs.org/issues/3531>`_)
+ * `@danielmitterdorfer <http://github.com/danielmitterdorfer>`_: "Edit on Github" points to non-existing commit (`#3530 <https://github.com/rtfd/readthedocs.org/issues/3530>`_)
+ * `@lk-geimfari <http://github.com/lk-geimfari>`_: No such file or directory: 'docs/requirements.txt' (`#3529 <https://github.com/rtfd/readthedocs.org/issues/3529>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Fix Good First Issue link (`#3522 <https://github.com/rtfd/readthedocs.org/pull/3522>`_)
+ * `@Blendify <http://github.com/Blendify>`_: Remove RTD Theme workaround (`#3519 <https://github.com/rtfd/readthedocs.org/pull/3519>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Move project description to the top (`#3510 <https://github.com/rtfd/readthedocs.org/pull/3510>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Switch to universal analytics (`#3495 <https://github.com/rtfd/readthedocs.org/pull/3495>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Convert default dev cache to local memory (`#3477 <https://github.com/rtfd/readthedocs.org/pull/3477>`_)
+ * `@nlgranger <http://github.com/nlgranger>`_: Github service: cannot unlink after deleting account (`#3374 <https://github.com/rtfd/readthedocs.org/issues/3374>`_)
+ * `@andrewgodwin <http://github.com/andrewgodwin>`_: "stable" appearing to track future release branches (`#3268 <https://github.com/rtfd/readthedocs.org/issues/3268>`_)
+ * `@skddc <http://github.com/skddc>`_: Add JSDoc to docs build environment (`#3069 <https://github.com/rtfd/readthedocs.org/issues/3069>`_)
+ * `@chummels <http://github.com/chummels>`_: RTD building old "stable" docs instead of "latest" when auto-triggered from recent push (`#2351 <https://github.com/rtfd/readthedocs.org/issues/2351>`_)
+ * `@cajus <http://github.com/cajus>`_: Builds get stuck in "Cloning" state (`#2047 <https://github.com/rtfd/readthedocs.org/issues/2047>`_)
+ * `@gossi <http://github.com/gossi>`_: Cannot delete subproject (`#1341 <https://github.com/rtfd/readthedocs.org/issues/1341>`_)
+ * `@gigster99 <http://github.com/gigster99>`_: extension problem (`#1059 <https://github.com/rtfd/readthedocs.org/issues/1059>`_)
+
+Version 2.1.5
+-------------
+
+ * `@ericholscher <http://github.com/ericholscher>`_: Add GSOC 2018 page (`#3518 <https://github.com/rtfd/readthedocs.org/pull/3518>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Move project description to the top (`#3510 <https://github.com/rtfd/readthedocs.org/pull/3510>`_)
+ * `@RichardLitt <http://github.com/RichardLitt>`_: Docs: Rename "Good First Bug" to "Good First Issue" (`#3505 <https://github.com/rtfd/readthedocs.org/pull/3505>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Fix regex for getting project and user (`#3501 <https://github.com/rtfd/readthedocs.org/pull/3501>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/rtfd/readthedocs.org/pull/3480>`_)
+ * `@andrewgodwin <http://github.com/andrewgodwin>`_: "stable" appearing to track future release branches (`#3268 <https://github.com/rtfd/readthedocs.org/issues/3268>`_)
+ * `@cdeil <http://github.com/cdeil>`_: No module named pip in conda build (`#2827 <https://github.com/rtfd/readthedocs.org/issues/2827>`_)
+ * `@Yaseenh <http://github.com/Yaseenh>`_: building project does not generate new pdf with changes in it (`#2758 <https://github.com/rtfd/readthedocs.org/issues/2758>`_)
+ * `@chummels <http://github.com/chummels>`_: RTD building old "stable" docs instead of "latest" when auto-triggered from recent push (`#2351 <https://github.com/rtfd/readthedocs.org/issues/2351>`_)
+ * `@KeithWoods <http://github.com/KeithWoods>`_: GitHub edit link is aggressively stripped (`#1788 <https://github.com/rtfd/readthedocs.org/issues/1788>`_)
+
 Version 2.1.4
 -------------
 
