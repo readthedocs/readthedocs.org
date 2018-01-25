@@ -149,7 +149,6 @@ function ProjectImportView (instance, config) {
     self.is_ready = ko.observable(false);
 
     // For filtering
-    self.page_count = ko.observable(null);
     self.page_current = ko.observable(null);
     self.page_next = ko.observable(null);
     self.page_previous = ko.observable(null);
