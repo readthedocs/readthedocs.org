@@ -278,7 +278,10 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
         own = self.request.query_params.get('own', None)
         if own is not None:
-            query = query.filter(organization__isnull=True)
+            query = query.filter(
+                account__provider=own,
+                organization=None,
+            )
 
         query = query.filter(
             account__provider__in=[

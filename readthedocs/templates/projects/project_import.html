@@ -209,15 +209,24 @@ $(document).ready(function() {
         </div>
       {% endblock %}
 
-      <h3>{% trans "Filter by Own Repositories" %}</h3>
-      <li
-        class="remote-org"
-        data-bind="click: function () { $root.set_filter_own(); }">
-        <!-- TODO: show all the connected accounts here with corresponding avatar -->
-        <span>humitos (GitHub)</span>
-        <!-- <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" /> -->
-        <!-- <span data-bind="text: display_name" class="remote-org-name"></span> -->
-      </li>
+      {# accounts is a dictionary with the provider as key and a list of connected accounts of that provider #}
+      {% get_social_accounts user as accounts %}
+      {% if accounts %}
+        <h3>{% trans "Filter by Own Repositories" %}</h3>
+        {% for type, list in accounts.items %}
+          {% for account in list %}
+            <li
+              class="remote-org"
+              data-bind="click: function () { $root.set_filter_own('{{ account.provider }}'); }">
+              <img src="{{ account.get_avatar_url }}" class="remote-org-avatar" />
+
+              <!-- TODO: get the proper username for the connected account -->
+              <span>{{ account.user.username }} ({{ account.get_provider_display }})</span>
+
+            </li>
+          {% endfor %}
+        {% endfor %}
+      {% endif %}
 
 
       {% block organizations %}

@@ -153,7 +153,7 @@ function ProjectImportView (instance, config) {
     self.page_next = ko.observable(null);
     self.page_previous = ko.observable(null);
     self.filter_org = ko.observable(null);
-    self.filter_own = ko.observable(false);
+    self.filter_own = ko.observable(null);
 
     self.organizations_raw = ko.observableArray();
     self.organizations = ko.computed(function () {
@@ -264,9 +264,14 @@ function ProjectImportView (instance, config) {
         self.page_current(null);
     };
 
-    self.set_filter_own = function () {
+    self.set_filter_own = function (account) {
+        var current_account = self.filter_own();
+        if (current_account == account) {
+            account = null;
+        }
+
         // This needs to use deferred updates
-        self.filter_own(true);
+        self.filter_own(account);
         self.filter_org(null);
         self.page_current(null);
     };
