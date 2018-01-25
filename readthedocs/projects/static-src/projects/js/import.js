@@ -171,7 +171,6 @@ function ProjectImportView (instance, config) {
     ko.computed(function () {
         var org = self.filter_org();
         var own = self.filter_own();
-        var orgs = self.organizations();
         var url = self.page_current() || self.urls['remoterepository-list'];
 
         if (!self.page_current()) {
