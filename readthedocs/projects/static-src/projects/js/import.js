@@ -174,18 +174,20 @@ function ProjectImportView (instance, config) {
         var orgs = self.organizations();
         var url = self.page_current() || self.urls['remoterepository-list'];
 
-        if (org) {
-            url = append_url_params(
-                self.urls['remoterepository-list'],
-                {org: org}
-            );
-        }
+        if (!self.page_current()) {
+            if (org) {
+                url = append_url_params(
+                    self.urls['remoterepository-list'],
+                    {org: org}
+                );
+            }
 
-        if (own) {
-            url = append_url_params(
-                self.urls['remoterepository-list'],
-                {own: own}
-            );
+            if (own) {
+                url = append_url_params(
+                    self.urls['remoterepository-list'],
+                    {own: own}
+                );
+            }
         }
 
         self.error(null);
@@ -259,13 +261,16 @@ function ProjectImportView (instance, config) {
         }
         self.filter_org(id);
         self.filter_own(false);
+        self.page_current(null);
     };
 
     self.set_filter_own = function () {
-        // TODO: Since we are modifying two observable items this
-        // trigger the request twice. How I can fix it?
+        // TODO: Since we are modifying three observable items this
+        // trigger the request three times (because of the computed
+        // value). How I can fix it?
         self.filter_own(true);
         self.filter_org(null);
+        self.page_current(null);
     };
 }
 
