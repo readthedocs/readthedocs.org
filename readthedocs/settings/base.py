@@ -6,6 +6,8 @@ from __future__ import (
 
 import os
 
+from celery.schedules import crontab
+
 from readthedocs.core.settings import Settings
 
 from celery.schedules import crontab
@@ -254,6 +256,14 @@ class CommunityBaseSettings(Settings):
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+    }
+
+    CELERYBEAT_SCHEDULE = {
+        'weekly-clear-persistent-messages': {
+            'task': 'readthedocs.core.tasks.clear_persistent_messages',
+            'schedule': crontab(hour=23, minute=59, day_of_week=7),
             'options': {'queue': 'web'},
         },
     }
