@@ -211,7 +211,7 @@ function ProjectImportView (instance, config) {
             .always(function () {
                 self.is_ready(true);
             });
-    });
+    }).extend({ deferred: true });
 
     self.get_organizations = function () {
         $.getJSON(self.urls['remoteorganization-list'])
@@ -259,15 +259,14 @@ function ProjectImportView (instance, config) {
         if (current_id === id) {
             id = null;
         }
+        // This needs to use deferred updates
         self.filter_org(id);
         self.filter_own(false);
         self.page_current(null);
     };
 
     self.set_filter_own = function () {
-        // TODO: Since we are modifying three observable items this
-        // trigger the request three times (because of the computed
-        // value). How I can fix it?
+        // This needs to use deferred updates
         self.filter_own(true);
         self.filter_org(null);
         self.page_current(null);
