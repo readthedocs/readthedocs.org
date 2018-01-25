@@ -259,10 +259,11 @@ function ProjectImportView (instance, config) {
             id = null;
         }
         self.filter_org(id);
+        self.filter_own(false);
     };
 
     self.set_filter_own = function () {
-        self.filter_own(true);
+        self.filter_own(!self.filter_own());
     };
 }
 
