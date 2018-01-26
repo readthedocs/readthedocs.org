@@ -162,7 +162,7 @@ class PostAuthentication(BasicAuthentication):
 
 
 class EnhancedModelResource(ModelResource):
-    def obj_get_list(self, request=None, *_, **kwargs):  # pylint: disable=arguments-differ
+    def obj_get_list(self, request=None, *_, **kwargs):  # noqa
         """
         A ORM-specific implementation of ``obj_get_list``.
 

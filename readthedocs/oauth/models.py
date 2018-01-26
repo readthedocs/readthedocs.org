@@ -162,7 +162,7 @@ class RemoteRepository(models.Model):
     @property
     def clone_fuzzy_url(self):
         """Try to match against several permutations of project URL."""
-        return
+        pass
 
     def matches(self, user):
         """Projects that exist with repository URL already."""
