@@ -170,4 +170,4 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         self.assertIn(field, response.context_data['wizard']['form'].errors)
         if match is not None:
             error = response.context_data['wizard']['form'].errors[field]
-            self.assertRegexpMatches(six.text_type(error), match)
+            self.assertRegexpMatches(six.text_type(error), match)  # pylint: disable=deprecated-method
