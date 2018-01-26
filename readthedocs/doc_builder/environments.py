@@ -728,6 +728,10 @@ class DockerEnvironment(BuildEnvironment):
                         'bind': self.project.doc_path,
                         'mode': 'rw'
                     },
+                    self.project.pip_cache_path: {
+                        'bind': self.project.pip_cache_path,
+                        'mode': 'rw'
+                    }
                 }),
                 detach=True,
                 environment=self.environment,
