@@ -57,8 +57,7 @@ def map_subproject_slug(view_func):
     .. warning:: Does not take into account any kind of privacy settings.
     """
     @wraps(view_func)
-    def inner_view(
-            request, subproject=None, subproject_slug=None, *args, **kwargs):
+    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):  # noqa
         if subproject is None and subproject_slug:
             try:
                 subproject = Project.objects.get(slug=subproject_slug)
@@ -86,7 +85,7 @@ def map_project_slug(view_func):
     .. warning:: Does not take into account any kind of privacy settings.
     """
     @wraps(view_func)
-    def inner_view(request, project=None, project_slug=None, *args, **kwargs):
+    def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
         if project is None:
             if not project_slug:
                 project_slug = request.slug

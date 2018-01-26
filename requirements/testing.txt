@@ -1,8 +1,8 @@
 -r pip.txt
 
-pytest<4,>=3.3.0
+pytest<4,>=3.3.2
 pytest-django==3.1.2
-pytest-xdist==1.20.1
+pytest-xdist==1.22.0
 apipkg==1.4
 execnet==1.5.0
 Mercurial==4.4.2
