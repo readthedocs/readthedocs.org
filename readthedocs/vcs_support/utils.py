@@ -88,9 +88,11 @@ class NonBlockingLock(object):
                          self.name)
                 os.remove(self.fpath)
             else:
-                raise LockTimeout("Lock (%s): Lock still active", self.name)
+                raise LockTimeout(
+                    "Lock ({}): Lock still active".format(self.name))
         elif path_exists:
-            raise LockTimeout("Lock (%s): Lock still active", self.name)
+            raise LockTimeout(
+                "Lock ({}): Lock still active".format(self.name))
         open(self.fpath, 'w').close()
         return self
 
