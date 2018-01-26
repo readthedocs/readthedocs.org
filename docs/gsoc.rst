@@ -159,6 +159,12 @@ Possible Mentors
 
 Anyone listed in Development Team on our :doc:`/team` page would be a great person to chat with about mentoring!
 
+Currently we have a few folks signed up:
+
+* Eric Holscher
+* Manuel Kaufmann
+* Anthony Johnson
+
 Thanks
 ------
 
