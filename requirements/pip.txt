@@ -17,7 +17,6 @@ django-haystack==2.6.0
 celery-haystack==0.10
 django-guardian==1.4.6
 django-extensions==1.7.4
-django-filter==1.1.0
 djangorestframework==3.5.4
 django-vanilla-views==1.0.4
 jsonfield==1.0.3
