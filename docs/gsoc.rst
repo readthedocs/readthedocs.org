@@ -4,8 +4,8 @@ Google Summer of Code
 Read the Docs is hoping to participate in the Google Summer of Code in 2018.
 This page will contain all the information for students and anyone else interested in helping.
 
-Required Skills
----------------
+Skills
+------
 
 Incoming students will need the following skills:
 
@@ -14,11 +14,22 @@ Incoming students will need the following skills:
 * Familiarity with git, or some other source control
 * Ability to set up your own development environment for Read the Docs
 * Basic understanding of web technologies (HTML/CSS/JS)
-* An interest in documentation and improving open source documentation tools would be great too!
+* An interest in documentation and improving open source documentation tools!
 
 We're happy to help you get up to speed,
 but the more you are able to demonstrate ability in advance,
 the more likely we are to choose your application! 
+
+Mentors
+-------
+
+Anyone listed in Development Team on our :doc:`/team` page would be a great person to chat with about mentoring!
+
+Currently we have a few folks signed up:
+
+* Eric Holscher
+* Manuel Kaufmann
+* Anthony Johnson
 
 Getting Started
 ---------------
@@ -155,17 +166,6 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 
 .. _these issues: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
 .. _milestones: https://github.com/rtfd/readthedocs.org/milestones
-
-Possible Mentors
-----------------
-
-Anyone listed in Development Team on our :doc:`/team` page would be a great person to chat with about mentoring!
-
-Currently we have a few folks signed up:
-
-* Eric Holscher
-* Manuel Kaufmann
-* Anthony Johnson
 
 Thanks
 ------
