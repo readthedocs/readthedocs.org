@@ -382,10 +382,10 @@ class BuildEnvironment(object):
                 msg += u':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
-                log.warn(LOG_TEMPLATE
-                         .format(project=self.project.slug,
-                                 version=self.version.slug,
-                                 msg=msg))
+                log.warning(LOG_TEMPLATE
+                            .format(project=self.project.slug,
+                                    version=self.version.slug,
+                                    msg=msg))
             else:
                 raise BuildEnvironmentWarning(msg)
         return build_cmd
@@ -561,12 +561,12 @@ class DockerEnvironment(BuildEnvironment):
                     self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
-                    log.warn(LOG_TEMPLATE
-                             .format(
-                                 project=self.project.slug,
-                                 version=self.version.slug,
-                                 msg=("Removing stale container {0}"
-                                      .format(self.container_id))))
+                    log.warning(LOG_TEMPLATE
+                                .format(
+                                    project=self.project.slug,
+                                    version=self.version.slug,
+                                    msg=("Removing stale container {0}"
+                                         .format(self.container_id))))
                     client = self.get_client()
                     client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError):
