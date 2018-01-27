@@ -4,6 +4,8 @@ from __future__ import absolute_import
 import hashlib
 import logging
 
+from rest_framework.pagination import PageNumberPagination
+
 from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
 from readthedocs.builds.models import Version
 from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
@@ -167,3 +169,16 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
             }
         }
         page_obj.delete_document(body=delete_query)
+
+
+class RemoteOrganizationPagination(PageNumberPagination):
+    page_size = 25
+
+
+class RemoteProjectPagination(PageNumberPagination):
+    page_size = 15
+
+
+class ProjectPagination(PageNumberPagination):
+    page_size = 100
+    max_page_size = 1000

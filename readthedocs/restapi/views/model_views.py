@@ -64,9 +64,7 @@ class ProjectViewSet(UserSelectViewSet):
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
     model = Project
-    paginate_by = 100
-    paginate_by_param = 'page_size'
-    max_paginate_by = 1000
+    pagination_class = api_utils.ProjectPagination
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
@@ -241,7 +239,8 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
-    paginate_by = 25
+    pagination_class = api_utils.RemoteOrganizationPagination
+
 
     def get_queryset(self):
         return (self.model.objects.api(self.request.user)
@@ -254,6 +253,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
+    pagination_class = api_utils.RemoteProjectPagination
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)
@@ -263,6 +263,3 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         query = query.filter(account__provider__in=[service.adapter.provider_id
                                                     for service in registry])
         return query
-
-    def get_paginate_by(self):
-        return self.request.query_params.get('page_size', 25)
