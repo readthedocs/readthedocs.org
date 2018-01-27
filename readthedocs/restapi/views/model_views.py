@@ -241,7 +241,6 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     model = RemoteOrganization
     pagination_class = api_utils.RemoteOrganizationPagination
 
-
     def get_queryset(self):
         return (self.model.objects.api(self.request.user)
                 .filter(account__provider__in=[service.adapter.provider_id
