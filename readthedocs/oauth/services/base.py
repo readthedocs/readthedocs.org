@@ -14,8 +14,6 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
-DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-
 log = logging.getLogger(__name__)
 
 
@@ -158,8 +156,7 @@ class Service(object):
     def sync(self):
         raise NotImplementedError
 
-    def create_repository(
-            self, fields, privacy=DEFAULT_PRIVACY_LEVEL, organization=None):
+    def create_repository(self, fields, privacy=None, organization=None):
         raise NotImplementedError
 
     def create_organization(self, fields):

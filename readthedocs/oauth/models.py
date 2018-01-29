@@ -22,8 +22,6 @@ from readthedocs.projects.models import Project
 
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
-DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-
 
 @python_2_unicode_compatible
 class RemoteOrganization(models.Model):

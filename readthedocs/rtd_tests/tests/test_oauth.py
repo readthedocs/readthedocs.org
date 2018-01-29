@@ -278,8 +278,7 @@ class BitbucketOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data['is_private'] = False
-        repo = self.service.create_repository(
-            data, organization=self.org, privacy=self.privacy)
+        repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
 
     def test_make_organization(self):
