@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
 
-from .constants import LOG_TEMPLATE
+from .constants import LOG_TEMPLATE, PROGRAMMING_LANGUAGES
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
@@ -284,6 +284,7 @@ class UpdateDocsTask(Task):
                     localmedia=bool(outcomes['localmedia']),
                     pdf=bool(outcomes['pdf']),
                     epub=bool(outcomes['epub']),
+                    linguist=bool(outcomes['linguist']),
                 )
             else:
                 log.warning('No build ID, not syncing files')
@@ -382,8 +383,48 @@ class UpdateDocsTask(Task):
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
 
+    def update_programming_language(self):
+        """Update a project's programming language based on linguist output"""
+        language = self.get_top_programming_language()
+        if language:
+            project_data = api_v2.project(self.project.pk).get()
+            if project_data['programming_language'] != language:
+                log.info(
+                    u'Updating primary programming lang from "{}" to "{}"'.format(
+                        project_data['programming_language'], language
+                    ))
+                project_data['programming_language'] = language
+                api_v2.project(self.project.pk).put(project_data)
+                self.project.programming_language = language
+
+    def get_top_programming_language(self):
+        """
+        Get the top programming language from Linguist output
+
+        Only retrieves the language if it is a known language to RTD. Linguist
+        knows of a lot more language than RTD.
+        """
+        language = None
+
+        language_reverse_mapping = dict((y, x) for x, y in PROGRAMMING_LANGUAGES)
+        artifact_path = self.project.artifact_path(
+            version=self.version.slug, type_='linguist')
+        linguist_json_path = os.path.join(artifact_path, 'linguist.json')
+
+        if os.path.isfile(linguist_json_path):
+            with open(linguist_json_path, 'r') as fd:
+                data = json.load(fd)
+                if data:
+                    _, lang = data[0]
+                    if lang in language_reverse_mapping:
+                        language = language_reverse_mapping[lang]
+                    else:
+                        log.warning(u'Unknown top programming language "{}"'.format(lang))
+
+        return language
+
     def update_app_instances(self, html=False, localmedia=False, search=False,
-                             pdf=False, epub=False):
+                             pdf=False, epub=False, linguist=False):
         """
         Update application instances with build artifacts.
 
@@ -416,9 +457,13 @@ class UpdateDocsTask(Task):
                 search=search,
                 pdf=pdf,
                 epub=epub,
+                linguist=linguist,
             ),
             callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
         )
+
+        if linguist:
+            self.update_programming_language()
 
     def setup_environment(self):
         """
@@ -643,7 +688,8 @@ def update_imported_docs(version_pk):
 # Web tasks
 @app.task(queue='web')
 def sync_files(project_pk, version_pk, hostname=None, html=False,
-               localmedia=False, search=False, pdf=False, epub=False):
+               localmedia=False, search=False, pdf=False, epub=False,
+               linguist=False):
     """
     Sync build artifacts to application instances.
 
@@ -664,7 +710,8 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
         localmedia=localmedia,
         search=search,
         pdf=pdf,
-        epub=epub
+        epub=epub,
+        linguist=linguist,
     )
 
     # Symlink project
@@ -676,7 +723,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 
 @app.task(queue='web')
 def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
-               pdf=False, epub=False):
+               pdf=False, epub=False, linguist=False):
     """
     Task to move built documentation to web servers.
 
@@ -692,6 +739,8 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     :type pdf: bool
     :param epub: Sync ePub files
     :type epub: bool
+    :param linguist: Sync linguist files
+    :type linguist: bool
     """
     version = Version.objects.get(pk=version_pk)
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
@@ -731,6 +780,12 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             to_path = version.project.get_production_media_path(
                 type_='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
+
+    if linguist:
+        from_path = version.project.artifact_path(
+            version=version.slug, type_='linguist')
+        target = version.project.rtd_build_path(version.slug)
+        Syncer.copy(from_path, target, host=hostname)
 
 
 @app.task(queue='web')
