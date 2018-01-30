@@ -46,6 +46,8 @@ class EnvironmentMockGroup(object):
 
             'docker': mock.patch('readthedocs.doc_builder.environments.Client'),
             'docker_client': mock.Mock(),
+            'linguist': mock.patch(
+                'readthedocs.doc_builder.backends.linguist.LinguistBuilder.build'),
         }
         self.mocks = {}
 
