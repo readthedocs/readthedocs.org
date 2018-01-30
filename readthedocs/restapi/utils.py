@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
 """Utility functions that are used by both views and celery tasks."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import hashlib
 import logging
 
@@ -33,14 +36,17 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             else:
                 # Update slug with new identifier
                 Version.objects.filter(
-                    project=project, verbose_name=version_name
-                ).update(
-                    identifier=version_id,
-                    type=type,
-                    machine=False,
+                    project=project, verbose_name=version_name).update(
+                        identifier=version_id,
+                        type=type,
+                        machine=False,
+                    )  # noqa
+
+                log.info(
+                    '(Sync Versions) Updated Version: [%s=%s] ',
+                    version['verbose_name'],
+                    version['identifier'],
                 )
-                log.info("(Sync Versions) Updated Version: [%s=%s] ",
-                         version['verbose_name'], version['identifier'])
         else:
             # New Version
             created_version = Version.objects.create(
@@ -51,7 +57,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             )
             added.add(created_version.slug)
     if added:
-        log.info("(Sync Versions) Added Versions: [%s] ", ' '.join(added))
+        log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
     return added
 
 
@@ -72,14 +78,15 @@ def delete_versions(project, version_data):
 
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
-        log.info("(Sync Versions) Deleted Versions: [%s]", ' '.join(ret_val))
+        log.info('(Sync Versions) Deleted Versions: [%s]', ' '.join(ret_val))
         to_delete_qs.delete()
         return ret_val
     return set()
 
 
-def index_search_request(version, page_list, commit, project_scale, page_scale,
-                         section=True, delete=True):
+def index_search_request(
+        version, page_list, commit, project_scale, page_scale, section=True,
+        delete=True):
     """
     Update search indexes with build output JSON.
 
@@ -91,21 +98,25 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
     project = version.project
 
     log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("Updating search index: project=%s pages=[%s]",
-             project.slug, log_msg)
+    log.info(
+        'Updating search index: project=%s pages=[%s]',
+        project.slug,
+        log_msg,
+    )
 
     project_obj = ProjectIndex()
-    project_obj.index_document(data={
-        'id': project.pk,
-        'name': project.name,
-        'slug': project.slug,
-        'description': project.description,
-        'lang': project.language,
-        'author': [user.username for user in project.users.all()],
-        'url': project.get_absolute_url(),
-        'tags': None,
-        'weight': project_scale,
-    })
+    project_obj.index_document(
+        data={
+            'id': project.pk,
+            'name': project.name,
+            'slug': project.slug,
+            'description': project.description,
+            'lang': project.language,
+            'author': [user.username for user in project.users.all()],
+            'url': project.get_absolute_url(),
+            'tags': None,
+            'weight': project_scale,
+        })
 
     page_obj = PageIndex()
     section_obj = SectionIndex()
@@ -114,7 +125,7 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
     routes = [project.slug]
     routes.extend([p.parent.slug for p in project.superprojects.all()])
     for page in page_list:
-        log.debug("Indexing page: %s:%s", project.slug, page['path'])
+        log.debug('Indexing page: %s:%s', project.slug, page['path'])
         to_hash = '-'.join([project.slug, version.slug, page['path']])
         page_id = hashlib.md5(to_hash.encode('utf-8')).hexdigest()
         index_list.append({
@@ -131,8 +142,12 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
         })
         if section:
             for sect in page['sections']:
-                id_to_hash = '-'.join([project.slug, version.slug,
-                                       page['path'], sect['id']])
+                id_to_hash = '-'.join([
+                    project.slug,
+                    version.slug,
+                    page['path'],
+                    sect['id'],
+                ])
                 section_index_list.append({
                     'id': (hashlib.md5(id_to_hash.encode('utf-8')).hexdigest()),
                     'project': project.slug,
@@ -144,29 +159,40 @@ def index_search_request(version, page_list, commit, project_scale, page_scale,
                     'weight': page_scale,
                 })
             for route in routes:
-                section_obj.bulk_index(section_index_list, parent=page_id,
-                                       routing=route)
+                section_obj.bulk_index(
+                    section_index_list,
+                    parent=page_id,
+                    routing=route,
+                )
 
     for route in routes:
         page_obj.bulk_index(index_list, parent=project.slug, routing=route)
 
     if delete:
-        log.info("Deleting files not in commit: %s", commit)
+        log.info('Deleting files not in commit: %s', commit)
         # TODO: AK Make sure this works
         delete_query = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {"term": {"project": project.slug, }},
-                        {"term": {"version": version.slug, }},
+            'query': {
+                'bool': {
+                    'must': [
+                        {
+                            'term': {
+                                'project': project.slug,
+                            },
+                        },
+                        {
+                            'term': {
+                                'version': version.slug,
+                            },
+                        },
                     ],
-                    "must_not": {
-                        "term": {
-                            "commit": commit
-                        }
-                    }
-                }
-            }
+                    'must_not': {
+                        'term': {
+                            'commit': commit,
+                        },
+                    },
+                },
+            },
         }
         page_obj.delete_document(body=delete_query)
 
