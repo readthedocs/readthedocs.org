@@ -194,7 +194,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 7)
+        self.assertTrue(self.mocks.popen.call_count >= 7)
         self.assertTrue(build_env.failed)
 
     def test_build_pdf_latex_not_failure(self):
@@ -236,5 +236,5 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 7)
+        self.assertTrue(self.mocks.popen.call_count >= 7)
         self.assertTrue(build_env.successful)

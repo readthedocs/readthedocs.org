@@ -43,6 +43,9 @@ class LinguistBuilder(BaseBuilder):
         return [(float(perc), lang) for perc, lang in data]
 
     def _save_linguist_output(self, output):
+        if not output:
+            output = ''
+
         safe_write(self.linguist_txt_path, output)
 
         # Parse the language breakdown for easier consumption
@@ -51,6 +54,9 @@ class LinguistBuilder(BaseBuilder):
         ))
 
     def _save_linguist_error(self, output):
+        if not output:
+            output = ''
+
         safe_write(self.linguist_error_path, output)
 
     def build(self):
