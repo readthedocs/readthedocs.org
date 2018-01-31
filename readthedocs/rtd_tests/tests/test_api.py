@@ -372,10 +372,12 @@ class IntegrationsTests(TestCase):
     def setUp(self):
         self.project = get(Project)
         self.version = get(Version, verbose_name='master', project=self.project)
+        self.version_tag = get(Version, verbose_name='v1.2', project=self.project)
 
     def test_github_webhook(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
+
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
             {'ref': 'master'},
@@ -383,9 +385,42 @@ class IntegrationsTests(TestCase):
         )
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=mock.ANY, project=self.project)])
+
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
             {'ref': 'non-existent'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'refs/heads/non-existent'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'refs/tags/v3.3'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'refs/heads/master'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'refs/tags/v1.2'},
             format='json',
         )
         trigger_build.assert_has_calls(
