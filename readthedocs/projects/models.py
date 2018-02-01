@@ -786,7 +786,6 @@ class Project(models.Model):
 
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
-        return
 
     def moderation_queue(self):
         # non-optimal SQL warning.

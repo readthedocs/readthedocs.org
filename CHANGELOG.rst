@@ -1,3 +1,82 @@
+Version 2.1.6
+-------------
+
+ * `@davidfischer <http://github.com/davidfischer>`_: Promo contrast improvements (`#3549 <https://github.com/rtfd/readthedocs.org/pull/3549>`_)
+ * `@humitos <http://github.com/humitos>`_: Refactor run command outside a Build and Environment (`#3542 <https://github.com/rtfd/readthedocs.org/issues/3542>`_)
+ * `@AnatoliyURL <http://github.com/AnatoliyURL>`_: Project in the local read the docs don't see tags. (`#3534 <https://github.com/rtfd/readthedocs.org/issues/3534>`_)
+ * `@malarzm <http://github.com/malarzm>`_: searchtools.js missing init() call (`#3532 <https://github.com/rtfd/readthedocs.org/issues/3532>`_)
+ * `@johanneskoester <http://github.com/johanneskoester>`_: Build failed without details (`#3531 <https://github.com/rtfd/readthedocs.org/issues/3531>`_)
+ * `@danielmitterdorfer <http://github.com/danielmitterdorfer>`_: "Edit on Github" points to non-existing commit (`#3530 <https://github.com/rtfd/readthedocs.org/issues/3530>`_)
+ * `@lk-geimfari <http://github.com/lk-geimfari>`_: No such file or directory: 'docs/requirements.txt' (`#3529 <https://github.com/rtfd/readthedocs.org/issues/3529>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Fix Good First Issue link (`#3522 <https://github.com/rtfd/readthedocs.org/pull/3522>`_)
+ * `@Blendify <http://github.com/Blendify>`_: Remove RTD Theme workaround (`#3519 <https://github.com/rtfd/readthedocs.org/pull/3519>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Move project description to the top (`#3510 <https://github.com/rtfd/readthedocs.org/pull/3510>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Switch to universal analytics (`#3495 <https://github.com/rtfd/readthedocs.org/pull/3495>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Convert default dev cache to local memory (`#3477 <https://github.com/rtfd/readthedocs.org/pull/3477>`_)
+ * `@nlgranger <http://github.com/nlgranger>`_: Github service: cannot unlink after deleting account (`#3374 <https://github.com/rtfd/readthedocs.org/issues/3374>`_)
+ * `@andrewgodwin <http://github.com/andrewgodwin>`_: "stable" appearing to track future release branches (`#3268 <https://github.com/rtfd/readthedocs.org/issues/3268>`_)
+ * `@skddc <http://github.com/skddc>`_: Add JSDoc to docs build environment (`#3069 <https://github.com/rtfd/readthedocs.org/issues/3069>`_)
+ * `@chummels <http://github.com/chummels>`_: RTD building old "stable" docs instead of "latest" when auto-triggered from recent push (`#2351 <https://github.com/rtfd/readthedocs.org/issues/2351>`_)
+ * `@cajus <http://github.com/cajus>`_: Builds get stuck in "Cloning" state (`#2047 <https://github.com/rtfd/readthedocs.org/issues/2047>`_)
+ * `@gossi <http://github.com/gossi>`_: Cannot delete subproject (`#1341 <https://github.com/rtfd/readthedocs.org/issues/1341>`_)
+ * `@gigster99 <http://github.com/gigster99>`_: extension problem (`#1059 <https://github.com/rtfd/readthedocs.org/issues/1059>`_)
+
+Version 2.1.5
+-------------
+
+ * `@ericholscher <http://github.com/ericholscher>`_: Add GSOC 2018 page (`#3518 <https://github.com/rtfd/readthedocs.org/pull/3518>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Move project description to the top (`#3510 <https://github.com/rtfd/readthedocs.org/pull/3510>`_)
+ * `@RichardLitt <http://github.com/RichardLitt>`_: Docs: Rename "Good First Bug" to "Good First Issue" (`#3505 <https://github.com/rtfd/readthedocs.org/pull/3505>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Fix regex for getting project and user (`#3501 <https://github.com/rtfd/readthedocs.org/pull/3501>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/rtfd/readthedocs.org/pull/3480>`_)
+ * `@andrewgodwin <http://github.com/andrewgodwin>`_: "stable" appearing to track future release branches (`#3268 <https://github.com/rtfd/readthedocs.org/issues/3268>`_)
+ * `@cdeil <http://github.com/cdeil>`_: No module named pip in conda build (`#2827 <https://github.com/rtfd/readthedocs.org/issues/2827>`_)
+ * `@Yaseenh <http://github.com/Yaseenh>`_: building project does not generate new pdf with changes in it (`#2758 <https://github.com/rtfd/readthedocs.org/issues/2758>`_)
+ * `@chummels <http://github.com/chummels>`_: RTD building old "stable" docs instead of "latest" when auto-triggered from recent push (`#2351 <https://github.com/rtfd/readthedocs.org/issues/2351>`_)
+ * `@KeithWoods <http://github.com/KeithWoods>`_: GitHub edit link is aggressively stripped (`#1788 <https://github.com/rtfd/readthedocs.org/issues/1788>`_)
+
+Version 2.1.4
+-------------
+
+ * `@davidfischer <http://github.com/davidfischer>`_: Add programming language to API/READTHEDOCS_DATA (`#3499 <https://github.com/rtfd/readthedocs.org/pull/3499>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Remove our mkdocs search override (`#3496 <https://github.com/rtfd/readthedocs.org/pull/3496>`_)
+ * `@humitos <http://github.com/humitos>`_: Better style (`#3494 <https://github.com/rtfd/readthedocs.org/pull/3494>`_)
+ * `@humitos <http://github.com/humitos>`_: Update README.rst (`#3492 <https://github.com/rtfd/readthedocs.org/pull/3492>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Small formatting change to the Alabaster footer (`#3491 <https://github.com/rtfd/readthedocs.org/pull/3491>`_)
+ * `@matsen <http://github.com/matsen>`_: Fixing "reseting" misspelling. (`#3487 <https://github.com/rtfd/readthedocs.org/pull/3487>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Add David to dev team listing (`#3485 <https://github.com/rtfd/readthedocs.org/pull/3485>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/rtfd/readthedocs.org/pull/3480>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Use semvar for readthedocs-build to make bumping easier (`#3475 <https://github.com/rtfd/readthedocs.org/pull/3475>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Add programming languages (`#3471 <https://github.com/rtfd/readthedocs.org/pull/3471>`_)
+ * `@humitos <http://github.com/humitos>`_: Remove TEMPLATE_LOADERS since it's the default (`#3469 <https://github.com/rtfd/readthedocs.org/pull/3469>`_)
+ * `@Code0x58 <http://github.com/Code0x58>`_: Minor virtualenv upgrade (`#3463 <https://github.com/rtfd/readthedocs.org/pull/3463>`_)
+ * `@humitos <http://github.com/humitos>`_: Remove invite only message (`#3456 <https://github.com/rtfd/readthedocs.org/pull/3456>`_)
+ * `@maxirus <http://github.com/maxirus>`_: Adding to Install Docs (`#3455 <https://github.com/rtfd/readthedocs.org/pull/3455>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Fix a little typo (`#3448 <https://github.com/rtfd/readthedocs.org/pull/3448>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Better autogenerated index file (`#3447 <https://github.com/rtfd/readthedocs.org/pull/3447>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Better help text for privacy level (`#3444 <https://github.com/rtfd/readthedocs.org/pull/3444>`_)
+ * `@msyriac <http://github.com/msyriac>`_: Broken link URL changed fixes #3442 (`#3443 <https://github.com/rtfd/readthedocs.org/pull/3443>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Fix git (`#3441 <https://github.com/rtfd/readthedocs.org/pull/3441>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Properly slugify the alias on Project Relationships. (`#3440 <https://github.com/rtfd/readthedocs.org/pull/3440>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Don't show "build ideas" to unprivileged users (`#3439 <https://github.com/rtfd/readthedocs.org/pull/3439>`_)
+ * `@Blendify <http://github.com/Blendify>`_: Docs: Point Theme docs to new website (`#3438 <https://github.com/rtfd/readthedocs.org/pull/3438>`_)
+ * `@humitos <http://github.com/humitos>`_: Do not use double quotes on git command with --format option (`#3437 <https://github.com/rtfd/readthedocs.org/pull/3437>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Hack in a fix for missing version slug deploy that went out a while back (`#3433 <https://github.com/rtfd/readthedocs.org/pull/3433>`_)
+ * `@humitos <http://github.com/humitos>`_: Check versions used to create the venv and auto-wipe (`#3432 <https://github.com/rtfd/readthedocs.org/pull/3432>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Upgrade psycopg2 (`#3429 <https://github.com/rtfd/readthedocs.org/pull/3429>`_)
+ * `@humitos <http://github.com/humitos>`_: Fix "Edit in Github" link (`#3427 <https://github.com/rtfd/readthedocs.org/pull/3427>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Add celery theme to supported ad options (`#3425 <https://github.com/rtfd/readthedocs.org/pull/3425>`_)
+ * `@humitos <http://github.com/humitos>`_: Link to version detail page from build detail page (`#3418 <https://github.com/rtfd/readthedocs.org/pull/3418>`_)
+ * `@humitos <http://github.com/humitos>`_: Move wipe button to version detail page (`#3417 <https://github.com/rtfd/readthedocs.org/pull/3417>`_)
+ * `@humitos <http://github.com/humitos>`_: Show/Hide "See paid advertising" checkbox depending on USE_PROMOS (`#3412 <https://github.com/rtfd/readthedocs.org/pull/3412>`_)
+ * `@benjaoming <http://github.com/benjaoming>`_: Strip well-known version component origin/ from remote version (`#3377 <https://github.com/rtfd/readthedocs.org/pull/3377>`_)
+ * `@humitos <http://github.com/humitos>`_: Remove warnings from code (`#3372 <https://github.com/rtfd/readthedocs.org/pull/3372>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Add docker image from the YAML config integration (`#3339 <https://github.com/rtfd/readthedocs.org/pull/3339>`_)
+ * `@humitos <http://github.com/humitos>`_: Show proper error to user when conf.py is not found (`#3326 <https://github.com/rtfd/readthedocs.org/pull/3326>`_)
+ * `@humitos <http://github.com/humitos>`_: Simple task to finish inactive builds (`#3312 <https://github.com/rtfd/readthedocs.org/pull/3312>`_)
+ * `@techtonik <http://github.com/techtonik>`_: Fix Edit links if version is referenced by annotated tag (`#3302 <https://github.com/rtfd/readthedocs.org/pull/3302>`_)
+ * `@Riyuzakii <http://github.com/Riyuzakii>`_: changed <strong> from html to css (`#2699 <https://github.com/rtfd/readthedocs.org/pull/2699>`_)
+
 Version 2.1.3
 -------------
 

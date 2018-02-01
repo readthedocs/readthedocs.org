@@ -1,21 +1,25 @@
 // RTD Analytics Code
 
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', '{{ global_analytics_code }}']);
-_gaq.push(['_trackPageview']);
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', '{{ global_analytics_code }}', 'auto', 'rtfd');
+ga('rtfd.set', 'dimension1', READTHEDOCS_DATA.project);
+ga('rtfd.set', 'dimension2', READTHEDOCS_DATA.version);
+ga('rtfd.set', 'dimension3', READTHEDOCS_DATA.language);
+ga('rtfd.set', 'dimension4', READTHEDOCS_DATA.theme);
+ga('rtfd.set', 'dimension5', READTHEDOCS_DATA.programming_language);
+ga('rtfd.set', 'dimension6', READTHEDOCS_DATA.builder);
+ga('rtfd.send', 'pageview');
 
 {% if user_analytics_code %}
 // User Analytics Code
-_gaq.push(['user._setAccount', '{{ user_analytics_code }}']);
-_gaq.push(['user._trackPageview']);
+ga('create', '{{ user_analytics_code }}', 'auto', 'user');
+ga('user.send', 'pageview');
 // End User Analytics Code
 {% endif %}
-
-(function() {
-var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
 
 // end RTD Analytics Code
 
