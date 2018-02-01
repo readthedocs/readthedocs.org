@@ -384,7 +384,15 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=self.version, project=self.project)])
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'v1.0'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=self.version_tag, project=self.project)])
 
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
@@ -404,11 +412,11 @@ class IntegrationsTests(TestCase):
 
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/tags/v3.3'},
+            {'ref': 'refs/tags/v1.0'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=self.version_tag, project=self.project)])
 
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
@@ -416,15 +424,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/tags/v1.2'},
-            format='json',
-        )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=self.version, project=self.project)])
 
     @mock.patch('readthedocs.restapi.views.integrations.WebhookMixin.get_response_push', return_value=None)
     def test_github_parse_ref(self, get_response_push, trigger_build):
