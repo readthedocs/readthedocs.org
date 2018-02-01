@@ -93,8 +93,8 @@ function Account (instance, view) {
     self.filtered = ko.computed(function () {
         var filter = view.filter_by();
         return (
-            (filter.id && filter.id != self.filter_id()) ||
-            (filter.type && filter.type != self.filter_type)
+            (filter.id && filter.id !== self.filter_id()) ||
+            (filter.type && filter.type !== self.filter_type)
         );
     });
 }
