@@ -371,7 +371,8 @@ class IntegrationsTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.version = get(Version, verbose_name='master', project=self.project)
+        self.version = get(Version, verbose_name='master', active=True, project=self.project)
+        self.version_tag = get(Version, verbose_name='v1.0', active=True, project=self.project)
 
     def test_github_webhook(self, trigger_build):
         """GitHub webhook API."""
