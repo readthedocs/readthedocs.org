@@ -13,24 +13,25 @@
   <script type="text/javascript" src="{% static "vendor/knockout.js" %}"></script>
   <script type="text/javascript" src="{% static "projects/js/import.js" %}"></script>
   <script type="text/javascript">
-var import_views = require('projects/import');
-$(document).ready(function() {
-    var instance = {},
-        config = {
-            'csrf_token': '{{ view_csrf_token }}',
-            'urls': {
-                'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
-                'remoteorganization-list': '{% url 'remoteorganization-list' %}',
-                'remoterepository-list': '{% url 'remoterepository-list' %}',
-                'projects_import': '{% url 'projects_import' %}'
-            }
-        },
-        view = import_views.ProjectImportView.init(
-            $('body').get(0),
-            instance,
-            config
-        );
-});
+   var import_views = require('projects/import');
+   $(document).ready(function() {
+     var instance = {},
+         config = {
+           'csrf_token': '{{ view_csrf_token }}',
+           'urls': {
+             'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
+             'remoteorganization-list': '{% url 'remoteorganization-list' %}',
+             'remoterepository-list': '{% url 'remoterepository-list' %}',
+             'remoteaccount-list': '{% url 'remoteaccount-list' %}',
+             'projects_import': '{% url 'projects_import' %}'
+           }
+         },
+         view = import_views.ProjectImportView.init(
+           $('body').get(0),
+           instance,
+           config
+         );
+   });
   </script>
 {% endblock %}
 
@@ -209,34 +210,14 @@ $(document).ready(function() {
         </div>
       {% endblock %}
 
-      {# accounts is a dictionary with the provider as key and a list of connected accounts of that provider #}
-      {% get_social_accounts user as accounts %}
-      {% if accounts %}
-        <h3>{% trans "Filter by Own Repositories" %}</h3>
-        {% for type, list in accounts.items %}
-          {% for account in list %}
+      {% block filter-repositories %}
+        <div data-bind="visible: filters().length > 0">
+          <h3>{% trans "Filter repositories" %}</h3>
+
+          <ul data-bind="foreach: filters" class="remote-orgs">
             <li
               class="remote-org"
-              data-bind="click: function () { $root.set_filter_own('{{ account.provider }}'); }">
-              <img src="{{ account.get_avatar_url }}" class="remote-org-avatar" />
-
-              <!-- TODO: get the proper username for the connected account -->
-              <span>{{ account.user.username }} ({{ account.get_provider_display }})</span>
-
-            </li>
-          {% endfor %}
-        {% endfor %}
-      {% endif %}
-
-
-      {% block organizations %}
-        <div data-bind="visible: organizations().length > 0">
-          <h3>{% trans "Filter by Organization" %}</h3>
-
-          <ul data-bind="foreach: organizations" class="remote-orgs">
-            <li
-                class="remote-org"
-                data-bind="css: {'remote-org-hidden': filtered()}, click: function () { $root.set_filter_org(id()); }">
+              data-bind="css: {'remote-org-hidden': filtered()}, click: function () { $root.set_filter_by(filter_id(), filter_type); }">
               <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" />
               <span data-bind="text: display_name" class="remote-org-name"></span>
             </li>

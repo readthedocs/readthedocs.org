@@ -61,9 +61,41 @@ function Organization (instance, view) {
     self.display_name = ko.computed(function () {
         return self.name() || self.slug();
     });
+    self.filter_id = ko.computed(function () {
+        return self.id();
+    });
+    self.filter_type = 'org';
     self.filtered = ko.computed(function () {
-        var id = view.filter_org();
-        return id && id !== self.id();
+        var filter = view.filter_by();
+        return (
+            (filter.id && filter.id !== self.filter_id()) ||
+            (filter.type && filter.type !== self.filter_type)
+        );
+    });
+}
+
+function Account (instance, view) {
+    var self = this;
+    self.id = ko.observable(instance.id);
+    self.username = ko.observable(instance.username);
+    self.active = ko.observable(instance.active);
+    self.avatar_url = ko.observable(
+        append_url_params(instance.avatar_url, {size: 32})
+    );
+    self.provider = ko.observable(instance.provider);
+    self.display_name = ko.computed(function () {
+        return self.username();
+    });
+    self.filter_id = ko.computed(function () {
+        return self.provider().id;
+    });
+    self.filter_type = 'own';
+    self.filtered = ko.computed(function () {
+        var filter = view.filter_by();
+        return (
+            (filter.id && filter.id != self.filter_id()) ||
+            (filter.type && filter.type != self.filter_type)
+        );
     });
 }
 
@@ -74,7 +106,7 @@ function Project (instance, view) {
     self.full_name = ko.observable(instance.full_name);
     self.description = ko.observable(instance.description);
     self.vcs = ko.observable(instance.vcs);
-    self.organization = ko.observable();
+    self.organization = ko.observable(instance.organization);
     self.html_url = ko.observable(instance.html_url);
     self.clone_url = ko.observable(instance.clone_url);
     self.ssh_url = ko.observable(instance.ssh_url);
@@ -152,39 +184,45 @@ function ProjectImportView (instance, config) {
     self.page_current = ko.observable(null);
     self.page_next = ko.observable(null);
     self.page_previous = ko.observable(null);
-    self.filter_org = ko.observable(null);
-    self.filter_own = ko.observable(null);
+    // organization slug or account provider name
+    // { id: 'GitHub', type: 'own' }
+    self.filter_by = ko.observable({ id: null, type: null });
 
+    self.accounts_raw = ko.observableArray();
     self.organizations_raw = ko.observableArray();
-    self.organizations = ko.computed(function () {
-        var organizations = [];
+    self.filters = ko.computed(function () {
+        var filters = [];
+        var accounts_raw = self.accounts_raw();
         var organizations_raw = self.organizations_raw();
         var n;
+        for (n in accounts_raw) {
+            var account = new Account(accounts_raw[n], self);
+            filters.push(account);
+        }
         for (n in organizations_raw) {
             var organization = new Organization(organizations_raw[n], self);
-            organizations.push(organization);
+            filters.push(organization);
         }
-        return organizations;
+        return filters;
     });
     self.projects = ko.observableArray();
 
     ko.computed(function () {
-        var org = self.filter_org();
-        var own = self.filter_own();
+        var filter = self.filter_by();
         var url = self.page_current() || self.urls['remoterepository-list'];
 
         if (!self.page_current()) {
-            if (org) {
+            if (filter.type == 'org') {
                 url = append_url_params(
                     self.urls['remoterepository-list'],
-                    {org: org}
+                    {org: filter.id}
                 );
             }
 
-            if (own) {
+            if (filter.type == 'own') {
                 url = append_url_params(
                     self.urls['remoterepository-list'],
-                    {own: own}
+                    {own: filter.id}
                 );
             }
         }
@@ -223,6 +261,17 @@ function ProjectImportView (instance, config) {
             });
     };
 
+    self.get_accounts = function () {
+        $.getJSON(self.urls['remoteaccount-list'])
+            .success(function (accounts) {
+                self.accounts_raw(accounts.results);
+            })
+            .error(function (error) {
+                var error_msg = error.responseJSON.detail || error.statusText;
+                self.error({message: error_msg});
+            });
+    };
+
     self.sync_projects = function () {
         var url = self.urls.api_sync_remote_repositories;
 
@@ -232,6 +281,7 @@ function ProjectImportView (instance, config) {
         tasks.trigger_task({url: url, token: self.csrf_token})
             .then(function (data) {
                 self.get_organizations();
+                self.get_accounts();
             })
             .fail(function (error) {
                 self.error(error);
@@ -253,33 +303,30 @@ function ProjectImportView (instance, config) {
         self.page_current(self.page_previous());
     };
 
-    self.set_filter_org = function (id) {
-        var current_id = self.filter_org();
-        if (current_id === id) {
-            id = null;
+    self.set_filter_by = function (id, type) {
+        var filter = self.filter_by();
+        if (filter.id === id) {
+            filter.id = null;
+            filter.type = null;
         }
-        // This needs to use deferred updates
-        self.filter_org(id);
-        self.filter_own(false);
-        self.page_current(null);
-    };
-
-    self.set_filter_own = function (account) {
-        var current_account = self.filter_own();
-        if (current_account == account) {
-            account = null;
+        else {
+            filter.id = id;
+            filter.type = type;
         }
 
-        // This needs to use deferred updates
-        self.filter_own(account);
-        self.filter_org(null);
-        self.page_current(null);
+        // This needs to use deferred updates because we are setting
+        // `filter_by` and `page_current`
+        self.filter_by(filter);
+        if (filter.id) {
+            self.page_current(null);
+        }
     };
 }
 
 
 ProjectImportView.init = function (domobj, instance, config) {
     var view = new ProjectImportView(instance, config);
+    view.get_accounts();
     view.get_organizations();
     ko.applyBindings(view, domobj);
     return view;

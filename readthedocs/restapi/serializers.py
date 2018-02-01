@@ -163,6 +163,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
 class ProviderSerializer(serializers.Serializer):
 
+    id = serializers.CharField(max_length=20)
     name = serializers.CharField(max_length=20)
 
 
