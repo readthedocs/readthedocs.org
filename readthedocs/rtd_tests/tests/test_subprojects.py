@@ -143,6 +143,20 @@ class SubprojectFormTests(TestCase):
             [''],
         )
 
+    def test_exclude_self_project_as_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        subproject = project
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=project,
+            user=user
+        )
+        self.assertNotIn(
+            project.id,
+            [proj_id for (proj_id, __) in form.fields['child'].choices]
+        )
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):
