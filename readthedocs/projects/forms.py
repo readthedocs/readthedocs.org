@@ -287,7 +287,8 @@ class ProjectRelationshipForm(forms.ModelForm):
         queryset = (
             Project.objects.for_admin_user(self.user)
             .exclude(subprojects__isnull=False)
-            .exclude(superprojects__isnull=False))
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.project.pk))
         return queryset
 
 
