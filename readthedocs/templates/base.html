@@ -8,13 +8,15 @@
 
   <!-- meta -->
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  {% block extra_metas %}{% endblock extra_metas %}
+
   <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
 
   <!-- title -->
   <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
 
   <!-- Google Analytics -->
-  <script type="text/javascript">
+  <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -37,17 +39,17 @@
   {% block extra_links %}{% endblock %}
 
   <!-- jquery -->
-  <script type="text/javascript" src="{% static 'vendor/jquery.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/jquery-migrate.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/jquery-ui.js' %}"></script>
-  <script type="text/javascript">
+  <script src="{% static 'vendor/jquery.js' %}"></script>
+  <script src="{% static 'vendor/jquery-migrate.js' %}"></script>
+  <script src="{% static 'vendor/jquery-ui.js' %}"></script>
+  <script >
     require('jquery');
   </script>
 
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/base.js"></script>
-  <script type="text/javascript" src="{% static 'core/js/site.js' %}"></script>
-  <script type="text/javascript">
+  <script src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
+  <script src="{{ MEDIA_URL }}javascript/base.js"></script>
+  <script src="{% static 'core/js/site.js' %}"></script>
+  <script>
     var site = require('core/site');
     site.handle_notification_dismiss();
   </script>
@@ -55,13 +57,9 @@
   {% block extra_scripts %}{% endblock %}
 
   <!-- typekit -->
-  <!-- Old typekit
-  <script type="text/javascript" src="//use.typekit.com/xgl8ypn.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  -->
 
-  <script type="text/javascript" src="//use.typekit.net/haq4xtp.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  <script src="//use.typekit.net/haq4xtp.js"></script>
+  <script>try{Typekit.load();}catch(e){}</script>
 
 </head>
 
@@ -204,10 +202,10 @@
     </div>
     <!-- END footer-->
 
-</body>
+    <script>
+      {% block footerjs %}{% endblock %}
+    </script>
 
-<script type="text/javascript">
-  {% block footerjs %}{% endblock %}
-</script>
+</body>
 
 </html>
