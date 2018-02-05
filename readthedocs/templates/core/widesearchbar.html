@@ -9,7 +9,7 @@
 
             <form action="{% url "search" %}" method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ term }}" id="id_site_search">
+                <input type="text" name="q" value="{{ term }}" id="id_site_search" placeholder="{% trans 'Search Read the Docs' %}">
               </div>
               <div class="submit-input-wrapper">
                 {% comment %} Translators: This is about starting a search {% endcomment %}
