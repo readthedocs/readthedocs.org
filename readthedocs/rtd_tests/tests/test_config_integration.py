@@ -112,7 +112,7 @@ class LoadConfigTests(TestCase):
                 },
             ),
         ])
-        self.assertEqual(config.python.version, 2)
+        self.assertEqual(config.python.version, 3)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_1_0(self, load_config):
@@ -145,8 +145,8 @@ class LoadConfigTests(TestCase):
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.version, 2)
-        self.assertEqual(config.python_interpreter, 'python2.7')
+        self.assertEqual(config.python.version, 3)
+        self.assertEqual(config.python_interpreter, 'python3.5')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_on_project(self, load_config):
