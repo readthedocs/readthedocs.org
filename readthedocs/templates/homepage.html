@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% load i18n %}
-
+{% load humanize %}
 {% load pagination_tags %}
 
 {% block extra_metas %}
-  <meta name="description" content="{% trans "Read the Docs simplifies technical documentation by automating building, versioning, and hosting for you. Build up-to-date documentation for the web, print, and eReaders on every version control push automatically." %}">
+  <meta name="description" content="{% trans "Read the Docs simplifies technical documentation by automating building, versioning, and hosting for you. Build up-to-date documentation for the web, print, and offline use on every version control push automatically." %}">
 {% endblock extra_metas %}
 
 {% block title %}{% trans "Home" %}{% endblock %}
@@ -54,6 +54,18 @@
 
   <section>
     <div class="feature">
+      <h3>Free docs hosting</h3>
+      <p>
+        {% with projects_count_intcomma=projects_count|intcomma %}
+        {% blocktrans %}
+        We will host your documentation for free forever.
+        There are no tricks. We help {{ projects_count_intcomma }} open source projects
+        share their docs.
+        {% endblocktrans %}
+        {% endwith %}
+      </p>
+    </div>
+    <div class="feature">
       <h3>Webhooks</h3>
       <p>
         {% blocktrans %}
@@ -61,16 +73,6 @@
         whether that is Git, Mercurial, Bazaar, or Subversion, we will
         automatically build your docs so your code and documentation are
         never out of sync.
-        {% endblocktrans %}
-      </p>
-    </div>
-    <div class="feature">
-      <h3>Free docs hosting</h3>
-      <p>
-        {% blocktrans %}
-        We will host your documentation for free forever.
-        There are no tricks. We help thousands of open source projects
-        share their docs.
         {% endblocktrans %}
       </p>
     </div>
@@ -83,8 +85,8 @@
       <p>
         {% blocktrans %}
         Of course we build and host your docs for the web, but they are
-        also vieweable as PDFs, epubs (for eReaders), and as single page
-        HTML documents. No additional configuration is required.
+        also vieweable as PDFs, as single page HTML, and for eReaders.
+        No additional configuration is required.
         {% endblocktrans %}
       </p>
     </div>
@@ -94,7 +96,7 @@
         {% blocktrans %}
         We can host and build multiple versions of your docs so having a
         1.0 version of your docs and a 2.0 version of your docs is as easy
-        as having a separate branch or tag in version control.
+        as having a separate branch or tag in your version control system.
         {% endblocktrans %}
       </p>
     </div>

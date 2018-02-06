@@ -40,6 +40,7 @@ class HomepageView(TemplateView):
         """Add latest builds and featured projects."""
         context = super(HomepageView, self).get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
+        context['projects_count'] = Project.objects.count()
         return context
 
 
