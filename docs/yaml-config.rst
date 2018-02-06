@@ -135,7 +135,7 @@ used for building documentation.
 python.version
 ``````````````
 
-* Default: ``2.7``
+* Default: ``3.5``
 * Options: ``2.7``, ``2``, ``3.5``, ``3``
 
 This is the version of Python to use when building your documentation.
