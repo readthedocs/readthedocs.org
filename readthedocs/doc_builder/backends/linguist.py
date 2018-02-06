@@ -19,8 +19,7 @@ class LinguistBuilder(BaseBuilder):
     builder = 'build'
     build_dir = '_build/linguist'
 
-    LINGUIST_COMMAND_LOCAL = 'linguist'
-    LINGUIST_COMMAND_DOCKER = 'github-linguist'
+    LINGUIST_COMMAND = 'linguist'
 
     LINGUIST_OUTPUT_REGEX = re.compile(
         r'^(?P<percentage>\d+\.\d+)\%\s+(?P<language>.+)$',
@@ -53,20 +52,9 @@ class LinguistBuilder(BaseBuilder):
             self._parse_linguist_output(output)
         ))
 
-    def _save_linguist_error(self, output):
-        if not output:
-            output = ''
-
-        safe_write(self.linguist_error_path, output)
-
     def build(self):
-        if self.build_env.command_class == BuildCommand:
-            command = self.LINGUIST_COMMAND_LOCAL
-        else:
-            command = self.LINGUIST_COMMAND_DOCKER
-
         cmd_ret = self.run(
-            command,
+            self.LINGUIST_COMMAND,
             cwd=self.root_path,
             warn_only=True,
         )
@@ -77,7 +65,6 @@ class LinguistBuilder(BaseBuilder):
             # Override command failure - do not fail the build
             cmd_ret.exit_code = 0
             log.warning('Linguist did not run successfully. This does not fail the build.')
-            self._save_linguist_error(cmd_ret.output)
 
         # We never want to fail a build because Linguist failed or isn't installed
         return True

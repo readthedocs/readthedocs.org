@@ -284,10 +284,12 @@ class UpdateDocsTask(Task):
                     localmedia=bool(outcomes['localmedia']),
                     pdf=bool(outcomes['pdf']),
                     epub=bool(outcomes['epub']),
-                    linguist=bool(outcomes['linguist']),
                 )
             else:
                 log.warning('No build ID, not syncing files')
+
+            if outcomes['linguist']:
+                self.update_programming_language()
 
         if self.build_env.failed:
             self.send_notifications()
@@ -419,12 +421,12 @@ class UpdateDocsTask(Task):
                     if lang in language_reverse_mapping:
                         language = language_reverse_mapping[lang]
                     else:
-                        log.warning(u'Unknown top programming language "{}"'.format(lang))
+                        log.info(u'Unknown top programming language "{}"'.format(lang))
 
         return language
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
-                             pdf=False, epub=False, linguist=False):
+                             pdf=False, epub=False):
         """
         Update application instances with build artifacts.
 
@@ -457,13 +459,9 @@ class UpdateDocsTask(Task):
                 search=search,
                 pdf=pdf,
                 epub=epub,
-                linguist=linguist,
             ),
             callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
         )
-
-        if linguist:
-            self.update_programming_language()
 
     def setup_environment(self):
         """
@@ -688,8 +686,7 @@ def update_imported_docs(version_pk):
 # Web tasks
 @app.task(queue='web')
 def sync_files(project_pk, version_pk, hostname=None, html=False,
-               localmedia=False, search=False, pdf=False, epub=False,
-               linguist=False):
+               localmedia=False, search=False, pdf=False, epub=False):
     """
     Sync build artifacts to application instances.
 
@@ -711,7 +708,6 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
         search=search,
         pdf=pdf,
         epub=epub,
-        linguist=linguist,
     )
 
     # Symlink project
@@ -723,7 +719,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 
 @app.task(queue='web')
 def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
-               pdf=False, epub=False, linguist=False):
+               pdf=False, epub=False):
     """
     Task to move built documentation to web servers.
 
@@ -739,8 +735,6 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     :type pdf: bool
     :param epub: Sync ePub files
     :type epub: bool
-    :param linguist: Sync linguist files
-    :type linguist: bool
     """
     version = Version.objects.get(pk=version_pk)
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
@@ -780,12 +774,6 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
             to_path = version.project.get_production_media_path(
                 type_='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
-
-    if linguist:
-        from_path = version.project.artifact_path(
-            version=version.slug, type_='linguist')
-        target = version.project.rtd_build_path(version.slug)
-        Syncer.copy(from_path, target, host=hostname)
 
 
 @app.task(queue='web')
