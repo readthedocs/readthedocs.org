@@ -466,6 +466,44 @@ class Build(models.Model):
         """Return if build has a finished state."""
         return self.state == BUILD_STATE_FINISHED
 
+    @property
+    def raw_log(self):
+        raw_log_template = '''RTD build information start
+Build: {build}
+Project: {project}
+Version: {version} ({commit})
+Date: {date}
+Success: {succes}
+RTD build information end
+'''
+        raw_log = raw_log_template.format(
+            build=self.pk,
+            project=self.project.slug,
+            version=self.version.verbose_name,
+            commit=self.commit,
+            date=self.date,
+            succes=self.success,
+        )
+
+        command_log_template = '''[rtd-command-info] start-time: {start_time}, end-time: {end_time}, duration: {duration}, exit-code: {exit_code}
+{command}
+{output}
+'''
+        commands_log = (
+            command_log_template.format(
+                start_time=command.start_time,
+                end_time=command.end_time,
+                duration=command.run_time,
+                exit_code=command.exit_code,
+                command=command.command,
+                output=command.output,
+            )
+            for command in self.commands.all()
+        )
+
+        raw_log += '\n' + '\n'.join(commands_log)
+        return raw_log
+
 
 class BuildCommandResultMixin(object):
 
