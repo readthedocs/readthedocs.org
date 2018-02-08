@@ -10,7 +10,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import JSONRenderer, BaseRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH, TAG
@@ -32,6 +32,19 @@ from ..serializers import (
     SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
 
 log = logging.getLogger(__name__)
+
+
+class PlainTextRenderer(BaseRenderer):
+    """Custom renderer for text/plain format.
+
+    charset is 'utf-8' by default.
+    """
+
+    media_type = 'text/plain'
+    format = 'txt'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return data.encode(self.charset)
 
 
 class UserSelectViewSet(viewsets.ModelViewSet):
