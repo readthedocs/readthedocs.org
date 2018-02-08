@@ -252,6 +252,7 @@ LANGUAGES = (
     # Try these to test our non-2 letter language support
     ('nb_NO', 'Norwegian Bokmal'),
     ('pt_BR', 'Brazilian Portuguese'),
+    ('es_MX', 'Mexican Spanish'),
     ('uk_UA', 'Ukrainian'),
     ('zh_CN', 'Simplified Chinese'),
     ('zh_TW', 'Traditional Chinese'),
