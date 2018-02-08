@@ -61,6 +61,14 @@ $(document).ready(function () {
           </a>
         </li>
       </div>
+
+      <div data-bind="visible: finished()">
+        <li>
+          <a href="#">
+            {% trans "Raw log" %}
+          </a>
+        </li>
+     </div>
     </ul>
 
     <div class="build-id">
