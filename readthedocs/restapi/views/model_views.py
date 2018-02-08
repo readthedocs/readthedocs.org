@@ -45,7 +45,7 @@ class PlainTextRenderer(BaseRenderer):
     media_type = 'text/plain'
     format = 'txt'
 
-    def render(self, data, media_type=None, renderer_context=None):
+    def render(self, data, accepted_media_type=None, renderer_context=None):
         return data.encode(self.charset)
 
 
