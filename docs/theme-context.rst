@@ -121,7 +121,7 @@ In case you want to access to this data from your theme, you can use it like thi
 
    In this example, we are using ``pagename`` which is a Sphinx variable
    representing the name of the page you are on. More information about Sphinx
-   variables can be found on `Sphinx documentation`_.
+   variables can be found in the `Sphinx documentation`_.
 
 
 .. _`Sphinx documentation`: http://www.sphinx-doc.org/en/stable/templating.html#global-variables
