@@ -231,6 +231,11 @@ class BuildViewSetBase(UserSelectViewSet):
     admin_serializer_class = BuildAdminSerializer
     model = Build
 
+    @detail_route(renderer_classes=[PlainTextRenderer])
+    def log(self, request, *args, **kwargs):
+        build = self.get_object()
+        return Response(build.raw_log)
+
 
 class BuildViewSet(SettingsOverrideObject):
 
