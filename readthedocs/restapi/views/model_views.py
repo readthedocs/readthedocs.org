@@ -35,7 +35,9 @@ log = logging.getLogger(__name__)
 
 
 class PlainTextRenderer(BaseRenderer):
-    """Custom renderer for text/plain format.
+
+    """
+    Custom renderer for text/plain format.
 
     charset is 'utf-8' by default.
     """
