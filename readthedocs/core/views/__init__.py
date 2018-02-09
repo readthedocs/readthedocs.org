@@ -39,20 +39,8 @@ class HomepageView(TemplateView):
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
         context = super(HomepageView, self).get_context_data(**kwargs)
-        latest = []
-        latest_builds = (
-            Build.objects
-            .filter(
-                project__privacy_level=constants.PUBLIC,
-                success=True,
-            )
-            .order_by('-date')
-        )[:100]  # yapf: disable
-        for build in latest_builds:
-            if (build.project not in latest and len(latest) < 10):
-                latest.append(build.project)
-        context['project_list'] = latest
         context['featured_list'] = Project.objects.filter(featured=True)
+        context['projects_count'] = Project.objects.count()
         return context
 
 
