@@ -28,6 +28,15 @@ function init() {
         get_data['subproject'] = true;
     }
 
+    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+        // Force a specific promo to be displayed
+        var params = new URL(window.location).searchParams;
+        var force_promo = params.get('promo');
+        if (force_promo) {
+            get_data['promo'] = force_promo;
+        }
+    }
+
     // Get footer HTML from API and inject it into the page.
     $.ajax({
         url: rtd.api_host + "/api/v2/footer_html/",

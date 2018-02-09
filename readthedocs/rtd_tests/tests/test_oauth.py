@@ -6,6 +6,7 @@ import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
@@ -130,6 +131,24 @@ class GitHubOAuthTests(TestCase):
 
         self.assertEqual(github_project, github_project_5)
         self.assertEqual(github_project_2, github_project_6)
+
+    @override_settings(DEFAULT_PRIVACY_LEVEL='private')
+    def test_make_private_project(self):
+        """
+        Test ability to import ``public`` repositories under ``private`` level.
+        """
+        repo_json = {
+            'name': 'testrepo',
+            'full_name': 'testuser/testrepo',
+            'description': 'Test Repo',
+            'git_url': 'git://github.com/testuser/testrepo.git',
+            'private': False,
+            'ssh_url': 'ssh://git@github.com:testuser/testrepo.git',
+            'html_url': 'https://github.com/testuser/testrepo',
+            'clone_url': 'https://github.com/testuser/testrepo.git',
+        }
+        repo = self.service.create_repository(repo_json, organization=self.org)
+        self.assertIsNotNone(repo)
 
 
 class BitbucketOAuthTests(TestCase):
@@ -269,6 +288,16 @@ class BitbucketOAuthTests(TestCase):
         repo = self.service.create_repository(
             data, organization=self.org, privacy=self.privacy)
         self.assertIsNone(repo)
+
+    @override_settings(DEFAULT_PRIVACY_LEVEL='private')
+    def test_make_private_project(self):
+        """
+        Test ability to import ``public`` repositories under ``private`` level.
+        """
+        data = self.repo_response_data.copy()
+        data['is_private'] = False
+        repo = self.service.create_repository(data, organization=self.org)
+        self.assertIsNotNone(repo)
 
     def test_make_organization(self):
         org = self.service.create_organization(self.team_response_data)
@@ -444,3 +473,15 @@ class GitLabOAuthTests(TestCase):
             'https://secure.gravatar.com/avatar/test',
         )
         self.assertEqual(org.url, 'https://gitlab.com/testorga')
+
+    @override_settings(DEFAULT_PRIVACY_LEVEL='private')
+    def test_make_private_project(self):
+        """
+        Test ability to import ``public`` repositories under ``private`` level.
+        """
+        data = self.repo_response_data.copy()
+        data['visibility'] = 'public'
+        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
+            m.return_value = True
+            repo = self.service.create_repository(data, organization=self.org)
+        self.assertIsNotNone(repo)

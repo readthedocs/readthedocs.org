@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 
 {% load i18n %}
-
+{% load humanize %}
 {% load pagination_tags %}
+
+{% block extra_metas %}
+  <meta name="description" content="{% trans "Read the Docs simplifies technical documentation by automating building, versioning, and hosting for you. Build up-to-date documentation for the web, print, and offline use on every version control push automatically." %}">
+{% endblock extra_metas %}
 
 {% block title %}{% trans "Home" %}{% endblock %}
 
@@ -36,105 +40,129 @@
 
 {% block content %}
 
-          <div class="module">
-            <div class="module-wrapper">
+  <!-- Lead -->
+  <section>
+    <h2>{% trans "Technical documentation lives here" %}</h2>
+    <p class="lead">
+      {% blocktrans %}
+      Read the Docs simplifies software documentation by automating building,
+      versioning, and hosting of your docs for you.
+      {% endblocktrans %}
+    </p>
+  </section>
 
-              <div class="module-header">
-                <h3>{% trans "What is this place?" %}</h3>
-                <p>
-{% blocktrans %}
-Read the Docs hosts documentation, making it fully searchable and easy to find.
-You can import your docs using any major version control system, including Mercurial, Git, Subversion, and Bazaar.
-We support <a href="http://docs.readthedocs.io/en/latest/webhooks.html">webhooks</a> so your docs get built when you commit code.
-There's also support for <a href="http://docs.readthedocs.io/en/latest/versions.html">versioning</a> so you can build docs from tags and branches of your code in your repository. 
-{% endblocktrans %}
-                </p>
-                <p>
-{% blocktrans %}
-  Hosting documentation is free and simple,
-  <a href="https://docs.readthedocs.io/en/latest/getting_started.html">read our guide</a>
-  to get started!
-{% endblocktrans %}
-                <p>
-                <p>
-{% blocktrans %}
-Read the Docs is <b>community supported</b>. 
-It depends on users like you to contribute to development,
-support,
-and operations.
-You can learn more about how to <a href="https://docs.readthedocs.io/en/latest/contribute.html">contribute</a> in our docs.
-Thanks so much to our wonderful <a href="https://docs.readthedocs.io/en/latest/team.html">community team</a> who helps us run the site.
-Read the Docs wouldn't be possible without them.
-Please consider joining today,
-as we always need more contributors to the project.
-{% endblocktrans %}
-                </p>
-              </div>
 
-            </div>
-          </div>
-
-          {% include "core/widesearchbar.html" %}
-
-          {% if featured_list %}
-          <!-- BEGIN projects list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                <h3>{% trans "Featured Projects" %}</h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/project_list_featured.html" %}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END projects list -->
-          {% endif %}
-
-          <!-- BEGIN projects list -->
-          <div class="module">
-            <div class="module-wrapper">
-
-              <div class="module-header">
-                <h3>{% trans "Recently updated projects" %}</h3>
-              </div>
-
-              <div class="module-list">
-                <div class="module-list-wrapper">
-                  <ul>
-                    {% include "core/project_list_detailed.html" %}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          <!-- END projects list -->
-
-    <div>
-        <h3>{% trans "Read the Docs is funded by the community" %}</h3>
-        <p>
-          {% url "advertising" as advertising_url %}
-          {% url "donate" as sponsors_url %}
-          {% url "gold_detail" as gold_detail %}
-
-          Read the Docs is a huge resource that millions of developers rely on
-          for software documentation. It would not be possible without the
-          support of our
-          <a href="{{ sponsors_url | default:'https://readthedocs.org/sustainability/' }}">sponsors</a>,
-          <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">advertisers</a>,
-          and <a href="{{ gold_detail }}">readers like you</a>.
-        </p>
-        <p>
-          Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
-        </p>
+  <section>
+    <div class="feature">
+      <h3>Free docs hosting</h3>
+      <p>
+        {% with projects_count_intcomma=projects_count|intcomma %}
+        {% blocktrans %}
+        We will host your documentation for free forever.
+        There are no tricks. We help {{ projects_count_intcomma }} open source projects
+        share their docs.
+        {% endblocktrans %}
+        {% endwith %}
+      </p>
     </div>
+    <div class="feature">
+      <h3>Webhooks</h3>
+      <p>
+        {% blocktrans %}
+        Whenever you push code to your favorite version control system,
+        whether that is Git, Mercurial, Bazaar, or Subversion, we will
+        automatically build your docs so your code and documentation are
+        never out of sync.
+        {% endblocktrans %}
+      </p>
+    </div>
+    <div class="clearfix"></div>
+  </section>
 
+  <section>
+    <div class="feature">
+      <h3>Multiple formats</h3>
+      <p>
+        {% blocktrans %}
+        Of course we build and host your docs for the web, but they are
+        also vieweable as PDFs, as single page HTML, and for eReaders.
+        No additional configuration is required.
+        {% endblocktrans %}
+      </p>
+    </div>
+    <div class="feature">
+      <h3>Multiple versions</h3>
+      <p>
+        {% blocktrans %}
+        We can host and build multiple versions of your docs so having a
+        1.0 version of your docs and a 2.0 version of your docs is as easy
+        as having a separate branch or tag in your version control system.
+        {% endblocktrans %}
+      </p>
+    </div>
+    <div class="clearfix"></div>
+  </section>
+
+  <!-- Call to action -->
+  <section>
+    <p style="text-align: center">
+      <a href="https://docs.readthedocs.io/en/latest/getting_started.html" class="cta-btn">{% trans 'Getting started guide' %}</a>
+    </p>
+  </section>
+
+  <!-- Search -->
+  <section>
+    {% include "core/widesearchbar.html" %}
+  <section>
+
+  {% if featured_list %}
+    <!-- BEGIN projects list -->
+    <section>
+      <h3>{% trans "Featured Projects" %}</h3>
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul style="margin-bottom: 0">
+            {% include "core/project_list_featured.html" %}
+          </ul>
+        </div>
+      </div>
+    </section>
+    <!-- END projects list -->
+  {% endif %}
+
+  <!-- Funding and Contributing -->
+  <section>
+    <h2>{% trans "Read the Docs is funded by the community" %}</h2>
+    <p>
+
+    {% url "advertising" as advertising_url %}
+    {% url "donate" as sponsors_url %}
+    {% url "gold_detail" as gold_detail %}
+
+    {% blocktrans %}
+    Read the Docs is a huge resource that millions of developers rely on
+    for software documentation. It would not be possible without the
+    support of our
+    <a href="{{ sponsors_url }}">sponsors</a>,
+    <a href="{{ advertising_url }}">advertisers</a>,
+    and <a href="{{ gold_detail }}">readers like you</a>.
+    {% endblocktrans %}
+    </p>
+
+    <p>
+      {% blocktrans %}
+      Read the Docs is <strong>community supported</strong>.
+      It depends on users like you to contribute to development, support, and operations.
+      You can learn more about how to <a href="https://docs.readthedocs.io/en/latest/contribute.html">contribute</a> in our docs.
+      Thanks so much to our wonderful <a href="https://docs.readthedocs.io/en/latest/team.html">community team</a> who helps us run the site.
+      Read the Docs wouldn't be possible without them.
+      {% endblocktrans %}
+    </p>
+
+    <p>
+      {% blocktrans %}
+      Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
+      {% endblocktrans %}
+    </p>
+  </section>
 {% endblock %}

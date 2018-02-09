@@ -19,8 +19,6 @@ from ..models import RemoteOrganization, RemoteRepository
 from .base import Service
 
 
-DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-
 log = logging.getLogger(__name__)
 
 
@@ -87,8 +85,7 @@ class BitbucketService(Service):
             raise Exception('Could not sync your Bitbucket team repositories, '
                             'try reconnecting your account')
 
-    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
-                          organization=None):
+    def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from Bitbucket API response.
 
@@ -103,8 +100,11 @@ class BitbucketService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
-        if (fields['is_private'] is True and privacy == 'private' or
-                fields['is_private'] is False and privacy == 'public'):
+        privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
+        if (
+                (privacy == 'private') or
+                (fields['is_private'] is False and privacy == 'public')
+        ):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name'],
                 account=self.account,
