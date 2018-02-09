@@ -40,6 +40,13 @@ which are branches that are maintained over time for a specific release number.
 
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 
+Tags and branches
+-----------------
+
+Read the Docs supports two workflows for versioning: based on tags or branches.
+If you have at least one active tag,
+tags will take preference over branches when selecting the stable version.
+
 Redirects on root URLs
 ----------------------
 
@@ -48,5 +55,3 @@ for example ``http://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
-
-
