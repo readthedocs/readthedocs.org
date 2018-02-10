@@ -64,7 +64,7 @@ $(document).ready(function () {
 
       <div data-bind="visible: finished()">
         <li>
-          <a href="#">
+          <a href="{% url "build-log" build.pk  %}">
             {% trans "View raw" %}
           </a>
         </li>
