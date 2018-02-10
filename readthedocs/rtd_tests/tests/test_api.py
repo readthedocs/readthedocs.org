@@ -17,7 +17,7 @@ from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Feature, Project
@@ -276,6 +276,44 @@ class APIBuildTests(TestCase):
         self.assertEqual(len(build['commands']), 1)
         self.assertEqual(build['commands'][0]['run_time'], 5)
         self.assertEqual(build['commands'][0]['description'], 'foo')
+
+    def test_get_raw_log(self):
+        build = get(Build, project_id=1, version_id=1, builder='foo')
+        get(
+            BuildCommandResult,
+            build=build,
+            command='python setup.py install',
+            output='Installing dependencies...'
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='git checkout master',
+            output='Switched to branch "master"'
+        )
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}/log.txt'.format(build.pk))
+        self.assertEqual(resp.status_code, 200)
+        resp = client.get(
+            '/api/v2/build/{0}/log/'.format(build.pk),
+            format='txt'
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertIn('RTD build information start', resp.data)
+        self.assertIn('RTD build information end', resp.data)
+        self.assertIn('[rtd-command-info]', resp.data)
+        self.assertIn(
+            'python setup.py install\nInstalling dependencies...',
+            resp.data
+        )
+        self.assertIn(
+            'git checkout master\nSwitched to branch "master"',
+            resp.data
+        )
 
 
 class APITests(TestCase):
