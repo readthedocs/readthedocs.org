@@ -3,7 +3,7 @@ Build: {{ build.pk }}
 Project: {{ build.project.slug }}
 Version: {{ build.version.verbose_name }} ({{ build.commit }})
 Date: {{ build.date }}
-Success: {{ build.succes }}
+Success: {{ build.success }}
 RTD build information end
 
 {% for command in build.commands.all %}
