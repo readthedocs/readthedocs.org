@@ -7,10 +7,11 @@ from __future__ import (
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.renderers import JSONRenderer, BaseRenderer
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH, TAG
@@ -46,7 +47,11 @@ class PlainTextRenderer(BaseRenderer):
     format = 'txt'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        return data.encode(self.charset)
+        kwargs = renderer_context.get('kwargs', {})
+        if kwargs.get('format', self.format) == self.format:
+            return data.encode(self.charset)
+        else:
+            raise Http404
 
 
 class UserSelectViewSet(viewsets.ModelViewSet):
