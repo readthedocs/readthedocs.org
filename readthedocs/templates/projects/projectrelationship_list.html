@@ -46,34 +46,43 @@
 
     <div class="module project-subprojects">
       <div class="module-list-wrapper">
-        <ul>
-          {% for subproject in object_list %}
-            <li class="module-item">
-                <a href="{% url 'projects_manage' project_slug=subproject.child.slug %}">
-                  {{ subproject.child }}
-                </a>
+        <div class="module-list">
+          <div class="module-list-wrapper">
+            <ul class="subprojects">
+              {% for subproject in object_list %}
+                <li class="module-item subproject">
+                  <div class="subproject-info">
+                    <a
+                      class="subproject-name"
+                      href="{% url 'projects_manage' project_slug=subproject.child.slug %}">
+                      {{ subproject.child }}
+                    </a>
+                    <span class="subproject-url">
+                      <a href="{{ subproject.get_absolute_url }}">
+                        {{ subproject.get_absolute_url }}
+                      </a>
+                    </span>
+                  </div>
 
-                <ul class="module-item-menu">
-                  <li>
-                    <a href="{{ subproject.get_absolute_url }}">
-                      {% trans "View Docs" %}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="{% url 'projects_subprojects_update' project_slug=project.slug subproject_slug=subproject.child.slug %}">
-                      {% trans "Edit" %}
-                    </a>
-                  </li>
-                </ul>
-            </li>
-          {% empty %}
-            <li class="module-item">
-              <p class="quiet">
-                {% trans 'No subprojects are currently configured' %}
-              </p>
-            </li>
-          {% endfor %}
-        </ul>
+                  <ul class="module-item-menu subproject-menu">
+                    <li>
+                      <a
+                        class="subproject-edit"
+                        href="{% url 'projects_subprojects_update' project_slug=project.slug subproject_slug=subproject.child.slug %}">
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              {% empty %}
+                <li class="module-item">
+                  <p class="quiet">
+                    {% trans 'No subprojects are currently configured' %}
+                  </p>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   {% endif %}
