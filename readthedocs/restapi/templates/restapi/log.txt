@@ -8,6 +8,6 @@ RTD build information end
 
 {% for command in build.commands.all %}
 [rtd-command-info] start-time: {{ command.start_time }}, end-time: {{ command.end_time }}, duration: {{ command.run_time }}, exit-code: {{ command.exit_code }}
-{{ command.command }}
-{{ command.output }}
+{{ command.command|safe }}
+{{ command.output|safe }}
 {% endfor %}
