@@ -187,6 +187,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'conf_py_file',
             'default_branch',
             'default_version',
+            'show_version_warning',
             'enable_pdf_build',
             'enable_epub_build',
             # Privacy
