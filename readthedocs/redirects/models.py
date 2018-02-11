@@ -97,10 +97,9 @@ class Redirect(models.Model):
                 from_url=self.from_url,
                 to_url=self.to_url
             )
-        else:
-            return ugettext('Redirect: {}'.format(
-                self.get_redirect_type_display())
-            )
+        return ugettext('Redirect: {}'.format(
+            self.get_redirect_type_display())
+        )
 
     def get_full_path(self, filename, language=None, version_slug=None):
         """
