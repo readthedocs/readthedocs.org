@@ -153,6 +153,7 @@ def footer_html(request):
     )
     resp_data = {
         'html': html,
+        'show_version_warning': project.show_version_warning,
         'version_active': version.active,
         'version_compare': version_compare_data,
         'version_supported': version.supported,
