@@ -160,6 +160,10 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    show_version_warning = models.BooleanField(
+        _('Show version warning'), default=True,
+        help_text=_('Show warning banner in non-stable versions.')
+    )
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
