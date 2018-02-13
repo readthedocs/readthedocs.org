@@ -1,6 +1,6 @@
 Version 2.1.6
 -------------
-
+ * `@fiennyangeln <http://github.com/fiennyangeln>`_: Add woff2 (`#3586 <https://github.com/rtfd/readthedocs.org/issues/3586>`_)
  * `@davidfischer <http://github.com/davidfischer>`_: Promo contrast improvements (`#3549 <https://github.com/rtfd/readthedocs.org/pull/3549>`_)
  * `@humitos <http://github.com/humitos>`_: Refactor run command outside a Build and Environment (`#3542 <https://github.com/rtfd/readthedocs.org/issues/3542>`_)
  * `@AnatoliyURL <http://github.com/AnatoliyURL>`_: Project in the local read the docs don't see tags. (`#3534 <https://github.com/rtfd/readthedocs.org/issues/3534>`_)
