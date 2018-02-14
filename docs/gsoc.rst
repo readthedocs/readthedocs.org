@@ -6,7 +6,7 @@ Google Summer of Code
           Please give us a little while to work on things,
           and check back on this page for updates.
 
-Read the Docs is hoping to participate in the Google Summer of Code in 2018.
+Read the Docs is participating in the Google Summer of Code in 2018.
 This page will contain all the information for students and anyone else interested in helping.
 
 Skills
