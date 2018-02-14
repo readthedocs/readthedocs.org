@@ -183,3 +183,30 @@ div.rtd-pro-wrapper {
 div.rtd-pro > p.ethical-callout {
     margin-top: 1em;
 }
+
+@media (max-width: 768px) {
+    .ethical-fixed-footer {
+        box-sizing: border-box;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+        background-color: #eee;
+        border-top: 1px solid #bfbfbf;
+        font-size: 12px;
+        line-height: 16px;
+        padding: 0.5em 1em;
+        text-align: center;
+        color: #404040;
+    }
+    .ethical-fixed-footer a, .ethical-fixed-footer a:hover, .ethical-fixed-footer a:active, .ethical-fixed-footer a:visited {
+        color: #004B6B;
+        text-decoration: underline;
+    }
+}
+@media (min-width: 769px) {
+    .ethical-fixed-footer {
+        display: none;
+    }
+}
