@@ -206,7 +206,7 @@ class BuildViewSetBase(UserSelectViewSet):
     model = Build
 
     def get_queryset(self):
-        query = self.model.objects.api(self.request.user)
+        query = super(BuildViewSetBase, self).get_queryset()
         commit = self.request.query_params.get('commit', None)
         if commit is not None:
             query = query.filter(commit=commit)
