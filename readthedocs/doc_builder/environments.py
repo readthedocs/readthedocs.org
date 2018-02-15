@@ -13,6 +13,7 @@ import socket
 from datetime import datetime
 
 from readthedocs.core.utils import slugify
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext_noop
 from docker import Client
 from docker.utils import create_host_config
@@ -662,6 +663,42 @@ class DockerEnvironment(BuildEnvironment):
                 )
             )
 
+    def get_container_host_config(self):
+        """
+        Create the ``host_config`` settings for the container.
+
+        It mainly generates the proper path bindings between the Docker
+        container and the Host by mounting them with the proper permissions.
+        Besides, it mounts the ``GLOBAL_PIP_CACHE`` if it's set and we are under
+        ``DEBUG``.
+
+        The object returned is passed to Docker function
+        ``client.create_container``.
+        """
+        binds = {
+            SPHINX_TEMPLATE_DIR: {
+                'bind': SPHINX_TEMPLATE_DIR,
+                'mode': 'ro',
+            },
+            MKDOCS_TEMPLATE_DIR: {
+                'bind': MKDOCS_TEMPLATE_DIR,
+                'mode': 'ro',
+            },
+            self.project.doc_path: {
+                'bind': self.project.doc_path,
+                'mode': 'rw',
+            },
+        }
+
+        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+            binds.update({
+                self.project.pip_cache_path: {
+                    'bind': self.project.pip_cache_path,
+                    'mode': 'rw',
+                }
+            })
+        return create_host_config(binds=binds)
+
     @property
     def container_id(self):
         """Return id of container if it is valid."""
@@ -715,20 +752,7 @@ class DockerEnvironment(BuildEnvironment):
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
                 name=self.container_id,
                 hostname=self.container_id,
-                host_config=create_host_config(binds={
-                    SPHINX_TEMPLATE_DIR: {
-                        'bind': SPHINX_TEMPLATE_DIR,
-                        'mode': 'ro'
-                    },
-                    MKDOCS_TEMPLATE_DIR: {
-                        'bind': MKDOCS_TEMPLATE_DIR,
-                        'mode': 'ro'
-                    },
-                    self.project.doc_path: {
-                        'bind': self.project.doc_path,
-                        'mode': 'rw'
-                    },
-                }),
+                host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
                 mem_limit=self.container_mem_limit,
