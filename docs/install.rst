@@ -104,6 +104,19 @@ Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
     cd readthedocs.org
     pip install -r requirements.txt
 
+.. note::
+
+   Make sure you are running the ``python`` command from your virtualenv,
+   no the one from your system on the next steps.
+   An easy way to check this is by running the following command on your terminal::
+
+     python -c "import sys; print('\n'.join(sys.path))"
+
+   If in the output there isn't a path to your virtualenv,
+   you may check if the virtualenv is activated,
+   or try with ``python2`` or ``python3`` command respectively.
+
+
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
@@ -137,8 +150,9 @@ superuser account you just created).
 
 For builds to properly kick off as expected, it is necessary the port
 you're serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined
-in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
-(By default, it's ``localhost:8000``)
+in ``PRODUCTION_DOMAIN``.
+You can utilize ``readthedocs/settings/local_settings.py`` to modify this
+(by default, it's ``localhost:8000``).
 
 While the webserver is running, you can build documentation for the latest version of
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
