@@ -104,6 +104,19 @@ Next, install the dependencies using ``pip`` (included inside of virtualenv_)::
     cd readthedocs.org
     pip install -r requirements.txt
 
+.. note::
+
+   Make sure you are running the ``python`` command from your virtualenv,
+   no the one from your system on the next steps.
+   An easy way to check this is by running the following command on your terminal::
+
+     python -c "import sys; print('\n'.join(sys.path))"
+
+   If in the output there isn't a path to your virtualenv,
+   you may check if the virtualenv is activated,
+   or try with ``python2`` or ``python3`` command respectively.
+
+
 This may take a while, so go grab a beverage. When it's done, build your
 database::
 
