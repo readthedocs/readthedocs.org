@@ -4,7 +4,6 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import sys
-from datetime import datetime
 
 import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
@@ -14,6 +13,7 @@ sys.path.append(os.path.dirname(__file__))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
 
 from django.conf import settings
+from django.utils import timezone
 
 import django
 django.setup()
@@ -37,7 +37,7 @@ source_parsers = {
 master_doc = 'index'
 project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
-    datetime.now().year
+    timezone.now().year
 )
 version = '1.0'
 release = '1.0'
