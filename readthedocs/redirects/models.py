@@ -83,7 +83,10 @@ class Redirect(models.Model):
             return redirect_text.format(
                 type=ugettext('Prefix Redirect'),
                 from_url=self.from_url,
-                to_url=''
+                to_url='{lang}/{version}/'.format(
+                    lang=self.project.language,
+                    version=self.project.default_version
+                )
             )
         elif self.redirect_type == 'page':
             return redirect_text.format(
