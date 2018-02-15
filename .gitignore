@@ -45,3 +45,12 @@ readthedocs/htmlcov
 tags
 .python-version
 *.pyo
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
