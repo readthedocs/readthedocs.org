@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-#
+
+from __future__ import division, print_function, unicode_literals
+
 import os
 import sys
+from datetime import datetime
 
 import sphinx_rtd_theme
 from recommonmark.parser import CommonMarkParser
@@ -33,7 +36,9 @@ source_parsers = {
 
 master_doc = 'index'
 project = u'Read the Docs'
-copyright = u'2010-2017, Read the Docs, Inc & contributors'
+copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
+    datetime.now().year
+)
 version = '1.0'
 release = '1.0'
 exclude_patterns = ['_build']
