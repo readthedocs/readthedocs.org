@@ -56,6 +56,7 @@ Information about development is also available:
 
    contribute
    team
+   gsoc
    code-of-conduct
    ethical-advertising
    sponsors
