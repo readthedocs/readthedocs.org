@@ -6,6 +6,7 @@ from __future__ import (
 
 import logging
 
+from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
@@ -28,7 +29,7 @@ from ..serializers import (
     BuildAdminSerializer, BuildCommandSerializer, BuildSerializer,
     DomainSerializer, ProjectAdminSerializer, ProjectSerializer,
     RemoteOrganizationSerializer, RemoteRepositorySerializer,
-    VersionAdminSerializer, VersionSerializer)
+    SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
 
 log = logging.getLogger(__name__)
 
