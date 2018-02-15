@@ -288,3 +288,13 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                 service.adapter.provider_id for service in registry
             ])
         return query
+
+
+class SocialAccountViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsOwner]
+    renderer_classes = (JSONRenderer,)
+    serializer_class = SocialAccountSerializer
+    model = SocialAccount
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user.pk)
