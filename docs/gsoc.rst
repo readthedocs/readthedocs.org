@@ -49,9 +49,7 @@ People who has a history of submitting pull requests will be prioritized in our 
 Want to get involved?
 ---------------------
 
-If you're interested in participating in GSoC as a student, you can also post an `issue <https://github.com/rtfd/readthedocs.org/issues>`_ on GitHub to let us know. We will be happy to help direct you or answer any questions you may have there.
-
-You can also reach out to folks on IRC at `#readthedocs` on Freenode.
+If you're interested in participating in GSoC as a student, you can apply during the normal process provided by Google. We are currently overwhelmed with interest, so we are not able to respond individually to each person who is interested.
 
 Project Ideas
 -------------
