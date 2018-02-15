@@ -8,7 +8,7 @@ Operations Team
 ===============
 
 * Eric Holscher
-* Chris McDonald
+* Anthony Johnson
 
 Awesome Contributors
 ====================
