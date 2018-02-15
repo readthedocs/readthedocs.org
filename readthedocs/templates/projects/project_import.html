@@ -209,6 +209,15 @@ $(document).ready(function() {
         </div>
       {% endblock %}
 
+      <h3>{% trans "Filter by my own User" %}</h3>
+      <li
+        class="remote-org"
+        data-bind="click: function () { $root.set_filter_own(); }">
+        <!-- <img data-bind="attr: {src: avatar_url}" class="remote-org-avatar" /> -->
+        <!-- <span data-bind="text: display_name" class="remote-org-name"></span> -->
+      </li>
+
+
       {% block organizations %}
         <div data-bind="visible: organizations().length > 0">
           <h3>{% trans "Filter by Organization" %}</h3>

@@ -154,6 +154,7 @@ function ProjectImportView (instance, config) {
     self.page_next = ko.observable(null);
     self.page_previous = ko.observable(null);
     self.filter_org = ko.observable(null);
+    self.filter_own = ko.observable(false);
 
     self.organizations_raw = ko.observableArray();
     self.organizations = ko.computed(function () {
@@ -170,6 +171,7 @@ function ProjectImportView (instance, config) {
 
     ko.computed(function () {
         var org = self.filter_org();
+        var own = self.filter_own();
         var orgs = self.organizations();
         var url = self.page_current() || self.urls['remoterepository-list'];
 
@@ -177,6 +179,13 @@ function ProjectImportView (instance, config) {
             url = append_url_params(
                 self.urls['remoterepository-list'],
                 {org: org}
+            );
+        }
+
+        if (own) {
+            url = append_url_params(
+                self.urls['remoterepository-list'],
+                {own: own}
             );
         }
 
@@ -250,6 +259,10 @@ function ProjectImportView (instance, config) {
             id = null;
         }
         self.filter_org(id);
+    };
+
+    self.set_filter_own = function () {
+        self.filter_own(true);
     };
 }
 

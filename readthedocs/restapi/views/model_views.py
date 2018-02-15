@@ -275,6 +275,11 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)
+
+        own = self.request.query_params.get('own', None)
+        if own is not None:
+            query = query.filter(organization__isnull=True)
+
         query = query.filter(
             account__provider__in=[
                 service.adapter.provider_id for service in registry
