@@ -449,7 +449,7 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False):
+        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
             return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
