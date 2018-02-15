@@ -150,8 +150,9 @@ superuser account you just created).
 
 For builds to properly kick off as expected, it is necessary the port
 you're serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined
-in ``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this.
-(By default, it's ``localhost:8000``)
+in ``PRODUCTION_DOMAIN``.
+You can utilize ``readthedocs/settings/local_settings.py`` to modify this
+(by default, it's ``localhost:8000``).
 
 While the webserver is running, you can build documentation for the latest version of
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
