@@ -146,10 +146,9 @@ class SubprojectFormTests(TestCase):
     def test_exclude_self_project_as_subproject(self):
         user = fixture.get(User)
         project = fixture.get(Project, users=[user])
-        subproject = project
 
         form = ProjectRelationshipForm(
-            {'child': subproject.pk},
+            {'child': project.pk},
             project=project,
             user=user
         )
