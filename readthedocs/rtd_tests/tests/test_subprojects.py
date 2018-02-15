@@ -152,10 +152,12 @@ class SubprojectFormTests(TestCase):
             project=project,
             user=user
         )
+        self.assertFalse(form.is_valid())
         self.assertNotIn(
             project.id,
             [proj_id for (proj_id, __) in form.fields['child'].choices]
         )
+
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):
