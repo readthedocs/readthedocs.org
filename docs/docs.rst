@@ -11,7 +11,7 @@ You can build the docs by installing ``Sphinx`` and running::
 	make html
 
 Please follow these guidelines when updating our docs.
-Let us know if you have any questions or if something isn't clear.
+Let us know if you have any questions or something isn't clear.
 
 The brand
 ---------
@@ -33,6 +33,7 @@ Content
 -------
 
 * Do not break the content across multiple lines at 80 characters,
-  but rather broken them on semantic meaning (e.g. periods or commas).
+  but rather break them on semantic meaning (e.g. periods or commas).
+  Read more about this `here <http://rhodesmill.org/brandon/2012/one-sentence-per-line/>`_.
 * If you are cross-referencing to a different page within our website,
   use the ``doc`` directive and not a hyperlink.
