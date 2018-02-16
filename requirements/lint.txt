@@ -7,3 +7,4 @@ pylint
 prospector
 pylint-django
 pyflakes
+rstcheck
