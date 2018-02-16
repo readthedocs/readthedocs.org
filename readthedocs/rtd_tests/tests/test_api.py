@@ -20,6 +20,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Feature, Project
+from readthedocs.restapi.views.integrations import GitHubWebhookView
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -466,23 +467,15 @@ class IntegrationsTests(TestCase):
             self.project, ['tag']
         )
 
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/heads/stable/2018'},
-            format='json',
-        )
-        get_response_push.assert_called_with(
-            self.project, ['stable/2018']
-        )
+    def test_github_parse_ref(self, trigger_build):
+        wh = GitHubWebhookView()
 
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/tags/tag/v0.1'},
-            format='json',
-        )
-        get_response_push.assert_called_with(
-            self.project, ['tag/v0.1']
-        )
+        self.assertEqual(wh._normalize_ref('refs/heads/master'), 'master')
+        self.assertEqual(wh._normalize_ref('refs/heads/v0.1'), 'v0.1')
+        self.assertEqual(wh._normalize_ref('refs/tags/v0.1'), 'v0.1')
+        self.assertEqual(wh._normalize_ref('refs/tags/tag'), 'tag')
+        self.assertEqual(wh._normalize_ref('refs/heads/stable/2018'), 'stable/2018')
+        self.assertEqual(wh._normalize_ref('refs/tags/tag/v0.1'), 'tag/v0.1')
 
     def test_github_invalid_webhook(self, trigger_build):
         """GitHub webhook unhandled event."""
