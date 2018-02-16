@@ -12,11 +12,13 @@ ga('rtfd.set', 'dimension3', READTHEDOCS_DATA.language);
 ga('rtfd.set', 'dimension4', READTHEDOCS_DATA.theme);
 ga('rtfd.set', 'dimension5', READTHEDOCS_DATA.programming_language);
 ga('rtfd.set', 'dimension6', READTHEDOCS_DATA.builder);
+ga('rtfd.set', 'anonymizeIp', true);
 ga('rtfd.send', 'pageview');
 
 {% if user_analytics_code %}
 // User Analytics Code
 ga('create', '{{ user_analytics_code }}', 'auto', 'user');
+ga('user.set', 'anonymizeIp', true);
 ga('user.send', 'pageview');
 // End User Analytics Code
 {% endif %}

@@ -23,11 +23,13 @@
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd');
+    ga('rtfd.set', 'anonymizeIp', true);
     ga('rtfd.send', 'pageview');
 
     {% if DASHBOARD_ANALYTICS_CODE %}
       // Dashboard Analytics Code
       ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user');
+      ga('user.set', 'anonymizeIp', true);
       ga('user.send', 'pageview');
       // End Dashboard Analytics Code
     {% endif %}
