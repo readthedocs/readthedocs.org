@@ -65,11 +65,6 @@ div.rtd-pro.alabaster {
 div.rtd-pro.wy-menu,
 div.rst-pro.wy-menu {
     bottom: 60px;
-    background: rgba(0, 0, 0, .06);
-}
-
-div.rtd-pro.alabaster {
-    background: rgba(220, 220, 220, .1);
 }
 
 div.rtd-pro > span,
@@ -169,10 +164,6 @@ div.rtd-pro-wrapper {
 @media (max-width: 768px) {
     div.rst-pro.wy-menu {
         display: none;
-    }
-
-    div.rtd-pro.alabaster {
-        background: rgba(220, 220, 220, .05);
     }
 
     div.rtd-pro.alabaster a.rtd-pro-image-wrapper {
