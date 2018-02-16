@@ -375,7 +375,7 @@ class IntegrationsTests(TestCase):
         self.version = get(Version, verbose_name='master', active=True, project=self.project)
         self.version_tag = get(Version, verbose_name='v1.0', active=True, project=self.project)
 
-    def test_github_webhook(self, trigger_build):
+    def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
 
@@ -389,19 +389,31 @@ class IntegrationsTests(TestCase):
 
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'v1.0'},
-            format='json',
-        )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version_tag, project=self.project)])
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
             {'ref': 'non-existent'},
             format='json',
         )
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'refs/heads/master'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=self.version, project=self.project)])
+
+    def test_github_webhook_for_tags(self, trigger_build):
+        """GitHub webhook API."""
+        client = APIClient()
+
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            {'ref': 'v1.0'},
+            format='json',
+        )
+        trigger_build.assert_has_calls(
+            [mock.call(force=True, version=self.version_tag, project=self.project)])
 
         client.post(
             '/api/v2/webhook/github/{0}/'.format(self.project.slug),
@@ -418,54 +430,6 @@ class IntegrationsTests(TestCase):
         )
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=self.version_tag, project=self.project)])
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/heads/master'},
-            format='json',
-        )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version, project=self.project)])
-
-    @mock.patch('readthedocs.restapi.views.integrations.WebhookMixin.get_response_push', return_value=None)
-    def test_github_parse_ref(self, get_response_push, trigger_build):
-        client = APIClient()
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/heads/master'},
-            format='json',
-        )
-        get_response_push.assert_called_with(
-            self.project, ['master']
-        )
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/heads/v0.1'},
-            format='json',
-        )
-        get_response_push.assert_called_with(
-            self.project, ['v0.1']
-        )
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/tags/v0.1'},
-            format='json',
-        )
-        get_response_push.assert_called_with(
-            self.project, ['v0.1']
-        )
-
-        client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
-            {'ref': 'refs/tags/tag'},
-            format='json',
-        )
-        get_response_push.assert_called_with(
-            self.project, ['tag']
-        )
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
