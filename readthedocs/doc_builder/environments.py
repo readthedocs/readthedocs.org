@@ -409,16 +409,12 @@ class BuildEnvironment(BaseEnvironment):
 
     def __init__(self, project=None, version=None, build=None, config=None,
                  record=True, environment=None, update_on_success=True):
-        self.project = project
+        super(BuildEnvironment, self).__init__(project, environment)
         self.version = version
         self.build = build
         self.config = config
         self.record = record
-        self.environment = environment or {}
         self.update_on_success = update_on_success
-
-        # TODO: remove this one, comes from super
-        self.commands = []
 
         self.failure = None
         self.start_time = datetime.utcnow()
