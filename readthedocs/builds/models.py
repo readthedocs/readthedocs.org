@@ -13,7 +13,7 @@ from shutil import rmtree
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.template import loader
+from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
@@ -469,8 +469,8 @@ class Build(models.Model):
 
     @property
     def raw_log(self):
-        raw_log = loader.get_template('restapi/log.txt').render(
-            {'build': self}
+        raw_log = render_to_string(
+            'restapi/log.txt', {'build': self}
         )
         return raw_log
 
