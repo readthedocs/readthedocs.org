@@ -59,9 +59,11 @@ Versions
                 {% endblock active-versions %}
 
               {% empty %}
-                <p>
-                  {% trans "No active versions." %}
-                </p>
+                <li class="module-item">
+                  <p class="quiet">
+                    {% trans "No active versions." %}
+                  </p>
+                </li>
               {% endfor %}
             </ul>
           </div>
