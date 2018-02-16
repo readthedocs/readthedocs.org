@@ -336,6 +336,8 @@ class APIMixin(URLAccessMixin):
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
             'remoteaccount-detail': {'status_code': 404},
+            # This isn't a valid media type
+            '/api/v2/build/1/log.json': {'status_code': 404},
         }
 
 
