@@ -24,7 +24,7 @@ from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import (
-    BuildCommand, DockerBuildCommand, DockerEnvironment, LocalEnvironment)
+    BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.models import Project
@@ -36,7 +36,7 @@ SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
 SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 
 
-class TestLocalEnvironment(TestCase):
+class TestLocalBuildEnvironment(TestCase):
 
     """Test execution and exception handling in environment."""
     fixtures = ['test_data']
@@ -58,7 +58,7 @@ class TestLocalEnvironment(TestCase):
         })
         type(self.mocks.process).returncode = PropertyMock(return_value=0)
 
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -92,12 +92,12 @@ class TestLocalEnvironment(TestCase):
     def test_incremental_state_update_with_no_update(self):
         """Build updates to a non-finished state when update_on_success=True."""
         build_envs = [
-            LocalEnvironment(
+            LocalBuildEnvironment(
                 version=self.version,
                 project=self.project,
                 build={'id': DUMMY_BUILD_ID},
             ),
-            LocalEnvironment(
+            LocalBuildEnvironment(
                 version=self.version,
                 project=self.project,
                 build={'id': DUMMY_BUILD_ID},
@@ -130,7 +130,7 @@ class TestLocalEnvironment(TestCase):
         })
         type(self.mocks.process).returncode = PropertyMock(return_value=1)
 
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -164,7 +164,7 @@ class TestLocalEnvironment(TestCase):
 
     def test_failing_execution_with_caught_exception(self):
         """Build in failing state with BuildEnvironmentError exception."""
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -197,7 +197,7 @@ class TestLocalEnvironment(TestCase):
 
     def test_failing_execution_with_unexpected_exception(self):
         """Build in failing state with exception from code."""
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -230,7 +230,7 @@ class TestLocalEnvironment(TestCase):
         })
 
 
-class TestDockerEnvironment(TestCase):
+class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
 
@@ -248,7 +248,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_container_id(self):
         """Test docker build command."""
-        docker = DockerEnvironment(
+        docker = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -257,7 +257,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_environment_successful_build(self):
         """A successful build exits cleanly and reports the build output."""
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -286,7 +286,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_environment_successful_build_without_update(self):
         """A successful build exits cleanly and doesn't update build."""
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -304,7 +304,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_environment_failed_build_without_update_but_with_error(self):
         """A failed build exits cleanly and doesn't update build."""
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -336,7 +336,7 @@ class TestDockerEnvironment(TestCase):
     def test_connection_failure(self):
         """Connection failure on to docker socket should raise exception."""
         self.mocks.configure_mock('docker', {'side_effect': DockerException})
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -379,7 +379,7 @@ class TestDockerEnvironment(TestCase):
                     'Failure creating container')
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -418,7 +418,7 @@ class TestDockerEnvironment(TestCase):
                     'Failure creating container'),
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -454,7 +454,7 @@ class TestDockerEnvironment(TestCase):
             'kill.side_effect': BuildEnvironmentError('Failed')
         })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -492,7 +492,7 @@ class TestDockerEnvironment(TestCase):
             'kill.side_effect': BuildEnvironmentError('Outer failed')
         })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -527,7 +527,7 @@ class TestDockerEnvironment(TestCase):
                 'exec_inspect.return_value': {'ExitCode': 1},
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -576,7 +576,7 @@ class TestDockerEnvironment(TestCase):
                 )
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -615,7 +615,7 @@ class TestDockerEnvironment(TestCase):
                 'exec_inspect.return_value': {'ExitCode': 0},
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -667,7 +667,7 @@ class TestDockerEnvironment(TestCase):
                 'exec_inspect.return_value': {'ExitCode': 0},
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},

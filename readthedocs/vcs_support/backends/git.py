@@ -52,7 +52,7 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, _, _ = self.run('git', 'status')
+        code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
     def fetch(self):
@@ -65,22 +65,22 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout',
-                                  '--force', '--quiet', revision)
+        code, out, err = self.run(
+            'git', 'checkout', '--force', revision)
         if code != 0:
             log.warning("Failed to checkout revision '%s': %s",
                         revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
-                              self.repo_url, '.')
+        code, _, _ = self.run(
+            'git', 'clone', '--recursive', self.repo_url, '.')
         if code != 0:
             raise RepositoryError
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', record_as_success=True)
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -205,7 +205,7 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, _, _ = self.run('git', 'show-ref', ref)
+        code, _, _ = self.run('git', 'show-ref', ref, record_as_success=True)
         return code == 0
 
     @property
