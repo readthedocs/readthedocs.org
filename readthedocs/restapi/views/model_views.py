@@ -9,6 +9,7 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
+from django.template.loader import render_to_string
 from rest_framework.decorators import detail_route
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -49,6 +50,9 @@ class PlainTextRenderer(BaseRenderer):
         response = renderer_context.get('response')
         if response.status_code != status.HTTP_200_OK:
             return data['detail'].encode(self.charset)
+        data = render_to_string(
+            'restapi/log.txt', {'build': data}
+        )
         return data.encode(self.charset)
 
 
@@ -231,7 +235,7 @@ class VersionViewSet(UserSelectViewSet):
 
 class BuildViewSetBase(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (JSONRenderer, PlainTextRenderer)
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build
