@@ -7,7 +7,6 @@ from __future__ import (
 import logging
 
 from allauth.socialaccount.models import SocialAccount
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
@@ -47,11 +46,10 @@ class PlainTextRenderer(BaseRenderer):
     format = 'txt'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        kwargs = renderer_context.get('kwargs', {})
-        if kwargs.get('format', self.format) == self.format:
-            return data.encode(self.charset)
-        else:
-            raise Http404
+        response = renderer_context.get('response')
+        if response.status_code != status.HTTP_200_OK:
+            return data['detail'].encode(self.charset)
+        return data.encode(self.charset)
 
 
 class UserSelectViewSet(viewsets.ModelViewSet):
