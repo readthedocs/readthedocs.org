@@ -38,7 +38,7 @@ and then look within your entire project.
 
 Then Sphinx will build any files with an ``.rst`` extension.
 
-Mkdocs
+MkDocs
 ~~~~~~
 
 When you choose *Mkdocs* as your *Documentation Type*,
