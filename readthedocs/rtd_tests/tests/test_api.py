@@ -303,8 +303,8 @@ class APIBuildTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.assertIn('RTD build information start', resp.data)
-        self.assertIn('RTD build information end', resp.data)
+        self.assertEqual(resp.data, build.raw_log)
+        self.assertIn('RTD build information', resp.data)
         self.assertIn('[rtd-command-info]', resp.data)
         self.assertIn(
             'python setup.py install\nInstalling dependencies...',
