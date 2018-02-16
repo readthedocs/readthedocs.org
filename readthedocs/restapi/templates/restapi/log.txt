@@ -1,10 +1,9 @@
-RTD build information start
+RTD build information
 Build: {{ build.pk }}
 Project: {{ build.project.slug }}
 Version: {{ build.version.verbose_name }} ({{ build.commit }})
 Date: {{ build.date }}
 Success: {{ build.success }}
-RTD build information end
 
 {% for command in build.commands.all %}
 [rtd-command-info] start-time: {{ command.start_time }}, end-time: {{ command.end_time }}, duration: {{ command.run_time }}, exit-code: {{ command.exit_code }}
