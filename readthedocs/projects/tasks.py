@@ -45,8 +45,8 @@ from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.doc_builder.environments import (LocalEnvironment,
-                                                  DockerEnvironment)
+from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
+                                                  DockerBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
@@ -63,27 +63,140 @@ log = logging.getLogger(__name__)
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 
-class UpdateDocsTask(Task):
+class SyncRepositoryMixin(object):
+
+    """Mixin that handles the VCS sync/update."""
+
+    @staticmethod
+    def get_version(project=None, version_pk=None):
+        """
+        Retrieve version data from the API.
+
+        :param project: project object to sync
+        :type project: projects.models.Project
+        :param version_pk: version pk to sync
+        :type version_pk: int
+        :returns: a data-complete version object
+        :rtype: builds.models.APIVersion
+        """
+        assert (project or version_pk), 'project or version_pk is needed'
+        if version_pk:
+            version_data = api_v2.version(version_pk).get()
+        else:
+            version_data = (api_v2
+                            .version(project.slug)
+                            .get(slug=LATEST)['objects'][0])
+        return APIVersion(**version_data)
+
+    def sync_repo(self):
+        """Update the project's repository and hit ``sync_versions`` API."""
+        # Make Dirs
+        if not os.path.exists(self.project.doc_path):
+            os.makedirs(self.project.doc_path)
+
+        if not self.project.vcs_repo():
+            raise RepositoryError(
+                _('Repository type "{repo_type}" unknown').format(
+                    repo_type=self.project.repo_type,
+                ),
+            )
+
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            # Get the actual code on disk
+            try:
+                before_vcs.send(sender=self.version)
+                self._log(
+                    'Checking out version {slug}: {identifier}'.format(
+                        slug=self.version.slug,
+                        identifier=self.version.identifier,
+                    ),
+                )
+                version_repo = self.project.vcs_repo(
+                    self.version.slug,
+                    # When called from ``SyncRepositoryTask.run`` we don't have
+                    # a ``setup_env`` so we use just ``None`` and commands won't
+                    # be recorded
+                    getattr(self, 'setup_env', None),
+                )
+                version_repo.checkout(self.version.identifier)
+            finally:
+                after_vcs.send(sender=self.version)
+
+            # Update tags/version
+            version_post_data = {'repo': version_repo.repo_url}
+
+            if version_repo.supports_tags:
+                version_post_data['tags'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.tags
+                ]
+
+            if version_repo.supports_branches:
+                version_post_data['branches'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.branches
+                ]
+
+            try:
+                # Hit the API ``sync_versions`` which may trigger a new build
+                # for the stable version
+                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
+            except HttpClientError:
+                log.exception('Sync Versions Exception')
+            except Exception:
+                log.exception('Unknown Sync Versions Exception')
+
+
+class SyncRepositoryTask(SyncRepositoryMixin, Task):
+
+    """Entry point to synchronize the VCS documentation."""
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.sync_repository'
+
+    def run(self, version_pk):  # pylint: disable=arguments-differ
+        """
+        Run the VCS synchronization.
+
+        :param version_pk: version pk to sync
+        :type version_pk: int
+        :returns: whether or not the task ended successfully
+        :rtype: bool
+        """
+        try:
+            self.version = self.get_version(version_pk=version_pk)
+            self.project = self.version.project
+            self.sync_repo()
+            return True
+        # Catch unhandled errors when syncing
+        except Exception:
+            log.exception(
+                'An unhandled exception was raised during VCS syncing',
+            )
+            return False
+
+
+class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     """
     The main entry point for updating documentation.
 
-    It handles all of the logic around whether a project is imported or we
-    created it.  Then it will build the html docs and other requested parts.
-
-    `pk`
-        Primary key of the project to update
-
-    `record`
-        Whether or not to keep a record of the update in the database. Useful
-        for preventing changes visible to the end-user when running commands
-        from the shell, for example.
+    It handles all of the logic around whether a project is imported, we created
+    it or a webhook is received. Then it will sync the repository and build the
+    html docs if needed.
     """
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.update_docs'
 
+    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
@@ -114,7 +227,7 @@ class UpdateDocsTask(Task):
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
         """
-        Run a documentation build.
+        Run a documentation sync n' build.
 
         This is fully wrapped in exception handling to account for a number of
         failure cases. We first run a few commands in a local build environment,
@@ -122,22 +235,24 @@ class UpdateDocsTask(Task):
         build output page where the build is marked as finished in between the
         local environment steps and the docker build steps.
 
-        If a failure is raised, or the build is not successful, return ``False``,
-        otherwise, ``True``.
+        If a failure is raised, or the build is not successful, return
+        ``False``, otherwise, ``True``.
 
         Unhandled exceptions raise a generic user facing error, which directs
         the user to bug us. It is therefore a benefit to have as few unhandled
         errors as possible.
 
         :param pk int: Project id
-        :param version_pk int: Project Version id
-        :param build_pk int: Build id
+        :param version_pk int: Project Version id (latest if None)
+        :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project
         :param search bool: update search
         :param force bool: force Sphinx build
-        :param localmedia: update localmedia
-        :returns: if build was successful or not
+        :param localmedia bool: update localmedia
+
+        :returns: whether build was successful or not
+
         :rtype: bool
         """
         try:
@@ -152,6 +267,7 @@ class UpdateDocsTask(Task):
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
+
         # Catch unhandled errors in the setup step
         except Exception as e:  # noqa
             log.exception(
@@ -191,7 +307,7 @@ class UpdateDocsTask(Task):
 
         Return True if successful.
         """
-        self.setup_env = LocalEnvironment(
+        self.setup_env = LocalBuildEnvironment(
             project=self.project,
             version=self.version,
             build=self.build,
@@ -246,9 +362,9 @@ class UpdateDocsTask(Task):
         env_vars = self.get_env_vars()
 
         if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
+            env_cls = DockerBuildEnvironment
         else:
-            env_cls = LocalEnvironment
+            env_cls = LocalBuildEnvironment
         self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
                                  build=self.build, record=record, environment=env_vars)
 
@@ -267,7 +383,7 @@ class UpdateDocsTask(Task):
                                              config=self.config)
 
             try:
-                self.setup_environment()
+                self.setup_python_environment()
 
                 # TODO the build object should have an idea of these states, extend
                 # the model to include an idea of these outcomes
@@ -300,17 +416,6 @@ class UpdateDocsTask(Task):
         return APIProject(**project_data)
 
     @staticmethod
-    def get_version(project, version_pk):
-        """Ensure we're using a sane version."""
-        if version_pk:
-            version_data = api_v2.version(version_pk).get()
-        else:
-            version_data = (api_v2
-                            .version(project.slug)
-                            .get(slug=LATEST)['objects'][0])
-        return APIVersion(**version_data)
-
-    @staticmethod
     def get_build(build_pk):
         """
         Retrieve build object from API.
@@ -335,7 +440,7 @@ class UpdateDocsTask(Task):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         self._log(msg='Updating docs from VCS')
-        update_imported_docs(self.version.pk)
+        self.sync_repo()
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
@@ -420,7 +525,7 @@ class UpdateDocsTask(Task):
             callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
         )
 
-    def setup_environment(self):
+    def setup_python_environment(self):
         """
         Build the virtualenv and install the project into it.
 
@@ -547,88 +652,6 @@ class UpdateDocsTask(Task):
     def send_notifications(self):
         """Send notifications on build failure."""
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
-
-
-@app.task()
-def update_imported_docs(version_pk):
-    """
-    Check out or update the given project's repository.
-
-    :param version_pk: Version id to update
-    """
-    version_data = api_v2.version(version_pk).get()
-    version = APIVersion(**version_data)
-    project = version.project
-    ret_dict = {}
-
-    # Make Dirs
-    if not os.path.exists(project.doc_path):
-        os.makedirs(project.doc_path)
-
-    if not project.vcs_repo():
-        raise RepositoryError(
-            _('Repository type "{repo_type}" unknown').format(
-                repo_type=project.repo_type
-            )
-        )
-
-    with project.repo_nonblockinglock(
-            version=version,
-            max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
-        # Get the actual code on disk
-        try:
-            before_vcs.send(sender=version)
-            if version:
-                log.info(
-                    LOG_TEMPLATE.format(
-                        project=project.slug,
-                        version=version.slug,
-                        msg='Checking out version {slug}: {identifier}'.format(
-                            slug=version.slug,
-                            identifier=version.identifier
-                        )
-                    )
-                )
-                version_slug = version.slug
-                version_repo = project.vcs_repo(version_slug)
-
-                ret_dict['checkout'] = version_repo.checkout(version.identifier)
-            else:
-                # Does this ever get called?
-                log.info(LOG_TEMPLATE.format(
-                    project=project.slug, version=version.slug, msg='Updating to latest revision'))
-                version_slug = LATEST
-                version_repo = project.vcs_repo(version_slug)
-                ret_dict['checkout'] = version_repo.update()
-        finally:
-            after_vcs.send(sender=version)
-
-        # Update tags/version
-
-        version_post_data = {'repo': version_repo.repo_url}
-
-        if version_repo.supports_tags:
-            version_post_data['tags'] = [
-                {'identifier': v.identifier,
-                 'verbose_name': v.verbose_name,
-                 } for v in version_repo.tags
-            ]
-
-        if version_repo.supports_branches:
-            version_post_data['branches'] = [
-                {'identifier': v.identifier,
-                 'verbose_name': v.verbose_name,
-                 } for v in version_repo.branches
-            ]
-
-        try:
-            api_v2.project(project.pk).sync_versions.post(version_post_data)
-        except HttpClientError:
-            log.exception("Sync Versions Exception")
-        except Exception:
-            log.exception("Unknown Sync Versions Exception")
-    return ret_dict
 
 
 # Web tasks
