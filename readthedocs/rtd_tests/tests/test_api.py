@@ -159,6 +159,7 @@ class APIBuildTests(TestCase):
         commit query params
         """
         get(Build, project_id=1, version_id=1, builder='foo', commit='test')
+        get(Build, project_id=2, version_id=1, builder='foo', commit='other')
         client = APIClient()
         api_user = get(User, staff=False, password='test')
         client.force_authenticate(user=api_user)
