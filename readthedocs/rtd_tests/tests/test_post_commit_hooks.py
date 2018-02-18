@@ -194,6 +194,24 @@ class GitHubPostCommitTest(BasePostCommitTest):
                             "commit/11f229c6a78f5bc8cb173104a3f7a68cdb7eb15a")
                 },
             ],
+            "head_commit": {
+                "added": [],
+                "author": {
+                    "email": "eric@ericholscher.com",
+                    "name": "Eric Holscher",
+                    "username": "ericholscher"
+                },
+                "distinct": False,
+                "id": "11f229c6a78f5bc8cb173104a3f7a68cdb7eb15a",
+                "message": "Fix it on the front list as well.",
+                "modified": [
+                    "readthedocs/templates/core/project_list_detailed.html"
+                ],
+                "removed": [],
+                "timestamp": "2011-09-12T19:38:55-07:00",
+                "url": ("https://github.com/wraithan/readthedocs.org/"
+                        "commit/11f229c6a78f5bc8cb173104a3f7a68cdb7eb15a")
+            },
             "compare": ("https://github.com/wraithan/readthedocs.org/compare/"
                         "5b4e453...5ad7573"),
             "created": False,
