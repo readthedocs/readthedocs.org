@@ -56,23 +56,23 @@ class GitLabWebHookTest(BasePostCommitTest):
             "user_name": "John Smith",
             "user_email": "john@example.com",
             "project_id": 15,
-            "project":{
-                "name":"readthedocs",
-                "description":"",
-                "web_url":"http://example.com/mike/diaspora",
+            "project": {
+                "name": "readthedocs",
+                "description": "",
+                "web_url": "http://example.com/mike/diaspora",
                 "avatar_url": None,
-                "git_ssh_url":"git@github.com:rtfd/readthedocs.org.git",
-                "git_http_url":"http://github.com/rtfd/readthedocs.org.git",
-                "namespace":"Mike",
-                "visibility_level":0,
-                "path_with_namespace":"mike/diaspora",
-                "default_branch":"master",
-                "homepage":"http://example.com/mike/diaspora",
-                "url":"git@github.com/rtfd/readthedocs.org.git",
-                "ssh_url":"git@github.com/rtfd/readthedocs.org.git",
-                "http_url":"http://github.com/rtfd/readthedocs.org.git"
+                "git_ssh_url": "git@github.com:rtfd/readthedocs.org.git",
+                "git_http_url": "http://github.com/rtfd/readthedocs.org.git",
+                "namespace": "Mike",
+                "visibility_level": 0,
+                "path_with_namespace": "mike/diaspora",
+                "default_branch": "master",
+                "homepage": "http://example.com/mike/diaspora",
+                "url": "git@github.com/rtfd/readthedocs.org.git",
+                "ssh_url": "git@github.com/rtfd/readthedocs.org.git",
+                "http_url": "http://github.com/rtfd/readthedocs.org.git"
             },
-            "repository":{
+            "repository": {
                 "name": "Diaspora",
                 "url": "git@github.com:rtfd/readthedocs.org.git",
                 "description": "",
