@@ -97,7 +97,10 @@ def build_branches(project, branch_list):
         to_build = set()
         not_building = set()
         if _contains_skip_mark(commit):
-            log.info('(Branch Build) Skip build %s', project.slug)
+            log.info(
+                '(Branch Build) Skip mark found. Skip build %s',
+                project.slug
+            )
             not_building = {
                 version.slug
                 for version in versions
