@@ -1,16 +1,15 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 from builtins import range
+
 import django_dynamic_fixture as fixture
-from django.test import TestCase, RequestFactory
-from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase
+from requests.utils import quote
 from rest_framework.test import APIClient
-from rest_framework.test import APIRequestFactory
-from rest_framework.response import Response
 
 from readthedocs.integrations.models import (
-    HttpExchange, Integration, GitHubWebhook
-)
+    GitHubWebhook, HttpExchange, Integration)
 from readthedocs.projects.models import Project
 
 
@@ -72,7 +71,7 @@ class HttpExchangeTests(TestCase):
                                   integration_type=Integration.GITHUB_WEBHOOK,
                                   provider_data='')
         payload_decode = '{"head_commit": {"id": "3eea78b2", "message": "Update README.md"}, "ref": "exchange_form"}'
-        payload_encode = '%7B%22head_commit%22%3A%20%7B%22id%22%3A%20%223eea78b2%22%2C%20%22message%22%3A%20%22Update%20README.md%22%7D%2C%20%22ref%22%3A%20%22exchange_form%22%7D'
+        payload_encode = quote(payload_decode)
         client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
             'payload={}'.format(payload_encode),
