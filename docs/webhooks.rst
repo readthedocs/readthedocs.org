@@ -88,8 +88,20 @@ Parameters
 This endpoint accepts the following arguments during an HTTP POST:
 
 branches
-    The names of the branches to trigger builds for. This can either be an array
-    of branch name strings, or just a single branch name string.
+    The names of the branches to trigger builds for.
+    This can either be:
+    
+    - An array of branch name strings
+    - Just a single branch name string
+    - Or a list of objects containing the following::
+
+        {
+          "name": "branch-name",
+          "last_commit": {
+            "id": "hash",
+            "message": "Update README"
+          }
+        }
 
     Default: **latest**
 
