@@ -410,6 +410,45 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
+    def test_github_skip_mark(self, trigger_build):
+        client = APIClient()
+        payload = {
+            'ref': 'master',
+            'head_commit': {
+                'id': '3eea78b2',
+                'message': 'Update .gitignore [skip docs]',
+            },
+        }
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['head_commit']['message'] = '[skip doc] Update version.py'
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['head_commit']['message'] = '''
+Update version.py
+
+[skip docs]
+        '''
+        client.post(
+            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
     def test_gitlab_webhook(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
@@ -446,6 +485,46 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
+    def test_gitlab_skip_mark(self, trigger_build):
+        client = APIClient()
+        payload = {
+            'object_kind': 'push',
+            'ref': 'master',
+            'commits': [{
+                'id': '3eea78b2',
+                'message': 'Update .gitignore [skip docs]',
+            }],
+        }
+        client.post(
+            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['commits'][0]['message'] = '[skip doc] Update version.py'
+        client.post(
+            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['commits'][0]['message'] = '''
+Update version.py
+
+[skip docs]
+        '''
+        client.post(
+            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
@@ -511,6 +590,53 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
+    def test_bitbucket_skip_mark(self, trigger_build):
+        client = APIClient()
+        payload = {
+            'push': {
+                'changes': [{
+                    'new': {
+                        'name': 'master',
+                        'target': {
+                            'hash': '3eea78b2',
+                            'message': 'Update README.md',
+                        },
+                    },
+                }],
+            },
+        }
+        client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['push']['changes'][0]['new']['target']['message'] = (
+            '[skip doc] Update version.py'
+        )
+        client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['push']['changes'][0]['new']['target']['message'] = '''
+Update version.py
+
+[skip docs]
+        '''
+        client.post(
+            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
     def test_generic_api_fails_without_auth(self, trigger_build):
         client = APIClient()
         resp = client.post(
@@ -552,6 +678,106 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.data['build_triggered'])
+
+    def test_generic_api_payload_string_list(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+        resp = client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': ['master']},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+
+    def test_generic_api_payload_dict_list(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+        resp = client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {
+                'token': integration.token,
+                'branches': [{
+                    'name': 'master',
+                    'last_commit': {
+                        'id': '3eea78b2',
+                        "message": "Update README.md"
+                    }
+                }]
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+
+    def test_generic_api_skip_mark(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+        payload = {
+            'token': integration.token,
+            'branches': [{
+                'name': 'master',
+                'last_commit': {
+                    'id': '3eea78b2',
+                    "message": "Update README.md"
+                }
+            }]
+        }
+        client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['branches'][0]['last_commit']['message'] = (
+            '[skip doc] Update version.py'
+        )
+        client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+        payload['branches'][0]['last_commit']['message'] = '''
+Update version.py
+
+[skip docs]
+        '''
+        client.post(
+            '/api/v2/webhook/{0}/{1}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            payload,
+            format='json',
+        )
+        trigger_build.assert_no_called(
+            [mock.call(force=True, version=mock.ANY, project=self.project)])
 
     def test_generic_api_respects_basic_auth(self, trigger_build):
         client = APIClient()
