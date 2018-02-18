@@ -1,40 +1,48 @@
-.markItUp .btnHeading a {
+/* -------------------------------------------------------------------
+// ReST!
+// ------------------------------------------------------------------*/
+.ReST .markItUpButton1 a {
 	background-image:url(images/h1.png);
 }
-.markItUp .btnSubheading a {
+.ReST .markItUpButton2 a {
 	background-image:url(images/h2.png);
 }
-.markItUp .btnSubsubheading a {
+.ReST .markItUpButton3 a {
 	background-image:url(images/h3.png);
 }
 
-.markItUp .btnBold a {
-	background-image:url(images/bold.png); 
+
+.ReST .markItUpButton4 a {
+	background-image:url(images/bold.png);
 }
-.markItUp .btnItalic a {
+
+.ReST .markItUpButton5 a {
 	background-image:url(images/italic.png);
 }
 
-.markItUp .btnBulletedList a {
+.ReST .markItUpButton6 a {
 	background-image:url(images/list-bullet.png);
 }
-.markItUp .btnNumberedList a {
+.ReST .markItUpButton7 a {
 	background-image:url(images/list-numeric.png);
 }
 
-.markItUp .btnInternalLink a {
+.ReST .markItUpButton8 a {
 	background-image:url(images/book_link.png);
 }
-.markItUp .btnLink a {
+.ReST .markItUpButton9 a {
 	background-image:url(images/link_go.png);
 }
-.markItUp .btnQuotes a {
+
+.ReST .markItUpButton10 a	{
+	background-image:url(images/picture.png);
+}
+.ReST .markItUpButton11 a	{
 	background-image:url(images/quotes.png);
 }
-.markItUp .btnCode a {
+.ReST .markItUpButton12 a	{
 	background-image:url(images/code.png);
 }
-
-.markItUp .btnIndent a {
-    background-image:url(images/indent.png);
+.ReST .markItUpButton13 a	{
+	background-image:url(images/indent.png);
 }
