@@ -95,7 +95,9 @@ class BaseBuilder(object):
         return docs_dir
 
     def create_index(self, extension='md', force_index=False, **__):
-        """Create an index file if it needs it.
+
+        """
+        Create an index file if it needs it.
 
         If force_index is True and there isn't an index file,
         one is created whether or not there is a README file.
@@ -129,7 +131,6 @@ Check out our `Getting Started Guide
 <https://docs.readthedocs.io/en/latest/getting_started.html>`_ to become more
 familiar with Read the Docs.
         """
-
         index_file.write(index_text.format(dir=docs_dir, ext=extension))
         index_file.close()
         return 'index'
