@@ -368,12 +368,20 @@ class APIWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         try:
-            branches = self.request.data.get(
+            request_branches = self.request.data.get(
                 'branches',
                 [self.project.get_default_branch()]
             )
-            if isinstance(branches, six.string_types):
-                branches = [branches]
+            if isinstance(request_branches, six.string_types):
+                request_branches = [request_branches]
+            branches = []
+            for branch in request_branches:
+                if isinstance(branch, six.string_types):
+                    branches.append({
+                        'name': branch,
+                    })
+                else:
+                    branches.append(branch)
             return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')
