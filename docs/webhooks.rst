@@ -130,6 +130,22 @@ token, a check will determine if the token is valid and matches the given
 project. If instead an authenticated user is used to make this request, a check
 will be performed to ensure the authenticated user is an owner of the project.
 
+Skipping a build
+----------------
+
+When you push new changes to your remote repository,
+you can skip the build process of your docs.
+This is done by adding a mark anywhere on the commit message of the last commit,
+the mark can be:
+
+- [skip docs]
+- [docs skip]
+- [skip doc]
+- [doc skip]
+
+All integrations are supported,
+for the generic API you need to provide the details of the last commit.
+
 Debugging webhooks
 ------------------
 
