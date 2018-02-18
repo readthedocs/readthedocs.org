@@ -284,6 +284,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
     def _normalize_commit(self, commit):
         """
         All commit dicts must have this elements at least::
+
             {
                 'id': 'sha',
                 'message': 'Update README.md',

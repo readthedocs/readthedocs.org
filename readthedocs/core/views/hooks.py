@@ -68,8 +68,11 @@ def _build_version(project, slug, already_built=()):
 
 def _contains_skip_mark(message):
     """
-    Check if a commit message has a skip mark, for example: [skip docs],
-    [docs skip].
+    Check if a commit message has a skip mark
+
+    For example:
+    - [skip docs]
+    - [docs skip]
     """
     skip_marks = [
         r'\[skip docs?\]',
