@@ -66,7 +66,7 @@ def _build_version(project, slug, already_built=()):
         return None
 
 
-def _contains_skip_mark(commit):
+def _contains_skip_mark(message):
     """
     Check if a commit message has a skip mark, for example: [skip docs],
     [docs skip].
@@ -75,7 +75,6 @@ def _contains_skip_mark(commit):
         r'\[skip docs?\]',
         r'\[docs? skip\]',
     ]
-    message = commit['message']
     for skip_mark in skip_marks:
         mark = re.compile(skip_mark, re.IGNORECASE)
         if mark.search(message):
@@ -94,11 +93,11 @@ def build_branches(project, branch_list):
     to_build = set()
     not_building = set()
     for branch in branch_list:
-        commit = branch['last_commit']
+        commit = branch.get('last_commit')
         versions = project.versions_from_branch_name(branch['name'])
         to_build = set()
         not_building = set()
-        if _contains_skip_mark(commit):
+        if commit and _contains_skip_mark(commit['message']):
             log.info(
                 '(Branch Build) Skip mark found. Skip build %s',
                 project.slug
