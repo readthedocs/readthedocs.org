@@ -95,7 +95,6 @@ class BaseBuilder(object):
         return docs_dir
 
     def create_index(self, extension='md', force_index=False, **__):
-
         """
         Create an index file if it needs it.
 
