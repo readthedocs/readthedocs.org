@@ -210,7 +210,9 @@ def github_build(request):  # noqa: D205
             http_search_url = http_url.replace('http://', '').replace('https://', '')
             ssh_url = data['repository']['ssh_url']
             ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
-            branches = [data['ref'].replace('refs/heads/', '')]
+            branches = [{
+                'name': data['ref'].replace('refs/heads/', ''),
+            }]
         except (ValueError, TypeError, KeyError):
             log.exception('Invalid GitHub webhook payload')
             return HttpResponse('Invalid request', status=400)
@@ -255,7 +257,9 @@ def gitlab_build(request):  # noqa: D205
             data = json.loads(request.body)
             url = data['project']['http_url']
             search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
-            branches = [data['ref'].replace('refs/heads/', '')]
+            branches = [{
+                'name': data['ref'].replace('refs/heads/', ''),
+            }]
         except (ValueError, TypeError, KeyError):
             log.exception('Invalid GitLab webhook payload')
             return HttpResponse('Invalid request', status=400)
@@ -303,16 +307,24 @@ def bitbucket_build(request):
 
             version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
             if version == 1:
-                branches = [commit.get('branch', '')
-                            for commit in data['commits']]
+                branches = [
+                    {
+                        'name': commit.get('branch', ''),
+                    }
+                    for commit in data['commits']
+                ]
                 repository = data['repository']
                 search_url = 'bitbucket.org{0}'.format(
                     repository['absolute_url'].rstrip('/')
                 )
             elif version == 2:
                 changes = data['push']['changes']
-                branches = [change['new']['name']
-                            for change in changes]
+                branches = [
+                    {
+                        'name': change['new']['name'],
+                    }
+                    for change in changes
+                ]
                 search_url = 'bitbucket.org/{0}'.format(
                     data['repository']['full_name']
                 )
