@@ -93,7 +93,7 @@ branches
     
     - An array of branch name strings
     - Just a single branch name string
-    - Or a list of objects containing the following::
+    - Or an array of objects containing the following::
 
         {
           "name": "branch-name",
