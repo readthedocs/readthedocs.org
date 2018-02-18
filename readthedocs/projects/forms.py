@@ -270,6 +270,13 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _('Subproject nesting is not supported'))
         return self.project
 
+    def clean_child(self):
+        child = self.cleaned_data['child']
+        if child == self.project:
+            raise forms.ValidationError(
+                _('A project can not be a subproject of itself'))
+        return child
+
     def get_subproject_queryset(self):
         """
         Return scrubbed subproject choice queryset.
@@ -280,7 +287,8 @@ class ProjectRelationshipForm(forms.ModelForm):
         queryset = (
             Project.objects.for_admin_user(self.user)
             .exclude(subprojects__isnull=False)
-            .exclude(superprojects__isnull=False))
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.project.pk))
         return queryset
 
 

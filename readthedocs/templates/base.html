@@ -8,27 +8,50 @@
 
   <!-- meta -->
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  {% block extra_metas %}{% endblock extra_metas %}
+
   <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
 
   <!-- title -->
   <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
+
+  <!-- Google Analytics -->
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd');
+    ga('rtfd.set', 'anonymizeIp', true);
+    ga('rtfd.send', 'pageview');
+
+    {% if DASHBOARD_ANALYTICS_CODE %}
+      // Dashboard Analytics Code
+      ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user');
+      ga('user.set', 'anonymizeIp', true);
+      ga('user.send', 'pageview');
+      // End Dashboard Analytics Code
+    {% endif %}
+  </script>
+  <!-- End Google Analytics -->
 
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
   {% block extra_links %}{% endblock %}
 
   <!-- jquery -->
-  <script type="text/javascript" src="{% static 'vendor/jquery.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/jquery-migrate.js' %}"></script>
-  <script type="text/javascript" src="{% static 'vendor/jquery-ui.js' %}"></script>
-  <script type="text/javascript">
+  <script src="{% static 'vendor/jquery.js' %}"></script>
+  <script src="{% static 'vendor/jquery-migrate.js' %}"></script>
+  <script src="{% static 'vendor/jquery-ui.js' %}"></script>
+  <script >
     require('jquery');
   </script>
 
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/base.js"></script>
-  <script type="text/javascript" src="{% static 'core/js/site.js' %}"></script>
-  <script type="text/javascript">
+  <script src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
+  <script src="{{ MEDIA_URL }}javascript/base.js"></script>
+  <script src="{% static 'core/js/site.js' %}"></script>
+  <script>
     var site = require('core/site');
     site.handle_notification_dismiss();
   </script>
@@ -36,13 +59,9 @@
   {% block extra_scripts %}{% endblock %}
 
   <!-- typekit -->
-  <!-- Old typekit
-  <script type="text/javascript" src="//use.typekit.com/xgl8ypn.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-  -->
 
-  <script type="text/javascript" src="//use.typekit.net/haq4xtp.js"></script>
-  <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  <script src="//use.typekit.net/haq4xtp.js"></script>
+  <script>try{Typekit.load();}catch(e){}</script>
 
 </head>
 
@@ -185,33 +204,10 @@
     </div>
     <!-- END footer-->
 
+    <script>
+      {% block footerjs %}{% endblock %}
+    </script>
+
 </body>
-
-{% if GLOBAL_ANALYTICS_CODE %}
-<!-- BEGIN google analytics -->
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', '{{ GLOBAL_ANALYTICS_CODE }}']);
-  _gaq.push(['_trackPageview']);
-
-  {% if DASHBOARD_ANALYTICS_CODE %}
-  // Dashboard Analytics Code
-  _gaq.push(['user._setAccount', '{{ DASHBOARD_ANALYTICS_CODE }}']);
-  _gaq.push(['user._trackPageview']);
-  // End Dashboard Analytics Code
-  {% endif %}
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-  {% block footerjs %}{% endblock %}
-
-</script>
-<!-- END google analytics -->
-{% endif %}
 
 </html>

@@ -52,7 +52,7 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, _, _ = self.run('git', 'status')
+        code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
     def fetch(self):
@@ -65,30 +65,22 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout',
-                                  '--force', '--quiet', revision)
+        code, out, err = self.run(
+            'git', 'checkout', '--force', revision)
         if code != 0:
             log.warning("Failed to checkout revision '%s': %s",
                         revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
-                              self.repo_url, '.')
+        code, _, _ = self.run(
+            'git', 'clone', '--recursive', self.repo_url, '.')
         if code != 0:
             raise RepositoryError
 
     @property
     def tags(self):
-        # Hash for non-annotated tag is its commit hash, but for annotated tag it
-        # points to tag itself, so we need to dereference annotated tags.
-        # The output format is the same as `git show-ref --tags`, but with hashes
-        # of annotated tags pointing to tagged commits.
-        retcode, stdout, _ = self.run(
-            'git', 'for-each-ref',
-            '--format=%(if)%(*objectname)%(then)%(*objectname)'
-            '%(else)%(objectname)%(end) %(refname)',
-            'refs/tags')
+        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', record_as_success=True)
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -96,7 +88,7 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of `git show-ref --tags`, eg:
+        Parses output of show-ref --tags, eg:
 
             3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
             bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
@@ -119,7 +111,7 @@ class Backend(BaseVCS):
             if row == []:
                 continue
             commit_hash, name = row
-            clean_name = name.split('/')[-1]
+            clean_name = name.replace('refs/tags/', '')
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
 
@@ -156,15 +148,12 @@ class Backend(BaseVCS):
             if branch:
                 branch = branch[0]
                 if branch.startswith('origin/'):
-                    cut_len = len('origin/')
-                    slug = branch[cut_len:].replace('/', '-')
-                    if slug in ['HEAD']:
+                    verbose_name = branch.replace('origin/', '')
+                    if verbose_name in ['HEAD']:
                         continue
-                    clean_branches.append(VCSVersion(self, branch, slug))
+                    clean_branches.append(VCSVersion(self, branch, verbose_name))
                 else:
-                    # Believe this is dead code.
-                    slug = branch.replace('/', '-')
-                    clean_branches.append(VCSVersion(self, branch, slug))
+                    clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
 
     @property
@@ -216,7 +205,7 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, _, _ = self.run('git', 'show-ref', ref)
+        code, _, _ = self.run('git', 'show-ref', ref, record_as_success=True)
         return code == 0
 
     @property

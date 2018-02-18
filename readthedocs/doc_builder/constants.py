@@ -4,10 +4,13 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import logging
 import os
 import re
 
 from django.conf import settings
+
+log = logging.getLogger(__name__)
 
 SPHINX_TEMPLATE_DIR = os.path.join(
     settings.SITE_ROOT,
@@ -33,6 +36,13 @@ DOCKER_SOCKET = getattr(
 )
 DOCKER_VERSION = getattr(settings, 'DOCKER_VERSION', 'auto')
 DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
+
+old_config = getattr(settings, 'DOCKER_BUILD_IMAGES', None)
+if old_config:
+    log.warning('Old config detected, DOCKER_BUILD_IMAGES->DOCKER_IMAGE_SETTINGS')
+    DOCKER_IMAGE_SETTINGS.update(old_config)
+
 DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 DOCKER_LIMITS.update(getattr(settings, 'DOCKER_LIMITS', {}))
 
@@ -40,17 +50,3 @@ DOCKER_TIMEOUT_EXIT_CODE = 42
 DOCKER_OOM_EXIT_CODE = 137
 
 DOCKER_HOSTNAME_MAX_LEN = 64
-
-# Build images
-DOCKER_BUILD_IMAGES = {
-    'readthedocs/build:1.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-    },
-    'readthedocs/build:2.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-    },
-    'readthedocs/build:latest': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-}
-DOCKER_BUILD_IMAGES.update(getattr(settings, 'DOCKER_BUILD_IMAGES', {}))

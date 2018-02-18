@@ -123,6 +123,7 @@ class BaseMkdocs(BaseBuilder):
             'project': self.version.project.slug,
             'version': self.version.slug,
             'language': self.version.project.language,
+            'programming_language': self.version.project.programming_language,
             'page': None,
             'theme': "readthedocs",
             'builder': "mkdocs",

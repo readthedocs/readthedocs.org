@@ -12,7 +12,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, Feature
-from readthedocs.projects.tasks import update_imported_docs
+from readthedocs.projects.tasks import SyncRepositoryTask
 
 import logging
 
@@ -91,6 +91,8 @@ def build_branches(project, branch_list):
         to_build - a list of branches that were built
         not_building - a list of branches that we won't build
     """
+    to_build = set()
+    not_building = set()
     for branch in branch_list:
         commit = branch['last_commit']
         versions = project.versions_from_branch_name(branch['name'])
@@ -151,8 +153,12 @@ def _build_url(url, projects, branches):
     for project in projects:
         (built, not_building) = build_branches(project, branches)
         if not built:
-            # Call update_imported_docs to update tag/branch info
-            update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
+            # Call SyncRepositoryTask to update tag/branch info
+            version = project.versions.get(slug=LATEST)
+            sync_repository = SyncRepositoryTask()
+            sync_repository.apply_async(
+                args=(version.pk,),
+            )
             msg = '(URL Build) Syncing versions for %s' % project.slug
             log.info(msg)
         all_built[project.slug] = built

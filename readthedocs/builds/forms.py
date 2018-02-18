@@ -20,7 +20,7 @@ class AliasForm(forms.ModelForm):
             'largest',
         )
 
-    def __init__(self, instance=None, *args, **kwargs):
+    def __init__(self, instance=None, *args, **kwargs):  # noqa
         super(AliasForm, self).__init__(instance=instance, *args, **kwargs)
         if instance:
             self.fields['project'].queryset = (Project.objects

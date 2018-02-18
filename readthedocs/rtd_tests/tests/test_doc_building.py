@@ -14,25 +14,29 @@ import uuid
 from builtins import str
 
 import mock
+import pytest
 from django.test import TestCase
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
-from mock import Mock, PropertyMock, patch
+from mock import Mock, PropertyMock, mock_open, patch
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
+from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import (
-    BuildCommand, DockerBuildCommand, DockerEnvironment, LocalEnvironment)
+    BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
+from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
 SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 
 
-class TestLocalEnvironment(TestCase):
+class TestLocalBuildEnvironment(TestCase):
 
     """Test execution and exception handling in environment."""
     fixtures = ['test_data']
@@ -54,7 +58,7 @@ class TestLocalEnvironment(TestCase):
         })
         type(self.mocks.process).returncode = PropertyMock(return_value=0)
 
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -88,12 +92,12 @@ class TestLocalEnvironment(TestCase):
     def test_incremental_state_update_with_no_update(self):
         """Build updates to a non-finished state when update_on_success=True."""
         build_envs = [
-            LocalEnvironment(
+            LocalBuildEnvironment(
                 version=self.version,
                 project=self.project,
                 build={'id': DUMMY_BUILD_ID},
             ),
-            LocalEnvironment(
+            LocalBuildEnvironment(
                 version=self.version,
                 project=self.project,
                 build={'id': DUMMY_BUILD_ID},
@@ -126,7 +130,7 @@ class TestLocalEnvironment(TestCase):
         })
         type(self.mocks.process).returncode = PropertyMock(return_value=1)
 
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -160,7 +164,7 @@ class TestLocalEnvironment(TestCase):
 
     def test_failing_execution_with_caught_exception(self):
         """Build in failing state with BuildEnvironmentError exception."""
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -193,7 +197,7 @@ class TestLocalEnvironment(TestCase):
 
     def test_failing_execution_with_unexpected_exception(self):
         """Build in failing state with exception from code."""
-        build_env = LocalEnvironment(
+        build_env = LocalBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -226,7 +230,7 @@ class TestLocalEnvironment(TestCase):
         })
 
 
-class TestDockerEnvironment(TestCase):
+class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
 
@@ -244,7 +248,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_container_id(self):
         """Test docker build command."""
-        docker = DockerEnvironment(
+        docker = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -253,7 +257,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_environment_successful_build(self):
         """A successful build exits cleanly and reports the build output."""
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -282,7 +286,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_environment_successful_build_without_update(self):
         """A successful build exits cleanly and doesn't update build."""
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -300,7 +304,7 @@ class TestDockerEnvironment(TestCase):
 
     def test_environment_failed_build_without_update_but_with_error(self):
         """A failed build exits cleanly and doesn't update build."""
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -332,7 +336,7 @@ class TestDockerEnvironment(TestCase):
     def test_connection_failure(self):
         """Connection failure on to docker socket should raise exception."""
         self.mocks.configure_mock('docker', {'side_effect': DockerException})
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -375,7 +379,7 @@ class TestDockerEnvironment(TestCase):
                     'Failure creating container')
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -414,7 +418,7 @@ class TestDockerEnvironment(TestCase):
                     'Failure creating container'),
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -450,7 +454,7 @@ class TestDockerEnvironment(TestCase):
             'kill.side_effect': BuildEnvironmentError('Failed')
         })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -488,7 +492,7 @@ class TestDockerEnvironment(TestCase):
             'kill.side_effect': BuildEnvironmentError('Outer failed')
         })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -523,7 +527,7 @@ class TestDockerEnvironment(TestCase):
                 'exec_inspect.return_value': {'ExitCode': 1},
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -572,7 +576,7 @@ class TestDockerEnvironment(TestCase):
                 )
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -611,7 +615,7 @@ class TestDockerEnvironment(TestCase):
                 'exec_inspect.return_value': {'ExitCode': 0},
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -663,7 +667,7 @@ class TestDockerEnvironment(TestCase):
                 'exec_inspect.return_value': {'ExitCode': 0},
             })
 
-        build_env = DockerEnvironment(
+        build_env = DockerBuildEnvironment(
             version=self.version,
             project=self.project,
             build={'id': DUMMY_BUILD_ID},
@@ -831,3 +835,134 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(
             str(cmd.output),
             u'Command killed due to excessive memory consumption\n')
+
+
+
+
+class TestAutoWipeEnvironment(TestCase):
+    fixtures = ['test_data']
+
+    def setUp(self):
+        self.pip = Project.objects.get(slug='pip')
+        self.version = self.pip.versions.get(slug='0.8')
+
+    def test_is_obsolete_without_env_json_file(self):
+        yaml_config = create_load()()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        with patch('os.path.exists') as exists:
+            exists.return_value = False
+            python_env = Virtualenv(
+                version=self.version,
+                build_env=None,
+                config=config,
+            )
+
+        self.assertFalse(python_env.is_obsolete)
+
+    def test_is_obsolete_with_invalid_env_json_file(self):
+        yaml_config = create_load()()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        with patch('os.path.exists') as exists:
+            exists.return_value = True
+            python_env = Virtualenv(
+                version=self.version,
+                build_env=None,
+                config=config,
+            )
+
+        self.assertFalse(python_env.is_obsolete)
+
+    def test_is_obsolete_with_json_different_python_version(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=None,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 3.5}}'
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertTrue(python_env.is_obsolete)
+
+    @pytest.mark.xfail(reason='build.image is not being considered yet')
+    def test_is_obsolete_with_json_different_build_image(self):
+        config_data = {
+            'build': {
+                'image': 'latest',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=None,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 2.7}}'
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertTrue(python_env.is_obsolete)
+
+    def test_is_obsolete_with_project_different_build_image(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        # Set container_image manually
+        self.pip.container_image = 'readthedocs/build:latest'
+        self.pip.save()
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=None,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 2.7}}'
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertTrue(python_env.is_obsolete)
+
+    def test_is_obsolete_with_json_same_data_as_version(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+            },
+            'python': {
+                'version': 3.5,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=None,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 3.5}}'
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertFalse(python_env.is_obsolete)

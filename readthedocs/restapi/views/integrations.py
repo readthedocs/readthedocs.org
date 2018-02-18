@@ -275,6 +275,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                         ),
                     }
                     for change in changes
+                    if change.get('new')
                 ]
                 return self.get_response_push(self.project, branches)
             except KeyError:

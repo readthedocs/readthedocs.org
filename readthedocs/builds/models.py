@@ -21,8 +21,7 @@ from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_REGEXS, BITBUCKET_URL, GITHUB_REGEXS, GITHUB_URL, GITLAB_REGEXS,
-    GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
+    BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
@@ -30,6 +29,9 @@ from .constants import (
     NON_REPOSITORY_VERSIONS, STABLE, TAG, VERSION_TYPES)
 from .managers import VersionManager
 from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
+from .utils import (
+    get_bitbucket_username_repo, get_github_username_repo,
+    get_gitlab_username_repo)
 from .version_slug import VersionSlugField
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
@@ -277,12 +279,8 @@ class Version(models.Model):
         elif action == 'edit':
             action_string = 'edit'
 
-        for regex in GITHUB_REGEXS:
-            match = regex.search(repo_url)
-            if match:
-                user, repo = match.groups()
-                break
-        else:
+        user, repo = get_github_username_repo(repo_url)
+        if not user and not repo:
             return ''
         repo = repo.rstrip('/')
 
@@ -315,12 +313,8 @@ class Version(models.Model):
         elif action == 'edit':
             action_string = 'edit'
 
-        for regex in GITLAB_REGEXS:
-            match = regex.search(repo_url)
-            if match:
-                user, repo = match.groups()
-                break
-        else:
+        user, repo = get_gitlab_username_repo(repo_url)
+        if not user and not repo:
             return ''
         repo = repo.rstrip('/')
 
@@ -341,12 +335,8 @@ class Version(models.Model):
         if not docroot:
             return ''
 
-        for regex in BITBUCKET_REGEXS:
-            match = regex.search(repo_url)
-            if match:
-                user, repo = match.groups()
-                break
-        else:
+        user, repo = get_bitbucket_username_repo(repo_url)
+        if not user and not repo:
             return ''
         repo = repo.rstrip('/')
 

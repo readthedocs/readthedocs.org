@@ -1,4 +1,4 @@
-Welcome to Read The Docs
+Welcome to Read the Docs
 ========================
 
 |build-status| |docs|

@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 version = Version.objects.get(id=build['version'])
                 latest_build = version.builds.latest('date')
                 if latest_build.date > max_date:
-                    log.warn('{0} is newer than {1}'.format(
+                    log.warning('{0} is newer than {1}'.format(
                         latest_build, max_date))
                 path = version.get_build_path()
                 if path is not None:
