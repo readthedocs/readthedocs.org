@@ -89,7 +89,7 @@ its contents will be::
 
     ../python/
 
-Also see :doc:`faq/faq_document_package_not_at_root`
+Also see :ref:`faq_document_package_not_at_root`
 
 Using the requirements file via the project admin's web interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
