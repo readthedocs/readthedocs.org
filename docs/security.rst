@@ -1,0 +1,68 @@
+Security
+========
+
+Security is very important to us at Read the Docs. We are committed to responsible reporting and disclosure of security issues.
+
+Reporting a security issue
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you believe you've discovered a security issue at Read the Docs, please contact us at **security@readthedocs.org** (optionally using our :ref:`pgp-key`). We request that you please not publicly disclose the issue until it has been addressed by us.
+
+You can expect:
+
+* We will respond acknowledging your email typically within one business day.
+* We will follow up if and when we have confirmed the issue with a timetable for the fix.
+* We will notify you when the issue is fixed.
+* We will add the issue to our :ref:`security issue archive <security-issue-archive>`.
+
+.. _pgp-key:
+
+PGP key
+~~~~~~~
+
+You may use this `PGP key`_ to securely communicate with us and to verify signed messages you receive from us.
+
+.. _PGP key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x71337C3047A1B066
+
+::
+
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Version: SKS 1.1.0
+
+    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
+    luSpsAyzljd2WIX4OVtbOodsJeBYutS2AxBO
+    =yZOS
+    -----END PGP PUBLIC KEY BLOCK-----
+
+.. _security-issue-archive:
+
+Security issue archive
+~~~~~~~~~~~~~~~~~~~~~~
+
+It's only a matter of time...
