@@ -79,18 +79,20 @@ So if the requirements file is at the project root::
 
 its content will be::
 
-    /src/python/
+    src/python/
 
 If you want to put the requirements in the file::
 
-    /requirements/readthedocs.txt
+    requirements/readthedocs.txt
 
 its contents will be::
 
-    ../src/python/
+    ../python/
 
-Using the requirements file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Also see :doc:`faq/faq_document_package_not_at_root`
+
+Using the requirements file via the project admin's web interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Once the requirements file has been created;
 
 - Login to Read the Docs as project admin.
@@ -98,3 +100,18 @@ Once the requirements file has been created;
 - Go to ``Admin > Advanced Settings > Requirements file``.
 - Specify the path of the requirements file you just created. The path should be relative to the root directory of the documentation project.
 
+Using the requirements file via the YAML configuration file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Documentation builds can be configured using a config.py file or using a YAML (.yml) file. 
+
+.. warning:: Using a YAML file to setup build config is a feature in a beta state. Please file an `issue`_ if you find anything malfunctioning.
+	
+
+The YAML file should be named ``readthedocs.yml`` or ``.readthedocs.yml`` and should be located in the root directory of the project. In the file, you can add a section ``requirements_file``, where the path to the requirements file can be specified
+
+.. code-block:: yaml
+
+    requirements_file: requirements/readthedocs.txt
+    
+    
+.. _issue: : https://github.com/rtfd/readthedocs.org/issues
