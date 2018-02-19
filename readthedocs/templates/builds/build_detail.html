@@ -65,7 +65,7 @@ $(document).ready(function () {
       {% if request.user.is_staff %}
       <div data-bind="visible: finished()">
         <li>
-          <a href="{% url "build-log" build.pk  %}">
+          <a href="{% url "build-detail" build.pk "txt" %}">
             {% trans "View raw" %}
           </a>
         </li>
