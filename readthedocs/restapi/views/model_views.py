@@ -241,22 +241,12 @@ class BuildViewSetBase(UserSelectViewSet):
     admin_serializer_class = BuildAdminSerializer
     model = Build
 
-    def log(self, request, *args, **kwargs):
-        build = self.get_object()
-        return Response(build.raw_log)
-
 
 class BuildViewSet(SettingsOverrideObject):
 
     """A pluggable class to allow for build cold storage."""
 
     _default_class = BuildViewSetBase
-
-    @detail_route(renderer_classes=[PlainTextRenderer])
-    def log(self, request, *args, **kwargs):
-        # This meethod is defined on BuildViewSetBase
-        # because of SettingsOverrideObject.
-        pass
 
 
 class BuildCommandViewSet(UserSelectViewSet):
