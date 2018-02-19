@@ -3,7 +3,10 @@ Build: {{ build.pk }}
 Project: {{ build.project.slug }}
 Version: {{ build.version.verbose_name }} ({{ build.commit }})
 Date: {{ build.date }}
+State: {{ build.state }}
+{% if build.state == 'finished' %}
 Success: {{ build.success }}
+{% endif %}
 
 {% for command in build.commands %}
 [rtd-command-info] start-time: {{ command.start_time }}, end-time: {{ command.end_time }}, duration: {{ command.run_time }}, exit-code: {{ command.exit_code }}
