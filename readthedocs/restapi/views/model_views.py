@@ -47,6 +47,7 @@ class PlainTextRenderer(BaseRenderer):
     format = 'txt'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        renderer_context = renderer_context or {}
         response = renderer_context.get('response')
         if response.status_code != status.HTTP_200_OK:
             return data['detail'].encode(self.charset)
