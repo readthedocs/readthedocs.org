@@ -295,15 +295,9 @@ class APIBuildTests(TestCase):
 
         api_user = get(User, user='test', password='test')
         client.force_authenticate(user=api_user)
-        resp = client.get('/api/v2/build/{0}/log.txt'.format(build.pk))
-        self.assertEqual(resp.status_code, 200)
-        resp = client.get(
-            '/api/v2/build/{0}/log/'.format(build.pk),
-            format='txt'
-        )
+        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
-        self.assertEqual(resp.data, build.raw_log)
         self.assertIn('RTD build information', resp.data)
         self.assertIn('[rtd-command-info]', resp.data)
         self.assertIn(
