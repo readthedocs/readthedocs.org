@@ -30,11 +30,15 @@ var configMethods = {
         return this.theme;
     },
 
-    show_promo: function () {
-        return (
-            this.api_host !== 'https://readthedocs.com' &&
-            this.is_sphinx_builder() &&
-            this.theme_supports_promo());
+    show_promo: function (promo) {
+        if (this.api_host === 'https://readthedocs.com') {
+            return false;
+        }
+        if (promo && promo.display_type === constants.PROMO_TYPES.FIXED_FOOTER) {
+            // Fixed footer is supported on all themes
+            return true;
+        }
+        return this.is_sphinx_builder() && this.theme_supports_promo();
     }
 };
 
