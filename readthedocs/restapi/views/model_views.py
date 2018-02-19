@@ -35,7 +35,7 @@ from ..serializers import (
 log = logging.getLogger(__name__)
 
 
-class PlainTextRenderer(BaseRenderer):
+class PlainTextBuildRenderer(BaseRenderer):
 
     """
     Custom renderer for text/plain format.
@@ -236,7 +236,7 @@ class VersionViewSet(UserSelectViewSet):
 
 class BuildViewSetBase(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer, PlainTextRenderer)
+    renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build
