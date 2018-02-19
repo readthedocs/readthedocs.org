@@ -97,7 +97,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
     }
 
     if (self.display_type === constants.PROMO_TYPES.FIXED_FOOTER) {
-        var sponsored = $('<strong />').text('Sponsor: ');
+        var sponsored = $('<strong />').text('Sponsored: ');
         promo.append(sponsored);
     }
 
