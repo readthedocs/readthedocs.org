@@ -1,5 +1,5 @@
-Read the Docs: Using a requirements file
-========================================
+Using a Requirements File
+=========================
 
 The requirements file option is useful in the following scenarios:
  - You are using external packages, extensions, and themes that you need to include in your documentation project
@@ -73,7 +73,7 @@ For example, if you want to keep your python package in the ``src/python`` direc
 create a ``requirements.readthedocs.txt`` file in your project root pointing to this path.
 Make sure that the path to the packages' root directory is relative to the path of the ``requirements.readthedocs.txt`` file.
 
-So if the requirements file is at the project root::
+So if the requirements file is at the project root:: 
 
     /requirements.readthedocs.txt
 
@@ -91,14 +91,10 @@ its contents will be::
 
 Using the requirements file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Now, once the requirements file has been created for either scenario;
+Once the requirements file has been created;
 
-- Login to your Read the Docs project ( you have to be admin of the project).
-- Go to My Projects (using the drop-down arrow next to your username in the top right).
-- From the list of your Read the Docs projects, click on the project you wish to modify.
-- Click on the Admin button along the top row.
-- Go to advanced settings.
-- Enable the option ``Install your project inside a virtualenv using setup.py install``.
-- In the ``Requirements File:`` text-box below that, specify the path of the requirements file you just created.
-- The path should be relative to the root directory of the documentation project.
+- Login to Read the Docs as project admin.
+- Select the project from My Projects.
+- Go to ``Admin > Advanced Settings > Requirements file``.
+- Specify the path of the requirements file you just created. The path should be relative to the root directory of the documentation project.
 
