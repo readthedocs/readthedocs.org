@@ -12,6 +12,8 @@ from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
+from readthedocs.doc_builder.backends.sphinx import HtmlBuilder as SphinxHTML
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.models import Project, EnvironmentVariable
@@ -140,7 +142,7 @@ class BuildEnvironmentTests(TestCase):
             build={}
         )
         python_env = Virtualenv(version=version, build_env=build_env)
-        base_builder = MkdocsHTML(build_env, python_env)
+        base_builder = SphinxHTML(build_env, python_env)
 
         def look_index_path(path):
             if path.endswith('README.md'):
@@ -173,7 +175,7 @@ class BuildEnvironmentTests(TestCase):
             build={}
         )
         python_env = Virtualenv(version=version, build_env=build_env)
-        base_builder = MkdocsHTML(build_env, python_env)
+        base_builder = SphinxHTML(build_env, python_env)
 
         def look_index_path(path):
             if path.endswith('README.md'):
@@ -204,7 +206,7 @@ class BuildEnvironmentTests(TestCase):
             build={}
         )
         python_env = Virtualenv(version=version, build_env=build_env)
-        base_builder = MkdocsHTML(build_env, python_env)
+        base_builder = SphinxHTML(build_env, python_env)
 
         def look_index_path(path):
             if path.endswith('README.md'):
