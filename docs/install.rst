@@ -70,7 +70,7 @@ depending on their system configuration.
 .. _Python 3.6: http://www.python.org/
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
 .. _Git: http://git-scm.com/
-.. _`Mercurial`: https://www.mercurial-scm.org/
+.. _Mercurial: https://www.mercurial-scm.org/
 .. _Pip: https://pip.pypa.io/en/stable/
 .. _Homebrew: http://brew.sh/
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
