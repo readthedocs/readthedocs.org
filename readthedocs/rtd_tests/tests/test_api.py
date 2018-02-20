@@ -298,15 +298,15 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
-        self.assertIn(b'RTD build information', resp.content)
-        self.assertIn(b'[rtd-command-info]', resp.content)
+        self.assertIn('RTD build information', resp.content.decode())
+        self.assertIn('[rtd-command-info]', resp.content.decode())
         self.assertIn(
-            b'python setup.py install\nInstalling dependencies...',
-            resp.content
+            'python setup.py install\nInstalling dependencies...',
+            resp.content.decode()
         )
         self.assertIn(
-            b'git checkout master\nSwitched to branch "master"',
-            resp.content
+            'git checkout master\nSwitched to branch "master"',
+            resp.content.decode()
         )
 
     def test_get_invalid_raw_log(self):
