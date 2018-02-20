@@ -309,6 +309,14 @@ class APIBuildTests(TestCase):
             resp.content
         )
 
+    def test_get_invalid_raw_log(self):
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(404))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
