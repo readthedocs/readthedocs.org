@@ -49,8 +49,8 @@ class PlainTextBuildRenderer(BaseRenderer):
     def render(self, data, accepted_media_type=None, renderer_context=None):
         renderer_context = renderer_context or {}
         response = renderer_context.get('response')
-        if response.exception:
-            return data['detail'].encode(self.charset)
+        if not response or response.exception:
+            return data.get('detail', '').encode(self.charset)
         data = render_to_string(
             'restapi/log.txt', {'build': data}
         )
