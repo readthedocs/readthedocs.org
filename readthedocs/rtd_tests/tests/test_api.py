@@ -298,14 +298,14 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
-        self.assertIn('RTD build information', resp.content)
-        self.assertIn('[rtd-command-info]', resp.content)
+        self.assertIn(b'RTD build information', resp.content)
+        self.assertIn(b'[rtd-command-info]', resp.content)
         self.assertIn(
-            'python setup.py install\nInstalling dependencies...',
+            b'python setup.py install\nInstalling dependencies...',
             resp.content
         )
         self.assertIn(
-            'git checkout master\nSwitched to branch "master"',
+            b'git checkout master\nSwitched to branch "master"',
             resp.content
         )
 
