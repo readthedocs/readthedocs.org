@@ -20,6 +20,9 @@ Here is the full list of values injected by Read the Docs as a Python dictionary
 Note that this dictionary is injected under the main key `readthedocs`:
 
 
+.. This context comes from ``readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params`` class.
+   The source code is at, https://github.com/rtfd/readthedocs.org/blob/0c547f47fb9dffbeb17e4e9ccf205a10caf31189/readthedocs/doc_builder/backends/sphinx.py#L65
+
 .. code:: python
 
     'readthedocs': {
