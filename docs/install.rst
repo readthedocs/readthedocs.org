@@ -108,7 +108,7 @@ Now let's properly generate the static assets::
 
     python manage.py collectstatic
 
-Now you can optionally load a couple users and a test projects::
+Now you can optionally load a couple users and test projects::
 
     python manage.py loaddata test_data
 
