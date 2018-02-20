@@ -7,7 +7,7 @@ from __future__ import (
 import logging
 import os
 import shutil
-from builtins import object
+from builtins import object, open
 from functools import wraps
 
 log = logging.getLogger(__name__)
