@@ -1,0 +1,2 @@
+-r pip.txt
+rstcheck
