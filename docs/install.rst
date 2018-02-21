@@ -146,8 +146,8 @@ For builds to properly work as expected,
 it is necessary the port you're serving on
 (i.e. ``python manage.py runserver 0.0.0.0:8080``)
 match the port defined in ``PRODUCTION_DOMAIN``.
-You can utilize ``readthedocs/settings/local_settings.py`` to modify this.
-(By default, it's ``localhost:8000``)
+You can utilize ``readthedocs/settings/local_settings.py`` to modify this
+(by default, it's ``localhost:8000``).
 
 While the web server is running,
 you can build the documentation for the latest version of any project using the ``update_repos`` command.
