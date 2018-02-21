@@ -1,7 +1,7 @@
 RTD build information
-Build: {{ build.pk }}
-Project: {{ build.project.slug }}
-Version: {{ build.version.verbose_name }} ({{ build.commit }})
+Build: {{ build.id }}
+Project: {{ build.project }}
+Version: {{ build.commit }}
 Date: {{ build.date }}
 State: {{ build.state }}
 {% if build.state == 'finished' %}Success: {{ build.success }}{% endif %}
