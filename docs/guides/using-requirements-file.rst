@@ -11,10 +11,10 @@ Using a pip requirements file
 -----------------------------
 
 Creating the requirements file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You are using external packages, extensions, and themes that you need to include in your documentation project
----------------------------------------------------------------------------------------------------------------
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 Read the Docs supports adding specific functionality, and themes to tailor the behavior and appearance
 of your project's documentation. This is done by specifying a list of the packages, extensions, themes, to be used,
@@ -55,11 +55,11 @@ the extensions list in conf.py file), then your requirements file might look som
 
 
 You have enabled the install project in a virtual environment option, but your package's setup.py file is not in the root directory.
----------------------------------------------------------------------------------------------------------------------------------------
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 OR
---
+""
 You have multiple python packages in your project and you wish to document them.
---------------------------------------------------------------------------------
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 If you enable the option to install your project in a virtual environment, RTD automatically uses
 your project's setup.py file to install the packages. For this to work, the ``setup.py`` file must be
