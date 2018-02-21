@@ -8,6 +8,8 @@ matrix:
     - python: 2.7
       env: TOXENV=docs
     - python: 2.7
+      env: TOXENV=docs-lint
+    - python: 2.7
       env: TOXENV=lint
     - python: 2.7
       env: TOXENV=eslint
