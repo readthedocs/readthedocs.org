@@ -43,7 +43,7 @@ class SearchMixin(object):
             search_highlight = True
     """
 
-    def get_search(self, request):
+    def get_search(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)
