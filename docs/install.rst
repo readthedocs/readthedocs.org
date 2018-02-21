@@ -67,6 +67,12 @@ Other Linux
 Users of other Linux distributions may need to install the equivalent packages,
 depending on their system configuration.
 
+Other operating systems
+~~~~~~~~~~~~~~~~~~~~~~~
+
+On others operating systems no further dependencies are required,
+or you need to find the proper equivalent libraries.
+
 
 .. _Python 3.6: http://www.python.org/
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
