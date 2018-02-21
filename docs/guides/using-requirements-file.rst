@@ -2,8 +2,8 @@ Using a Requirements File
 =========================
 
 The requirements file option is useful in the following scenarios:
- - You are using external packages, extensions, and themes that you need to include in your documentation project
- - You have enabled the install project in a virtual environment option, but your package's setup.py file is not in the root directory.
+ - You are using external packages, extensions, and themes that you need to include in your documentation project.
+ - You have enabled *Install your project inside a virtualenv using* ``setup.py install``, but your package's setup.py file is not in the root directory.
  - You have multiple python packages in your project and you wish to document them.
 
 Creating the requirements file
@@ -23,10 +23,12 @@ To do this, one can create a list of requirements and save it in a requirements 
 
 Since *RTD* uses the Python language to build the workflow which automatically converts and hosts your project's
 documentation, and uses various python packages for this, the requirements file is the same as any standard python project.
-Read the Docs installs them in a virtual environment using pip, the standard python package manager.
+Read the Docs installs them in a virtual environment using `pip`, the standard python package manager.
 
-In-fact, it is helpful to think of your documentation on readthedocs as a sub-project written in python,
+Infact, it is helpful to think of your documentation on readthedocs as a sub-project written in python,
 within your main project's repo.
+
+.. note:: For the purpose of building your documentation with RTD, *project* is the documentation project, and *project root* is the directory where all the documentation is stored, often named ``docs``. 
 
 To use the requirements file:
 Create a text file with a sensible name in the root directory of your documentation directory. For example::
@@ -34,12 +36,13 @@ Create a text file with a sensible name in the root directory of your documentat
     docs/requirements.txt
     docs/requirements-docs.txt
 
-This is a standard python requirements file. If you know how to use that, this is the same thing. If not, read on.
+This is a standard python requirements file. If you know how to use that, this is the same thing.
+
 In this file, list all the packages (one package per line) that you require for building your documentation.
 Make sure to specify their appropriate version.
 
 For example, say you wish to only use Sphinx version 1.1.x and the sphinx_rtd_theme with a minimum version of 0.1.9.
-You are also using external extensions, for example, the napolean extension, (make sure to specify them in
+You are also using external extensions, for example, the napolean extension (make sure to specify them in
 the extensions list in conf.py file), then your requirements file might look something like this:
 
 ::
@@ -52,6 +55,7 @@ the extensions list in conf.py file), then your requirements file might look som
 
 Documenting multiple packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**OR**
 
 setup.py not in root directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +103,7 @@ Using the requirements file via the YAML configuration file
 -----------------------------------------------------------
 Documentation builds can be configured using a config.py file or using a YAML (.yml) file. 
 
-.. warning:: Using a YAML file to setup build config is a feature in a beta state. Please file an `issue`_ if you find anything malfunctioning.
+.. warning:: Using a YAML file to setup build config is a feature in a beta state. Please file an `issue`_ if you find anything not working the way it is supposed to.
 	
 
 The YAML file should be named ``readthedocs.yml`` or ``.readthedocs.yml`` and should be located in the root directory of the project. In the file, you can add a section ``requirements_file``, where the path to the requirements file can be specified
