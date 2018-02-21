@@ -7,7 +7,7 @@ Sphinx==1.5.3
 sphinx_rtd_theme==0.2.5b1
 Pygments==2.2.0
 mkdocs==0.14.0
-django==1.9.12
+django==1.9.13
 six==1.10.0
 future==0.16.0
 readthedocs-build<2.1
