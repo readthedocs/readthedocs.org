@@ -121,7 +121,7 @@ Create a conda block if it doesn't already exist, then add the file option to it
 
 As before, the path should be relative to the root directory of the documentation project.
 
-More on Read the Doc's conda support: :doc: `conda`
+More on Read the Doc's conda support: :doc:`conda`
 
 Working with `conda and environment.yml`_
 
