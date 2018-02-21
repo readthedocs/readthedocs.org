@@ -106,13 +106,13 @@ Using requirements file with conda
 ----------------------------------
 .. warning:: Conda support is a feature in a beta state. Please file an `issue`_ if you find anything not working the way it is supposed to.
 
-IF you are using conda instead of virtualenv to manage your environement, you can use a conda ``environment.yml`` file instead of a pip ``requirements.txt`` .
+If you are using conda instead of virtualenv to manage your environement, you can use a conda ``environment.yml`` file instead of a pip ``requirements.txt`` .
 
 .. note:: Conda is only supported via the YAML file.
 
 As above, create a YAML file named ``readthedocs.yml`` or ``.readthedocs.yml`` located in the root directory of the project.
 
-Create a conda block if it doesn't already exist, then add the file option to it, specifying the environment file to use.
+Create a ``conda`` block if it doesn't already exist, then add the ``file`` option to it, specifying the environment file to use.
 
 .. code-block:: yaml
 
