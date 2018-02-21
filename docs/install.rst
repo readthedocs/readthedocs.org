@@ -61,12 +61,6 @@ Install::
 
     sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
-Other Linux
-~~~~~~~~~~~
-
-Users of other Linux distributions may need to install the equivalent packages,
-depending on their system configuration.
-
 Other operating systems
 ~~~~~~~~~~~~~~~~~~~~~~~
 
