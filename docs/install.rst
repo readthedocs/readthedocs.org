@@ -77,8 +77,8 @@ depending on their system configuration.
 .. _Redis: https://redis.io/
 
 
-Cloning the repository and start Django
----------------------------------------
+Get and run Read the Docs
+-------------------------
 
 Clone the repository somewhere on your disk and enter to the repository::
 
