@@ -64,7 +64,7 @@ Install::
 Other operating systems
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-On others operating systems no further dependencies are required,
+On other operating systems no further dependencies are required,
 or you need to find the proper equivalent libraries.
 
 
