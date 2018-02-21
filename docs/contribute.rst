@@ -4,14 +4,23 @@ Contributing to Read the Docs
 =============================
 
 You are here to help on Read the Docs? Awesome, feel welcome and read the
-following sections in order to know what and how to work on something. If you
-get stuck at any point you can create a `ticket on GitHub`_.
+following sections in order to know how to ask questions and how to work on something. 
 
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
 
+Get in touch
+------------
+
+- Ask usage questions ("How do I?") on `StackOverflow`_.
+- Report bugs, suggest features or view the source code `on GitHub`_.
+- Discuss topics on `Gitter`_.
+- On IRC find us at `#readthedocs`_.
+
+.. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
+.. _on GitHub: https://github.com/rtfd/readthedocs.org
+.. _Gitter: https://gitter.im/rtfd/readthedocs.org
 .. _#readthedocs: irc://irc.freenode.net/readthedocs
-.. _ticket on GitHub: https://github.com/rtfd/readthedocs.org/issues
 
 Contributing to development
 ---------------------------
