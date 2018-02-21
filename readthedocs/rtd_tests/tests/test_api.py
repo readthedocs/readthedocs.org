@@ -299,6 +299,11 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         self.assertIn('RTD build information', resp.content.decode())
+        self.assertIn('Build: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.id), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('State: {}'.format(build.state), resp.content.decode())
+        self.assertIn('Success: {}'.format(build.success), resp.content.decode())
         self.assertIn('[rtd-command-info]', resp.content.decode())
         self.assertIn(
             'python setup.py install\nInstalling dependencies...',
