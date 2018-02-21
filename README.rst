@@ -31,11 +31,7 @@ the Docs site`_.
 Get in touch
 ------------
 
-- Ask usage questions ("How do I?") on `StackOverflow`_.
-- Report bugs, suggest features or view the source code `on GitHub`_.
-
-.. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
-.. _on GitHub: https://github.com/rtfd/readthedocs.org
+You can find information about getting in touch with Read the Docs at our Get in touch page.
 
 Contributing
 ------------
