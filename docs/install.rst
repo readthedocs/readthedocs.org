@@ -11,15 +11,12 @@ First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them.
 Using a virtual environment is strongly recommended,
 since it will help you to avoid clutter in your system-wide libraries.
 
-Additionally Read the Docs depends on: 
+Additionally Read the Docs depends on:
 
 * `Git`_ (version >=2)
 * `Mercurial`_ (only if you need to work with mercurial repositories)
 * `Pip`_ (version >1.5)
 * `Redis`_
-
-    * On Ubuntu you can install it using ``sudo apt-get install redis-server``
-
 * `Elasticsearch`_ (only if you want full support for searching inside the site)
 
     * Ubuntu users could install this package by following :doc:`/custom_installs/elasticsearch`.
@@ -52,6 +49,10 @@ Install::
     sudo apt-get install build-essential
     sudo apt-get install python-dev python-pip python-setuptools
     sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
+
+If you don't have redis installed yet, you can do it with::
+    
+    sudo apt-get install redis-server
 
 On CentOS/RHEL 7
 ~~~~~~~~~~~~~~~~
