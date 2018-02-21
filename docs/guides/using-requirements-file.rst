@@ -6,18 +6,14 @@ The requirements file option is useful in the following scenarios:
  - You have enabled the install project in a virtual environment option, but your package's setup.py file is not in the root directory.
  - You have multiple python packages in your project and you wish to document them.
 
------------------------------
-Using a pip requirements file
------------------------------
-
 Creating the requirements file
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------
 
-You are using external packages, extensions, and themes that you need to include in your documentation project
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Supporting external packages, themes, extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Read the Docs supports adding specific functionality, and themes to tailor the behavior and appearance
-of your project's documentation. This is done by specifying a list of the packages, extensions, themes, to be used,
+Read the Docs supports adding specific functionality and themes to tailor the behavior and appearance
+of your project's documentation. This is done by specifying a list of the packages, extensions, and themes to be used,
 and their versions, during the documentation build process.
 
 For example, one can specify which version of *Sphinx* to use, which theme they would like to use,
@@ -25,8 +21,8 @@ what extensions they would like to add and so on.
 
 To do this, one can create a list of requirements and save it in a requirements file.
 
-Since *RTD* uses Python language to build the workflow which automatically converts and hosts your project's
-documentation, and uses various python packages for this, the requirments file is the same as any standard python project.
+Since *RTD* uses the Python language to build the workflow which automatically converts and hosts your project's
+documentation, and uses various python packages for this, the requirements file is the same as any standard python project.
 Read the Docs installs them in a virtual environment using pip, the standard python package manager.
 
 In-fact, it is helpful to think of your documentation on readthedocs as a sub-project written in python,
@@ -54,12 +50,11 @@ the extensions list in conf.py file), then your requirements file might look som
 	sphinxcontrib-napolean
 
 
-You have enabled the install project in a virtual environment option, but your package's setup.py file is not in the root directory.
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-OR
-""
-You have multiple python packages in your project and you wish to document them.
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Documenting multiple packages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+setup.py not in root directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you enable the option to install your project in a virtual environment, RTD automatically uses
 your project's setup.py file to install the packages. For this to work, the ``setup.py`` file must be
@@ -92,7 +87,7 @@ its contents will be::
 Also see :ref:`faq_document_package_not_at_root`
 
 Using the requirements file via the project admin's web interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------------
 Once the requirements file has been created;
 
 - Login to Read the Docs as project admin.
@@ -101,7 +96,7 @@ Once the requirements file has been created;
 - Specify the path of the requirements file you just created. The path should be relative to the root directory of the documentation project.
 
 Using the requirements file via the YAML configuration file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------------------------------
 Documentation builds can be configured using a config.py file or using a YAML (.yml) file. 
 
 .. warning:: Using a YAML file to setup build config is a feature in a beta state. Please file an `issue`_ if you find anything malfunctioning.
