@@ -41,6 +41,7 @@ the extensions list in conf.py file), then your requirements file might look som
 	sphinx_rtd_theme >= 0.1.9
 	sphinxcontrib-napolean
 
+You can read all about ``pip`` and requirements file in the `pip user guide`_
 
 Documenting multiple packages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,5 +102,30 @@ The YAML file should be named ``readthedocs.yml`` or ``.readthedocs.yml`` and sh
 
     requirements_file: requirements/readthedocs.txt
     
+Using requirements file with conda
+----------------------------------
+.. warning:: Conda support is a feature in a beta state. Please file an `issue`_ if you find anything not working the way it is supposed to.
+
+IF you are using conda instead of virtualenv to manage your environement, you can use a conda ``environment.yml`` file instead of a pip ``requirements.txt`` .
+
+.. note:: Conda is only supported via the YAML file.
+
+As above, create a YAML file named ``readthedocs.yml`` or ``.readthedocs.yml`` located in the root directory of the project.
+
+Create a conda block if it doesn't already exist, then add the file option to it, specifying the environment file to use.
+
+.. code-block:: yaml
+
+	conda:
+	    file: environment.yml
+
+As before, the path should be relative to the root directory of the documentation project.
+
+More on Read the Doc's conda support: :doc: `conda`
+
+Working with `conda and environment.yml`_
+
     
 .. _issue: : https://github.com/rtfd/readthedocs.org/issues
+.. _`pip user guide`: : https://pip.pypa.io/en/latest/user_guide/#requirements-files
+.. _`conda and environment.yml`: : https://conda.io/docs/user-guide/tasks/manage-environments.html
