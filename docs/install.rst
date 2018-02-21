@@ -167,6 +167,10 @@ What's available
 After registering with the site (or creating yourself a superuser account),
 you will be able to log in and view the `dashboard <http://localhost:8000/dashboard/>`_.
 
+.. note::
+
+   You can get the verification link from the console where you ran the server.
+
 Importing your docs
 ~~~~~~~~~~~~~~~~~~~
 
