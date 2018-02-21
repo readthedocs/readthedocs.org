@@ -155,6 +155,12 @@ For example to update the ``pip`` repo::
 
     python manage.py update_repos pip
 
+.. note::
+
+    If you have problems building successfully a project,
+    probably is because some missing libraries for ``pdf`` and ``epub`` generation.
+    You can uncheck this on the advanced settings of your project.
+
 What's available
 ----------------
 
