@@ -1068,6 +1068,43 @@ select.dropdown { display: none; }
     }
 
 
+/* Table lists */
+div.module div.module-title {
+    height: 2.625em;
+    overflow: hidden;
+}
+
+div.module div.module-list ul li.module-item div.module-title .module-name {
+    line-height: 1.5em;
+}
+div.module div.module-list ul li.module-item div.module-title a.module-name {
+    text-decoration: none;
+}
+
+div.module div.module-list ul li.module-item div.module-title .module-info {
+    display: block;
+    font-size: .75em;
+    line-height: 1.5em;
+    color: #999;
+}
+div.module div.module-list ul li.module-item div.module-title a.module-info {
+    text-decoration: none;
+}
+
+div.module div.module-title ul.module-item-menu {
+    top: 10px;
+    right: 10px;
+}
+
+div.module div.module-list ul.module-item-menu a.module-action {
+    display: block;
+    height: 1em;
+    padding: .5em .75em;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+
 /* Domain Pages */
 
 .domain-machine { color: #999; }
@@ -1123,44 +1160,16 @@ div.httpexchange div.highlight pre {
     font-size: .9em;
 }
 
+
 /* Subprojects */
-div.module.project-subprojects div.subproject-info {
-    height: 2.625em;
-    overflow: hidden;
-}
 
-div.module.project-subprojects div.subproject-info a.subproject-name {
-    line-height: 1.5em;
-    text-decoration: none;
-}
-
-div.module.project-subprojects div.subproject-info span.subproject-url a {
-    display: block;
-    font-size: .75em;
-    line-height: 1.5em;
-    color: #999;
-    text-decoration: none;
-}
-
-div.module.project-subprojects div.subproject-info ul.subproject-menu {
-    top: 10px;
-    right: 10px;
-}
-
-div.module.project-subprojects li.subproject span.subproject-url a:before {
+div.module.project-subprojects li.subproject a.subproject-url:before {
     padding-right: .5em;
     font-family: FontAwesome;
     font-size: 1.2em;
     content: "\f0c1";
 }
 
-div.module.project-subprojects li.subproject a.subproject-edit {
-    display: block;
-    height: 1em;
-    padding: .5em .75em;
-    font-size: 1em;
-    font-weight: normal;
-}
 div.module.project-subprojects li.subproject a.subproject-edit:before {
     font-family: FontAwesome;
     font-weight: normal;
