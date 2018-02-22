@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from mock import patch, MagicMock
 
-from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
@@ -64,7 +64,7 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
     def test_update_docs(self):
@@ -79,7 +79,7 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs')
@@ -97,7 +97,7 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs')
@@ -115,7 +115,11 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    def test_update_imported_doc(self):
+    def test_sync_repository(self):
+        version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            result = tasks.update_imported_docs.delay(self.project.pk)
+            sync_repository = tasks.SyncRepositoryTask()
+            result = sync_repository.apply_async(
+                args=(version.pk,),
+            )
         self.assertTrue(result.successful())

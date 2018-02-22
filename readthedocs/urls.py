@@ -34,6 +34,8 @@ basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^support/', SupportView.as_view(), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
+    url(r'^.well-known/security.txt',
+        TemplateView.as_view(template_name='security.txt', content_type='text/plain')),
 ]
 
 rtd_urls = [

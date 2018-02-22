@@ -56,6 +56,7 @@ Information about development is also available:
 
    contribute
    team
+   gsoc
    code-of-conduct
    ethical-advertising
    sponsors
@@ -103,6 +104,7 @@ Information about development is also available:
    settings
    i18n
    issue-labels
+   security
    api/index
 
 .. _business-docs:

@@ -23,7 +23,7 @@ as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
 
-This often happens becuase you don't have an `index.html` file being generated.
+This often happens because you don't have an `index.html` file being generated.
 Make sure you have one of the following files:
 
     * `index.rst`
@@ -57,7 +57,7 @@ environment, and will be set to ``True`` when building on RTD::
     {% endif %}
 
 I get import errors on libraries that depend on C modules
-----------------------------------------------------------
+---------------------------------------------------------
 
 .. note::
     Another use case for this is when you have a module with a C extension.

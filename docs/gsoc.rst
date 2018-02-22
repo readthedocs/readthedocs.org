@@ -1,7 +1,12 @@
 Google Summer of Code
 =====================
 
-Read the Docs is hoping to participate in the Google Summer of Code in 2018.
+.. note:: Thanks for your interest in Read the Docs!
+          We are working hard to update the ideas list now that we are accepted in GSOC.
+          Please give us a little while to work on things,
+          and check back on this page for updates.
+
+Read the Docs is participating in the Google Summer of Code in 2018.
 This page will contain all the information for students and anyone else interested in helping.
 
 Skills
@@ -23,13 +28,13 @@ the more likely we are to choose your application!
 Mentors
 -------
 
-Anyone listed in Development Team on our :doc:`/team` page would be a great person to chat with about mentoring!
-
 Currently we have a few folks signed up:
 
 * Eric Holscher
 * Manuel Kaufmann
-* Anthony Johnson
+
+.. warning:: Please do not reach out directly to anyone about the Summer of Code.
+             It will **not** increase your chances of being accepted!
 
 Getting Started
 ---------------
@@ -39,15 +44,12 @@ It will walk you through getting a basic environment for Read the Docs setup.
 
 Then you can look through our :doc:`contribute` doc for information on how to get started contributing to RTD.
 
-People who has a history of submitting issues and pull requests will be prioritized in our Summer of Code selection process,
-so don't be shy!
+People who has a history of submitting pull requests will be prioritized in our Summer of Code selection process.
 
 Want to get involved?
 ---------------------
 
-If you're interested in participating in GSoC as a student, you can also post an `issue <https://github.com/rtfd/readthedocs.org/issues>`_ on GitHub to let us know. We will be happy to help direct you or answer any questions you may have there.
-
-You can also reach out to folks on IRC at `#readthedocs` on Freenode.
+If you're interested in participating in GSoC as a student, you can apply during the normal process provided by Google. We are currently overwhelmed with interest, so we are not able to respond individually to each person who is interested.
 
 Project Ideas
 -------------
