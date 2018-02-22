@@ -738,7 +738,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.error('Unknown documentation type: %s',
+        log.debug('Unknown documentation type: %s',
                   version.project.documentation_type)
         return
 
