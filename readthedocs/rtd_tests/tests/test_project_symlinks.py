@@ -908,3 +908,105 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             self.symlink.run()
         except:
             self.fail('Symlink run raised an exception on unicode slug')
+
+
+@override_settings()
+class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
+
+    def setUp(self):
+        super(TestPublicPrivateSymlink, self).setUp()
+        self.project = get(Project, slug='project', privacy_level='public',
+                           main_language_project=None)
+        self.project.versions.update(privacy_level='public')
+        self.project.save()
+
+        self.subproject = get(Project, slug='subproject', privacy_level='public',
+                              main_language_project=None)
+        self.subproject.versions.update(privacy_level='public')
+        self.subproject.save()
+
+    def test_change_subproject_privacy(self):
+        filesystem_before = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'project': {'en': {},},
+                'subproject': {'en': {},},
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'project': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/project/rtd-builds/latest',
+                    },},
+                    'projects': {
+                        'subproject': {
+                            'type': 'link',
+                            'target': 'public_web_root/subproject',
+                        },
+                    },
+                },
+                'subproject': {
+                    'en': {'latest': {
+                        'type': 'link',
+                        'target': 'user_builds/subproject/rtd-builds/latest',
+                    },},
+                },
+            },
+        }
+
+        filesystem_after = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'project': {
+                    'en': {},
+                },
+                'subproject': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/subproject/rtd-builds/latest',
+                        },
+                    },
+                },
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'project': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/project/rtd-builds/latest',
+                        },
+                    },
+                    'projects': {},
+                },
+                'subproject': {
+                    'en': {},
+                },
+            },
+        }
+
+        self.project.add_subproject(self.subproject)
+
+        from readthedocs.projects.tasks import symlink_project, symlink_subproject
+        symlink_project(self.project.pk)
+        symlink_subproject(self.project.pk)
+
+        self.assertFilesystem(filesystem_before)
+
+        self.subproject.privacy_level = 'private'
+        # self.subproject.version_privacy_level = 'private'
+        self.subproject.save()
+
+        # These two lines shouldn't be necessary because this should be done
+        # automatically on ``self.subproject.save()`` but that is the bug I want
+        # to fix
+        symlink_project(self.project.pk)
+        symlink_subproject(self.project.pk)
+
+        self.assertFilesystem(filesystem_after)
