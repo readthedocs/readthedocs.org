@@ -929,9 +929,9 @@ def email_notification(version, build, email):
     }
 
     if build.commit:
-        title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
+        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
     else:
-        title = _('Failed: {project.name} ({version.verbose_name})').format(**context)
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
 
     send_email(
         email,
