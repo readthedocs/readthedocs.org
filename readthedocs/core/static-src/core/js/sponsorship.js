@@ -175,11 +175,10 @@ Promo.prototype.get_sphinx_rtd_theme_promo_selector = function () {
 };
 
 Promo.prototype.get_fixed_footer_selector = function () {
-    var selector = $('<div />')
-        .attr('style', 'height: 55px')  // Allow space at the end of the body
-        .appendTo('body');
+    // Shift the version selector badge up if it would obscure this
+    $('.rst-versions.rst-badge').attr('style', 'bottom: 55px');
 
-    return selector;
+    return $('<div />').addClass('ethical-footer').appendTo('body');
 };
 
 // Position promo

@@ -185,13 +185,16 @@ div.rtd-pro > p.ethical-callout {
 }
 
 @media (max-width: 768px) {
+    .ethical-footer {
+        height: 55px;
+    }
     .ethical-fixed-footer {
         box-sizing: border-box;
         width: 100%;
         position: fixed;
         bottom: 0;
         left: 0;
-        z-index: 999;
+        z-index: 100;
         background-color: #eee;
         border-top: 1px solid #bfbfbf;
         font-size: 12px;
@@ -206,7 +209,7 @@ div.rtd-pro > p.ethical-callout {
     }
 }
 @media (min-width: 769px) {
-    .ethical-fixed-footer {
+    .ethical-fixed-footer, .ethical-footer {
         display: none;
     }
 }
