@@ -104,6 +104,7 @@ Information about development is also available:
    settings
    i18n
    issue-labels
+   security
    api/index
 
 .. _business-docs:
