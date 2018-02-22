@@ -951,7 +951,10 @@ def webhook_notification(version, build, hook_url):
     log.debug(LOG_TEMPLATE
               .format(project=project.slug, version='',
                       msg='sending notification to: %s' % hook_url))
-    requests.post(hook_url, data=data)
+    try:
+        requests.post(hook_url, data=data)
+    except Exception:
+        log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
 
 @app.task(queue='web')
