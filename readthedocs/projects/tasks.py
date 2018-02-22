@@ -904,16 +904,29 @@ def email_notification(version, build, email):
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                   msg='sending email to: %s' % email))
-    context = {'version': version,
-               'project': version.project,
-               'build': build,
-               'build_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   build.get_absolute_url()),
-               'unsub_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   reverse('projects_notifications', args=[version.project.slug])),
-               }
+
+    # We send only what we need from the Django model objects here to avoid
+    # serialization problems in the ``readthedocs.core.tasks.send_email_task``
+    context = {
+        'version': {
+            'verbose_name': version.verbose_name,
+        },
+        'project': {
+            'name': version.project.name,
+        },
+        'build': {
+            'pk': build.pk,
+            'error': build.error,
+        },
+        'build_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            build.get_absolute_url(),
+        ),
+        'unsub_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            reverse('projects_notifications', args=[version.project.slug]),
+        ),
+    }
 
     if build.commit:
         title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
@@ -925,7 +938,7 @@ def email_notification(version, build, email):
         title,
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
-        context=context
+        context=context,
     )
 
 
