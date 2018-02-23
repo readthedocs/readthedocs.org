@@ -39,7 +39,7 @@ def make_test_git():
     log.info(check_output(['git', 'submodule', 'add', '-b', 'master', './', 'submodule'], env=env))
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
-    # Checkout to master branche again
+    # Checkout to master branch again
     log.info(check_output(['git', 'checkout', 'master'], env=env))
     chdir(path)
     return directory
