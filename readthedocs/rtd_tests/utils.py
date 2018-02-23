@@ -34,7 +34,7 @@ def make_test_git():
     log.info(check_output(['git', 'init'] + [directory], env=env))
     output = check_output(['git', 'add', '.'], env=env)
     log.info(output)
-    assert '*** Please tell me who you are.' not in output.decode()
+    assert 'Please tell me who you are.' not in output.decode()
     log.info(check_output(['git', 'commit', '-m"init"'], env=env))
     log.info(check_output(['git', 'checkout', '-b', 'submodule'], env=env))
     chdir(path)
