@@ -34,8 +34,8 @@ def make_test_git():
     log.info(check_output(['git', 'init'] + [directory], env=env))
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"init"'], env=env))
-    log.info(check_output(['git', 'checkout', '-b', 'submodule'], env=env))
     # Add repo itself as submodule
+    log.info(check_output(['git', 'checkout', '-b', 'submodule'], env=env))
     log.info(check_output(['git', 'submodule', 'add', '-b', 'master', './', 'submodule'], env=env))
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
