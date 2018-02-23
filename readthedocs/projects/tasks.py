@@ -161,7 +161,6 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
-
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
     """Entry point to synchronize the VCS documentation."""
