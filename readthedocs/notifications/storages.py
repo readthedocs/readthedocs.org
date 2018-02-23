@@ -48,7 +48,7 @@ class FallbackUniqueStorage(FallbackStorage):
             safe_messages.append(message)
         return safe_messages, all_ret
 
-    def add(self, level, message, extra_tags='', *args, **kwargs):
+    def add(self, level, message, extra_tags='', *args, **kwargs):  # noqa
         user = kwargs.get('user') or self.request.user
         if not user.is_anonymous():
             persist_messages = (PersistentMessage.objects

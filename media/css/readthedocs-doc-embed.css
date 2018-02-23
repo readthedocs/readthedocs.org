@@ -80,7 +80,7 @@ div.rst-pro > span {
 
 div.rtd-pro.wy-menu > span,
 div.rst-pro.wy-menu > span {
-    color: #838383;
+    color: #b3b3b3;
 }
 
 div.rtd-pro.wy-menu a,
@@ -88,12 +88,11 @@ div.rtd-pro.wy-menu a:link,
 div.rtd-pro.wy-menu a:visited,
 div.rst-pro.wy-menu a,
 div.rst-pro.wy-menu a:link,
-div.rst-pro.wy-menu a:visited { color: #b3b3b3; }
-
+div.rst-pro.wy-menu a:visited,
 div.rtd-pro.wy-menu a:hover,
 div.rtd-pro.wy-menu a:active,
 div.rst-pro.wy-menu a:hover,
-div.rst-pro.wy-menu a:active { color: #c3c3c3; }
+div.rst-pro.wy-menu a:active { color: #efefef; }
 
 div.rtd-pro a.rtd-pro-image-wrapper {
     display: inline-block;

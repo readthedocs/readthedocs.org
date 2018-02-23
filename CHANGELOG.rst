@@ -1,3 +1,64 @@
+Version 2.2.1
+-------------
+
+Version ``2.2.1`` is a bug fix release for the several issues found in
+production during the ``2.2.0`` release.
+
+ * `@agjohnson <http://github.com/agjohnson>`_: Hotfix for adding logging call back into project sync task (`#3657 <https://github.com/rtfd/readthedocs.org/pull/3657>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Fix issue with missing setting in oauth SyncRepo task (`#3656 <https://github.com/rtfd/readthedocs.org/pull/3656>`_)
+ * `@humitos <http://github.com/humitos>`_: Tests for build notifications (`#3654 <https://github.com/rtfd/readthedocs.org/pull/3654>`_)
+ * `@humitos <http://github.com/humitos>`_: Send proper context to celery email notification task (`#3653 <https://github.com/rtfd/readthedocs.org/pull/3653>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Remove error logging that isn't an error. (`#3650 <https://github.com/rtfd/readthedocs.org/pull/3650>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Update RTD security docs (`#3641 <https://github.com/rtfd/readthedocs.org/pull/3641>`_)
+ * `@humitos <http://github.com/humitos>`_: Ability to override the creation of the Celery App (`#3623 <https://github.com/rtfd/readthedocs.org/pull/3623>`_)
+
+Version 2.2.0
+-------------
+
+ * `@humitos <http://github.com/humitos>`_: Tests for build notifications (`#3654 <https://github.com/rtfd/readthedocs.org/pull/3654>`_)
+ * `@humitos <http://github.com/humitos>`_: Send proper context to celery email notification task (`#3653 <https://github.com/rtfd/readthedocs.org/pull/3653>`_)
+ * `@xrmx <http://github.com/xrmx>`_: Update django-formtools to 2.1 (`#3648 <https://github.com/rtfd/readthedocs.org/pull/3648>`_)
+ * `@xrmx <http://github.com/xrmx>`_: Update Django to 1.9.13 (`#3647 <https://github.com/rtfd/readthedocs.org/pull/3647>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Fix a 500 when searching for files with API v1 (`#3645 <https://github.com/rtfd/readthedocs.org/pull/3645>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Update RTD security docs (`#3641 <https://github.com/rtfd/readthedocs.org/pull/3641>`_)
+ * `@humitos <http://github.com/humitos>`_: Fix SVN initialization for command logging (`#3638 <https://github.com/rtfd/readthedocs.org/pull/3638>`_)
+ * `@humitos <http://github.com/humitos>`_: Ability to override the creation of the Celery App (`#3623 <https://github.com/rtfd/readthedocs.org/pull/3623>`_)
+ * `@humitos <http://github.com/humitos>`_: Update the operations team (`#3621 <https://github.com/rtfd/readthedocs.org/pull/3621>`_)
+ * `@mohitkyadav <http://github.com/mohitkyadav>`_: Add venv to .gitignore (`#3620 <https://github.com/rtfd/readthedocs.org/pull/3620>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Remove hardcoded copyright year (`#3616 <https://github.com/rtfd/readthedocs.org/pull/3616>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Improve installation steps (`#3614 <https://github.com/rtfd/readthedocs.org/pull/3614>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Update GSOC (`#3607 <https://github.com/rtfd/readthedocs.org/pull/3607>`_)
+ * `@Jigar3 <http://github.com/Jigar3>`_: Updated AUTHORS.rst (`#3601 <https://github.com/rtfd/readthedocs.org/pull/3601>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Pin less to latest compatible version (`#3597 <https://github.com/rtfd/readthedocs.org/pull/3597>`_)
+ * `@Angeles4four <http://github.com/Angeles4four>`_: Grammar correction (`#3596 <https://github.com/rtfd/readthedocs.org/pull/3596>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Fix an unclosed tag (`#3592 <https://github.com/rtfd/readthedocs.org/pull/3592>`_)
+ * `@aaksarin <http://github.com/aaksarin>`_: add missed fontawesome-webfont.woff2 (`#3589 <https://github.com/rtfd/readthedocs.org/pull/3589>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Force a specific ad to be displayed (`#3584 <https://github.com/rtfd/readthedocs.org/pull/3584>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Docs about preference for tags over branches (`#3582 <https://github.com/rtfd/readthedocs.org/pull/3582>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Rework homepage (`#3579 <https://github.com/rtfd/readthedocs.org/pull/3579>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Don't allow to create a subproject of a project itself  (`#3571 <https://github.com/rtfd/readthedocs.org/pull/3571>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Fix for build screen in firefox (`#3569 <https://github.com/rtfd/readthedocs.org/pull/3569>`_)
+ * `@humitos <http://github.com/humitos>`_: Style using pre-commit (`#3560 <https://github.com/rtfd/readthedocs.org/pull/3560>`_)
+ * `@humitos <http://github.com/humitos>`_: Use DRF 3.1 `pagination_class` (`#3559 <https://github.com/rtfd/readthedocs.org/pull/3559>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Analytics fixes (`#3558 <https://github.com/rtfd/readthedocs.org/pull/3558>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Upgrade requests version (`#3557 <https://github.com/rtfd/readthedocs.org/pull/3557>`_)
+ * `@humitos <http://github.com/humitos>`_: Mount `pip_cache_path` in Docker container (`#3556 <https://github.com/rtfd/readthedocs.org/pull/3556>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Add a number of new ideas for GSOC (`#3552 <https://github.com/rtfd/readthedocs.org/pull/3552>`_)
+ * `@humitos <http://github.com/humitos>`_: Fix Travis lint issue (`#3551 <https://github.com/rtfd/readthedocs.org/pull/3551>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Send custom dimensions for mkdocs (`#3550 <https://github.com/rtfd/readthedocs.org/pull/3550>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Promo contrast improvements (`#3549 <https://github.com/rtfd/readthedocs.org/pull/3549>`_)
+ * `@humitos <http://github.com/humitos>`_: Allow git tags with `/` in the name and properly slugify (`#3545 <https://github.com/rtfd/readthedocs.org/pull/3545>`_)
+ * `@humitos <http://github.com/humitos>`_: Allow to import public repositories on corporate site (`#3537 <https://github.com/rtfd/readthedocs.org/pull/3537>`_)
+ * `@humitos <http://github.com/humitos>`_: Log `git checkout` and expose to users (`#3520 <https://github.com/rtfd/readthedocs.org/pull/3520>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Update docs (`#3498 <https://github.com/rtfd/readthedocs.org/pull/3498>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Switch to universal analytics (`#3495 <https://github.com/rtfd/readthedocs.org/pull/3495>`_)
+ * `@stsewd <http://github.com/stsewd>`_: Move Mercurial dependency to pip.txt (`#3488 <https://github.com/rtfd/readthedocs.org/pull/3488>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Add docs on removing edit button (`#3479 <https://github.com/rtfd/readthedocs.org/pull/3479>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Convert default dev cache to local memory (`#3477 <https://github.com/rtfd/readthedocs.org/pull/3477>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Fix lint error (`#3402 <https://github.com/rtfd/readthedocs.org/pull/3402>`_)
+ * `@techtonik <http://github.com/techtonik>`_: Fix Edit links if version is referenced by annotated tag (`#3302 <https://github.com/rtfd/readthedocs.org/pull/3302>`_)
+ * `@jaraco <http://github.com/jaraco>`_: Fixed build results page on firefox (part two) (`#2630 <https://github.com/rtfd/readthedocs.org/pull/2630>`_)
+
 Version 2.1.6
 -------------
 

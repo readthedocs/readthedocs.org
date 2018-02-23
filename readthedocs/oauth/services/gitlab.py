@@ -15,7 +15,7 @@ from requests.exceptions import RequestException
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import DEFAULT_PRIVACY_LEVEL, Service
+from .base import Service
 
 try:
     from urlparse import urljoin, urlparse
@@ -108,8 +108,7 @@ class GitLabService(Service):
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id
 
-    def create_repository(
-            self, fields, privacy=DEFAULT_PRIVACY_LEVEL, organization=None):
+    def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from GitLab API response.
 
@@ -119,6 +118,7 @@ class GitLabService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
+        privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
             try:

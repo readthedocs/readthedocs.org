@@ -7,7 +7,7 @@ module.exports = {
 };
 
 function Promo (id, text, link, image, theme, display_type, pixel) {
-    this.id = id;
+    this.id = id;       // analytics id
     this.text = text;
     this.link = link;
     this.image = image;
@@ -21,11 +21,11 @@ function Promo (id, text, link, image, theme, display_type, pixel) {
         // This needs to handle both old style legacy analytics for previously built docs
         // as well as the newer universal analytics
         if (typeof ga !== 'undefined') {
-            ga('rtfd.send', 'event', 'Promo', 'Click', self.id);
+            ga('rtfd.send', 'event', 'Promo', 'Click', id);
         } else if (typeof _gaq !== 'undefined') {
             _gaq.push(
                 ['rtfd._setAccount', 'UA-17997319-1'],
-                ['rtfd._trackEvent', 'Promo', 'Click', self.id]
+                ['rtfd._trackEvent', 'Promo', 'Click', id]
             );
         }
     };
@@ -81,7 +81,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
             .attr('class', 'rtd-pro-image-wrapper')
             .attr('href', self.link)
             .attr('target', '_blank')
-            .on('click', this.click_handler);
+            .on('click', self.click_handler);
         var promo_image = $('<img />')
             .attr('class', 'rtd-pro-image')
             .attr('src', self.image)
@@ -97,7 +97,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
             .attr('class', 'rtd-pro-link')
             .attr('href', self.link)
             .attr('target', '_blank')
-            .on('click', this.click_handler);
+            .on('click', self.click_handler);
     });
     promo.append(promo_text);
 
