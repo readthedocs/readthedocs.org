@@ -1,3 +1,17 @@
+Version 2.2.1
+-------------
+
+Version ``2.2.1`` is a bug fix release for the several issues found in
+production during the ``2.2.0`` release.
+
+ * `@agjohnson <http://github.com/agjohnson>`_: Hotfix for adding logging call back into project sync task (`#3657 <https://github.com/rtfd/readthedocs.org/pull/3657>`_)
+ * `@agjohnson <http://github.com/agjohnson>`_: Fix issue with missing setting in oauth SyncRepo task (`#3656 <https://github.com/rtfd/readthedocs.org/pull/3656>`_)
+ * `@humitos <http://github.com/humitos>`_: Tests for build notifications (`#3654 <https://github.com/rtfd/readthedocs.org/pull/3654>`_)
+ * `@humitos <http://github.com/humitos>`_: Send proper context to celery email notification task (`#3653 <https://github.com/rtfd/readthedocs.org/pull/3653>`_)
+ * `@ericholscher <http://github.com/ericholscher>`_: Remove error logging that isn't an error. (`#3650 <https://github.com/rtfd/readthedocs.org/pull/3650>`_)
+ * `@davidfischer <http://github.com/davidfischer>`_: Update RTD security docs (`#3641 <https://github.com/rtfd/readthedocs.org/pull/3641>`_)
+ * `@humitos <http://github.com/humitos>`_: Ability to override the creation of the Celery App (`#3623 <https://github.com/rtfd/readthedocs.org/pull/3623>`_)
+
 Version 2.2.0
 -------------
 
