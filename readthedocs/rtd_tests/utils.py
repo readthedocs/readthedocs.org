@@ -32,7 +32,9 @@ def make_test_git():
     env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)
     log.info(check_output(['git', 'init'] + [directory], env=env))
-    log.info(check_output(['git', 'add', '.'], env=env))
+    output = check_output(['git', 'add', '.'], env=env)
+    log.info(output)
+    assert '*** Please tell me who you are.' not in output.decode()
     log.info(check_output(['git', 'commit', '-m"init"'], env=env))
     chdir(path)
     return directory
