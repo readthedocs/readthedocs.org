@@ -80,7 +80,12 @@ class TestGitBackend(RTDTestCase):
 
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo()
+
+        repo.checkout()
         self.assertFalse(repo.submodules_exists())
+
+        repo.checkout('submodule')
+        self.assertTrue(repo.submodules_exists())
 
 
 class TestHgBackend(RTDTestCase):
