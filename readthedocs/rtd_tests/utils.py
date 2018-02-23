@@ -37,6 +37,10 @@ def make_test_git():
     assert 'Please tell me who you are.' not in output.decode()
     log.info(check_output(['git', 'commit', '-m"init"'], env=env))
     log.info(check_output(['git', 'checkout', '-b', 'submodule'], env=env))
+    # Add repo itself as submodule
+    log.info(check_output(['git', 'submodule', 'add', '-b', 'master', './', 'submodule'], env=env))
+    log.info(check_output(['git', 'add', '.'], env=env))
+    log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
     chdir(path)
     return directory
 
