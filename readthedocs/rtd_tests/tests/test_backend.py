@@ -84,6 +84,7 @@ class TestGitBackend(RTDTestCase):
         repo.checkout()
         self.assertFalse(repo.submodules_exists())
 
+        # The submodule branch contains one submodule
         repo.checkout('submodule')
         self.assertTrue(repo.submodules_exists())
 
