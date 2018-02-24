@@ -26,7 +26,7 @@ Take these steps to enable build notifications using webhook:
 * Fill in the **Url** field under the **New Webhook Notifications** heading
 * Submit the form
 
-The project name, slug and its bulid instance that failed will be sent as POST request to your webhook url:
+The project name, slug and its build instance that failed will be sent as POST request to your webhook url:
 
 .. code-block:: json
        
