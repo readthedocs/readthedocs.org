@@ -1,7 +1,7 @@
 Enabling Build Notifications
 ============================
 
-Using Email
+Using email
 -----------
 
 Read the Docs allows you to configure emails that can be sent on failing builds.
@@ -15,7 +15,7 @@ Take these steps to enable build notifications using email:
 
 You should now get notified on your email when your builds fail!
 
-Using Webhook
+Using webhook
 -------------
 
 Read the Docs also allows webhooks configuration to receive notification regarding builds fails.
@@ -26,7 +26,7 @@ Take these steps to enable build notifications using webhook:
 * Fill in the **Url** field under the **New Webhook Notifications** heading
 * Submit the form
 
-The project name, id and its bulid instance that failed will be sent to your webhook url:
+The project name, slug and its bulid instance that failed will be sent as POST request to your webhook url:
 
 .. code-block:: json
        
@@ -39,8 +39,5 @@ The project name, id and its bulid instance that failed will be sent to your web
                 "date": "2017-02-15 20:35:54",
             }
        }
-
-
-
 
 You should now get notified on your webhook when your builds fail!
