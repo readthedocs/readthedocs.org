@@ -43,10 +43,10 @@ class ProjectIndex(ListView):
     """List view of public :py:class:`Project` instances."""
 
     model = Project
-    
+
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        
+
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
             queryset = queryset.filter(tags__name__in=[self.tag.slug])
