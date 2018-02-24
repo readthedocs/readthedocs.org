@@ -19,40 +19,42 @@
     <h3>{% trans "Versions" %}</h3>
   </div>
 
-  <div class="module-list">
-
-    <div class="module-list-wrapper">
-      <ul>
-      {% for version in versions|sort_version_aware %}
-        <li class="module-item col-span">
-        {% if version.uploaded or version.built %}
-          {# Link to the docs #}
-          <a class="module-item-title" href="{{ version.get_absolute_url }}">
-            {{ version.slug }}
-          {% if request.user in project.users.all %}
-            <span class="right-menu quiet">{{ version.get_privacy_level_display }}</span>
-          {% endif %}
-          </a>
-        {% else %}
-          <a class="module-item-title" href="{{ version.project.get_builds_url }}">
-            {{ version.slug }}
-          </a>
+  <div class="module-list-wrapper">
+    <ul>
+    {% for version in versions|sort_version_aware %}
+      <li class="module-item col-span">
+      {% if version.uploaded or version.built %}
+        {# Link to the docs #}
+        <a class="module-item-title" href="{{ version.get_absolute_url }}">
+          {{ version.slug }}
+        {% if request.user in project.users.all %}
+          <span class="right-menu quiet">{{ version.get_privacy_level_display }}</span>
         {% endif %}
-          {% if request.user|is_admin:project %}
-            <ul class="module-item-menu">
-              <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
-            </ul>
-          {% endif %}
-        </li>
 
-      {% empty %}
-      <p>
-      {% trans "No active versions." %}
-      </p>
-      {% endfor %}
-      </ul>
-    </div>
+        {% if not version.slug in version.identifier %}
+          <span class="right-menu quiet version-branch-privacy">{{  version.identifier_friendly|truncatechars:24 }}</span>
+        {% endif %}
+        </a>
+      {% else %}
+        <a class="module-item-title" href="{{ version.project.get_builds_url }}">
+          {{ version.slug }}
+        </a>
+      {% endif %}
+        {% if request.user|is_admin:project %}
+          <ul class="module-item-menu">
+            <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+          </ul>
+        {% endif %}
+      </li>
+
+    {% empty %}
+    <p>
+    {% trans "No active versions." %}
+    </p>
+    {% endfor %}
+    </ul>
   </div>
+  
 
 {% block build_versions %}
 {% if versions and request.user|is_admin:project %}

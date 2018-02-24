@@ -91,6 +91,15 @@
   </div>
 {% endblock %}
 
+{% block project-default-branch %}
+  <h3>{% trans "Project Default Branch" %}{# trans does not work here. #}</h3>
+  <div id="project-default-branch">
+    <p>
+     {{ project.get_default_branch }}
+    </p>
+  </div>
+{% endblock %}
+
 {% block short-urls %}
   <h3>{% trans "Short URLs" %}</h3>
   <p>
@@ -121,12 +130,4 @@
       {% endfor %}
       </ul>
   {% endif %}
-{% endblock %}
-
-{% block defaults %}
-<h3>{% trans "Default Version" %}</h3>
-<p> {{ project.get_default_version }}</p>
-
-<h3>{% trans "'latest' Version" %}</h3>
-<p> {{ project.get_default_branch }}</p>
 {% endblock %}
