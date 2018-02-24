@@ -2,7 +2,7 @@ Enabling Build Notifications
 ============================
 
 Using Email
-******************
+-----------
 
 Read the Docs allows you to configure emails that can be sent on failing builds.
 This makes sure you know when your builds have failed.
@@ -16,7 +16,7 @@ Take these steps to enable build notifications using email:
 You should now get notified on your email when your builds fail!
 
 Using Webhook
-******************
+-------------
 
 Read the Docs also allows webhooks configuration to receive notification regarding builds fails.
 
@@ -31,12 +31,12 @@ The project name, id and its bulid instance that failed will be sent to your web
 .. code-block:: json
        
        {       
-            'name': project.name,
-            'slug': project.slug,
-            'build': {
-                'id': build.id,
-                'success': build.success,
-                'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
+            "name": "Read the Docs",
+            "slug": "rtd",
+            "build": {
+                "id": 6321373,
+                "success": false,
+                "date": "2017-02-15 20:35:54",
             }
        }
 
