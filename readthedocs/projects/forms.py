@@ -171,7 +171,7 @@ class ListTextWidget(forms.TextInput):
         super(ListTextWidget, self).__init__(*args, **kwargs)
         self._name = name
         self._list = data_list
-        self.attrs.update({'list':'list__%s' % self._name})
+        self.attrs.update({'list': 'list__%s' % self._name})
 
     def render(self, name, value, attrs=None):
         text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
@@ -179,8 +179,8 @@ class ListTextWidget(forms.TextInput):
         for item in self._list:
             data_list += '<option value="%s">' % item
         data_list += '</datalist>'
-
         return (text_html + data_list)
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
@@ -221,24 +221,22 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
         self.versions_qs = self.instance.versions.all()
-        #active = versions_qs.filter(active=True)
+        # active = versions_qs.filter(active=True)
         if self.versions_qs.exists():
-            self.version_options = [ version.slug for version in self.versions_qs]
-        self.fields['default_version'].widget = ListTextWidget(data_list= self.version_options, name='version_options')
+            self.version_options = [version.slug for version in self.versions_qs]
+        self.fields['default_version'].widget = ListTextWidget(data_list=self.version_options,
+                                                name='version_options')
 
         self.branches = self.instance.vcs_repo().branches
-        self.branch_options = [ each.verbose_name for each in self.branches]
-        self.fields['default_branch'].widget = ListTextWidget(data_list= self.branch_options, name='branch_options')
+        self.branch_options = [each.verbose_name for each in self.branches]
+        self.fields['default_branch'].widget = ListTextWidget(data_list=self.branch_options,
+                                               name='branch_options')
 
         try:
-            self.initial['conf_py_file'] = (self.instance.conf_dir() + "/conf.py").replace(self.instance.checkout_path('latest'),'')
+            self.conf_path = self.instance.conf_dir() + "/conf.py"
+            self.initial['conf_py_file'] = self.conf_path.replace(self.instance.checkout_path('latest'), '')
         except:
             pass
-
-
-
-
-
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
