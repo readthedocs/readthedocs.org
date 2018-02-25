@@ -220,11 +220,23 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
-        self.versions_qs = self.instance.versions.all()  
+        self.versions_qs = self.instance.versions.all()
         #active = versions_qs.filter(active=True)
         if self.versions_qs.exists():
             self.version_options = [ version.slug for version in self.versions_qs]
         self.fields['default_version'].widget = ListTextWidget(data_list= self.version_options, name='version_options')
+
+        self.branches = self.instance.vcs_repo().branches
+        self.branch_options = [ each.verbose_name for each in self.branches]
+        self.fields['default_branch'].widget = ListTextWidget(data_list= self.branch_options, name='branch_options')
+
+        try:
+            self.initial['conf_py_file'] = (self.instance.conf_dir() + "/conf.py").replace(self.instance.checkout_path('latest'),'')
+        except:
+            pass
+
+
+
 
 
 
