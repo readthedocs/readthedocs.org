@@ -27,7 +27,7 @@
         {# Link to the docs #}
         <a class="module-item-title" href="{{ version.get_absolute_url }}">
           {{ version.slug }}
-        {% if request.user in project.users.all %}
+        {% if request.user|is_admin:project %}
           <span class="right-menu quiet">{{ version.get_privacy_level_display }}</span>
         {% endif %}
 
