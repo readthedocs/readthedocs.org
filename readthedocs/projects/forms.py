@@ -166,6 +166,22 @@ class ProjectExtraForm(ProjectForm):
     )
 
 
+class ListTextWidget(forms.TextInput):
+    def __init__(self, data_list, name, *args, **kwargs):
+        super(ListTextWidget, self).__init__(*args, **kwargs)
+        self._name = name
+        self._list = data_list
+        self.attrs.update({'list':'list__%s' % self._name})
+
+    def render(self, name, value, attrs=None):
+        text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
+        data_list = '<datalist id="list__%s">' % self._name
+        for item in self._list:
+            data_list += '<option value="%s">' % item
+        data_list += '</datalist>'
+
+        return (text_html + data_list)
+
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
@@ -201,6 +217,16 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             # Version Support
             # 'num_major', 'num_minor', 'num_point',
         )
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+        self.versions_qs = self.instance.versions.all()  
+        #active = versions_qs.filter(active=True)
+        if self.versions_qs.exists():
+            self.version_options = [ version.slug for version in self.versions_qs]
+        self.fields['default_version'].widget = ListTextWidget(data_list= self.version_options, name='version_options')
+
+
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
