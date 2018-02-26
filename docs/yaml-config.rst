@@ -7,7 +7,22 @@ The file, ``readthedocs.yml`` (or ``.readthedocs.yml``), must be in the root dir
 .. warning:: This feature is in a beta state.
              Please file an `issue`_ if you find anything wrong.
 
-Supported Settings
+
+Here is an example of how this file looks like:
+
+.. code:: yaml
+
+   # .readthedocs.yml
+
+   build:
+     image: latest
+   
+   python:
+     version: 3.6
+     setup_py_install: true
+
+
+Supported settings
 ------------------
 
 formats
