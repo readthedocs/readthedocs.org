@@ -61,7 +61,7 @@ The path to your pip requirements file.
 
 .. code-block:: yaml
 
-	requirements_file: requirements/docs.txt
+   requirements_file: requirements/docs.txt
 
 conda
 ~~~~~
