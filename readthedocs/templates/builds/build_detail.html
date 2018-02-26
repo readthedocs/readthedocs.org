@@ -1,3 +1,4 @@
+
 {% extends "projects/base_project.html" %}
 
 {% load i18n %}
@@ -176,6 +177,18 @@ $(document).ready(function () {
         <p class="build-error"
            data-bind="text: error">
           {{ build.error }}
+        </p>
+        <p>
+        {% blocktrans with build_id=build.pk proj_name=build.project.name build_path=request.get_full_path user_name=request.user %}
+         Report any build issues <a href="https://github.com/rtfd/readthedocs.org/issues/new?
+         title=Build%20error%20with%20build%20id%20%23{{ build_id }}
+         &body=%23%23%20Details%0A%0A
+         *%20Project%20Url%3A%20https://readthedocs.org/projects/{{ proj_name }}/%0A
+         *%20Build%20URL%20(if%20applicable)%3A%20https://readthedocs.org{{ build_path }}%0A
+         *%20Read%20the%20Docs%20username%20(if%20applicable)%3A%20{{ user_name }}%0A%0A
+         %23%23%20Expected%20Result%0A%0A*%20A%20description%20of%20what%20you%20wanted%20to%20happen*%0A%0A
+         %23%23%20Actual%20Result%0A%0A*A%20description%20of%20what%20actually%20happened*%0A">here</a>.
+        {% endblocktrans %}
         </p>
       </div>
 
