@@ -24,6 +24,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import (
     Domain, EmailHook, Feature, Project, ProjectRelationship, WebHook)
 from readthedocs.redirects.models import Redirect
@@ -220,23 +221,52 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+        # default_version ChoiceField
         self.versions_qs = self.instance.versions.all()
-        # active = versions_qs.filter(active=True)
-        if self.versions_qs.exists():
-            self.version_options = [version.slug for version in self.versions_qs]
-        self.fields['default_version'].widget = ListTextWidget(data_list=self.version_options,
-                                                name='version_options')
+        self.active = self.versions_qs.filter(active=True)
+        if self.active.exists():
+            self.version_choices = [(version.slug, version.verbose_name) for version in self.active]
+            self.fields['default_version'] = forms.ChoiceField(
+                help_text=_('The version of your project that / redirects to'),
+                choices=self.version_choices,
+            )
 
+        # default_branch ChoiceField
         self.branches = self.instance.vcs_repo().branches
         self.branch_options = [each.verbose_name for each in self.branches]
-        self.fields['default_branch'].widget = ListTextWidget(data_list=self.branch_options,
-                                               name='branch_options')
+        self.branch_choices = [(each.verbose_name,each.verbose_name) for each in self.branches]
+        self.fields['default_branch'] = forms.ChoiceField(
+                choices=self.branch_choices,
+                help_text=_('What branch "latest" points to. Leave empty '
+                                        'to use the default value for your VCS (eg. '
+                                        '<code>trunk</code> or <code>master</code>).')
+                )
 
-        try:
-            self.conf_path = self.instance.conf_dir() + "/conf.py"
-            self.initial['conf_py_file'] = self.conf_path.replace(self.instance.checkout_path('latest'), '')
-        except:
-            pass
+        # configuration file ChoiceField
+        self.fields['conf_py_file'] = forms.ChoiceField(
+            choices=self.give_file_choices('conf.py'),
+            help_text=_('Path from project root to <code>conf.py</code> file '
+                        '(ex. <code>docs/conf.py</code>). '
+                        'Leave blank if you want us to find it for you.')
+        )
+        # requirements file ChoiceField
+        self.fields['requirements_file'] = forms.ChoiceField(
+            choices=self.give_file_choices('requirements.txt'),
+            help_text=_(
+                'A <a '
+                'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
+                'pip requirements file</a> needed to build your documentation. '
+                'Path from the root of your project.')
+        )
+
+
+    def give_file_choices(self,file_name):
+        files = self.instance.full_find(file_name, self.instance.get_default_branch())
+        branch_path = self.instance.checkout_path(self.instance.get_default_branch())
+        file_choices = [(each.replace(branch_path, ''),each.replace(branch_path, '')) for each in files]
+        return file_choices
+
+
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
