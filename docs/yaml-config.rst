@@ -78,8 +78,8 @@ The file option specified the Conda `environment file`_ to use.
 
 .. code-block:: yaml
 
-	conda:
-	    file: environment.yml
+   conda:
+     file: environment.yml
 
 .. note:: Conda is only supported via the YAML file.
 
