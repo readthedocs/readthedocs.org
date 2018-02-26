@@ -167,22 +167,6 @@ class ProjectExtraForm(ProjectForm):
     )
 
 
-class ListTextWidget(forms.TextInput):
-    def __init__(self, data_list, name, *args, **kwargs):
-        super(ListTextWidget, self).__init__(*args, **kwargs)
-        self._name = name
-        self._list = data_list
-        self.attrs.update({'list': 'list__%s' % self._name})
-
-    def render(self, name, value, attrs=None):
-        text_html = super(ListTextWidget, self).render(name, value, attrs=attrs)
-        data_list = '<datalist id="list__%s">' % self._name
-        for item in self._list:
-            data_list += '<option value="%s">' % item
-        data_list += '</datalist>'
-        return (text_html + data_list)
-
-
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
@@ -221,6 +205,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+
         # default_version ChoiceField
         self.versions_qs = self.instance.versions.all()
         self.active = self.versions_qs.filter(active=True)
@@ -234,24 +219,30 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         # default_branch ChoiceField
         self.branches = self.instance.vcs_repo().branches
         self.branch_options = [each.verbose_name for each in self.branches]
-        self.branch_choices = [(each.verbose_name,each.verbose_name) for each in self.branches]
+        self.branch_choices = [(each.verbose_name, each.verbose_name) for each in self.branches]
         self.fields['default_branch'] = forms.ChoiceField(
-                choices=self.branch_choices,
-                help_text=_('What branch "latest" points to. Leave empty '
-                                        'to use the default value for your VCS (eg. '
-                                        '<code>trunk</code> or <code>master</code>).')
-                )
+            choices=self.branch_choices,
+            help_text=_('What branch "latest" points to.')
+        )
 
         # configuration file ChoiceField
         self.fields['conf_py_file'] = forms.ChoiceField(
+            required=False,
             choices=self.give_file_choices('conf.py'),
             help_text=_('Path from project root to <code>conf.py</code> file '
-                        '(ex. <code>docs/conf.py</code>). '
-                        'Leave blank if you want us to find it for you.')
+                        '(ex. <code>docs/conf.py</code>). ')
         )
+        if(not self.fields['conf_py_file'].choices):
+            self.fields['conf_py_file'].help_text = _('Path from project root to <code>conf.py'
+                                                      ' </code> file (ex. <code>docs/conf.py'
+                                                      '</code>). No <code>conf.py</code> file'
+                                                      ' found in your project. Please make sure'
+                                                      ' it contains  <code>conf.py</code> file.'
+                                                      )
         # requirements file ChoiceField
         self.fields['requirements_file'] = forms.ChoiceField(
             choices=self.give_file_choices('requirements.txt'),
+            required=False,
             help_text=_(
                 'A <a '
                 'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
@@ -259,14 +250,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 'Path from the root of your project.')
         )
 
-
-    def give_file_choices(self,file_name):
+    def give_file_choices(self, file_name):
         files = self.instance.full_find(file_name, self.instance.get_default_branch())
         branch_path = self.instance.checkout_path(self.instance.get_default_branch())
-        file_choices = [(each.replace(branch_path, ''),each.replace(branch_path, '')) for each in files]
-        return file_choices
-
-
+        choices = [(each.replace(branch_path, ''), each.replace(branch_path, '')) for each in files]
+        return choices
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
