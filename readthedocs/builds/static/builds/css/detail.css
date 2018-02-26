@@ -118,6 +118,7 @@ div.build-command div.build-command-output > span {
     white-space: pre;
     overflow-x: scroll;
     overflow-y: hidden;
+    margin-bottom: -14px;
 }
 
 div.build-command div.build-command-run > span::-webkit-scrollbar,
