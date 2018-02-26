@@ -37,10 +37,8 @@ We will look inside a ``doc`` or ``docs`` directory first,
 and then look within your entire project.
 
 Then Sphinx will build any files with an ``.rst`` extension.
-If you have a ``README.rst``,
-it will be transformed into an ``index.rst`` automatically.
 
-Mkdocs
+MkDocs
 ~~~~~~
 
 When you choose *Mkdocs* as your *Documentation Type*,
@@ -50,10 +48,8 @@ we will generate one for you.
 We will look inside a ``doc`` or ``docs`` directory first,
 and then default to the top-level of your documentation.
 
-Then Mkdocs will build any files with an ``.md`` extension.
-If you have a ``README.md``,
-it will be transformed into an ``index.md`` automatically.
-As MkDocs doesn't support automatic PDF generation,
+Then MkDocs will build any files with a ``.md`` extension.
+As MkDocs doesn't support automatic PDF generation, 
 Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
 
 Understanding what's going on
@@ -75,7 +71,7 @@ An example in code:
 
 .. code-block:: python
 
-    update_imported_docs(version)
+    update_docs_from_vcs(version)
     if exists('setup.py'):
         run('python setup.py install')
     if project.requirements_file:

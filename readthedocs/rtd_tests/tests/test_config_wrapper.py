@@ -54,45 +54,37 @@ class LoadConfigTests(TestCase):
         self.assertEqual(load_config.call_count, 1)
         load_config.assert_has_calls([
             mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.4]},
+                'build': {'image': 'readthedocs/build:1.0'},
                 'type': 'sphinx',
                 'output_base': '',
                 'name': mock.ANY
             }),
         ])
         self.assertEqual(config.python_version, 2)
+
+    def test_python_supported_versions_image_1_0(self, load_config):
+        load_config.side_effect = create_load()
+        self.project.container_image = 'readthedocs/build:1.0'
+        self.project.save()
+        config = load_yaml_config(self.version)
+        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+                         [2, 2.7, 3, 3.4])
 
     def test_python_supported_versions_image_2_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(load_config.call_count, 1)
-        load_config.assert_has_calls([
-            mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-                'type': 'sphinx',
-                'output_base': '',
-                'name': mock.ANY
-            }),
-        ])
-        self.assertEqual(config.python_version, 2)
+        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+                         [2, 2.7, 3, 3.5])
 
     def test_python_supported_versions_image_latest(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:latest'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(load_config.call_count, 1)
-        load_config.assert_has_calls([
-            mock.call(path=mock.ANY, env_config={
-                'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-                'type': 'sphinx',
-                'output_base': '',
-                'name': mock.ANY
-            }),
-        ])
-        self.assertEqual(config.python_version, 2)
+        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+                         [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
 
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()

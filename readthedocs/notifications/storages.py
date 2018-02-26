@@ -10,7 +10,8 @@ from messages_extends.constants import PERSISTENT_MESSAGE_LEVELS
 
 class FallbackUniqueStorage(FallbackStorage):
 
-    """Persistent message fallback storage, but only stores unique notifications
+    """
+    Persistent message fallback storage, but only stores unique notifications.
 
     This loops through all backends to find messages to store, but will skip
     this step if the message already exists for the user in the database.
@@ -47,7 +48,7 @@ class FallbackUniqueStorage(FallbackStorage):
             safe_messages.append(message)
         return safe_messages, all_ret
 
-    def add(self, level, message, extra_tags='', *args, **kwargs):
+    def add(self, level, message, extra_tags='', *args, **kwargs):  # noqa
         user = kwargs.get('user') or self.request.user
         if not user.is_anonymous():
             persist_messages = (PersistentMessage.objects

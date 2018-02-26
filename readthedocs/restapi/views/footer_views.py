@@ -75,13 +75,17 @@ def footer_html(request):
     subproject = request.GET.get('subproject', False)
     source_suffix = request.GET.get('source_suffix', '.rst')
 
+    # Hack in a fix for missing version slug deploy that went out a while back
+    if version_slug == '':
+        version_slug = LATEST
+
     new_theme = (theme == 'sphinx_rtd_theme')
     using_theme = (theme == 'default')
     project = get_object_or_404(Project, slug=project_slug)
     version = get_object_or_404(
         Version.objects.public(
             request.user, project=project, only_active=False),
-        slug=version_slug)
+        slug__iexact=version_slug)
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != 'index':
@@ -94,13 +98,6 @@ def footer_html(request):
             path = page_slug + '.html'
     else:
         path = ''
-
-    if version.type == TAG and version.project.has_pdf(version.slug):
-        print_url = (
-            'https://keminglabs.com/print-the-docs/quote?project={project}&version={version}'  # noqa
-            .format(project=project.slug, version=version.slug))
-    else:
-        print_url = None
 
     version_compare_data = get_version_compare_data(project, version)
 
@@ -118,7 +115,6 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
-        'print_url': print_url,
         'github_edit_url': version.get_github_url(
             docroot,
             page_slug,

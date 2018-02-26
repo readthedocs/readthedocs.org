@@ -1,18 +1,16 @@
+# -*- coding: utf-8 -*-
 """Views for comments app."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from rest_framework import permissions, status
 from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-    renderer_classes,
-    detail_route
-)
+    api_view, authentication_classes, detail_route, permission_classes,
+    renderer_classes)
 from rest_framework.exceptions import ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -20,13 +18,14 @@ from rest_framework.viewsets import ModelViewSet
 from sphinx.websupport import WebSupport
 
 from readthedocs.comments.models import (
-    DocumentComment, DocumentNode, NodeSnapshot, DocumentCommentSerializer,
-    DocumentNodeSerializer, ModerationActionSerializer)
+    DocumentComment, DocumentCommentSerializer, DocumentNode,
+    DocumentNodeSerializer, ModerationActionSerializer, NodeSnapshot)
 from readthedocs.projects.models import Project
 from readthedocs.restapi.permissions import CommentModeratorOrReadOnly
 
 from .backend import DjangoStorage
 from .session import UnsafeSessionAuthentication
+
 storage = DjangoStorage()
 
 support = WebSupport(
@@ -37,10 +36,10 @@ support = WebSupport(
     docroot='websupport',
 )
 
-
 ########
 # called by javascript
 ########
+
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticatedOrReadOnly])
@@ -57,7 +56,7 @@ def get_options(request):  # pylint: disable=unused-argument
 @renderer_classes((JSONRenderer,))
 def get_metadata(request):
     """
-    Check for get_metadata
+    Check for get_metadata.
 
     GET: page
     """
@@ -85,6 +84,7 @@ def attach_comment(request):
 # Normal Views
 #######
 
+
 def build(request):  # pylint: disable=unused-argument
     support.build()
 
@@ -92,9 +92,8 @@ def build(request):  # pylint: disable=unused-argument
 def serve_file(request, file):  # pylint: disable=redefined-builtin
     document = support.get_document(file)
 
-    return render_to_response('doc.html',
-                              {'document': document},
-                              context_instance=RequestContext(request))
+    return render(request, 'doc.html', {'document': document})
+
 
 ######
 # Called by Builder
@@ -150,8 +149,9 @@ def update_node(request):
         node.update_hash(new_hash, commit)
         return Response(DocumentNodeSerializer(node).data)
     except KeyError:
-        return Response("You must include new_hash and commit in POST payload to this view.",
-                        status.HTTP_400_BAD_REQUEST)
+        return Response(
+            'You must include new_hash and commit in POST payload to this view.',
+            status.HTTP_400_BAD_REQUEST)
 
 
 class CommentViewSet(ModelViewSet):
@@ -159,16 +159,21 @@ class CommentViewSet(ModelViewSet):
     """Viewset for Comment model."""
 
     serializer_class = DocumentCommentSerializer
-    permission_classes = [CommentModeratorOrReadOnly, permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [
+        CommentModeratorOrReadOnly,
+        permissions.IsAuthenticatedOrReadOnly,
+    ]
 
     def get_queryset(self):
         qp = self.request.query_params
         if qp.get('node'):
             try:
-                node = DocumentNode.objects.from_hash(version_slug=qp['version'],
-                                                      page=qp['document_page'],
-                                                      node_hash=qp['node'],
-                                                      project_slug=qp['project'])
+                node = DocumentNode.objects.from_hash(
+                    version_slug=qp['version'],
+                    page=qp['document_page'],
+                    node_hash=qp['node'],
+                    project_slug=qp['project'],
+                )
                 queryset = DocumentComment.objects.filter(node=node)
 
             except KeyError:
@@ -178,7 +183,8 @@ class CommentViewSet(ModelViewSet):
             except DocumentNode.DoesNotExist:
                 queryset = DocumentComment.objects.none()
         elif qp.get('project'):
-            queryset = DocumentComment.objects.filter(node__project__slug=qp['project'])
+            queryset = DocumentComment.objects.filter(
+                node__project__slug=qp['project'])
 
         else:
             queryset = DocumentComment.objects.all()
@@ -187,16 +193,19 @@ class CommentViewSet(ModelViewSet):
     @method_decorator(login_required)
     def create(self, request, *args, **kwargs):
         project = Project.objects.get(slug=request.data['project'])
-        comment = project.add_comment(version_slug=request.data['version'],
-                                      page=request.data['document_page'],
-                                      content_hash=request.data['node'],
-                                      commit=request.data['commit'],
-                                      user=request.user,
-                                      text=request.data['text'])
+        comment = project.add_comment(
+            version_slug=request.data['version'],
+            page=request.data['document_page'],
+            content_hash=request.data['node'],
+            commit=request.data['commit'],
+            user=request.user,
+            text=request.data['text'],
+        )
 
         serializer = self.get_serializer(comment)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @detail_route(methods=['put'])
     def moderate(self, request, pk):  # pylint: disable=unused-argument

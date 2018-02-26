@@ -1,7 +1,7 @@
 .. _installing-read-the-docs:
 
 Installation
-=============
+============
 
 Here is a step by step plan on how to install Read the Docs.
 It will get you to a point of having a local running instance.
@@ -28,6 +28,9 @@ need to install Python 3 with virtualenv in your system as well.
 .. _PostgreSQL: https://www.postgresql.org/
 .. _Redis: https://redis.io/
 
+.. note::
+
+    Requires Git version >=1.9
 
 .. note::
 
@@ -49,6 +52,10 @@ need to install Python 3 with virtualenv in your system as well.
         sudo apt-get install build-essential
         sudo apt-get install python-dev python-pip python-setuptools
         sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
+
+    CentOS/RHEL 7 will require::
+
+        sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
     Users of other Linux distributions may need to install the equivalent
     packages, depending on their system configuration.
@@ -137,7 +144,7 @@ While the webserver is running, you can build documentation for the latest versi
 a project called 'pip' with the ``update_repos`` command.  You can replace 'pip'
 with the name of any added project::
 
-   python manage.py update_repos pip
+    python manage.py update_repos pip
 
 What's available
 ----------------
@@ -145,26 +152,10 @@ What's available
 After registering with the site (or creating yourself a superuser account),
 you will be able to log in and view the `dashboard <http://localhost:8000/dashboard/>`_.
 
-From the dashboard you can import your existing
-docs provided that they are in a git or mercurial repo.
+Importing your docs
+^^^^^^^^^^^^^^^^^^^
 
-
-Creating new Docs
-^^^^^^^^^^^^^^^^^
-
-One of the goals of `readthedocs.org <http://readthedocs.org>`_ is to make it
-easy for any open source developer to get high quality hosted docs with great
-visibility!  We provide a simple editor and two sample pages whenever
-a new project is created.  From there its up to you to fill in the gaps - we'll
-build the docs, give you access to history on every revision of your files,
-and we plan on adding more features in the weeks and months to come.
-
-
-Importing existing docs
-^^^^^^^^^^^^^^^^^^^^^^^
-
-The other side of `readthedocs.org <http://readthedocs.org>`_ is hosting the
-docs you've already built.  Simply provide us with the clone URL to your repo,
-we'll pull your code, extract your docs, and build them!  We make available
-a post-commit webhook that can be configured to update the docs on our site
-whenever you commit to your repo, effectively letting you 'set it and forget it'.
+One of the goals of readthedocs.org is to make it easy for any open source developer to get high quality hosted docs with great visibility!
+Simply provide us with the clone URL to your repo, we'll pull your code, extract your docs, and build them!
+We make available a post-commit webhook that can be configured to update the docs whenever you commit to your repo.
+See our :doc:`getting_started` page to learn more.

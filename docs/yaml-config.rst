@@ -69,6 +69,40 @@ The file option specified the Conda `environment file`_ to use.
 
 .. note:: Conda is only supported via the YAML file.
 
+
+build
+~~~~~
+
+The ``build`` block configures specific aspects of the documentation build.
+
+.. _yaml_build_image:
+
+build.image
+```````````
+
+
+* Default: :djangosetting:`DOCKER_IMAGE`
+* Options: ``1.0``, ``2.0``, ``latest``
+
+The build image to use for specific builds.
+This lets users specify a more experimental build image,
+if they want to be on the cutting edge.
+
+Certain Python versions require a certain build image,
+as defined here:
+
+* ``1.0``: 2, 2.7, 3, 3.4
+* ``2.0``: 2, 2.7, 3, 3.5
+* ``latest``: 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6
+
+.. code-block:: yaml
+
+    build:
+        image: latest
+
+    python:
+        version: 3.6
+
 python
 ~~~~~~
 
@@ -85,15 +119,12 @@ This is the version of Python to use when building your documentation. If you
 specify only the major version of Python, the highest supported minor version
 will be selected.
 
-The supported Python versions depends on the version of the build image your
-project is using. The default build image that is used to build documentation
-contains support for Python ``2.7`` and ``3.5``.
+.. warning:: 
 
-There is also an image in testing that supports Python versions ``2.7``,
-``3.3``, ``3.4``, ``3.5``, and ``3.6``. If you would like access to this build
-image, you can sign up for beta access here:
-
-https://goo.gl/forms/AKEoeWHixlzVfqKT2
+    The supported Python versions depends on the version of the build image your
+    project is using. The default build image that is used to build documentation
+    contains support for Python ``2.7`` and ``3.5``. 
+    See the :ref:`yaml_build_image` for more information on supported Python versions.
 
 .. code-block:: yaml
 

@@ -1,4 +1,5 @@
-"""Tasks related to projects
+"""
+Tasks related to projects.
 
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
@@ -6,6 +7,7 @@ rebuilding documentation.
 
 from __future__ import absolute_import
 
+import datetime
 import hashlib
 import json
 import logging
@@ -20,6 +22,7 @@ from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from readthedocs_build.config import ConfigError
 from slumber.exceptions import HttpClientError
@@ -41,8 +44,9 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.environments import (LocalEnvironment,
-                                                  DockerEnvironment)
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
+                                                  DockerBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
@@ -50,7 +54,6 @@ from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
-from readthedocs.search.utils import process_mkdocs_json
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -60,27 +63,149 @@ log = logging.getLogger(__name__)
 HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 
-class UpdateDocsTask(Task):
+class SyncRepositoryMixin(object):
+
+    """Mixin that handles the VCS sync/update."""
+
+    @staticmethod
+    def get_version(project=None, version_pk=None):
+        """
+        Retrieve version data from the API.
+
+        :param project: project object to sync
+        :type project: projects.models.Project
+        :param version_pk: version pk to sync
+        :type version_pk: int
+        :returns: a data-complete version object
+        :rtype: builds.models.APIVersion
+        """
+        assert (project or version_pk), 'project or version_pk is needed'
+        if version_pk:
+            version_data = api_v2.version(version_pk).get()
+        else:
+            version_data = (api_v2
+                            .version(project.slug)
+                            .get(slug=LATEST)['objects'][0])
+        return APIVersion(**version_data)
+
+    def sync_repo(self):
+        """Update the project's repository and hit ``sync_versions`` API."""
+        # Make Dirs
+        if not os.path.exists(self.project.doc_path):
+            os.makedirs(self.project.doc_path)
+
+        if not self.project.vcs_repo():
+            raise RepositoryError(
+                _('Repository type "{repo_type}" unknown').format(
+                    repo_type=self.project.repo_type,
+                ),
+            )
+
+        with self.project.repo_nonblockinglock(
+                version=self.version,
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+
+            # Get the actual code on disk
+            try:
+                before_vcs.send(sender=self.version)
+                self._log(
+                    'Checking out version {slug}: {identifier}'.format(
+                        slug=self.version.slug,
+                        identifier=self.version.identifier,
+                    ),
+                )
+                version_repo = self.project.vcs_repo(
+                    self.version.slug,
+                    # When called from ``SyncRepositoryTask.run`` we don't have
+                    # a ``setup_env`` so we use just ``None`` and commands won't
+                    # be recorded
+                    getattr(self, 'setup_env', None),
+                )
+                version_repo.checkout(self.version.identifier)
+            finally:
+                after_vcs.send(sender=self.version)
+
+            # Update tags/version
+            version_post_data = {'repo': version_repo.repo_url}
+
+            if version_repo.supports_tags:
+                version_post_data['tags'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.tags
+                ]
+
+            if version_repo.supports_branches:
+                version_post_data['branches'] = [
+                    {'identifier': v.identifier,
+                     'verbose_name': v.verbose_name,
+                     } for v in version_repo.branches
+                ]
+
+            try:
+                # Hit the API ``sync_versions`` which may trigger a new build
+                # for the stable version
+                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
+            except HttpClientError:
+                log.exception('Sync Versions Exception')
+            except Exception:
+                log.exception('Unknown Sync Versions Exception')
+
+    # TODO this is duplicated in the classes below, and this should be
+    # refactored out anyways, as calling from the method removes the original
+    # caller from logging.
+    def _log(self, msg):
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg=msg))
+
+
+class SyncRepositoryTask(SyncRepositoryMixin, Task):
+
+    """Entry point to synchronize the VCS documentation."""
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.sync_repository'
+
+    def run(self, version_pk):  # pylint: disable=arguments-differ
+        """
+        Run the VCS synchronization.
+
+        :param version_pk: version pk to sync
+        :type version_pk: int
+        :returns: whether or not the task ended successfully
+        :rtype: bool
+        """
+        try:
+            self.version = self.get_version(version_pk=version_pk)
+            self.project = self.version.project
+            self.sync_repo()
+            return True
+        # Catch unhandled errors when syncing
+        except Exception:
+            log.exception(
+                'An unhandled exception was raised during VCS syncing',
+            )
+            return False
+
+
+class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     """
     The main entry point for updating documentation.
 
-    It handles all of the logic around whether a project is imported or we
-    created it.  Then it will build the html docs and other requested parts.
-
-    `pk`
-        Primary key of the project to update
-
-    `record`
-        Whether or not to keep a record of the update in the database. Useful
-        for preventing changes visible to the end-user when running commands
-        from the shell, for example.
+    It handles all of the logic around whether a project is imported, we created
+    it or a webhook is received. Then it will sync the repository and build the
+    html docs if needed.
     """
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.update_docs'
 
+    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
@@ -111,7 +236,7 @@ class UpdateDocsTask(Task):
     def run(self, pk, version_pk=None, build_pk=None, record=True,
             docker=False, search=True, force=False, localmedia=True, **__):
         """
-        Run a documentation build.
+        Run a documentation sync n' build.
 
         This is fully wrapped in exception handling to account for a number of
         failure cases. We first run a few commands in a local build environment,
@@ -119,22 +244,24 @@ class UpdateDocsTask(Task):
         build output page where the build is marked as finished in between the
         local environment steps and the docker build steps.
 
-        If a failure is raised, or the build is not successful, return ``False``,
-        otherwise, ``True``.
+        If a failure is raised, or the build is not successful, return
+        ``False``, otherwise, ``True``.
 
         Unhandled exceptions raise a generic user facing error, which directs
         the user to bug us. It is therefore a benefit to have as few unhandled
         errors as possible.
 
         :param pk int: Project id
-        :param version_pk int: Project Version id
-        :param build_pk int: Build id
+        :param version_pk int: Project Version id (latest if None)
+        :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project
         :param search bool: update search
         :param force bool: force Sphinx build
-        :param localmedia: update localmedia
-        :returns: if build was successful or not
+        :param localmedia bool: update localmedia
+
+        :returns: whether build was successful or not
+
         :rtype: bool
         """
         try:
@@ -149,6 +276,7 @@ class UpdateDocsTask(Task):
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
+
         # Catch unhandled errors in the setup step
         except Exception as e:  # noqa
             log.exception(
@@ -183,11 +311,12 @@ class UpdateDocsTask(Task):
         return True
 
     def run_setup(self, record=True):
-        """Run setup in the local environment.
+        """
+        Run setup in the local environment.
 
         Return True if successful.
         """
-        self.setup_env = LocalEnvironment(
+        self.setup_env = LocalBuildEnvironment(
             project=self.project,
             version=self.version,
             build=self.build,
@@ -233,19 +362,19 @@ class UpdateDocsTask(Task):
         return True
 
     def run_build(self, docker=False, record=True):
-        """Build the docs in an environment.
+        """
+        Build the docs in an environment.
 
         If `docker` is True, or Docker is enabled by the settings.DOCKER_ENABLE
         setting, then build in a Docker environment. Otherwise build locally.
-
         """
         env_vars = self.get_env_vars()
 
         if docker or settings.DOCKER_ENABLE:
-            env_cls = DockerEnvironment
+            env_cls = DockerBuildEnvironment
         else:
-            env_cls = LocalEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version,
+            env_cls = LocalBuildEnvironment
+        self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
                                  build=self.build, record=record, environment=env_vars)
 
         # Environment used for building code, usually with Docker
@@ -263,7 +392,7 @@ class UpdateDocsTask(Task):
                                              config=self.config)
 
             try:
-                self.setup_environment()
+                self.setup_python_environment()
 
                 # TODO the build object should have an idea of these states, extend
                 # the model to include an idea of these outcomes
@@ -291,25 +420,14 @@ class UpdateDocsTask(Task):
 
     @staticmethod
     def get_project(project_pk):
-        """Get project from API"""
+        """Get project from API."""
         project_data = api_v2.project(project_pk).get()
         return APIProject(**project_data)
 
     @staticmethod
-    def get_version(project, version_pk):
-        """Ensure we're using a sane version"""
-        if version_pk:
-            version_data = api_v2.version(version_pk).get()
-        else:
-            version_data = (api_v2
-                            .version(project.slug)
-                            .get(slug=LATEST)['objects'][0])
-        return APIVersion(**version_data)
-
-    @staticmethod
     def get_build(build_pk):
         """
-        Retrieve build object from API
+        Retrieve build object from API.
 
         :param build_pk: Build primary key
         """
@@ -331,7 +449,7 @@ class UpdateDocsTask(Task):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         self._log(msg='Updating docs from VCS')
-        update_imported_docs(self.version.pk)
+        self.sync_repo()
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
@@ -366,7 +484,7 @@ class UpdateDocsTask(Task):
 
     def update_documentation_type(self):
         """
-        Force Sphinx for 'auto' documentation type
+        Force Sphinx for 'auto' documentation type.
 
         This used to determine the type and automatically set the documentation
         type to Sphinx for rST and Mkdocs for markdown. It now just forces
@@ -380,7 +498,8 @@ class UpdateDocsTask(Task):
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
-        """Update application instances with build artifacts
+        """
+        Update application instances with build artifacts.
 
         This triggers updates across application instances for html, pdf, epub,
         downloads, and search. Tasks are broadcast to all web servers from here.
@@ -415,7 +534,7 @@ class UpdateDocsTask(Task):
             callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
         )
 
-    def setup_environment(self):
+    def setup_python_environment(self):
         """
         Build the virtualenv and install the project into it.
 
@@ -429,14 +548,23 @@ class UpdateDocsTask(Task):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
 
-            self.python_env.delete_existing_build_dir()
+            # Check if the python version/build image in the current venv is the
+            # same to be used in this build and if it differs, wipe the venv to
+            # avoid conflicts.
+            if self.python_env.is_obsolete:
+                self.python_env.delete_existing_venv_dir()
+            else:
+                self.python_env.delete_existing_build_dir()
+
             self.python_env.setup_base()
+            self.python_env.save_environment_json()
             self.python_env.install_core_requirements()
             self.python_env.install_user_requirements()
             self.python_env.install_package()
 
     def build_docs(self):
-        """Wrapper to all build functions
+        """
+        Wrapper to all build functions.
 
         Executes the necessary builds for this task and returns whether the
         build was successful or not.
@@ -462,7 +590,7 @@ class UpdateDocsTask(Task):
         return outcomes
 
     def build_docs_html(self):
-        """Build HTML docs"""
+        """Build HTML docs."""
         html_builder = get_builder_class(self.project.documentation_type)(
             build_env=self.build_env,
             python_env=self.python_env,
@@ -486,16 +614,13 @@ class UpdateDocsTask(Task):
         return success
 
     def build_docs_search(self):
-        """Build search data with separate build"""
-        if self.build_search:
-            if self.project.is_type_mkdocs:
-                return self.build_docs_class('mkdocs_json')
-            if self.project.is_type_sphinx:
-                return self.build_docs_class('sphinx_search')
+        """Build search data with separate build."""
+        if self.build_search and self.project.is_type_sphinx:
+            return self.build_docs_class('sphinx_search')
         return False
 
     def build_docs_localmedia(self):
-        """Get local media files with separate build"""
+        """Get local media files with separate build."""
         if 'htmlzip' not in self.config.formats:
             return False
 
@@ -505,7 +630,7 @@ class UpdateDocsTask(Task):
         return False
 
     def build_docs_pdf(self):
-        """Build PDF docs"""
+        """Build PDF docs."""
         if ('pdf' not in self.config.formats or
             self.project.slug in HTML_ONLY or
                 not self.project.is_type_sphinx):
@@ -513,7 +638,7 @@ class UpdateDocsTask(Task):
         return self.build_docs_class('sphinx_pdf')
 
     def build_docs_epub(self):
-        """Build ePub docs"""
+        """Build ePub docs."""
         if ('epub' not in self.config.formats or
             self.project.slug in HTML_ONLY or
                 not self.project.is_type_sphinx):
@@ -521,7 +646,8 @@ class UpdateDocsTask(Task):
         return self.build_docs_class('sphinx_epub')
 
     def build_docs_class(self, builder_class):
-        """Build docs with additional doc backends
+        """
+        Build docs with additional doc backends.
 
         These steps are not necessarily required for the build to halt, so we
         only raise a warning exception here. A hard error will halt the build
@@ -533,100 +659,19 @@ class UpdateDocsTask(Task):
         return success
 
     def send_notifications(self):
-        """Send notifications on build failure"""
+        """Send notifications on build failure."""
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
-
-
-@app.task()
-def update_imported_docs(version_pk):
-    """
-    Check out or update the given project's repository
-
-    :param version_pk: Version id to update
-    """
-    version_data = api_v2.version(version_pk).get()
-    version = APIVersion(**version_data)
-    project = version.project
-    ret_dict = {}
-
-    # Make Dirs
-    if not os.path.exists(project.doc_path):
-        os.makedirs(project.doc_path)
-
-    if not project.vcs_repo():
-        raise RepositoryError(
-            _('Repository type "{repo_type}" unknown').format(
-                repo_type=project.repo_type
-            )
-        )
-
-    with project.repo_nonblockinglock(
-            version=version,
-            max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
-        # Get the actual code on disk
-        try:
-            before_vcs.send(sender=version)
-            if version:
-                log.info(
-                    LOG_TEMPLATE.format(
-                        project=project.slug,
-                        version=version.slug,
-                        msg='Checking out version {slug}: {identifier}'.format(
-                            slug=version.slug,
-                            identifier=version.identifier
-                        )
-                    )
-                )
-                version_slug = version.slug
-                version_repo = project.vcs_repo(version_slug)
-
-                ret_dict['checkout'] = version_repo.checkout(version.identifier)
-            else:
-                # Does this ever get called?
-                log.info(LOG_TEMPLATE.format(
-                    project=project.slug, version=version.slug, msg='Updating to latest revision'))
-                version_slug = LATEST
-                version_repo = project.vcs_repo(version_slug)
-                ret_dict['checkout'] = version_repo.update()
-        finally:
-            after_vcs.send(sender=version)
-
-        # Update tags/version
-
-        version_post_data = {'repo': version_repo.repo_url}
-
-        if version_repo.supports_tags:
-            version_post_data['tags'] = [
-                {'identifier': v.identifier,
-                 'verbose_name': v.verbose_name,
-                 } for v in version_repo.tags
-            ]
-
-        if version_repo.supports_branches:
-            version_post_data['branches'] = [
-                {'identifier': v.identifier,
-                 'verbose_name': v.verbose_name,
-                 } for v in version_repo.branches
-            ]
-
-        try:
-            api_v2.project(project.pk).sync_versions.post(version_post_data)
-        except HttpClientError:
-            log.exception("Sync Versions Exception")
-        except Exception:
-            log.exception("Unknown Sync Versions Exception")
-    return ret_dict
 
 
 # Web tasks
 @app.task(queue='web')
 def sync_files(project_pk, version_pk, hostname=None, html=False,
                localmedia=False, search=False, pdf=False, epub=False):
-    """Sync build artifacts to application instances
+    """
+    Sync build artifacts to application instances.
 
-    This task broadcasts from a build instance on build completion and
-    performs synchronization of build artifacts on each application instance.
+    This task broadcasts from a build instance on build completion and performs
+    synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
     if not pdf:
@@ -655,7 +700,8 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 @app.task(queue='web')
 def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                pdf=False, epub=False):
-    """Task to move built documentation to web servers
+    """
+    Task to move built documentation to web servers.
 
     :param version_pk: Version id to sync files for
     :param hostname: Hostname to sync to
@@ -709,18 +755,11 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                 type_='epub', version_slug=version.slug, include_file=False)
             Syncer.copy(from_path, to_path, host=hostname)
 
-    if 'mkdocs' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(version=version.slug,
-                                                      type_='mkdocs_json')
-            to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
-            Syncer.copy(from_path, to_path, host=hostname)
-
 
 @app.task(queue='web')
 def update_search(version_pk, commit, delete_non_commit_files=True):
-    """Task to update search indexes
+    """
+    Task to update search indexes.
 
     :param version_pk: Version id to update
     :param commit: Commit that updated index
@@ -730,10 +769,8 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
 
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
-    elif version.project.is_type_mkdocs:
-        page_list = process_mkdocs_json(version, build_dir=False)
     else:
-        log.error('Unknown documentation type: %s',
+        log.debug('Unknown documentation type: %s',
                   version.project.documentation_type)
         return
 
@@ -786,20 +823,17 @@ def fileify(version_pk, commit):
     """
     Create ImportedFile objects for all of a version's files.
 
-    This is a prereq for indexing the docs for search.
-    It also causes celery-haystack to kick off an index of the file.
+    This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get(pk=version_pk)
     project = version.project
-
-    if not project.cdn_enabled:
-        return
 
     if not commit:
         log.info(LOG_TEMPLATE
                  .format(project=project.slug, version=version.slug,
                          msg=('Imported File not being built because no commit '
                               'information')))
+        return
 
     path = project.rtd_build_path(version.slug)
     if path:
@@ -814,7 +848,8 @@ def fileify(version_pk, commit):
 
 
 def _manage_imported_files(version, path, commit):
-    """Update imported files for version
+    """
+    Update imported files for version.
 
     :param version: Version instance
     :param path: Path to search
@@ -848,12 +883,12 @@ def _manage_imported_files(version, path, commit):
                                 version=version
                                 ).exclude(commit=commit).delete()
     # Purge Cache
-    changed_files = [resolve_path(
-        version.project, filename=fname, version_slug=version.slug,
-    ) for fname in changed_files]
     cdn_ids = getattr(settings, 'CDN_IDS', None)
     if cdn_ids:
         if version.project.slug in cdn_ids:
+            changed_files = [resolve_path(
+                version.project, filename=fname, version_slug=version.slug,
+            ) for fname in changed_files]
             purge(cdn_ids[version.project.slug], changed_files)
 
 
@@ -869,7 +904,8 @@ def send_notifications(version_pk, build_pk):
 
 
 def email_notification(version, build, email):
-    """Send email notifications for build failure
+    """
+    Send email notifications for build failure.
 
     :param version: :py:class:`Version` instance that failed
     :param build: :py:class:`Build` instance that failed
@@ -877,33 +913,47 @@ def email_notification(version, build, email):
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                   msg='sending email to: %s' % email))
-    context = {'version': version,
-               'project': version.project,
-               'build': build,
-               'build_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   build.get_absolute_url()),
-               'unsub_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   reverse('projects_notifications', args=[version.project.slug])),
-               }
+
+    # We send only what we need from the Django model objects here to avoid
+    # serialization problems in the ``readthedocs.core.tasks.send_email_task``
+    context = {
+        'version': {
+            'verbose_name': version.verbose_name,
+        },
+        'project': {
+            'name': version.project.name,
+        },
+        'build': {
+            'pk': build.pk,
+            'error': build.error,
+        },
+        'build_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            build.get_absolute_url(),
+        ),
+        'unsub_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            reverse('projects_notifications', args=[version.project.slug]),
+        ),
+    }
 
     if build.commit:
-        title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
+        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
     else:
-        title = _('Failed: {project.name} ({version.verbose_name})').format(**context)
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
 
     send_email(
         email,
         title,
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
-        context=context
+        context=context,
     )
 
 
 def webhook_notification(version, build, hook_url):
-    """Send webhook notification for project webhook
+    """
+    Send webhook notification for project webhook.
 
     :param version: Version instance to send hook for
     :param build: Build instance that failed
@@ -923,12 +973,16 @@ def webhook_notification(version, build, hook_url):
     log.debug(LOG_TEMPLATE
               .format(project=project.slug, version='',
                       msg='sending notification to: %s' % hook_url))
-    requests.post(hook_url, data=data)
+    try:
+        requests.post(hook_url, data=data)
+    except Exception:
+        log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
 
 @app.task(queue='web')
 def update_static_metadata(project_pk, path=None):
-    """Update static metadata JSON file
+    """
+    Update static metadata JSON file.
 
     Metadata settings include the following project settings:
 
@@ -958,6 +1012,8 @@ def update_static_metadata(project_pk, path=None):
         'language': project.language,
         'languages': list(languages),
         'single_version': project.single_version,
+        'subdomain': project.subdomain(),
+        'canonical_url': project.get_canonical_url(),
     }
     try:
         fh = open(path, 'w+')
@@ -977,8 +1033,8 @@ def remove_dir(path):
     """
     Remove a directory on the build/celery server.
 
-    This is mainly a wrapper around shutil.rmtree so that app servers
-    can kill things on the build server.
+    This is mainly a wrapper around shutil.rmtree so that app servers can kill
+    things on the build server.
     """
     log.info("Removing %s", path)
     shutil.rmtree(path, ignore_errors=True)
@@ -986,7 +1042,7 @@ def remove_dir(path):
 
 @app.task()
 def clear_artifacts(version_pk):
-    """Remove artifacts from the web servers"""
+    """Remove artifacts from the web servers."""
     version = Version.objects.get(pk=version_pk)
     clear_pdf_artifacts(version)
     clear_epub_artifacts(version)
@@ -1028,9 +1084,54 @@ def clear_html_artifacts(version):
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
-    This will be called once the sync_files tasks are done.
+    Called once the sync_files tasks are done.
 
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
     update_search(version_pk, commit=commit)
+
+
+@app.task()
+def finish_inactive_builds():
+    """
+    Finish inactive builds.
+
+    A build is consider inactive if it's not in ``FINISHED`` state and it has been
+    "running" for more time that the allowed one (``Project.container_time_limit``
+    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
+
+    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
+    ``error`` to be communicated to the user.
+    """
+    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    delta = datetime.timedelta(seconds=time_limit)
+    query = (~Q(state=BUILD_STATE_FINISHED) &
+             Q(date__lte=datetime.datetime.now() - delta))
+
+    builds_finished = 0
+    builds = Build.objects.filter(query)[:50]
+    for build in builds:
+
+        if build.project.container_time_limit:
+            custom_delta = datetime.timedelta(
+                seconds=int(build.project.container_time_limit))
+            if build.date + custom_delta > datetime.datetime.now():
+                # Do not mark as FINISHED builds with a custom time limit that wasn't
+                # expired yet (they are still building the project version)
+                continue
+
+        build.success = False
+        build.state = BUILD_STATE_FINISHED
+        build.error = _(
+            'This build was terminated due to inactivity. If you '
+            'continue to encounter this error, file a support '
+            'request with and reference this build id ({0}).'.format(build.pk)
+        )
+        build.save()
+        builds_finished += 1
+
+    log.info(
+        'Builds marked as "Terminated due inactivity": %s',
+        builds_finished,
+    )

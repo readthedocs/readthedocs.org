@@ -22,8 +22,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         projects = options['projects']
         if 'all' in projects:
-            queryset = Project.objects.all()
+            pks = Project.objects.values_list('pk', flat=True)
         else:
-            queryset = Project.objects.filter(slug__in=projects)
-        for proj in queryset:
-            tasks.symlink_project(project_pk=proj.pk)
+            pks = Project.objects.filter(slug__in=projects).values_list('pk', flat=True)
+        for proj in pks:
+            try:
+                tasks.symlink_project(project_pk=proj)
+            except Exception:
+                log.exception('Failed symlink management command')

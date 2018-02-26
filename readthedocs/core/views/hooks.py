@@ -12,7 +12,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, Feature
-from readthedocs.projects.tasks import update_imported_docs
+from readthedocs.projects.tasks import SyncRepositoryTask
 
 import logging
 
@@ -74,10 +74,10 @@ def build_branches(project, branch_list):
         to_build - a list of branches that were built
         not_building - a list of branches that we won't build
     """
+    to_build = set()
+    not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-        to_build = set()
-        not_building = set()
         for version in versions:
             log.info("(Branch Build) Processing %s:%s",
                      project.slug, version.slug)
@@ -107,7 +107,8 @@ def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
 
-    Check each of the ``branches`` to see if they are active and should be built.
+    Check each of the ``branches`` to see if they are active and should be
+    built.
     """
     ret = ""
     all_built = {}
@@ -122,8 +123,12 @@ def _build_url(url, projects, branches):
     for project in projects:
         (built, not_building) = build_branches(project, branches)
         if not built:
-            # Call update_imported_docs to update tag/branch info
-            update_imported_docs.delay(project.versions.get(slug=LATEST).pk)
+            # Call SyncRepositoryTask to update tag/branch info
+            version = project.versions.get(slug=LATEST)
+            sync_repository = SyncRepositoryTask()
+            sync_repository.apply_async(
+                args=(version.pk,),
+            )
             msg = '(URL Build) Syncing versions for %s' % project.slug
             log.info(msg)
         all_built[project.slug] = built
@@ -152,7 +157,7 @@ def _build_url(url, projects, branches):
 @csrf_exempt
 def github_build(request):  # noqa: D205
     """
-    GitHub webhook consumer
+    GitHub webhook consumer.
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.integrations.GitHubWebhookView`
@@ -206,7 +211,8 @@ def github_build(request):  # noqa: D205
 
 @csrf_exempt
 def gitlab_build(request):  # noqa: D205
-    """GitLab webhook consumer
+    """
+    GitLab webhook consumer.
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.integrations.GitLabWebhookView`
@@ -239,7 +245,8 @@ def gitlab_build(request):  # noqa: D205
 
 @csrf_exempt
 def bitbucket_build(request):
-    """Consume webhooks from multiple versions of Bitbucket's API
+    """
+    Consume webhooks from multiple versions of Bitbucket's API.
 
     .. warning:: **DEPRECATED**
         Use :py:cls:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
@@ -307,11 +314,13 @@ def bitbucket_build(request):
 
 @csrf_exempt
 def generic_build(request, project_id_or_slug=None):
-    """Generic webhook build endpoint
+    """
+    Generic webhook build endpoint.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
-        instead of this view function
+
+      Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
+      instead of this view function
     """
     try:
         project = Project.objects.get(pk=project_id_or_slug)

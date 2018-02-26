@@ -6,7 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 class SendNotificationForm(forms.Form):
 
-    """Send notification form
+    """
+    Send notification form.
 
     Used for sending a notification to a list of users from admin pages
 
@@ -33,7 +34,7 @@ class SendNotificationForm(forms.Form):
                                          in self.notification_classes]
 
     def clean_source(self):
-        """Get the source class from the class name"""
+        """Get the source class from the class name."""
         source = self.cleaned_data['source']
         classes = dict((cls.name, cls) for cls in self.notification_classes)
         return classes.get(source, None)

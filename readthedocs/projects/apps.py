@@ -7,6 +7,7 @@ class ProjectsConfig(AppConfig):
     name = 'readthedocs.projects'
 
     def ready(self):
-        from readthedocs.projects.tasks import UpdateDocsTask
+        from readthedocs.projects import tasks
         from readthedocs.worker import app
-        app.tasks.register(UpdateDocsTask)
+        app.tasks.register(tasks.SyncRepositoryTask)
+        app.tasks.register(tasks.UpdateDocsTask)

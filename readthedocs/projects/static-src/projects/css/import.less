@@ -60,15 +60,25 @@ div.project-import-remote {
         }
     }
 
-    form.import-connect {
+    ul.socialaccount_providers {
         overflow: auto;
-        display: inline;
+        display: block;
+        list-style: none;
 
-        button {
-            display: inline;
-            margin-bottom: .5em;
-            font-size: 1em;
-            font-weight: normal;
+        li {
+            margin-top: 0.5em;
+            display: block;
+            overflow: auto;
+            text-align: center;
+
+            a.socialaccount-provider {
+                float: none;
+                display: inline-block;
+                margin-bottom: 0.5em;
+                margin-top: 0.5em;
+                font-size: 1em;
+                font-weight: normal;
+            }
         }
     }
 }

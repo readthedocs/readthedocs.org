@@ -43,7 +43,7 @@ class SearchMixin(object):
             search_highlight = True
     """
 
-    def get_search(self, request):
+    def get_search(self, request, **kwargs):
         self.method_check(request, allowed=['get'])
         self.is_authenticated(request)
         self.throttle_check(request)
@@ -162,7 +162,7 @@ class PostAuthentication(BasicAuthentication):
 
 
 class EnhancedModelResource(ModelResource):
-    def obj_get_list(self, request=None, *_, **kwargs):  # pylint: disable=arguments-differ
+    def obj_get_list(self, request=None, *_, **kwargs):  # noqa
         """
         A ORM-specific implementation of ``obj_get_list``.
 

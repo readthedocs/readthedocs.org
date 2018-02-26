@@ -2,7 +2,6 @@
 maxcdn
 astroid
 pylint
-# prospector==0.12.6 currently has issues with pydocstyle
-prospector==0.12.5
+prospector
 pylint-django
 pyflakes
