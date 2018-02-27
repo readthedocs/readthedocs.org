@@ -78,6 +78,16 @@ class TestGitBackend(RTDTestCase):
                      self.project.vcs_repo().parse_tags(data)]
         self.assertEqual(expected_tags, given_ids)
 
+    def test_check_for_submodules(self):
+        repo = self.project.vcs_repo()
+
+        repo.checkout()
+        self.assertFalse(repo.submodules_exists())
+
+        # The submodule branch contains one submodule
+        repo.checkout('submodule')
+        self.assertTrue(repo.submodules_exists())
+
 
 class TestHgBackend(RTDTestCase):
     def setUp(self):
