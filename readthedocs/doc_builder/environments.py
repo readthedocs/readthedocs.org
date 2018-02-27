@@ -432,27 +432,37 @@ class BuildEnvironment(BaseEnvironment):
                 self.failure = exc_value
             return True
 
-    def record_command(self, command):
-        command.save()
-
-    def _log_warning(self, msg):
-        # :'(
-        log.warning(LOG_TEMPLATE.format(
-            project=self.project.slug,
-            version=self.version.slug,
-            msg=msg,
-        ))
+    def post_run_command(self):
+        command = self.commands[-1]
+        if self.record_as_success:
+            command.exit_code = 0
+        if self.record:
+            command.save()
 
     def run(self, *cmd, **kwargs):
         kwargs.update({
             'build_env': self,
         })
+        self.record = kwargs.pop('record', self.record)
+        self.record_as_success = kwargs.pop('record_as_success', False)
+        if not self.record:
+            kwargs['warn_only'] = True
+        if self.record_as_success:
+            self.record = True
+            kwargs['warn_only'] = True
         return super(BuildEnvironment, self).run(*cmd, **kwargs)
 
-    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
+    def run_command_class(self, *cmd, **kwargs):  # noqa
         kwargs.update({
             'build_env': self,
         })
+        self.record = kwargs.pop('record', True)
+        self.record_as_success = kwargs.pop('record_as_success', False)
+        if not self.record:
+            kwargs['warn_only'] = True
+        if self.record_as_success:
+            self.record = True
+            kwargs['warn_only'] = True
         return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
 
     @property
