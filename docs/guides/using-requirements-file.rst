@@ -21,12 +21,12 @@ The recommended approach for specifying a pip requirements file is to use a YAML
 See :doc:`yaml-config` for setting up the .yml file
 
 The requirements file can be specified here in the ``conda`` block. 
-The file's path should be relative to documentation root::
+The file's path should be relative to documentation root.
 
 .. code-block:: yaml
 
 	conda:
-		requirements_file: requirements.txt
+	    requirements_file: requirements.txt
 
 Using the project admin dashboard
 ---------------------------------
@@ -57,13 +57,12 @@ The conda requirements file can be specified in ``readthedocs.yml`` in the ``con
 As before, the path should be relative to the documentation repository root.
 
 Additional Uses
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
  - Documenting multiple packages
  - setup.py not in root directory
 
 See :ref:`faq_document_package_not_at_root`
 
-    
-.. _issue: : https://github.com/rtfd/readthedocs.org/issues
+
 .. _`pip user guide`: : https://pip.pypa.io/en/stable/user_guide/#requirements-files
 .. _`conda and environment.yml`: : https://conda.io/docs/user-guide/tasks/manage-environments.html
