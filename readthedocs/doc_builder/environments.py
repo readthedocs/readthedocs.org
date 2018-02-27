@@ -298,13 +298,6 @@ class BaseEnvironment(object):
     def record_command(self, command):
         pass
 
-    def _log_warning(self, msg):
-        log.warning(LOG_TEMPLATE.format(
-            project=self.project.slug,
-            version='latest',
-            msg=msg,
-        ))
-
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
@@ -362,7 +355,11 @@ class BaseEnvironment(object):
                 msg += u':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
-                self._log_warning(msg)
+                log.warning(LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version='latest',
+                    msg=msg,
+                ))
             else:
                 raise BuildEnvironmentWarning(msg)
         return build_cmd
