@@ -353,6 +353,34 @@ class LocalEnvironment(BaseEnvironment):
     # TODO: BuildCommand name doesn't make sense here, should be just Command
     command_class = BuildCommand
 
+    def post_run_command(self):
+        command = self.commands[-1]
+        if self.record_as_success:
+            command.exit_code = 0
+        if self.record:
+            command.save()
+
+    def run(self, *cmd, **kwargs):
+        self.record = kwargs.pop('record', False)
+        self.record_as_success = kwargs.pop('record_as_success', False)
+        if not self.record:
+            kwargs['warn_only'] = True
+        if self.record_as_success:
+            self.record = True
+            kwargs['warn_only'] = True
+        return super(LocalEnvironment, self).run(*cmd, **kwargs)
+
+    # record, force_success, warn_only
+    def run_command_class(self, *cmd, **kwargs):  # noqa
+        self.record = kwargs.pop('record', False)
+        self.record_as_success = kwargs.pop('record_as_success', False)
+        if not self.record:
+            kwargs['warn_only'] = True
+        if self.record_as_success:
+            self.record = True
+            kwargs['warn_only'] = True
+        return super(LocalEnvironment, self).run_command_class(*cmd, **kwargs)
+
 
 class BuildEnvironment(BaseEnvironment):
 
