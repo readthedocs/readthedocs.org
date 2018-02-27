@@ -295,39 +295,36 @@ class BaseEnvironment(object):
         self.environment = environment or {}
         self.commands = []
 
-    def record_command(self, command):
+    def pre_run_command(self):
+        """
+        This method is called before the command is executed.
+
+        The command that will be executed can be accessed as
+        the last element of ``self.commands``.
+        """
+        pass
+
+    def post_run_command(self):
+        """
+        This method is called after the command is executed.
+
+        The command that was executed can be accessed as
+        the last element of ``self.commands``.
+        """
         pass
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
-    def run_command_class(
-            self, cls, cmd, record=None, warn_only=False,
-            record_as_success=False, **kwargs):
+    def run_command_class(self, cls, cmd, warn_only=False, **kwargs):
         """
         Run command from this environment.
 
         :param cls: command class to instantiate a command
         :param cmd: command (as a list) to execute in this environment
-        :param record: whether or not to record this particular command
-            (``False`` implies ``warn_only=True``)
         :param warn_only: don't raise an exception on command failure
-        :param record_as_success: force command ``exit_code`` to be saved as
-            ``0`` (``True`` implies ``warn_only=True`` and ``record=True``)
         """
-        if record is None:
-            # ``self.record`` only exists when called from ``*BuildEnvironment``
-            record = getattr(self, 'record', False)
-
-        if not record:
-            warn_only = True
-
-        if record_as_success:
-            record = True
-            warn_only = True
-            # ``record_as_success`` is needed to instantiate the BuildCommand
-            kwargs.update({'record_as_success': record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
@@ -340,13 +337,9 @@ class BaseEnvironment(object):
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
         self.commands.append(build_cmd)
+        self.pre_run_command()
         build_cmd.run()
-
-        if record:
-            # TODO: I don't like how it's handled this entry point here since
-            # this class should know nothing about a BuildCommand (which are the
-            # only ones that can be saved/recorded)
-            self.record_command(build_cmd)
+        self.post_run_command()
 
         if build_cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
