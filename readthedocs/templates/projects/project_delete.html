@@ -8,7 +8,10 @@
 {% block content %}
   <p>{% trans "You sure?" %} O_o</p>
 
-  <form method="post" action=".">{% csrf_token %}
-    <input type="submit" value="{% trans "Delete forever" %}">
+  <form class="display-inline" method="post" action=".">{% csrf_token %}
+    <input class="display-inline" type="submit" value="{% trans "Delete forever" %}">
   </form>
+  <a class="display-inline project-delete-cancel-link" href="{% url "projects_manage" project.slug %}">
+      <button class="display-inline project-delete-cancel-btn">{% trans "Cancel" %}</button>
+  </a>
 {% endblock %}
