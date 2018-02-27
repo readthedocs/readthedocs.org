@@ -55,6 +55,10 @@ class Backend(BaseVCS):
         code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
+    def submodules_exists(self):
+        code, out, _ = self.run('git', 'submodule', 'status', record=False)
+        return code == 0 and bool(out)
+
     def fetch(self):
         code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
         if code != 0:
@@ -187,9 +191,10 @@ class Backend(BaseVCS):
         self.run('git', 'clean', '-d', '-f', '-f')
 
         # Update submodules
-        self.run('git', 'submodule', 'sync')
-        self.run('git', 'submodule', 'update',
-                 '--init', '--recursive', '--force')
+        if self.submodules_exists():
+            self.run('git', 'submodule', 'sync')
+            self.run('git', 'submodule', 'update',
+                     '--init', '--recursive', '--force')
 
         return code, out, err
 
