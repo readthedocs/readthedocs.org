@@ -287,7 +287,7 @@ class BaseEnvironment(object):
 
     def pre_run_command(self):
         """
-        This method is called before the command is executed.
+        Method to be called before the command is executed.
 
         The command that will be executed can be accessed as
         the last element of ``self.commands``.
@@ -296,7 +296,7 @@ class BaseEnvironment(object):
 
     def post_run_command(self):
         """
-        This method is called after the command is executed.
+        Method to be called after the command is executed.
 
         The command that was executed can be accessed as
         the last element of ``self.commands``.
@@ -315,7 +315,6 @@ class BaseEnvironment(object):
         :param cmd: command (as a list) to execute in this environment
         :param warn_only: don't raise an exception on command failure
         """
-
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
