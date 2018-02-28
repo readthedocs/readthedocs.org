@@ -21,16 +21,16 @@
 
   {% if project.main_language_project %}
     <p>
-      {% blocktrans trimmed with language=project.language  main_project=project.main_language_project  %}
+      {% blocktrans trimmed with language=project.get_language_display  main_project=project.main_language_project.name %}
         This project is already configured as <code>{{ language }}</code> translation of
-        {{ main_project }}.
+        "{{ main_project }}".
         Nested translations are not supported.
       {% endblocktrans %}
     </p>
 
     <a href="{% url 'projects_translations' project_slug=project.main_language_project.slug %}">
-      {% blocktrans trimmed with main_project=project.main_language_project %}
-        View translations of {{ main_project }}
+      {% blocktrans trimmed with main_project=project.main_language_project.name %}
+        View translations of "{{ main_project }}".
       {% endblocktrans %}
     </a>
   {% else %}
@@ -38,9 +38,9 @@
       <ul>
       {% for lang_project in lang_projects %}
           <li>
-          <a href="{{ lang_project.get_absolute_url }}">{{ lang_project }}</a>
-          ({{ lang_project.language }})
-          (<a href="{% url "projects_translations_delete" project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
+            <a href="{{ lang_project.get_absolute_url }}">{{ lang_project.name }}</a>
+            ({{ lang_project.get_language_display }})
+            (<a href="{% url "projects_translations_delete" project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
           </li>
       {% endfor %}
       </ul>
