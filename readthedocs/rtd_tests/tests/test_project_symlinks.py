@@ -930,17 +930,23 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
             'private_cname_project': {},
             'private_cname_root': {},
             'private_web_root': {
-                'project': {'en': {},},
-                'subproject': {'en': {},},
+                'project': {
+                    'en': {},
+                },
+                'subproject': {
+                    'en': {},
+                },
             },
             'public_cname_project': {},
             'public_cname_root': {},
             'public_web_root': {
                 'project': {
-                    'en': {'latest': {
-                        'type': 'link',
-                        'target': 'user_builds/project/rtd-builds/latest',
-                    },},
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/project/rtd-builds/latest',
+                        },
+                    },
                     'projects': {
                         'subproject': {
                             'type': 'link',
@@ -949,10 +955,12 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
                     },
                 },
                 'subproject': {
-                    'en': {'latest': {
-                        'type': 'link',
-                        'target': 'user_builds/subproject/rtd-builds/latest',
-                    },},
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/subproject/rtd-builds/latest',
+                        },
+                    },
                 },
             },
         }
@@ -963,6 +971,12 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
             'private_web_root': {
                 'project': {
                     'en': {},
+                    'projects': {
+                        'subproject': {
+                            'type': 'link',
+                            'target': 'private_web_root/subproject',
+                        },
+                    },
                 },
                 'subproject': {
                     'en': {
@@ -1000,13 +1014,17 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
         self.assertFilesystem(filesystem_before)
 
         self.subproject.privacy_level = 'private'
-        # self.subproject.version_privacy_level = 'private'
+        self.subproject.versions.update(privacy_level='private')
         self.subproject.save()
 
         # These two lines shouldn't be necessary because this should be done
         # automatically on ``self.subproject.save()`` but that is the bug I want
+        # (un-commenting these lines makes the test pass)
         # to fix
-        symlink_project(self.project.pk)
-        symlink_subproject(self.project.pk)
+        # symlink_project(self.project.pk)
+        # symlink_subproject(self.project.pk)
+
+        # from datadiff import diff
+        # print(diff(get_filesystem(self.site_root), filesystem_after))
 
         self.assertFilesystem(filesystem_after)
