@@ -37,8 +37,8 @@ class TestProjectForms(TestCase):
         project_d = get(Project, users=[user_b], language='ar')
 
         form = TranslationForm(
-            {'parent': project_a.pk},
-            project=project_b,
+            {'project': project_b.pk},
+            parent=project_a,
             user=user,
         )
         self.assertTrue(form.is_valid())
@@ -56,8 +56,8 @@ class TestProjectForms(TestCase):
         project_d = get(Project, users=[user_b, user], language='ar')
 
         form = TranslationForm(
-            {'parent': project_a.pk},
-            project=project_b,
+            {'project': project_b.pk},
+            parent=project_a,
             user=user,
         )
         self.assertTrue(form.is_valid())
@@ -84,8 +84,8 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'parent': project_a.pk},
-            project=project_d,
+            {'project': project_d.pk},
+            parent=project_a,
             user=user,
         )
         self.assertTrue(form.is_valid())
@@ -101,8 +101,8 @@ class TestProjectForms(TestCase):
         project_b = get(Project, users=[user_b], language='en')
 
         form = TranslationForm(
-            {'parent': project_a.pk},
-            project=project_b,
+            {'project': project_b.pk},
+            parent=project_a,
             user=user,
         )
         self.assertFalse(form.is_valid())
@@ -117,8 +117,8 @@ class TestProjectForms(TestCase):
         project_b = get(Project, users=[user], language='es')
 
         form = TranslationForm(
-            {'parent': project_a.pk},
-            project=project_b,
+            {'project': project_b.pk},
+            parent=project_a,
             user=user,
         )
         self.assertFalse(form.is_valid())
@@ -133,8 +133,8 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'parent': project_a.pk},
-            project=project_c,
+            {'project': project_c.pk},
+            parent=project_a,
             user=user,
         )
         self.assertFalse(form.is_valid())
