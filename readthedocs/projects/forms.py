@@ -513,15 +513,32 @@ class TranslationForm(forms.Form):
             pk=project_id
         )
         if not project_translation_qs.exists():
+            msg = 'Project {id} does not exist'
             raise forms.ValidationError(
-                (_('Project {id} does not exist').format(
-                    id=project_id)))
+                (_(msg).format(id=project_id))
+            )
         self.translation = project_translation_qs.first()
         if self.translation.language == self.parent.language:
-            err = ('Both projects have a language of `{}`. '
-                   'Please choose one with another language'.format(
-                       self.parent.language))
-            raise forms.ValidationError(_(err))
+            msg = (
+                'Both projects have a language of `{}`. '
+                'Please choose one with another language.'
+            )
+            raise forms.ValidationError(
+                _(msg).format(self.parent.language)
+            )
+        exists_translation = (
+            self.parent.translations
+            .filter(language=self.translation.language)
+            .exists()
+        )
+        if exists_translation:
+            msg = (
+                'There is already a translation of language `{}`. '
+                'Please choose one with another language.'
+            )
+            raise forms.ValidationError(
+                _(msg).format(self.parent.language)
+            )
         return project_id
 
     def get_translation_queryset(self):
