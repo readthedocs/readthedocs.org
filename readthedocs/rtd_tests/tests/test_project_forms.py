@@ -45,6 +45,10 @@ class TestTranslationForm(TestCase):
 
         user_b = get(User)
         project_d = self.get_project(lang='ar', users=[user_b])
+        project_e = self.get_project(lang='ga', users=[user_b])
+
+        # shared project
+        project_s = self.get_project(lang='fr', users=[user_b, user])
 
         form = TranslationForm(
             {'project': project_b.slug},
@@ -54,27 +58,18 @@ class TestTranslationForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(
             {proj_slug for proj_slug, _ in form.fields['project'].choices},
-            {project_b.slug, project_c.slug}
+            {project_b.slug, project_c.slug, project_s.slug}
         )
 
-    def test_form_translation_list_all_projects_where_is_owner(self):
-        user = get(User)
-        project_a = self.get_project(lang='es', users=[user])
-        project_b = self.get_project(lang='en', users=[user])
-        project_c = self.get_project(lang='br', users=[user])
-
-        user_b = get(User)
-        project_d = self.get_project(lang='ar', users=[user_b, user])
-
         form = TranslationForm(
-            {'project': project_b.slug},
-            parent=project_a,
-            user=user,
+            {'project': project_e.slug},
+            parent=project_d,
+            user=user_b,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(
             {proj_slug for proj_slug, _ in form.fields['project'].choices},
-            {project_b.slug, project_c.slug, project_d.slug}
+            {project_e.slug, project_s.slug}
         )
 
     def test_form_translation_excludes_existing_translations(self):
