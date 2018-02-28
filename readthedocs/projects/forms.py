@@ -539,6 +539,15 @@ class TranslationForm(forms.Form):
             raise forms.ValidationError(
                 _(msg).format(self.translation.language)
             )
+        is_parent = self.translation.translations.count() > 0
+        if is_parent:
+            msg = (
+                'This project has translations. '
+                'Please choose one without translations.'
+            )
+            raise forms.ValidationError(
+                _(msg).format(self.translation.language)
+            )
         return project_id
 
     def get_translation_queryset(self):
