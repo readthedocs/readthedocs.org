@@ -108,6 +108,10 @@ class TestTranslationForm(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Select a valid choice',
+            ''.join(form.errors['project'])
+        )
         self.assertNotIn(
             project_b.slug,
             [proj_slug for proj_slug, _ in form.fields['project'].choices]
@@ -124,6 +128,10 @@ class TestTranslationForm(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Both projects have a language of "es"',
+            ''.join(form.errors['project'])
+        )
 
     def test_form_translation_user_cant_add_project_with_same_lang_of_other_translation(self):
         user = get(User)
@@ -140,6 +148,10 @@ class TestTranslationForm(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a translation of language "en"',
+            ''.join(form.errors['project'])
+        )
 
     def test_form_translation_no_nesting_translation(self):
         user = get(User)
@@ -156,6 +168,10 @@ class TestTranslationForm(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Select a valid choice',
+            ''.join(form.errors['project'])
+        )
 
     def test_form_translation_no_nesting_translation_case_2(self):
         user = get(User)
@@ -172,6 +188,10 @@ class TestTranslationForm(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'This project has translations',
+            ''.join(form.errors['project'])
+        )
 
     def test_form_translation_no_circular_translations(self):
         user = get(User)
@@ -187,3 +207,7 @@ class TestTranslationForm(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'This project has translations',
+            ''.join(form.errors['project'])
+        )
