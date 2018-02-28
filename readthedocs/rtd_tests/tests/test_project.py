@@ -84,9 +84,7 @@ class TestProject(TestCase):
             Project.objects.get(pk=project_keep.pk).main_language_project)
 
     def test_user_can_add_own_project_as_translation(self):
-        user_a = get(User)
-        user_a.set_password('test')
-        user_a.save()
+        user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
             language='en', main_language_project=None
@@ -108,16 +106,13 @@ class TestProject(TestCase):
 
     def test_user_can_add_project_as_translation_if_is_owner(self):
         # Two users, two projects with different language
-        user_a = get(User)
-        user_a.set_password('test')
-        user_a.save()
-
+        user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
             language='es', main_language_project=None
         )
 
-        user_b = get(User)
+        user_b = User.objects.get(username='tester')
         # User A and B are owners of project B
         project_b = get(
             Project, users=[user_b, user_a],
@@ -134,15 +129,13 @@ class TestProject(TestCase):
 
     def test_user_can_not_add_other_user_project_as_translation(self):
         # Two users, two projects with different language
-        user_a = get(User)
-        user_a.set_password('test')
-        user_a.save()
+        user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
             language='es', main_language_project=None
         )
 
-        user_b = get(User)
+        user_b = User.objects.get(username='tester')
         project_b = get(
             Project, users=[user_b],
             language='en', main_language_project=None
