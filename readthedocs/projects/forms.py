@@ -524,7 +524,7 @@ class TranslationForm(forms.Form):
                 'Please choose one with another language.'
             )
             raise forms.ValidationError(
-                _(msg).format(self.parent.get_language_display)
+                _(msg).format(self.parent.get_language_display())
             )
         exists_translation = (
             self.parent.translations
@@ -537,7 +537,7 @@ class TranslationForm(forms.Form):
                 'Please choose one with another language.'
             )
             raise forms.ValidationError(
-                _(msg).format(self.translation.get_language_display)
+                _(msg).format(self.translation.get_language_display())
             )
         is_parent = self.translation.translations.exists()
         if is_parent:

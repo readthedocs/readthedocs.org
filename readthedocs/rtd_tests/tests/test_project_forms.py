@@ -129,7 +129,7 @@ class TestTranslationForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'Both projects have a language of "es"',
+            'Both projects have a language of "Spanish"',
             ''.join(form.errors['project'])
         )
 
@@ -149,7 +149,7 @@ class TestTranslationForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'There is already a translation of language "en"',
+            'There is already a translation of language "English"',
             ''.join(form.errors['project'])
         )
 
