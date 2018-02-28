@@ -508,23 +508,23 @@ class TranslationForm(forms.Form):
         ]
 
     def clean_project(self):
-        project_id = self.cleaned_data['project']
+        translation_project_slug = self.cleaned_data['project']
         project_translation_qs = self.get_translation_queryset().filter(
-            pk=project_id
+            pk=translation_project_slug
         )
         if not project_translation_qs.exists():
-            msg = 'Project {id} does not exist'
+            msg = 'Project "{}" does not exist.'
             raise forms.ValidationError(
-                (_(msg).format(id=project_id))
+                (_(msg).format(translation_project_slug))
             )
         self.translation = project_translation_qs.first()
         if self.translation.language == self.parent.language:
             msg = (
-                'Both projects have a language of `{}`. '
+                'Both projects have a language of "{}". '
                 'Please choose one with another language.'
             )
             raise forms.ValidationError(
-                _(msg).format(self.parent.language)
+                _(msg).format(self.parent.get_language_display)
             )
         exists_translation = (
             self.parent.translations
@@ -533,13 +533,13 @@ class TranslationForm(forms.Form):
         )
         if exists_translation:
             msg = (
-                'There is already a translation of language `{}`. '
+                'There is already a translation of language "{}". '
                 'Please choose one with another language.'
             )
             raise forms.ValidationError(
-                _(msg).format(self.translation.language)
+                _(msg).format(self.translation.get_language_display)
             )
-        is_parent = self.translation.translations.count() > 0
+        is_parent = self.translation.translations.exists()
         if is_parent:
             msg = (
                 'This project has translations. '
@@ -548,7 +548,7 @@ class TranslationForm(forms.Form):
             raise forms.ValidationError(
                 _(msg).format(self.translation.language)
             )
-        return project_id
+        return translation_project_slug
 
     def get_translation_queryset(self):
         queryset = (
