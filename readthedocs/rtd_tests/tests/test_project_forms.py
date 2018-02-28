@@ -49,14 +49,14 @@ class TestProjectForms(TestCase):
         )
 
         form = TranslationForm(
-            {'project': project_b.pk},
+            {'project': project_b.slug},
             parent=project_a,
             user=user,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(
-            {proj_id for proj_id, _ in form.fields['project'].choices},
-            {project_b.id, project_c.id}
+            {proj_slug for proj_slug, _ in form.fields['project'].choices},
+            {project_b.slug, project_c.slug}
         )
 
     def test_form_translation_list_all_projects_where_is_owner(self):
@@ -80,20 +80,15 @@ class TestProjectForms(TestCase):
         )
 
         form = TranslationForm(
-            {'project': project_b.pk},
+            {'project': project_b.slug},
             parent=project_a,
             user=user,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(
-            {proj_id for proj_id, _ in form.fields['project'].choices},
-            {project_b.id, project_c.id, project_d.id}
+            {proj_slug for proj_slug, _ in form.fields['project'].choices},
+            {project_b.slug, project_c.slug, project_d.slug}
         )
-
-    def test_form_translation_list_only_projects_with_different_lang(self):
-        # This would be necessary?
-        # Probably confusing
-        pass
 
     def test_form_translation_excludes_existing_translations(self):
         user = get(User)
@@ -123,14 +118,14 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'project': project_d.pk},
+            {'project': project_d.slug},
             parent=project_a,
             user=user,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(
-            {proj_id for proj_id, _ in form.fields['project'].choices},
-            {project_d.id, project_e.id}
+            {proj_slug for proj_slug, _ in form.fields['project'].choices},
+            {project_d.slug, project_e.slug}
         )
 
     def test_form_translation_user_cant_add_other_user_project(self):
@@ -146,14 +141,14 @@ class TestProjectForms(TestCase):
         )
 
         form = TranslationForm(
-            {'project': project_b.pk},
+            {'project': project_b.slug},
             parent=project_a,
             user=user,
         )
         self.assertFalse(form.is_valid())
         self.assertNotIn(
-            project_b.id,
-            [proj_id for proj_id, _ in form.fields['project'].choices]
+            project_b.slug,
+            [proj_slug for proj_slug, _ in form.fields['project'].choices]
         )
 
     def test_form_translation_user_cant_add_project_with_same_lang(self):
@@ -168,7 +163,7 @@ class TestProjectForms(TestCase):
         )
 
         form = TranslationForm(
-            {'project': project_b.pk},
+            {'project': project_b.slug},
             parent=project_a,
             user=user,
         )
@@ -193,7 +188,7 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'project': project_c.pk},
+            {'project': project_c.slug},
             parent=project_a,
             user=user,
         )
@@ -218,7 +213,7 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'project': project_b.pk},
+            {'project': project_b.slug},
             parent=project_c,
             user=user,
         )
@@ -243,7 +238,7 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'project': project_a.pk},
+            {'project': project_a.slug},
             parent=project_c,
             user=user,
         )
@@ -264,7 +259,7 @@ class TestProjectForms(TestCase):
         project_a.save()
 
         form = TranslationForm(
-            {'project': project_a.pk},
+            {'project': project_a.slug},
             parent=project_b,
             user=user,
         )

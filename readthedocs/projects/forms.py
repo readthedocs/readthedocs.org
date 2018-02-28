@@ -510,7 +510,7 @@ class TranslationForm(forms.Form):
     def clean_project(self):
         translation_project_slug = self.cleaned_data['project']
         project_translation_qs = self.get_translation_queryset().filter(
-            pk=translation_project_slug
+            slug=translation_project_slug
         )
         if not project_translation_qs.exists():
             msg = 'Project "{}" does not exist.'
