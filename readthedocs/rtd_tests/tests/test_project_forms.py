@@ -28,25 +28,23 @@ class TestProjectForms(TestCase):
         with self.assertRaises(ProjectSpamError):
             form.is_valid()
 
+
+class TestTranslationForm(TestCase):
+
+    def get_project(self, lang, users, **kwargs):
+        return get(
+            Project, language=lang, users=users,
+            main_language_project=None, **kwargs
+        )
+
     def test_form_translation_list_only_owner_projects(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
-        project_c = get(
-            Project, users=[user],
-            language='br', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='br', users=[user])
+
         user_b = get(User)
-        project_d = get(
-            Project, users=[user_b],
-            language='ar', main_language_project=None
-        )
+        project_d = self.get_project(lang='ar', users=[user_b])
 
         form = TranslationForm(
             {'project': project_b.slug},
@@ -61,23 +59,12 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_list_all_projects_where_is_owner(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
-        project_c = get(
-            Project, users=[user],
-            language='br', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='br', users=[user])
+
         user_b = get(User)
-        project_d = get(
-            Project, users=[user_b, user],
-            language='ar', main_language_project=None
-        )
+        project_d = self.get_project(lang='ar', users=[user_b, user])
 
         form = TranslationForm(
             {'project': project_b.slug},
@@ -92,26 +79,11 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_excludes_existing_translations(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
-        project_c = get(
-            Project, users=[user],
-            language='br', main_language_project=None
-        )
-        project_d = get(
-            Project, users=[user],
-            language='ar', main_language_project=None
-        )
-        project_e = get(
-            Project, users=[user],
-            language='aa', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='br', users=[user])
+        project_d = self.get_project(lang='ar', users=[user])
+        project_e = self.get_project(lang='aa', users=[user])
 
         project_a.translations.add(project_b)
         project_a.translations.add(project_c)
@@ -130,15 +102,10 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_user_cant_add_other_user_project(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+
         user_b = get(User)
-        project_b = get(
-            Project, users=[user_b],
-            language='en', main_language_project=None
-        )
+        project_b = self.get_project(lang='en', users=[user_b])
 
         form = TranslationForm(
             {'project': project_b.slug},
@@ -153,14 +120,8 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_user_cant_add_project_with_same_lang(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='es', users=[user])
 
         form = TranslationForm(
             {'project': project_b.slug},
@@ -171,18 +132,9 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_user_cant_add_project_with_same_lang_of_other_translation(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
-        project_c = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='en', users=[user])
 
         project_a.translations.add(project_b)
         project_a.save()
@@ -196,18 +148,9 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_no_nesting_translation(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
-        project_c = get(
-            Project, users=[user],
-            language='ar', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='br', users=[user])
 
         project_a.translations.add(project_b)
         project_a.save()
@@ -221,18 +164,9 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_no_nesting_translation_case_2(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
-        project_c = get(
-            Project, users=[user],
-            language='ar', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='br', users=[user])
 
         project_a.translations.add(project_b)
         project_a.save()
@@ -246,14 +180,8 @@ class TestProjectForms(TestCase):
 
     def test_form_translation_no_circular_translations(self):
         user = get(User)
-        project_a = get(
-            Project, users=[user],
-            language='es', main_language_project=None
-        )
-        project_b = get(
-            Project, users=[user],
-            language='en', main_language_project=None
-        )
+        project_a = self.get_project(lang='es', users=[user])
+        project_b = self.get_project(lang='en', users=[user])
 
         project_a.translations.add(project_b)
         project_a.save()
