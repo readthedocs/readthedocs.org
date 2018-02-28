@@ -503,7 +503,7 @@ class TranslationForm(forms.Form):
         self.user = kwargs.pop('user')
         super(TranslationForm, self).__init__(*args, **kwargs)
         self.fields['project'].choices = [
-            (project.id, project)
+            (project.slug, project)
             for project in self.get_translation_queryset().all()
         ]
 
