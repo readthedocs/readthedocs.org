@@ -99,7 +99,7 @@ class TestProject(TestCase):
         self.client.login(username=user_a.username, password='test')
         self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
-            data={'project': project_b.slug}
+            data={'project': project_b.id}
         )
 
         self.assertEqual(project_a.translations.first(), project_b)
@@ -120,7 +120,7 @@ class TestProject(TestCase):
         self.client.login(username=user_a.username, password='test')
         self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
-            data={'project': project_b.slug}
+            data={'project': project_b.id}
         )
 
         self.assertEqual(project_a.translations.first(), project_b)
@@ -147,7 +147,7 @@ class TestProject(TestCase):
         self.client.login(username=user_a.username, password='test')
         self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
-            data={'project': project_b.slug}
+            data={'project': project_b.id}
         )
 
         self.assertEqual(project_a.translations.count(), 0)
