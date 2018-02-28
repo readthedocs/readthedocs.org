@@ -544,6 +544,7 @@ class TranslationForm(forms.Form):
     def get_translation_queryset(self):
         queryset = (
             Project.objects.for_admin_user(self.user)
+            .filter(main_language_project=None)
             .exclude(pk=self.parent.pk)
         )
         return queryset
