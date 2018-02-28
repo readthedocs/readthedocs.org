@@ -111,11 +111,17 @@ class TestProject(TestCase):
         user_a = get(User)
         user_a.set_password('test')
         user_a.save()
-        project_a = get(Project, users=[user_a], language='es')
+        project_a = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
+        )
 
         user_b = get(User)
         # User A and B are owners of project B
-        project_b = get(Project, users=[user_b, user_a], language='en')
+        project_b = get(
+            Project, users=[user_b, user_a],
+            language='en', main_language_project=None
+        )
 
         self.client.login(username=user_a.username, password='test')
         self.client.post(
@@ -131,14 +137,16 @@ class TestProject(TestCase):
         user_a.set_password('test')
         user_a.save()
         project_a = get(
-            Project, users=[user_a], language='es', main_language_project=None
+            Project, users=[user_a],
+            language='es', main_language_project=None
         )
         project_a.slug = 'project-a'
         project_a.save()
 
         user_b = get(User)
         project_b = get(
-            Project, users=[user_b], language='en', main_language_project=None
+            Project, users=[user_b],
+            language='en', main_language_project=None
         )
         project_b.slug = 'project-b'
         project_b.save()
