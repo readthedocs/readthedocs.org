@@ -537,7 +537,7 @@ class TranslationForm(forms.Form):
                 'Please choose one with another language.'
             )
             raise forms.ValidationError(
-                _(msg).format(self.parent.language)
+                _(msg).format(self.translation.language)
             )
         return project_id
 
