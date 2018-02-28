@@ -13,29 +13,48 @@
 
 {% block project_edit_content %}
   <p class="help_text">
-    {% trans "This allows you to add translations to your project. Select the project below that is a translation of your current project." %}
+    {% blocktrans trimmed %}
+      This allows you to add translations to your project.
+      Select the project below that is a translation of your current project.
+    {% endblocktrans %}
   </p>
 
-  <h3> {% trans "Existing Translations" %} </h3>
-  <p>
-    <ul>
-    {% for lang_project in lang_projects %}
-        <li>
-        <a href="{{ lang_project.get_absolute_url }}">{{ lang_project }}</a>
-        ({{ lang_project.language }})
-        (<a href="{% url "projects_translations_delete" project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
-        </li>
-    {% endfor %}
-    </ul>
-  <p>
-    {% trans "Choose which project you would like to add as a translation." %}
-  </p>
-  <form method="post" action=".">{% csrf_token %}
-    {{ form.as_p }}
+  {% if project.main_language_project %}
     <p>
-      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+      {% blocktrans trimmed with language=project.language  main_project=project.main_language_project  %}
+        This project is already configured as <code>{{ language }}</code> translation of
+        {{ main_project }}.
+        Nested translations are not supported.
+      {% endblocktrans %}
     </p>
-  </form>
+
+    <a href="{% url 'projects_translations' project_slug=project.main_language_project.slug %}">
+      {% blocktrans trimmed with main_project=project.main_language_project %}
+        View translations of {{ main_project }}
+      {% endblocktrans %}
+    </a>
+  {% else %}
+    <p>
+      <ul>
+      {% for lang_project in lang_projects %}
+          <li>
+          <a href="{{ lang_project.get_absolute_url }}">{{ lang_project }}</a>
+          ({{ lang_project.language }})
+          (<a href="{% url "projects_translations_delete" project.slug lang_project.slug  %}">{% trans "Remove" %}</a>)
+          </li>
+      {% endfor %}
+      </ul>
+    </p>
+    <p>
+      {% trans "Choose which project you would like to add as a translation." %}
+    </p>
+    <form method="post" action=".">{% csrf_token %}
+      {{ form.as_p }}
+      <p>
+        <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
+      </p>
+    </form>
+  {% endif %}
 {% endblock %}
 
 
