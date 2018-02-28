@@ -143,11 +143,12 @@ class TestProject(TestCase):
 
         # User A try to add project B as translation of project A
         self.client.login(username=user_a.username, password='test')
-        self.client.post(
+        resp = self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
             data={'project': project_b.slug}
         )
 
+        self.assertIn('Select a valid choice', resp.content.decode('utf-8'))
         self.assertEqual(project_a.translations.count(), 0)
         project_b.refresh_from_db()
         self.assertIsNone(project_b.main_language_project)
