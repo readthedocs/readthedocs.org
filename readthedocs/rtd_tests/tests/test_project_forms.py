@@ -198,3 +198,74 @@ class TestProjectForms(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+
+    def test_form_translation_no_nesting_translation(self):
+        user = get(User)
+        project_a = get(
+            Project, users=[user],
+            language='es', main_language_project=None
+        )
+        project_b = get(
+            Project, users=[user],
+            language='en', main_language_project=None
+        )
+        project_c = get(
+            Project, users=[user],
+            language='ar', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        form = TranslationForm(
+            {'project': project_b.pk},
+            parent=project_c,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_form_translation_no_nesting_translation_case_2(self):
+        user = get(User)
+        project_a = get(
+            Project, users=[user],
+            language='es', main_language_project=None
+        )
+        project_b = get(
+            Project, users=[user],
+            language='en', main_language_project=None
+        )
+        project_c = get(
+            Project, users=[user],
+            language='ar', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        form = TranslationForm(
+            {'project': project_a.pk},
+            parent=project_c,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+
+    def test_form_translation_no_circular_translations(self):
+        user = get(User)
+        project_a = get(
+            Project, users=[user],
+            language='es', main_language_project=None
+        )
+        project_b = get(
+            Project, users=[user],
+            language='en', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        form = TranslationForm(
+            {'project': project_a.pk},
+            parent=project_b,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
