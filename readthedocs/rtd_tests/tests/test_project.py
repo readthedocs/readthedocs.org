@@ -106,6 +106,25 @@ class TestProject(TestCase):
         # this test don't pass, but on the site it's ok.
         # self.assertEqual(project_b.main_language_project, project_a)
 
+    def test_user_can_add_project_as_translation_if_is_owner(self):
+        # Two users, two projects with different language
+        user_a = get(User)
+        user_a.set_password('test')
+        user_a.save()
+        project_a = get(Project, users=[user_a], language='es')
+
+        user_b = get(User)
+        # User A and B are owners of project B
+        project_b = get(Project, users=[user_b, user_a], language='en')
+
+        self.client.login(username=user_a.username, password='test')
+        self.client.post(
+            reverse('projects_translations', args=[project_a.slug]),
+            data={'project': project_b.slug}
+        )
+
+        self.assertEqual(project_a.translations.first(), project_b)
+
     def test_user_can_not_add_other_user_project_as_translation(self):
         # Two users, two projects with different language
         user_a = get(User)
