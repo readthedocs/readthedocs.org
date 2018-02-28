@@ -496,11 +496,16 @@ class TranslationForm(forms.Form):
 
     """Project translation form."""
 
-    project = forms.CharField()
+    project = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
+        self.user = kwargs.pop('user')
         super(TranslationForm, self).__init__(*args, **kwargs)
+        self.fields['project'].choices = [
+            (project.slug, project)
+            for project in self.get_translation_queryset().all()
+        ]
 
     def clean_project(self):
         translation_name = self.cleaned_data['project']
@@ -517,6 +522,13 @@ class TranslationForm(forms.Form):
 
         self.translation = translation_qs.first()
         return translation_name
+
+    def get_translation_queryset(self):
+        queryset = (
+            Project.objects.for_admin_user(self.user)
+            .exclude(pk=self.parent.pk)
+        )
+        return queryset
 
     def save(self):
         project = self.parent.translations.add(self.translation)
