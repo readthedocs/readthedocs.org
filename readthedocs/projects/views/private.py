@@ -127,6 +127,16 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
 
+    def form_valid(self, form):
+        form.save()
+        if form.has_changed():
+            if 'privacy_level' in form.changed_data:
+                log.info('Re-symlinking all superprojects due project privacy level has changed')
+                for superproject in self.object.superprojects.all():
+                    broadcast(type='app', task=tasks.symlink_project, args=[superproject.pk])
+
+        return HttpResponseRedirect(self.get_success_url())
+
 
 @login_required
 def project_versions(request, project_slug):
@@ -148,6 +158,20 @@ def project_versions(request, project_slug):
 
     if request.method == 'POST' and form.is_valid():
         form.save()
+
+        if form.has_changed():
+            resymlink_superprojects = False
+            # Each field is form as ``privacy-{{version.slug}}``
+            for changed_data in form.changed_data:
+                if changed_data.startswith('privacy-'):
+                    resymlink_superprojects = True
+                    break
+
+            if resymlink_superprojects:
+                log.info('Re-symlinking all superprojects due version privacy level has changed')
+                for superproject in project.superprojects.all():
+                    broadcast(type='app', task=tasks.symlink_project, args=[superproject.pk])
+
         messages.success(request, _('Project versions updated'))
         project_dashboard = reverse('projects_detail', args=[project.slug])
         return HttpResponseRedirect(project_dashboard)
@@ -178,6 +202,13 @@ def project_version_detail(request, project_slug, version_slug):
                     type='app', task=tasks.clear_artifacts, args=[version.pk])
                 version.built = False
                 version.save()
+
+            if 'privacy_level' in form.changed_data:
+                log.info('Re-symlinking all superprojects due version privacy level has changed')
+                for superproject in project.superprojects.all():
+                    broadcast(type='app', task=tasks.symlink_project, args=[superproject.pk])
+
+
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
 
@@ -200,6 +231,11 @@ def project_delete(request, project_slug):
     if request.method == 'POST':
         broadcast(type='app', task=tasks.remove_dir, args=[project.doc_path])
         project.delete()
+
+        log.info('Re-symlinking all superprojects due project deletion')
+        for superproject in project.superprojects.all():
+            broadcast(type='app', task=tasks.symlink_project, args=[superproject.pk])
+
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
