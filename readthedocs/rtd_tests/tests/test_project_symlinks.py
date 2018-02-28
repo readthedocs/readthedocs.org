@@ -915,13 +915,18 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
 
     def setUp(self):
         super(TestPublicPrivateSymlink, self).setUp()
-        self.project = get(Project, slug='project', privacy_level='public',
-                           main_language_project=None)
+        from django.contrib.auth.models import User
+
+        self.user = get(User)
+        self.project = get(
+            Project, name='project', slug='project', privacy_level='public',
+            users=[self.user], main_language_project=None)
         self.project.versions.update(privacy_level='public')
         self.project.save()
 
-        self.subproject = get(Project, slug='subproject', privacy_level='public',
-                              main_language_project=None)
+        self.subproject = get(
+            Project, name='subproject', slug='subproject', privacy_level='public',
+            users=[self.user], main_language_project=None)
         self.subproject.versions.update(privacy_level='public')
         self.subproject.save()
 
@@ -1005,17 +1010,21 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
             },
         }
 
+        self.assertEqual(self.project.subprojects.all().count(), 0)
+        self.assertEqual(self.subproject.superprojects.all().count(), 0)
         self.project.add_subproject(self.subproject)
+        self.assertEqual(self.project.subprojects.all().count(), 1)
+        self.assertEqual(self.subproject.superprojects.all().count(), 1)
 
         from readthedocs.projects.tasks import symlink_project, symlink_subproject
         symlink_project(self.project.pk)
-        symlink_subproject(self.project.pk)
+        # symlink_subproject(self.project.pk)
 
         self.assertFilesystem(filesystem_before)
 
-        self.subproject.privacy_level = 'private'
-        self.subproject.versions.update(privacy_level='private')
-        self.subproject.save()
+        # self.subproject.privacy_level = 'private'
+        # self.subproject.versions.update(privacy_level='private')
+        # self.subproject.save()
 
         # These two lines shouldn't be necessary because this should be done
         # automatically on ``self.subproject.save()`` but that is the bug I want
@@ -1027,4 +1036,38 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
         # from datadiff import diff
         # print(diff(get_filesystem(self.site_root), filesystem_after))
 
+        from django.core.urlresolvers import reverse
+
+        self.client.force_login(self.user)
+        resp = self.client.post(
+            reverse('project_version_detail',
+                    kwargs={
+                        'project_slug': self.subproject.slug,
+                        'version_slug': self.subproject.versions.first().slug,
+                    }),
+            data={'privacy_level': 'private'},
+        )
+        self.assertEqual(self.subproject.versions.first().privacy_level, 'private')
+
+        resp = self.client.post(
+            reverse('projects_advanced',
+                    kwargs={
+                        'project_slug': self.subproject.slug,
+                    }),
+            data={
+                # Required defaults
+                'python_interpreter': 'python',
+                'default_version': 'latest',
+
+                'privacy_level': 'private',
+            },
+        )
+        self.subproject.refresh_from_db()
+        self.assertEqual(self.subproject.privacy_level, 'private')
+
+        from datadiff import diff
+        print(diff(get_filesystem(self.site_root), filesystem_after))
+
+
+        # import pdb; pdb.set_trace()  # yapf: disable
         self.assertFilesystem(filesystem_after)
