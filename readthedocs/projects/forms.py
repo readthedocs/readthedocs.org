@@ -517,17 +517,17 @@ class TranslationForm(forms.Form):
             slug=translation_project_slug
         )
         if not project_translation_qs.exists():
-            msg = 'Project "{}" does not exist.'
+            msg = 'Project "{project}" does not exist.'
             raise forms.ValidationError(
-                (_(msg).format(translation_project_slug))
+                (_(msg).format(project=translation_project_slug))
             )
         self.translation = project_translation_qs.first()
         if self.translation.language == self.parent.language:
             msg = (
-                'Both projects can not have the same language ({}).'
+                'Both projects can not have the same language ({lang}).'
             )
             raise forms.ValidationError(
-                _(msg).format(self.parent.get_language_display())
+                _(msg).format(lang=self.parent.get_language_display())
             )
         exists_translation = (
             self.parent.translations
@@ -536,10 +536,10 @@ class TranslationForm(forms.Form):
         )
         if exists_translation:
             msg = (
-                'This project already has a translation for {}.'
+                'This project already has a translation for {lang}.'
             )
             raise forms.ValidationError(
-                _(msg).format(self.translation.get_language_display())
+                _(msg).format(lang=self.translation.get_language_display())
             )
         is_parent = self.translation.translations.exists()
         if is_parent:
@@ -547,9 +547,7 @@ class TranslationForm(forms.Form):
                 'A project with existing translations '
                 'can not be added as a project translation.'
             )
-            raise forms.ValidationError(
-                _(msg).format(self.translation.language)
-            )
+            raise forms.ValidationError(_(msg))
         return translation_project_slug
 
     def get_translation_queryset(self):
