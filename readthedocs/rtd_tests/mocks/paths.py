@@ -58,3 +58,21 @@ def fake_paths_by_regex(pattern, exists=True):
         return None
 
     return fake_paths(check)
+
+
+def fake_paths_by_endswith(path_dict, default_return=None):
+    """
+    Usage:
+
+    >>> paths = {'my.txt': True, 'no.txt': False}
+    >>> with fake_paths_by_endswith(paths):
+    ...     assert os.path.exists('/usr/dev/my.txt') == True
+    ...     assert os.path.exists('/home/no.txt') == False
+    """
+    def check(path):
+        for path_to_look, resp in path_dict.items():
+            if path.endswith(path_to_look):
+                return resp
+        return default_return
+
+    return fake_paths(check)
