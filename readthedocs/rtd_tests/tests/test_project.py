@@ -148,7 +148,7 @@ class TestProject(TestCase):
             data={'project': project_b.slug}
         )
 
-        self.assertIn('Select a valid choice', resp.content.decode('utf-8'))
+        self.assertContains(resp, 'Select a valid choice')
         self.assertEqual(project_a.translations.count(), 0)
         project_b.refresh_from_db()
         self.assertIsNone(project_b.main_language_project)
