@@ -511,7 +511,7 @@ class TranslationForm(forms.Form):
         translation_project_slug = self.cleaned_data['project']
 
         # Ensure parent project isn't already itself a translation
-        if Project.objects.filter(translations__in=[self.parent]).exists():
+        if self.parent.main_language_project is not None:
             msg = 'Project "{}" is already a translation'
             raise forms.ValidationError(
                 (_(msg).format(self.parent.slug))
