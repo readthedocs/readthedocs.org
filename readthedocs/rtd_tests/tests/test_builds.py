@@ -17,9 +17,9 @@ from readthedocs.doc_builder.backends.sphinx import HtmlBuilder as SphinxHTML
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.models import Project, EnvironmentVariable
-from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
-from readthedocs.rtd_tests.mocks.paths import fake_paths
+from readthedocs.rtd_tests.mocks.paths import fake_paths_by_endswith
+
 from ..mocks.environment import EnvironmentMockGroup
 
 
@@ -80,14 +80,12 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
         base_builder = MkdocsHTML(build_env, python_env)
 
-        def look_index_path(path):
-            if path.endswith('README.md'):
-                return True
-            elif path.endswith('index.md'):
-                return False
-            return False
+        paths = {
+            'README.md': True,
+            'index.md': False,
+        }
 
-        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths(look_index_path):
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
             result = base_builder.create_index(extension='md', force_index=True)
             mock_open.assert_called_once_with(
                 os.path.join(base_builder.docs_dir(), 'index.md'), 'w+'
@@ -113,14 +111,12 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
         base_builder = MkdocsHTML(build_env, python_env)
 
-        def look_index_path(path):
-            if path.endswith('README.md'):
-                return True
-            elif path.endswith('index.md'):
-                return True
-            return False
+        paths = {
+            'README.md': True,
+            'index.md': True,
+        }
 
-        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths(look_index_path):
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
             result = base_builder.create_index(extension='md', force_index=True)
             self.assertEqual(len(mock_open.mock_calls), 0)
             self.assertEqual(result, 'index')
@@ -144,14 +140,12 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
         base_builder = SphinxHTML(build_env, python_env)
 
-        def look_index_path(path):
-            if path.endswith('README.md'):
-                return False
-            elif path.endswith('index.md'):
-                return False
-            return False
+        paths = {
+            'README.md': False,
+            'index,md': False,
+        }
 
-        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths(look_index_path):
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
             result = base_builder.create_index(extension='md')
             mock_open.assert_called_once_with(
                 os.path.join(base_builder.docs_dir(), 'index.md'), 'w+'
@@ -177,14 +171,12 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
         base_builder = SphinxHTML(build_env, python_env)
 
-        def look_index_path(path):
-            if path.endswith('README.md'):
-                return True
-            elif path.endswith('index.md'):
-                return False
-            return False
+        paths = {
+            'README.md': True,
+            'index.md': False,
+        }
 
-        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths(look_index_path):
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
             result = base_builder.create_index(extension='md')
             self.assertEqual(len(mock_open.mock_calls), 0)
             self.assertEqual(result, 'README')
@@ -208,14 +200,12 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
         base_builder = SphinxHTML(build_env, python_env)
 
-        def look_index_path(path):
-            if path.endswith('README.md'):
-                return False
-            elif path.endswith('index.md'):
-                return True
-            return False
+        paths = {
+            'README.md': False,
+            'index.md': True,
+        }
 
-        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths(look_index_path):
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
             result = base_builder.create_index(extension='md')
             self.assertEqual(len(mock_open.mock_calls), 0)
             self.assertEqual(result, 'index')
