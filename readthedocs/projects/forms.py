@@ -502,8 +502,12 @@ class TranslationForm(forms.Form):
         self.parent = kwargs.pop('parent', None)
         self.user = kwargs.pop('user')
         super(TranslationForm, self).__init__(*args, **kwargs)
-        self.fields['project'].choices = [
-            (project.slug, project)
+        self.fields['project'].choices = self.get_choices()
+
+    def get_choices(self):
+        return [
+            (project.slug, '{project} ({lang})'.format(
+                project=project.slug, lang=project.get_language_display()))
             for project in self.get_translation_queryset().all()
         ]
 
@@ -528,8 +532,7 @@ class TranslationForm(forms.Form):
         self.translation = project_translation_qs.first()
         if self.translation.language == self.parent.language:
             msg = (
-                'Both projects have a language of "{}". '
-                'Please choose one with another language.'
+                'Both projects can not have the same language ({}).'
             )
             raise forms.ValidationError(
                 _(msg).format(self.parent.get_language_display())
@@ -541,8 +544,7 @@ class TranslationForm(forms.Form):
         )
         if exists_translation:
             msg = (
-                'There is already a translation of language "{}". '
-                'Please choose one with another language.'
+                'This project already has a translation for {}.'
             )
             raise forms.ValidationError(
                 _(msg).format(self.translation.get_language_display())
@@ -550,8 +552,8 @@ class TranslationForm(forms.Form):
         is_parent = self.translation.translations.exists()
         if is_parent:
             msg = (
-                'This project has translations. '
-                'Please choose one without translations.'
+                'A project with existing translations '
+                'can not be added as a project translation.'
             )
             raise forms.ValidationError(
                 _(msg).format(self.translation.language)

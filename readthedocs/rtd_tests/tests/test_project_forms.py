@@ -129,7 +129,7 @@ class TestTranslationForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'Both projects have a language of "Spanish"',
+            'Both projects can not have the same language (Spanish).',
             ''.join(form.errors['project'])
         )
 
@@ -149,7 +149,7 @@ class TestTranslationForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'There is already a translation of language "English"',
+            'This project already has a translation for English.',
             ''.join(form.errors['project'])
         )
 
@@ -189,7 +189,7 @@ class TestTranslationForm(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'This project has translations',
+            'A project with existing translations can not',
             ''.join(form.errors['project'])
         )
 
