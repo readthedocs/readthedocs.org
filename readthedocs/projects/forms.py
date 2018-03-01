@@ -502,8 +502,12 @@ class TranslationForm(forms.Form):
         self.parent = kwargs.pop('parent', None)
         self.user = kwargs.pop('user')
         super(TranslationForm, self).__init__(*args, **kwargs)
-        self.fields['project'].choices = [
-            (project.slug, project)
+        self.fields['project'].choices = self.get_choices()
+
+    def get_choices(self):
+        return [
+            (project.slug, '{project} ({lang})'.format(
+                project=project.slug, lang=project.get_language_display()))
             for project in self.get_translation_queryset().all()
         ]
 
