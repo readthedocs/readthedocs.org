@@ -21,7 +21,7 @@
   {% if project.main_language_project %}
     <p>
       {% blocktrans trimmed with language=project.get_language_display  main_project=project.main_language_project.name %}
-        This project is already configured as <code>{{ language }}</code> translation of
+        This project is already configured as the <code>{{ language }}</code> translation of
         "{{ main_project }}".
         Nested translations are not supported.
       {% endblocktrans %}
