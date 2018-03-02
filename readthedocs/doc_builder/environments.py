@@ -285,14 +285,14 @@ class BaseEnvironment(object):
         self.environment = environment or {}
         self.commands = []
 
-    def pre_run_command(self, kwargs):
+    def pre_run_command(self, cls, cmd, warn_only, kwargs):
         """
         Method to be called before the command is executed.
 
         The command that will be executed can be accessed as
         the last element of ``self.commands``.
         """
-        super(BaseEnvironment, self).pre_run_command(kwargs)
+        super(BaseEnvironment, self).pre_run_command(cls, cmd, warn_only, kwargs)
 
     def post_run_command(self):
         """
@@ -352,6 +352,7 @@ class EnvironmentRecordCommandMixin(object):
     # record, warn_only
     def pre_run_command(self, cls, cmd, warn_only, kwargs):
         kwargs.update({
+            # TODO: when is this necessary?
             'build_env': self,
         })
         self.record = kwargs.pop('record', True)
