@@ -315,7 +315,7 @@ class BaseEnvironment(object):
         :param cmd: command (as a list) to execute in this environment
         :param warn_only: don't raise an exception on command failure
         """
-        self.pre_run_command(kwargs)
+        self.pre_run_command(cls, cmd, warn_only, kwargs)
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
@@ -349,19 +349,13 @@ class BaseEnvironment(object):
 
 class EnvironmentRecordCommandMixin(object):
 
-    # record, force_success, warn_only
-    def pre_run_command(self, kwargs):
+    # record, warn_only
+    def pre_run_command(self, cls, cmd, warn_only, kwargs):
         kwargs.update({
             'build_env': self,
         })
         self.record = kwargs.pop('record', True)
-        self.record_as_success = kwargs.pop('record_as_success', False)
-        if not self.record:
-            pass
-            #  kwargs['warn_only'] = True
-        if self.record_as_success:
-            self.record = True
-            #  kwargs['warn_only'] = True
+        self.record_as_success = warn_only
 
     def post_run_command(self):
         command = self.commands[-1]
