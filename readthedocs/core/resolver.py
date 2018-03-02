@@ -81,7 +81,7 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
         """Resolve a URL with a subset of fields defined."""
-        relation = project.superprojects.all() # Doesn't hit the database.
+        relations = project.superprojects.all() # Doesn't hit the database.
         main_language_project_id = project.main_language_project_id
         cname = cname or project.domains.filter(canonical=True).first()
         version_slug = version_slug or project.get_default_version()
@@ -96,7 +96,7 @@ class ResolverBase(object):
             project_slug = project.main_language_project.slug
             language = project.language
             subproject_slug = None
-        elif relation:
+        elif relations.count():
             relation = project.superprojects.prefetch_related('parent__domains').first() # 2
             project_slug = relation.parent.slug
             subproject_slug = relation.alias
@@ -132,17 +132,13 @@ class ResolverBase(object):
 
     def resolve(self, project, protocol='http', filename='', private=None,
                 **kwargs):
-        if private is None:
-            version_slug = kwargs.get('version_slug')
-            if version_slug is None:
-                version_slug = project.get_default_version()
-            private = self._get_private(project, version_slug)
-
+        domain = kwargs.get('domain')
+        if domain==None:
+            domain =  self.resolve_domain(project)
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
-            domain=self.resolve_domain(project, private=private),
-            path=self.resolve_path(project, filename=filename, private=private,
-                                   **kwargs),
+            domain= domain,
+            path=self.resolve_path(project, filename=filename,**kwargs),
         )
 
     def _get_canonical_project(self, project):
@@ -156,7 +152,7 @@ class ResolverBase(object):
         relations = project.superprojects.all()
         if main_language_project_id:
             return project.main_language_project
-        elif relations.exist():
+        elif relations:
             relation = relations.prefetch_related('parent__domains').first()
             return relation.parent
         return project
