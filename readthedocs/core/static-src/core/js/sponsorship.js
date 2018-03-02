@@ -81,6 +81,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
             .attr('class', 'rtd-pro-image-wrapper')
             .attr('href', self.link)
             .attr('target', '_blank')
+            .attr('rel', 'nofollow')
             .on('click', self.click_handler);
         var promo_image = $('<img />')
             .attr('class', 'rtd-pro-image')
@@ -97,6 +98,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
             .attr('class', 'rtd-pro-link')
             .attr('href', self.link)
             .attr('target', '_blank')
+            .attr('rel', 'nofollow')
             .on('click', self.click_handler);
     });
     promo.append(promo_text);
