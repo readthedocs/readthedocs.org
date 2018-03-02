@@ -292,7 +292,7 @@ class BaseEnvironment(object):
         The command that will be executed can be accessed as
         the last element of ``self.commands``.
         """
-        super(BaseEnvironment, self).pre_run_command(cls, cmd, warn_only, kwargs)
+        pass
 
     def post_run_command(self):
         """
@@ -301,7 +301,7 @@ class BaseEnvironment(object):
         The command that was executed can be accessed as
         the last element of ``self.commands``.
         """
-        super(BaseEnvironment, self).post_run_command()
+        pass
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
@@ -366,13 +366,13 @@ class EnvironmentRecordCommandMixin(object):
             command.save()
 
 
-class LocalEnvironment(BaseEnvironment, EnvironmentRecordCommandMixin):
+class LocalEnvironment(EnvironmentRecordCommandMixin, BaseEnvironment):
 
     # TODO: BuildCommand name doesn't make sense here, should be just Command
     command_class = BuildCommand
 
 
-class BuildEnvironment(BaseEnvironment, EnvironmentRecordCommandMixin):
+class BuildEnvironment(EnvironmentRecordCommandMixin, BaseEnvironment):
 
     """
     Base build environment.
