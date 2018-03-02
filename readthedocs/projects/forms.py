@@ -513,6 +513,14 @@ class TranslationForm(forms.Form):
 
     def clean_project(self):
         translation_project_slug = self.cleaned_data['project']
+
+        # Ensure parent project isn't already itself a translation
+        if self.parent.main_language_project is not None:
+            msg = 'Project "{}" is already a translation'
+            raise forms.ValidationError(
+                (_(msg).format(self.parent.slug))
+            )
+
         project_translation_qs = self.get_translation_queryset().filter(
             slug=translation_project_slug
         )

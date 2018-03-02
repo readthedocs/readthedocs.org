@@ -193,21 +193,22 @@ class TestTranslationForm(TestCase):
             ''.join(form.errors['project'])
         )
 
-    def test_form_translation_no_circular_translations(self):
+    def test_not_already_translation(self):
         user = get(User)
         project_a = self.get_project(lang='es', users=[user])
         project_b = self.get_project(lang='en', users=[user])
+        project_c = self.get_project(lang='br', users=[user])
 
         project_a.translations.add(project_b)
         project_a.save()
 
         form = TranslationForm(
-            {'project': project_a.slug},
+            {'project': project_c.slug},
             parent=project_b,
             user=user,
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            'A project with existing translations can not',
+            'is already a translation',
             ''.join(form.errors['project'])
         )
