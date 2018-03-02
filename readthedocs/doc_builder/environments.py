@@ -351,9 +351,9 @@ class EnvironmentRecordCommandMixin(object):
 
     # record, force_success, warn_only
     def pre_run_command(self, kwargs):
-        # kwargs.update({
-        #     'build_env': self,
-        # })
+        kwargs.update({
+            'build_env': self,
+        })
         self.record = kwargs.pop('record', True)
         self.record_as_success = kwargs.pop('record_as_success', False)
         if not self.record:
