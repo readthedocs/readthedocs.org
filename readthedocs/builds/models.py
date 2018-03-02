@@ -193,12 +193,13 @@ class Version(models.Model):
             return self.identifier[:8]
         return self.identifier
 
-    def get_subdomain_url(self):
+    def get_subdomain_url(self, domain=None):
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
             private=private,
+            domain=domain,
         )
 
     def get_downloads(self, pretty=False):

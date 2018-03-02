@@ -81,7 +81,7 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
         """Resolve a URL with a subset of fields defined."""
-        relations = project.superprojects.all() # Doesn't hit the database.
+        relations = project.superprojects.all()
         main_language_project_id = project.main_language_project_id
         cname = cname or project.domains.filter(canonical=True).first()
         version_slug = version_slug or project.get_default_version()
@@ -97,16 +97,15 @@ class ResolverBase(object):
             language = project.language
             subproject_slug = None
         elif relations.count():
-            relation = project.superprojects.prefetch_related('parent__domains').first() # 2
+            relation = project.superprojects.prefetch_related('parent__domains').first()
             project_slug = relation.parent.slug
             subproject_slug = relation.alias
-            cname = relation.parent.domains.filter(canonical=True).first() #1
+            cname = relation.parent.domains.filter(canonical=True).first()
         else:
             project_slug = project.slug
             subproject_slug = None
 
         single_version = bool(project.single_version or single_version)
-
 
         return self.base_resolve_path(
             project_slug=project_slug,
@@ -130,15 +129,14 @@ class ResolverBase(object):
             return self._get_project_subdomain(canonical_project)
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, protocol='http', filename='', private=None,
+    def resolve(self, project, protocol='http', filename='', private=None, domain=None,
                 **kwargs):
-        domain = kwargs.get('domain')
-        if domain==None:
-            domain =  self.resolve_domain(project)
+        if domain is None:
+            domain = self.resolve_domain(project)
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
-            domain= domain,
-            path=self.resolve_path(project, filename=filename,**kwargs),
+            domain=domain,
+            path=self.resolve_path(project, filename=filename, **kwargs),
         )
 
     def _get_canonical_project(self, project):

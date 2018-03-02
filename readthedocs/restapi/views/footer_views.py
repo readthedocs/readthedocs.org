@@ -100,12 +100,11 @@ def footer_html(request):
         path = ''
 
     version_compare_data = get_version_compare_data(project, version)
-    
+
     domain = project.subdomain()
     versions = project.ordered_active_versions(user=request.user)
-    versions_url = []
-    for each.slug in versions:
-        versions_url[each.slug] = each.get_subdomain_url(domain)
+    for each in versions:
+        each.subdomain_url = each.get_subdomain_url(domain)
 
     context = {
         'project': project,
@@ -114,7 +113,6 @@ def footer_html(request):
         'downloads': version.get_downloads(pretty=True),
         'current_version': version.verbose_name,
         'versions': versions,
-        'versions_url': versions_url,
         'main_project': main_project,
         'translations': main_project.translations.all(),
         'current_language': project.language,
