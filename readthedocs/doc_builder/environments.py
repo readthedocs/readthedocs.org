@@ -285,14 +285,14 @@ class BaseEnvironment(object):
         self.environment = environment or {}
         self.commands = []
 
-    def pre_run_command(self):
+    def pre_run_command(self, kwargs):
         """
         Method to be called before the command is executed.
 
         The command that will be executed can be accessed as
         the last element of ``self.commands``.
         """
-        pass
+        super(BaseEnvironment, self).pre_run_command(kwargs)
 
     def post_run_command(self):
         """
@@ -301,7 +301,7 @@ class BaseEnvironment(object):
         The command that was executed can be accessed as
         the last element of ``self.commands``.
         """
-        pass
+        super(BaseEnvironment, self).post_run_command()
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
@@ -315,6 +315,7 @@ class BaseEnvironment(object):
         :param cmd: command (as a list) to execute in this environment
         :param warn_only: don't raise an exception on command failure
         """
+        self.pre_run_command(kwargs)
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
@@ -326,7 +327,6 @@ class BaseEnvironment(object):
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
         self.commands.append(build_cmd)
-        self.pre_run_command()
         build_cmd.run()
         self.post_run_command()
 
@@ -347,10 +347,21 @@ class BaseEnvironment(object):
         return build_cmd
 
 
-class LocalEnvironment(BaseEnvironment):
+class EnvironmentRecordCommandMixin(object):
 
-    # TODO: BuildCommand name doesn't make sense here, should be just Command
-    command_class = BuildCommand
+    # record, force_success, warn_only
+    def pre_run_command(self, kwargs):
+        # kwargs.update({
+        #     'build_env': self,
+        # })
+        self.record = kwargs.pop('record', True)
+        self.record_as_success = kwargs.pop('record_as_success', False)
+        if not self.record:
+            pass
+            #  kwargs['warn_only'] = True
+        if self.record_as_success:
+            self.record = True
+            #  kwargs['warn_only'] = True
 
     def post_run_command(self):
         command = self.commands[-1]
@@ -359,29 +370,14 @@ class LocalEnvironment(BaseEnvironment):
         if self.record:
             command.save()
 
-    def run(self, *cmd, **kwargs):
-        self.record = kwargs.pop('record', False)
-        self.record_as_success = kwargs.pop('record_as_success', False)
-        if not self.record:
-            kwargs['warn_only'] = True
-        if self.record_as_success:
-            self.record = True
-            kwargs['warn_only'] = True
-        return super(LocalEnvironment, self).run(*cmd, **kwargs)
 
-    # record, force_success, warn_only
-    def run_command_class(self, *cmd, **kwargs):  # noqa
-        self.record = kwargs.pop('record', False)
-        self.record_as_success = kwargs.pop('record_as_success', False)
-        if not self.record:
-            kwargs['warn_only'] = True
-        if self.record_as_success:
-            self.record = True
-            kwargs['warn_only'] = True
-        return super(LocalEnvironment, self).run_command_class(*cmd, **kwargs)
+class LocalEnvironment(BaseEnvironment, EnvironmentRecordCommandMixin):
+
+    # TODO: BuildCommand name doesn't make sense here, should be just Command
+    command_class = BuildCommand
 
 
-class BuildEnvironment(BaseEnvironment):
+class BuildEnvironment(BaseEnvironment, EnvironmentRecordCommandMixin):
 
     """
     Base build environment.
@@ -458,39 +454,6 @@ class BuildEnvironment(BaseEnvironment):
             if not issubclass(exc_type, BuildEnvironmentWarning):
                 self.failure = exc_value
             return True
-
-    def post_run_command(self):
-        command = self.commands[-1]
-        if self.record_as_success:
-            command.exit_code = 0
-        if self.record:
-            command.save()
-
-    def run(self, *cmd, **kwargs):
-        kwargs.update({
-            'build_env': self,
-        })
-        self.record = kwargs.pop('record', self.record)
-        self.record_as_success = kwargs.pop('record_as_success', False)
-        if not self.record:
-            kwargs['warn_only'] = True
-        if self.record_as_success:
-            self.record = True
-            kwargs['warn_only'] = True
-        return super(BuildEnvironment, self).run(*cmd, **kwargs)
-
-    def run_command_class(self, *cmd, **kwargs):  # noqa
-        kwargs.update({
-            'build_env': self,
-        })
-        self.record = kwargs.pop('record', True)
-        self.record_as_success = kwargs.pop('record_as_success', False)
-        if not self.record:
-            kwargs['warn_only'] = True
-        if self.record_as_success:
-            self.record = True
-            kwargs['warn_only'] = True
-        return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
 
     @property
     def successful(self):
