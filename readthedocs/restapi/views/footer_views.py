@@ -115,6 +115,7 @@ def footer_html(request):
         'new_theme': new_theme,
         'settings': settings,
         'subproject': subproject,
+        'subdomain_url': version.get_subdomain_url()
         'github_edit_url': version.get_github_url(
             docroot,
             page_slug,
