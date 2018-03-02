@@ -81,10 +81,9 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
         """Resolve a URL with a subset of fields defined."""
-        relation = project.superprojects.first()
+        relation = project.superprojects.all() # Doesn't hit the database.
+        main_language_project_id = project.main_language_project_id
         cname = cname or project.domains.filter(canonical=True).first()
-        main_language_project = project.main_language_project
-
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
@@ -93,19 +92,21 @@ class ResolverBase(object):
 
         filename = self._fix_filename(project, filename)
 
-        if main_language_project:
-            project_slug = main_language_project.slug
+        if main_language_project_id:
+            project_slug = project.main_language_project.slug
             language = project.language
             subproject_slug = None
         elif relation:
+            relation = project.superprojects.prefetch_related('parent__domains').first() # 2
             project_slug = relation.parent.slug
             subproject_slug = relation.alias
-            cname = relation.parent.domains.filter(canonical=True).first()
+            cname = relation.parent.domains.filter(canonical=True).first() #1
         else:
             project_slug = project.slug
             subproject_slug = None
 
         single_version = bool(project.single_version or single_version)
+
 
         return self.base_resolve_path(
             project_slug=project_slug,
@@ -122,9 +123,9 @@ class ResolverBase(object):
     def resolve_domain(self, project, private=None):
         # pylint: disable=unused-argument
         canonical_project = self._get_canonical_project(project)
-        domain = canonical_project.domains.filter(canonical=True).first()
-        if domain:
-            return domain.domain
+        domains = canonical_project.domains.filter(canonical=True)
+        if domains.exists():
+            return domains.first().domain
         elif self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
         return getattr(settings, 'PRODUCTION_DOMAIN')
@@ -151,11 +152,12 @@ class ResolverBase(object):
         :type project: Project
         :rtype: Project
         """
-        main_language_project = project.main_language_project
-        relation = project.superprojects.first()
-        if main_language_project:
-            return main_language_project
-        elif relation:
+        main_language_project_id = project.main_language_project_id
+        relations = project.superprojects.all()
+        if main_language_project_id:
+            return project.main_language_project
+        elif relations.exist():
+            relation = relations.prefetch_related('parent__domains').first()
             return relation.parent
         return project
 
