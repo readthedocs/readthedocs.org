@@ -1,4 +1,4 @@
-var sponsorship = require('./sponsorship'),
+var sponsorship = require('./doc-embed/sponsorship'),
     footer = require('./doc-embed/footer.js'),
     // grokthedocs = require('./doc-embed/grokthedocs-client'),
     // mkdocs = require('./doc-embed/mkdocs'),
@@ -12,4 +12,5 @@ $(document).ready(function () {
     // grokthedocs.init();
     // mkdocs.init();
     search.init();
+    sponsorship.init();
 });

@@ -1,6 +1,5 @@
 var rtddata = require('./rtd-data'),
-    versionCompare = require('./version-compare'),
-    sponsorship = require('../sponsorship');
+    versionCompare = require('./version-compare');
 
 
 function init() {
@@ -26,15 +25,6 @@ function init() {
 
     if (window.location.pathname.indexOf('/projects/') === 0) {
         get_data['subproject'] = true;
-    }
-
-    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-        // Force a specific promo to be displayed
-        var params = new URL(window.location).searchParams;
-        var force_promo = params.get('promo');
-        if (force_promo) {
-            get_data['promo'] = force_promo;
-        }
     }
 
     // Get footer HTML from API and inject it into the page.
@@ -73,22 +63,6 @@ function injectFooter(data) {
         $('.rst-current-version').addClass('rst-out-of-date');
     } else if (!data['version_supported']) {
         //$('.rst-current-version').addClass('rst-active-old-version')
-    }
-
-    // Show promo selectively
-    if (data.promo && config.show_promo()) {
-        var promo = new sponsorship.Promo(
-            data.promo_data.id,
-            data.promo_data.text,
-            data.promo_data.link,
-            data.promo_data.image,
-            config.theme,
-            data.promo_data.display_type,
-            data.promo_data.pixel
-        )
-        if (promo) {
-            promo.display();
-        }
     }
 }
 
