@@ -178,6 +178,7 @@ class ProjectViewSet(UserSelectViewSet):
             )
 
         promoted_version = project.update_stable_version()
+        # promoted version will be none if no update was found.
         if promoted_version:
             new_stable = project.get_stable_version()
             log.info(

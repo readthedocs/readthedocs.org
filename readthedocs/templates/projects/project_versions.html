@@ -14,7 +14,11 @@
 {% for field in form %}
 
     {% if forloop.first  %}
-        {# This is a custom form listing the possible active versions, to make 1 the default #}
+        {# This is a custom form listing possible active versions, to select default, stable  #}
+        <h2> {{ field.label }} </h2>
+        {{ field }}
+        
+    {% elif forloop.counter0 == 1  %}
         <h2> {{ field.label }} </h2>
         {{ field }}
     <p>
@@ -22,8 +26,7 @@
     </p>
 
     {% else %}
-
-        {% if forloop.counter0 == 1 %}
+        {% if forloop.counter0 == 2 %}
             <h2> {% trans "Choose Active Versions" %} </h2>
             <p>
             {% trans "Active versions below will show up on the site." %}

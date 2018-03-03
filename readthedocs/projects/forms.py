@@ -328,6 +328,22 @@ class BaseVersionsForm(forms.Form):
             self.project.default_version = default_version
             self.project.save()
 
+        stable_version_identifier = self.cleaned_data.get('stable-version', None)
+        if stable_version_identifier:
+            old_stable_version = self.project.get_stable_version()
+            if old_stable_version:
+                if old_stable_version.identifier != stable_version_identifier:
+                    old_stable_version.identifier = stable_version_identifier
+                    old_stable_version.save()
+                    trigger_build(project=self.project, version=old_stable_version)
+            else:
+                new_stable = self.project.versions.filter(identifier=stable_version_identifier)
+                stable_version = self.project.versions.create_stable(
+                    type=new_stable.type,
+                    identifier=new_stable.identifier)
+                trigger_build(project=self.project, version=stable_version)
+
+
     def save_version(self, version):
         """Save version if there has been a change, trigger a rebuild."""
         new_value = self.cleaned_data.get(
@@ -347,7 +363,6 @@ class BaseVersionsForm(forms.Form):
         if version.active and not version.built and not version.uploaded:
             trigger_build(project=self.project, version=version)
 
-
 def build_versions_form(project):
     """Versions form with a list of versions and version privacy levels."""
     attrs = {
@@ -356,6 +371,11 @@ def build_versions_form(project):
     versions_qs = project.versions.all()  # Admin page, so show all versions
     active = versions_qs.filter(active=True)
     if active.exists():
+        attrs['stable-version'] = forms.ChoiceField(
+            label=_('Stable Version'),
+            choices=project.get_stable_version_choice(),
+            initial=project.get_default_version(),
+        )
         choices = [(version.slug, version.verbose_name) for version in active]
         attrs['default-version'] = forms.ChoiceField(
             label=_('Default Version'),

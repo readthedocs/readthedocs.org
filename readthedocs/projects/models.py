@@ -30,7 +30,7 @@ from readthedocs.projects.querysets import (
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.version_handling import (
-    determine_stable_version, version_windows)
+    determine_stable_version, version_windows, sort_versions)
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -724,11 +724,20 @@ class Project(models.Model):
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
 
+    def get_stable_version_choice(self):
+        version_list = self.versions.all()
+        stable_version_choice = sort_versions(version_list)
+        stable_version_choice = [(version_obj.identifier, version_obj.verbose_name)
+                                  for version_obj, comparable in stable_version_choice
+                                  if (not comparable.is_prerelease and version_obj.active)]
+        return stable_version_choice
+
+
     def update_stable_version(self):
         """
         Returns the version that was promoted to be the new stable version.
 
-        Return ``None`` if no update was mode or if there is no version on the
+        Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
         versions = self.versions.all()
