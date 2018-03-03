@@ -16,7 +16,7 @@ var configMethods = {
     },
 
     is_sphinx_builder: function () {
-        return (!('builder' in this) || this.builder != 'mkdocs');
+        return (!('builder' in this) || this.builder !== 'mkdocs');
     },
 
     get_theme_name: function () {

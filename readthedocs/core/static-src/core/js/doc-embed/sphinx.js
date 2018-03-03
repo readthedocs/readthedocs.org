@@ -3,8 +3,8 @@
  */
 
 
-var rtddata = require('./rtd-data'),
-    sphinx_theme = require('sphinx-rtd-theme');
+var rtddata = require('./rtd-data');
+var sphinx_theme = require('sphinx-rtd-theme');
 
 
 function init() {
@@ -27,7 +27,7 @@ function init() {
     });
 
     /// Read the Docs Sphinx theme code
-    if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] != "mkdocs") {
+    if (!("builder" in rtd) || "builder" in rtd && rtd["builder"] !== "mkdocs") {
         var theme = sphinx_theme.ThemeNav;
 
         // TODO dont do this, the theme should explicitly check when it has be
@@ -47,8 +47,8 @@ function init() {
             // dynamically.
             var navBar = jquery('div.wy-side-scroll:first');
             if (! navBar.length) {
-                var navInner = jquery('nav.wy-nav-side:first'),
-                    navScroll = $('<div />')
+                var navInner = jquery('nav.wy-nav-side:first');
+                var navScroll = $('<div />')
                         .addClass('wy-side-scroll');
 
                 navInner
