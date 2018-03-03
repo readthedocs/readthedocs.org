@@ -35,7 +35,12 @@ Promo.prototype.create = function () {
     var self = this,
         menu,
         promo_class;
-    if (this.theme == constants.THEME_RTD) {
+
+    if (this.display_type === constants.PROMO_TYPES.FIXED_FOOTER) {
+        // Fixed Footer ad
+        menu = this.get_fixed_footer_selector();
+        promo_class = 'ethical-fixed-footer';
+    } else if (this.theme == constants.THEME_RTD) {
         menu = this.get_sphinx_rtd_theme_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'wy-menu';
     }
@@ -47,14 +52,14 @@ Promo.prototype.create = function () {
     if (typeof(menu) != 'undefined') {
         this.place_promo(menu, promo_class);
     }
-}
+};
 
 Promo.prototype.place_promo = function (selector, promo_class) {
     var self = this;
 
     // Add elements
     var promo = $('<div />')
-        .attr('class', 'rtd-pro ' + promo_class);
+        .attr('class', (self.display_type !== constants.PROMO_TYPES.FIXED_FOOTER ? 'rtd-pro ' : '') + promo_class);
 
     // Promo info
     var promo_about = $('<div />')
@@ -66,7 +71,9 @@ Promo.prototype.place_promo = function (selector, promo_class) {
     var promo_about_icon = $('<i />')
         .attr('class', 'fa fa-info-circle')
         .appendTo(promo_about_link);
-    promo_about.appendTo(promo);
+    if (self.display_type !== constants.PROMO_TYPES.FIXED_FOOTER) {
+        promo_about.appendTo(promo);
+    }
 
     // Promo image
     if (self.pixel) {
@@ -89,6 +96,11 @@ Promo.prototype.place_promo = function (selector, promo_class) {
         promo.append(promo_image_link);
     }
 
+    if (self.display_type === constants.PROMO_TYPES.FIXED_FOOTER) {
+        var sponsored = $('<strong />').text('Sponsored: ');
+        promo.append(sponsored);
+    }
+
     // Create link with callback
     var promo_text = $('<span />')
         .html(self.text);
@@ -102,11 +114,13 @@ Promo.prototype.place_promo = function (selector, promo_class) {
     promo.append(promo_text);
 
     var copy_text = $(
-    '<p class="ethical-callout"><small><em><a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">' +
-    'Ads served ethically' +
-    '</a></em></small></p>'
-    )
-    promo.append(copy_text);
+        '<p class="ethical-callout"><small><em><a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">' +
+        'Ads served ethically' +
+        '</a></em></small></p>'
+    );
+    if (self.display_type !== constants.PROMO_TYPES.FIXED_FOOTER) {
+        promo.append(copy_text);
+    }
 
 
     promo.appendTo(selector);
@@ -158,6 +172,13 @@ Promo.prototype.get_sphinx_rtd_theme_promo_selector = function () {
     if (selector.length) {
         return selector;
     }
+};
+
+Promo.prototype.get_fixed_footer_selector = function () {
+    // Shift the version selector badge up if it would obscure this
+    $('.rst-versions.rst-badge').attr('style', 'bottom: 55px');
+
+    return $('<div />').addClass('ethical-footer').appendTo('body');
 };
 
 // Position promo

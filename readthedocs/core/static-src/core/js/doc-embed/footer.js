@@ -76,7 +76,7 @@ function injectFooter(data) {
     }
 
     // Show promo selectively
-    if (data.promo && config.show_promo()) {
+    if (data.promo) {
         var promo = new sponsorship.Promo(
             data.promo_data.id,
             data.promo_data.text,
@@ -85,8 +85,8 @@ function injectFooter(data) {
             config.theme,
             data.promo_data.display_type,
             data.promo_data.pixel
-        )
-        if (promo) {
+        );
+        if (promo && config.show_promo(promo)) {
             promo.display();
         }
     }
