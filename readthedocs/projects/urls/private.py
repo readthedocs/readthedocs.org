@@ -103,6 +103,10 @@ urlpatterns = [
     url(r'^(?P<project_slug>[-\w]+)/advertising/$',
         ProjectAdvertisingUpdate.as_view(),
         name='projects_advertising'),
+
+    url(r'^import/manual/send_mail/$',
+        private.send_mail,
+        name='send_mail'),
 ]
 
 domain_urls = [

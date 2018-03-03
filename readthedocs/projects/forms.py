@@ -114,7 +114,19 @@ class ProjectBasicsForm(ProjectForm):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
             potential_slug = slugify(name)
-            if Project.objects.filter(slug=potential_slug).exists():
+            project_exist = Project.objects.filter(slug=potential_slug).exists()
+            if project_exist:
+                project = Project.objects.get(slug=potential_slug)
+                for user in project.users.all():
+                    if user.is_superuser:
+                        email = user.email
+                if project.is_abandoned:
+                    self.fields['abandon'] = forms.CharField(
+                        widget=forms.HiddenInput())
+                    self.fields['mail_id'] = forms.EmailField(
+                        initial=email, widget=forms.HiddenInput())
+                    self.fields['proj_name'] = forms.CharField(
+                        initial=name, widget=forms.HiddenInput())
                 raise forms.ValidationError(
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
         return name
