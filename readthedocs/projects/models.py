@@ -728,10 +728,9 @@ class Project(models.Model):
         version_list = self.versions.all()
         stable_version_choice = sort_versions(version_list)
         stable_version_choice = [(version_obj.identifier, version_obj.verbose_name)
-                                  for version_obj, comparable in stable_version_choice
-                                  if (not comparable.is_prerelease and version_obj.active)]
+                                 for version_obj, comparable in stable_version_choice
+                                 if (not comparable.is_prerelease and version_obj.active)]
         return stable_version_choice
-
 
     def update_stable_version(self):
         """

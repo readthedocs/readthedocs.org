@@ -343,7 +343,6 @@ class BaseVersionsForm(forms.Form):
                     identifier=new_stable.identifier)
                 trigger_build(project=self.project, version=stable_version)
 
-
     def save_version(self, version):
         """Save version if there has been a change, trigger a rebuild."""
         new_value = self.cleaned_data.get(
@@ -362,6 +361,7 @@ class BaseVersionsForm(forms.Form):
         version.save()
         if version.active and not version.built and not version.uploaded:
             trigger_build(project=self.project, version=version)
+
 
 def build_versions_form(project):
     """Versions form with a list of versions and version privacy levels."""
