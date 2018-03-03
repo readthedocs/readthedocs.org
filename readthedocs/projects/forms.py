@@ -370,11 +370,14 @@ def build_versions_form(project):
     }
     versions_qs = project.versions.all()  # Admin page, so show all versions
     active = versions_qs.filter(active=True)
+    initial_stable = project.get_stable_version()
+    if initial_stable:
+        initial_stable = initial_stable.identifier
     if active.exists():
         attrs['stable-version'] = forms.ChoiceField(
             label=_('Stable Version'),
             choices=project.get_stable_version_choice(),
-            initial=project.get_default_version(),
+            initial=initial_stable,
         )
         choices = [(version.slug, version.verbose_name) for version in active]
         attrs['default-version'] = forms.ChoiceField(
