@@ -5,13 +5,6 @@
 
 {% block content %}
   <div class="module wizard wizard-project">
-    {% if wizard.form.fields.abandon %}
-      <form action="{% url "send_mail" %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="mail_id" value="{{ wizard.form.fields.mail_id.initial }}">
-        <input type="hidden" name="proj_name" value="{{ wizard.form.fields.proj_name.initial }}">
-        <input type="submit" name="submit-btn" value="{% trans "Email project owner with our abandoned project email" %}">
-    {% endif %}
     <form action="{% url "projects_import_manual" %}" method="post">
 
       {% csrf_token %}

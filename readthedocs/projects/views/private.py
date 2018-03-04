@@ -27,6 +27,7 @@ from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build, send_email
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
@@ -264,10 +265,14 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         return data.get('advanced', True)
 
 
-def send_mail(request):
+@login_required
+def send_mail(request, project_slug):
     """Sends abandoned project email."""
-    email = request.POST.get('mail_id')
-    proj_name = request.POST.get('proj_name')
+    project = Project.objects.get(slug=project_slug)
+    proj_name = project_slug
+    for user in project.users.all():
+        if AdminPermission.is_admin(user, project):
+            email = user.email
     context = {'proj_name': proj_name}
     subject = 'Rename request for abandoned project'
     send_email(
@@ -276,7 +281,8 @@ def send_mail(request):
         template='projects/email/abandon_project.txt',
         template_html='projects/email/abandon_project.html',
         context=context)
-    messages.success(request, _('Mail sent!'))
+    project.abandoned_mail_sent = True
+    project.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 

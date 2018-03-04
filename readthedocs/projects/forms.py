@@ -117,18 +117,13 @@ class ProjectBasicsForm(ProjectForm):
             project_exist = Project.objects.filter(slug=potential_slug).exists()
             if project_exist:
                 project = Project.objects.get(slug=potential_slug)
-                for user in project.users.all():
-                    if user.is_superuser:
-                        email = user.email
+                project_url = project.get_absolute_url()
                 if project.is_abandoned:
-                    self.fields['abandon'] = forms.CharField(
-                        widget=forms.HiddenInput())
-                    self.fields['mail_id'] = forms.EmailField(
-                        initial=email, widget=forms.HiddenInput())
-                    self.fields['proj_name'] = forms.CharField(
-                        initial=name, widget=forms.HiddenInput())
-                raise forms.ValidationError(
-                    _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
+                    err_msg = ('Invalid project name, a <a href="{}" style="color: red">'
+                               'project</a> already exists with that name').format(project_url)
+                else:
+                    err_msg = 'Invalid project name, a project already exists with that name'
+                raise forms.ValidationError(mark_safe(err_msg)) # yapf: disable # noqa
         return name
 
     def clean_repo(self):

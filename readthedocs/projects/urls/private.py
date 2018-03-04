@@ -36,6 +36,10 @@ urlpatterns = [
         private.project_manage,
         name='projects_manage'),
 
+    url(r'^(?P<project_slug>[-\w]+)/send_mail/$',
+        private.send_mail,
+        name='send_mail'),
+
     url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
         private.project_comments_moderation,
         name='projects_comments_moderation'),
@@ -103,10 +107,6 @@ urlpatterns = [
     url(r'^(?P<project_slug>[-\w]+)/advertising/$',
         ProjectAdvertisingUpdate.as_view(),
         name='projects_advertising'),
-
-    url(r'^import/manual/send_mail/$',
-        private.send_mail,
-        name='send_mail'),
 ]
 
 domain_urls = [
