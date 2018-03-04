@@ -23,6 +23,8 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
+from requests.utils import quote
+from urllib.parse import urlparse
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
@@ -106,6 +108,28 @@ class BuildDetail(BuildBase, DetailView):
     def get_context_data(self, **kwargs):
         context = super(BuildDetail, self).get_context_data(**kwargs)
         context['project'] = self.project
+        scheme = ("https://github.com/rtfd/readthedocs.org/issues/new"
+                  "?title={title}{build_id}"
+                  "&body={body}")
+
+        body = ("# Details:\n\n"
+                "*Project URL: https://readthedocs.org/projects/{projname}/\n"
+                "*Build URL(if applicable): https://readthedocs.org{build_path}\n"
+                "*Read the Docs username(if applicable): {uname}\n\n"
+                "## Expected Result\n\n"
+                "*A description of what you wanted to happen*\n\n"
+                "## Actual Result\n\n"
+                "*A description of what actually happened*").format(
+            projname=self.project, build_path=self.request.path,
+            uname=self.request.user)
+
+        scheme_dict = {'title': quote("Build error with build id #"),
+                       'build_id': context['build'].id,
+                       'body': quote(body)}
+
+        issue_url = scheme.format(**scheme_dict)
+        issue_url = urlparse(issue_url).geturl()
+        context['issue_url'] = issue_url
         return context
 
 
