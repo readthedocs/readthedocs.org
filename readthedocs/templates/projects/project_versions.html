@@ -39,9 +39,12 @@
             {% trans "Tags" %}: {{ field }}
         {% endcomment %}
 
+        {% elif field.label == 'wipe' %}
+          {% trans "Wipe" %} {{ field }}
+
         {% else %}
         {# This is a custom field with a label of the version, and a value of a checkbox denoting if it is active #}
-        <h3>{{ field.label}}</h3>
+        <h3>{{ field.label }}</h3>
           {% trans "Active" %} {{ field }}
         {% endif %}
     {% endif %}
