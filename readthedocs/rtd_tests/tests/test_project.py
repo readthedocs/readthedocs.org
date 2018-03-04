@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
@@ -216,3 +217,78 @@ class TestFinishInactiveBuildsTask(TestCase):
         self.assertTrue(self.build_3.success)
         self.assertEqual(self.build_3.error, '')
         self.assertEqual(self.build_3.state, BUILD_STATE_TRIGGERED)
+
+
+class TestAbandonedProject(TestCase):
+    fixtures = ['eric', 'test_data']
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        self.taggit = Project.objects.get(slug='taggit')
+        self.pinax = Project.objects.get(slug='pinax')
+
+        self.build_1 = Build.objects.create(
+            project=self.pip,
+            version=self.pip.get_stable_version(),
+            state=BUILD_STATE_FINISHED,
+        )
+
+        self.build_1.date = (
+            datetime.datetime.now() - datetime.timedelta(days=750))
+        self.build_1.success = False
+        self.build_1.save()
+
+        self.build_2 = Build.objects.create(
+            project=self.pip,
+            version=self.pip.get_stable_version(),
+            state=BUILD_STATE_FINISHED,
+        )
+
+        self.build_2.success = True
+        self.build_2.save()
+
+        self.build_3 = Build.objects.create(
+            project=self.taggit,
+            version=self.taggit.get_stable_version(),
+            state=BUILD_STATE_FINISHED,
+        )
+
+        self.build_3.date = (
+            datetime.datetime.now() - datetime.timedelta(days=2))
+        self.build_3.success = False
+        self.build_3.save()
+
+        self.build_4 = Build.objects.create(
+            project=self.taggit,
+            version=self.taggit.get_stable_version(),
+            state=BUILD_STATE_FINISHED,
+        )
+
+        self.build_4.success = False
+        self.build_4.save()
+
+        self.build_5 = Build.objects.create(
+            project=self.pinax,
+            version=self.pinax.get_stable_version(),
+            state=BUILD_STATE_FINISHED,
+        )
+
+        self.build_5.success = False
+        self.build_5.save()
+
+        self.build_6 = Build.objects.create(
+            project=self.pinax,
+            version=self.pinax.get_stable_version(),
+            state=BUILD_STATE_FINISHED,
+        )
+
+        self.build_6.date = (
+            datetime.datetime.now() - datetime.timedelta(days=750))
+        self.build_6.success = True
+        self.build_6.save()
+
+    def test_abandoned_project(self):
+        self.assertFalse(self.pip.is_abandoned)
+        self.assertTrue(self.taggit.is_abandoned)
+        self.assertFalse(self.pinax.is_abandoned)
