@@ -609,7 +609,7 @@ def project_translations_delete(request, project_slug, child_slug):
         slug=project_slug,
     )
     subproj = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
+        project.translations,
         slug=child_slug,
     )
     project.translations.remove(subproj)
