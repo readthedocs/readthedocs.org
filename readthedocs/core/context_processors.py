@@ -12,6 +12,7 @@ def readthedocs_processor(request):
         'USE_SUBDOMAINS': getattr(settings, 'USE_SUBDOMAINS', None),
         'GLOBAL_ANALYTICS_CODE': getattr(settings, 'GLOBAL_ANALYTICS_CODE'),
         'DASHBOARD_ANALYTICS_CODE': getattr(settings, 'DASHBOARD_ANALYTICS_CODE'),
+        'SND_CODE': getattr(settings, 'SND_CODE'),
         'SITE_ROOT': getattr(settings, 'SITE_ROOT', '') + '/',
         'TEMPLATE_ROOT': getattr(settings, 'TEMPLATE_ROOT', '') + '/',
     }

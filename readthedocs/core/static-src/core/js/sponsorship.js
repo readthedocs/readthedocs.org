@@ -54,7 +54,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
 
     // Add elements
     var promo = $('<div />')
-        .attr('class', 'rtd-pro ' + promo_class);
+        .attr('class', 'rtd-pro snd-ad ' + promo_class);
 
     // Promo info
     var promo_about = $('<div />')
