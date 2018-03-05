@@ -153,6 +153,103 @@ class TestProject(TestCase):
         project_b.refresh_from_db()
         self.assertIsNone(project_b.main_language_project)
 
+    def test_previous_users_can_list_and_delete_translations_not_owner(self):
+        """
+        Test to make sure that previous users can list and delete
+        projects where they aren't owners.
+        """
+        user_a = User.objects.get(username='eric')
+        project_a = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
+        )
+
+        user_b = User.objects.get(username='tester')
+        project_b = get(
+            Project, users=[user_b],
+            language='en', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        self.client.login(username=user_a.username, password='test')
+
+        # Project B is listed under user A translations
+        resp = self.client.get(
+            reverse('projects_translations', args=[project_a.slug])
+        )
+        self.assertContains(resp, project_b.slug)
+
+        resp = self.client.post(
+            reverse(
+                'projects_translations_delete',
+                args=[project_a.slug, project_b.slug]
+            ),
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        project_a.refresh_from_db()
+        self.assertNotIn(project_b, project_a.translations.all())
+
+    def test_user_cant_delete_other_user_translations(self):
+        user_a = User.objects.get(username='eric')
+        project_a = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
+        )
+        project_b = get(
+            Project, users=[user_a],
+            language='en', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        user_b = User.objects.get(username='tester')
+        project_c = get(
+            Project, users=[user_b],
+            language='es', main_language_project=None
+        )
+        project_d = get(
+            Project, users=[user_b, user_a],
+            language='en', main_language_project=None
+        )
+        project_d.translations.add(project_c)
+        project_d.save()
+
+        # User B tries to delete translation from user A
+        self.client.login(username=user_b.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        resp = self.client.post(
+            reverse(
+                'projects_translations_delete',
+                args=[project_a.slug, project_b.slug]
+            ),
+            follow=True
+        )
+        self.assertNotEqual(resp.status_code, 200)
+
+        project_a.refresh_from_db()
+        self.assertIn(project_b, project_a.translations.all())
+
+        # User B tries to delete translation from user A
+        # with its project
+        self.client.login(username=user_b.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        resp = self.client.post(
+            reverse(
+                'projects_translations_delete',
+                args=[project_d.slug, project_b.slug]
+            ),
+            follow=True
+        )
+        self.assertNotEqual(resp.status_code, 200)
+
+        project_a.refresh_from_db()
+        self.assertIn(project_b, project_a.translations.all())
+
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})
         resp = json.loads(r.content)
