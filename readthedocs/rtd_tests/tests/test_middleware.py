@@ -57,6 +57,18 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.domain_object, True)
         self.assertEqual(request.slug, 'pip')
 
+    def test_domain_object_with_port(self):
+        self.domain = get(
+            Domain,
+            domain='docs.foobar.com:8000',
+            project=self.pip,
+        )
+        request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com:8000')
+        self.middleware.process_request(request)
+        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.domain_object, True)
+        self.assertEqual(request.slug, 'pip')
+
     def test_domain_object_missing(self):
         self.domain = get(Domain, domain='docs.foobar2.com', project=self.pip)
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
