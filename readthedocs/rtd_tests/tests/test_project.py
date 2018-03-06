@@ -189,8 +189,6 @@ class TestProject(TestCase):
             follow=True
         )
         self.assertEqual(resp.status_code, 200)
-
-        project_a.refresh_from_db()
         self.assertNotIn(project_b, project_a.translations.all())
 
     def test_user_cant_delete_other_user_translations(self):
@@ -229,9 +227,7 @@ class TestProject(TestCase):
             ),
             follow=True
         )
-        self.assertNotEqual(resp.status_code, 200)
-
-        project_a.refresh_from_db()
+        self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
 
         # User B tries to delete translation from user A
@@ -245,9 +241,7 @@ class TestProject(TestCase):
             ),
             follow=True
         )
-        self.assertNotEqual(resp.status_code, 200)
-
-        project_a.refresh_from_db()
+        self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
 
     def test_token(self):
