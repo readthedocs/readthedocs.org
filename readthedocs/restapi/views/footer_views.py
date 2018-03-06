@@ -13,6 +13,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
 
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
@@ -100,11 +101,23 @@ def footer_html(request):
         path = ''
 
     version_compare_data = get_version_compare_data(project, version)
-
+    cname = project.domains.filter(canonical=True).first()
     domain = project.subdomain()
+    relation = project.superprojects.prefetch_related('parent__domains').first()
     versions = project.ordered_active_versions(user=request.user)
     for each in versions:
-        each.subdomain_url = each.get_subdomain_url(domain)
+        print("\nhello\n")
+        private = each.privacy_level == PRIVATE
+        each.subdomain_url = project.get_docs_url(version_slug=each.slug,
+            lang_slug=project.language,
+            private=private,
+            domain=domain,
+            cname=cname,
+            relation=relation,
+            cname_bool=True,
+            private_bool=True,
+            relation_bool=True,
+        )
 
     context = {
         'project': project,

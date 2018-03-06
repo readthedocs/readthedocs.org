@@ -346,14 +346,13 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, private=None, domain=None):
+    def get_docs_url(self, version_slug=None, lang_slug=None, private=None,**kwargs):
         """
         Return a URL for the docs.
 
         Always use http for now, to avoid content warnings.
         """
-        return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private,
-                       domain=domain)
+        return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private,**kwargs)
 
     def get_builds_url(self):
         return reverse('builds_project_list', kwargs={
