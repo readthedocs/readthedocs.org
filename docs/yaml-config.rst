@@ -29,11 +29,11 @@ formats
 ~~~~~~~
 
 * Default: ``htmlzip``, ``pdf``, ``epub``
-* Options: ``htmlzip``, ``pdf``, ``epub``, ``null``
+* Options: ``htmlzip``, ``pdf``, ``epub``
 * Type: List of options or ``null``
 
 The formats of your documentation you want to be built.
-Choose ``null`` to build none of the formats.
+Set as an empty list ``[]`` to build none of the formats.
 
 .. note:: We will always build an HTML & JSON version of your documentation.
 		  These are used for web serving & search indexing, respectively.
@@ -41,8 +41,7 @@ Choose ``null`` to build none of the formats.
 .. code-block:: yaml
 
     # Don't build any extra formats
-    formats:
-        - null
+    formats: []
 
 .. code-block:: yaml
 
