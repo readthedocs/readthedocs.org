@@ -50,7 +50,7 @@
 
   <!-- Search -->
   <section>
-    {% include "core/widesearchbar.html" %}
+    {% include "core/widesearchbar.html" with project_slug=project.slug %}
   </section>
 
   {% if project_list %}
