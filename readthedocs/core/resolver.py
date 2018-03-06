@@ -81,13 +81,12 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      private=None, cname=None, relation=None, **kwargs):
         """Resolve a URL with a subset of fields defined."""
-
         main_language_project_id = project.main_language_project_id
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
-        relation_bool = kwargs.pop('relation_bool',False)
-        cname_bool = kwargs.pop('cname_bool',False)
-        private_bool = kwargs.pop('private_bool',False)
+        relation_bool = kwargs.pop('relation_bool', False)
+        cname_bool = kwargs.pop('cname_bool', False)
+        private_bool = kwargs.pop('private_bool', False)
 
         if not cname_bool:
             cname = cname or project.domains.filter(canonical=True).first()
@@ -131,8 +130,8 @@ class ResolverBase(object):
             return self._get_project_subdomain(canonical_project)
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, protocol='http', filename='', private=None,**kwargs):
-        domain = kwargs.pop('domain',None)
+    def resolve(self, project, protocol='http', filename='', private=None, **kwargs):
+        domain = kwargs.pop('domain', None)
         if domain is None:
             domain = self.resolve_domain(project)
         return '{protocol}://{domain}{path}'.format(

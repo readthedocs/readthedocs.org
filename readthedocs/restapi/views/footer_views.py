@@ -101,6 +101,7 @@ def footer_html(request):
         path = ''
 
     version_compare_data = get_version_compare_data(project, version)
+
     cname = project.domains.filter(canonical=True).first()
     domain = project.subdomain()
     relation = project.superprojects.prefetch_related('parent__domains').first()
@@ -109,15 +110,14 @@ def footer_html(request):
         print("\nhello\n")
         private = each.privacy_level == PRIVATE
         each.subdomain_url = project.get_docs_url(version_slug=each.slug,
-            lang_slug=project.language,
-            private=private,
-            domain=domain,
-            cname=cname,
-            relation=relation,
-            cname_bool=True,
-            private_bool=True,
-            relation_bool=True,
-        )
+                                                  lang_slug=project.language,
+                                                  private=private,
+                                                  domain=domain,
+                                                  cname=cname,
+                                                  relation=relation,
+                                                  cname_bool=True,
+                                                  private_bool=True,
+                                                  relation_bool=True)
 
     context = {
         'project': project,
