@@ -36,6 +36,24 @@
   </script>
   <!-- End Google Analytics -->
 
+  <!-- SeedAndDew -->
+  <script>
+    var SeedAndDewConfig = window.SeedAndDewConfig || {};
+    (function() {
+        SeedAndDewConfig.adClass = "snd-ad";
+        SeedAndDewConfig.autoHideAds = True;
+        SeedAndDewConfig.publisherId = '{{ SND_CODE }}';
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        SeedAndDewConfig.loadStartTime = performance.now();
+        let snd = document.createElement('script'); 
+        snd.type = 'text/javascript'; 
+        snd.async = true;
+        snd.src = 'https://www.seedanddew.com/static/embed.min.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(snd);
+    })();
+  </script>
+  <!-- End SeedAndDew -->
+
   <!-- css -->
   <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
   {% block extra_links %}{% endblock %}
