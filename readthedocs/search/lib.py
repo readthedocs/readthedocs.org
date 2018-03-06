@@ -39,8 +39,9 @@ def search_project_filter(request, project_slug):
     return project_filter, routing
 
 
-def search_project(request, query, language=None):
+def search_project(request, query, language=None, project_slug=None):
     """Search index for projects matching query."""
+    kwargs = {}
     body = {
         "query": {
             "bool": {
@@ -65,13 +66,26 @@ def search_project(request, query, language=None):
         "size": 50  # TODO: Support pagination.
     }
 
+    final_filter = {"and": []}
     if language:
         body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
-        body['filter'] = {"term": {"lang": language}}
+        final_filter['and'].append({"term": {"lang": language}})
+
+    if project_slug:
+        try:
+            project_filter, routing = search_project_filter(request, project_slug)
+        except Project.DoesNotExist:
+            return None
+
+        final_filter['and'].append(project_filter)
+        kwargs['routing'] = routing
+
+    if final_filter['and']:
+        body['filter'] = final_filter
 
     before_project_search.send(request=request, sender=ProjectIndex, body=body)
 
-    return ProjectIndex().search(body)
+    return ProjectIndex().search(body, **kwargs)
 
 
 def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy=None):
