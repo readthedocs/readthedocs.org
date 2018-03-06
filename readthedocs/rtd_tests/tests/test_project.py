@@ -231,13 +231,27 @@ class TestProject(TestCase):
         self.assertIn(project_b, project_a.translations.all())
 
         # User B tries to delete translation from user A
-        # with its project
+        # with a different parent
         self.client.login(username=user_b.username, password='test')
         self.assertIn(project_b, project_a.translations.all())
         resp = self.client.post(
             reverse(
                 'projects_translations_delete',
                 args=[project_d.slug, project_b.slug]
+            ),
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 404)
+        self.assertIn(project_b, project_a.translations.all())
+
+        # User A tries to delete translation from user A
+        # with a different parent
+        self.client.login(username=user_a.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        resp = self.client.post(
+            reverse(
+                'projects_translations_delete',
+                args=[project_b.slug, project_b.slug]
             ),
             follow=True
         )
