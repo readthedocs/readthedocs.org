@@ -5,16 +5,16 @@ from builtins import object
 import os
 import shutil
 import tempfile
-import collections
-from functools import wraps
 
 import mock
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.tasks import symlink_project
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 
 
@@ -931,6 +931,13 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
         self.subproject.save()
 
     def test_change_subproject_privacy(self):
+        """
+        Change subproject's ``privacy_level`` creates proper symlinks.
+
+        When the ``privacy_level`` changes in the subprojects, we need to
+        re-symlink the superproject also to keep in sync its symlink under the
+        private/public roots.
+        """
         filesystem_before = {
             'private_cname_project': {},
             'private_cname_root': {},
@@ -1016,40 +1023,26 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
         self.assertEqual(self.project.subprojects.all().count(), 1)
         self.assertEqual(self.subproject.superprojects.all().count(), 1)
 
-        from readthedocs.projects.tasks import symlink_project, symlink_subproject
+        self.assertTrue(self.project.versions.first().active)
+        self.assertTrue(self.subproject.versions.first().active)
         symlink_project(self.project.pk)
-        # symlink_subproject(self.project.pk)
 
         self.assertFilesystem(filesystem_before)
 
-        # self.subproject.privacy_level = 'private'
-        # self.subproject.versions.update(privacy_level='private')
-        # self.subproject.save()
-
-        # These two lines shouldn't be necessary because this should be done
-        # automatically on ``self.subproject.save()`` but that is the bug I want
-        # (un-commenting these lines makes the test pass)
-        # to fix
-        # symlink_project(self.project.pk)
-        # symlink_subproject(self.project.pk)
-
-        # from datadiff import diff
-        # print(diff(get_filesystem(self.site_root), filesystem_after))
-
-        from django.core.urlresolvers import reverse
-
         self.client.force_login(self.user)
-        resp = self.client.post(
+        self.client.post(
             reverse('project_version_detail',
                     kwargs={
                         'project_slug': self.subproject.slug,
                         'version_slug': self.subproject.versions.first().slug,
                     }),
-            data={'privacy_level': 'private'},
+            data={'privacy_level': 'private', 'active': True},
         )
-        self.assertEqual(self.subproject.versions.first().privacy_level, 'private')
 
-        resp = self.client.post(
+        self.assertEqual(self.subproject.versions.first().privacy_level, 'private')
+        self.assertTrue(self.subproject.versions.first().active)
+
+        self.client.post(
             reverse('projects_advanced',
                     kwargs={
                         'project_slug': self.subproject.slug,
@@ -1062,12 +1055,8 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
                 'privacy_level': 'private',
             },
         )
+
+        self.assertTrue(self.subproject.versions.first().active)
         self.subproject.refresh_from_db()
         self.assertEqual(self.subproject.privacy_level, 'private')
-
-        from datadiff import diff
-        print(diff(get_filesystem(self.site_root), filesystem_after))
-
-
-        # import pdb; pdb.set_trace()  # yapf: disable
         self.assertFilesystem(filesystem_after)
