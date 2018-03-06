@@ -1,14 +1,17 @@
 """Utility functions for use in tests."""
+
 from __future__ import absolute_import
+
 import logging
+import subprocess
 from os import chdir, environ, getcwd
 from os.path import abspath, join as pjoin
 from shutil import copytree
-import subprocess
 from tempfile import mkdtemp
 
 from django_dynamic_fixture import new
 from django.contrib.auth.models import User
+
 
 log = logging.getLogger(__name__)
 
@@ -31,9 +34,28 @@ def make_test_git():
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)
+
+    # Initialize and configure
     log.info(check_output(['git', 'init'] + [directory], env=env))
+    log.info(check_output(
+        ['git', 'config', 'user.email', 'dev@readthedocs.org'],
+        env=env
+    ))
+    log.info(check_output(
+        ['git', 'config', 'user.name', 'Read the Docs'],
+        env=env
+    ))
+
+    # Set up the actual repository
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"init"'], env=env))
+    # Add repo itself as submodule
+    log.info(check_output(['git', 'checkout', '-b', 'submodule'], env=env))
+    log.info(check_output(['git', 'submodule', 'add', '-b', 'master', './', 'submodule'], env=env))
+    log.info(check_output(['git', 'add', '.'], env=env))
+    log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
+    # Checkout to master branch again
+    log.info(check_output(['git', 'checkout', 'master'], env=env))
     chdir(path)
     return directory
 

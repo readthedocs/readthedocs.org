@@ -30,6 +30,7 @@ media/man
 media/pdf
 media/static
 node_modules
+package-lock.json
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds
@@ -45,6 +46,7 @@ readthedocs/htmlcov
 tags
 .python-version
 *.pyo
+.pytest_cache/
 
 # Environments
 .env

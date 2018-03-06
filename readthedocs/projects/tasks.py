@@ -151,6 +151,15 @@ class SyncRepositoryMixin(object):
             except Exception:
                 log.exception('Unknown Sync Versions Exception')
 
+    # TODO this is duplicated in the classes below, and this should be
+    # refactored out anyways, as calling from the method removes the original
+    # caller from logging.
+    def _log(self, msg):
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg=msg))
+
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
