@@ -273,6 +273,7 @@ def send_mail(request, project_slug):
     for user in project.users.all():
         if AdminPermission.is_admin(user, project):
             email = user.email
+            break
     context = {'proj_name': proj_name}
     subject = 'Rename request for abandoned project'
     send_email(
