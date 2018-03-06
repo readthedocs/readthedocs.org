@@ -14,9 +14,10 @@ from tastypie.api import Api
 from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
-from readthedocs.core.views import (HomepageView, SupportView,
+from readthedocs.core.views import (HomepageView, SupportView, ProjectView,
                                     server_error_404, server_error_500)
 from readthedocs.search import views as search_views
+from readthedocs.constants import pattern_opts
 
 
 v1_api = Api(api_name='v1')
@@ -32,6 +33,8 @@ handler500 = server_error_500
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
+    url(r'^project/(?P<slug>{project_slug})/$'.format(**pattern_opts),
+        ProjectView.as_view(), name='project_home_detail'),
     url(r'^support/', SupportView.as_view(), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
     url(r'^.well-known/security.txt',

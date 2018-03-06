@@ -15,7 +15,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 
 from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
@@ -41,6 +41,21 @@ class HomepageView(TemplateView):
         context = super(HomepageView, self).get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
         context['projects_count'] = Project.objects.count()
+        return context
+
+
+class ProjectView(DetailView):
+
+    model = Project
+    context_object_name = 'project'
+    template_name = 'project.html'
+    queryset = Project.objects.all()
+
+    def get_context_data(self, **kwargs):
+        """Add children projects."""
+        context = super(ProjectView, self).get_context_data(**kwargs)
+        project = context['project']
+        context['project_list'] = project.related_projects.all()
         return context
 
 
