@@ -1168,6 +1168,22 @@ div.module.project-subprojects div.subproject-meta {
     font-style: italic;
 }
 
+/* project delete page */
+
+.display-inline {
+    display: inline !important;
+}
+
+.project-delete-cancel-link {
+    text-decoration: none;
+}
+
+.project-delete-cancel-btn {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }
 div.highlight pre .c { color: #60a0b0; font-style: italic } /* Comment */
