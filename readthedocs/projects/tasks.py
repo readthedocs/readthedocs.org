@@ -151,6 +151,15 @@ class SyncRepositoryMixin(object):
             except Exception:
                 log.exception('Unknown Sync Versions Exception')
 
+    # TODO this is duplicated in the classes below, and this should be
+    # refactored out anyways, as calling from the method removes the original
+    # caller from logging.
+    def _log(self, msg):
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg=msg))
+
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
@@ -761,7 +770,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.error('Unknown documentation type: %s',
+        log.debug('Unknown documentation type: %s',
                   version.project.documentation_type)
         return
 
@@ -904,28 +913,41 @@ def email_notification(version, build, email):
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                   msg='sending email to: %s' % email))
-    context = {'version': version,
-               'project': version.project,
-               'build': build,
-               'build_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   build.get_absolute_url()),
-               'unsub_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   reverse('projects_notifications', args=[version.project.slug])),
-               }
+
+    # We send only what we need from the Django model objects here to avoid
+    # serialization problems in the ``readthedocs.core.tasks.send_email_task``
+    context = {
+        'version': {
+            'verbose_name': version.verbose_name,
+        },
+        'project': {
+            'name': version.project.name,
+        },
+        'build': {
+            'pk': build.pk,
+            'error': build.error,
+        },
+        'build_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            build.get_absolute_url(),
+        ),
+        'unsub_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            reverse('projects_notifications', args=[version.project.slug]),
+        ),
+    }
 
     if build.commit:
-        title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
+        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
     else:
-        title = _('Failed: {project.name} ({version.verbose_name})').format(**context)
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
 
     send_email(
         email,
         title,
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
-        context=context
+        context=context,
     )
 
 
@@ -951,7 +973,10 @@ def webhook_notification(version, build, hook_url):
     log.debug(LOG_TEMPLATE
               .format(project=project.slug, version='',
                       msg='sending notification to: %s' % hook_url))
-    requests.post(hook_url, data=data)
+    try:
+        requests.post(hook_url, data=data)
+    except Exception:
+        log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
 
 @app.task(queue='web')

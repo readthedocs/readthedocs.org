@@ -231,6 +231,7 @@ class CommunityBaseSettings(Settings):
     USE_L10N = True
 
     # Celery
+    CELERY_APP_NAME = 'readthedocs'
     CELERY_ALWAYS_EAGER = True
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
@@ -289,6 +290,7 @@ class CommunityBaseSettings(Settings):
     # RTD Settings
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
+    DEFAULT_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
 
