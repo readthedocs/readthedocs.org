@@ -7,7 +7,6 @@ var rtd;
 
 function init() {
     var post_data = {},
-        force,
         params;
 
     rtd = rtddata.get();
@@ -22,15 +21,13 @@ function init() {
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
         // Force a specific promo to be displayed
         params = new URL(window.location).searchParams;
-        force = params.get('promo');
-        if (force) {
-            post_data.promo = force;
+        if (params.get('force_promo')) {
+            post_data.force_promo = params.get('force_promo');
         }
 
         // Force a promo from a specific campaign
-        force = params.get('campaign');
-        if (force) {
-            post_data.campaign = force;
+        if (params.get('force_campaign')) {
+            post_data.force_campaign = params.get('force_campaign');
         }
     }
 
