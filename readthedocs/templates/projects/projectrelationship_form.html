@@ -19,14 +19,14 @@
         action="{% url 'projects_subprojects_update' project_slug=project.slug subproject_slug=object.child.slug %}">
       {% csrf_token %}
       {{ form.as_p }}
-      <input type="submit" value="{% trans "Update subproject" %}">
+      <input type="submit" value="{% trans "Update Subproject" %}">
     </form>
 
     <form
         method="post"
         action="{% url 'projects_subprojects_delete' project_slug=project.slug subproject_slug=object.child.slug %}">
       {% csrf_token %}
-      <input type="submit" value="{% trans "Delete subproject" %}">
+      <input type="submit" value="{% trans "Delete Subproject" %}">
     </form>
   {% else %}
     <form
@@ -35,7 +35,7 @@
         action="{% url 'projects_subprojects_create' project_slug=project.slug %}">
       {% csrf_token %}
       {{ form.as_p }}
-      <input type="submit" value="{% trans "Add subproject" %}">
+      <input type="submit" value="{% trans "Add Subproject" %}">
     </form>
   {% endif %}
 {% endblock %}

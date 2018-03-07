@@ -17,7 +17,7 @@
       <li>
         <a class="button"
            href="{% url 'projects_integrations_create' project_slug=project.slug %}">
-          {% trans "Add integration" %}
+          {% trans "Add Integration" %}
         </a>
       </li>
     </ul>
@@ -35,7 +35,7 @@
         {% empty %}
           <li class="module-item">
             <p class="quiet">
-              {% trans 'No integrations are currently configured' %}
+              {% trans 'No integrations are currently configured.' %}
             </p>
           </li>
         {% endfor %}
