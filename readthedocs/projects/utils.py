@@ -126,6 +126,7 @@ def safe_write(filename, contents):
         fh.write(contents)
         fh.close()
 
+
 def purge_version(version, mainsite=False, subdomain=False, cname=False):
     varnish_servers = getattr(settings, 'VARNISH_SERVERS', None)
     h = Http()
