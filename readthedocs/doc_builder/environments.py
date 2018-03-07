@@ -630,7 +630,6 @@ class DockerBuildEnvironment(BuildEnvironment):
 
     def __enter__(self):
         """Start of environment context."""
-        log.info('Creating container')
         try:
             # Test for existing container. We remove any stale containers that
             # are no longer running here if there is a collision. If the
@@ -829,6 +828,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         if self.project.container_image:
             image = self.project.container_image
         try:
+            log.info('Creating Docker container: image=%s', image)
             self.container = client.create_container(
                 image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
