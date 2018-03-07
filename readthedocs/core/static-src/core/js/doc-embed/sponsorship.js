@@ -131,7 +131,6 @@ function Promo (data) {
     this.id = data.id;                              // analytics id
     this.div_id = data.div_id || '';
     this.html = data.html || '';
-    this.pixel = data.pixel || '';
     this.display_type = data.display_type || '';
 
     // Handler when a promo receives a click
