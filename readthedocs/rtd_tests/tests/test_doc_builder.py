@@ -35,6 +35,6 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     def test_create_conf_py(self, get_conf_py_path, run, get_config_params, create_index):
         create_index.return_value = 'README.rst'
-        get_config_params.return_vlaue = {}
+        get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
         self.base_sphinx.append_conf()
