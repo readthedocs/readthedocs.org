@@ -1,6 +1,40 @@
-var rtddata = require('./rtd-data'),
-    versionCompare = require('./version-compare');
+var rtddata = require('./rtd-data');
+var versionCompare = require('./version-compare');
 
+
+function injectFooter(data) {
+    var config = rtddata.get();
+
+    // If the theme looks like ours, update the existing badge
+    // otherwise throw a a full one into the page.
+    if (config.is_rtd_theme()) {
+        $("div.rst-other-versions").html(data['html']);
+    } else {
+        $("body").append(data['html']);
+    }
+
+    if (!data['version_active']) {
+        $('.rst-current-version').addClass('rst-out-of-date');
+    } else if (!data['version_supported']) {
+        //$('.rst-current-version').addClass('rst-active-old-version')
+    }
+}
+
+
+function setupBookmarkCSRFToken() {
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
+            }
+        }
+    });
+}
 
 function init() {
     var rtd = rtddata.get();
@@ -46,42 +80,6 @@ function init() {
         }
     });
 }
-
-
-function injectFooter(data) {
-    var config = rtddata.get();
-
-    // If the theme looks like ours, update the existing badge
-    // otherwise throw a a full one into the page.
-    if (config.is_rtd_theme()) {
-        $("div.rst-other-versions").html(data['html']);
-    } else {
-        $("body").append(data['html']);
-    }
-
-    if (!data['version_active']) {
-        $('.rst-current-version').addClass('rst-out-of-date');
-    } else if (!data['version_supported']) {
-        //$('.rst-current-version').addClass('rst-active-old-version')
-    }
-}
-
-
-function setupBookmarkCSRFToken() {
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-            }
-        }
-    });
-}
-
 
 module.exports = {
     init: init

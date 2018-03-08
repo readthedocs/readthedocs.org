@@ -1,91 +1,24 @@
 /* Read the Docs - Documentation promotions */
 
-var constants = require('./constants'),
-    rtddata = require('./rtd-data');
+var constants = require('./constants');
+var rtddata = require('./rtd-data');
 
 var rtd;
-
-function init() {
-    var post_data = {},
-        params;
-
-    rtd = rtddata.get();
-
-    if (!rtd.show_promo()) {
-        return;
-    }
-
-    post_data.placements = get_placements(rtd);
-    post_data.project = rtd.project;
-
-    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-        // Force a specific promo to be displayed
-        params = new URL(window.location).searchParams;
-        if (params.get('force_promo')) {
-            post_data.force_promo = params.get('force_promo');
-        }
-
-        // Force a promo from a specific campaign
-        if (params.get('force_campaign')) {
-            post_data.force_campaign = params.get('force_campaign');
-        }
-    }
-
-    // Request a promo to inject onto the page
-    $.ajax({
-        url: rtd.api_host + "/api/v2/sustainability/",
-        type: 'post',
-        xhrFields: {
-            withCredentials: true,
-        },
-        dataType: "json",
-        data: JSON.stringify(post_data),
-        contentType: "application/json",
-        success: function (data) {
-            var promo;
-            if (data && data.div_id && data.html) {
-                promo = new Promo(data);
-                promo.display();
-            }
-        },
-        error: function () {
-            console.error('Error loading Read the Docs promo');
-        },
-    });
-}
-
-/*
- *  Returns an array of possible places where a promo could go
- */
-function get_placements () {
-    var placements = [],
-        placement_funcs = [create_footer_placement, create_sidebar_placement],
-        placement;
-
-    for (var i = 0; i < placement_funcs.length; i += 1) {
-        placement = placement_funcs[i]();
-        if (placement) {
-            placements.push(placement);
-        }
-    }
-
-    return placements;
-}
 
 /*
  *  Creates a sidebar div where an ad could go
  */
 function create_sidebar_placement () {
-    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4),
-        display_type = constants.PROMO_TYPES.LEFTNAV,
-        selector = null,
-        class_name;     // Used for theme specific CSS customizations
+    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
+    var display_type = constants.PROMO_TYPES.LEFTNAV;
+    var selector = null;
+    var class_name;         // Used for theme specific CSS customizations
 
     if (rtd.is_rtd_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() == constants.THEME_ALABASTER ||
-               rtd.get_theme_name() == constants.THEME_CELERY) {
+    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
+               rtd.get_theme_name() === constants.THEME_CELERY) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
     }
@@ -104,16 +37,16 @@ function create_sidebar_placement () {
  *  Returns the ID of the div or none if no footer ad is possible
  */
 function create_footer_placement () {
-    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4),
-        display_type = constants.PROMO_TYPES.FOOTER,
-        selector = null,
-        class_name;
+    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
+    var display_type = constants.PROMO_TYPES.FOOTER;
+    var selector = null;
+    var class_name;
 
     if (rtd.is_rtd_theme()) {
         selector = $('<div />').insertAfter('footer hr');
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() == constants.THEME_ALABASTER ||
-               rtd.get_theme_name() == constants.THEME_CELERY) {
+    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
+               rtd.get_theme_name() === constants.THEME_CELERY) {
         selector = 'div.bodywrapper .body';
         class_name = 'ethical-alabaster';
     }
@@ -125,6 +58,24 @@ function create_footer_placement () {
     }
 
     return null;
+}
+
+/*
+ *  Returns an array of possible places where a promo could go
+ */
+function get_placements () {
+    var placements = [];
+    var placement_funcs = [create_footer_placement, create_sidebar_placement];
+    var placement;
+
+    for (var i = 0; i < placement_funcs.length; i += 1) {
+        placement = placement_funcs[i]();
+        if (placement) {
+            placements.push(placement);
+        }
+    }
+
+    return placements;
 }
 
 function Promo (data) {
@@ -175,6 +126,55 @@ Promo.prototype.post_promo_display = function () {
     }
 
 };
+
+function init() {
+    var post_data = {};
+    var params;
+
+    rtd = rtddata.get();
+
+    if (!rtd.show_promo()) {
+        return;
+    }
+
+    post_data.placements = get_placements(rtd);
+    post_data.project = rtd.project;
+
+    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
+        // Force a specific promo to be displayed
+        params = new URL(window.location).searchParams;
+        if (params.get('force_promo')) {
+            post_data.force_promo = params.get('force_promo');
+        }
+
+        // Force a promo from a specific campaign
+        if (params.get('force_campaign')) {
+            post_data.force_campaign = params.get('force_campaign');
+        }
+    }
+
+    // Request a promo to inject onto the page
+    $.ajax({
+        url: rtd.api_host + "/api/v2/sustainability/",
+        type: 'post',
+        xhrFields: {
+            withCredentials: true,
+        },
+        dataType: "json",
+        data: JSON.stringify(post_data),
+        contentType: "application/json",
+        success: function (data) {
+            var promo;
+            if (data && data.div_id && data.html) {
+                promo = new Promo(data);
+                promo.display();
+            }
+        },
+        error: function () {
+            console.error('Error loading Read the Docs promo');
+        },
+    });
+}
 
 module.exports = {
     Promo: Promo,

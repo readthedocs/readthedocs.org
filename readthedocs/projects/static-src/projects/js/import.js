@@ -1,15 +1,15 @@
-var ko = require('knockout'),
-    $ = require('jquery'),
-    tasks = require('readthedocs/core/static-src/core/js/tasks');
+var ko = require('knockout');
+var $ = require('jquery');
+var tasks = require('readthedocs/core/static-src/core/js/tasks');
 
 
 $(function() {
-  var input = $('#id_repo'),
-      repo = $('#id_repo_type');
+  var input = $('#id_repo');
+  var repo = $('#id_repo_type');
 
   input.blur(function () {
-    var val = input.val(),
-        type;
+    var val = input.val();
+    var type;
 
     switch(true) {
       case /^hg/.test(val):
@@ -37,6 +37,18 @@ $(function() {
   });
 });
 
+function append_url_params (url, params) {
+    var link = $('<a>').attr('href', url).get(0);
+
+    Object.keys(params).map(function (key) {
+        if (link.search) {
+            link.search += '&';
+        }
+        link.search += key + '=' + params[key];
+    });
+    return link.href;
+}
+
 function Organization (instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
@@ -51,7 +63,7 @@ function Organization (instance, view) {
     });
     self.filtered = ko.computed(function () {
         var id = view.filter_org();
-        return id && id != self.id();
+        return id && id !== self.id();
     });
 }
 
@@ -91,8 +103,8 @@ function Project (instance, view) {
                 description: self.description(),
                 project_url: self.html_url(),
                 remote_repository: self.id(),
-            },
-            form = $('<form />');
+            };
+        var form = $('<form />');
 
         form
             .attr('action', view.urls.projects_import)
@@ -124,8 +136,8 @@ function Project (instance, view) {
 }
 
 function ProjectImportView (instance, config) {
-    var self = this,
-        instance = instance || {};
+    var self = this;
+    var instance = instance || {};
 
     self.config = config || {};
     self.urls = config.urls || {};
@@ -145,8 +157,9 @@ function ProjectImportView (instance, config) {
 
     self.organizations_raw = ko.observableArray();
     self.organizations = ko.computed(function () {
-        var organizations = [],
-            organizations_raw = self.organizations_raw();
+        var organizations = [];
+        var organizations_raw = self.organizations_raw();
+        var n;
         for (n in organizations_raw) {
             var organization = new Organization(organizations_raw[n], self);
             organizations.push(organization);
@@ -156,9 +169,9 @@ function ProjectImportView (instance, config) {
     self.projects = ko.observableArray();
 
     ko.computed(function () {
-        var org = self.filter_org(),
-            orgs = self.organizations(),
-            url = self.page_current() || self.urls['remoterepository-list'];
+        var org = self.filter_org();
+        var orgs = self.organizations();
+        var url = self.page_current() || self.urls['remoterepository-list'];
 
         if (org) {
             url = append_url_params(
@@ -174,7 +187,7 @@ function ProjectImportView (instance, config) {
                 var projects = [];
                 self.page_next(projects_list.next);
                 self.page_previous(projects_list.previous);
-
+                var n;
                 for (n in projects_list.results) {
                     var project = new Project(projects_list.results[n], self);
                     projects.push(project);
@@ -233,24 +246,13 @@ function ProjectImportView (instance, config) {
 
     self.set_filter_org = function (id) {
         var current_id = self.filter_org();
-        if (current_id == id) {
+        if (current_id === id) {
             id = null;
         }
         self.filter_org(id);
     };
 }
 
-function append_url_params (url, params) {
-    var link = $('<a>').attr('href', url).get(0);
-
-    Object.keys(params).map(function (key) {
-        if (link.search) {
-            link.search += '&';
-        }
-        link.search += key + '=' + params[key];
-    });
-    return link.href;
-}
 
 ProjectImportView.init = function (domobj, instance, config) {
     var view = new ProjectImportView(instance, config);
