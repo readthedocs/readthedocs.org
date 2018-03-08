@@ -21,7 +21,7 @@ djangorestframework==3.5.4
 django-vanilla-views==1.0.4
 jsonfield==1.0.3
 
-requests==2.9.1
+requests==2.18.4
 slumber==0.7.1
 lxml==3.3.5
 defusedxml==0.5.0
@@ -51,7 +51,7 @@ mock==1.0.1
 stripe==1.20.2
 django-formtools==1.0
 django-dynamic-fixture==1.8.5
-docker==2.6.1
+docker==3.1.1
 django-textclassifier==1.0
 django-annoying==0.10.1
 django-messages-extends==0.5
