@@ -778,9 +778,12 @@ class DockerBuildEnvironment(BuildEnvironment):
                 self.project.pip_cache_path: {
                     'bind': self.project.pip_cache_path,
                     'mode': 'rw',
-                }
+                },
             })
-        return create_host_config(binds=binds)
+        return create_host_config(
+            binds=binds,
+            mem_limit=self.container_mem_limit,
+        )
 
     @property
     def container_id(self):
@@ -835,22 +838,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
                 name=self.container_id,
                 hostname=self.container_id,
-                host_config=client.create_host_config(binds={
-                    SPHINX_TEMPLATE_DIR: {
-                        'bind': SPHINX_TEMPLATE_DIR,
-                        'mode': 'ro'
-                    },
-                    MKDOCS_TEMPLATE_DIR: {
-                        'bind': MKDOCS_TEMPLATE_DIR,
-                        'mode': 'ro'
-                    },
-                    self.project.doc_path: {
-                        'bind': self.project.doc_path,
-                        'mode': 'rw'
-                    },
-                },
-                    mem_limit=self.container_mem_limit,
-                ),
+                host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
             )
