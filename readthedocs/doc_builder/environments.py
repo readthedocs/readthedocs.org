@@ -16,7 +16,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext_noop
-from docker import Client
+from docker import APIClient
 from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
 from slumber.exceptions import HttpClientError
