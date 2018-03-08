@@ -20,7 +20,7 @@
     {{ form.as_p }}
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Save" %}">
-      {% comment %}Translators: The 'or' here is in between 'Submit' and 'delete'.{% endcomment %}
+      {% comment %}Translators: The 'or' here is in between 'Save' and 'Delete Project'.{% endcomment %}
       {% trans "or" %}
        <a href="{% url "projects_delete" project.slug %}">{% trans "Delete Project" %}</a>
     </p>
