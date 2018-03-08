@@ -36,9 +36,9 @@ urlpatterns = [
         private.project_manage,
         name='projects_manage'),
 
-    url(r'^(?P<project_slug>[-\w]+)/send_mail/$',
-        private.send_mail,
-        name='send_mail'),
+    url(r'^(?P<project_slug>[-\w]+)/send_abandoned_mail/$',
+        private.send_abandoned_mail,
+        name='send_abandoned_mail'),
 
     url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
         private.project_comments_moderation,

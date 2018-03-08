@@ -8,7 +8,7 @@ import logging
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import (
@@ -266,22 +266,21 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
 
 @login_required
-def send_mail(request, project_slug):
+@user_passes_test(lambda u: u.is_superuser)
+def send_abandoned_mail(request, project_slug):
     """Sends abandoned project email."""
     project = Project.objects.get(slug=project_slug)
     proj_name = project_slug
-    for user in project.users.all():
-        if AdminPermission.is_admin(user, project):
-            email = user.email
-            break
     context = {'proj_name': proj_name}
     subject = 'Rename request for abandoned project'
-    send_email(
-        recipient=email,
-        subject=subject,
-        template='projects/email/abandon_project.txt',
-        template_html='projects/email/abandon_project.html',
-        context=context)
+    for user in project.users.all():
+        email = user.email
+        send_email(
+            recipient=email,
+            subject=subject,
+            template='projects/email/abandon_project.txt',
+            template_html='projects/email/abandon_project.html',
+            context=context)
     project.abandoned_mail_sent = True
     project.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

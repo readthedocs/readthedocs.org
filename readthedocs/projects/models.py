@@ -577,11 +577,6 @@ class Project(models.Model):
         return True
 
     @property
-    def is_abandoned_mail_sent(self):
-        """Is abandoned mail sent."""
-        return self.abandoned_mail_sent
-
-    @property
     def is_type_sphinx(self):
         """Is project type Sphinx."""
         return 'sphinx' in self.documentation_type

@@ -118,11 +118,8 @@ class ProjectBasicsForm(ProjectForm):
             if project_exist:
                 project = Project.objects.get(slug=potential_slug)
                 project_url = project.get_absolute_url()
-                if project.is_abandoned:
-                    err_msg = ('Invalid project name, a <a href="{}" style="color: red">'
-                               'project</a> already exists with that name').format(project_url)
-                else:
-                    err_msg = 'Invalid project name, a project already exists with that name'
+                err_msg = ('Invalid project name, a <a href="{}" style="color: red">'
+                           'project</a> already exists with that name').format(project_url)
                 raise forms.ValidationError(mark_safe(err_msg)) # yapf: disable # noqa
         return name
 

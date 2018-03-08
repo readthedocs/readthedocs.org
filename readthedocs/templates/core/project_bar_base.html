@@ -26,8 +26,8 @@
     
     {% if project.is_abandoned and request.user.is_superuser %}
       <div class="abandon=project">
-        {% if not project.is_abandoned_mail_sent %}
-          <form action="{% url "send_mail" project.slug %}" method="post">
+        {% if not project.abandoned_mail_sent %}
+          <form action="{% url "send_abandoned_mail" project.slug %}" method="post">
             {% csrf_token %}
             <input type="submit" name="submit-btn" value="{% trans "Email project owner with our abandoned project email" %}"/>
           </form>
