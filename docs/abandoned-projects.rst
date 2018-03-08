@@ -34,6 +34,8 @@ Active projects
 Implementation
 --------------
 
+.. _reachability:
+
 Reachability
 ~~~~~~~~~~~~
 
@@ -54,7 +56,7 @@ Abandoned projects
 
 A project is considered *abandoned* when ALL of the following are met:
 
-* Owner is unreachable (see `Reachability`_)
+* Owner is unreachable (see :ref:`reachability`)
 * The project has no proper documentation being served (no successful builds) or
   does not have any releases within the past twelve months
 * No activity from the owner on the project's home page (or no home page
