@@ -1,16 +1,38 @@
 
-var rtd = require('readthedocs-client'),
-    ko = require('knockout'),
-    jquery = require('jquery'),
-    $ = jquery;
+var rtd = require('readthedocs-client');
+var ko = require('knockout');
+var jquery = require('jquery');
+var $ = jquery;
 
+
+// Modal display
+function _show_modal (section) {
+    var embed_container = $('#embed-container');
+    if (!embed_container.length) {
+        embed_container = $('<div id="embed-container" class="modal modal-help" />');
+        $('body').append(embed_container);
+    }
+
+    // Add iframe
+    var iframe = section.insertContent(embed_container);
+    $(iframe).show();
+    embed_container.show();
+
+    // Handle click out of modal
+    $(document).click(function (ev) {
+        if(!$(ev.target).closest('#embed-container').length) {
+            $(iframe).remove();
+            embed_container.remove();
+        }
+    });
+}
 
 function EmbedView (config) {
     var self = this;
 
     // Normalize config
     self.config = config || {};
-    if (typeof(self.config.api_host) == 'undefined') {
+    if (typeof(self.config.api_host) === 'undefined') {
         self.config.api_host = 'https://readthedocs.org'
     }
 
@@ -39,6 +61,7 @@ function EmbedView (config) {
                 self.help(null);
                 self.error(null);
                 var sections_data = [];
+                var n;
                 for (n in page.sections) {
                     var section = page.sections[n];
                     $.each(section, function (title, id) {
@@ -64,13 +87,13 @@ function EmbedView (config) {
     self.section = ko.observable(null);
 
     self.has_section = ko.computed(function () {
-        return (self.section() != null && self.section() != '');
+        return (self.section() !== null && self.section() !== '');
     });
 
     self.response = ko.observable(null);
     ko.computed(function () {
-        var file = self.file(),
-            section = self.section();
+        var file = self.file();
+        var section = self.section();
         if (file == null || section == null) {
             return self.response(null);
         }
@@ -134,7 +157,7 @@ function AnalyticsView (config) {
 
     // Normalize config
     self.config = config || {};
-    if (typeof(self.config.api_host) == 'undefined') {
+    if (typeof(self.config.api_host) === 'undefined') {
         self.config.api_host = 'https://readthedocs.org'
     }
 
@@ -150,26 +173,4 @@ function AnalyticsView (config) {
 module.exports.init_analytics = function (config) {
     var view = new AnalyticsView(config);
     ko.applyBindings(view, $('#tool-analytics')[0]);
-}
-
-// Modal display
-function _show_modal (section) {
-    var embed_container = $('#embed-container');
-    if (!embed_container.length) {
-        embed_container = $('<div id="embed-container" class="modal modal-help" />');
-        $('body').append(embed_container);
-    }
-
-    // Add iframe
-    var iframe = section.insertContent(embed_container);
-    $(iframe).show();
-    embed_container.show();
-
-    // Handle click out of modal
-    $(document).click(function (ev) {
-        if(!$(ev.target).closest('#embed-container').length) {
-            $(iframe).remove();
-            embed_container.remove();
-        }
-    });
 }
