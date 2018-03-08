@@ -17,7 +17,6 @@ from datetime import datetime
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from docker import APIClient
-from docker.utils import create_host_config
 from docker.errors import APIError as DockerAPIError, DockerException
 from slumber.exceptions import HttpClientError
 
@@ -780,7 +779,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                     'mode': 'rw',
                 },
             })
-        return create_host_config(
+        return self.get_client().create_host_config(
             binds=binds,
             mem_limit=self.container_mem_limit,
         )
