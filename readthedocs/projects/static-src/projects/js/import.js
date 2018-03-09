@@ -212,14 +212,14 @@ function ProjectImportView (instance, config) {
         var url = self.page_current() || self.urls['remoterepository-list'];
 
         if (!self.page_current()) {
-            if (filter.type == 'org') {
+            if (filter.type === 'org') {
                 url = append_url_params(
                     self.urls['remoterepository-list'],
                     {org: filter.id}
                 );
             }
 
-            if (filter.type == 'own') {
+            if (filter.type === 'own') {
                 url = append_url_params(
                     self.urls['remoterepository-list'],
                     {own: filter.id}
