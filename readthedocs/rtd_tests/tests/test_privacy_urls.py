@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import re
 
+from allauth.socialaccount.models import SocialAccount
 from builtins import object
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
@@ -295,6 +296,7 @@ class APIMixin(URLAccessMixin):
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.comment = get(DocumentComment, node__project=self.pip)
         self.snapshot = get(NodeSnapshot, node=self.comment.node)
+        self.social_account = get(SocialAccount)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
         self.integration = get(Integration, project=self.pip, provider_data='')
@@ -314,6 +316,7 @@ class APIMixin(URLAccessMixin):
             'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
             'remoteorganization-detail': {'pk': self.remote_org.pk},
             'remoterepository-detail': {'pk': self.remote_repo.pk},
+            'remoteaccount-detail': {'pk': self.social_account.pk},
             'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
@@ -337,6 +340,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook_generic': {'status_code': 403},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
+            'remoteaccount-detail': {'status_code': 404},
         }
 
 
