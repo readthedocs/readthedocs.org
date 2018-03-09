@@ -7,7 +7,13 @@
 {% block repo %}
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p class="detail-long">{{ project.repo|urlize }}</p>
+    <p class="detail-long">
+      {% if project.repo|slice:':4' == 'http' %}
+        {{ project.repo|urlize }}
+      {% else %}
+        {{ project.repo }}
+      {% endif %}
+    </p>
   {% endif %}
 {% endblock %}
 
