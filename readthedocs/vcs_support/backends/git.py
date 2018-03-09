@@ -122,8 +122,8 @@ class Backend(BaseVCS):
     @property
     def branches(self):
         # Only show remote branches
-        retcode, stdout, _ = self.run('git', 'branch', '-r')
-        # error (or no tags found)
+        retcode, stdout, _ = self.run('git', 'branch', '-r', record_as_success=True)
+        # error (or no branches found)
         if retcode != 0:
             return []
         return self.parse_branches(stdout)
