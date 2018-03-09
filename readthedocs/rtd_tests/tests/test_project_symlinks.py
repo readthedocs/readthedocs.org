@@ -909,6 +909,53 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
         except:
             self.fail('Symlink run raised an exception on unicode slug')
 
+    def test_symlink_broadcast_calls_on_project_save(self):
+        """
+        Test calls to ``readthedocs.core.utils.broadcast`` on Project.save().
+
+        When a Project is saved, we need to check that we are calling
+        ``broadcast`` utility with the proper task and arguments to re-symlink
+        them.
+        """
+        with mock.patch('readthedocs.projects.models.broadcast') as broadcast:
+            project = get(Project)
+            # skipped on first save
+            broadcast.assert_not_called()
+
+            broadcast.reset_mock()
+            project.description = 'New description'
+            project.save()
+            # called once for this project itself
+            broadcast.assert_any_calls(
+                type='app',
+                task=symlink_project,
+                args=[project.pk],
+            )
+
+            broadcast.reset_mock()
+            subproject = get(Project)
+            # skipped on first save
+            broadcast.assert_not_called()
+
+            project.add_subproject(subproject)
+            # subproject.save() is not called
+            broadcast.assert_not_called()
+
+            subproject.description = 'New subproject description'
+            subproject.save()
+            # subproject symlinks
+            broadcast.assert_any_calls(
+                type='app',
+                task=symlink_project,
+                args=[subproject.pk],
+            )
+            # superproject symlinks
+            broadcast.assert_any_calls(
+                type='app',
+                task=symlink_project,
+                args=[project.pk],
+            )
+
 
 @override_settings()
 class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
