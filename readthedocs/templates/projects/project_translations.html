@@ -50,9 +50,7 @@
     </p>
     <form method="post" action=".">{% csrf_token %}
       {{ form.as_p }}
-      <p>
-        <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
-      </p>
+      <input type="submit" value="{% trans "Submit" %}">
     </form>
   {% endif %}
 {% endblock %}
