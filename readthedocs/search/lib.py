@@ -14,8 +14,34 @@ from readthedocs.search.signals import (before_project_search,
                                         before_section_search)
 
 
-def search_project(request, query, language=None):
+def search_project_filter(request, project_slug):
+    project = (Project.objects
+               .api(request.user)
+               .get(slug=project_slug))
+    project_slugs = [project.slug]
+    # We need to use the obtuse syntax here because the manager
+    # doesn't pass along to ProjectRelationships
+    project_slugs.extend(s.slug for s
+                         in Project.objects.public(
+                             request.user).filter(
+                             superprojects__parent__slug=project.slug))
+    project_filter = {"terms": {"project": project_slugs}}
+
+    # Add routing to optimize search by hitting the right shard.
+    # This purposely doesn't apply routing if the project has more
+    # than one parent project.
+    if project.superprojects.exists():
+        if project.superprojects.count() == 1:
+            routing = (project.superprojects.first()
+                       .parent.slug)
+    else:
+        routing = project_slug
+    return project_filter, routing
+
+
+def search_project(request, query, language=None, project_slug=None):
     """Search index for projects matching query."""
+    kwargs = {}
     body = {
         "query": {
             "bool": {
@@ -40,13 +66,26 @@ def search_project(request, query, language=None):
         "size": 50  # TODO: Support pagination.
     }
 
+    final_filter = {"and": []}
     if language:
         body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
-        body['filter'] = {"term": {"lang": language}}
+        final_filter['and'].append({"term": {"lang": language}})
+
+    if project_slug:
+        try:
+            project_filter, routing = search_project_filter(request, project_slug)
+        except Project.DoesNotExist:
+            return None
+
+        final_filter['and'].append(project_filter)
+        kwargs['routing'] = routing
+
+    if final_filter['and']:
+        body['filter'] = final_filter
 
     before_project_search.send(request=request, sender=ProjectIndex, body=body)
 
-    return ProjectIndex().search(body)
+    return ProjectIndex().search(body, **kwargs)
 
 
 def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy=None):
@@ -116,29 +155,12 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
 
         if project_slug:
             try:
-                project = (Project.objects
-                           .api(request.user)
-                           .get(slug=project_slug))
-                project_slugs = [project.slug]
-                # We need to use the obtuse syntax here because the manager
-                # doesn't pass along to ProjectRelationships
-                project_slugs.extend(s.slug for s
-                                     in Project.objects.public(
-                                         request.user).filter(
-                                         superprojects__parent__slug=project.slug))
-                final_filter['and'].append({"terms": {"project": project_slugs}})
-
-                # Add routing to optimize search by hitting the right shard.
-                # This purposely doesn't apply routing if the project has more
-                # than one parent project.
-                if project.superprojects.exists():
-                    if project.superprojects.count() == 1:
-                        kwargs['routing'] = (project.superprojects.first()
-                                             .parent.slug)
-                else:
-                    kwargs['routing'] = project_slug
+                project_filter, routing = search_project_filter(request, project_slug)
             except Project.DoesNotExist:
                 return None
+
+            final_filter['and'].append(project_filter)
+            kwargs['routing'] = routing
 
         if version_slug:
             final_filter['and'].append({'term': {'version': version_slug}})

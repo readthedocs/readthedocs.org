@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load humanize %}
+{% load pagination_tags %}
+
+{% block extra_metas %}
+  <meta name="description" content="{% trans "Read the Docs simplifies technical documentation by automating building, versioning, and hosting for you. Build up-to-date documentation for the web, print, and offline use on every version control push automatically." %}">
+{% endblock extra_metas %}
+
+{% block title %}{% trans "Home" %}{% endblock %}
+
+{% block body_class %}home {% if not request.user.is_authenticated %}splash{% endif %}{% endblock %}
+
+{% block nav-browse %}class="active"{% endblock %}
+
+{% block header-wrapper %}
+  {% if request.user.is_authenticated %}
+    {% include "core/header.html" %}
+  {% else %}
+    {% include "core/home-header.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+        <script>
+    $(document).ready(function() {
+            // Show action on hover
+            $(".module-item-menu").hover(
+              function () {
+                $(".hidden-child", this).show();
+              }, function () {
+                $(".hidden-child", this).hide();
+              }
+            );
+    });
+        </script>
+{% endblock %}
+
+
+{% block content %}
+
+  <!-- Lead -->
+  <section>
+    <h2>{{ project.name }}</h2>
+    <p class="lead">
+    {{ project.description }}
+    </p>
+  </section>
+
+  <!-- Search -->
+  <section>
+    {% include "core/widesearchbar.html" with project_slug=project.slug %}
+  </section>
+
+  {% if project_list %}
+    <!-- BEGIN projects list -->
+    <section>
+      <h3>{% trans "Projects" %}</h3>
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul style="margin-bottom: 0">
+            {% include "core/project_list.html" %}
+          </ul>
+        </div>
+      </div>
+    </section>
+    <!-- END projects list -->
+  {% endif %}
+{% endblock %}
