@@ -811,6 +811,25 @@ def symlink_domain(project_pk, domain_pk, delete=False):
 
 
 @app.task(queue='web')
+def remove_orphan_symlinks():
+    """
+    Remove orphan symlinks.
+
+    List CNAME_ROOT for Public and Private symlinks, check that all the listed
+    cname exist in the database and if doesn't exist, they are un-linked.
+    """
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
+            for domain in os.listdir(domain_path):
+                try:
+                    Domain.objects.get(domain=domain)
+                except Domain.DoesNotExist:
+                    orphan_domain_path = os.path.join(domain_path, domain)
+                    log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
+                    os.unlink(orphan_domain_path)
+
+
+@app.task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
