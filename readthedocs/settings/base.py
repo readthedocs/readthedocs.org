@@ -250,6 +250,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=30),
             'options': {'queue': 'web'},
         },
+        'quarter-finish-inactive-builds': {
+            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
     }
 
     # Docker
