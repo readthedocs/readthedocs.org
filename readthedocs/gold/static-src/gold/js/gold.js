@@ -4,7 +4,7 @@ var jquery = require('jquery');
 var payment = require('readthedocs/payments/static-src/payments/js/base');
 var ko = require('knockout');
 
-function GoldView (config) {
+function GoldView(config) {
     var self = this;
     var config = config || {};
 
@@ -20,7 +20,7 @@ GoldView.init = function (config, obj) {
     var obj = obj || $('#payment-form')[0];
     ko.applyBindings(view, obj);
     return view;
-}
+};
 
 GoldView.prototype.submit_form = function (card_digits, token) {
     this.form.find('#id_last_4_digits').val(card_digits);

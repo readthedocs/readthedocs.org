@@ -17,4 +17,4 @@ module.exports.handle_notification_dismiss = function () {
       }
     });
   });
-}
+};
