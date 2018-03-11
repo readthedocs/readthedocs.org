@@ -121,10 +121,13 @@ class TestLocalBuildEnvironment(TestCase):
         ]
 
         for build_env in build_envs:
+            #  __import__('pdb').set_trace()
             with build_env:
                 build_env.update_build(BUILD_STATE_CLONING)
+                # FIXME: This method raise an assert exception,
+                # but is captured by the context manager
                 self.mocks.mocks['api_v2.build']().put.assert_called_with({
-                    'id': DUMMY_BUILD_ID,
+                    'id': 'Just for testing',
                     'version': self.version.pk,
                     'success': True,
                     'project': self.project.pk,
