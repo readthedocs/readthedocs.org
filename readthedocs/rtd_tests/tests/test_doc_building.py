@@ -104,6 +104,46 @@ class TestLocalBuildEnvironment(TestCase):
             'exit_code': 0,
         })
 
+    def test_command_not_recorded(self):
+        """Normal build in passing state with no command recorded."""
+        self.mocks.configure_mock('process', {
+            'communicate.return_value': (b'This is okay', '')
+        })
+        type(self.mocks.process).returncode = PropertyMock(return_value=0)
+
+        build_env = LocalBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo', 'test', record=False)
+        self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
+        self.assertTrue(build_env.successful)
+        self.assertEqual(len(build_env.commands), 1)
+        self.assertEqual(build_env.commands[0].output, u'This is okay')
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': u'',
+            'length': mock.ANY,
+            'error': '',
+            'setup': u'',
+            'output': u'',
+            'state': u'finished',
+            'builder': mock.ANY,
+            'exit_code': 0,
+        })
+
     def test_incremental_state_update_with_no_update(self):
         """Build updates to a non-finished state when update_on_success=True."""
         build_envs = [
@@ -615,6 +655,51 @@ class TestDockerBuildEnvironment(TestCase):
             'start_time': command.start_time,
             'end_time': command.end_time,
         })
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': False,
+            'project': self.project.pk,
+            'setup_error': u'',
+            'exit_code': 1,
+            'length': 0,
+            'error': '',
+            'setup': u'',
+            'output': u'',
+            'state': u'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_command_not_recorded(self):
+        """Command execution through Docker without record the command."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 1},
+            })
+
+        build_env = DockerBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo test', cwd='/tmp', record=False)
+
+        self.mocks.docker_client.exec_create.assert_called_with(
+            container='build-123-project-6-pip',
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
+        self.assertEqual(build_env.commands[0].exit_code, 1)
+        self.assertEqual(build_env.commands[0].output, u'This is the return')
+        self.assertEqual(build_env.commands[0].error, None)
+        self.assertTrue(build_env.failed)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
