@@ -228,6 +228,7 @@ class TestLocalBuildEnvironment(TestCase):
                     'builder': mock.ANY,
                     'exit_code': 0,
                 })
+            self.assertIsNone(build_env.failure)
 
     def test_failing_execution(self):
         """Build in failing state."""
