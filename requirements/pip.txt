@@ -2,15 +2,11 @@
 pip==9.0.1
 appdirs==1.4.3
 virtualenv==15.0.1
-docutils==0.11
-Sphinx==1.5.3
-sphinx_rtd_theme==0.2.5b1
 Pygments==2.2.0
-mkdocs==0.14.0
 django==1.9.12
 six==1.10.0
 future==0.16.0
-readthedocs-build<2.1
+#readthedocs-build<2.1
 
 django-tastypie==0.13.0
 django-haystack==2.6.0
@@ -58,10 +54,6 @@ django-messages-extends==0.5
 djangorestframework-jsonp==1.0.2
 django-taggit==0.22.2
 
-# Docs
-sphinxcontrib-httpdomain==1.4.0
-commonmark==0.5.5
-recommonmark==0.4.0
 
 # Version comparison stuff
 packaging==16.8
