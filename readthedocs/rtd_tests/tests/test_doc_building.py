@@ -210,7 +210,7 @@ class TestLocalBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -244,7 +244,7 @@ class TestLocalBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -304,7 +304,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -334,9 +334,9 @@ class TestDockerBuildEnvironment(TestCase):
         self.assertTrue(build_env.successful)
 
         # api() is not called anymore, we use api_v2 instead
-        # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
     def test_environment_failed_build_without_update_but_with_error(self):
@@ -356,7 +356,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -390,7 +390,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -435,7 +435,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -520,7 +520,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -560,7 +560,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -659,8 +659,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -706,7 +715,7 @@ class TestDockerBuildEnvironment(TestCase):
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
         # The command was not saved
-        self.mocks.mocks['api_v2.command'].post.assert_not_called()
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
