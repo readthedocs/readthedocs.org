@@ -455,7 +455,7 @@ class BuildEnvironment(BaseEnvironment):
             return True
 
     def record_command(self, command):
-        command.save()
+        pass
 
     def _log_warning(self, msg):
         # :'(
