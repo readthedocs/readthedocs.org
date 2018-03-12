@@ -150,19 +150,12 @@ class ProjectExtraForm(ProjectForm):
     class Meta(object):
         model = Project
         fields = (
-            'description',
             'documentation_type',
             'language',
             'programming_language',
             'tags',
             'project_url',
         )
-
-    description = forms.CharField(
-        validators=[ClassifierValidator(raises=ProjectSpamError)],
-        required=False,
-        widget=forms.Textarea,
-    )
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
@@ -221,7 +214,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             # Extra
             # 'allow_comments',
             # 'comment_moderation',
-            'description',
             'documentation_type',
             'language',
             'programming_language',
