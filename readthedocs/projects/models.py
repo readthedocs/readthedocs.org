@@ -326,8 +326,26 @@ class Project(models.Model):
             log.exception('failed to sync supported versions')
         try:
             if not first_save:
-                broadcast(type='app', task=tasks.symlink_project,
-                          args=[self.pk],)
+                log.info(
+                    'Re-symlinking project and subprojects: project=%s',
+                    self.slug,
+                )
+                broadcast(
+                    type='app',
+                    task=tasks.symlink_project,
+                    args=[self.pk],
+                )
+                log.info(
+                    'Re-symlinking superprojects: project=%s',
+                    self.slug,
+                )
+                for superproject in self.superprojects.all():
+                    broadcast(
+                        type='app',
+                        task=tasks.symlink_project,
+                        args=[superproject.pk],
+                    )
+
         except Exception:
             log.exception('failed to symlink project')
         try:

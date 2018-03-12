@@ -2,9 +2,6 @@
 
 var constants = require('./doc-embed/constants');
 
-module.exports = {
-    Promo: Promo
-};
 
 function Promo (id, text, link, image, theme, display_type, pixel) {
     this.id = id;       // analytics id
@@ -32,19 +29,19 @@ function Promo (id, text, link, image, theme, display_type, pixel) {
 }
 
 Promo.prototype.create = function () {
-    var self = this,
-        menu,
-        promo_class;
-    if (this.theme == constants.THEME_RTD) {
+    var self = this;
+    var menu;
+    var promo_class;
+    if (this.theme === constants.THEME_RTD) {
         menu = this.get_sphinx_rtd_theme_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'wy-menu';
     }
-    else if (this.theme == constants.THEME_ALABASTER || this.theme == constants.THEME_CELERY) {
+    else if (this.theme === constants.THEME_ALABASTER || this.theme === constants.THEME_CELERY) {
         menu = this.get_alabaster_promo_selector();
         promo_class = this.display_type === constants.PROMO_TYPES.FOOTER ? 'rtd-pro-footer' : 'alabaster';
     }
 
-    if (typeof(menu) != 'undefined') {
+    if (typeof(menu) !== 'undefined') {
         this.place_promo(menu, promo_class);
     }
 }
@@ -81,6 +78,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
             .attr('class', 'rtd-pro-image-wrapper')
             .attr('href', self.link)
             .attr('target', '_blank')
+            .attr('rel', 'nofollow')
             .on('click', self.click_handler);
         var promo_image = $('<img />')
             .attr('class', 'rtd-pro-image')
@@ -97,6 +95,7 @@ Promo.prototype.place_promo = function (selector, promo_class) {
             .attr('class', 'rtd-pro-link')
             .attr('href', self.link)
             .attr('target', '_blank')
+            .attr('rel', 'nofollow')
             .on('click', self.click_handler);
     });
     promo.append(promo_text);
@@ -120,9 +119,9 @@ Promo.prototype.place_promo = function (selector, promo_class) {
 
 Promo.prototype.get_alabaster_promo_selector = function () {
     // Return a jQuery selector where the promo goes on the Alabaster theme
-    var self = this,
-        selector,
-        wrapper;
+    var self = this;
+    var selector;
+    var wrapper;
 
     if (self.display_type === constants.PROMO_TYPES.FOOTER) {
         wrapper = $('<div />')
@@ -143,8 +142,8 @@ Promo.prototype.get_alabaster_promo_selector = function () {
 
 Promo.prototype.get_sphinx_rtd_theme_promo_selector = function () {
     // Return a jQuery selector where the promo goes on the RTD theme
-    var self = this,
-        selector;
+    var self = this;
+    var selector;
 
     if (self.display_type === constants.PROMO_TYPES.FOOTER) {
         selector = $('<div />')
@@ -162,8 +161,8 @@ Promo.prototype.get_sphinx_rtd_theme_promo_selector = function () {
 
 // Position promo
 Promo.prototype.display = function () {
-    var promo = this.promo,
-        self = this;
+    var promo = this.promo;
+    var self = this;
 
     if (! promo) {
         promo = this.promo = this.create();
@@ -180,14 +179,18 @@ Promo.prototype.disable = function () {
 
 // Variant factory method
 Promo.from_variants = function (variants) {
-    if (variants.length == 0) {
+    if (variants.length === 0) {
         return null;
     }
-    var chosen = Math.floor(Math.random() * variants.length),
-        variant = variants[chosen],
-        text = variant.text,
-        link = variant.link,
-        image = variant.image,
-        id = variant.id;
+    var chosen = Math.floor(Math.random() * variants.length);
+    var variant = variants[chosen];
+    var text = variant.text;
+    var link = variant.link;
+    var image = variant.image;
+    var id = variant.id;
     return new Promo(id, text, link, image);
+};
+
+module.exports = {
+    Promo: Promo
 };

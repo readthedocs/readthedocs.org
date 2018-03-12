@@ -3,8 +3,8 @@
 var jquery = require('jquery');
 
 function poll_task (data) {
-    var defer = jquery.Deferred(),
-        tries = 5;
+    var defer = jquery.Deferred();
+    var tries = 5;
 
     function poll_task_loop () {
         jquery
@@ -41,10 +41,10 @@ function poll_task (data) {
 }
 
 function trigger_task (config) {
-    var defer = jquery.Deferred(),
-        url = config.url,
-        token = config.token,
-        data = {csrfmiddlewaretoken: token};
+    var defer = jquery.Deferred();
+    var url = config.url;
+    var token = config.token;
+    var data = {csrfmiddlewaretoken: token};
 
     $.ajax({
         method: 'POST',

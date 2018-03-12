@@ -55,6 +55,10 @@ class Backend(BaseVCS):
         code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
+    def submodules_exists(self):
+        code, out, _ = self.run('git', 'submodule', 'status', record=False)
+        return code == 0 and bool(out)
+
     def fetch(self):
         code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
         if code != 0:
@@ -118,8 +122,8 @@ class Backend(BaseVCS):
     @property
     def branches(self):
         # Only show remote branches
-        retcode, stdout, _ = self.run('git', 'branch', '-r')
-        # error (or no tags found)
+        retcode, stdout, _ = self.run('git', 'branch', '-r', record_as_success=True)
+        # error (or no branches found)
         if retcode != 0:
             return []
         return self.parse_branches(stdout)
@@ -187,9 +191,10 @@ class Backend(BaseVCS):
         self.run('git', 'clean', '-d', '-f', '-f')
 
         # Update submodules
-        self.run('git', 'submodule', 'sync')
-        self.run('git', 'submodule', 'update',
-                 '--init', '--recursive', '--force')
+        if self.submodules_exists():
+            self.run('git', 'submodule', 'sync')
+            self.run('git', 'submodule', 'update',
+                     '--init', '--recursive', '--force')
 
         return code, out, err
 
