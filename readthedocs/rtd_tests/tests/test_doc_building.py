@@ -896,7 +896,6 @@ class TestAutoWipeEnvironment(TestCase):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    @pytest.mark.xfail(reason='build.image is not being considered yet')
     def test_is_obsolete_with_json_different_build_image(self):
         config_data = {
             'build': {
