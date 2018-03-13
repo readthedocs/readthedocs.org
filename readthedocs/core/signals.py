@@ -42,6 +42,9 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
             valid_url = True
+            # Don't do domain checking for this API for now
+            if url == '/api/v2/sustainability':
+                return True
 
     if valid_url:
         project_slug = request.GET.get('project', None)
