@@ -166,7 +166,7 @@ class ProjectExtraForm(ProjectForm):
 
     def clean_language(self):
         language = self.cleaned_data['language']
-        project = self.data['project']
+        project = self.instance
         if project:
             if project.translations.filter(language=language).exists():
                 msg = 'There is a translation for the "{lang}" language.'
