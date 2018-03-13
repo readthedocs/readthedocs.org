@@ -164,6 +164,24 @@ class ProjectExtraForm(ProjectForm):
         widget=forms.Textarea,
     )
 
+    def clean_language(self):
+        language = self.cleaned_data['language']
+        project = self.data['project']
+        if project:
+            if project.translations.filter(language=language).exists():
+                msg = 'There is a translation for the "{lang}" language.'
+                raise forms.ValidationError(
+                    _(msg).format(lang=language)
+                )
+            main_project = project.main_language_project
+            if main_project and main_project.language == language:
+                msg = (
+                    'The translation can not have the same '
+                    'language as the parent.'
+                )
+                raise forms.ValidationError(_(msg))
+        return language
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
