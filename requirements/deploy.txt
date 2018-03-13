@@ -1,4 +1,5 @@
 -r pip.txt
+-r local-docs-build.txt
 psycopg2==2.7.3.2
 gunicorn==19.1.0
 pysolr==2.0.13
@@ -10,6 +11,6 @@ hiredis==0.1.2
 maxcdn==0.0.7
 
 #For resizing images
-pillow
+pillow==2.6.1
 
 cssselect==0.7.1

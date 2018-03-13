@@ -1,0 +1,8 @@
+mkdocs==0.15.0
+sphinxcontrib-httpdomain==1.4.0
+commonmark==0.5.4
+recommonmark==0.4.0
+docutils==0.13.1
+Sphinx==1.5.3
+sphinx_rtd_theme<0.3
+readthedocs-build<2.1
