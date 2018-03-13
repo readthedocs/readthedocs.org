@@ -60,24 +60,6 @@ function create_footer_placement () {
     return null;
 }
 
-/*
- *  Returns an array of possible places where a promo could go
- */
-function get_placements () {
-    var placements = [];
-    var placement_funcs = [create_footer_placement, create_sidebar_placement];
-    var placement;
-
-    for (var i = 0; i < placement_funcs.length; i += 1) {
-        placement = placement_funcs[i]();
-        if (placement) {
-            placements.push(placement);
-        }
-    }
-
-    return placements;
-}
-
 function Promo (data) {
     this.id = data.id;                              // analytics id
     this.div_id = data.div_id || '';
@@ -128,8 +110,12 @@ Promo.prototype.post_promo_display = function () {
 };
 
 function init() {
-    var post_data = {};
+    var get_data = {format: "jsonp"};
+    var div_ids = [];
+    var display_types = [];
+    var placement_funcs = [create_footer_placement, create_sidebar_placement];
     var params;
+    var placement;
 
     rtd = rtddata.get();
 
@@ -137,32 +123,40 @@ function init() {
         return;
     }
 
-    post_data.placements = get_placements(rtd);
-    post_data.project = rtd.project;
+    for (var i = 0; i < placement_funcs.length; i += 1) {
+        placement = placement_funcs[i]();
+        if (placement) {
+            div_ids.push(placement.div_id);
+            display_types.push(placement.display_type);
+        }
+    }
+
+    get_data.div_ids = div_ids.join('|');
+    get_data.display_types = display_types.join('|');
+    get_data.project = rtd.project;
 
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
         // Force a specific promo to be displayed
         params = new URL(window.location).searchParams;
         if (params.get('force_promo')) {
-            post_data.force_promo = params.get('force_promo');
+            get_data.force_promo = params.get('force_promo');
         }
 
         // Force a promo from a specific campaign
         if (params.get('force_campaign')) {
-            post_data.force_campaign = params.get('force_campaign');
+            get_data.force_campaign = params.get('force_campaign');
         }
     }
 
     // Request a promo to inject onto the page
     $.ajax({
         url: rtd.api_host + "/api/v2/sustainability/",
-        type: 'post',
+        crossDomain: true,
         xhrFields: {
             withCredentials: true,
         },
-        dataType: "json",
-        data: JSON.stringify(post_data),
-        contentType: "application/json",
+        dataType: "jsonp",
+        data: get_data,
         success: function (data) {
             var promo;
             if (data && data.div_id && data.html) {
