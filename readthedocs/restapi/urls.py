@@ -100,3 +100,12 @@ try:
     urlpatterns += api_search_urls
 except ImportError:
     pass
+
+try:
+    from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
+
+    urlpatterns += [
+        url(r'^sustainability/', include(sustainability_urls)),
+    ]
+except ImportError:
+    pass

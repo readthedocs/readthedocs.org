@@ -1,3 +1,37 @@
+.. _version-2.3.0:
+
+Version 2.3.0
+-------------
+
+.. warning::
+    Version 2.3.0 includes a security fix for project translations. See
+    :ref:`security-2.3.0` for more information
+
+* `@stsewd <http://github.com/stsewd>`_: Fix tox env for coverage (`#3772 <https://github.com/rtfd/readthedocs.org/pull/3772>`_)
+* `@humitos <http://github.com/humitos>`_: Try to fix end of file (`#3761 <https://github.com/rtfd/readthedocs.org/pull/3761>`_)
+* `@berkerpeksag <http://github.com/berkerpeksag>`_: Fix indentation in docs/faq.rst (`#3758 <https://github.com/rtfd/readthedocs.org/pull/3758>`_)
+* `@stsewd <http://github.com/stsewd>`_: Check for http protocol before urlize (`#3755 <https://github.com/rtfd/readthedocs.org/pull/3755>`_)
+* `@rajujha373 <http://github.com/rajujha373>`_: #3741: replaced Go Crazy text with Search (`#3752 <https://github.com/rtfd/readthedocs.org/pull/3752>`_)
+* `@humitos <http://github.com/humitos>`_: Log in the proper place and add the image name used (`#3750 <https://github.com/rtfd/readthedocs.org/pull/3750>`_)
+* `@shubham76 <http://github.com/shubham76>`_: Changed 'Submit' text on buttons with something more meaningful (`#3749 <https://github.com/rtfd/readthedocs.org/pull/3749>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Fix tests for Git submodule (`#3737 <https://github.com/rtfd/readthedocs.org/pull/3737>`_)
+* `@bansalnitish <http://github.com/bansalnitish>`_: Add eslint rules and fix errors (`#3726 <https://github.com/rtfd/readthedocs.org/pull/3726>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Prevent bots indexing promos (`#3719 <https://github.com/rtfd/readthedocs.org/pull/3719>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Add argument to skip errorlist through knockout on common form (`#3704 <https://github.com/rtfd/readthedocs.org/pull/3704>`_)
+* `@ajatprabha <http://github.com/ajatprabha>`_: Fixed #3701: added closing tag for div element (`#3702 <https://github.com/rtfd/readthedocs.org/pull/3702>`_)
+* `@bansalnitish <http://github.com/bansalnitish>`_: Fixes internal reference (`#3695 <https://github.com/rtfd/readthedocs.org/pull/3695>`_)
+* `@humitos <http://github.com/humitos>`_: Always record the git branch command as success (`#3693 <https://github.com/rtfd/readthedocs.org/pull/3693>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Show the project slug in the project admin (to make it more explicit what project is what) (`#3681 <https://github.com/rtfd/readthedocs.org/pull/3681>`_)
+* `@humitos <http://github.com/humitos>`_: Upgrade django-taggit to 0.22.2 (`#3667 <https://github.com/rtfd/readthedocs.org/pull/3667>`_)
+* `@stsewd <http://github.com/stsewd>`_: Check for submodules (`#3661 <https://github.com/rtfd/readthedocs.org/pull/3661>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Hotfix for adding logging call back into project sync task (`#3657 <https://github.com/rtfd/readthedocs.org/pull/3657>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Fix issue with missing setting in oauth SyncRepo task (`#3656 <https://github.com/rtfd/readthedocs.org/pull/3656>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Remove error logging that isn't an error. (`#3650 <https://github.com/rtfd/readthedocs.org/pull/3650>`_)
+* `@humitos <http://github.com/humitos>`_: Project updated when subproject modified (`#3649 <https://github.com/rtfd/readthedocs.org/pull/3649>`_)
+* `@aasis21 <http://github.com/aasis21>`_: formatting buttons in edit project text editor (`#3633 <https://github.com/rtfd/readthedocs.org/pull/3633>`_)
+* `@humitos <http://github.com/humitos>`_: Filter by my own repositories at Import Remote Project (`#3548 <https://github.com/rtfd/readthedocs.org/pull/3548>`_)
+* `@funkyHat <http://github.com/funkyHat>`_: check for matching alias before subproject slug (`#2787 <https://github.com/rtfd/readthedocs.org/pull/2787>`_)
+
 Version 2.2.1
 -------------
 
