@@ -127,11 +127,8 @@ class Index(object):
             doc = {
                 '_index': index,
                 '_type': self._type,
-                '_id': source['id'],
                 '_source': source,
             }
-            if parent:
-                doc['_parent'] = parent
             if routing:
                 doc['_routing'] = routing
             docs.append(doc)
@@ -294,7 +291,7 @@ class PageIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'headers', 'version', 'path',
+        attrs = ('project', 'title', 'headers', 'version', 'path',
                  'content', 'taxonomy', 'commit')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
