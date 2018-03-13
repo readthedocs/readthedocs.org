@@ -260,3 +260,31 @@ class TestTranslationForm(TestCase):
             'is already a translation',
             ''.join(form.errors['project'])
         )
+
+    def test_cant_change_language_to_translation_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = ProjectExtraForm({
+            'project': self.project_a_es,
+            'documentation_type': 'sphinx',
+            'language': 'en',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is a translation for the',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        form = ProjectExtraForm({
+            'project': self.project_b_en,
+            'documentation_type': 'sphinx',
+            'language': 'es',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'The translation can not have the same language',
+            ''.join(form.errors['language'])
+        )
