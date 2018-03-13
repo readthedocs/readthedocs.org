@@ -16,7 +16,8 @@ from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search', '/api/v2/docsearch']
+WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search',
+                  '/api/v2/docsearch', '/api/v2/sustainability']
 
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
