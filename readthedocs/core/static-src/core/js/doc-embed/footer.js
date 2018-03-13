@@ -1,6 +1,5 @@
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
-var sponsorship = require('../sponsorship');
 
 
 function injectFooter(data) {
@@ -19,22 +18,6 @@ function injectFooter(data) {
     } else if (!data['version_supported']) {
         //$('.rst-current-version').addClass('rst-active-old-version')
     }
-
-    // Show promo selectively
-    if (data.promo && config.show_promo()) {
-        var promo = new sponsorship.Promo(
-            data.promo_data.id,
-            data.promo_data.text,
-            data.promo_data.link,
-            data.promo_data.image,
-            config.theme,
-            data.promo_data.display_type,
-            data.promo_data.pixel
-        )
-        if (promo) {
-            promo.display();
-        }
-    }
 }
 
 
@@ -52,7 +35,6 @@ function setupBookmarkCSRFToken() {
         }
     });
 }
-
 
 function init() {
     var rtd = rtddata.get();
@@ -79,15 +61,6 @@ function init() {
         get_data['subproject'] = true;
     }
 
-    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-        // Force a specific promo to be displayed
-        var params = new URL(window.location).searchParams;
-        var force_promo = params.get('promo');
-        if (force_promo) {
-            get_data['promo'] = force_promo;
-        }
-    }
-
     // Get footer HTML from API and inject it into the page.
     $.ajax({
         url: rtd.api_host + "/api/v2/footer_html/",
@@ -107,7 +80,6 @@ function init() {
         }
     });
 }
-
 
 module.exports = {
     init: init
