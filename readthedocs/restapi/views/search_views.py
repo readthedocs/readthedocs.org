@@ -64,7 +64,7 @@ def search(request):
     # Supplement result paths with domain information on project
     hits = results.get('hits', {}).get('hits', [])
     for (n, hit) in enumerate(hits):
-        fields = hit.get('fields', {})
+        fields = hit.get('_source', {})
         search_project = fields.get('project')[0]
         search_version = fields.get('version')[0]
         path = fields.get('path')[0]
@@ -77,9 +77,12 @@ def search(request):
                 )
             except ProjectRelationship.DoesNotExist:
                 pass
-        results['hits']['hits'][n]['fields']['link'] = (
+        results['hits']['hits'][n]['_source']['link'] = (
             canonical_url + path
         )
+        # we cannot render attributes starting with an underscore
+        results['hits']['hits'][n]['fields'] = results['hits']['hits'][n]['_source']
+        del results['hits']['hits'][n]['_source']
 
     return Response({'results': results})
 

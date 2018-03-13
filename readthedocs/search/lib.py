@@ -25,9 +25,9 @@ def search_project(request, query, language=None):
                 ]
             },
         },
-        "facets": {
+        "aggs": {
             "language": {
-                "terms": {"field": "lang"},
+                "terms": {"field": "lang.keyword"},
             },
         },
         "highlight": {
@@ -36,13 +36,12 @@ def search_project(request, query, language=None):
                 "description": {},
             }
         },
-        "fields": ["name", "slug", "description", "lang", "url"],
+        "_source": ["name", "slug", "description", "lang", "url"],
         "size": 50  # TODO: Support pagination.
     }
 
     if language:
-        body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
-        body['filter'] = {"term": {"lang": language}}
+        body['query']['bool']['filter'] = {"term": {"lang": language}}
 
     before_project_search.send(request=request, sender=ProjectIndex, body=body)
 
@@ -89,15 +88,15 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                 ]
             }
         },
-        "facets": {
+        "aggs": {
             "taxonomy": {
-                "terms": {"field": "taxonomy"},
+                "terms": {"field": "taxonomy.keyword"},
             },
             "project": {
-                "terms": {"field": "project"},
+                "terms": {"field": "project.keyword"},
             },
             "version": {
-                "terms": {"field": "version"},
+                "terms": {"field": "version.keyword"},
             },
         },
         "highlight": {
@@ -107,12 +106,12 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                 "content": {},
             }
         },
-        "fields": ["title", "project", "version", "path"],
+        "_source": ["title", "project", "version", "path"],
         "size": 50  # TODO: Support pagination.
     }
 
     if project_slug or version_slug or taxonomy:
-        final_filter = {"and": []}
+        final_filter = []
 
         if project_slug:
             try:
@@ -126,7 +125,7 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                                      in Project.objects.public(
                                          request.user).filter(
                                          superprojects__parent__slug=project.slug))
-                final_filter['and'].append({"terms": {"project": project_slugs}})
+                final_filter.append({"terms": {"project": project_slugs}})
 
                 # Add routing to optimize search by hitting the right shard.
                 # This purposely doesn't apply routing if the project has more
@@ -141,15 +140,12 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                 return None
 
         if version_slug:
-            final_filter['and'].append({'term': {'version': version_slug}})
+            final_filter.append({'term': {'version': version_slug}})
 
         if taxonomy:
-            final_filter['and'].append({'term': {'taxonomy': taxonomy}})
+            final_filter.append({'term': {'taxonomy': taxonomy}})
 
-        body['filter'] = final_filter
-        body['facets']['project']['facet_filter'] = final_filter
-        body['facets']['version']['facet_filter'] = final_filter
-        body['facets']['taxonomy']['facet_filter'] = final_filter
+        body['query']['bool']['filter'] = final_filter
 
     if settings.DEBUG:
         print("Before Signal")
@@ -167,9 +163,9 @@ def search_section(request, query, project_slug=None, version_slug=LATEST,
     """
     Search for a section of content.
 
-    When you search, you will have a ``project`` facet, which includes the
+    When you search, you will have a ``project`` facet (aggs), which includes the
     number of matching sections per project. When you search inside a project,
-    the ``path`` facet will show the number of matching sections per page.
+    the ``path`` aggs will show the number of matching sections per page.
 
     :param request: Request instance
     :param query: string to use in query
@@ -198,12 +194,9 @@ def search_section(request, query, project_slug=None, version_slug=LATEST,
                 ]
             }
         },
-        "facets": {
+        "aggs": {
             "project": {
-                "terms": {"field": "project"},
-                "facet_filter": {
-                    "term": {"version": version_slug},
-                }
+                "terms": {"field": "project.keyword"},
             },
         },
         "highlight": {
@@ -212,36 +205,29 @@ def search_section(request, query, project_slug=None, version_slug=LATEST,
                 "content": {},
             }
         },
-        "fields": ["title", "project", "version", "path", "page_id", "content"],
+        "_source": ["title", "project", "version", "path", "page_id", "content"],
         "size": 10  # TODO: Support pagination.
     }
 
     if project_slug:
-        body['filter'] = {
-            "and": [
-                {"term": {"project": project_slug}},
-                {"term": {"version": version_slug}},
-            ]
-        }
-        body['facets']['path'] = {
+        body['query']['bool']['filter'] = [
+            {"term": {"project": project_slug}},
+            {"term": {"version": version_slug}},
+        ]
+        body['aggs']['path'] = {
             "terms": {"field": "path"},
-            "facet_filter": {
-                "term": {"project": project_slug},
-            }
         },
         # Add routing to optimize search by hitting the right shard.
         kwargs['routing'] = project_slug
 
     if path:
-        body['filter'] = {
-            "and": [
-                {"term": {"path": path}},
-            ]
-        }
+        body['query']['bool']['filter'] = [
+            {"term": {"path": path}},
+        ]
 
     if path and not project_slug:
         # Show facets when we only have a path
-        body['facets']['path'] = {
+        body['aggs']['path'] = {
             "terms": {"field": "path"}
         }
 
