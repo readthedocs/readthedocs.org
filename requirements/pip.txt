@@ -57,6 +57,7 @@ django-annoying==0.10.1
 django-messages-extends==0.5
 djangorestframework-jsonp==1.0.2
 django-taggit==0.22.2
+dj-pagination==2.3.2
 
 # Docs
 sphinxcontrib-httpdomain==1.4.0
@@ -69,6 +70,3 @@ packaging==16.8
 # Commenting stuff
 django-cors-middleware==1.3.1
 nilsimsa==0.3.7
-
-# Pegged git requirements
-git+https://github.com/zyga/django-pagination.git@86caf15#egg=django_pagination-dev
