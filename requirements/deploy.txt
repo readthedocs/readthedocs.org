@@ -1,4 +1,5 @@
 -r pip.txt
+-r local-docs-build.txt
 psycopg2==2.7.3.2
 gunicorn==19.1.0
 pysolr==2.0.13
