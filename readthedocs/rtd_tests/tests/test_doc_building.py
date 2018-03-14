@@ -882,7 +882,6 @@ class AutoWipeEnvironmentBase(object):
         config_data = {
             'build': {
                 'image': '2.0',
-                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
@@ -905,7 +904,6 @@ class AutoWipeEnvironmentBase(object):
         config_data = {
             'build': {
                 'image': 'latest',
-                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
@@ -928,7 +926,6 @@ class AutoWipeEnvironmentBase(object):
         config_data = {
             'build': {
                 'image': '2.0',
-                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
@@ -955,7 +952,6 @@ class AutoWipeEnvironmentBase(object):
         config_data = {
             'build': {
                 'image': '2.0',
-                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 3.5,
@@ -978,7 +974,6 @@ class AutoWipeEnvironmentBase(object):
         config_data = {
             'build': {
                 'image': '2.0',
-                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
