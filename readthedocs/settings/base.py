@@ -90,7 +90,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
-            'readthedocs.comments',
             'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
