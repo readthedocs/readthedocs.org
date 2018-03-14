@@ -837,14 +837,18 @@ class TestDockerBuildCommand(TestCase):
             u'Command killed due to excessive memory consumption\n')
 
 
-
-
-class TestAutoWipeEnvironment(TestCase):
+class AutoWipeEnvironmentBase(object):
     fixtures = ['test_data']
+    build_env_class = None
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
         self.version = self.pip.versions.get(slug='0.8')
+        self.build_env = self.build_env_class(
+            project=self.pip,
+            version=self.version,
+            build={'id': DUMMY_BUILD_ID},
+        )
 
     def test_is_obsolete_without_env_json_file(self):
         yaml_config = create_load()()[0]
@@ -854,7 +858,7 @@ class TestAutoWipeEnvironment(TestCase):
             exists.return_value = False
             python_env = Virtualenv(
                 version=self.version,
-                build_env=None,
+                build_env=self.build_env,
                 config=config,
             )
 
@@ -868,7 +872,7 @@ class TestAutoWipeEnvironment(TestCase):
             exists.return_value = True
             python_env = Virtualenv(
                 version=self.version,
-                build_env=None,
+                build_env=self.build_env,
                 config=config,
             )
 
@@ -878,6 +882,7 @@ class TestAutoWipeEnvironment(TestCase):
         config_data = {
             'build': {
                 'image': '2.0',
+                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
@@ -888,19 +893,19 @@ class TestAutoWipeEnvironment(TestCase):
 
         python_env = Virtualenv(
             version=self.version,
-            build_env=None,
+            build_env=self.build_env,
             config=config,
         )
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 3.5}}'
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    @pytest.mark.xfail(reason='build.image is not being considered yet')
     def test_is_obsolete_with_json_different_build_image(self):
         config_data = {
             'build': {
                 'image': 'latest',
+                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
@@ -911,10 +916,10 @@ class TestAutoWipeEnvironment(TestCase):
 
         python_env = Virtualenv(
             version=self.version,
-            build_env=None,
+            build_env=self.build_env,
             config=config,
         )
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 2.7}}'
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 2.7}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
@@ -923,6 +928,7 @@ class TestAutoWipeEnvironment(TestCase):
         config_data = {
             'build': {
                 'image': '2.0',
+                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 2.7,
@@ -937,10 +943,10 @@ class TestAutoWipeEnvironment(TestCase):
 
         python_env = Virtualenv(
             version=self.version,
-            build_env=None,
+            build_env=self.build_env,
             config=config,
         )
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 2.7}}'
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 2.7}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
@@ -949,6 +955,7 @@ class TestAutoWipeEnvironment(TestCase):
         config_data = {
             'build': {
                 'image': '2.0',
+                'hash': 'a1b2c3',
             },
             'python': {
                 'version': 3.5,
@@ -959,10 +966,56 @@ class TestAutoWipeEnvironment(TestCase):
 
         python_env = Virtualenv(
             version=self.version,
-            build_env=None,
+            build_env=self.build_env,
             config=config,
         )
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 3.5}}'
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)
+
+    def test_is_obsolete_with_json_different_build_hash(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+                'hash': 'a1b2c3',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        # Set container_image manually
+        self.pip.container_image = 'readthedocs/build:2.0'
+        self.pip.save()
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "foo"}, "python": {"version": 2.7}}'  # noqa
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertTrue(python_env.is_obsolete)
+
+
+@patch(
+    'readthedocs.doc_builder.environments.DockerBuildEnvironment.image_hash',
+    PropertyMock(return_value='a1b2c3'),
+)
+class AutoWipeEnvironmentDockerBuildEnvironmentTest(AutoWipeEnvironmentBase, TestCase):
+    build_env_class = DockerBuildEnvironment
+
+
+@pytest.mark.xfail(
+    reason='PythonEnvironment needs to be refactored to do not rely on DockerBuildEnvironment',
+)
+@patch(
+    'readthedocs.doc_builder.environments.DockerBuildEnvironment.image_hash',
+    PropertyMock(return_value='a1b2c3'),
+)
+class AutoWipeEnvironmentLocalBuildEnvironmentTest(AutoWipeEnvironmentBase, TestCase):
+    build_env_class = LocalBuildEnvironment

@@ -131,6 +131,7 @@ class PythonEnvironment(object):
                 environment_conf = json.load(fpath)
             env_python_version = environment_conf['python']['version']
             env_build_image = environment_conf['build']['image']
+            env_build_hash = environment_conf['build']['hash']
         except (IOError, TypeError, KeyError, ValueError):
             log.error('Unable to read/parse readthedocs-environment.json file')
             return False
@@ -143,6 +144,7 @@ class PythonEnvironment(object):
         return any([
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
+            env_build_hash != self.build_env.image_hash,
         ])
 
     def save_environment_json(self):

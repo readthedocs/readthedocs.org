@@ -785,6 +785,15 @@ class DockerBuildEnvironment(BuildEnvironment):
         return create_host_config(binds=binds)
 
     @property
+    def image_hash(self):
+        """
+        Return the hash of the Docker image.
+        """
+        client = self.get_client()
+        image_metadata = client.inspect_image(self.container_image)
+        return image_metadata.get('Id')
+
+    @property
     def container_id(self):
         """Return id of container if it is valid."""
         if self.container_name:
