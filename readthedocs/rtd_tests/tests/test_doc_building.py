@@ -19,6 +19,7 @@ from django.test import TestCase
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from mock import Mock, PropertyMock, mock_open, patch
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
@@ -837,6 +838,83 @@ class TestDockerBuildCommand(TestCase):
             u'Command killed due to excessive memory consumption\n')
 
 
+class TestPythonEnvironment(TestCase):
+
+    def setUp(self):
+        self.project_sphinx = get(Project, documentation_type='sphinx')
+        self.version_sphinx = get(Version, project=self.project_sphinx)
+
+        self.project_mkdocs = get(Project, documentation_type='mkdocs')
+        self.version_mkdocs = get(Version, project=self.project_mkdocs)
+
+        self.build_env_mock = Mock()
+
+    def test_install_core_requirements_sphinx(self):
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+        requirements = [
+            'Pygments==2.2.0',
+            'setuptools==37.0.0',
+            'docutils==0.13.1',
+            'mock==1.0.1',
+            'pillow==2.6.1',
+            'alabaster>=0.7,<0.8,!=0.7.5',
+            'commonmark==0.5.4',
+            'recommonmark==0.4.0',
+            'sphinx==1.6.5',
+            'sphinx-rtd-theme<0.3',
+            'readthedocs-sphinx-ext<0.6',
+        ]
+        args = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '--use-wheel',
+            '--upgrade',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+        args.extend(requirements)
+        self.build_env_mock.run.assert_called_once_with(
+            *args, bin_path=mock.ANY
+        )
+
+    def test_install_core_requirements_mkdocs(self):
+        python_env = Virtualenv(
+            version=self.version_mkdocs,
+            build_env=self.build_env_mock
+        )
+        python_env.install_core_requirements()
+        requirements = [
+            'Pygments==2.2.0',
+            'setuptools==37.0.0',
+            'docutils==0.13.1',
+            'mock==1.0.1',
+            'pillow==2.6.1',
+            'alabaster>=0.7,<0.8,!=0.7.5',
+            'commonmark==0.5.4',
+            'recommonmark==0.4.0',
+            'mkdocs==0.15.0',
+        ]
+        args = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '--use-wheel',
+            '--upgrade',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+        args.extend(requirements)
+        self.build_env_mock.run.assert_called_once_with(
+            *args, bin_path=mock.ANY
+        )
+
+    def test_install_user_requirements(self):
+        pass
 
 
 class TestAutoWipeEnvironment(TestCase):
