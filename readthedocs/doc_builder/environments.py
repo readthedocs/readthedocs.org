@@ -623,6 +623,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
         if self.config and self.config.build_image:
             self.container_image = self.config.build_image
+        if self.project.container_image:
+            self.container_image = self.project.container_image
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:
@@ -824,13 +826,13 @@ class DockerBuildEnvironment(BuildEnvironment):
     def create_container(self):
         """Create docker container."""
         client = self.get_client()
-        image = self.container_image
-        if self.project.container_image:
-            image = self.project.container_image
         try:
-            log.info('Creating Docker container: image=%s', image)
+            log.info(
+                'Creating Docker container: image=%s',
+                self.container_image,
+            )
             self.container = client.create_container(
-                image=image,
+                image=self.container_image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
