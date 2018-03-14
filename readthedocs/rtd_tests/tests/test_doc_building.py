@@ -30,6 +30,7 @@ from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
+from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
 
 DUMMY_BUILD_ID = 123
@@ -914,7 +915,65 @@ class TestPythonEnvironment(TestCase):
         )
 
     def test_install_user_requirements(self):
-        pass
+        self.build_env_mock.project = self.project_sphinx
+        self.build_env_mock.version = self.version_sphinx
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock
+        )
+
+        checkout_path = python_env.checkout_path
+        docs_requirements = os.path.join(
+            checkout_path, 'docs', 'requirements.txt'
+        )
+        root_requirements = os.path.join(
+            checkout_path, 'requirements.txt'
+        )
+        paths = {
+            os.path.join(checkout_path, 'docs'): True,
+        }
+        args = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '--exists-action=w',
+            '--cache-dir',
+            mock.ANY,  # cache path
+            'requirements_file'
+        ]
+
+        paths[docs_requirements] = True
+        paths[root_requirements] = False
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        args[-1] = '-r{}'.format(docs_requirements)
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+        paths[docs_requirements] = False
+        paths[root_requirements] = True
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        args[-1] = '-r{}'.format(root_requirements)
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+        paths[docs_requirements] = True
+        paths[root_requirements] = True
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        args[-1] = '-r{}'.format(docs_requirements)
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+        paths[docs_requirements] = False
+        paths[root_requirements] = False
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        self.build_env_mock.run.assert_not_called()
 
 
 class TestAutoWipeEnvironment(TestCase):
