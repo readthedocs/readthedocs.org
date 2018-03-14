@@ -27,7 +27,7 @@ from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import (
     BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
-from readthedocs.doc_builder.python_environments import Virtualenv
+from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
@@ -973,6 +973,94 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
+        self.build_env_mock.run.assert_not_called()
+
+    def test_install_core_requirements_sphinx_conda(self):
+        python_env = Conda(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+        conda_requirements = [
+            'mock',
+            'pillow',
+            'sphinx',
+            'sphinx_rtd_theme',
+        ]
+        pip_requirements = [
+            'recommonmark',
+            'readthedocs-sphinx-ext',
+        ]
+
+        args_pip = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '-U',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+        args_pip.extend(pip_requirements)
+
+        args_conda = [
+            'conda',
+            'install',
+            '--yes',
+            '--name',
+            self.version_sphinx.slug,
+        ]
+        args_conda.extend(conda_requirements)
+
+        self.build_env_mock.run.assert_has_calls([
+            mock.call(*args_conda),
+            mock.call(*args_pip, bin_path=mock.ANY)
+        ])
+
+    def test_install_core_requirements_mkdocs_conda(self):
+        python_env = Conda(
+            version=self.version_mkdocs,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+        conda_requirements = [
+            'mock',
+            'pillow',
+        ]
+        pip_requirements = [
+            'recommonmark',
+            'mkdocs',
+        ]
+
+        args_pip = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '-U',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+        args_pip.extend(pip_requirements)
+
+        args_conda = [
+            'conda',
+            'install',
+            '--yes',
+            '--name',
+            self.version_mkdocs.slug,
+        ]
+        args_conda.extend(conda_requirements)
+
+        self.build_env_mock.run.assert_has_calls([
+            mock.call(*args_conda),
+            mock.call(*args_pip, bin_path=mock.ANY)
+        ])
+
+    def test_install_user_requirements_conda(self):
+        python_env = Conda(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_user_requirements()
         self.build_env_mock.run.assert_not_called()
 
 
