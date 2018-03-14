@@ -157,6 +157,7 @@ class PythonEnvironment(object):
             },
             'build': {
                 'image': build_image,
+                'hash': self.build_env.image_hash,
             },
         }
 
