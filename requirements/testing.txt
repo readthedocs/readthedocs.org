@@ -9,3 +9,4 @@ Mercurial==4.4.2
 
 # local debugging tools
 pdbpp
+datadiff
