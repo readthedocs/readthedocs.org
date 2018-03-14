@@ -135,9 +135,7 @@ class PythonEnvironment(object):
             log.error('Unable to read/parse readthedocs-environment.json file')
             return False
 
-        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
-
+        build_image = self.config.build_image or DOCKER_IMAGE
         # If the user define the Python version just as a major version
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
         # used to create the venv but we can still compare it against the new
@@ -149,9 +147,8 @@ class PythonEnvironment(object):
 
     def save_environment_json(self):
         """Save on disk Python and build image versions used to create the venv."""
-        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
 
+        build_image = self.config.build_image or DOCKER_IMAGE
         data = {
             'python': {
                 'version': self.config.python_full_version,
