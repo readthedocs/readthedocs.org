@@ -3,7 +3,7 @@ var $ = require('jquery');
 var tasks = require('readthedocs/core/static-src/core/js/tasks');
 
 
-$(function() {
+$(function () {
   var input = $('#id_repo');
   var repo = $('#id_repo_type');
 
@@ -37,7 +37,7 @@ $(function() {
   });
 });
 
-function append_url_params (url, params) {
+function append_url_params(url, params) {
     var link = $('<a>').attr('href', url).get(0);
 
     Object.keys(params).map(function (key) {
@@ -49,7 +49,7 @@ function append_url_params (url, params) {
     return link.href;
 }
 
-function Organization (instance, view) {
+function Organization(instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.name = ko.observable(instance.name);
@@ -74,7 +74,7 @@ function Organization (instance, view) {
     });
 }
 
-function Account (instance, view) {
+function Account(instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.username = ko.observable(instance.username);
@@ -99,7 +99,7 @@ function Account (instance, view) {
     });
 }
 
-function Project (instance, view) {
+function Project(instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.name = ko.observable(instance.name);
@@ -167,7 +167,7 @@ function Project (instance, view) {
     };
 }
 
-function ProjectImportView (instance, config) {
+function ProjectImportView(instance, config) {
     var self = this;
     var instance = instance || {};
 
@@ -288,7 +288,7 @@ function ProjectImportView (instance, config) {
             })
             .always(function () {
                 self.is_syncing(false);
-            })
+            });
     };
 
     self.has_projects = ko.computed(function () {

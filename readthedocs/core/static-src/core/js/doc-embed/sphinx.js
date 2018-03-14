@@ -11,7 +11,7 @@ function init() {
     var rtd = rtddata.get();
 
     /// Click tracking on flyout
-    $(document).on('click', "[data-toggle='rst-current-version']", function() {
+    $(document).on('click', "[data-toggle='rst-current-version']", function () {
         var flyout_state = $("[data-toggle='rst-versions']").hasClass('shift-up') ? 'was_open' : 'was_closed';
 
         // This needs to handle both old style legacy analytics for previously built docs
@@ -34,7 +34,7 @@ function init() {
         // already enabled. See:
         // https://github.com/snide/sphinx_rtd_theme/issues/250
         $(document).ready(function () {
-            setTimeout(function() {
+            setTimeout(function () {
                 if (!theme.navBar) {
                     theme.enable();
                 }
@@ -46,7 +46,7 @@ function init() {
             // scroll element, gracefully handle failover by adding it
             // dynamically.
             var navBar = jquery('div.wy-side-scroll:first');
-            if (! navBar.length) {
+            if (!navBar.length) {
                 var navInner = jquery('nav.wy-nav-side:first');
                 var navScroll = $('<div />')
                         .addClass('wy-side-scroll');

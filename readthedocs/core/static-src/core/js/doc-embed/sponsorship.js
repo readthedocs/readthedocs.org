@@ -8,7 +8,7 @@ var rtd;
 /*
  *  Creates a sidebar div where an ad could go
  */
-function create_sidebar_placement () {
+function create_sidebar_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.LEFTNAV;
     var selector = null;
@@ -36,7 +36,7 @@ function create_sidebar_placement () {
  *  Creates a sidebar div where an ad could go
  *  Returns the ID of the div or none if no footer ad is possible
  */
-function create_footer_placement () {
+function create_footer_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.FOOTER;
     var selector = null;
@@ -63,7 +63,7 @@ function create_footer_placement () {
 /*
  *  Returns an array of possible places where a promo could go
  */
-function get_placements () {
+function get_placements() {
     var placements = [];
     var placement_funcs = [create_footer_placement, create_sidebar_placement];
     var placement;
@@ -78,7 +78,7 @@ function get_placements () {
     return placements;
 }
 
-function Promo (data) {
+function Promo(data) {
     this.id = data.id;                              // analytics id
     this.div_id = data.div_id || '';
     this.html = data.html || '';
