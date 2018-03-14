@@ -1006,7 +1006,7 @@ class AutoWipeEnvironmentBase(object):
     'readthedocs.doc_builder.environments.DockerBuildEnvironment.image_hash',
     PropertyMock(return_value='a1b2c3'),
 )
-class AutoWipeEnvironmentDockerBuildEnvironmentTest(AutoWipeEnvironmentBase, TestCase):
+class AutoWipeDockerBuildEnvironmentTest(AutoWipeEnvironmentBase, TestCase):
     build_env_class = DockerBuildEnvironment
 
 
@@ -1017,5 +1017,5 @@ class AutoWipeEnvironmentDockerBuildEnvironmentTest(AutoWipeEnvironmentBase, Tes
     'readthedocs.doc_builder.environments.DockerBuildEnvironment.image_hash',
     PropertyMock(return_value='a1b2c3'),
 )
-class AutoWipeEnvironmentLocalBuildEnvironmentTest(AutoWipeEnvironmentBase, TestCase):
+class AutoWipeLocalBuildEnvironmentTest(AutoWipeEnvironmentBase, TestCase):
     build_env_class = LocalBuildEnvironment
