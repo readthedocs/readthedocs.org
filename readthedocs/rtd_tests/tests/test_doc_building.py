@@ -9,7 +9,9 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import os.path
+import json
 import re
+import tempfile
 import uuid
 from builtins import str
 
@@ -849,6 +851,42 @@ class AutoWipeEnvironmentBase(object):
             version=self.version,
             build={'id': DUMMY_BUILD_ID},
         )
+
+    def test_save_environment_json(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=config,
+        )
+
+        with patch(
+                'readthedocs.doc_builder.python_environments.PythonEnvironment.environment_json_path',
+                return_value=tempfile.mktemp(suffix='envjson'),
+        ):
+            python_env.save_environment_json()
+            json_data = json.load(open(python_env.environment_json_path()))
+
+        expected_data = {
+            'build': {
+                'image': 'readthedocs/build:2.0',
+                'hash': 'a1b2c3',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        self.assertDictEqual(json_data, expected_data)
 
     def test_is_obsolete_without_env_json_file(self):
         yaml_config = create_load()()[0]
