@@ -149,7 +149,6 @@ class PythonEnvironment(object):
 
     def save_environment_json(self):
         """Save on disk Python and build image versions used to create the venv."""
-
         build_image = self.config.build_image or DOCKER_IMAGE
         data = {
             'python': {
