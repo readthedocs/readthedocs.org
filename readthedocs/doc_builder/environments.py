@@ -840,6 +840,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 detach=True,
                 environment=self.environment,
                 mem_limit=self.container_mem_limit,
+                user=str(os.getuid())
             )
             client.start(container=self.container_id)
         except ConnectionError as e:
