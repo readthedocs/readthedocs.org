@@ -129,32 +129,6 @@ class BuildEnvironmentTests(TestCase):
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.pdf_build.called)
 
-    def test_builder_comments(self):
-        '''Normal build with comments'''
-        project = get(Project,
-                      documentation_type='sphinx',
-                      allow_comments=True,
-                      versions=[fixture()])
-        version = project.versions.all()[0]
-        build_env = LocalBuildEnvironment(version=version, project=project, build={})
-        python_env = Virtualenv(version=version, build_env=build_env)
-        builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(build_env, python_env)
-        self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
-
-    def test_builder_no_comments(self):
-        '''Test builder without comments'''
-        project = get(Project,
-                      documentation_type='sphinx',
-                      allow_comments=False,
-                      versions=[fixture()])
-        version = project.versions.all()[0]
-        build_env = LocalBuildEnvironment(version=version, project=project, build={})
-        python_env = Virtualenv(version=version, build_env=build_env)
-        builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(build_env, python_env)
-        self.assertEqual(builder.sphinx_builder, 'readthedocs')
-
     def test_build_pdf_latex_failures(self):
         '''Build failure if latex fails'''
 
