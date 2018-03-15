@@ -16,7 +16,8 @@ from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search', '/api/v2/docsearch']
+WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search',
+                  '/api/v2/docsearch', '/api/v2/sustainability']
 
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -41,6 +42,9 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
             valid_url = True
+            # Don't do domain checking for this API for now
+            if url == '/api/v2/sustainability':
+                return True
 
     if valid_url:
         project_slug = request.GET.get('project', None)

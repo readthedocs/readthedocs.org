@@ -44,7 +44,7 @@ It will walk you through getting a basic environment for Read the Docs setup.
 
 Then you can look through our :doc:`contribute` doc for information on how to get started contributing to RTD.
 
-People who has a history of submitting pull requests will be prioritized in our Summer of Code selection process.
+People who have a history of submitting pull requests will be prioritized in our Summer of Code selection process.
 
 Want to get involved?
 ---------------------

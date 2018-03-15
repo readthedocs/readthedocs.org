@@ -385,3 +385,32 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
             url = resolve(project=self.pip, private=False)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
+
+
+class ResolverAltSetUp(object):
+
+    def setUp(self):
+        with mock.patch('readthedocs.projects.models.broadcast'):
+            self.owner = create_user(username='owner', password='test')
+            self.tester = create_user(username='tester', password='test')
+            self.pip = get(Project, slug='pip', users=[self.owner], main_language_project=None)
+            self.seed = get(Project, slug='sub', users=[self.owner], main_language_project=None)
+            self.subproject = get(Project, slug='subproject', language='ja', users=[self.owner], main_language_project=None)
+            self.translation = get(Project, slug='trans', language='ja', users=[self.owner], main_language_project=None)
+            self.pip.add_subproject(self.subproject, alias='sub')
+            self.pip.translations.add(self.translation)
+
+
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+class ResolverDomainTestsAlt(ResolverAltSetUp, ResolverDomainTests):
+    pass
+
+
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+class SmartResolverPathTestsAlt(ResolverAltSetUp, SmartResolverPathTests):
+    pass
+
+
+@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+class ResolverTestsAlt(ResolverAltSetUp, ResolverTests):
+    pass

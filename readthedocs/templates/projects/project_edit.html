@@ -4,20 +4,6 @@
 {% block project-edit-active %}active{% endblock %}
 {% block nav-dashboard %} class="active"{% endblock %}
 
-{% block extra_links %}
-  <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/skins/simple/style.css" />
-  <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.css" />
-{% endblock %}
-
-{% block extra_scripts %}
-  <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/jquery.markitup.pack.js"></script>
-  <script type="text/javascript" src="{{ MEDIA_URL }}lib/markitup/sets/sphinx/editor.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $("#id_description").markItUp(SphinxDocsSettings); // .markItUp(mySettings);
-    });
-  </script>
-{% endblock %}
 
 {% block title %}{% trans "Edit Project" %}{% endblock %}
 
@@ -33,10 +19,10 @@
     </p>
     {{ form.as_p }}
     <p>
-      <input style="display: inline;" type="submit" value="{% trans "Submit" %}">
-      {% comment %}Translators: The 'or' here is in between 'Submit' and 'delete'.{% endcomment %}
+      <input style="display: inline;" type="submit" value="{% trans "Save" %}">
+      {% comment %}Translators: The 'or' here is in between 'Save' and 'Delete project'.{% endcomment %}
       {% trans "or" %}
-       <a href="{% url "projects_delete" project.slug %}">{% trans "delete" %}</a>
+       <a href="{% url "projects_delete" project.slug %}">{% trans "Delete project" %}</a>
     </p>
   </form>
 {% endblock %}
