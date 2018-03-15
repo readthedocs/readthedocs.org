@@ -7,7 +7,6 @@ import os
 import tempfile
 
 from django.test import TestCase
-from django.test.utils import override_settings
 from mock import patch, Mock
 import pytest
 
