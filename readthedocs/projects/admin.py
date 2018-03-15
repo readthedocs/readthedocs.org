@@ -9,6 +9,7 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
+from readthedocs.core.tasks import remove_dir
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
 from readthedocs.notifications.views import SendNotificationView
@@ -17,8 +18,6 @@ from .forms import FeatureForm
 from .models import (Project, ImportedFile, Feature,
                      ProjectRelationship, EmailHook, WebHook, Domain)
 from .notifications import ResourceUsageNotification
-from .tasks import remove_dir
-
 
 class ProjectSendNotificationView(SendNotificationView):
     notification_classes = [ResourceUsageNotification]

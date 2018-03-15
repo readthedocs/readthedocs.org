@@ -10,8 +10,9 @@ from mock import patch, MagicMock
 
 from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build
+from readthedocs.core.tasks import remove_dir, clear_artifacts
 from readthedocs.projects.models import Project
-from readthedocs.projects import tasks
+from readthedocs.project import tasks
 
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
@@ -44,7 +45,7 @@ class TestCeleryBuilding(RTDTestCase):
     def test_remove_dir(self):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
-        result = tasks.remove_dir.delay(directory)
+        result = remove_dir.delay(directory)
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -53,14 +54,14 @@ class TestCeleryBuilding(RTDTestCase):
         directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(version_pk=version.pk)
+        result = clear_artifacts.delay(version_pk=version.pk)
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
         directory = version.project.rtd_build_path(version=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(version_pk=version.pk)
+        result = clear_artifacts.delay(version_pk=version.pk)
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 

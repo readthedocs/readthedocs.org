@@ -11,7 +11,7 @@ from mock import patch
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project, EmailHook, WebHook
-from readthedocs.projects.tasks import send_notifications
+from readthedocs.core.tasks import send_notifications
 
 
 class BuildNotificationsTests(TestCase):

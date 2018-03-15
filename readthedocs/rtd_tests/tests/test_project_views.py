@@ -18,6 +18,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
                                         RequestFactoryTestMixin)
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.core.tasks import remove_dir
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
@@ -379,7 +380,7 @@ class TestPrivateViews(MockBuildTestCase):
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             broadcast.assert_called_with(
                 type='app',
-                task=tasks.remove_dir,
+                task=remove_dir,
                 args=[project.doc_path])
 
     def test_subproject_create(self):

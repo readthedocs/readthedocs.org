@@ -22,7 +22,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dir
+from readthedocs.core.tasks import remove_dir
 from readthedocs.redirects.utils import get_redirect_response
 
 log = logging.getLogger(__name__)

@@ -60,7 +60,7 @@ class ProjectAdminActionsTest(TestCase):
     @mock.patch('readthedocs.projects.admin.broadcast')
     def test_project_delete(self, broadcast):
         """Test project and artifacts are removed"""
-        from readthedocs.projects.tasks import remove_dir
+        from readthedocs.core.tasks import remove_dir
         action_data = {
             ACTION_CHECKBOX_NAME: [self.project.pk],
             'action': 'delete_selected',

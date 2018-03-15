@@ -16,7 +16,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks import finish_inactive_builds
+from readthedocs.core.tasks import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
