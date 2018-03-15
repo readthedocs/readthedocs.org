@@ -7,6 +7,7 @@ import tempfile
 
 from django.test import TestCase
 from mock import patch
+import pytest
 
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -34,7 +35,21 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     def test_create_conf_py(self, get_conf_py_path, run, get_config_params, create_index):
+        """
+        Test for a project without ``conf.py`` file.
+
+        When this happen, the ``get_conf_py_path`` raises a
+        ``ProjectConfigurationError`` which is captured by our own code and
+        generates a conf.py file based using our own template.
+
+        This template should be properly rendered in Python2 and Python3 without
+        any kind of exception raised by ``append_conf`` (we were originally
+        having a ``TypeError`` because of an encoding problem in Python3)
+        """
         create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
-        self.base_sphinx.append_conf()
+        try:
+            self.base_sphinx.append_conf()
+        except Exception:
+            pytest.fail('Exception was generated when append_conf called.')
