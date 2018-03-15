@@ -12,7 +12,7 @@ from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FIN
 from readthedocs.builds.models import Build
 from readthedocs.core.tasks import remove_dir, clear_artifacts
 from readthedocs.projects.models import Project
-from readthedocs.project import tasks
+from readthedocs.projects import tasks
 
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
