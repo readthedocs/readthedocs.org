@@ -14,16 +14,15 @@ import traceback
 import socket
 from datetime import datetime
 
-from readthedocs.core.utils import slugify
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from docker import Client
-from docker.utils import create_host_config
+from docker import APIClient
 from docker.errors import APIError as DockerAPIError, DockerException
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
 from requests.exceptions import ConnectionError
@@ -723,10 +722,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Create Docker client connection."""
         try:
             if self.client is None:
-                self.client = Client(
+                self.client = APIClient(
                     base_url=self.docker_socket,
                     version=DOCKER_VERSION,
-                    timeout=None
                 )
             return self.client
         except DockerException as e:
@@ -778,9 +776,12 @@ class DockerBuildEnvironment(BuildEnvironment):
                 self.project.pip_cache_path: {
                     'bind': self.project.pip_cache_path,
                     'mode': 'rw',
-                }
+                },
             })
-        return create_host_config(binds=binds)
+        return self.get_client().create_host_config(
+            binds=binds,
+            mem_limit=self.container_mem_limit,
+        )
 
     @property
     def container_id(self):
@@ -839,7 +840,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
-                mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
         except ConnectionError as e:
