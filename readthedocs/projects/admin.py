@@ -19,6 +19,7 @@ from .models import (Project, ImportedFile, Feature,
                      ProjectRelationship, EmailHook, WebHook, Domain)
 from .notifications import ResourceUsageNotification
 
+
 class ProjectSendNotificationView(SendNotificationView):
     notification_classes = [ResourceUsageNotification]
 

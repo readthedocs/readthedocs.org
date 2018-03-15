@@ -2,11 +2,14 @@
 
 from __future__ import absolute_import
 import logging
+import shutil
 
+from readthedocs.builds.models import Build, Version, APIVersion
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 from readthedocs.worker import app
 

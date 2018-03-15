@@ -43,7 +43,10 @@ from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
-from readthedocs.core.tasks import fileify, send_notifications, email_notification, webhook_notification, remove_dir, clear_artifacts, clear_pdf_artifacts, clear_epub_artifacts, clear_html_artifacts, clear_htmlzip_artifacts, finish_inactive_builds
+from readthedocs.core.tasks import fileify, send_notifications, email_notification
+from readthedocs.core.tasks import webhook_notification, remove_dir, finish_inactive_builds
+from readthedocs.core.tasks import clear_artifacts, clear_pdf_artifacts, clear_epub_artifacts
+from readthedocs.core.tasks import clear_html_artifacts, clear_htmlzip_artifacts
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
