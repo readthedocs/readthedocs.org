@@ -84,17 +84,6 @@ def project_manage(__, project_slug):
     return HttpResponseRedirect(reverse('projects_detail', args=[project_slug]))
 
 
-@login_required
-def project_comments_moderation(request, project_slug):
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
-    return render(
-        request,
-        'projects/project_comments_moderation.html',
-        {'project': project},
-    )
-
-
 class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
     form_class = UpdateProjectForm
@@ -532,20 +521,6 @@ def project_notifications(request, project_slug):
             'project': project,
             'emails': emails,
             'urls': urls,
-        },
-    )
-
-
-@login_required
-def project_comments_settings(request, project_slug):
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
-
-    return render(
-        request,
-        'projects/project_comments_settings.html',
-        {
-            'project': project,
         },
     )
 

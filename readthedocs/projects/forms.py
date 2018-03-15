@@ -230,8 +230,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'repo',
             'repo_type',
             # Extra
-            # 'allow_comments',
-            # 'comment_moderation',
             'description',
             'documentation_type',
             'language',
