@@ -1,16 +1,66 @@
 """Basic tasks."""
 
 from __future__ import absolute_import
-import logging
-import shutil
 
-from readthedocs.builds.models import Build, Version, APIVersion
+from readthedocs.worker import app
+import datetime
+import hashlib
+import json
+import logging
+import os
+import shutil
+import socket
+
+from collections import defaultdict
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
+import requests
+from builtins import str
+from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+from readthedocs_build.config import ConfigError
+from slumber.exceptions import HttpClientError
+
+from .constants import LOG_TEMPLATE
+from .exceptions import RepositoryError
+from .models import ImportedFile, Project, Domain
+from .signals import before_vcs, after_vcs, before_build, after_build
+from readthedocs.builds.constants import (LATEST,
+                                          BUILD_STATE_CLONING,
+                                          BUILD_STATE_INSTALLING,
+                                          BUILD_STATE_BUILDING,
+                                          BUILD_STATE_FINISHED)
+from readthedocs.builds.models import Build, Version, APIVersion
+from readthedocs.builds.signals import build_complete
+from readthedocs.builds.syncers import Syncer
+from readthedocs.cdn.purge import purge
+from readthedocs.core.resolver import resolve_path
+from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.tasks import fileify, send_notifications, email_notification
+from readthedocs.core.tasks import webhook_notification, remove_dir, finish_inactive_builds
+from readthedocs.core.tasks import clear_artifacts, clear_pdf_artifacts, clear_epub_artifacts
+from readthedocs.core.tasks import clear_html_artifacts, clear_htmlzip_artifacts
+from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
+                                                  DockerBuildEnvironment)
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.doc_builder.python_environments import Virtualenv, Conda
+from readthedocs.projects.models import APIProject
+from readthedocs.restapi.client import api as api_v2
+from readthedocs.restapi.utils import index_search_request
+from readthedocs.search.parse_json import process_all_json_files
+from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 
