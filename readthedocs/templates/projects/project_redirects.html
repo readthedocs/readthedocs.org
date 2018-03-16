@@ -22,12 +22,8 @@
                 redirect_target = "/$lang/$version/faq.html";
             }
             else if (option === "page" ) {
-                field_from = field_from_url.val();
-                field_to = field_to_url.val();
-                field_from_absolute = (field_from.length > 0) && (field_from[0] === "/");
-                field_to_absolute = (field_to.length > 0) && (field_to[0] === "/");
-                redirect_from = "/$lang/$version" + (field_from_absolute ? "" : "/") + field_from;
-                redirect_target = "/$lang/$version" + (field_to_absolute ? "" : "/") + field_to;
+                redirect_from = "/$lang/$version/" + field_from_url.val().replace(/^\/+/, '')
+                redirect_target = "/$lang/$version/" + field_to_url.val().replace(/^\/+/, '')
             }
             else if (option === "exact" ) {
                 redirect_from =  field_from_url.val();
