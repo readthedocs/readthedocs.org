@@ -9,8 +9,7 @@ It will get you to a point of having a local running instance.
 .. warning::
 
     Read the Docs does not itself run under Python 3 (though it does support
-    building documentation for Python 3 projects). Please ensure the subsequent
-    steps are performed using Python 2.7.
+    building documentation for Python 3 projects).
 
 
 First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them. Using a
