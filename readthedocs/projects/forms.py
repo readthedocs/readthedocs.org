@@ -179,7 +179,11 @@ class ProjectExtraForm(ProjectForm):
             if main_project:
                 if main_project.language == language:
                     raise forms.ValidationError(format_msg)
-                if main_project.translations.filter(language=language).exists():
+                siblings = (main_project.translations
+                            .filter(language=language)
+                            .exclude(pk=project.pk)
+                            .exists())
+                if siblings:
                     raise forms.ValidationError(format_msg)
         return language
 
