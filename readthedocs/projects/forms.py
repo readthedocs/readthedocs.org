@@ -168,18 +168,19 @@ class ProjectExtraForm(ProjectForm):
         language = self.cleaned_data['language']
         project = self.instance
         if project:
+            msg = _(
+                'There is already a "{lang}" translation '
+                'for the {proj} project.'
+            )
+            format_msg = msg.format(lang=language, proj=project.slug)
             if project.translations.filter(language=language).exists():
-                msg = 'There is a translation for the "{lang}" language.'
-                raise forms.ValidationError(
-                    _(msg).format(lang=language)
-                )
+                raise forms.ValidationError(format_msg)
             main_project = project.main_language_project
-            if main_project and main_project.language == language:
-                msg = (
-                    'The translation can not have the same '
-                    'language as the parent.'
-                )
-                raise forms.ValidationError(_(msg))
+            if main_project:
+                if main_project.language == language:
+                    raise forms.ValidationError(format_msg)
+                if main_project.translations.filter(language=language).exists():
+                    raise forms.ValidationError(format_msg)
         return language
 
 
