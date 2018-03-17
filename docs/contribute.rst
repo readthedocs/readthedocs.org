@@ -1,5 +1,3 @@
-.. _contributing-to-read-the-docs:
-
 Contributing to Read the Docs
 =============================
 
@@ -10,7 +8,6 @@ get stuck at any point you can create a `ticket on GitHub`_.
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
 
-.. _#readthedocs: irc://irc.freenode.net/readthedocs
 .. _ticket on GitHub: https://github.com/rtfd/readthedocs.org/issues
 
 Contributing to development
