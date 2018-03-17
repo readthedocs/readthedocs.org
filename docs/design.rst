@@ -1,5 +1,3 @@
-.. _designing-read-the-docs:
-
 Designing Read the Docs
 =======================
 
@@ -54,7 +52,3 @@ browsers, IE8+ -- that's not to say it needs to be pixel-perfect in older browse
 making changes that render older browsers utterly unusable (or provide a sane fallback).
 
 .. _Read the Docs GitHub project: https://github.com/rtfd/readthedocs.org/pulls
-
-
-
-
