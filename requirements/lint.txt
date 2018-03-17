@@ -1,5 +1,7 @@
 -r pip.txt
 maxcdn
+# astroid 1.6.2 breaks pylint-django
+# https://github.com/PyCQA/pylint-django/issues/117
 astroid==1.6.1
 pylint
 prospector
