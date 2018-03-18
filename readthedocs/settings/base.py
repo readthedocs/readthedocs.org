@@ -261,9 +261,9 @@ class CommunityBaseSettings(Settings):
     }
 
     CELERYBEAT_SCHEDULE = {
-        'weekly-clear-persistent-messages': {
+        'every-three-hour-clear-persistent-messages': {
             'task': 'readthedocs.core.tasks.clear_persistent_messages',
-            'schedule': crontab(hour=23, minute=59, day_of_week=6),
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
     }
