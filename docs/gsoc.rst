@@ -59,7 +59,9 @@ We have written our some loose ideas for projects to work on here.
 We are also open to any other ideas that students might have. 
 
 **These projects are sorted by priority.**
-We will generally accept them in the order as presented.
+We will consider the priority on our roadmap as a factor,
+along with the skill of the student,
+in our selection process.
 
 Refactor & improve our search code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
