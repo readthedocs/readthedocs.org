@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-
 """Base classes for VCS backends."""
-from __future__ import absolute_import
-from builtins import object
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import logging
 import os
 import shutil
 
+from builtins import object
 
 log = logging.getLogger(__name__)
 
@@ -28,8 +29,8 @@ class VCSVersion(object):
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return "<VCSVersion: %s:%s" % (self.repository.repo_url,
-                                       self.verbose_name)
+        return '<VCSVersion: %s:%s' % (
+            self.repository.repo_url, self.verbose_name)
 
 
 class BaseVCS(object):
@@ -66,7 +67,7 @@ class BaseVCS(object):
             os.makedirs(self.working_dir)
 
     def make_clean_working_dir(self):
-        """Ensures that the working dir exists and is empty"""
+        """Ensures that the working dir exists and is empty."""
         shutil.rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 

@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """Git-related utilities."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import csv
 import logging
@@ -12,7 +14,6 @@ from six import StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
 
 log = logging.getLogger(__name__)
 
@@ -39,9 +40,8 @@ class Backend(BaseVCS):
                 clone_url = 'https://%s@%s' % (self.token, hacked_url)
                 return clone_url
             # Don't edit URL because all hosts aren't the same
-
             # else:
-                # clone_url = 'git://%s' % (hacked_url)
+            #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
     def set_remote_url(self, url):
@@ -69,22 +69,24 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run(
-            'git', 'checkout', '--force', revision)
+        code, out, err = self.run('git', 'checkout', '--force', revision)
         if code != 0:
-            log.warning("Failed to checkout revision '%s': %s",
-                        revision, code)
+            log.warning("Failed to checkout revision '%s': %s", revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run(
-            'git', 'clone', '--recursive', self.repo_url, '.')
+        code, _, _ = self.run('git', 'clone', '--recursive', self.repo_url, '.')
         if code != 0:
             raise RepositoryError
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run('git', 'show-ref', '--tags', record_as_success=True)
+        retcode, stdout, _ = self.run(
+            'git',
+            'show-ref',
+            '--tags',
+            record_as_success=True,
+        )
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -122,7 +124,12 @@ class Backend(BaseVCS):
     @property
     def branches(self):
         # Only show remote branches
-        retcode, stdout, _ = self.run('git', 'branch', '-r', record_as_success=True)
+        retcode, stdout, _ = self.run(
+            'git',
+            'branch',
+            '-r',
+            record_as_success=True,
+        )
         # error (or no branches found)
         if retcode != 0:
             return []
@@ -130,7 +137,7 @@ class Backend(BaseVCS):
 
     def parse_branches(self, data):
         """
-        Parse output of git branch -r
+        Parse output of git branch -r.
 
         e.g.:
 
@@ -155,7 +162,8 @@ class Backend(BaseVCS):
                     verbose_name = branch.replace('origin/', '')
                     if verbose_name in ['HEAD']:
                         continue
-                    clean_branches.append(VCSVersion(self, branch, verbose_name))
+                    clean_branches.append(
+                        VCSVersion(self, branch, verbose_name))
                 else:
                     clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
@@ -193,8 +201,14 @@ class Backend(BaseVCS):
         # Update submodules
         if self.submodules_exists():
             self.run('git', 'submodule', 'sync')
-            self.run('git', 'submodule', 'update',
-                     '--init', '--recursive', '--force')
+            self.run(
+                'git',
+                'submodule',
+                'update',
+                '--init',
+                '--recursive',
+                '--force',
+            )
 
         return code, out, err
 
