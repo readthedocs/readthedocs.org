@@ -926,7 +926,7 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             project.description = 'New description'
             project.save()
             # called once for this project itself
-            broadcast.assert_any_calls(
+            broadcast.assert_any_call(
                 type='app',
                 task=symlink_project,
                 args=[project.pk],
@@ -944,13 +944,13 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             subproject.description = 'New subproject description'
             subproject.save()
             # subproject symlinks
-            broadcast.assert_any_calls(
+            broadcast.assert_any_call(
                 type='app',
                 task=symlink_project,
                 args=[subproject.pk],
             )
             # superproject symlinks
-            broadcast.assert_any_calls(
+            broadcast.assert_any_call(
                 type='app',
                 task=symlink_project,
                 args=[project.pk],

@@ -339,11 +339,11 @@ class Project(models.Model):
                     'Re-symlinking superprojects: project=%s',
                     self.slug,
                 )
-                for superproject in self.superprojects.all():
+                for relationship in self.superprojects.all():
                     broadcast(
                         type='app',
                         task=tasks.symlink_project,
-                        args=[superproject.pk],
+                        args=[relationship.parent.pk],
                     )
 
         except Exception:

@@ -8,7 +8,7 @@ var rtd;
 /*
  *  Creates a sidebar div where an ad could go
  */
-function create_sidebar_placement () {
+function create_sidebar_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.LEFTNAV;
     var selector = null;
@@ -36,7 +36,7 @@ function create_sidebar_placement () {
  *  Creates a sidebar div where an ad could go
  *  Returns the ID of the div or none if no footer ad is possible
  */
-function create_footer_placement () {
+function create_footer_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.FOOTER;
     var selector = null;
@@ -60,7 +60,7 @@ function create_footer_placement () {
     return null;
 }
 
-function Promo (data) {
+function Promo(data) {
     this.id = data.id;                              // analytics id
     this.div_id = data.div_id || '';
     this.html = data.html || '';
@@ -110,7 +110,7 @@ Promo.prototype.post_promo_display = function () {
 };
 
 function init() {
-    var get_data = {format: "jsonp"};
+    var request_data = {format: "jsonp"};
     var div_ids = [];
     var display_types = [];
     var placement_funcs = [create_footer_placement, create_sidebar_placement];
@@ -131,20 +131,20 @@ function init() {
         }
     }
 
-    get_data.div_ids = div_ids.join('|');
-    get_data.display_types = display_types.join('|');
-    get_data.project = rtd.project;
+    request_data.div_ids = div_ids.join('|');
+    request_data.display_types = display_types.join('|');
+    request_data.project = rtd.project;
 
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
         // Force a specific promo to be displayed
         params = new URL(window.location).searchParams;
         if (params.get('force_promo')) {
-            get_data.force_promo = params.get('force_promo');
+            request_data.force_promo = params.get('force_promo');
         }
 
         // Force a promo from a specific campaign
         if (params.get('force_campaign')) {
-            get_data.force_campaign = params.get('force_campaign');
+            request_data.force_campaign = params.get('force_campaign');
         }
     }
 
@@ -156,7 +156,7 @@ function init() {
             withCredentials: true,
         },
         dataType: "jsonp",
-        data: get_data,
+        data: request_data,
         success: function (data) {
             var promo;
             if (data && data.div_id && data.html) {

@@ -2,11 +2,11 @@
 
 var jquery = require('jquery');
 
-function poll_task (data) {
+function poll_task(data) {
     var defer = jquery.Deferred();
     var tries = 5;
 
-    function poll_task_loop () {
+    function poll_task_loop() {
         jquery
             .getJSON(data.url)
             .success(function (task) {
@@ -40,7 +40,7 @@ function poll_task (data) {
     return defer;
 }
 
-function trigger_task (config) {
+function trigger_task(config) {
     var defer = jquery.Deferred();
     var url = config.url;
     var token = config.token;

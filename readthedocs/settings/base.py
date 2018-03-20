@@ -71,7 +71,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'linaro_django_pagination',
+            'dj_pagination',
             'taggit',
             'guardian',
             'django_gravatar',
@@ -131,7 +131,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'linaro_django_pagination.middleware.PaginationMiddleware',
+        'dj_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
