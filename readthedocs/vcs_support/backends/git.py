@@ -9,8 +9,7 @@ import logging
 import os
 import re
 
-from builtins import str
-from six import StringIO
+from six import PY2, StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -110,7 +109,8 @@ class Backend(BaseVCS):
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
-        raw_tags = csv.reader(StringIO(data), delimiter=' ')
+        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
+        raw_tags = csv.reader(StringIO(data), delimiter=delimiter)
         vcs_tags = []
         for row in raw_tags:
             row = [f for f in row if f != '']
@@ -152,7 +152,8 @@ class Backend(BaseVCS):
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
-        raw_branches = csv.reader(StringIO(data), delimiter=' ')
+        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
+        raw_branches = csv.reader(StringIO(data), delimiter=delimiter)
         for branch in raw_branches:
             branch = [f for f in branch if f != '' and f != '*']
             # Handle empty branches
