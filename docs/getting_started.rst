@@ -28,6 +28,10 @@ Assuming you have Python_ already, `install Sphinx`_::
 
     $ pip install sphinx sphinx-autobuild
 
+.. note:: If your **pip** commands fail on Windows, try the following version:
+
+    python -m pip install ...
+
 Create a directory inside your project to hold your docs::
 
     $ cd /path/to/project
