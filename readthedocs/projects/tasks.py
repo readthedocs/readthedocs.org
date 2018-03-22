@@ -835,7 +835,7 @@ def broadcast_remove_orphan_symlinks():
 
     This task is executed by CELERY BEAT.
     """
-    broadcast(type='web', task=remove_orphan_symlinks)
+    broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
 @app.task(queue='web')
