@@ -6,7 +6,7 @@ var $ = jquery;
 
 
 // Modal display
-function _show_modal (section) {
+function _show_modal(section) {
     var embed_container = $('#embed-container');
     if (!embed_container.length) {
         embed_container = $('<div id="embed-container" class="modal modal-help" />');
@@ -27,13 +27,13 @@ function _show_modal (section) {
     });
 }
 
-function EmbedView (config) {
+function EmbedView(config) {
     var self = this;
 
     // Normalize config
     self.config = config || {};
-    if (typeof(self.config.api_host) === 'undefined') {
-        self.config.api_host = 'https://readthedocs.org'
+    if (typeof (self.config.api_host) === 'undefined') {
+        self.config.api_host = 'https://readthedocs.org';
     }
 
     self.help = ko.observable(null);
@@ -46,7 +46,7 @@ function EmbedView (config) {
     ko.computed(function () {
         var file = self.file();
         self.sections.removeAll();
-        if (! file) {
+        if (!file) {
             return;
         }
         self.help('Loading...');
@@ -149,16 +149,16 @@ function EmbedView (config) {
 module.exports.init_embed = function (config) {
     var view = new EmbedView(config);
     ko.applyBindings(view, $('#tool-embed')[0]);
-}
+};
 
 // Analytics
-function AnalyticsView (config) {
+function AnalyticsView(config) {
     var self = this;
 
     // Normalize config
     self.config = config || {};
-    if (typeof(self.config.api_host) === 'undefined') {
-        self.config.api_host = 'https://readthedocs.org'
+    if (typeof (self.config.api_host) === 'undefined') {
+        self.config.api_host = 'https://readthedocs.org';
     }
 
     self.show_help = function () {
@@ -173,4 +173,4 @@ function AnalyticsView (config) {
 module.exports.init_analytics = function (config) {
     var view = new AnalyticsView(config);
     ko.applyBindings(view, $('#tool-analytics')[0]);
-}
+};

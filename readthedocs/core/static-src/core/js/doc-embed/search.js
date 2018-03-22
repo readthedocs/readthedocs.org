@@ -94,9 +94,9 @@ function attach_elastic_search_query(data) {
             xhrFields: {
                 withCredentials: true,
             },
-            complete: function(resp, status_code) {
-                if (typeof(resp.responseJSON) === 'undefined' ||
-                        typeof(resp.responseJSON.results) === 'undefined') {
+            complete: function (resp, status_code) {
+                if (typeof (resp.responseJSON) === 'undefined' ||
+                        typeof (resp.responseJSON.results) === 'undefined') {
                     return search_def.reject();
                 }
                 return search_def.resolve(resp.responseJSON.results);

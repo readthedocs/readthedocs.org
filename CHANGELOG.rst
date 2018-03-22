@@ -1,3 +1,32 @@
+Version 2.3.1
+-------------
+
+* `@humitos <http://github.com/humitos>`_: Update instance and model when `record_as_success` (`#3831 <https://github.com/rtfd/readthedocs.org/pull/3831>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Bump docker -> 3.1.3 (`#3828 <https://github.com/rtfd/readthedocs.org/pull/3828>`_)
+* `@Doug-AWS <http://github.com/Doug-AWS>`_: Pip install note for Windows (`#3827 <https://github.com/rtfd/readthedocs.org/pull/3827>`_)
+* `@himanshutejwani12 <http://github.com/himanshutejwani12>`_: Update index.rst (`#3824 <https://github.com/rtfd/readthedocs.org/pull/3824>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Reorder GSOC projects, and note priority order (`#3823 <https://github.com/rtfd/readthedocs.org/pull/3823>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Autolint cleanup for #3821 (`#3822 <https://github.com/rtfd/readthedocs.org/pull/3822>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Add temporary method for skipping submodule checkout (`#3821 <https://github.com/rtfd/readthedocs.org/pull/3821>`_)
+* `@stsewd <http://github.com/stsewd>`_: Pin astroid to fix linter issue on travis (`#3816 <https://github.com/rtfd/readthedocs.org/pull/3816>`_)
+* `@varunotelli <http://github.com/varunotelli>`_: Update install.rst dropped the Python 2.7 only part (`#3814 <https://github.com/rtfd/readthedocs.org/pull/3814>`_)
+* `@xrmx <http://github.com/xrmx>`_: Update machine field when activating a version from project_version_detail (`#3797 <https://github.com/rtfd/readthedocs.org/pull/3797>`_)
+* `@humitos <http://github.com/humitos>`_: Allow members of "Admin" Team to wipe version envs (`#3791 <https://github.com/rtfd/readthedocs.org/pull/3791>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Add sustainability api to CORS (`#3782 <https://github.com/rtfd/readthedocs.org/pull/3782>`_)
+* `@durwasa-chakraborty <http://github.com/durwasa-chakraborty>`_: Fixed a grammatical error (`#3780 <https://github.com/rtfd/readthedocs.org/pull/3780>`_)
+* `@humitos <http://github.com/humitos>`_: Trying to solve the end line character for a font file (`#3776 <https://github.com/rtfd/readthedocs.org/pull/3776>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix tox env for coverage (`#3772 <https://github.com/rtfd/readthedocs.org/pull/3772>`_)
+* `@bansalnitish <http://github.com/bansalnitish>`_: Added eslint rules (`#3768 <https://github.com/rtfd/readthedocs.org/pull/3768>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Use sustainability api for advertising (`#3747 <https://github.com/rtfd/readthedocs.org/pull/3747>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Add a sustainability API (`#3672 <https://github.com/rtfd/readthedocs.org/pull/3672>`_)
+* `@humitos <http://github.com/humitos>`_: Upgrade django-pagination to a "maintained" fork (`#3666 <https://github.com/rtfd/readthedocs.org/pull/3666>`_)
+* `@humitos <http://github.com/humitos>`_: Project updated when subproject modified (`#3649 <https://github.com/rtfd/readthedocs.org/pull/3649>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Anonymize IP addresses for Google Analytics (`#3626 <https://github.com/rtfd/readthedocs.org/pull/3626>`_)
+* `@humitos <http://github.com/humitos>`_: Improve "Sharing" docs (`#3472 <https://github.com/rtfd/readthedocs.org/pull/3472>`_)
+* `@humitos <http://github.com/humitos>`_: Upgrade docker-py to its latest version (docker==3.1.1) (`#3243 <https://github.com/rtfd/readthedocs.org/pull/3243>`_)
+* `@humitos <http://github.com/humitos>`_: Upgrade all packages using `pur` tool (`#2916 <https://github.com/rtfd/readthedocs.org/pull/2916>`_)
+* `@rixx <http://github.com/rixx>`_: Fix page redirect preview (`#2711 <https://github.com/rtfd/readthedocs.org/pull/2711>`_)
+
 .. _version-2.3.0:
 
 Version 2.3.0
