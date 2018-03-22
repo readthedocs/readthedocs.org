@@ -85,7 +85,20 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run('git', 'clone', '--recursive', self.repo_url, '.')
+        """Clone the repository
+
+        .. note::
+            Temporarily, we support skipping submodule recursive clone via a
+            feature flag. This will eventually be configureable with our YAML
+            config.
+        """
+        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+        from readthedocs.projects.models import Feature
+        cmd = ['git', 'clone']
+        if not self.project.has_feature(Feature.SKIP_SUBMODULES):
+            cmd.append('--recursive')
+        cmd.extend([self.repo_url, '.'])
+        code, _, _ = self.run(*cmd)
         if code != 0:
             raise RepositoryError
 
