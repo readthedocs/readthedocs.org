@@ -343,7 +343,6 @@ class BaseEnvironment(object):
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
-        self.commands.append(build_cmd)
         build_cmd.run()
 
         if record:
@@ -351,6 +350,12 @@ class BaseEnvironment(object):
             # this class should know nothing about a BuildCommand (which are the
             # only ones that can be saved/recorded)
             self.record_command(build_cmd)
+
+            # We want append this command to the list of commands only if it has
+            # to be recorded in the database (to keep consistency) and also, it
+            # has to be added after ``self.record_command`` since its
+            # ``exit_code`` can be altered because of ``record_as_success``
+            self.commands.append(build_cmd)
 
         if build_cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
