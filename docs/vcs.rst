@@ -12,7 +12,7 @@ More information can be found on `Sphinx documentation`_.
 GitHub
 ------
 
-If you want to integrate GitHub, you can put the following snippet into 
+If you want to integrate GitHub, you can put the following snippet into
 your ``conf.py``::
 
     html_context = {
@@ -34,7 +34,7 @@ It can be used like this::
 Bitbucket
 ---------
 
-If you want to integrate Bitbucket, you can put the following snippet into 
+If you want to integrate Bitbucket, you can put the following snippet into
 your ``conf.py``::
 
     html_context = {
@@ -49,14 +49,14 @@ It can be used like this::
 
     {% if display_bitbucket %}
         <a href="https://bitbucket.org/{{ bitbucket_user }}/{{ bitbucket_repo }}
-        /src/{{ bitbucket_version}}{{ conf_py_path }}{{ pagename }}.rst'" 
+        /src/{{ bitbucket_version}}{{ conf_py_path }}{{ pagename }}.rst'"
         class="icon icon-bitbucket"> Edit on Bitbucket</a>
     {% endif %}
 
 Gitlab
 ------
 
-If you want to integrate Gitlab, you can put the following snippet into 
+If you want to integrate Gitlab, you can put the following snippet into
 your ``conf.py``::
 
     html_context = {
@@ -72,7 +72,7 @@ It can be used like this::
     {% if display_gitlab %}
         <a href="https://{{ gitlab_host|default("gitlab.com") }}/
         {{ gitlab_user }}/{{ gitlab_repo }}/blob/{{ gitlab_version }}
-        {{ conf_py_path }}{{ pagename }}{{ suffix }}" class="fa fa-gitlab"> 
+        {{ conf_py_path }}{{ pagename }}{{ suffix }}" class="fa fa-gitlab">
         Edit on GitLab</a>
     {% endif %}
 
