@@ -55,9 +55,11 @@ class Backend(BaseVCS):
         return code == 0
 
     def are_submodules_available(self):
-        """Test whether git submodule checkout step should be performed
+        """
+        Test whether git submodule checkout step should be performed.
 
         .. note::
+
             Temporarily, we support skipping these steps as submodule step can
             fail if using private submodules. This will eventually be
             configureable with our YAML config.
@@ -85,9 +87,11 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self):
-        """Clone the repository
+        """
+        Clone the repository.
 
         .. note::
+
             Temporarily, we support skipping submodule recursive clone via a
             feature flag. This will eventually be configureable with our YAML
             config.
