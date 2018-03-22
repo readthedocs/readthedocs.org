@@ -40,7 +40,8 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
-    def test_create_conf_py(self, get_conf_py_path, run, get_config_params, create_index, docs_dir):
+    @patch('readthedocs.builds.models.Project.conf_file')
+    def test_create_conf_py(self, conf_file, get_conf_py_path, _, get_config_params, create_index, docs_dir):
         """
         Test for a project without ``conf.py`` file.
 
@@ -56,6 +57,7 @@ class SphinxBuilderTest(TestCase):
         create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
+        conf_file.return_value = tempfile.mktemp()
         try:
             self.base_sphinx.append_conf()
         except Exception:
