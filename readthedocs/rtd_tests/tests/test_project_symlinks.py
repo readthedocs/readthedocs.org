@@ -246,6 +246,7 @@ class BaseSymlinkCnames(TempSiterootCase):
         broadcast.assert_called_with(
             type='web',
             task=remove_orphan_symlinks,
+            args=[],
         )
 
     def test_symlink_cname_dont_link_missing_domains(self):
