@@ -183,21 +183,19 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
-        exit_code = self.exit_code
-
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
         # in the Build
         if self.record_as_success:
             log.warning('Recording command exit_code as success')
-            exit_code = 0
+            self.exit_code = 0
 
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
             'description': self.description,
             'output': self.output,
-            'exit_code': exit_code,
+            'exit_code': self.exit_code,
             'start_time': self.start_time,
             'end_time': self.end_time,
         }
