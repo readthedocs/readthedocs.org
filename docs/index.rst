@@ -76,7 +76,7 @@ Information about development is also available:
    badges
    alternate_domains
    localization
-   theme-context
+   vcs
    subprojects
    conda
    canonical
