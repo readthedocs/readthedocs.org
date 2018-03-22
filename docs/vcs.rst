@@ -1,9 +1,15 @@
 Version Control System Integration
 ==================================
 
-If you want to integrate editing into your own theme, you will have to declare 
-few variables inside your configuration file ``conf.py`` in the ``'html_context'`` 
-setting, for the template to use them. 
+.. note::
+
+   We :doc:`plan to implement a new approach <design/theme-context>` regarding the Theme Context as a whole,
+   although the VCS documentation page will still be valid, we prefer the users to move in that direction.
+
+
+If you want to integrate editing into your own theme, you will have to declare
+few variables inside your configuration file ``conf.py`` in the ``'html_context'``
+setting, for the template to use them.
 
 More information can be found on `Sphinx documentation`_.
 
