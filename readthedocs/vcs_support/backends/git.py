@@ -54,7 +54,20 @@ class Backend(BaseVCS):
         code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
-    def submodules_exists(self):
+    def are_submodules_available(self):
+        """
+        Test whether git submodule checkout step should be performed.
+
+        .. note::
+
+            Temporarily, we support skipping these steps as submodule step can
+            fail if using private submodules. This will eventually be
+            configureable with our YAML config.
+        """
+        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+        from readthedocs.projects.models import Feature
+        if self.project.has_feature(Feature.SKIP_SUBMODULES):
+            return False
         code, out, _ = self.run('git', 'submodule', 'status', record=False)
         return code == 0 and bool(out)
 
@@ -74,7 +87,22 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run('git', 'clone', '--recursive', self.repo_url, '.')
+        """
+        Clone the repository.
+
+        .. note::
+
+            Temporarily, we support skipping submodule recursive clone via a
+            feature flag. This will eventually be configureable with our YAML
+            config.
+        """
+        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+        from readthedocs.projects.models import Feature
+        cmd = ['git', 'clone']
+        if not self.project.has_feature(Feature.SKIP_SUBMODULES):
+            cmd.append('--recursive')
+        cmd.extend([self.repo_url, '.'])
+        code, _, _ = self.run(*cmd)
         if code != 0:
             raise RepositoryError
 
@@ -199,8 +227,9 @@ class Backend(BaseVCS):
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')
 
-        # Update submodules
-        if self.submodules_exists():
+        # Update submodules, temporarily allow for skipping submodule checkout
+        # step for projects need more submodule configuration.
+        if self.are_submodules_available():
             self.run('git', 'submodule', 'sync')
             self.run(
                 'git',
