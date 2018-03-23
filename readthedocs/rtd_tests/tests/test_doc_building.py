@@ -783,7 +783,7 @@ class TestDockerBuildEnvironment(TestCase):
         self.assertEqual(build_env.commands[0].exit_code, 0)
         self.assertEqual(build_env.commands[0].output, u'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
-        self.assertTrue(build_env.failed)
+        self.assertFalse(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
