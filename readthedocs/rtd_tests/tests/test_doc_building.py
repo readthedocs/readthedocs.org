@@ -863,6 +863,16 @@ class TestPythonEnvironment(TestCase):
             'pillow',
         ]
 
+        self.pip_install_args = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '--use-wheel',
+            '--upgrade',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+
     def test_install_core_requirements_sphinx(self):
         python_env = Virtualenv(
             version=self.version_sphinx,
@@ -877,16 +887,7 @@ class TestPythonEnvironment(TestCase):
             'readthedocs-sphinx-ext<0.6',
         ]
         requirements = self.base_requirements + requirements_sphinx
-        args = [
-            'python',
-            mock.ANY,  # pip path
-            'install',
-            '--use-wheel',
-            '--upgrade',
-            '--cache-dir',
-            mock.ANY,  # cache path
-        ]
-        args.extend(requirements)
+        args = self.pip_install_args + requirements
         self.build_env_mock.run.assert_called_once_with(
             *args, bin_path=mock.ANY
         )
@@ -903,16 +904,7 @@ class TestPythonEnvironment(TestCase):
             'mkdocs==0.15.0',
         ]
         requirements = self.base_requirements + requirements_mkdocs
-        args = [
-            'python',
-            mock.ANY,  # pip path
-            'install',
-            '--use-wheel',
-            '--upgrade',
-            '--cache-dir',
-            mock.ANY,  # cache path
-        ]
-        args.extend(requirements)
+        args = self.pip_install_args + requirements
         self.build_env_mock.run.assert_called_once_with(
             *args, bin_path=mock.ANY
         )
