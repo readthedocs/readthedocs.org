@@ -247,7 +247,7 @@ class CommunityBaseSettings(Settings):
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
         'hourly-remove-orphan-symlinks': {
-            'task': 'readthedocs.projects.tasks.remove_orphan_symlinks',
+            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
             'schedule': crontab(minute=30),
             'options': {'queue': 'web'},
         },

@@ -14,7 +14,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.tasks import symlink_project, remove_orphan_symlinks
+from readthedocs.projects.tasks import broadcast_remove_orphan_symlinks, remove_orphan_symlinks, symlink_project
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 
 
@@ -238,6 +238,16 @@ class BaseSymlinkCnames(TempSiterootCase):
 
         self.assertFilesystem(filesystem)
 
+    def test_broadcast_remove_orphan_symlinks(self):
+        """Broadcast orphan symlinks is called with the proper attributes."""
+        with mock.patch('readthedocs.projects.tasks.broadcast') as broadcast:
+            broadcast_remove_orphan_symlinks()
+
+        broadcast.assert_called_with(
+            type='web',
+            task=remove_orphan_symlinks,
+            args=[],
+        )
 
     def test_symlink_cname_dont_link_missing_domains(self):
         """Domains should be relinked after deletion"""

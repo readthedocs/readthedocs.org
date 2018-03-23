@@ -829,6 +829,16 @@ def remove_orphan_symlinks():
 
 
 @app.task(queue='web')
+def broadcast_remove_orphan_symlinks():
+    """
+    Broadcast the task ``remove_orphan_symlinks`` to all our web servers.
+
+    This task is executed by CELERY BEAT.
+    """
+    broadcast(type='web', task=remove_orphan_symlinks, args=[])
+
+
+@app.task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
