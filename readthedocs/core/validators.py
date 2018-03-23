@@ -61,7 +61,7 @@ class RepositoryURLValidator(object):
             valid_schemes += private_schemes
         url = urlparse(value)
         if (
-                ( # pylint: disable=too-many-boolean-expressions
+                (  # pylint: disable=too-many-boolean-expressions
                     url.scheme not in valid_schemes and
                     '@' not in value and
                     not value.startswith('lp:')
