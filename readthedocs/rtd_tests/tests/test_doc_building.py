@@ -140,7 +140,6 @@ class TestLocalBuildEnvironment(TestCase):
             'output': '',
             'state': 'finished',
             'builder': mock.ANY,
-            'exit_code': 0,
         })
 
     def test_record_command_as_success(self):
@@ -179,7 +178,7 @@ class TestLocalBuildEnvironment(TestCase):
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
-            'success': False,
+            'success': True,
             'project': self.project.pk,
             'setup_error': u'',
             'length': mock.ANY,
@@ -188,7 +187,7 @@ class TestLocalBuildEnvironment(TestCase):
             'output': '',
             'state': 'finished',
             'builder': mock.ANY,
-            'exit_code': 1,
+            'exit_code': 0,
         })
 
     def test_incremental_state_update_with_no_update(self):
@@ -746,10 +745,9 @@ class TestDockerBuildEnvironment(TestCase):
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
-            'success': False,
+            'success': True,
             'project': self.project.pk,
             'setup_error': '',
-            'exit_code': 1,
             'length': 0,
             'error': '',
             'setup': '',
@@ -799,10 +797,10 @@ class TestDockerBuildEnvironment(TestCase):
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
-            'success': False,
+            'success': True,
             'project': self.project.pk,
             'setup_error': '',
-            'exit_code': 1,
+            'exit_code': 0,
             'length': 0,
             'error': '',
             'setup': '',
