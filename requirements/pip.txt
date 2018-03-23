@@ -1,5 +1,5 @@
 # Base packages
-pip==9.0.1
+pip==9.0.3
 appdirs==1.4.3
 virtualenv==15.1.0
 docutils==0.14
