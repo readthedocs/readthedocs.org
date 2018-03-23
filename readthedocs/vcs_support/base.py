@@ -52,6 +52,7 @@ class BaseVCS(object):
     # pylint: disable=unused-argument
     def __init__(self, project, version_slug, environment=None, **kwargs):
         self.default_branch = project.default_branch
+        self.project = project
         self.name = project.name
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
