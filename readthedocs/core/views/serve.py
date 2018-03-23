@@ -34,7 +34,8 @@ import os
 from functools import wraps
 
 from django.conf import settings
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.views.static import serve
 
@@ -57,21 +58,19 @@ def map_subproject_slug(view_func):
     .. warning:: Does not take into account any kind of privacy settings.
     """
     @wraps(view_func)
-    def inner_view(
-            request, subproject=None, subproject_slug=None, *args, **kwargs):
+    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):  # noqa
         if subproject is None and subproject_slug:
+            # Try to fetch by subproject alias first, otherwise we might end up
+            # redirected to an unrelated project.
             try:
-                subproject = Project.objects.get(slug=subproject_slug)
-            except Project.DoesNotExist:
-                try:
-                    # Depends on a project passed into kwargs
-                    rel = ProjectRelationship.objects.get(
-                        parent=kwargs['project'],
-                        alias=subproject_slug,
-                    )
-                    subproject = rel.child
-                except (ProjectRelationship.DoesNotExist, KeyError):
-                    raise Http404
+                # Depends on a project passed into kwargs
+                rel = ProjectRelationship.objects.get(
+                    parent=kwargs['project'],
+                    alias=subproject_slug,
+                )
+                subproject = rel.child
+            except (ProjectRelationship.DoesNotExist, KeyError):
+                get_object_or_404(Project, slug=subproject_slug)
         return view_func(request, subproject=subproject, *args, **kwargs)
 
     return inner_view
@@ -86,7 +85,7 @@ def map_project_slug(view_func):
     .. warning:: Does not take into account any kind of privacy settings.
     """
     @wraps(view_func)
-    def inner_view(request, project=None, project_slug=None, *args, **kwargs):
+    def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
         if project is None:
             if not project_slug:
                 project_slug = request.slug
@@ -117,7 +116,7 @@ def redirect_page_with_filename(request, project, subproject, filename):  # pyli
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
-    log.error('Unauthorized access to {0} documentation'.format(project.slug))
+    log.debug('Unauthorized access to {0} documentation'.format(project.slug))
     return res
 
 

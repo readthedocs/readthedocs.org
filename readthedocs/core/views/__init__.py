@@ -39,20 +39,8 @@ class HomepageView(TemplateView):
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
         context = super(HomepageView, self).get_context_data(**kwargs)
-        latest = []
-        latest_builds = (
-            Build.objects
-            .filter(
-                project__privacy_level=constants.PUBLIC,
-                success=True,
-            )
-            .order_by('-date')
-        )[:100]  # yapf: disable
-        for build in latest_builds:
-            if (build.project not in latest and len(latest) < 10):
-                latest.append(build.project)
-        context['project_list'] = latest
         context['featured_list'] = Project.objects.filter(featured=True)
+        context['projects_count'] = Project.objects.count()
         return context
 
 
@@ -89,7 +77,9 @@ def wipe_version(request, project_slug, version_slug):
         project__slug=project_slug,
         slug=version_slug,
     )
-    if request.user not in version.project.users.all():
+    # We need to check by ``for_admin_user`` here to allow members of the
+    # ``Admin`` team (which doesn't own the project) under the corporate site.
+    if version.project not in Project.objects.for_admin_user(user=request.user):
         raise Http404('You must own this project to wipe it.')
 
     if request.method == 'POST':

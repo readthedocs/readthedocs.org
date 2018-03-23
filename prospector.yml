@@ -25,6 +25,7 @@ pylint:
     max-line-length: 100
   disable:
     - logging-format-interpolation
+    - inconsistent-return-statements
 
 mccabe:
   run: false

@@ -297,6 +297,45 @@ div.menu-user div.menu-dropdown.menu-dropped {
   .home-header-links .login { font-weight: bold; color: #e3e3e3; text-shadow: 0px 1px 0 rgba(0, 0, 0, 0.5); }
   .home-header-links .login:hover { text-align: center; color: #fff; }
 
+section {
+    margin-bottom: 60px;
+}
+.home .lead {
+    font-size: 20px;
+    line-height: 30px;
+}
+.home .feature {
+    float: left;
+    width: 48%;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+
+a.cta-btn {
+  /* Make this link look like a button */
+  width: 300px;
+  font-weight: bold;
+  text-align: center;
+  display: inline-block;
+  margin: .3em 0em;
+  font-size: 1.1em;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+  background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left;
+  background-color: #8ECC4C;
+  border: 1px solid #bfbfbf;
+  border-color: #6B9939;
+  border-bottom-color: #50732B;
+  padding: 8px 15px;
+  border-radius: 3px;
+  text-decoration: none;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+a.cta-btn:hover, a.cta-btn:active {
+  color: #fff;
+}
 
 /* wide search bar */
 

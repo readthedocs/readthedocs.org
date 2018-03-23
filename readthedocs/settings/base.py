@@ -74,7 +74,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'linaro_django_pagination',
+            'dj_pagination',
             'taggit',
             'guardian',
             'django_gravatar',
@@ -134,7 +134,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'linaro_django_pagination.middleware.PaginationMiddleware',
+        'dj_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
@@ -200,7 +200,7 @@ class CommunityBaseSettings(Settings):
     # Cache
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'PREFIX': 'docs',
         }
     }
@@ -234,6 +234,7 @@ class CommunityBaseSettings(Settings):
     USE_L10N = True
 
     # Celery
+    CELERY_APP_NAME = 'readthedocs'
     CELERY_ALWAYS_EAGER = True
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
@@ -305,6 +306,7 @@ class CommunityBaseSettings(Settings):
     # RTD Settings
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
+    DEFAULT_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
 

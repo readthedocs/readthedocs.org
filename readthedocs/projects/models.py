@@ -22,7 +22,7 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name
+from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
@@ -33,7 +33,6 @@ from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
-from readthedocs.vcs_support.base import VCSProject
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 log = logging.getLogger(__name__)
@@ -87,6 +86,7 @@ class Project(models.Model):
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
     repo = models.CharField(_('Repository URL'), max_length=255,
+                            validators=[validate_repository_url],
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -327,8 +327,26 @@ class Project(models.Model):
             log.exception('failed to sync supported versions')
         try:
             if not first_save:
-                broadcast(type='app', task=tasks.symlink_project,
-                          args=[self.pk],)
+                log.info(
+                    'Re-symlinking project and subprojects: project=%s',
+                    self.slug,
+                )
+                broadcast(
+                    type='app',
+                    task=tasks.symlink_project,
+                    args=[self.pk],
+                )
+                log.info(
+                    'Re-symlinking superprojects: project=%s',
+                    self.slug,
+                )
+                for relationship in self.superprojects.all():
+                    broadcast(
+                        type='app',
+                        task=tasks.symlink_project,
+                        args=[relationship.parent.pk],
+                    )
+
         except Exception:
             log.exception('failed to symlink project')
         try:
@@ -449,7 +467,7 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False):
+        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
             return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
@@ -605,14 +623,24 @@ class Project(models.Model):
     def sponsored(self):
         return False
 
-    def vcs_repo(self, version=LATEST):
+    def vcs_repo(self, version=LATEST, environment=None):
+        """
+        Return a Backend object for this project able to handle VCS commands.
+
+        :param environment: environment to run the commands
+        :type environment: doc_builder.environments.BuildEnvironment
+        :param version: version slug for the backend (``LATEST`` by default)
+        :type version: str
+        """
+        # TODO: this seems to be the only method that receives a
+        # ``version.slug`` instead of a ``Version`` instance (I prefer an
+        # instance here)
+
         backend = backend_cls.get(self.repo_type)
         if not backend:
             repo = None
         else:
-            proj = VCSProject(
-                self.name, self.default_branch, self.checkout_path(version), self.clean_repo)
-            repo = backend(proj, version)
+            repo = backend(self, version, environment)
         return repo
 
     def repo_nonblockinglock(self, version, max_lock_age=5):
@@ -786,7 +814,6 @@ class Project(models.Model):
 
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
-        return
 
     def moderation_queue(self):
         # non-optimal SQL warning.
@@ -1041,12 +1068,14 @@ class Feature(models.Model):
     USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    SKIP_SUBMODULES = 'skip_submodules'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
     )
 
     projects = models.ManyToManyField(

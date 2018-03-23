@@ -119,17 +119,6 @@ class ProjectBasicsForm(ProjectForm):
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
         return name
 
-    def clean_repo(self):
-        repo = self.cleaned_data.get('repo', '').strip()
-        pvt_repos = getattr(settings, 'ALLOW_PRIVATE_REPOS', False)
-        if '&&' in repo or '|' in repo:
-            raise forms.ValidationError(_('Invalid character in repo name'))
-        elif '@' in repo and not pvt_repos:
-            raise forms.ValidationError(
-                _('It looks like you entered a private repo - please use the '
-                  'public (http:// or git://) clone url'))  # yapf: disable
-        return repo
-
     def clean_remote_repository(self):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if not remote_repo:
@@ -270,6 +259,13 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _('Subproject nesting is not supported'))
         return self.project
 
+    def clean_child(self):
+        child = self.cleaned_data['child']
+        if child == self.project:
+            raise forms.ValidationError(
+                _('A project can not be a subproject of itself'))
+        return child
+
     def get_subproject_queryset(self):
         """
         Return scrubbed subproject choice queryset.
@@ -280,7 +276,8 @@ class ProjectRelationshipForm(forms.ModelForm):
         queryset = (
             Project.objects.for_admin_user(self.user)
             .exclude(subprojects__isnull=False)
-            .exclude(superprojects__isnull=False))
+            .exclude(superprojects__isnull=False)
+            .exclude(pk=self.project.pk))
         return queryset
 
 
@@ -488,27 +485,75 @@ class TranslationForm(forms.Form):
 
     """Project translation form."""
 
-    project = forms.CharField()
+    project = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
+        self.user = kwargs.pop('user')
         super(TranslationForm, self).__init__(*args, **kwargs)
+        self.fields['project'].choices = self.get_choices()
+
+    def get_choices(self):
+        return [
+            (project.slug, '{project} ({lang})'.format(
+                project=project.slug, lang=project.get_language_display()))
+            for project in self.get_translation_queryset().all()
+        ]
 
     def clean_project(self):
-        translation_name = self.cleaned_data['project']
-        translation_qs = Project.objects.filter(slug=translation_name)
-        if not translation_qs.exists():
-            raise forms.ValidationError(
-                (_('Project {name} does not exist').format(
-                    name=translation_name)))
-        if translation_qs.first().language == self.parent.language:
-            err = ('Both projects have a language of `{}`. '
-                   'Please choose one with another language'.format(
-                       self.parent.language))
-            raise forms.ValidationError(_(err))
+        translation_project_slug = self.cleaned_data['project']
 
-        self.translation = translation_qs.first()
-        return translation_name
+        # Ensure parent project isn't already itself a translation
+        if self.parent.main_language_project is not None:
+            msg = 'Project "{project}" is already a translation'
+            raise forms.ValidationError(
+                (_(msg).format(project=self.parent.slug))
+            )
+
+        project_translation_qs = self.get_translation_queryset().filter(
+            slug=translation_project_slug
+        )
+        if not project_translation_qs.exists():
+            msg = 'Project "{project}" does not exist.'
+            raise forms.ValidationError(
+                (_(msg).format(project=translation_project_slug))
+            )
+        self.translation = project_translation_qs.first()
+        if self.translation.language == self.parent.language:
+            msg = (
+                'Both projects can not have the same language ({lang}).'
+            )
+            raise forms.ValidationError(
+                _(msg).format(lang=self.parent.get_language_display())
+            )
+        exists_translation = (
+            self.parent.translations
+            .filter(language=self.translation.language)
+            .exists()
+        )
+        if exists_translation:
+            msg = (
+                'This project already has a translation for {lang}.'
+            )
+            raise forms.ValidationError(
+                _(msg).format(lang=self.translation.get_language_display())
+            )
+        is_parent = self.translation.translations.exists()
+        if is_parent:
+            msg = (
+                'A project with existing translations '
+                'can not be added as a project translation.'
+            )
+            raise forms.ValidationError(_(msg))
+        return translation_project_slug
+
+    def get_translation_queryset(self):
+        queryset = (
+            Project.objects.for_admin_user(self.user)
+            .filter(main_language_project=None)
+            .exclude(pk=self.parent.pk)
+        )
+        return queryset
 
     def save(self):
         project = self.parent.translations.add(self.translation)

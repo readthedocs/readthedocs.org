@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Documentation Builder Environments."""
 
 from __future__ import absolute_import
@@ -12,15 +14,15 @@ import traceback
 import socket
 from datetime import datetime
 
-from readthedocs.core.utils import slugify
-from django.utils.translation import ugettext_lazy as _, ugettext_noop
-from docker import Client
-from docker.utils import create_host_config
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+from docker import APIClient
 from docker.errors import APIError as DockerAPIError, DockerException
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
 from requests.exceptions import ConnectionError
@@ -39,7 +41,8 @@ log = logging.getLogger(__name__)
 __all__ = (
     'api_v2',
     'BuildCommand', 'DockerBuildCommand',
-    'BuildEnvironment', 'LocalEnvironment', 'DockerEnvironment',
+    'LocalEnvironment',
+    'LocalBuildEnvironment', 'DockerBuildEnvironment',
 )
 
 
@@ -69,7 +72,7 @@ class BuildCommand(BuildCommandResultMixin):
 
     def __init__(self, command, cwd=None, shell=False, environment=None,
                  combine_output=True, input_data=None, build_env=None,
-                 bin_path=None, description=None):
+                 bin_path=None, description=None, record_as_success=False):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -92,6 +95,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.description = ''
         if description is not None:
             self.description = description
+        self.record_as_success = record_as_success
         self.exit_code = None
 
     def __str__(self):
@@ -179,6 +183,13 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
+        # Force record this command as success to avoid Build reporting errors
+        # on commands that are just for checking purposes and do not interferes
+        # in the Build
+        if self.record_as_success:
+            log.warning('Recording command exit_code as success')
+            self.exit_code = 0
+
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
@@ -267,7 +278,105 @@ class DockerBuildCommand(BuildCommand):
                                    for part in self.command]))))
 
 
-class BuildEnvironment(object):
+class BaseEnvironment(object):
+
+    """
+    Base environment class.
+
+    Used to run arbitrary commands outside a build.
+    """
+
+    def __init__(self, project, environment=None):
+        # TODO: maybe we can remove this Project dependency also
+        self.project = project
+        self.environment = environment or {}
+        self.commands = []
+
+    def record_command(self, command):
+        pass
+
+    def _log_warning(self, msg):
+        log.warning(LOG_TEMPLATE.format(
+            project=self.project.slug,
+            version='latest',
+            msg=msg,
+        ))
+
+    def run(self, *cmd, **kwargs):
+        """Shortcut to run command from environment."""
+        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+
+    def run_command_class(
+            self, cls, cmd, record=None, warn_only=False,
+            record_as_success=False, **kwargs):
+        """
+        Run command from this environment.
+
+        :param cls: command class to instantiate a command
+        :param cmd: command (as a list) to execute in this environment
+        :param record: whether or not to record this particular command
+            (``False`` implies ``warn_only=True``)
+        :param warn_only: don't raise an exception on command failure
+        :param record_as_success: force command ``exit_code`` to be saved as
+            ``0`` (``True`` implies ``warn_only=True`` and ``record=True``)
+        """
+        if record is None:
+            # ``self.record`` only exists when called from ``*BuildEnvironment``
+            record = getattr(self, 'record', False)
+
+        if not record:
+            warn_only = True
+
+        if record_as_success:
+            record = True
+            warn_only = True
+            # ``record_as_success`` is needed to instantiate the BuildCommand
+            kwargs.update({'record_as_success': record_as_success})
+
+        # Remove PATH from env, and set it to bin_path if it isn't passed in
+        env_path = self.environment.pop('BIN_PATH', None)
+        if 'bin_path' not in kwargs and env_path:
+            kwargs['bin_path'] = env_path
+        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        kwargs['environment'] = self.environment
+
+        # ``build_env`` is passed as ``kwargs`` when it's called from a
+        # ``*BuildEnvironment``
+        build_cmd = cls(cmd, **kwargs)
+        build_cmd.run()
+
+        if record:
+            # TODO: I don't like how it's handled this entry point here since
+            # this class should know nothing about a BuildCommand (which are the
+            # only ones that can be saved/recorded)
+            self.record_command(build_cmd)
+
+            # We want append this command to the list of commands only if it has
+            # to be recorded in the database (to keep consistency) and also, it
+            # has to be added after ``self.record_command`` since its
+            # ``exit_code`` can be altered because of ``record_as_success``
+            self.commands.append(build_cmd)
+
+        if build_cmd.failed:
+            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
+
+            if build_cmd.output:
+                msg += u':\n{out}'.format(out=build_cmd.output)
+
+            if warn_only:
+                self._log_warning(msg)
+            else:
+                raise BuildEnvironmentWarning(msg)
+        return build_cmd
+
+
+class LocalEnvironment(BaseEnvironment):
+
+    # TODO: BuildCommand name doesn't make sense here, should be just Command
+    command_class = BuildCommand
+
+
+class BuildEnvironment(BaseEnvironment):
 
     """
     Base build environment.
@@ -302,15 +411,13 @@ class BuildEnvironment(object):
 
     def __init__(self, project=None, version=None, build=None, config=None,
                  record=True, environment=None, update_on_success=True):
-        self.project = project
+        super(BuildEnvironment, self).__init__(project, environment)
         self.version = version
         self.build = build
         self.config = config
         self.record = record
-        self.environment = environment or {}
         self.update_on_success = update_on_success
 
-        self.commands = []
         self.failure = None
         self.start_time = datetime.utcnow()
 
@@ -347,48 +454,28 @@ class BuildEnvironment(object):
                 self.failure = exc_value
             return True
 
+    def record_command(self, command):
+        command.save()
+
+    def _log_warning(self, msg):
+        # :'(
+        log.warning(LOG_TEMPLATE.format(
+            project=self.project.slug,
+            version=self.version.slug,
+            msg=msg,
+        ))
+
     def run(self, *cmd, **kwargs):
-        """Shortcut to run command from environment."""
-        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+        kwargs.update({
+            'build_env': self,
+        })
+        return super(BuildEnvironment, self).run(*cmd, **kwargs)
 
-    def run_command_class(self, cls, cmd, **kwargs):
-        """
-        Run command from this environment.
-
-        Use ``cls`` to instantiate a command
-
-        :param warn_only: Don't raise an exception on command failure
-        """
-        warn_only = kwargs.pop('warn_only', False)
-        # Remove PATH from env, and set it to bin_path if it isn't passed in
-        env_path = self.environment.pop('BIN_PATH', None)
-        if 'bin_path' not in kwargs and env_path:
-            kwargs['bin_path'] = env_path
-        assert 'environment' not in kwargs, "environment can't be passed in via commands."
-        kwargs['environment'] = self.environment
-        kwargs['build_env'] = self
-        build_cmd = cls(cmd, **kwargs)
-        self.commands.append(build_cmd)
-        build_cmd.run()
-
-        # Save to database
-        if self.record:
-            build_cmd.save()
-
-        if build_cmd.failed:
-            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
-
-            if build_cmd.output:
-                msg += u':\n{out}'.format(out=build_cmd.output)
-
-            if warn_only:
-                log.warn(LOG_TEMPLATE
-                         .format(project=self.project.slug,
-                                 version=self.version.slug,
-                                 msg=msg))
-            else:
-                raise BuildEnvironmentWarning(msg)
-        return build_cmd
+    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
+        kwargs.update({
+            'build_env': self,
+        })
+        return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
 
     @property
     def successful(self):
@@ -496,14 +583,14 @@ class BuildEnvironment(object):
                 log.exception("Unknown build exception")
 
 
-class LocalEnvironment(BuildEnvironment):
+class LocalBuildEnvironment(BuildEnvironment):
 
-    """Local execution environment."""
+    """Local execution build environment."""
 
     command_class = BuildCommand
 
 
-class DockerEnvironment(BuildEnvironment):
+class DockerBuildEnvironment(BuildEnvironment):
 
     """
     Docker build environment, uses docker to contain builds.
@@ -526,7 +613,7 @@ class DockerEnvironment(BuildEnvironment):
 
     def __init__(self, *args, **kwargs):
         self.docker_socket = kwargs.pop('docker_socket', DOCKER_SOCKET)
-        super(DockerEnvironment, self).__init__(*args, **kwargs)
+        super(DockerBuildEnvironment, self).__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = slugify(
@@ -545,7 +632,6 @@ class DockerEnvironment(BuildEnvironment):
 
     def __enter__(self):
         """Start of environment context."""
-        log.info('Creating container')
         try:
             # Test for existing container. We remove any stale containers that
             # are no longer running here if there is a collision. If the
@@ -561,12 +647,12 @@ class DockerEnvironment(BuildEnvironment):
                     self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
-                    log.warn(LOG_TEMPLATE
-                             .format(
-                                 project=self.project.slug,
-                                 version=self.version.slug,
-                                 msg=("Removing stale container {0}"
-                                      .format(self.container_id))))
+                    log.warning(LOG_TEMPLATE
+                                .format(
+                                    project=self.project.slug,
+                                    version=self.version.slug,
+                                    msg=("Removing stale container {0}"
+                                         .format(self.container_id))))
                     client = self.get_client()
                     client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError):
@@ -639,10 +725,9 @@ class DockerEnvironment(BuildEnvironment):
         """Create Docker client connection."""
         try:
             if self.client is None:
-                self.client = Client(
+                self.client = APIClient(
                     base_url=self.docker_socket,
                     version=DOCKER_VERSION,
-                    timeout=None
                 )
             return self.client
         except DockerException as e:
@@ -661,6 +746,45 @@ class DockerEnvironment(BuildEnvironment):
                     build_id=self.build['id'],
                 )
             )
+
+    def get_container_host_config(self):
+        """
+        Create the ``host_config`` settings for the container.
+
+        It mainly generates the proper path bindings between the Docker
+        container and the Host by mounting them with the proper permissions.
+        Besides, it mounts the ``GLOBAL_PIP_CACHE`` if it's set and we are under
+        ``DEBUG``.
+
+        The object returned is passed to Docker function
+        ``client.create_container``.
+        """
+        binds = {
+            SPHINX_TEMPLATE_DIR: {
+                'bind': SPHINX_TEMPLATE_DIR,
+                'mode': 'ro',
+            },
+            MKDOCS_TEMPLATE_DIR: {
+                'bind': MKDOCS_TEMPLATE_DIR,
+                'mode': 'ro',
+            },
+            self.project.doc_path: {
+                'bind': self.project.doc_path,
+                'mode': 'rw',
+            },
+        }
+
+        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+            binds.update({
+                self.project.pip_cache_path: {
+                    'bind': self.project.pip_cache_path,
+                    'mode': 'rw',
+                },
+            })
+        return self.get_client().create_host_config(
+            binds=binds,
+            mem_limit=self.container_mem_limit,
+        )
 
     @property
     def container_id(self):
@@ -708,6 +832,7 @@ class DockerEnvironment(BuildEnvironment):
         if self.project.container_image:
             image = self.project.container_image
         try:
+            log.info('Creating Docker container: image=%s', image)
             self.container = client.create_container(
                 image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
@@ -715,23 +840,9 @@ class DockerEnvironment(BuildEnvironment):
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
                 name=self.container_id,
                 hostname=self.container_id,
-                host_config=create_host_config(binds={
-                    SPHINX_TEMPLATE_DIR: {
-                        'bind': SPHINX_TEMPLATE_DIR,
-                        'mode': 'ro'
-                    },
-                    MKDOCS_TEMPLATE_DIR: {
-                        'bind': MKDOCS_TEMPLATE_DIR,
-                        'mode': 'ro'
-                    },
-                    self.project.doc_path: {
-                        'bind': self.project.doc_path,
-                        'mode': 'rw'
-                    },
-                }),
+                host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
-                mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
         except ConnectionError as e:

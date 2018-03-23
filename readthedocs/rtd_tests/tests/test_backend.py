@@ -2,8 +2,9 @@ from __future__ import absolute_import
 from os.path import exists
 
 from django.contrib.auth.models import User
+import django_dynamic_fixture as fixture
 
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.rtd_tests.base import RTDTestCase
 
 from readthedocs.rtd_tests.utils import make_test_git, make_test_hg
@@ -33,15 +34,17 @@ class TestGitBackend(RTDTestCase):
         origin/HEAD -> origin/master
         origin/master
         origin/release/2.0.0
+        origin/release/foo/bar
         """
 
         expected_ids = [
             ('develop', 'develop'),
             ('master', 'master'),
-            ('release/2.0.0', 'release-2.0.0'),
+            ('release/2.0.0', 'release/2.0.0'),
             ('origin/2.0.X', '2.0.X'),
             ('origin/master', 'master'),
-            ('origin/release/2.0.0', 'release-2.0.0')
+            ('origin/release/2.0.0', 'release/2.0.0'),
+            ('origin/release/foo/bar', 'release/foo/bar'),
         ]
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_branches(data)]
@@ -60,6 +63,7 @@ class TestGitBackend(RTDTestCase):
             a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
             c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
             edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
+            274a5a8c988a804e40da098f59ec6c8f0378fe34 refs/tags/release/foobar
          """
         expected_tags = [
             ('3b32886c8d3cb815df3793b3937b2e91d0fb00f1', '2.0.0'),
@@ -68,11 +72,34 @@ class TestGitBackend(RTDTestCase):
             ('a63a2de628a3ce89034b7d1a5ca5e8159534eef0', '2.1.0.beta2'),
             ('c7fc3d16ed9dc0b19f0d27583ca661a64562d21e', '2.1.0.rc1'),
             ('edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1', '2.1.0.rc2'),
+            ('274a5a8c988a804e40da098f59ec6c8f0378fe34', 'release/foobar'),
         ]
 
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
         self.assertEqual(expected_tags, given_ids)
+
+    def test_check_for_submodules(self):
+        repo = self.project.vcs_repo()
+
+        repo.checkout()
+        self.assertFalse(repo.are_submodules_available())
+
+        # The submodule branch contains one submodule
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_available())
+
+    def test_skip_submodule_checkout(self):
+        repo = self.project.vcs_repo()
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_available())
+        feature = fixture.get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.SKIP_SUBMODULES,
+        )
+        self.assertTrue(self.project.has_feature(Feature.SKIP_SUBMODULES))
+        self.assertFalse(repo.are_submodules_available())
 
 
 class TestHgBackend(RTDTestCase):

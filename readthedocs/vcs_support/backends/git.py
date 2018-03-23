@@ -1,18 +1,18 @@
+# -*- coding: utf-8 -*-
 """Git-related utilities."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import csv
 import logging
 import os
 import re
 
-from builtins import str
-from six import StringIO
+from six import PY2, StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-
 
 log = logging.getLogger(__name__)
 
@@ -39,9 +39,8 @@ class Backend(BaseVCS):
                 clone_url = 'https://%s@%s' % (self.token, hacked_url)
                 return clone_url
             # Don't edit URL because all hosts aren't the same
-
             # else:
-                # clone_url = 'git://%s' % (hacked_url)
+            #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
     def set_remote_url(self, url):
@@ -52,8 +51,25 @@ class Backend(BaseVCS):
         self.checkout()
 
     def repo_exists(self):
-        code, _, _ = self.run('git', 'status')
+        code, _, _ = self.run('git', 'status', record=False)
         return code == 0
+
+    def are_submodules_available(self):
+        """
+        Test whether git submodule checkout step should be performed.
+
+        .. note::
+
+            Temporarily, we support skipping these steps as submodule step can
+            fail if using private submodules. This will eventually be
+            configureable with our YAML config.
+        """
+        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+        from readthedocs.projects.models import Feature
+        if self.project.has_feature(Feature.SKIP_SUBMODULES):
+            return False
+        code, out, _ = self.run('git', 'submodule', 'status', record=False)
+        return code == 0 and bool(out)
 
     def fetch(self):
         code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
@@ -65,22 +81,39 @@ class Backend(BaseVCS):
             branch = self.default_branch or self.fallback_branch
             revision = 'origin/%s' % branch
 
-        code, out, err = self.run('git', 'checkout',
-                                  '--force', '--quiet', revision)
+        code, out, err = self.run('git', 'checkout', '--force', revision)
         if code != 0:
-            log.warning("Failed to checkout revision '%s': %s",
-                        revision, code)
+            log.warning("Failed to checkout revision '%s': %s", revision, code)
         return [code, out, err]
 
     def clone(self):
-        code, _, _ = self.run('git', 'clone', '--recursive', '--quiet',
-                              self.repo_url, '.')
+        """
+        Clone the repository.
+
+        .. note::
+
+            Temporarily, we support skipping submodule recursive clone via a
+            feature flag. This will eventually be configureable with our YAML
+            config.
+        """
+        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+        from readthedocs.projects.models import Feature
+        cmd = ['git', 'clone']
+        if not self.project.has_feature(Feature.SKIP_SUBMODULES):
+            cmd.append('--recursive')
+        cmd.extend([self.repo_url, '.'])
+        code, _, _ = self.run(*cmd)
         if code != 0:
             raise RepositoryError
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run('git', 'show-ref', '--tags')
+        retcode, stdout, _ = self.run(
+            'git',
+            'show-ref',
+            '--tags',
+            record_as_success=True,
+        )
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -104,29 +137,35 @@ class Backend(BaseVCS):
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
-        raw_tags = csv.reader(StringIO(data), delimiter=' ')
+        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
+        raw_tags = csv.reader(StringIO(data), delimiter=delimiter)
         vcs_tags = []
         for row in raw_tags:
             row = [f for f in row if f != '']
             if row == []:
                 continue
             commit_hash, name = row
-            clean_name = name.split('/')[-1]
+            clean_name = name.replace('refs/tags/', '')
             vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
         return vcs_tags
 
     @property
     def branches(self):
         # Only show remote branches
-        retcode, stdout, _ = self.run('git', 'branch', '-r')
-        # error (or no tags found)
+        retcode, stdout, _ = self.run(
+            'git',
+            'branch',
+            '-r',
+            record_as_success=True,
+        )
+        # error (or no branches found)
         if retcode != 0:
             return []
         return self.parse_branches(stdout)
 
     def parse_branches(self, data):
         """
-        Parse output of git branch -r
+        Parse output of git branch -r.
 
         e.g.:
 
@@ -141,22 +180,21 @@ class Backend(BaseVCS):
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
-        raw_branches = csv.reader(StringIO(data), delimiter=' ')
+        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
+        raw_branches = csv.reader(StringIO(data), delimiter=delimiter)
         for branch in raw_branches:
             branch = [f for f in branch if f != '' and f != '*']
             # Handle empty branches
             if branch:
                 branch = branch[0]
                 if branch.startswith('origin/'):
-                    cut_len = len('origin/')
-                    slug = branch[cut_len:].replace('/', '-')
-                    if slug in ['HEAD']:
+                    verbose_name = branch.replace('origin/', '')
+                    if verbose_name in ['HEAD']:
                         continue
-                    clean_branches.append(VCSVersion(self, branch, slug))
+                    clean_branches.append(
+                        VCSVersion(self, branch, verbose_name))
                 else:
-                    # Believe this is dead code.
-                    slug = branch.replace('/', '-')
-                    clean_branches.append(VCSVersion(self, branch, slug))
+                    clean_branches.append(VCSVersion(self, branch, branch))
         return clean_branches
 
     @property
@@ -189,10 +227,18 @@ class Backend(BaseVCS):
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')
 
-        # Update submodules
-        self.run('git', 'submodule', 'sync')
-        self.run('git', 'submodule', 'update',
-                 '--init', '--recursive', '--force')
+        # Update submodules, temporarily allow for skipping submodule checkout
+        # step for projects need more submodule configuration.
+        if self.are_submodules_available():
+            self.run('git', 'submodule', 'sync')
+            self.run(
+                'git',
+                'submodule',
+                'update',
+                '--init',
+                '--recursive',
+                '--force',
+            )
 
         return code, out, err
 
@@ -208,7 +254,7 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, _, _ = self.run('git', 'show-ref', ref)
+        code, _, _ = self.run('git', 'show-ref', ref, record_as_success=True)
         return code == 0
 
     @property

@@ -265,6 +265,43 @@ class APITests(TestCase):
         self.assertIn('features', resp.data)
         self.assertEqual(resp.data['features'], [feature.feature_id])
 
+    def test_project_pagination(self):
+        for _ in range(100):
+            get(Project)
+
+        resp = self.client.get('/api/v2/project/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data['results']), 100)  # page_size
+        self.assertIn('?page=2', resp.data['next'])
+
+    def test_remote_repository_pagination(self):
+        account = get(SocialAccount, provider='github')
+        user = get(User, socialaccount_set=[account])
+        for _ in range(20):
+            get(RemoteRepository, users=[user], account=account)
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get('/api/v2/remote/repo/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data['results']), 15)  # page_size
+        self.assertIn('?page=2', resp.data['next'])
+
+    def test_remote_organization_pagination(self):
+        account = get(SocialAccount, provider='github')
+        user = get(User, socialaccount_set=[account])
+        for _ in range(30):
+            get(RemoteOrganization, users=[user], account=account)
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get('/api/v2/remote/org/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data['results']), 25)  # page_size
+        self.assertIn('?page=2', resp.data['next'])
+
 
 class APIImportTests(TestCase):
 
@@ -429,6 +466,7 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=mock.ANY, project=self.project)])
 
+        trigger_build_call_count = trigger_build.call_count
         client.post(
             '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
             {
@@ -442,8 +480,7 @@ class IntegrationsTests(TestCase):
             },
             format='json',
         )
-        trigger_build.assert_not_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        self.assertEqual(trigger_build_call_count, trigger_build.call_count)
 
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""

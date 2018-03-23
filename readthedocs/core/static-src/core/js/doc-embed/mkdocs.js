@@ -10,7 +10,7 @@ function init() {
     var rtd = rtddata.get();
 
     // Override MkDocs styles
-    if ("builder" in rtd && rtd["builder"] == "mkdocs") {
+    if ("builder" in rtd && rtd["builder"] === "mkdocs") {
       $('<input>').attr({
           type: 'hidden',
           name: 'project',
@@ -30,10 +30,10 @@ function init() {
       $("#rtd-search-form").prop("action", rtd.api_host + "/search/");
 
       // Apply stickynav to mkdocs builds
-      var nav_bar = $('nav.wy-nav-side:first'),
-          win = $(window),
-          sticky_nav_class = 'stickynav',
-          apply_stickynav = function () {
+      var nav_bar = $('nav.wy-nav-side:first');
+      var win = $(window);
+      var sticky_nav_class = 'stickynav';
+      var apply_stickynav = function () {
               if (nav_bar.height() <= win.height()) {
                   nav_bar.addClass(sticky_nav_class);
               } else {

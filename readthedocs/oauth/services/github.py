@@ -19,9 +19,6 @@ from readthedocs.restapi.client import api
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service
 
-
-DEFAULT_PRIVACY_LEVEL = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-
 log = logging.getLogger(__name__)
 
 
@@ -70,8 +67,7 @@ class GitHubService(Service):
             raise Exception('Could not sync your GitHub organizations, '
                             'try reconnecting your account')
 
-    def create_repository(self, fields, privacy=DEFAULT_PRIVACY_LEVEL,
-                          organization=None):
+    def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from GitHub API response.
 
@@ -81,9 +77,11 @@ class GitHubService(Service):
         :type organization: RemoteOrganization
         :rtype: RemoteRepository
         """
+        privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if (
                 (privacy == 'private') or
-                (fields['private'] is False and privacy == 'public')):
+                (fields['private'] is False and privacy == 'public')
+        ):
             try:
                 repo = RemoteRepository.objects.get(
                     full_name=fields['full_name'],

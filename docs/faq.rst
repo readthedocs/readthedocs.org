@@ -6,7 +6,7 @@ My project isn't building with autodoc
 
 First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project.
 
-If you are still seeing errors because of C library dependencies, please see the below section about that.
+If you are still seeing errors because of C library dependencies, please see :ref:`mock-c-extensions`.
 
 How do I change my slug (the URL your docs are served at)?
 ----------------------------------------------------------
@@ -23,7 +23,7 @@ as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
 
-This often happens becuase you don't have an `index.html` file being generated.
+This often happens because you don't have an `index.html` file being generated.
 Make sure you have one of the following files:
 
     * `index.rst`
@@ -56,8 +56,10 @@ environment, and will be set to ``True`` when building on RTD::
     Woo
     {% endif %}
 
+.. _mock-c-extensions:
+
 I get import errors on libraries that depend on C modules
-----------------------------------------------------------
+---------------------------------------------------------
 
 .. note::
     Another use case for this is when you have a module with a C extension.
@@ -72,7 +74,7 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
     class Mock(MagicMock):
         @classmethod
         def __getattr__(cls, name):
-                return MagicMock()
+            return MagicMock()
 
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
