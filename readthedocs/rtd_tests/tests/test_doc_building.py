@@ -858,6 +858,10 @@ class TestPythonEnvironment(TestCase):
             'pillow==2.6.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
         ]
+        self.base_conda_requirements = [
+            'mock',
+            'pillow',
+        ]
 
     def test_install_core_requirements_sphinx(self):
         python_env = Virtualenv(
@@ -998,12 +1002,11 @@ class TestPythonEnvironment(TestCase):
             build_env=self.build_env_mock,
         )
         python_env.install_core_requirements()
-        conda_requirements = [
-            'mock',
-            'pillow',
+        conda_sphinx = [
             'sphinx',
             'sphinx_rtd_theme',
         ]
+        conda_requirements = self.base_conda_requirements + conda_sphinx
         pip_requirements = [
             'recommonmark',
             'readthedocs-sphinx-ext',
@@ -1039,10 +1042,7 @@ class TestPythonEnvironment(TestCase):
             build_env=self.build_env_mock,
         )
         python_env.install_core_requirements()
-        conda_requirements = [
-            'mock',
-            'pillow',
-        ]
+        conda_requirements = self.base_conda_requirements
         pip_requirements = [
             'recommonmark',
             'mkdocs',
