@@ -736,10 +736,8 @@ class TestDockerBuildEnvironment(TestCase):
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
-        self.assertEqual(build_env.commands[0].exit_code, 1)
-        self.assertEqual(build_env.commands[0].output, u'This is the return')
-        self.assertEqual(build_env.commands[0].error, None)
-        self.assertTrue(build_env.failed)
+        self.assertEqual(len(build_env.commands), 0)
+        self.assertFalse(build_env.failed)
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
