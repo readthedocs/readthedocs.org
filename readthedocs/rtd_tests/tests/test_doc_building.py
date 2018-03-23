@@ -914,6 +914,16 @@ class TestPythonEnvironment(TestCase):
         )
 
     def test_install_user_requirements(self):
+        """
+        If a projects does not specify a requirements file,
+        RTD will choose one automatically.
+
+        First by searching under the docs/ directory and then under the root.
+        The files can be named as:
+
+        - ``pip_requirements.txt``
+        - ``requirements.txt``
+        """
         self.build_env_mock.project = self.project_sphinx
         self.build_env_mock.version = self.version_sphinx
         python_env = Virtualenv(
@@ -941,6 +951,8 @@ class TestPythonEnvironment(TestCase):
             'requirements_file'
         ]
 
+        # One requirements file on the docs/ dir
+        # should be installed
         paths[docs_requirements] = True
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
@@ -950,6 +962,8 @@ class TestPythonEnvironment(TestCase):
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
 
+        # One requirements file on the root dir
+        # should be installed
         paths[docs_requirements] = False
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
@@ -959,6 +973,8 @@ class TestPythonEnvironment(TestCase):
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
 
+        # Two requirements files on the root and  docs/ dirs
+        # the one on docs/ should be installed
         paths[docs_requirements] = True
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
@@ -968,6 +984,8 @@ class TestPythonEnvironment(TestCase):
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
 
+        # No requirements file
+        # no requirements should be installed
         paths[docs_requirements] = False
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
