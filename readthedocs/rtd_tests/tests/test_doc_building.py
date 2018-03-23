@@ -781,7 +781,7 @@ class TestDockerBuildEnvironment(TestCase):
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
             cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
-        self.assertEqual(build_env.commands[0].exit_code, 1)
+        self.assertEqual(build_env.commands[0].exit_code, 0)
         self.assertEqual(build_env.commands[0].output, u'This is the return')
         self.assertEqual(build_env.commands[0].error, None)
         self.assertTrue(build_env.failed)
