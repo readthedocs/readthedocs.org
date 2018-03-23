@@ -984,6 +984,7 @@ class TestPythonEnvironment(TestCase):
 
         # No requirements file
         # no requirements should be installed
+        self.build_env_mock.run.reset_mock()
         paths[docs_requirements] = False
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
