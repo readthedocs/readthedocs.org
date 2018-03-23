@@ -224,8 +224,8 @@ class TestLocalBuildEnvironment(TestCase):
                     'builder': mock.ANY,
                 })
             self.assertIsNone(build_env.failure)
-        # No commands were saved
-        self.assertFalse(self.mocks.mocks['api_v2.build'].post.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
 
     def test_failing_execution(self):
         """Build in failing state."""
@@ -295,7 +295,7 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # The build failed before executing any command
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -329,7 +329,7 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # The build failed before executing any command
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -389,7 +389,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # No command were executed
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -421,7 +421,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # No command were executed
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
@@ -441,7 +441,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # No commands were executed
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -520,7 +520,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # No commands were executed
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -605,7 +605,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # No command were executed
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -645,7 +645,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # No commands were executed
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
@@ -898,7 +898,7 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
-        # The command was not saved
+        # The build failed before executing any command
         self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
