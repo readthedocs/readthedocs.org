@@ -9,10 +9,12 @@ import logging
 import os
 import re
 
-from git import Repo
+import git
+from django.core.exceptions import ValidationError
 from git.exc import BadName
 from six import PY2, StringIO
 
+from readthedocs.core.validators import validate_repository_url
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
@@ -72,6 +74,16 @@ class Backend(BaseVCS):
             return False
         code, out, _ = self.run('git', 'submodule', 'status', record=False)
         return code == 0 and bool(out)
+
+    def are_submodules_valid(self):
+        """Test that all submodule URLs are valid."""
+        repo = git.Repo(self.working_dir)
+        for submodule in repo.submodules:
+            try:
+                validate_repository_url(submodule.url)
+            except ValidationError:
+                return False
+        return True
 
     def fetch(self):
         code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
@@ -232,17 +244,23 @@ class Backend(BaseVCS):
         # Update submodules, temporarily allow for skipping submodule checkout
         # step for projects need more submodule configuration.
         if self.are_submodules_available():
-            self.run('git', 'submodule', 'sync')
-            self.run(
-                'git',
-                'submodule',
-                'update',
-                '--init',
-                '--recursive',
-                '--force',
-            )
-
+            if self.are_submodules_valid():
+                self.checkout_submodules()
+            else:
+                raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
         return code, out, err
+
+    def checkout_submodules(self):
+        """Checkout all repository submodules recursively."""
+        self.run('git', 'submodule', 'sync')
+        self.run(
+            'git',
+            'submodule',
+            'update',
+            '--init',
+            '--recursive',
+            '--force',
+        )
 
     def find_ref(self, ref):
         # Check if ref starts with 'origin/'
@@ -257,7 +275,7 @@ class Backend(BaseVCS):
 
     def ref_exists(self, ref):
         try:
-            r = Repo(self.working_dir)
+            r = git.Repo(self.working_dir)
             if r.commit(ref):
                 return True
         except BadName:

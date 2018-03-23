@@ -4,6 +4,7 @@ from os.path import exists
 from django.contrib.auth.models import User
 import django_dynamic_fixture as fixture
 
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project, Feature
 from readthedocs.rtd_tests.base import RTDTestCase
 
@@ -101,6 +102,14 @@ class TestGitBackend(RTDTestCase):
         self.assertTrue(self.project.has_feature(Feature.SKIP_SUBMODULES))
         self.assertFalse(repo.are_submodules_available())
 
+    def test_check_submodule_urls(self):
+        repo = self.project.vcs_repo()
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_valid())
+
+        with self.assertRaises(RepositoryError) as e:
+            repo.checkout('invalidsubmodule')
+            self.assertEqual(e.msg, RepositoryError.INVALID_SUBMODULES)
 
 class TestHgBackend(RTDTestCase):
     def setUp(self):
