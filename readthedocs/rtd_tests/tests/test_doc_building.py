@@ -160,7 +160,7 @@ class TestLocalBuildEnvironment(TestCase):
             build_env.run('echo', 'test', record_as_success=True)
         self.assertTrue(self.mocks.process.communicate.called)
         self.assertTrue(build_env.done)
-        self.assertFalse(build_env.successful)
+        self.assertTrue(build_env.successful)
         self.assertEqual(len(build_env.commands), 1)
         self.assertEqual(build_env.commands[0].output, u'This is okay')
 
