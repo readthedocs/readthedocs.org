@@ -8,6 +8,9 @@ import os
 
 from readthedocs.core.settings import Settings
 
+from celery.schedules import crontab
+
+
 try:
     import readthedocsext  # noqa
     ext = True
@@ -71,7 +74,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'linaro_django_pagination',
+            'dj_pagination',
             'taggit',
             'guardian',
             'django_gravatar',
@@ -131,7 +134,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'linaro_django_pagination.middleware.PaginationMiddleware',
+        'dj_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
@@ -241,6 +244,19 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULE = {
+        # Ran every hour on minute 30
+        'hourly-remove-orphan-symlinks': {
+            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
+            'schedule': crontab(minute=30),
+            'options': {'queue': 'web'},
+        },
+        'quarter-finish-inactive-builds': {
+            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+    }
 
     # Docker
     DOCKER_ENABLE = False

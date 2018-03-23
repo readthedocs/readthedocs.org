@@ -22,7 +22,7 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name
+from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
@@ -86,6 +86,7 @@ class Project(models.Model):
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
     repo = models.CharField(_('Repository URL'), max_length=255,
+                            validators=[validate_repository_url],
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -339,11 +340,11 @@ class Project(models.Model):
                     'Re-symlinking superprojects: project=%s',
                     self.slug,
                 )
-                for superproject in self.superprojects.all():
+                for relationship in self.superprojects.all():
                     broadcast(
                         type='app',
                         task=tasks.symlink_project,
-                        args=[superproject.pk],
+                        args=[relationship.parent.pk],
                     )
 
         except Exception:
@@ -1067,12 +1068,14 @@ class Feature(models.Model):
     USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    SKIP_SUBMODULES = 'skip_submodules'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
     )
 
     projects = models.ManyToManyField(

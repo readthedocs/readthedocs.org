@@ -28,7 +28,7 @@ function setupBookmarkCSRFToken() {
     }
 
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!csrfSafeMethod(settings.type)) {
                 xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
             }

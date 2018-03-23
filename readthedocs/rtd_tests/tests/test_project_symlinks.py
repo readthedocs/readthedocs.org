@@ -14,7 +14,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.tasks import symlink_project
+from readthedocs.projects.tasks import broadcast_remove_orphan_symlinks, remove_orphan_symlinks, symlink_project
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 
 
@@ -165,6 +165,89 @@ class BaseSymlinkCnames(TempSiterootCase):
             filesystem['public_web_root'] = private_root
             filesystem['private_web_root'] = public_root
         self.assertFilesystem(filesystem)
+
+    def test_symlink_remove_orphan_symlinks(self):
+        self.domain = get(Domain, project=self.project, domain='woot.com',
+                          url='http://woot.com', cname=True)
+        self.symlink.symlink_cnames()
+
+        # Editing the Domain and calling save will symlink the new domain and
+        # leave the old one as orphan.
+        self.domain.domain = 'foobar.com'
+        self.domain.save()
+
+        filesystem = {
+            'private_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'private_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'private_web_root/kong'},
+                'woot.com': {'type': 'link', 'target': 'private_web_root/kong'},
+            },
+            'private_web_root': {'kong': {'en': {}}},
+            'public_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'public_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'public_web_root/kong'},
+                'woot.com': {'type': 'link', 'target': 'public_web_root/kong'},
+            },
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}}
+            }
+        }
+        if self.privacy == 'private':
+            public_root = filesystem['public_web_root'].copy()
+            private_root = filesystem['private_web_root'].copy()
+            filesystem['public_web_root'] = private_root
+            filesystem['private_web_root'] = public_root
+        self.assertFilesystem(filesystem)
+
+        remove_orphan_symlinks()
+        filesystem = {
+            'private_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'private_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'private_web_root/kong'},
+            },
+            'private_web_root': {'kong': {'en': {}}},
+            'public_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'public_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'public_web_root/kong'},
+            },
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}},
+            },
+        }
+        if self.privacy == 'private':
+            public_root = filesystem['public_web_root'].copy()
+            private_root = filesystem['private_web_root'].copy()
+            filesystem['public_web_root'] = private_root
+            filesystem['private_web_root'] = public_root
+
+        self.assertFilesystem(filesystem)
+
+    def test_broadcast_remove_orphan_symlinks(self):
+        """Broadcast orphan symlinks is called with the proper attributes."""
+        with mock.patch('readthedocs.projects.tasks.broadcast') as broadcast:
+            broadcast_remove_orphan_symlinks()
+
+        broadcast.assert_called_with(
+            type='web',
+            task=remove_orphan_symlinks,
+            args=[],
+        )
 
     def test_symlink_cname_dont_link_missing_domains(self):
         """Domains should be relinked after deletion"""
@@ -926,7 +1009,7 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             project.description = 'New description'
             project.save()
             # called once for this project itself
-            broadcast.assert_any_calls(
+            broadcast.assert_any_call(
                 type='app',
                 task=symlink_project,
                 args=[project.pk],
@@ -944,13 +1027,13 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             subproject.description = 'New subproject description'
             subproject.save()
             # subproject symlinks
-            broadcast.assert_any_calls(
+            broadcast.assert_any_call(
                 type='app',
                 task=symlink_project,
                 args=[subproject.pk],
             )
             # superproject symlinks
-            broadcast.assert_any_calls(
+            broadcast.assert_any_call(
                 type='app',
                 task=symlink_project,
                 args=[project.pk],

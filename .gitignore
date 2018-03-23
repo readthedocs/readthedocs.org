@@ -17,6 +17,7 @@ _build
 bower_components/
 contrib/supervisord.log
 contrib/supervisord.pid
+celerybeat-schedule.*
 deploy/.vagrant
 dist/*
 local_settings.py

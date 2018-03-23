@@ -119,17 +119,6 @@ class ProjectBasicsForm(ProjectForm):
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
         return name
 
-    def clean_repo(self):
-        repo = self.cleaned_data.get('repo', '').strip()
-        pvt_repos = getattr(settings, 'ALLOW_PRIVATE_REPOS', False)
-        if '&&' in repo or '|' in repo:
-            raise forms.ValidationError(_('Invalid character in repo name'))
-        elif '@' in repo and not pvt_repos:
-            raise forms.ValidationError(
-                _('It looks like you entered a private repo - please use the '
-                  'public (http:// or git://) clone url'))  # yapf: disable
-        return repo
-
     def clean_remote_repository(self):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if not remote_repo:

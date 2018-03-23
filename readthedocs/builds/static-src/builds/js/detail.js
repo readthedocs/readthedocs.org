@@ -4,7 +4,7 @@ var ko = require('knockout');
 var $ = require('jquery');
 
 
-function BuildCommand (data) {
+function BuildCommand(data) {
     var self = this;
     self.id = ko.observable(data.id);
     self.command = ko.observable(data.command);
@@ -25,7 +25,7 @@ function BuildCommand (data) {
     });
 }
 
-function BuildDetailView (instance) {
+function BuildDetailView(instance) {
     var self = this;
     var instance = instance || {};
 
@@ -46,7 +46,7 @@ function BuildDetailView (instance) {
         var n;
         for (n in commands_raw) {
             var command = new BuildCommand(commands_raw[n]);
-            commands_display.push(command)
+            commands_display.push(command);
         }
         return commands_display;
     });
@@ -58,7 +58,7 @@ function BuildDetailView (instance) {
         self.legacy_output(true);
     };
 
-    function poll_api () {
+    function poll_api() {
         if (self.finished()) {
             return;
         }
@@ -75,7 +75,7 @@ function BuildDetailView (instance) {
                 var command = data.commands[n];
                 var match = ko.utils.arrayFirst(
                     self.commands(),
-                    function(command_cmp) {
+                    function (command_cmp) {
                         return (command_cmp.id === command.id);
                     }
                 );
