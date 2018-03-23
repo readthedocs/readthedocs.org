@@ -131,13 +131,12 @@ class PythonEnvironment(object):
                 environment_conf = json.load(fpath)
             env_python_version = environment_conf['python']['version']
             env_build_image = environment_conf['build']['image']
+            env_build_hash = environment_conf['build']['hash']
         except (IOError, TypeError, KeyError, ValueError):
             log.error('Unable to read/parse readthedocs-environment.json file')
             return False
 
-        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
-
+        build_image = self.config.build_image or DOCKER_IMAGE
         # If the user define the Python version just as a major version
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
         # used to create the venv but we can still compare it against the new
@@ -145,19 +144,19 @@ class PythonEnvironment(object):
         return any([
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
+            env_build_hash != self.build_env.image_hash,
         ])
 
     def save_environment_json(self):
         """Save on disk Python and build image versions used to create the venv."""
-        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
-
+        build_image = self.config.build_image or DOCKER_IMAGE
         data = {
             'python': {
                 'version': self.config.python_full_version,
             },
             'build': {
                 'image': build_image,
+                'hash': self.build_env.image_hash,
             },
         }
 
