@@ -10,7 +10,7 @@ import traceback
 
 import redis
 import six
-from builtins import object
+from builtins import object, open
 from django.conf import settings
 from django.core.cache import cache
 from httplib2 import Http
@@ -121,8 +121,9 @@ def safe_write(filename, contents):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with open(filename, 'w') as fh:
-        fh.write(contents.encode('utf-8', 'ignore'))
+
+    with open(filename, 'w', encoding='utf-8', errors='ignore') as fh:
+        fh.write(contents)
         fh.close()
 
 
