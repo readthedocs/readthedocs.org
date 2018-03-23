@@ -339,11 +339,11 @@ class Project(models.Model):
                     'Re-symlinking superprojects: project=%s',
                     self.slug,
                 )
-                for superproject in self.superprojects.all():
+                for relationship in self.superprojects.all():
                     broadcast(
                         type='app',
                         task=tasks.symlink_project,
-                        args=[superproject.pk],
+                        args=[relationship.parent.pk],
                     )
 
         except Exception:
@@ -1067,12 +1067,14 @@ class Feature(models.Model):
     USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    SKIP_SUBMODULES = 'skip_submodules'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
     )
 
     projects = models.ManyToManyField(
