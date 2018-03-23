@@ -1,0 +1,3 @@
+[submodule "readthedocs-common"]
+	path = readthedocs-common
+	url = https://github.com/rtfd/readthedocs-common.git
