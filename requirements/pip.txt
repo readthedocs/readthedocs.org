@@ -47,7 +47,7 @@ dnspython==1.15.0
 
 # VCS
 httplib2==0.10.3
-gitpython==2.1.8
+GitPython==2.1.8
 
 # Search
 elasticsearch==1.5.0
