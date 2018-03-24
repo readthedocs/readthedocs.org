@@ -10,8 +10,6 @@ from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
 
-from celery.schedules import crontab
-
 
 try:
     import readthedocsext  # noqa
