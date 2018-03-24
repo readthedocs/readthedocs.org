@@ -46,6 +46,7 @@ class DomainNameValidator(RegexValidator):
                 raise exc
             super(DomainNameValidator, self).__call__(idnavalue)
 
+
 validate_domain_name = DomainNameValidator()
 
 
@@ -83,5 +84,6 @@ class RepositoryURLValidator(object):
         ):
             raise ValidationError('Clonning via SSH is not supported')
         return value
+
 
 validate_repository_url = RepositoryURLValidator()
