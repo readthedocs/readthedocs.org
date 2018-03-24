@@ -13,8 +13,8 @@ from django.core.exceptions import ValidationError
 import git
 from six import PY2, StringIO
 
-from readthedocs.core.validators import validate_repository_url
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.validators import validate_repository_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = logging.getLogger(__name__)
