@@ -9,6 +9,8 @@ import logging
 import os
 import re
 
+from git import Repo
+from git.exc import BadName
 from six import PY2, StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
@@ -254,8 +256,13 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, _, _ = self.run('git', 'show-ref', ref, record_as_success=True)
-        return code == 0
+        try:
+            r = Repo(self.working_dir)
+            if r.commit(ref):
+                return True
+        except BadName:
+            return False
+        return False
 
     @property
     def env(self):
