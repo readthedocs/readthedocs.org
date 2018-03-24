@@ -258,9 +258,6 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
-    }
-
-    CELERYBEAT_SCHEDULE = {
         'every-three-hour-clear-persistent-messages': {
             'task': 'readthedocs.core.tasks.clear_persistent_messages',
             'schedule': crontab(minute=0, hour='*/3'),
