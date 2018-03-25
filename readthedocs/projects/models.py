@@ -22,13 +22,13 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
