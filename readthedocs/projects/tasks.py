@@ -811,6 +811,34 @@ def symlink_domain(project_pk, domain_pk, delete=False):
 
 
 @app.task(queue='web')
+def remove_orphan_symlinks():
+    """
+    Remove orphan symlinks.
+
+    List CNAME_ROOT for Public and Private symlinks, check that all the listed
+    cname exist in the database and if doesn't exist, they are un-linked.
+    """
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
+            valid_cnames = set(Domain.objects.all().values_list('domain', flat=True))
+            orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
+            for cname in orphan_cnames:
+                orphan_domain_path = os.path.join(domain_path, cname)
+                log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
+                os.unlink(orphan_domain_path)
+
+
+@app.task(queue='web')
+def broadcast_remove_orphan_symlinks():
+    """
+    Broadcast the task ``remove_orphan_symlinks`` to all our web servers.
+
+    This task is executed by CELERY BEAT.
+    """
+    broadcast(type='web', task=remove_orphan_symlinks, args=[])
+
+
+@app.task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:

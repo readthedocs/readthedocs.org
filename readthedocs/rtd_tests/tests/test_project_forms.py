@@ -1,22 +1,25 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.forms import ProjectExtraForm, TranslationForm
+from readthedocs.projects.forms import (
+    ProjectBasicsForm, ProjectExtraForm, TranslationForm)
 from readthedocs.projects.models import Project
 
 
 class TestProjectForms(TestCase):
-
     @mock.patch.object(ClassifierValidator, '__call__')
     def test_form_spam(self, mocked_validator):
-        """Form description field fails spam validation"""
+        """Form description field fails spam validation."""
         mocked_validator.side_effect = ProjectSpamError
 
         data = {
@@ -27,6 +30,67 @@ class TestProjectForms(TestCase):
         form = ProjectExtraForm(data)
         with self.assertRaises(ProjectSpamError):
             form.is_valid()
+
+    def test_import_repo_url(self):
+        """Validate different type of repository URLs on importing a Project."""
+
+        common_urls = [
+            # Invalid
+            ('./path/to/relative/folder', False),
+            ('../../path/to/relative/folder', False),
+            ('../../path/to/@/folder', False),
+            ('/path/to/local/folder', False),
+            ('/path/to/@/folder', False),
+            ('file:///path/to/local/folder', False),
+            ('file:///path/to/@/folder', False),
+            ('github.com/humitos/foo', False),
+            ('https://github.com/|/foo', False),
+            ('git://github.com/&&/foo', False),
+            # Valid
+            ('git://github.com/humitos/foo', True),
+            ('http://github.com/humitos/foo', True),
+            ('https://github.com/humitos/foo', True),
+            ('http://gitlab.com/humitos/foo', True),
+            ('http://bitbucket.com/humitos/foo', True),
+            ('ftp://ftpserver.com/humitos/foo', True),
+            ('ftps://ftpserver.com/humitos/foo', True),
+            ('lp:zaraza', True),
+        ]
+
+        public_urls = [
+            ('git@github.com:humitos/foo', False),
+            ('ssh://git@github.com/humitos/foo', False),
+            ('ssh+git://github.com/humitos/foo', False),
+            ('strangeuser@bitbucket.org:strangeuser/readthedocs.git', False),
+            ('user@one-ssh.domain.com:22/_ssh/docs', False),
+        ] + common_urls
+
+        private_urls = [
+            ('git@github.com:humitos/foo', True),
+            ('ssh://git@github.com/humitos/foo', True),
+            ('ssh+git://github.com/humitos/foo', True),
+            ('strangeuser@bitbucket.org:strangeuser/readthedocs.git', True),
+            ('user@one-ssh.domain.com:22/_ssh/docs', True),
+         ] + common_urls
+
+        for url, valid in public_urls:
+            initial = {
+                'name': 'foo',
+                'repo_type': 'git',
+                'repo': url,
+            }
+            form = ProjectBasicsForm(initial)
+            self.assertEqual(form.is_valid(), valid, msg=url)
+
+        with override_settings(ALLOW_PRIVATE_REPOS=True):
+            for url, valid in private_urls:
+                initial = {
+                    'name': 'foo',
+                    'repo_type': 'git',
+                    'repo': url,
+                }
+                form = ProjectBasicsForm(initial)
+                self.assertEqual(form.is_valid(), valid, msg=url)
 
 
 class TestTranslationForm(TestCase):

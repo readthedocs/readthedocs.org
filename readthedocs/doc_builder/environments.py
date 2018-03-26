@@ -183,21 +183,19 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
-        exit_code = self.exit_code
-
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
         # in the Build
         if self.record_as_success:
             log.warning('Recording command exit_code as success')
-            exit_code = 0
+            self.exit_code = 0
 
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
             'description': self.description,
             'output': self.output,
-            'exit_code': exit_code,
+            'exit_code': self.exit_code,
             'start_time': self.start_time,
             'end_time': self.end_time,
         }
@@ -345,7 +343,6 @@ class BaseEnvironment(object):
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
-        self.commands.append(build_cmd)
         build_cmd.run()
 
         if record:
@@ -353,6 +350,12 @@ class BaseEnvironment(object):
             # this class should know nothing about a BuildCommand (which are the
             # only ones that can be saved/recorded)
             self.record_command(build_cmd)
+
+            # We want append this command to the list of commands only if it has
+            # to be recorded in the database (to keep consistency) and also, it
+            # has to be added after ``self.record_command`` since its
+            # ``exit_code`` can be altered because of ``record_as_success``
+            self.commands.append(build_cmd)
 
         if build_cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
@@ -622,6 +625,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
         if self.config and self.config.build_image:
             self.container_image = self.config.build_image
+        if self.project.container_image:
+            self.container_image = self.project.container_image
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:
@@ -784,6 +789,13 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
 
     @property
+    def image_hash(self):
+        """Return the hash of the Docker image."""
+        client = self.get_client()
+        image_metadata = client.inspect_image(self.container_image)
+        return image_metadata.get('Id')
+
+    @property
     def container_id(self):
         """Return id of container if it is valid."""
         if self.container_name:
@@ -825,13 +837,13 @@ class DockerBuildEnvironment(BuildEnvironment):
     def create_container(self):
         """Create docker container."""
         client = self.get_client()
-        image = self.container_image
-        if self.project.container_image:
-            image = self.project.container_image
         try:
-            log.info('Creating Docker container: image=%s', image)
+            log.info(
+                'Creating Docker container: image=%s',
+                self.container_image,
+            )
             self.container = client.create_container(
-                image=image,
+                image=self.container_image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
