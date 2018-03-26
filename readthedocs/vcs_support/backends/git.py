@@ -278,7 +278,7 @@ class Backend(BaseVCS):
             r = git.Repo(self.working_dir)
             if r.commit(ref):
                 return True
-        except BadName:
+        except (BadName, ValueError):
             return False
         return False
 
