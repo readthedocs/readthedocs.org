@@ -7,22 +7,22 @@ from datetime import datetime
 from recommonmark.parser import CommonMarkParser
 
 extensions = []
-templates_path = ['{{ template_dir }}', 'templates', '_templates', '.templates']
+templates_path = ['/tmp/sphinx-template-dir', 'templates', '_templates', '.templates']
 source_suffix = ['.rst', '.md']
 source_parsers = {
             '.md': CommonMarkParser,
         }
 master_doc = 'index'
-project = u'{{ project.name }}'
+project = u'Pip'
 copyright = str(datetime.now().year)
-version = '{{ version.verbose_name }}'
-release = '{{ version.verbose_name }}'
+version = '0.8.1'
+release = '0.8.1'
 exclude_patterns = ['_build']
 pygments_style = 'sphinx'
-htmlhelp_basename = '{{ project.slug }}'
+htmlhelp_basename = 'pip'
 html_theme = 'sphinx_rtd_theme'
 file_insertion_enabled = False
 latex_documents = [
-  ('index', '{{ project.slug }}.tex', u'{{ project.name }} Documentation',
-   u'{{ project.copyright }}', 'manual'),
+  ('index', 'pip.tex', u'Pip Documentation',
+   u'', 'manual'),
 ]

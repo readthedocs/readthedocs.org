@@ -1,9 +1,15 @@
 Version Control System Integration
 ==================================
 
-If you want to integrate editing into your own theme, you will have to declare 
-few variables inside your configuration file ``conf.py`` in the ``'html_context'`` 
-setting, for the template to use them. 
+.. note::
+
+   We :doc:`plan to implement a new approach <design/theme-context>` regarding the Theme Context as a whole,
+   although the VCS documentation page will still be valid, we prefer the users to move in that direction.
+
+
+If you want to integrate editing into your own theme, you will have to declare
+few variables inside your configuration file ``conf.py`` in the ``'html_context'``
+setting, for the template to use them.
 
 More information can be found on `Sphinx documentation`_.
 
@@ -12,7 +18,7 @@ More information can be found on `Sphinx documentation`_.
 GitHub
 ------
 
-If you want to integrate GitHub, you can put the following snippet into 
+If you want to integrate GitHub, you can put the following snippet into
 your ``conf.py``::
 
     html_context = {
@@ -34,7 +40,7 @@ It can be used like this::
 Bitbucket
 ---------
 
-If you want to integrate Bitbucket, you can put the following snippet into 
+If you want to integrate Bitbucket, you can put the following snippet into
 your ``conf.py``::
 
     html_context = {
@@ -49,14 +55,14 @@ It can be used like this::
 
     {% if display_bitbucket %}
         <a href="https://bitbucket.org/{{ bitbucket_user }}/{{ bitbucket_repo }}
-        /src/{{ bitbucket_version}}{{ conf_py_path }}{{ pagename }}.rst'" 
+        /src/{{ bitbucket_version}}{{ conf_py_path }}{{ pagename }}.rst'"
         class="icon icon-bitbucket"> Edit on Bitbucket</a>
     {% endif %}
 
 Gitlab
 ------
 
-If you want to integrate Gitlab, you can put the following snippet into 
+If you want to integrate Gitlab, you can put the following snippet into
 your ``conf.py``::
 
     html_context = {
@@ -72,7 +78,7 @@ It can be used like this::
     {% if display_gitlab %}
         <a href="https://{{ gitlab_host|default("gitlab.com") }}/
         {{ gitlab_user }}/{{ gitlab_repo }}/blob/{{ gitlab_version }}
-        {{ conf_py_path }}{{ pagename }}{{ suffix }}" class="fa fa-gitlab"> 
+        {{ conf_py_path }}{{ pagename }}{{ suffix }}" class="fa fa-gitlab">
         Edit on GitLab</a>
     {% endif %}
 

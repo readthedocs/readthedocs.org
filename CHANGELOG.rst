@@ -1,3 +1,11 @@
+.. _version-2.3.2:
+
+Version 2.3.2
+-------------
+
+This version adds a hotfix branch that adds model validation to the repository
+URL to ensure strange URL patterns can't be used.
+
 Version 2.3.1
 -------------
 
