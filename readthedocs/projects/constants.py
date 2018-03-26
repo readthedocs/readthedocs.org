@@ -291,10 +291,10 @@ LOG_TEMPLATE = '(Build) [{project}:{version}] {msg}'
 PROJECT_PK_REGEX = '(?:[-\w]+)'
 PROJECT_SLUG_REGEX = '(?:[-\w]+)'
 
-GITHUB_REGEXS = [
-    re.compile('github.com/(.+)/(.+)(?:\.git){1}$'),
-    re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+)\.git$'),
+GITHUB_REGEX_BASES = [
+    '{}/(.+)/(.+)(?:\.git){{1}}$',
+    '{}/(.+)/(.+)',
+    '{}:(.+)/(.+)\.git$',
 ]
 BITBUCKET_REGEXS = [
     re.compile('bitbucket.org/(.+)/(.+)\.git$'),
@@ -307,9 +307,6 @@ GITLAB_REGEXS = [
     re.compile('gitlab.com/(.+)/(.+)'),
     re.compile('gitlab.com:(.+)/(.+)\.git$'),
 ]
-GITHUB_URL = (
-    'https://github.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}')
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}')

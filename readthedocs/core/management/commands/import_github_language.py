@@ -11,13 +11,15 @@ which should contain a proper GitHub Oauth Token for rate limiting.
 from __future__ import absolute_import
 from __future__ import print_function
 import os
+
 import requests
-
-from django.core.management.base import BaseCommand
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.core.cache import cache
+from django.core.management.base import BaseCommand
 
+from readthedocs.builds.utils import get_github_username_repo
+from readthedocs.projects.constants import PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import Project
-from readthedocs.projects.constants import GITHUB_REGEXS, PROGRAMMING_LANGUAGES
 
 PL_DICT = {}
 
@@ -41,13 +43,8 @@ class Command(BaseCommand):
         ).filter(
             repo__contains='github'
         ):
-            user = repo = ''
             repo_url = project.repo
-            for regex in GITHUB_REGEXS:
-                match = regex.search(repo_url)
-                if match:
-                    user, repo = match.groups()
-                    break
+            user, repo = get_github_username_repo(repo_url)
 
             if not user:
                 print('No GitHub repo for %s' % repo_url)
@@ -56,7 +53,8 @@ class Command(BaseCommand):
             cache_key = '%s-%s' % (user, repo)
             top_lang = cache.get(cache_key, None)
             if not top_lang:
-                url = 'https://api.github.com/repos/{user}/{repo}/languages'.format(
+                url = '{github_api_url}/repos/{user}/{repo}/languages'.format(
+                    github_api_url=GitHubOAuth2Adapter.api_url,
                     user=user,
                     repo=repo,
                 )

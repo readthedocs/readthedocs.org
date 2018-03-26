@@ -10,18 +10,19 @@ import re
 from builtins import object
 from shutil import rmtree
 
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
+    BITBUCKET_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
@@ -36,6 +37,8 @@ from .version_slug import VersionSlugField
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
     settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
+_GITHUB_URL_ARGS = '/{user}/{repo}/{action}/{version}{docroot}{path}{source_suffix}'
+GITHUB_URL = GitHubOAuth2Adapter.web_url + _GITHUB_URL_ARGS
 
 log = logging.getLogger(__name__)
 
