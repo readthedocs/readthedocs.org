@@ -625,8 +625,6 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
         if self.config and self.config.build_image:
             self.container_image = self.config.build_image
-        if self.project.container_image:
-            self.container_image = self.project.container_image
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:
@@ -789,13 +787,6 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
 
     @property
-    def image_hash(self):
-        """Return the hash of the Docker image."""
-        client = self.get_client()
-        image_metadata = client.inspect_image(self.container_image)
-        return image_metadata.get('Id')
-
-    @property
     def container_id(self):
         """Return id of container if it is valid."""
         if self.container_name:
@@ -837,13 +828,13 @@ class DockerBuildEnvironment(BuildEnvironment):
     def create_container(self):
         """Create docker container."""
         client = self.get_client()
+        image = self.container_image
+        if self.project.container_image:
+            image = self.project.container_image
         try:
-            log.info(
-                'Creating Docker container: image=%s',
-                self.container_image,
-            )
+            log.info('Creating Docker container: image=%s', image)
             self.container = client.create_container(
-                image=self.container_image,
+                image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),
