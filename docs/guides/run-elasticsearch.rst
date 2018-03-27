@@ -9,15 +9,9 @@ Installation has been mainly divided into following steps.
 1. Installing Java
 ------------------
 
-First, you need to a Java Runtime Environment (JRE) because Elasticsearch is written in the Java programming lanaguage and requires Java 7 or higher.
+Elasticsearch requires JAVA 8 or later. Use .. _Oracle official documentation:http://www.oracle.com/technetwork/java/javase/downloads/index.html or opensource distribution like .. _OpenJDK:http://openjdk.java.net/install/
 
-Installing OpenJDK 8::
-
-	(READTHEDOCS)$ sudo add-apt-repository ppa:openjdk-r/ppa
-	(READTHEDOCS)$ sudo apt-get update
-	(READTHEDOCS)$ sudo apt-get install openjdk-8-jre
-
-To verify the installation,::
+After installing java, verify the installation by,::
 
 	(READTHEDOCS)$ java -version
 
