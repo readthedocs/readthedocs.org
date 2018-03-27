@@ -11,5 +11,3 @@ maxcdn==0.0.7
 
 #For resizing images
 pillow
-
-cssselect==0.7.1

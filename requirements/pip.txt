@@ -1,5 +1,5 @@
 # Base packages
-pip==9.0.1
+pip==9.0.3
 appdirs==1.4.3
 virtualenv==15.1.0
 docutils==0.14
@@ -47,6 +47,7 @@ dnspython==1.15.0
 
 # VCS
 httplib2==0.10.3
+gitpython==2.1.8
 
 # Search
 elasticsearch==1.5.0
