@@ -10,6 +10,7 @@ import mimetypes
 import operator
 import os
 from collections import OrderedDict
+from pprint import pprint
 
 import requests
 from django.conf import settings
@@ -331,6 +332,9 @@ def elastic_project_search(request, project_slug):
         results = PageIndex().search(body, **kwargs)
     else:
         results = {}
+
+    if settings.DEBUG:
+        print(pprint(results))
 
     if results:
         # pre and post 1.0 compat
