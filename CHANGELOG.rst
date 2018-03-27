@@ -1,9 +1,27 @@
+.. _version-2.3.4:
+
+Version 2.3.4
+-------------
+
+* Release for static assets
+
 Version 2.3.3
 -------------
 
-TBD
-
-.. _version-2.3.2:
+* `@davidfischer <http://github.com/davidfischer>`_: Fix linting errors in tests (`#3855 <https://github.com/rtfd/readthedocs.org/pull/3855>`_)
+* `@humitos <http://github.com/humitos>`_: Fix linting issues (`#3838 <https://github.com/rtfd/readthedocs.org/pull/3838>`_)
+* `@humitos <http://github.com/humitos>`_: Update instance and model when `record_as_success` (`#3831 <https://github.com/rtfd/readthedocs.org/pull/3831>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Reorder GSOC projects, and note priority order (`#3823 <https://github.com/rtfd/readthedocs.org/pull/3823>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Add temporary method for skipping submodule checkout (`#3821 <https://github.com/rtfd/readthedocs.org/pull/3821>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Remove pinned CSS Select version (`#3813 <https://github.com/rtfd/readthedocs.org/pull/3813>`_)
+* `@humitos <http://github.com/humitos>`_: Use readthedocs-common to share linting files accross different repos (`#3808 <https://github.com/rtfd/readthedocs.org/pull/3808>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Use JSONP for sustainability API (`#3789 <https://github.com/rtfd/readthedocs.org/pull/3789>`_)
+* `@humitos <http://github.com/humitos>`_: Define useful celery beat task for development (`#3762 <https://github.com/rtfd/readthedocs.org/pull/3762>`_)
+* `@humitos <http://github.com/humitos>`_: Auto-generate conf.py compatible with Py2 and Py3 (`#3745 <https://github.com/rtfd/readthedocs.org/pull/3745>`_)
+* `@humitos <http://github.com/humitos>`_: Task to remove orphan symlinks (`#3543 <https://github.com/rtfd/readthedocs.org/pull/3543>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix regex for public bitbucket repo (`#3533 <https://github.com/rtfd/readthedocs.org/pull/3533>`_)
+* `@humitos <http://github.com/humitos>`_: Documentation for RTD context sent to the Sphinx theme (`#3490 <https://github.com/rtfd/readthedocs.org/pull/3490>`_)
+* `@stsewd <http://github.com/stsewd>`_: Show link to docs on a build (`#3446 <https://github.com/rtfd/readthedocs.org/pull/3446>`_)
 
 Version 2.3.2
 -------------
