@@ -12,7 +12,7 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
-    ProjectBasicsForm, ProjectExtraForm, TranslationForm)
+    ProjectBasicsForm, ProjectExtraForm, TranslationForm, UpdateProjectForm)
 from readthedocs.projects.models import Project
 
 
@@ -267,7 +267,7 @@ class TestTranslationForm(TestCase):
         self.project_a_es.save()
 
         # Parent project tries to change lang
-        form = ProjectExtraForm(
+        form = UpdateProjectForm(
             {
                 'documentation_type': 'sphinx',
                 'language': 'en',
@@ -281,7 +281,7 @@ class TestTranslationForm(TestCase):
         )
 
         # Translation tries to change lang
-        form = ProjectExtraForm(
+        form = UpdateProjectForm(
             {
                 'documentation_type': 'sphinx',
                 'language': 'es',
@@ -296,7 +296,7 @@ class TestTranslationForm(TestCase):
 
         # Translation tries to change lang
         # to the same as its sibling
-        form = ProjectExtraForm(
+        form = UpdateProjectForm(
             {
                 'documentation_type': 'sphinx',
                 'language': 'br',
@@ -315,7 +315,7 @@ class TestTranslationForm(TestCase):
         self.project_a_es.save()
 
         # Parent project tries to change lang
-        form = ProjectExtraForm(
+        form = UpdateProjectForm(
             {
                 'documentation_type': 'sphinx',
                 'language': 'es',
@@ -325,7 +325,7 @@ class TestTranslationForm(TestCase):
         self.assertTrue(form.is_valid())
 
         # Translation tries to change lang
-        form = ProjectExtraForm(
+        form = UpdateProjectForm(
             {
                 'documentation_type': 'sphinx',
                 'language': 'en',
