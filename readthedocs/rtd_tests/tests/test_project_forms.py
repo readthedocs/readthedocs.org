@@ -317,6 +317,9 @@ class TestTranslationForm(TestCase):
         # Parent project tries to change lang
         form = UpdateProjectForm(
             {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_a_es.repo_type,
+                'name': self.project_a_es.name,
                 'documentation_type': 'sphinx',
                 'language': 'es',
             },
@@ -327,6 +330,9 @@ class TestTranslationForm(TestCase):
         # Translation tries to change lang
         form = UpdateProjectForm(
             {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
                 'documentation_type': 'sphinx',
                 'language': 'en',
             },
