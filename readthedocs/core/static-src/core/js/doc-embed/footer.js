@@ -1,7 +1,40 @@
-var rtddata = require('./rtd-data'),
-    versionCompare = require('./version-compare'),
-    sponsorship = require('../sponsorship');
+var rtddata = require('./rtd-data');
+var versionCompare = require('./version-compare');
 
+
+function injectFooter(data) {
+    var config = rtddata.get();
+
+    // If the theme looks like ours, update the existing badge
+    // otherwise throw a a full one into the page.
+    if (config.is_rtd_theme()) {
+        $("div.rst-other-versions").html(data['html']);
+    } else {
+        $("body").append(data['html']);
+    }
+
+    if (!data['version_active']) {
+        $('.rst-current-version').addClass('rst-out-of-date');
+    } else if (!data['version_supported']) {
+        //$('.rst-current-version').addClass('rst-active-old-version')
+    }
+}
+
+
+function setupBookmarkCSRFToken() {
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
+            }
+        }
+    });
+}
 
 function init() {
     var rtd = rtddata.get();
@@ -28,15 +61,6 @@ function init() {
         get_data['subproject'] = true;
     }
 
-    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-        // Force a specific promo to be displayed
-        var params = new URL(window.location).searchParams;
-        var force_promo = params.get('promo');
-        if (force_promo) {
-            get_data['promo'] = force_promo;
-        }
-    }
-
     // Get footer HTML from API and inject it into the page.
     $.ajax({
         url: rtd.api_host + "/api/v2/footer_html/",
@@ -56,58 +80,6 @@ function init() {
         }
     });
 }
-
-
-function injectFooter(data) {
-    var config = rtddata.get();
-
-    // If the theme looks like ours, update the existing badge
-    // otherwise throw a a full one into the page.
-    if (config.is_rtd_theme()) {
-        $("div.rst-other-versions").html(data['html']);
-    } else {
-        $("body").append(data['html']);
-    }
-
-    if (!data['version_active']) {
-        $('.rst-current-version').addClass('rst-out-of-date');
-    } else if (!data['version_supported']) {
-        //$('.rst-current-version').addClass('rst-active-old-version')
-    }
-
-    // Show promo selectively
-    if (data.promo && config.show_promo()) {
-        var promo = new sponsorship.Promo(
-            data.promo_data.id,
-            data.promo_data.text,
-            data.promo_data.link,
-            data.promo_data.image,
-            config.theme,
-            data.promo_data.display_type,
-            data.promo_data.pixel
-        )
-        if (promo) {
-            promo.display();
-        }
-    }
-}
-
-
-function setupBookmarkCSRFToken() {
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-            }
-        }
-    });
-}
-
 
 module.exports = {
     init: init

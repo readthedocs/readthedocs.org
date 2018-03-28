@@ -14,16 +14,15 @@ import traceback
 import socket
 from datetime import datetime
 
-from readthedocs.core.utils import slugify
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from docker import Client
-from docker.utils import create_host_config
+from docker import APIClient
 from docker.errors import APIError as DockerAPIError, DockerException
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
 from requests.exceptions import ConnectionError
@@ -183,6 +182,13 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
+        # TODO adap this code to the new one
+        # Force record this command as success to avoid Build reporting errors
+        # on commands that are just for checking purposes and do not interferes
+        # in the Build
+        if self.record_as_success:
+            log.warning('Recording command exit_code as success')
+            self.exit_code = 0
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
@@ -326,9 +332,15 @@ class BaseEnvironment(object):
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
-        self.commands.append(build_cmd)
         build_cmd.run()
         self.post_run_command()
+
+        # TODO adap this code to the new one
+        # We want append this command to the list of commands only if it has
+        # to be recorded in the database (to keep consistency) and also, it
+        # has to be added after ``self.record_command`` since its
+        # ``exit_code`` can be altered because of ``record_as_success``
+        self.commands.append(build_cmd)
 
         if build_cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
@@ -605,7 +617,6 @@ class DockerBuildEnvironment(BuildEnvironment):
 
     def __enter__(self):
         """Start of environment context."""
-        log.info('Creating container')
         try:
             # Test for existing container. We remove any stale containers that
             # are no longer running here if there is a collision. If the
@@ -699,10 +710,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Create Docker client connection."""
         try:
             if self.client is None:
-                self.client = Client(
+                self.client = APIClient(
                     base_url=self.docker_socket,
                     version=DOCKER_VERSION,
-                    timeout=None
                 )
             return self.client
         except DockerException as e:
@@ -754,9 +764,12 @@ class DockerBuildEnvironment(BuildEnvironment):
                 self.project.pip_cache_path: {
                     'bind': self.project.pip_cache_path,
                     'mode': 'rw',
-                }
+                },
             })
-        return create_host_config(binds=binds)
+        return self.get_client().create_host_config(
+            binds=binds,
+            mem_limit=self.container_mem_limit,
+        )
 
     @property
     def container_id(self):
@@ -804,6 +817,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         if self.project.container_image:
             image = self.project.container_image
         try:
+            log.info('Creating Docker container: image=%s', image)
             self.container = client.create_container(
                 image=image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
@@ -814,7 +828,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
-                mem_limit=self.container_mem_limit,
             )
             client.start(container=self.container_id)
         except ConnectionError as e:
