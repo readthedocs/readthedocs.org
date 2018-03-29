@@ -83,8 +83,6 @@ build
 
 The ``build`` block configures specific aspects of the documentation build.
 
-.. _yaml_build_image:
-
 .. _yaml__build__image:
 
 build.image
@@ -136,9 +134,9 @@ will be selected.
 .. warning:: 
 
     The supported Python versions depends on the version of the build image your
-    project is using. The default build image that is used to build documentation
-    contains support for Python ``2.7`` and ``3.5``. 
-    See the :ref:`yaml_build_image` for more information on supported Python versions.
+    project is using. The default build image that is used to build
+    documentation contains support for Python ``2.7`` and ``3.5``.  See the
+    :ref:`yaml__build__image` for more information on supported Python versions.
 
 .. code-block:: yaml
 
