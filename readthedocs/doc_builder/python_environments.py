@@ -109,12 +109,14 @@ class PythonEnvironment(object):
     @property
     def is_obsolete(self):
         """
-        Determine if the Python version of the venv obsolete.
+        Determine if the environment is obsolete for different reasons.
 
         It checks the the data stored at ``readthedocs-environment.json`` and
-        compares it against the Python version in the project version to be
-        built and the Docker image used to create the venv against the one in
-        the project version config.
+        compares it with the one to be used. In particular:
+
+        * the Python version (e.g. 2.7, 3, 3.6, etc)
+        * the Docker image name
+        * the Docker image hash
 
         :returns: ``True`` when it's obsolete and ``False`` otherwise
 
