@@ -2,17 +2,18 @@ Connecting with an Enterprise Github
 ====================================
 
 Github integration is provided via the `django-allauth`_ package, and by default connected with `github.com`_.
-To swap out this connection with an enterprise edition of Github you need to:
+Next we'll detail how to swap out this connection to use an enterprise edition of Github:
 
 1. Change the social account provider settings to point the Enterprise Github (value of ``{{github_url}}`` in the
    ``local_settings.py``):
 
     .. code-block:: python
 
-        SOCIALACCOUNT_PROVIDERS = {'github': {'SCOPE': ['user:email', 'read:org',
-                                                       'admin:repo_hook', 'repo:status'],
-                                              'GITHUB_URL': '{{github_url}}'}}
+        from .dev import CommunityDevSettings
+        _SETTINGS = CommunityDevSettings()
 
+        SOCIALACCOUNT_PROVIDERS = _SETTINGS.SOCIALACCOUNT_PROVIDERS
+        SOCIALACCOUNT_PROVIDERS['github']['GITHUB_URL'] == '{{github_url}}'
 
 2. Create an OAuth Github Application by following the `official guide <https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/>`_. Note here you must provide the address of the readthedocs
    instance you're setting up. This will give you a Github application ``client id`` and ``secret``.
