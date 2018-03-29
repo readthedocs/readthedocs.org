@@ -9,8 +9,8 @@ import logging
 import os
 import re
 
+import git
 from django.core.exceptions import ValidationError
-from git import Repo
 from git.exc import BadName
 from six import PY2, StringIO
 
