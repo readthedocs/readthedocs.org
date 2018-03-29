@@ -9,8 +9,9 @@ import logging
 import os
 import re
 
-from django.core.exceptions import ValidationError
 import git
+from django.core.exceptions import ValidationError
+from git.exc import BadName
 from six import PY2, StringIO
 
 from readthedocs.core.validators import validate_submodule_url
@@ -273,8 +274,13 @@ class Backend(BaseVCS):
         return ref
 
     def ref_exists(self, ref):
-        code, _, _ = self.run('git', 'show-ref', ref, record_as_success=True)
-        return code == 0
+        try:
+            r = git.Repo(self.working_dir)
+            if r.commit(ref):
+                return True
+        except (BadName, ValueError):
+            return False
+        return False
 
     @property
     def env(self):
