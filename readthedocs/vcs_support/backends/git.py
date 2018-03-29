@@ -13,7 +13,7 @@ from django.core.exceptions import ValidationError
 import git
 from six import PY2, StringIO
 
-from readthedocs.core.validators import validate_repository_url
+from readthedocs.core.validators import validate_submodule_url
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
@@ -79,7 +79,7 @@ class Backend(BaseVCS):
         repo = git.Repo(self.working_dir)
         for submodule in repo.submodules:
             try:
-                validate_repository_url(submodule.url)
+                validate_submodule_url(submodule.url)
             except ValidationError:
                 return False
         return True
