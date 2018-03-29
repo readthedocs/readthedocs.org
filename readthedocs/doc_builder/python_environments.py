@@ -131,12 +131,21 @@ class PythonEnvironment(object):
         try:
             with open(self.environment_json_path(), 'r') as fpath:
                 environment_conf = json.load(fpath)
-            env_python_version = environment_conf['python']['version']
-            env_build_image = environment_conf['build']['image']
-            env_build_hash = environment_conf['build']['hash']
         except (IOError, TypeError, KeyError, ValueError):
-            log.error('Unable to read/parse readthedocs-environment.json file')
-            return False
+            log.warning('Unable to read/parse readthedocs-environment.json file')
+            # We remove the JSON file here to avoid cycling over time with a
+            # corrupted file.
+            os.remove(self.environment_json_path())
+            return True
+
+        env_python = environment_conf.get('python', {})
+        env_build = environment_conf.get('build', {})
+
+        # By defaulting non-existent options to ``None`` we force a wipe since
+        # we don't know how the environment was created
+        env_python_version = env_python.get('version', None)
+        env_build_image = env_build.get('image', None)
+        env_build_hash = env_build.get('hash', None)
 
         build_image = self.config.build_image or DOCKER_IMAGE
         # If the user define the Python version just as a major version
