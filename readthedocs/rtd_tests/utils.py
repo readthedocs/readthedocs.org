@@ -59,13 +59,22 @@ def make_test_git():
     gitmodules_path = pjoin(directory, '.gitmodules')
     with open(gitmodules_path, 'w') as fh:
         fh.write('''[submodule "foobar"]\n\tpath = foobar\n\turl = https://foobar.com/git\n''')
-    log.info(check_output(['git', 'update-index', '--add', '--cacheinfo', '160000', '233febf4846d7a0aeb95b6c28962e06e21d13688', 'foobar'], env=env))
+    log.info(check_output(
+        [
+            'git', 'update-index', '--add', '--cacheinfo', '160000',
+            '233febf4846d7a0aeb95b6c28962e06e21d13688', 'foobar',
+        ],
+        env=env,
+    ))
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
 
     # Add an invalid submodule URL in the invalidsubmodule branch
     log.info(check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'], env=env))
-    log.info(check_output(['git', 'submodule', 'add', '-b', 'master', './', 'invalidsubmodule'], env=env))
+    log.info(check_output(
+        ['git', 'submodule', 'add', '-b', 'master', './', 'invalidsubmodule'],
+        env=env,
+    ))
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add invalid submodule"'], env=env))
     # Checkout to master branch again

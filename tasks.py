@@ -12,7 +12,7 @@ from invoke import task, Exit
 
 
 @task
-def prepare(ctx, version):
+def prepare(ctx, version, since):
     """
     Prepare the next release version by updating files.
 
@@ -41,10 +41,11 @@ def prepare(ctx, version):
         config.write(configfile)
 
     print('Installing github-changelog')
-    # Get last modified date from Git instead of assuming the file metadata is
-    # correct. This can change depending on git reset, etc.
-    git_log = ctx.run('git log -1 --format="%ad" -- CHANGELOG.rst')
-    last_modified = parse(git_log.stdout.strip()).strftime('%Y-%m-%d')
+    if not since:
+        # Get last modified date from Git instead of assuming the file metadata is
+        # correct. This can change depending on git reset, etc.
+        git_log = ctx.run('git log -1 --format="%ad" -- CHANGELOG.rst')
+        since = parse(git_log.stdout.strip()).strftime('%Y-%m-%d')
     # Install and run
     ctx.run('npm install git+https://github.com/agjohnson/github-changelog.git')
     changelog_path = os.path.join(os.path.dirname(__file__), 'CHANGELOG.rst')
@@ -62,15 +63,16 @@ def prepare(ctx, version):
         '{bin_path}/gh-changelog '
         '-o rtfd -r readthedocs.org '
         '--file {changelog_path} '
-        '--since {last_modified} '
+        '--since {since} '
         '--template {template_path} '
-        '--header "Version {version}"'
+        '--header "Version {version}" '
+        '--merged'
     ).format(
         bin_path=bin_path,
         version=version,
         template_path=template_path,
         changelog_path=changelog_path,
-        last_modified=last_modified,
+        since=since,
     )  # yapf: disable
     try:
         token = os.environ['GITHUB_TOKEN']

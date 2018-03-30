@@ -61,14 +61,14 @@ class RepositoryURLValidator(object):
             valid_schemes += private_schemes
         url = urlparse(value)
         if (
-                (
-                    url.scheme not in valid_schemes and \
-                    '@' not in value and \
+                (  # pylint: disable=too-many-boolean-expressions
+                    url.scheme not in valid_schemes and
+                    '@' not in value and
                     not value.startswith('lp:')
-                ) or \
+                ) or
                 (
-                    value.startswith('/') or \
-                    value.startswith('file://') or \
+                    value.startswith('/') or
+                    value.startswith('file://') or
                     value.startswith('.')
                 )
         ):
