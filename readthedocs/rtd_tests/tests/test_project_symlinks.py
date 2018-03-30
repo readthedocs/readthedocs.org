@@ -94,7 +94,8 @@ class TempSiterootCase(object):
                 new_callable=mock.PropertyMock
             ),
         }
-        self.patches = dict((key, mock.start()) for (key, mock) in list(self.mocks.items()))
+        self.patches = dict((key, mock.start())
+                            for (key, mock) in list(self.mocks.items()))
         self.patches['PublicSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
             settings.SITE_ROOT, 'public_cname_root'
         )
@@ -1169,7 +1170,8 @@ class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
             data={'privacy_level': 'private', 'active': True},
         )
 
-        self.assertEqual(self.subproject.versions.first().privacy_level, 'private')
+        self.assertEqual(
+            self.subproject.versions.first().privacy_level, 'private')
         self.assertTrue(self.subproject.versions.first().active)
 
         self.client.post(

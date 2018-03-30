@@ -41,7 +41,8 @@ def search_project(request, query, language=None):
     }
 
     if language:
-        body['facets']['language']['facet_filter'] = {"term": {"lang": language}}
+        body['facets']['language']['facet_filter'] = {
+            "term": {"lang": language}}
         body['filter'] = {"term": {"lang": language}}
 
     before_project_search.send(request=request, sender=ProjectIndex, body=body)
@@ -126,7 +127,8 @@ def search_file(request, query, project_slug=None, version_slug=LATEST, taxonomy
                                      in Project.objects.public(
                                          request.user).filter(
                                          superprojects__parent__slug=project.slug))
-                final_filter['and'].append({"terms": {"project": project_slugs}})
+                final_filter['and'].append(
+                    {"terms": {"project": project_slugs}})
 
                 # Add routing to optimize search by hitting the right shard.
                 # This purposely doesn't apply routing if the project has more

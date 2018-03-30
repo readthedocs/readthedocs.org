@@ -18,13 +18,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Bookmark',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
                 ('page', models.CharField(max_length=255, verbose_name='Page')),
-                ('date', models.DateTimeField(auto_now_add=True, verbose_name='Date')),
-                ('url', models.CharField(max_length=255, null=True, verbose_name='URL', blank=True)),
-                ('project', models.ForeignKey(related_name='bookmarks', verbose_name='Project', to='projects.Project')),
-                ('user', models.ForeignKey(related_name='bookmarks', verbose_name='User', to=settings.AUTH_USER_MODEL)),
-                ('version', models.ForeignKey(related_name='bookmarks', verbose_name='Version', to='builds.Version')),
+                ('date', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Date')),
+                ('url', models.CharField(max_length=255,
+                                         null=True, verbose_name='URL', blank=True)),
+                ('project', models.ForeignKey(related_name='bookmarks',
+                                              verbose_name='Project', to='projects.Project')),
+                ('user', models.ForeignKey(related_name='bookmarks',
+                                           verbose_name='User', to=settings.AUTH_USER_MODEL)),
+                ('version', models.ForeignKey(related_name='bookmarks',
+                                              verbose_name='Version', to='builds.Version')),
             ],
             options={
                 'ordering': ['-date'],

@@ -41,7 +41,8 @@ def get_status_data(task_name, state, data, error=None):
 @decorators.renderer_classes((JSONRenderer,))
 def job_status(request, task_id):
     try:
-        task_name, state, public_data, error = get_public_task_data(request, task_id)
+        task_name, state, public_data, error = get_public_task_data(
+            request, task_id)
     except (TaskNoPermission, ConnectionError):
         return Response(
             get_status_data('unknown', 'PENDING', {}))

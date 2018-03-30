@@ -67,7 +67,8 @@ class BaseMkdocs(BaseBuilder):
             note = ''
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
-                note = ' (line %d, column %d)' % (mark.line + 1, mark.column + 1)
+                note = ' (line %d, column %d)' % (
+                    mark.line + 1, mark.column + 1)
             raise BuildEnvironmentError(
                 "Your mkdocs.yml could not be loaded, "
                 "possibly due to a syntax error%s" % (

@@ -675,7 +675,8 @@ class TestDockerBuildEnvironment(TestCase):
         with build_env:
             build_env.run('echo', 'test', cwd='/tmp')
 
-        self.assertEqual(str(build_env.failure), 'Build exited due to time out')
+        self.assertEqual(str(build_env.failure),
+                         'Build exited due to time out')
         self.assertEqual(self.mocks.docker_client.exec_create.call_count, 1)
         self.assertTrue(build_env.failed)
 
@@ -835,8 +836,6 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(
             str(cmd.output),
             u'Command killed due to excessive memory consumption\n')
-
-
 
 
 class TestAutoWipeEnvironment(TestCase):

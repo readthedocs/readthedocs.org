@@ -35,8 +35,10 @@ def process_mkdocs_json(version, build_dir=True):
             continue
         relative_path = parse_path_from_file(file_path=filename)
         html = parse_content_from_file(file_path=filename)
-        headers = parse_headers_from_file(documentation_type='mkdocs', file_path=filename)
-        sections = parse_sections_from_file(documentation_type='mkdocs', file_path=filename)
+        headers = parse_headers_from_file(
+            documentation_type='mkdocs', file_path=filename)
+        sections = parse_sections_from_file(
+            documentation_type='mkdocs', file_path=filename)
         try:
             title = sections[0]['title']
         except IndexError:
@@ -62,13 +64,15 @@ def valid_mkdocs_json(file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
+        log.warning(
+            '(Search Index) Unable to index file: %s, error: %s', file_path, e)
         return None
 
     page_json = json.loads(content)
     for to_check in ['url', 'content']:
         if to_check not in page_json:
-            log.warning('(Search Index) Unable to index file: %s error: Invalid JSON', file_path)
+            log.warning(
+                '(Search Index) Unable to index file: %s error: Invalid JSON', file_path)
             return None
 
     return True
@@ -80,7 +84,8 @@ def parse_path_from_file(file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
+        log.warning(
+            '(Search Index) Unable to index file: %s, error: %s', file_path, e)
         return ''
 
     page_json = json.loads(content)

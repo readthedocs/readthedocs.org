@@ -22,23 +22,27 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='domain',
             name='domain',
-            field=models.CharField(null=True, max_length=255, verbose_name='Domain', validators=[django.contrib.sites.models._simple_domain_name_validator]),
+            field=models.CharField(null=True, max_length=255, verbose_name='Domain', validators=[
+                                   django.contrib.sites.models._simple_domain_name_validator]),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='domain',
             name='canonical',
-            field=models.BooleanField(default=False, help_text='This Domain is the primary one where the documentation is served from.'),
+            field=models.BooleanField(
+                default=False, help_text='This Domain is the primary one where the documentation is served from.'),
         ),
         migrations.AlterField(
             model_name='domain',
             name='cname',
-            field=models.BooleanField(default=False, help_text='This Domain is a CNAME for the project'),
+            field=models.BooleanField(
+                default=False, help_text='This Domain is a CNAME for the project'),
         ),
         migrations.AlterField(
             model_name='domain',
             name='machine',
-            field=models.BooleanField(default=False, help_text='This Domain was auto-created'),
+            field=models.BooleanField(
+                default=False, help_text='This Domain was auto-created'),
         ),
         migrations.AlterField(
             model_name='domain',

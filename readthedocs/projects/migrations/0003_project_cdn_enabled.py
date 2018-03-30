@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='cdn_enabled',
-            field=models.BooleanField(default=False, verbose_name='CDN Enabled'),
+            field=models.BooleanField(
+                default=False, verbose_name='CDN Enabled'),
         ),
     ]

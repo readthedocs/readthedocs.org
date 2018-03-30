@@ -9,7 +9,8 @@ from django.conf import settings
 
 from readthedocs.vcs_support import utils
 
-TEST_STATICS = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test_statics')
+TEST_STATICS = os.path.join(os.path.dirname(
+    os.path.realpath(__file__)), 'test_statics')
 
 
 class TestNonBlockingLock(unittest.TestCase):
@@ -41,7 +42,8 @@ class TestNonBlockingLock(unittest.TestCase):
         with utils.NonBlockingLock(project=self.project_mock,
                                    version=self.version_mock) as f_lock:
             lock_path = f_lock.fpath
-        self.assertTrue(lock_path is not None and not os.path.exists(lock_path))
+        self.assertTrue(
+            lock_path is not None and not os.path.exists(lock_path))
 
     def test_nonreentrant(self):
         with utils.NonBlockingLock(project=self.project_mock,
@@ -64,5 +66,3 @@ class TestNonBlockingLock(unittest.TestCase):
                     pass
             except utils.LockTimeout:
                 raise AssertionError('Should have thrown LockTimeout')
-
-

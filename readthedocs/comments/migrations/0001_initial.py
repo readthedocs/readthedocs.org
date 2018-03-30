@@ -18,8 +18,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DocumentComment',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('date', models.DateTimeField(auto_now_add=True, verbose_name='Date')),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
+                ('date', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Date')),
                 ('rating', models.IntegerField(default=0, verbose_name='Rating')),
                 ('text', models.TextField(verbose_name='Text')),
             ],
@@ -27,20 +29,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DocumentNode',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
                 ('page', models.CharField(max_length=255, verbose_name='Path')),
                 ('raw_source', models.TextField(verbose_name='Raw Source')),
-                ('project', models.ForeignKey(related_name='nodes', verbose_name='Project', to='projects.Project', null=True)),
-                ('version', models.ForeignKey(related_name='nodes', verbose_name='Version', to='builds.Version', null=True)),
+                ('project', models.ForeignKey(related_name='nodes',
+                                              verbose_name='Project', to='projects.Project', null=True)),
+                ('version', models.ForeignKey(related_name='nodes',
+                                              verbose_name='Version', to='builds.Version', null=True)),
             ],
         ),
         migrations.CreateModel(
             name='ModerationAction',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('decision', models.IntegerField(choices=[(0, b'No Decision'), (1, b'Publish'), (2, b'Hide')])),
-                ('date', models.DateTimeField(auto_now_add=True, verbose_name='Date')),
-                ('comment', models.ForeignKey(related_name='moderation_actions', to='comments.DocumentComment')),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
+                ('decision', models.IntegerField(choices=[
+                 (0, b'No Decision'), (1, b'Publish'), (2, b'Hide')])),
+                ('date', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Date')),
+                ('comment', models.ForeignKey(
+                    related_name='moderation_actions', to='comments.DocumentComment')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -50,17 +59,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ModerationActionManager',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
             ],
         ),
         migrations.CreateModel(
             name='NodeSnapshot',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('date', models.DateTimeField(auto_now_add=True, verbose_name=b'Publication date')),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
+                ('date', models.DateTimeField(
+                    auto_now_add=True, verbose_name=b'Publication date')),
                 ('hash', models.CharField(max_length=255, verbose_name='Hash')),
                 ('commit', models.CharField(max_length=255)),
-                ('node', models.ForeignKey(related_name='snapshots', to='comments.DocumentNode')),
+                ('node', models.ForeignKey(
+                    related_name='snapshots', to='comments.DocumentNode')),
             ],
             options={
                 'get_latest_by': 'date',
@@ -69,7 +82,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='documentcomment',
             name='node',
-            field=models.ForeignKey(related_name='comments', to='comments.DocumentNode'),
+            field=models.ForeignKey(
+                related_name='comments', to='comments.DocumentNode'),
         ),
         migrations.AddField(
             model_name='documentcomment',

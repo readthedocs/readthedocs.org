@@ -24,7 +24,8 @@ class MiddlewareTests(TestCase):
         self.middleware = SubdomainMiddleware()
         self.url = '/'
         self.owner = create_user(username='owner', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner], privacy_level='public')
+        self.pip = get(Project, slug='pip', users=[
+                       self.owner], privacy_level='public')
 
     def test_failey_cname(self):
         request = self.factory.get(self.url, HTTP_HOST='my.host.com')
@@ -42,7 +43,8 @@ class MiddlewareTests(TestCase):
 
     @override_settings(PRODUCTION_DOMAIN='prod.readthedocs.org')
     def test_subdomain_different_length(self):
-        request = self.factory.get(self.url, HTTP_HOST='pip.prod.readthedocs.org')
+        request = self.factory.get(
+            self.url, HTTP_HOST='pip.prod.readthedocs.org')
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
         self.assertEqual(request.subdomain, True)
@@ -72,7 +74,8 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'my_slug')
 
     def test_request_header(self):
-        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip')
+        request = self.factory.get(
+            self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip')
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
         self.assertEqual(request.cname, True)
@@ -89,7 +92,8 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
 
     def test_request_header_uppercase(self):
-        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP')
+        request = self.factory.get(
+            self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP')
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
         self.assertEqual(request.cname, True)
@@ -128,7 +132,8 @@ class TestCORSMiddleware(TestCase):
             parent=self.project,
             child=self.subproject
         )
-        self.domain = get(Domain, domain='my.valid.domain', project=self.project)
+        self.domain = get(Domain, domain='my.valid.domain',
+                          project=self.project)
 
     def test_proper_domain(self):
         request = self.factory.get(

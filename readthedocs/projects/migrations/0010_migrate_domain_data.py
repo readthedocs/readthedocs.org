@@ -24,10 +24,12 @@ def migrate_url(apps, schema_editor):
         try:
             domain.domain = domain_string
             domain.save()
-            print(u"Added {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print(u"Added {domain} from {url}".format(
+                url=domain.url, domain=domain_string))
         except Exception as e:
             print(e)
-            print(u"Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print(u"Failed {domain} from {url}".format(
+                url=domain.url, domain=domain_string))
 
         dms = Domain.objects.filter(domain=domain_string).order_by('-count')
         if dms.count() > 1:
@@ -46,7 +48,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='domain',
             name='domain',
-            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[readthedocs.core.validators.DomainNameValidator()]),
+            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[
+                                   readthedocs.core.validators.DomainNameValidator()]),
 
         ),
     ]

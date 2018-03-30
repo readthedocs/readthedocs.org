@@ -244,7 +244,8 @@ class DockerBuildCommand(BuildCommand):
             # nicer. Sometimes the kernel kills the command and Docker doesn't
             # not use the specific exit code, so we check if the word `Killed`
             # is in the last 15 lines of the command's output
-            killed_in_output = 'Killed' in '\n'.join(self.output.splitlines()[-15:])
+            killed_in_output = 'Killed' in '\n'.join(
+                self.output.splitlines()[-15:])
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
                 self.output = _('Command killed due to excessive memory '
                                 'consumption\n')

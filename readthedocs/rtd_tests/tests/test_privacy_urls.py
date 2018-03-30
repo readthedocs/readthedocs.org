@@ -106,7 +106,8 @@ class URLAccessMixin(object):
                     added_kwargs[key] = request_data[key]
                     continue
                 if key not in self.default_kwargs:
-                    raise Exception('URL argument not in test kwargs. Please add `%s`' % key)
+                    raise Exception(
+                        'URL argument not in test kwargs. Please add `%s`' % key)
                 added_kwargs[key] = self.default_kwargs[key]
             path = reverse(name, kwargs=added_kwargs)
             self.assertResponse(path=path, name=name)
@@ -141,7 +142,8 @@ class ProjectMixin(URLAccessMixin):
             response_headers='{"foo": "bar"}',
             status_code=200,
         )
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.domain = get(
+            Domain, url='http://docs.foobar.com', project=self.pip)
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'subproject_slug': self.subproject.slug,
@@ -293,7 +295,8 @@ class APIMixin(URLAccessMixin):
         super(APIMixin, self).setUp()
         self.build = get(Build, project=self.pip)
         self.build_command_result = get(BuildCommandResult, project=self.pip)
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.domain = get(
+            Domain, url='http://docs.foobar.com', project=self.pip)
         self.comment = get(DocumentComment, node__project=self.pip)
         self.snapshot = get(NodeSnapshot, node=self.comment.node)
         self.social_account = get(SocialAccount)

@@ -71,7 +71,8 @@ def search(request):
         canonical_url = project.get_docs_url(version_slug=version_slug)
         if search_project != project_slug:
             try:
-                subproject = project.subprojects.get(child__slug=search_project)
+                subproject = project.subprojects.get(
+                    child__slug=search_project)
                 canonical_url = subproject.child.get_docs_url(
                     version_slug=search_version
                 )

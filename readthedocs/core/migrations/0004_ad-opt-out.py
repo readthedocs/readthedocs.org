@@ -18,11 +18,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userprofile',
             name='allow_ads',
-            field=models.BooleanField(default=True, help_text='If unchecked, you will still see community ads.', verbose_name='See paid advertising'),
+            field=models.BooleanField(
+                default=True, help_text='If unchecked, you will still see community ads.', verbose_name='See paid advertising'),
         ),
         migrations.AlterField(
             model_name='userprofile',
             name='user',
-            field=annoying.fields.AutoOneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL, verbose_name='User'),
+            field=annoying.fields.AutoOneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL, verbose_name='User'),
         ),
     ]

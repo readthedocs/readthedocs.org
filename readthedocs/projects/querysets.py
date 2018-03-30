@@ -43,7 +43,8 @@ class ProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def protected(self, user=None):
-        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        queryset = self.filter(
+            privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
         if user:
             return self._add_user_repos(queryset, user)
         return queryset

@@ -61,12 +61,14 @@ class Command(BaseCommand):
                     repo=repo,
                 )
                 # We need this to get around GitHub's rate limiting
-                headers = {'Authorization': 'token {token}'.format(token=token)}
+                headers = {
+                    'Authorization': 'token {token}'.format(token=token)}
                 resp = requests.get(url, headers=headers)
                 languages = resp.json()
                 if not languages:
                     continue
-                sorted_langs = sorted(list(languages.items()), key=lambda x: x[1], reverse=True)
+                sorted_langs = sorted(
+                    list(languages.items()), key=lambda x: x[1], reverse=True)
                 print('Sorted langs: %s ' % sorted_langs)
                 top_lang = sorted_langs[0][0]
             else:
@@ -74,7 +76,8 @@ class Command(BaseCommand):
             if top_lang in PL_DICT:
                 slug = PL_DICT[top_lang]
                 print('Setting %s to %s' % (repo_url, slug))
-                Project.objects.filter(pk=project.pk).update(programming_language=slug)
+                Project.objects.filter(pk=project.pk).update(
+                    programming_language=slug)
             else:
                 print('Language unknown: %s' % top_lang)
             cache.set(cache_key, top_lang, 60 * 600)

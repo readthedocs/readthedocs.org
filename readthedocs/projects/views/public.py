@@ -439,7 +439,8 @@ def project_embed(request, project_slug):
     project = get_object_or_404(
         Project.objects.protected(request.user), slug=project_slug)
     version = project.versions.get(slug=LATEST)
-    files = version.imported_files.filter(name__endswith='.html').order_by('path')
+    files = version.imported_files.filter(
+        name__endswith='.html').order_by('path')
 
     return render(
         request,

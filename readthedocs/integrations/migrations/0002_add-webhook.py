@@ -18,10 +18,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Integration',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('integration_type', models.CharField(choices=[(b'github_webhook', 'GitHub incoming webhook'), (b'bitbucket_webhook', 'Bitbucket incoming webhook'), (b'gitlab_webhook', 'GitLab incoming webhook'), (b'api_webhook', 'Generic API incoming webhook')], max_length=32, verbose_name='Type')),
-                ('provider_data', jsonfield.fields.JSONField(verbose_name='Provider data')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='integrations', to='projects.Project')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('integration_type', models.CharField(choices=[(b'github_webhook', 'GitHub incoming webhook'), (b'bitbucket_webhook', 'Bitbucket incoming webhook'), (
+                    b'gitlab_webhook', 'GitLab incoming webhook'), (b'api_webhook', 'Generic API incoming webhook')], max_length=32, verbose_name='Type')),
+                ('provider_data', jsonfield.fields.JSONField(
+                    verbose_name='Provider data')),
+                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                              related_name='integrations', to='projects.Project')),
             ],
         ),
     ]

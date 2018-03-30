@@ -182,7 +182,8 @@ class StripeModelForm(forms.ModelForm):
         try:
             self.data['stripe_token'] = None
         except AttributeError:
-            raise AttributeError('Form was passed immutable QueryDict POST data')
+            raise AttributeError(
+                'Form was passed immutable QueryDict POST data')
 
     def fields_with_cc_group(self):
         group = {

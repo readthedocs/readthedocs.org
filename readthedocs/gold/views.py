@@ -66,7 +66,8 @@ class DetailGoldSubscription(GoldSubscriptionMixin, DetailView):
         If there is a gold subscription instance, then we show the normal detail
         page, otherwise show the registration form
         """
-        resp = super(DetailGoldSubscription, self).get(request, *args, **kwargs)
+        resp = super(DetailGoldSubscription, self).get(
+            request, *args, **kwargs)
         if self.object is None:
             return HttpResponseRedirect(reverse('gold_subscription'))
         return resp
@@ -90,7 +91,8 @@ class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         """Add success message to delete post."""
-        resp = super(DeleteGoldSubscription, self).post(request, *args, **kwargs)
+        resp = super(DeleteGoldSubscription, self).post(
+            request, *args, **kwargs)
         success_message = self.get_success_message({})
         if success_message:
             messages.success(self.request, success_message)

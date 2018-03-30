@@ -526,7 +526,8 @@ class TestStableVersion(TestCase):
         version_stable = Version.objects.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
-        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+        self.assertEqual(
+            'origin/stable', self.pip.get_stable_version().identifier)
 
         # Check that posting again doesn't change anything from current state.
         self.client.post(
@@ -535,4 +536,5 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
 
-        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+        self.assertEqual(
+            'origin/stable', self.pip.get_stable_version().identifier)

@@ -173,7 +173,8 @@ class ResolverBase(object):
             version = project.versions.get(slug=version_slug)
             private = version.privacy_level == PRIVATE
         except Version.DoesNotExist:
-            private = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC) == PRIVATE
+            private = getattr(
+                settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC) == PRIVATE
         return private
 
     def _fix_filename(self, project, filename):

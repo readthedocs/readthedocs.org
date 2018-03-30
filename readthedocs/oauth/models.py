@@ -45,7 +45,8 @@ class RemoteOrganization(models.Model):
 
     slug = models.CharField(_('Slug'), max_length=255)
     name = models.CharField(_('Name'), max_length=255, null=True, blank=True)
-    email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
+    email = models.EmailField(
+        _('Email'), max_length=255, null=True, blank=True)
     avatar_url = models.URLField(_('Avatar image URL'), null=True, blank=True)
     url = models.URLField(
         _('URL to organization page'), max_length=200, null=True, blank=True)

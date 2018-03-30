@@ -40,7 +40,8 @@ DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
 
 old_config = getattr(settings, 'DOCKER_BUILD_IMAGES', None)
 if old_config:
-    log.warning('Old config detected, DOCKER_BUILD_IMAGES->DOCKER_IMAGE_SETTINGS')
+    log.warning(
+        'Old config detected, DOCKER_BUILD_IMAGES->DOCKER_IMAGE_SETTINGS')
     DOCKER_IMAGE_SETTINGS.update(old_config)
 
 DOCKER_LIMITS = {'memory': '200m', 'time': 600}

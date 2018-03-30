@@ -48,6 +48,7 @@ class TestVersionURLs(TestCase):
     def test_version_url_with_caps(self):
         url = reverse(
             'project_download_media',
-            kwargs={'type_': 'pdf', 'version_slug': u'1.4.X', 'project_slug': u'django'}
+            kwargs={'type_': 'pdf', 'version_slug': u'1.4.X',
+                    'project_slug': u'django'}
         )
         self.assertTrue(url)

@@ -26,7 +26,8 @@ class Lock(object):
 
     def __init__(self, project, version, timeout=5, polling_interval=0.1):
         self.name = project.slug
-        self.fpath = os.path.join(project.doc_path, '%s__rtdlock' % version.slug)
+        self.fpath = os.path.join(
+            project.doc_path, '%s__rtdlock' % version.slug)
         self.timeout = timeout
         self.polling_interval = polling_interval
 
@@ -57,7 +58,8 @@ class Lock(object):
             log.info("Lock (%s): Releasing", self.name)
             os.remove(self.fpath)
         except OSError:
-            log.exception("Lock (%s): Failed to release, ignoring...", self.name)
+            log.exception(
+                "Lock (%s): Failed to release, ignoring...", self.name)
 
 
 class NonBlockingLock(object):
@@ -75,7 +77,8 @@ class NonBlockingLock(object):
     """
 
     def __init__(self, project, version, max_lock_age=None):
-        self.fpath = os.path.join(project.doc_path, '%s__rtdlock' % version.slug)
+        self.fpath = os.path.join(
+            project.doc_path, '%s__rtdlock' % version.slug)
         self.max_lock_age = max_lock_age
         self.name = project.slug
 

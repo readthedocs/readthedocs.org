@@ -41,7 +41,8 @@ class BuildEnvironmentTests(TestCase):
         })
         self.mocks.patches['html_build'].stop()
 
-        build_env = LocalBuildEnvironment(project=project, version=version, build={})
+        build_env = LocalBuildEnvironment(
+            project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
@@ -65,7 +66,8 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
 
-        build_env = LocalBuildEnvironment(project=project, version=version, build={})
+        build_env = LocalBuildEnvironment(
+            project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
@@ -90,7 +92,8 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
 
-        build_env = LocalBuildEnvironment(project=project, version=version, build={})
+        build_env = LocalBuildEnvironment(
+            project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
@@ -114,7 +117,8 @@ class BuildEnvironmentTests(TestCase):
                       versions=[fixture()])
         version = project.versions.all()[0]
 
-        build_env = LocalBuildEnvironment(project=project, version=version, build={})
+        build_env = LocalBuildEnvironment(
+            project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load({
             'formats': ['epub']
@@ -136,7 +140,8 @@ class BuildEnvironmentTests(TestCase):
                       allow_comments=True,
                       versions=[fixture()])
         version = project.versions.all()[0]
-        build_env = LocalBuildEnvironment(version=version, project=project, build={})
+        build_env = LocalBuildEnvironment(
+            version=version, project=project, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(build_env, python_env)
@@ -149,7 +154,8 @@ class BuildEnvironmentTests(TestCase):
                       allow_comments=False,
                       versions=[fixture()])
         version = project.versions.all()[0]
-        build_env = LocalBuildEnvironment(version=version, project=project, build={})
+        build_env = LocalBuildEnvironment(
+            version=version, project=project, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         builder_class = get_builder_class(project.documentation_type)
         builder = builder_class(build_env, python_env)
@@ -171,7 +177,8 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
         assert project.conf_dir() == '/tmp/rtd'
 
-        build_env = LocalBuildEnvironment(project=project, version=version, build={})
+        build_env = LocalBuildEnvironment(
+            project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
@@ -213,7 +220,8 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
         assert project.conf_dir() == '/tmp/rtd'
 
-        build_env = LocalBuildEnvironment(project=project, version=version, build={})
+        build_env = LocalBuildEnvironment(
+            project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
         task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,

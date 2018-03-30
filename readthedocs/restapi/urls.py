@@ -22,7 +22,8 @@ from .views.model_views import (BuildViewSet, BuildCommandViewSet,
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, base_name='build')
-router.register(r'command', BuildCommandViewSet, base_name='buildcommandresult')
+router.register(r'command', BuildCommandViewSet,
+                base_name='buildcommandresult')
 router.register(r'version', VersionViewSet, base_name='version')
 router.register(r'project', ProjectViewSet, base_name='project')
 router.register(r'notification', NotificationViewSet, base_name='emailhook')

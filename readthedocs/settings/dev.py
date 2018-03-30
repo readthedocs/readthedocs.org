@@ -55,7 +55,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super(CommunityDevSettings, self).LOGGING
-        logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        logging['formatters']['default']['format'] = '[%(asctime)s] ' + \
+            self.LOG_FORMAT
         return logging
 
 
