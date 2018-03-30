@@ -1034,6 +1034,33 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
+    def test_is_obsolete_with_json_missing_build_hash(self):
+        config_data = {
+            'build': {
+                'image': '2.0',
+                'hash': 'a1b2c3',
+            },
+            'python': {
+                'version': 2.7,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+
+        # Set container_image manually
+        self.pip.container_image = 'readthedocs/build:2.0'
+        self.pip.save()
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=config,
+        )
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0"}, "python": {"version": 2.7}}'  # noqa
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+            exists.return_value = True
+            self.assertTrue(python_env.is_obsolete)
+
 
 @patch(
     'readthedocs.doc_builder.environments.DockerBuildEnvironment.image_hash',
