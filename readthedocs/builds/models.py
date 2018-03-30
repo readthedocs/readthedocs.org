@@ -206,7 +206,8 @@ class Version(models.Model):
         data = {}
         if pretty:
             if project.has_pdf(self.slug):
-                data['PDF'] = project.get_production_media_url('pdf', self.slug)
+                data['PDF'] = project.get_production_media_url(
+                    'pdf', self.slug)
             if project.has_htmlzip(self.slug):
                 data['HTML'] = project.get_production_media_url(
                     'htmlzip', self.slug)
@@ -215,7 +216,8 @@ class Version(models.Model):
                     'epub', self.slug)
         else:
             if project.has_pdf(self.slug):
-                data['pdf'] = project.get_production_media_url('pdf', self.slug)
+                data['pdf'] = project.get_production_media_url(
+                    'pdf', self.slug)
             if project.has_htmlzip(self.slug):
                 data['htmlzip'] = project.get_production_media_url(
                     'htmlzip', self.slug)

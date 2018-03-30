@@ -166,12 +166,13 @@ class ResolverBase(TestCase):
         with mock.patch('readthedocs.projects.models.broadcast'):
             self.owner = create_user(username='owner', password='test')
             self.tester = create_user(username='tester', password='test')
-            self.pip = fixture.get(Project, slug='pip', users=[self.owner], main_language_project=None)
+            self.pip = fixture.get(Project, slug='pip', users=[
+                                   self.owner], main_language_project=None)
             self.subproject = fixture.get(Project, slug='sub', language='ja',
-                                          users=[ self.owner],
+                                          users=[self.owner],
                                           main_language_project=None)
             self.translation = fixture.get(Project, slug='trans', language='ja',
-                                           users=[ self.owner],
+                                           users=[self.owner],
                                            main_language_project=None)
             self.pip.add_subproject(self.subproject)
             self.pip.translations.add(self.translation)
@@ -181,11 +182,10 @@ class ResolverBase(TestCase):
         relation.save()
         fixture.get(Project, slug='sub_alias', language='ya')
 
-
     @override_settings(
-            PRODUCTION_DOMAIN='readthedocs.org',
-            USE_SUBDOMAIN=False,
-            )
+        PRODUCTION_DOMAIN='readthedocs.org',
+        USE_SUBDOMAIN=False,
+    )
     def test_resolver_subproject_alias(self):
         resp = self.client.get('/docs/pip/projects/sub_alias/')
         self.assertEqual(resp.status_code, 302)
@@ -196,7 +196,8 @@ class ResolverBase(TestCase):
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_resolver_subproject_subdomain_alias(self):
-        resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
+        resp = self.client.get('/projects/sub_alias/',
+                               HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp._headers['location'][1],

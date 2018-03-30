@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='container_image',
-            field=models.CharField(max_length=64, null=True, verbose_name='Alternative container image', blank=True),
+            field=models.CharField(
+                max_length=64, null=True, verbose_name='Alternative container image', blank=True),
         ),
     ]

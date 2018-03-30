@@ -46,6 +46,7 @@ class DomainNameValidator(RegexValidator):
                 raise exc
             super(DomainNameValidator, self).__call__(idnavalue)
 
+
 validate_domain_name = DomainNameValidator()
 
 
@@ -86,7 +87,8 @@ class RepositoryURLValidator(object):
                 return value
             else:
                 # Throw a more helpful error message
-                raise ValidationError('Manual cloning via SSH is not supported')
+                raise ValidationError(
+                    'Manual cloning via SSH is not supported')
 
         # No more valid URLs without supported URL schemes
         raise ValidationError(_('Invalid scheme for URL'))

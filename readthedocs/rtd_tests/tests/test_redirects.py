@@ -201,7 +201,8 @@ class RedirectAppTests(TestCase):
     def test_redirect_html_index(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='sphinx_html')
-        r = self.client.get('/en/latest/faq/index.html', HTTP_HOST='pip.readthedocs.org')
+        r = self.client.get('/en/latest/faq/index.html',
+                            HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq.html')
@@ -210,7 +211,8 @@ class RedirectAppTests(TestCase):
     def test_redirect_htmldir(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='sphinx_htmldir')
-        r = self.client.get('/en/latest/faq.html', HTTP_HOST='pip.readthedocs.org')
+        r = self.client.get('/en/latest/faq.html',
+                            HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq/')

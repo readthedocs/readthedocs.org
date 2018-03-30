@@ -51,7 +51,8 @@ class ProjectRelationship(models.Model):
                                related_name='subprojects')
     child = models.ForeignKey('Project', verbose_name=_('Child'),
                               related_name='superprojects')
-    alias = models.SlugField(_('Alias'), max_length=255, null=True, blank=True, db_index=False)
+    alias = models.SlugField(_('Alias'), max_length=255,
+                             null=True, blank=True, db_index=False)
 
     objects = ChildRelatedProjectQuerySet.as_manager()
 
@@ -269,7 +270,8 @@ class Project(models.Model):
     )
 
     has_valid_webhook = models.BooleanField(
-        default=False, help_text=_('This project has been built with a webhook')
+        default=False, help_text=_(
+            'This project has been built with a webhook')
     )
     has_valid_clone = models.BooleanField(
         default=False, help_text=_('This project has been successfully cloned')

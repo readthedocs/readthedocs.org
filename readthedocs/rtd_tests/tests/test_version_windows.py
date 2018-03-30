@@ -96,5 +96,6 @@ class TestVersionWindows(unittest.TestCase):
         version_windows([u'release-ç', u'1.2.¢'], major=2, minor=2, point=1)
         self.assertTrue(True)
 
+
 if __name__ == '__main__':
     unittest.main()

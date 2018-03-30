@@ -20,7 +20,8 @@ class DocumentNodeManager(models.Manager):
             node_hash = kwargs.pop('hash')
             commit = kwargs.pop('commit')
         except KeyError:
-            raise TypeError("You must provide a hash and commit for the initial NodeSnapshot.")
+            raise TypeError(
+                "You must provide a hash and commit for the initial NodeSnapshot.")
 
         node = super(DocumentNodeManager, self).create(*args, **kwargs)
         NodeSnapshot.objects.create(commit=commit, hash=node_hash, node=node)
@@ -95,7 +96,8 @@ class DocumentNode(models.Model):
             decision=1,
             date__gt=self.snapshots.latest().date
         )
-        valid_comments = self.comments.filter(moderation_actions__in=decisions).distinct()
+        valid_comments = self.comments.filter(
+            moderation_actions__in=decisions).distinct()
         return valid_comments
 
     def update_hash(self, new_hash, commit):
@@ -219,7 +221,8 @@ class ModerationActionManager(models.Model):
 @python_2_unicode_compatible
 class ModerationAction(models.Model):
     user = models.ForeignKey(User)
-    comment = models.ForeignKey(DocumentComment, related_name="moderation_actions")
+    comment = models.ForeignKey(
+        DocumentComment, related_name="moderation_actions")
     decision = models.IntegerField(choices=(
         (0, 'No Decision'),
         (1, 'Publish'),

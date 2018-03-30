@@ -36,8 +36,10 @@ class ProjectAdminActionsTest(TestCase):
             urlresolvers.reverse('admin:projects_project_changelist'),
             action_data
         )
-        self.assertTrue(self.project.users.filter(profile__banned=True).exists())
-        self.assertFalse(self.project.users.filter(profile__banned=False).exists())
+        self.assertTrue(self.project.users.filter(
+            profile__banned=True).exists())
+        self.assertFalse(self.project.users.filter(
+            profile__banned=False).exists())
 
     def test_project_ban_multiple_owners(self):
         owner_b = fixture.get(User)
@@ -54,8 +56,10 @@ class ProjectAdminActionsTest(TestCase):
             urlresolvers.reverse('admin:projects_project_changelist'),
             action_data
         )
-        self.assertFalse(self.project.users.filter(profile__banned=True).exists())
-        self.assertEqual(self.project.users.filter(profile__banned=False).count(), 2)
+        self.assertFalse(self.project.users.filter(
+            profile__banned=True).exists())
+        self.assertEqual(self.project.users.filter(
+            profile__banned=False).count(), 2)
 
     @mock.patch('readthedocs.projects.admin.broadcast')
     def test_project_delete(self, broadcast):

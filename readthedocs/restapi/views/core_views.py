@@ -67,7 +67,8 @@ def docurl(request):
 
     project = get_object_or_404(Project, slug=project)
     version = get_object_or_404(
-        Version.objects.public(request.user, project=project, only_active=False),
+        Version.objects.public(
+            request.user, project=project, only_active=False),
         slug=version)
     return Response({
         'url': make_document_url(project=project, version=version.slug, page=doc)
@@ -111,7 +112,8 @@ def embed(request):
         try:
             resp = requests.get(
                 '{host}/api/v1/embed/'.format(host=settings.GROK_API_HOST),
-                params={'project': project, 'version': version, 'doc': doc, 'section': section}
+                params={'project': project, 'version': version,
+                        'doc': doc, 'section': section}
             )
             embed = resp.json()
             cache.set('embed:%s' % project, resp.content, 1800)

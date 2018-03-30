@@ -15,11 +15,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='has_valid_clone',
-            field=models.BooleanField(default=False, help_text='This project has been successfully cloned'),
+            field=models.BooleanField(
+                default=False, help_text='This project has been successfully cloned'),
         ),
         migrations.AddField(
             model_name='project',
             name='has_valid_webhook',
-            field=models.BooleanField(default=False, help_text='This project has been build with a webhook'),
+            field=models.BooleanField(
+                default=False, help_text='This project has been build with a webhook'),
         ),
     ]

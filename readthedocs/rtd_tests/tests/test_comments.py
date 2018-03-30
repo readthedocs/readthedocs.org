@@ -103,7 +103,8 @@ class ModerationTests(TestCase):
         self.first_moderated_comment.moderate(user=self.owner, decision=1)
 
         # ...but this time, change the node.
-        self.first_moderated_comment.node.snapshots.create(hash=random.getrandbits(128))
+        self.first_moderated_comment.node.snapshots.create(
+            hash=random.getrandbits(128))
 
         # Now it does not show as visible.
         visible_comments = self.moderated_node.visible_comments()
@@ -176,7 +177,8 @@ class NodeAndSnapshotTests(TestCase):
 
         node.update_hash(first_hash, 'AthirdCommit')
 
-        node_from_orm2 = DocumentNode.objects.from_hash(node.version.slug, node.page, first_hash, node.project.slug)
+        node_from_orm2 = DocumentNode.objects.from_hash(
+            node.version.slug, node.page, first_hash, node.project.slug)
         self.assertEqual(node, node_from_orm2)
 
     @expectedFailure
@@ -200,7 +202,8 @@ class NodeAndSnapshotTests(TestCase):
                          commit="ANEWCOMMIT",
                          )
         try:
-            project.nodes.from_hash(project.versions.all()[0].slug, page, node_hash, project.slug)
+            project.nodes.from_hash(project.versions.all()[
+                                    0].slug, page, node_hash, project.slug)
         except NotImplementedError:
             self.fail("We don't have indexing yet.")
 
@@ -226,7 +229,8 @@ class CommentModerationViewsTests(TestCase):
         request = RequestFactory()
         request.user = self.owner
         request.META = {}
-        response = project_comments_moderation(request, self.moderated_project.slug)
+        response = project_comments_moderation(
+            request, self.moderated_project.slug)
 
         self.assertContains(response, self.moderated_comment.text)
 
@@ -369,7 +373,8 @@ class CommentAPIViewsTests(APITestCase):
         response = self.client.post('/api/v2/comments/', post_data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['text'], comment_text)
-        self.assertEqual(DocumentNode.objects.count(), number_of_nodes + 1)  # We created a new node.
+        # We created a new node.
+        self.assertEqual(DocumentNode.objects.count(), number_of_nodes + 1)
 
     def test_add_comment_view_with_existing_hash(self):
 
@@ -442,12 +447,15 @@ class CommentAPIViewsTests(APITestCase):
             'decision': 1,
         }
 
-        self.assertFalse(comment.has_been_approved_since_most_recent_node_change())
+        self.assertFalse(
+            comment.has_been_approved_since_most_recent_node_change())
 
         self.client.login(username="test", password="test")
-        response = self.client.put('/api/v2/comments/%s/moderate/' % comment.id, post_data)
+        response = self.client.put(
+            '/api/v2/comments/%s/moderate/' % comment.id, post_data)
         self.assertEqual(response.data['decision'], 1)
-        self.assertTrue(comment.has_been_approved_since_most_recent_node_change())
+        self.assertTrue(
+            comment.has_been_approved_since_most_recent_node_change())
 
     def test_stranger_cannot_moderate_comments(self):
 

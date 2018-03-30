@@ -116,16 +116,19 @@ class SubdomainMiddleware(object):
                         **log_kwargs))
                 except:
                     # Some crazy person is CNAMEing to us. 404.
-                    log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                    log.exception(LOG_TEMPLATE.format(
+                        msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
-                log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
+                log.debug(LOG_TEMPLATE.format(
+                    msg='404ing long domain', **log_kwargs))
                 return HttpResponseBadRequest(_('Invalid hostname'))
-            log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
+            log.debug(LOG_TEMPLATE.format(
+                msg='Allowing long domain name', **log_kwargs))
             # raise Http404(_('Invalid hostname'))
         # Normal request.
         return None
@@ -220,7 +223,8 @@ class FooterNoSessionMiddleware(SessionMiddleware):
     This will reduce the size of our session table drastically.
     """
 
-    IGNORE_URLS = ['/api/v2/footer_html', '/sustainability/view', '/sustainability/click']
+    IGNORE_URLS = ['/api/v2/footer_html',
+                   '/sustainability/view', '/sustainability/click']
 
     def process_request(self, request):
         for url in self.IGNORE_URLS:

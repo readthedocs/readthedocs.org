@@ -22,7 +22,7 @@ class TestGitBackend(RTDTestCase):
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="git",
-            #Our top-level checkout
+            # Our top-level checkout
             repo=git_repo
         )
         self.project.users.add(self.eric)
@@ -127,7 +127,7 @@ class TestHgBackend(RTDTestCase):
         self.project = Project.objects.create(
             name="Test Project",
             repo_type="hg",
-            #Our top-level checkout
+            # Our top-level checkout
             repo=hg_repo
         )
         self.project.users.add(self.eric)

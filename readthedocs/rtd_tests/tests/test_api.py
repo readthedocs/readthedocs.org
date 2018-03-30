@@ -256,7 +256,8 @@ class APITests(TestCase):
         user = get(User, is_staff=True)
         project1 = get(Project, main_language_project=None)
         project2 = get(Project, main_language_project=None)
-        feature = get(Feature, projects=[project1, project2], default_true=True)
+        feature = get(Feature, projects=[
+                      project1, project2], default_true=True)
         client = APIClient()
 
         client.force_authenticate(user=user)
@@ -371,7 +372,8 @@ class IntegrationsTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.version = get(Version, verbose_name='master', project=self.project)
+        self.version = get(Version, verbose_name='master',
+                           project=self.project)
 
     def test_github_webhook(self, trigger_build):
         """GitHub webhook API."""

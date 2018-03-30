@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='projectrelationship',
             name='alias',
-            field=models.SlugField(blank=True, max_length=255, null=True, verbose_name='Alias', db_index=False),
+            field=models.SlugField(
+                blank=True, max_length=255, null=True, verbose_name='Alias', db_index=False),
         ),
     ]

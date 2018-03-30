@@ -16,14 +16,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ImportedFile',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID',
+                                        serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=255, verbose_name='Name')),
                 ('slug', models.SlugField(verbose_name='Slug')),
                 ('path', models.CharField(max_length=255, verbose_name='Path')),
                 ('md5', models.CharField(max_length=255, verbose_name='MD5 checksum')),
                 ('commit', models.CharField(max_length=255, verbose_name='Commit')),
-                ('project', models.ForeignKey(related_name='imported_files', verbose_name='Project', to='projects.Project')),
-                ('version', models.ForeignKey(related_name='imported_files', verbose_name='Version', to='builds.Version', null=True)),
+                ('project', models.ForeignKey(related_name='imported_files',
+                                              verbose_name='Project', to='projects.Project')),
+                ('version', models.ForeignKey(related_name='imported_files',
+                                              verbose_name='Version', to='builds.Version', null=True)),
             ],
         ),
     ]

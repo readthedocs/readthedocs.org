@@ -93,4 +93,5 @@ class GoldProjectForm(forms.Form):
         if self.projects.count() < self.user.num_supported_projects:
             return cleaned_data
         else:
-            self.add_error(None, 'You already have the max number of supported projects.')
+            self.add_error(
+                None, 'You already have the max number of supported projects.')

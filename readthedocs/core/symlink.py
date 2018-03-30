@@ -152,14 +152,16 @@ class Symlink(object):
         else:
             domains = Domain.objects.filter(project=self.project)
         for dom in domains:
-            self._log(u"Symlinking CNAME: {0} -> {1}".format(dom.domain, self.project.slug))
+            self._log(
+                u"Symlinking CNAME: {0} -> {1}".format(dom.domain, self.project.slug))
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
             run(['ln', '-nsf', self.project_root, symlink])
 
             # Project symlink
-            project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom.domain)
+            project_cname_symlink = os.path.join(
+                self.PROJECT_CNAME_ROOT, dom.domain)
             run(['ln', '-nsf', self.project.doc_path, project_cname_symlink])
 
     def remove_symlink_cname(self, domain):
@@ -190,7 +192,8 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
-                self._log(u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
+                self._log(
+                    u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
@@ -232,7 +235,8 @@ class Symlink(object):
             safe_makedirs(language_dir)
 
         for (language, slug) in list(translations.items()):
-            self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
+            self._log(
+                u"Symlinking translation: {0}->{1}".format(language, slug))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             run(['ln', '-nsf', docs_dir, symlink])
@@ -277,7 +281,8 @@ class Symlink(object):
                   HOME/user_builds/<project>/rtd-builds/<version>
         """
         versions = set()
-        version_dir = os.path.join(self.WEB_ROOT, self.project.slug, self.project.language)
+        version_dir = os.path.join(
+            self.WEB_ROOT, self.project.slug, self.project.language)
         # Include active public versions,
         # as well as public versions that are built but not active, for archived versions
         version_queryset = self.get_version_queryset()
@@ -287,7 +292,8 @@ class Symlink(object):
         for version in version_queryset:
             self._log(u"Symlinking Version: %s" % version)
             symlink = os.path.join(version_dir, version.slug)
-            docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
+            docs_dir = os.path.join(
+                settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             run(['ln', '-nsf', docs_dir, symlink])
             versions.add(version.slug)
 
@@ -309,7 +315,8 @@ class Symlink(object):
 class PublicSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
-    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
+    PROJECT_CNAME_ROOT = os.path.join(
+        settings.SITE_ROOT, 'public_cname_project')
 
     def get_version_queryset(self):
         return (self.project.versions.protected(only_active=False).filter(built=True) |
@@ -325,7 +332,8 @@ class PublicSymlinkBase(Symlink):
 class PrivateSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
-    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
+    PROJECT_CNAME_ROOT = os.path.join(
+        settings.SITE_ROOT, 'private_cname_project')
 
     def get_version_queryset(self):
         return (self.project.versions.private(only_active=False).filter(built=True) |

@@ -206,7 +206,8 @@ def delete_account(request):
             # It will also delete some projects where he is the only owner
             request.user.delete()
             logout(request)
-            messages.info(request, 'You have successfully deleted your account')
+            messages.info(
+                request, 'You have successfully deleted your account')
 
             return redirect('homepage')
 

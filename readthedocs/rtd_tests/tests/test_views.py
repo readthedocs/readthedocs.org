@@ -151,7 +151,8 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_project_translations_delete(self):
-        response = self.client.get('/dashboard/pip/translations/delete/a-translation/')
+        response = self.client.get(
+            '/dashboard/pip/translations/delete/a-translation/')
         self.assertRedirectToLogin(response)
 
     def test_project_redirects(self):
@@ -196,6 +197,7 @@ class RandomPageTests(TestCase):
         response = self.client.get('/random/pip/')
         self.assertEqual(response.status_code, 404)
 
+
 class SubprojectViewTests(TestCase):
     def setUp(self):
         self.user = new(User, username='test')
@@ -209,10 +211,12 @@ class SubprojectViewTests(TestCase):
         self.client.login(username='test', password='test')
 
     def test_deny_delete_for_non_project_admins(self):
-        response = self.client.get('/dashboard/my-mainproject/subprojects/delete/my-subproject/')
+        response = self.client.get(
+            '/dashboard/my-mainproject/subprojects/delete/my-subproject/')
         self.assertEqual(response.status_code, 404)
 
-        self.assertTrue(self.subproject in [r.child for r in self.project.subprojects.all()])
+        self.assertTrue(self.subproject in [
+                        r.child for r in self.project.subprojects.all()])
 
     def test_admins_can_delete_subprojects(self):
         self.project.users.add(self.user)
@@ -226,12 +230,14 @@ class SubprojectViewTests(TestCase):
         response = self.client.get(
             '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
         self.assertEqual(response.status_code, 405)
-        self.assertTrue(self.subproject in [r.child for r in self.project.subprojects.all()])
+        self.assertTrue(self.subproject in [
+                        r.child for r in self.project.subprojects.all()])
         # Test POST
         response = self.client.post(
             '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])
+        self.assertTrue(self.subproject not in [
+                        r.child for r in self.project.subprojects.all()])
 
     def test_project_admins_can_delete_subprojects_that_they_are_not_admin_of(self):
         self.project.users.add(self.user)
@@ -240,4 +246,5 @@ class SubprojectViewTests(TestCase):
         response = self.client.post(
             '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])
+        self.assertTrue(self.subproject not in [
+                        r.child for r in self.project.subprojects.all()])

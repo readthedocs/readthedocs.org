@@ -31,7 +31,8 @@ class BuildBase(object):
             Project.objects.protected(self.request.user),
             slug=self.project_slug
         )
-        queryset = Build.objects.public(user=self.request.user, project=self.project)
+        queryset = Build.objects.public(
+            user=self.request.user, project=self.project)
 
         return queryset
 
@@ -64,7 +65,8 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
+        context['versions'] = Version.objects.public(
+            user=self.request.user, project=self.project)
         context['build_qs'] = self.get_queryset()
 
         try:

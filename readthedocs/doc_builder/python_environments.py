@@ -255,7 +255,8 @@ class Virtualenv(PythonEnvironment):
                         .docs_dir())
             for path in [docs_dir, '']:
                 for req_file in ['pip_requirements.txt', 'requirements.txt']:
-                    test_path = os.path.join(self.checkout_path, path, req_file)
+                    test_path = os.path.join(
+                        self.checkout_path, path, req_file)
                     if os.path.exists(test_path):
                         requirements_file_path = test_path
                         break

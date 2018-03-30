@@ -78,7 +78,8 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 def delete_projects_and_organizations(sender, instance, *args, **kwargs):
     # Here we count the owner list from the projects that the user own
     # Then exclude the projects where there are more than one owner
-    projects = instance.projects.all().annotate(num_users=Count('users')).exclude(num_users__gt=1)
+    projects = instance.projects.all().annotate(
+        num_users=Count('users')).exclude(num_users__gt=1)
 
     # Here we count the users list from the organization that the user belong
     # Then exclude the organizations where there are more than one user

@@ -19,7 +19,8 @@ class GoldSignalTests(TestCase):
         # Mocking
         self.patches = {}
         self.mocks = {}
-        self.patches['requestor'] = mock.patch('stripe.api_requestor.APIRequestor')
+        self.patches['requestor'] = mock.patch(
+            'stripe.api_requestor.APIRequestor')
 
         for patch in self.patches:
             self.mocks[patch] = self.patches[patch].start()
@@ -32,7 +33,8 @@ class GoldSignalTests(TestCase):
         self.mocks['request'].request = mock.Mock(side_effect=resp)
 
     def test_delete_subscription(self):
-        subscription = fixture.get(GoldUser, user=self.user, stripe_id='cus_123')
+        subscription = fixture.get(
+            GoldUser, user=self.user, stripe_id='cus_123')
         self.assertIsNotNone(subscription)
         self.mock_request([
             ({'id': 'cus_123', 'object': 'customer'}, ''),

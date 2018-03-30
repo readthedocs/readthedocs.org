@@ -115,7 +115,8 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
+                index_file.write(index_text.format(
+                    dir=docs_dir, ext=extension))
                 index_file.close()
         return 'index'
 

@@ -824,7 +824,8 @@ class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
 
     model = Project
     form_class = ProjectAdvertisingForm
-    success_message = _('Project has been opted out from advertisement support')
+    success_message = _(
+        'Project has been opted out from advertisement support')
     template_name = 'projects/project_advertising.html'
     lookup_url_kwarg = 'project_slug'
     lookup_field = 'slug'

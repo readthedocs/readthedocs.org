@@ -92,7 +92,8 @@ class FormTests(TestCase):
         form = DomainForm({'domain': 'example2.com', 'canonical': True},
                           project=self.project)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['canonical'][0], 'Only 1 Domain can be canonical at a time.')
+        self.assertEqual(form.errors['canonical'][0],
+                         'Only 1 Domain can be canonical at a time.')
 
         form = DomainForm({'domain': 'example2.com', 'canonical': True},
                           project=self.project,

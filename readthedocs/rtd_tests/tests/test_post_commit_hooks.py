@@ -24,15 +24,18 @@ class BasePostCommitTest(TestCase):
         self.rtfd_awesome = get(
             Version, project=self.rtfd, slug='awesome', identifier='awesome', active=True)
 
-        self.pip = get(Project, repo='https://bitbucket.org/pip/pip', repo_type='hg')
+        self.pip = get(
+            Project, repo='https://bitbucket.org/pip/pip', repo_type='hg')
         self.pip_not_ok = get(
             Version, project=self.pip, slug='not_ok', identifier='not_ok', active=False)
-        self.sphinx = get(Project, repo='https://bitbucket.org/sphinx/sphinx', repo_type='git')
+        self.sphinx = get(
+            Project, repo='https://bitbucket.org/sphinx/sphinx', repo_type='git')
 
         self.mocks = [mock.patch('readthedocs.core.views.hooks.trigger_build')]
         self.patches = [m.start() for m in self.mocks]
 
-        self.feature = Feature.objects.get(feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS)
+        self.feature = Feature.objects.get(
+            feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS)
         self.feature.projects.add(self.pip)
         self.feature.projects.add(self.rtfd)
         self.feature.projects.add(self.sphinx)
@@ -56,23 +59,23 @@ class GitLabWebHookTest(BasePostCommitTest):
             "user_name": "John Smith",
             "user_email": "john@example.com",
             "project_id": 15,
-            "project":{
-                "name":"readthedocs",
-                "description":"",
-                "web_url":"http://example.com/mike/diaspora",
+            "project": {
+                "name": "readthedocs",
+                "description": "",
+                "web_url": "http://example.com/mike/diaspora",
                 "avatar_url": None,
-                "git_ssh_url":"git@github.com:rtfd/readthedocs.org.git",
-                "git_http_url":"http://github.com/rtfd/readthedocs.org.git",
-                "namespace":"Mike",
-                "visibility_level":0,
-                "path_with_namespace":"mike/diaspora",
-                "default_branch":"master",
-                "homepage":"http://example.com/mike/diaspora",
-                "url":"git@github.com/rtfd/readthedocs.org.git",
-                "ssh_url":"git@github.com/rtfd/readthedocs.org.git",
-                "http_url":"http://github.com/rtfd/readthedocs.org.git"
+                "git_ssh_url": "git@github.com:rtfd/readthedocs.org.git",
+                "git_http_url": "http://github.com/rtfd/readthedocs.org.git",
+                "namespace": "Mike",
+                "visibility_level": 0,
+                "path_with_namespace": "mike/diaspora",
+                "default_branch": "master",
+                "homepage": "http://example.com/mike/diaspora",
+                "url": "git@github.com/rtfd/readthedocs.org.git",
+                "ssh_url": "git@github.com/rtfd/readthedocs.org.git",
+                "http_url": "http://github.com/rtfd/readthedocs.org.git"
             },
-            "repository":{
+            "repository": {
                 "name": "Diaspora",
                 "url": "git@github.com:rtfd/readthedocs.org.git",
                 "description": "",
@@ -116,12 +119,14 @@ class GitLabWebHookTest(BasePostCommitTest):
         """GitLab webhook should only build active versions"""
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertContains(
+            r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
 
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.assertContains(
+            r, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
 
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
@@ -141,7 +146,8 @@ class GitLabWebHookTest(BasePostCommitTest):
 
         r = self.client.post('/gitlab/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+        self.assertContains(
+            r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
@@ -236,7 +242,8 @@ class GitHubPostCommitTest(BasePostCommitTest):
                              content_type='application/json')
         self.assertEqual(r.status_code, 200)
         r = self.client.post('/github/',
-                             data=urlencode({'payload': json.dumps(self.payload)}),
+                             data=urlencode(
+                                 {'payload': json.dumps(self.payload)}),
                              content_type='application/x-www-form-urlencoded')
         self.assertEqual(r.status_code, 200)
 
@@ -250,7 +257,8 @@ class GitHubPostCommitTest(BasePostCommitTest):
         payload['repository']['url'] = payload['repository']['url'].upper()
         r = self.client.post('/github/', data=json.dumps(payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
+        self.assertContains(
+            r, '(URL Build) Build Started: HTTPS://GITHUB.COM/RTFD/READTHEDOCS.ORG [awesome]')
         self.payload['ref'] = 'refs/heads/not_ok'
 
     def test_400_on_no_ref(self):
@@ -279,7 +287,8 @@ class GitHubPostCommitTest(BasePostCommitTest):
         payload = self.payload.copy()
         r = self.client.post('/github/', data=json.dumps(payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertContains(
+            r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
 
     def test_github_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
@@ -289,12 +298,14 @@ class GitHubPostCommitTest(BasePostCommitTest):
         """
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
+        self.assertContains(
+            r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [awesome]')
 
         self.payload['ref'] = 'refs/heads/not_ok'
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
+        self.assertContains(
+            r, '(URL Build) Not Building: github.com/rtfd/readthedocs.org [not_ok]')
 
         self.payload['ref'] = 'refs/heads/unknown'
         r = self.client.post('/github/', data=json.dumps(self.payload),
@@ -314,7 +325,8 @@ class GitHubPostCommitTest(BasePostCommitTest):
 
         r = self.client.post('/github/', data=json.dumps(self.payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
+        self.assertContains(
+            r, '(URL Build) Build Started: github.com/rtfd/readthedocs.org [latest]')
 
         rtd.default_branch = old_default
         rtd.save()
@@ -354,15 +366,18 @@ class CorePostCommitTest(BasePostCommitTest):
 
     def test_hook_state_tracking(self):
         rtd = Project.objects.get(slug='read-the-docs')
-        self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, False)
+        self.assertEqual(Project.objects.get(
+            slug='read-the-docs').has_valid_webhook, False)
         self.client.post('/build/%s' % rtd.pk, {'version_slug': 'latest'})
         # Need to re-query to get updated DB entry
-        self.assertEqual(Project.objects.get(slug='read-the-docs').has_valid_webhook, True)
+        self.assertEqual(Project.objects.get(
+            slug='read-the-docs').has_valid_webhook, True)
 
     def test_generic_webhook_is_deprecated(self):
         # Project is created after feature, not included in historical allowance
         project = get(Project, main_language_project=None)
-        r = self.client.post('/build/%s' % project.pk, {'version_slug': 'master'})
+        r = self.client.post('/build/%s' % project.pk,
+                             {'version_slug': 'master'})
         self.assertEqual(r.status_code, 403)
 
 
@@ -454,18 +469,21 @@ class BitBucketHookTests(BasePostCommitTest):
                              content_type='application/json')
         self.assertEqual(r.status_code, 200)
         r = self.client.post('/bitbucket/',
-                             data=urlencode({'payload': json.dumps(self.hg_payload)}),
+                             data=urlencode(
+                                 {'payload': json.dumps(self.hg_payload)}),
                              content_type='application/x-www-form-urlencoded')
         self.assertEqual(r.status_code, 200)
 
     def test_bitbucket_post_commit(self):
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+        self.assertContains(
+            r, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
+        self.assertContains(
+            r, '(URL Build) Build Started: bitbucket.org/sphinx/sphinx [latest]')
 
     def test_bitbucket_post_commit_empty_commit_list(self):
         self.hg_payload['commits'] = []
@@ -491,7 +509,6 @@ class BitBucketHookTests(BasePostCommitTest):
                              content_type='application/json')
         self.assertContains(r, 'Project match not found', status_code=404)
 
-
     def test_bitbucket_post_commit_hook_builds_branch_docs_if_it_should(self):
         """
         Test the bitbucket post commit hook to see if it will only build
@@ -500,14 +517,16 @@ class BitBucketHookTests(BasePostCommitTest):
         """
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
+        self.assertContains(
+            r, '(URL Build) Build Started: bitbucket.org/pip/pip [latest]')
 
         self.hg_payload['commits'] = [{
             "branch": "not_ok",
         }]
         r = self.client.post('/bitbucket/', data=json.dumps(self.hg_payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
+        self.assertContains(
+            r, '(URL Build) Not Building: bitbucket.org/pip/pip [not_ok]')
 
         self.hg_payload['commits'] = [{
             "branch": "unknown",
@@ -532,7 +551,8 @@ class BitBucketHookTests(BasePostCommitTest):
 
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
-        self.assertContains(r, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
+        self.assertContains(
+            r, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
 
     def test_bitbucket_webhook_is_deprecated(self):
         # Project is created after feature, not included in historical allowance

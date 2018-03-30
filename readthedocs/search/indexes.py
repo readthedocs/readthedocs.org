@@ -250,7 +250,8 @@ class ProjectIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'name', 'slug', 'description', 'lang', 'tags', 'author', 'url')
+        attrs = ('id', 'name', 'slug', 'description',
+                 'lang', 'tags', 'author', 'url')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
@@ -355,7 +356,8 @@ class SectionIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'page_id', 'version', 'path', 'content', 'commit')
+        attrs = ('id', 'project', 'title', 'page_id',
+                 'version', 'path', 'content', 'commit')
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 

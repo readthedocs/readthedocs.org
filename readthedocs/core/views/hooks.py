@@ -178,7 +178,8 @@ def github_build(request):  # noqa: D205
             else:
                 data = json.loads(request.body)
             http_url = data['repository']['url']
-            http_search_url = http_url.replace('http://', '').replace('https://', '')
+            http_search_url = http_url.replace(
+                'http://', '').replace('https://', '')
             ssh_url = data['repository']['ssh_url']
             ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
             branches = [data['ref'].replace('refs/heads/', '')]
@@ -272,7 +273,8 @@ def bitbucket_build(request):
             else:
                 data = json.loads(request.body)
 
-            version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
+            version = 2 if request.META.get(
+                'HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
             if version == 1:
                 branches = [commit.get('branch', '')
                             for commit in data['commits']]

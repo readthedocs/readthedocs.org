@@ -16,7 +16,8 @@ def migrate_canonical(apps, schema_editor):
                         url=project.canonical_url,
                         canonical=True,
                     )
-                    print(u"Added {url} to {project}".format(url=project.canonical_url, project=project.name))
+                    print(u"Added {url} to {project}".format(
+                        url=project.canonical_url, project=project.name))
             except Exception as e:
                 print(e)
                 print(u"Failed adding {url} to {project}".format(

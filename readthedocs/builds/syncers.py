@@ -55,7 +55,8 @@ class RemoteSyncer(object):
         if app_servers:
             log.info("Remote Copy %s to %s on %s", path, target, app_servers)
             for server in app_servers:
-                mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (sync_user, server, target))
+                mkdir_cmd = ("ssh %s@%s mkdir -p %s" %
+                             (sync_user, server, target))
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
                     log.info("COPY ERROR to app servers:")
@@ -142,7 +143,8 @@ class RemotePuller(object):
         )
         ret = os.system(sync_cmd)
         if ret != 0:
-            log.error("COPY ERROR to app servers. Command: [{}] Return: [{}]".format(sync_cmd, ret))
+            log.error(
+                "COPY ERROR to app servers. Command: [{}] Return: [{}]".format(sync_cmd, ret))
 
 
 class Syncer(SettingsOverrideObject):

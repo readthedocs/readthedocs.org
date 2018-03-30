@@ -13,7 +13,8 @@ from readthedocs.projects.models import Project
 class RedirectSingleVersionTests(TestCase):
 
     def setUp(self):
-        self.pip = fixture.get(Project, slug='pip', single_version=True, main_language_project=None)
+        self.pip = fixture.get(Project, slug='pip',
+                               single_version=True, main_language_project=None)
 
     def test_docs_url_generation(self):
         with override_settings(USE_SUBDOMAIN=False):

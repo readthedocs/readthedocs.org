@@ -21,5 +21,6 @@ class DocumentCommentAdmin(admin.ModelAdmin):
     search_fields = ('text',)
     raw_id_fields = ('node',)
 
+
 admin.site.register(DocumentNode, DocumentNodeAdmin)
 admin.site.register(DocumentComment, DocumentCommentAdmin)

@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='build',
             name='cold_storage',
-            field=models.NullBooleanField(help_text='Build steps stored outside the database.', verbose_name='Cold Storage'),
+            field=models.NullBooleanField(
+                help_text='Build steps stored outside the database.', verbose_name='Cold Storage'),
         ),
     ]

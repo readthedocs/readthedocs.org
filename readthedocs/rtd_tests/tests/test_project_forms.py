@@ -71,7 +71,7 @@ class TestProjectForms(TestCase):
             ('ssh+git://github.com/humitos/foo', True),
             ('strangeuser@bitbucket.org:strangeuser/readthedocs.git', True),
             ('user@one-ssh.domain.com:22/_ssh/docs', True),
-         ] + common_urls
+        ] + common_urls
 
         for url, valid in public_urls:
             initial = {

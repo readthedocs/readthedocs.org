@@ -145,7 +145,8 @@ class SyncRepositoryMixin(object):
             try:
                 # Hit the API ``sync_versions`` which may trigger a new build
                 # for the stable version
-                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
+                api_v2.project(self.project.pk).sync_versions.post(
+                    version_post_data)
             except HttpClientError:
                 log.exception('Sync Versions Exception')
             except Exception:
@@ -346,7 +347,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
         if self.setup_env.failure or self.config is None:
-            self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
+            self._log('Failing build because of setup failure: %s' %
+                      self.setup_env.failure)
 
             # Send notification to users only if the build didn't fail because of
             # LockTimeout: this exception occurs when a build is triggered before the previous
@@ -513,7 +515,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s' % self.version)
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -531,7 +534,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 pdf=pdf,
                 epub=epub,
             ),
-            callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
+            callback=sync_callback.s(
+                version_pk=self.version.pk, commit=self.build['commit']),
         )
 
     def setup_python_environment(self):
@@ -653,7 +657,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         only raise a warning exception here. A hard error will halt the build
         process.
         """
-        builder = get_builder_class(builder_class)(self.build_env, python_env=self.python_env)
+        builder = get_builder_class(builder_class)(
+            self.build_env, python_env=self.python_env)
         success = builder.build()
         builder.move()
         return success
@@ -820,7 +825,8 @@ def remove_orphan_symlinks():
     """
     for symlink in [PublicSymlink, PrivateSymlink]:
         for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
-            valid_cnames = set(Domain.objects.all().values_list('domain', flat=True))
+            valid_cnames = set(
+                Domain.objects.all().values_list('domain', flat=True))
             orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
@@ -966,9 +972,11 @@ def email_notification(version, build, email):
     }
 
     if build.commit:
-        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
+        title = _('Failed: {project[name]} ({commit})').format(
+            commit=build.commit[:8], **context)
     else:
-        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(
+            **context)
 
     send_email(
         email,

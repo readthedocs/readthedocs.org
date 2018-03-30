@@ -58,7 +58,8 @@ class WebhookMixin(object):
 
     def finalize_response(self, req, *args, **kwargs):
         """If the project was set on POST, store an HTTP exchange."""
-        resp = super(WebhookMixin, self).finalize_response(req, *args, **kwargs)
+        resp = super(WebhookMixin, self).finalize_response(
+            req, *args, **kwargs)
         if hasattr(self, 'project') and self.project:
             HttpExchange.objects.from_exchange(
                 req,
@@ -191,7 +192,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event == GITLAB_PUSH:
             try:
-                branches = [self.request.data['ref'].replace('refs/heads/', '')]
+                branches = [self.request.data['ref'].replace(
+                    'refs/heads/', '')]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')

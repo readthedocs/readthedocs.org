@@ -18,6 +18,7 @@ def is_admin(user, project):
 
 @register.simple_tag(takes_context=True)
 def get_public_projects(context, user):
-    projects = Project.objects.for_user_and_viewer(user=user, viewer=context['request'].user)
+    projects = Project.objects.for_user_and_viewer(
+        user=user, viewer=context['request'].user)
     context['public_projects'] = projects
     return ''

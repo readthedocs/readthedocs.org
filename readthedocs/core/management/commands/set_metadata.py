@@ -21,6 +21,7 @@ class Command(BaseCommand):
         for p in queryset:
             log.info("Generating metadata for %s", p)
             try:
-                broadcast(type='app', task=tasks.update_static_metadata, args=[p.pk])
+                broadcast(
+                    type='app', task=tasks.update_static_metadata, args=[p.pk])
             except Exception:
                 log.exception('Build failed for %s', p)

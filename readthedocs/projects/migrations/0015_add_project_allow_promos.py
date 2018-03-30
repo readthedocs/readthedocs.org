@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='allow_promos',
-            field=models.BooleanField(default=True, help_text='Allow sponsor advertisements on my project documentation', verbose_name='Sponsor advertisements'),
+            field=models.BooleanField(
+                default=True, help_text='Allow sponsor advertisements on my project documentation', verbose_name='Sponsor advertisements'),
         ),
     ]

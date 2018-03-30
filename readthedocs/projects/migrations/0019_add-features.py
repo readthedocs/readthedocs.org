@@ -15,10 +15,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Feature',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('feature_id', models.CharField(max_length=32, unique=True, verbose_name='Feature identifier')),
-                ('add_date', models.DateTimeField(auto_now_add=True, verbose_name='Date feature was added')),
-                ('default_true', models.BooleanField(default=False, verbose_name='Historical default is True')),
+                ('id', models.AutoField(auto_created=True,
+                                        primary_key=True, serialize=False, verbose_name='ID')),
+                ('feature_id', models.CharField(max_length=32,
+                                                unique=True, verbose_name='Feature identifier')),
+                ('add_date', models.DateTimeField(
+                    auto_now_add=True, verbose_name='Date feature was added')),
+                ('default_true', models.BooleanField(
+                    default=False, verbose_name='Historical default is True')),
             ],
         ),
         migrations.AddField(

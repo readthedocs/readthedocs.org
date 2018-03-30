@@ -96,9 +96,9 @@ def forwards_move_repos(apps, schema_editor):
             new_repo.users.add(user)
         if project.organization is not None:
             new_repo.organization = (RemoteOrganization
-                                    .objects
-                                    .using(db)
-                                    .get(slug=project.organization.login))
+                                     .objects
+                                     .using(db)
+                                     .get(slug=project.organization.login))
         try:
             data = eval(project.json)
             new_repo.avatar_url = data.get('owner', {}).get('avatar_url', None)
@@ -132,9 +132,9 @@ def forwards_move_repos(apps, schema_editor):
             new_repo.users.add(user)
         if project.organization is not None:
             new_repo.organization = (RemoteOrganization
-                                    .objects
-                                    .using(db)
-                                    .get(slug=project.organization.login))
+                                     .objects
+                                     .using(db)
+                                     .get(slug=project.organization.login))
         try:
             data = eval(project.json)
             new_repo.avatar_url = (data.get('links', {})
