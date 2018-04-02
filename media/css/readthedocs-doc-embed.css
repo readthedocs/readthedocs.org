@@ -116,3 +116,7 @@ div.ethical-sidebar, div.ethical-footer {
     /* Alabaster needs some extra spacing before the footer ad */
     margin-top: 2em;
 }
+.ethical-alabaster {
+    /* Alabaster's search box above the ad is floating */
+    clear: both;
+}
