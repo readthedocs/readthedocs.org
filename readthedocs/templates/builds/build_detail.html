@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load privacy_tags %}
 {% load static %}
+{% load builds_tags %}
 
 {% block title %}{{ build.project.name }}{% endblock %}
 
@@ -56,7 +57,7 @@ $(document).ready(function () {
 
       <div data-bind="visible: finished() && success()">
         <li>
-          <a class="" href="{{ build.version.get_absolute_url }}">
+          <a href="{{ build|get_docs_url }}">
             {% trans "View docs" %}
           </a>
         </li>
