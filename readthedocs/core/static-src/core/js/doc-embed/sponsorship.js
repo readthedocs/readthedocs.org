@@ -106,8 +106,22 @@ Promo.prototype.post_promo_display = function () {
         // Alabaster only
         $('<hr />').insertBefore('#' + this.div_id + '.ethical-alabaster .ethical-footer');
     }
-
 };
+
+function adblock_admonition() {
+    console.log('---------------------------------------------------------------------------------------');
+    console.log('Read the Docs hosts documentation for tens of thousands of open source projects.');
+    console.log('We fund our development (we are open source) and operations through advertising.');
+
+    console.log('We promise to:');
+    console.log(' - never let advertisers run 3rd party JavaScript');
+    console.log(' - never sell user data to advertisers or other 3rd parties');
+    console.log(' - only show advertisements of interest to developers');
+    console.log('You can read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
+
+    console.log('%cPlease whitelist *.readthedocs.io on your adblocker!', 'font-size: 2em');
+    console.log('--------------------------------------------------------------------------------------');
+}
 
 function init() {
     var request_data = {format: "jsonp"};
@@ -164,8 +178,12 @@ function init() {
                 promo.display();
             }
         },
-        error: function () {
+        error: function (xhr, textStatus, errorThrown) {
             console.error('Error loading Read the Docs promo');
+
+            if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
+                adblock_admonition();
+            }
         },
     });
 }
