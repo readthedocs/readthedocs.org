@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 """
 Project search indexes.
 
@@ -9,8 +8,11 @@ Project search indexes.
     maintain this code. Use at your own risk, this may go away soon.
 """
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import codecs
+import logging
 import os
 
 from django.conf import settings
@@ -21,7 +23,6 @@ from haystack.fields import CharField
 from readthedocs.projects import constants
 from readthedocs.projects.models import ImportedFile, Project
 
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -92,20 +93,23 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
             )
             return
         log.debug('(Search Index) Indexing %s:%s', obj.project, obj.path)
-        document_pyquery_path = getattr(settings, 'DOCUMENT_PYQUERY_PATH',
-                                        'div.document')
+        document_pyquery_path = getattr(
+            settings, 'DOCUMENT_PYQUERY_PATH', 'div.document')
         try:
-            to_index = strip_tags(PyQuery(content)(
-                document_pyquery_path).html()).replace(u'¶', '')
+            to_index = strip_tags(
+                PyQuery(content)(document_pyquery_path).html()).replace(
+                    u'¶', '')
         except ValueError:
             # Pyquery returns ValueError if div.document doesn't exist.
             return
         if not to_index:
-            log.info('(Search Index) Unable to index file: %s:%s, empty file',
-                     obj.project, file_path)
+            log.info(
+                '(Search Index) Unable to index file: %s:%s, empty file',
+                obj.project, file_path)
         else:
-            log.debug('(Search Index) %s:%s length: %s', obj.project, file_path,
-                      len(to_index))
+            log.debug(
+                '(Search Index) %s:%s length: %s', obj.project, file_path,
+                len(to_index))
         return to_index
 
     def get_model(self):
@@ -113,5 +117,6 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Used when the entire index for model is updated."""
-        return (self.get_model().objects
-                .filter(project__privacy_level=constants.PUBLIC))
+        return (
+            self.get_model().objects.filter(
+                project__privacy_level=constants.PUBLIC))

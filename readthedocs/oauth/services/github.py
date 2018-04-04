@@ -1,16 +1,18 @@
+# -*- coding: utf-8 -*-
 """OAuth utility functions."""
 
-from __future__ import absolute_import
-from builtins import str
-import logging
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import json
+import logging
 import re
 
+from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
-from allauth.socialaccount.models import SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
@@ -43,8 +45,9 @@ class GitHubService(Service):
                 self.create_repository(repo)
         except (TypeError, ValueError) as e:
             log.exception('Error syncing GitHub repositories')
-            raise Exception('Could not sync your GitHub repositories, '
-                            'try reconnecting your account')
+            raise Exception(
+                'Could not sync your GitHub repositories, '
+                'try reconnecting your account')
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
@@ -56,14 +59,14 @@ class GitHubService(Service):
                 # Add repos
                 # TODO ?per_page=100
                 org_repos = self.paginate(
-                    '{org_url}/repos'.format(org_url=org['url'])
-                )
+                    '{org_url}/repos'.format(org_url=org['url']))
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError) as e:
             log.exception('Error syncing GitHub organizations')
-            raise Exception('Could not sync your GitHub organizations, '
-                            'try reconnecting your account')
+            raise Exception(
+                'Could not sync your GitHub organizations, '
+                'try reconnecting your account')
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -76,10 +79,8 @@ class GitHubService(Service):
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
-        if (
-                (privacy == 'private') or
-                (fields['private'] is False and privacy == 'public')
-        ):
+        if ((privacy == 'private') or
+            (fields['private'] is False and privacy == 'public')):
             try:
                 repo = RemoteRepository.objects.get(
                     full_name=fields['full_name'],
@@ -93,8 +94,8 @@ class GitHubService(Service):
                 )
                 repo.users.add(self.user)
             if repo.organization and repo.organization != organization:
-                log.debug('Not importing %s because mismatched orgs',
-                          fields['name'])
+                log.debug(
+                    'Not importing %s because mismatched orgs', fields['name'])
                 return None
             else:
                 repo.organization = organization
@@ -117,8 +118,8 @@ class GitHubService(Service):
             repo.save()
             return repo
         else:
-            log.debug('Not importing %s because mismatched type',
-                      fields['name'])
+            log.debug(
+                'Not importing %s because mismatched type', fields['name'])
 
     def create_organization(self, fields):
         """
@@ -163,13 +164,11 @@ class GitHubService(Service):
             'active': True,
             'config': {
                 'url': 'https://{domain}{path}'.format(
-                    domain=settings.PRODUCTION_DOMAIN,
-                    path=reverse(
-                        'api_webhook',
-                        kwargs={'project_slug': project.slug,
-                                'integration_pk': integration.pk}
-                    )
-                ),
+                    domain=settings.PRODUCTION_DOMAIN, path=reverse(
+                        'api_webhook', kwargs={
+                            'project_slug': project.slug,
+                            'integration_pk': integration.pk
+                        })),
                 'content_type': 'json',
             },
             'events': ['push', 'pull_request'],
@@ -193,19 +192,18 @@ class GitHubService(Service):
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
-            resp = session.post(
-                ('https://api.github.com/repos/{owner}/{repo}/hooks'
-                 .format(owner=owner, repo=repo)),
-                data=data,
-                headers={'content-type': 'application/json'}
-            )
+            resp = session.post((
+                'https://api.github.com/repos/{owner}/{repo}/hooks'
+                .format(owner=owner, repo=repo)), data=data,
+                                headers={'content-type': 'application/json'})
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info('GitHub webhook creation successful for project: %s',
-                         project)
+                log.info(
+                    'GitHub webhook creation successful for project: %s',
+                    project)
                 return (True, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -247,10 +245,7 @@ class GitHubService(Service):
         resp = None
         try:
             resp = session.patch(
-                url,
-                data=data,
-                headers={'content-type': 'application/json'}
-            )
+                url, data=data, headers={'content-type': 'application/json'})
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
                 recv_data = resp.json()

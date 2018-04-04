@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 """Utilities related to reading and generating indexable search content."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
-import os
-import fnmatch
-import re
 import codecs
-import logging
+import fnmatch
 import json
+import logging
+import os
+import re
 
 from builtins import next, range
 from pyquery import PyQuery
-
 
 log = logging.getLogger(__name__)
 
@@ -35,8 +35,10 @@ def process_mkdocs_json(version, build_dir=True):
             continue
         relative_path = parse_path_from_file(file_path=filename)
         html = parse_content_from_file(file_path=filename)
-        headers = parse_headers_from_file(documentation_type='mkdocs', file_path=filename)
-        sections = parse_sections_from_file(documentation_type='mkdocs', file_path=filename)
+        headers = parse_headers_from_file(
+            documentation_type='mkdocs', file_path=filename)
+        sections = parse_sections_from_file(
+            documentation_type='mkdocs', file_path=filename)
         try:
             title = sections[0]['title']
         except IndexError:
@@ -74,7 +76,9 @@ def valid_mkdocs_json(file_path):
     page_json = json.loads(content)
     for to_check in ['url', 'content']:
         if to_check not in page_json:
-            log.warning('(Search Index) Unable to index file: %s error: Invalid JSON', file_path)
+            log.warning(
+                '(Search Index) Unable to index file: %s error: Invalid JSON',
+                file_path)
             return None
 
     return True
@@ -128,7 +132,8 @@ def parse_content_from_file(file_path):
     content = parse_content(page_content)
 
     if not content:
-        log.info('(Search Index) Unable to index file: %s, empty file', file_path)
+        log.info(
+            '(Search Index) Unable to index file: %s, empty file', file_path)
     else:
         log.debug('(Search Index) %s length: %s', file_path, len(content))
     return content
@@ -209,13 +214,13 @@ def parse_sphinx_sections(content):
         div = h1_section.parent()
         h1_title = h1_section.text().replace(u'¶', '').strip()
         h1_id = div.attr('id')
-        h1_content = ""
+        h1_content = ''
         next_p = next(body('h1'))  # pylint: disable=stop-iteration-return
         while next_p:
             if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
                 if 'section' in next_p[0].attrib['class']:
                     break
-            h1_content += "\n%s\n" % next_p.html()
+            h1_content += '\n%s\n' % next_p.html()
             next_p = next(next_p)  # pylint: disable=stop-iteration-return
         if h1_content:
             yield {
@@ -252,14 +257,14 @@ def parse_mkdocs_sections(content):
         h1 = body('h1')
         h1_id = h1.attr('id')
         h1_title = h1.text().strip()
-        h1_content = ""
+        h1_content = ''
         next_p = next(body('h1'))  # pylint: disable=stop-iteration-return
         while next_p:
             if next_p[0].tag == 'h2':
                 break
             h1_html = next_p.html()
             if h1_html:
-                h1_content += "\n%s\n" % h1_html
+                h1_content += '\n%s\n' % h1_html
             next_p = next(next_p)  # pylint: disable=stop-iteration-return
         if h1_content:
             yield {
@@ -274,14 +279,14 @@ def parse_mkdocs_sections(content):
             h2 = section_list.eq(num)
             h2_title = h2.text().strip()
             section_id = h2.attr('id')
-            h2_content = ""
+            h2_content = ''
             next_p = next(body('h2'))  # pylint: disable=stop-iteration-return
             while next_p:
                 if next_p[0].tag == 'h2':
                     break
                 h2_html = next_p.html()
                 if h2_html:
-                    h2_content += "\n%s\n" % h2_html
+                    h2_content += '\n%s\n' % h2_html
                 next_p = next(next_p)  # pylint: disable=stop-iteration-return
             if h2_content:
                 yield {
