@@ -185,7 +185,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             return True
         except RepositoryError as e:
             # Do not log as ERROR handled exceptions
-            log.warning('There was an error with the repository: msg=%', e.msg)
+            log.warning('There was an error with the repository: msg=%s', e.msg)
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(

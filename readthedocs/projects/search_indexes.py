@@ -86,7 +86,7 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
                 content = f.read()
         except IOError as e:
             log.info(
-                '(Search Index) Unable to index file: %',
+                '(Search Index) Unable to index file: %s',
                 file_path,
                 exc_info=True,
             )
