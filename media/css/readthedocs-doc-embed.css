@@ -5,6 +5,8 @@
 /* Please keep RTD badge displayed on your site */
 .rst-versions.rst-badge {
     display: block;
+
+    bottom: 50px;
 }
 
 .rst-other-versions {
@@ -60,7 +62,7 @@ div.ethical-sidebar, div.ethical-footer {
     padding-top: 1em;
     clear: both;
 }
-.ethical-sidebar .ethical-pixel, .ethical-footer .ethical-pixel {
+.ethical-sidebar .ethical-pixel, .ethical-footer .ethical-pixel, .ethical-fixedfooter .ethical-pixel {
     display: none !important;
 }
 .ethical-sidebar .ethical-text, .ethical-footer .ethical-text {
@@ -86,6 +88,41 @@ div.ethical-sidebar, div.ethical-footer {
 }
 .ethical-footer .ethical-callout {
     text-align: right;
+}
+
+/* Fixed footer promotions */
+.ethical-fixedfooter {
+    box-sizing: border-box;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    background-color: #eee;
+    border-top: 1px solid #bfbfbf;
+    font-size: 12px;
+    line-height: 16px;
+    padding: 0.5em 2.5em;
+    text-align: center;
+    color: #404040;
+}
+.ethical-fixedfooter a,
+.ethical-fixedfooter a:hover,
+.ethical-fixedfooter a:active,
+.ethical-fixedfooter a:visited {
+    color: #004B6B;
+    text-decoration: underline;
+}
+.ethical-fixedfooter .ethical-close {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    font-size: 15px;
+    line-height: 15px;
+}
+.ethical-fixedfooter .ethical-close a {
+    color: black;
+    text-decoration: none;
 }
 
 /* RTD Theme specific customizations */
