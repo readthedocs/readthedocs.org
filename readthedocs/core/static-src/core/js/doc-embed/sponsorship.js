@@ -119,7 +119,10 @@ function adblock_admonition() {
     console.log(' - only show advertisements of interest to developers');
     console.log('You can read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
 
-    console.log('%cPlease whitelist *.readthedocs.io on your adblocker!', 'font-size: 2em');
+    console.log('%cPlease whitelist Read the Docs on your adblocker!', 'font-size: 2em');
+    console.log('In Adblock syntax, that means adding the following filters:');
+    console.log('%c  @@||readthedocs.org/*', 'font-family: monospace');
+    console.log('%c  @@readthedocs.io^$document', 'font-family: monospace');
     console.log('--------------------------------------------------------------------------------------');
 }
 
