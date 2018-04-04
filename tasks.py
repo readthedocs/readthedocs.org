@@ -12,7 +12,7 @@ from invoke import task, Exit
 
 
 @task
-def prepare(ctx, version, since):
+def prepare(ctx, version, since=None):
     """
     Prepare the next release version by updating files.
 
