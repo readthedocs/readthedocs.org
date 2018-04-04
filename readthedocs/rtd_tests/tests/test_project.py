@@ -315,7 +315,11 @@ class TestProject(TestCase):
             '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
         )
 
-    def test_conf_file_not_found(self):
+    @patch('readthedocs.projects.models.Project.find')
+    @patch('readthedocs.projects.models.Project.full_find')
+    def test_conf_file_not_found(self, find_method, full_find_method):
+        find_method.return_value = []
+        full_find_method.return_value = []
         with self.assertRaisesMessage(
                 ProjectConfigurationError,
                 ProjectConfigurationError.NOT_FOUND) as cm:
