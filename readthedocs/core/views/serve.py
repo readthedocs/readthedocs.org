@@ -70,7 +70,7 @@ def map_subproject_slug(view_func):
                 )
                 subproject = rel.child
             except (ProjectRelationship.DoesNotExist, KeyError):
-                get_object_or_404(Project, slug=subproject_slug)
+                subproject = get_object_or_404(Project, slug=subproject_slug)
         return view_func(request, subproject=subproject, *args, **kwargs)
 
     return inner_view
