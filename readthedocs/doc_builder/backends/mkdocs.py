@@ -88,8 +88,8 @@ class BaseMkdocs(BaseBuilder):
         media_url = get_absolute_media_url()
         user_config.setdefault('extra_javascript', []).extend([
             'readthedocs-data.js',
-            'readthedocs-dynamic-include.js',
-            '%sstatic/core/js/readthedocs-doc-embed.js' % media_url
+            '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
+            '%sjavascript/readthedocs-analytics.js' % media_url,
         ])
         user_config.setdefault('extra_css', []).extend([
             '%scss/badge_only.css' % media_url,
@@ -112,10 +112,6 @@ class BaseMkdocs(BaseBuilder):
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
             f.write(rtd_data)
 
-        dynamic_include = self.generate_dynamic_include()
-        with open(os.path.join(docs_path, 'readthedocs-dynamic-include.js'), 'w') as f:
-            f.write(dynamic_include)
-
     def generate_rtd_data(self, docs_dir):
         """Generate template properties and render readthedocs-data.js."""
         # Will be available in the JavaScript as READTHEDOCS_DATA.
@@ -131,6 +127,8 @@ class BaseMkdocs(BaseBuilder):
             'source_suffix': ".md",
             'api_host': getattr(settings, 'PUBLIC_API_URL', 'https://readthedocs.org'),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
+            'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
+            'user_analytics_code': self.version.project.analytics_code,
         }
         data_json = json.dumps(readthedocs_data, indent=4)
         data_ctx = {
@@ -142,14 +140,6 @@ class BaseMkdocs(BaseBuilder):
         }
         tmpl = template_loader.get_template('doc_builder/data.js.tmpl')
         return tmpl.render(data_ctx)
-
-    def generate_dynamic_include(self):
-        include_ctx = {
-            'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
-            'user_analytics_code': self.version.project.analytics_code,
-        }
-        tmpl = template_loader.get_template('doc_builder/include.js.tmpl')
-        return tmpl.render(include_ctx)
 
     def build(self):
         checkout_path = self.project.checkout_path(self.version.slug)
