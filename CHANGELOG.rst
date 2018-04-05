@@ -1,3 +1,25 @@
+Version 2.3.5
+-------------
+
+:Date: April 05, 2018
+
+* `@agjohnson <http://github.com/agjohnson>`_: Drop pdbpp from testing requirements (`#3904 <https://github.com/rtfd/readthedocs.org/pull/3904>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Resolve subproject correctly in the case of single version (`#3901 <https://github.com/rtfd/readthedocs.org/pull/3901>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fixed footer ads again (`#3895 <https://github.com/rtfd/readthedocs.org/pull/3895>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fix an Alabaster ad positioning issue (`#3889 <https://github.com/rtfd/readthedocs.org/pull/3889>`_)
+* `@humitos <http://github.com/humitos>`_: Save Docker image hash in RTD environment.json file (`#3880 <https://github.com/rtfd/readthedocs.org/pull/3880>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Add ref links for easier intersphinx on yaml config page (`#3877 <https://github.com/rtfd/readthedocs.org/pull/3877>`_)
+* `@rajujha373 <http://github.com/rajujha373>`_: Typo correction in docs/features.rst (`#3872 <https://github.com/rtfd/readthedocs.org/pull/3872>`_)
+* `@gaborbernat <http://github.com/gaborbernat>`_: add description for tox tasks (`#3868 <https://github.com/rtfd/readthedocs.org/pull/3868>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Another CORS hotfix for the sustainability API (`#3862 <https://github.com/rtfd/readthedocs.org/pull/3862>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Fix up some of the logic around repo and submodule URLs (`#3860 <https://github.com/rtfd/readthedocs.org/pull/3860>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fix linting errors in tests (`#3855 <https://github.com/rtfd/readthedocs.org/pull/3855>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Use gitpython to find a commit reference (`#3843 <https://github.com/rtfd/readthedocs.org/pull/3843>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Remove pinned CSS Select version (`#3813 <https://github.com/rtfd/readthedocs.org/pull/3813>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Use JSONP for sustainability API (`#3789 <https://github.com/rtfd/readthedocs.org/pull/3789>`_)
+* `@rajujha373 <http://github.com/rajujha373>`_: #3718: Added date to changelog (`#3788 <https://github.com/rtfd/readthedocs.org/pull/3788>`_)
+* `@xrmx <http://github.com/xrmx>`_: tests: mock test_conf_file_not_found filesystem access (`#3740 <https://github.com/rtfd/readthedocs.org/pull/3740>`_)
+
 .. _version-2.3.4:
 
 Version 2.3.4
