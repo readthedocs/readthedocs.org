@@ -183,9 +183,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             self.project = self.version.project
             self.sync_repo()
             return True
-        except RepositoryError as e:
+        except RepositoryError:
             # Do not log as ERROR handled exceptions
-            log.warning('There was an error with the repository: msg=%s', e.msg)
+            log.warning('There was an error with the repository', exc_info=True)
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
