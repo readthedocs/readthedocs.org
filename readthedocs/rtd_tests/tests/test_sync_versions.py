@@ -6,6 +6,7 @@ from __future__ import (
 import json
 
 from django.test import TestCase
+import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
@@ -151,6 +152,106 @@ class TestSyncVersions(TestCase):
         # Version 0.8.3 is still inactive
         version_8 = Version.objects.get(slug='0.8.3')
         self.assertFalse(version_8.active)
+
+    def test_stable_stuck(self):
+        """
+        The repository has a tag named ``stable``,
+        when syncing the versions, the RTD's ``stable`` is lost
+        and doesn't update automatically anymore, when the tag is deleted
+        on the user repository, the RTD's ``stable`` is back.
+        """
+        version8 = Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            type=TAG,
+            active=False,
+        )
+        self.pip.update_stable_version()
+        current_stable = self.pip.get_stable_version()
+
+        # 0.8.3 is the current stable
+        self.assertTrue(
+            version8.identifier,
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The new tag is the new stable
+        version8 = Version.objects.get(slug='0.8.3')
+        version_stable = Version.objects.get(slug='stable')
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            version_stable.identifier,
+            current_stable.identifier,
+        )
+
+        # The current_stable lost its machine property
+        # it's not automatically updated anymore
+        self.assertFalse(current_stable.machine)
+
+        # Deleting the stable version should
+        # return the RTD's stable
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The version 8 should be the new stable
+        version8 = Version.objects.get(slug='0.8.3')
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            version8.identifier,
+            current_stable.identifier,
+        )
+        # The stable isn't stuck with the previous commit
+        self.assertNotEqual(
+            '1abc2def3',
+            current_stable.identifier,
+        )
 
 
 class TestStableVersion(TestCase):
