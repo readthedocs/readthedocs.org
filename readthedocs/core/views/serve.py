@@ -153,7 +153,8 @@ def serve_docs(
     if not version_slug:
         version_slug = project.get_default_version()
     try:
-        version = project.versions.public(request.user).get(slug=version_slug)
+        # We need to get the Version of the subproject in case it comes
+        version = (subproject or project).versions.public(request.user).get(slug=version_slug)
     except Version.DoesNotExist:
         # Properly raise a 404 if the version doesn't exist & a 401 if it does
         if project.versions.filter(slug=version_slug).exists():
