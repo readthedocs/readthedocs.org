@@ -166,8 +166,7 @@ class StripeModelForm(forms.ModelForm):
                 forms.ValidationError(str(e)),
             )
         except stripe.error.StripeError as e:
-            log.error('There was a problem communicating with Stripe: %s',
-                      str(e), exc_info=True)
+            log.exception('There was a problem communicating with Stripe')
             raise forms.ValidationError(
                 _('There was a problem communicating with Stripe'))
         return cleaned_data

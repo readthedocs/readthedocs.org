@@ -1,10 +1,13 @@
 """Locking utilities."""
 from __future__ import absolute_import
-from builtins import object
+
+import errno
 import logging
 import os
-import time
 import stat
+import time
+from builtins import object
+
 
 log = logging.getLogger(__name__)
 
@@ -56,8 +59,14 @@ class Lock(object):
         try:
             log.info("Lock (%s): Releasing", self.name)
             os.remove(self.fpath)
-        except OSError:
-            log.exception("Lock (%s): Failed to release, ignoring...", self.name)
+        except OSError as e:
+            # We want to ignore "No such file or directory" and log any other
+            # type of error.
+            if e.errno != errno.ENOENT:
+                log.exception(
+                    "Lock (%s): Failed to release, ignoring...",
+                    self.name,
+                )
 
 
 class NonBlockingLock(object):
@@ -100,6 +109,12 @@ class NonBlockingLock(object):
         try:
             log.info("Lock (%s): Releasing", self.name)
             os.remove(self.fpath)
-        except (IOError, OSError):
-            log.error("Lock (%s): Failed to release, ignoring...", self.name,
-                      exc_info=True)
+        except (IOError, OSError) as e:
+            # We want to ignore "No such file or directory" and log any other
+            # type of error.
+            if e.errno != errno.ENOENT:
+                log.error(
+                    'Lock (%s): Failed to release, ignoring...',
+                    self.name,
+                    exc_info=True,
+                )

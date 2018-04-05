@@ -36,6 +36,7 @@ def make_test_git():
     chdir(directory)
 
     # Initialize and configure
+    # TODO: move the ``log.info`` call inside the ``check_output```
     log.info(check_output(['git', 'init'] + [directory], env=env))
     log.info(check_output(
         ['git', 'config', 'user.email', 'dev@readthedocs.org'],

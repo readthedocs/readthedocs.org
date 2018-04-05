@@ -336,7 +336,10 @@ class GitLabService(Service):
             log.exception(
                 'GitLab webhook update failed for project: %s', project)
         else:
-            log.error('GitLab webhook update failed for project: %s', project)
+            log.exception(
+                'GitLab webhook update failed for project: %s',
+                project,
+            )
             try:
                 debug_data = resp.json()
             except ValueError:

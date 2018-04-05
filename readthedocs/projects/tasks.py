@@ -183,12 +183,15 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             self.project = self.version.project
             self.sync_repo()
             return True
-        # Catch unhandled errors when syncing
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
         except Exception:
+            # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
             )
-            return False
+        return False
 
 
 class UpdateDocsTask(SyncRepositoryMixin, Task):
@@ -520,7 +523,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s',
+                self.version,
+            )
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -905,7 +911,7 @@ def _manage_imported_files(version, path, commit):
                     name=filename,
                 )
             except ImportedFile.MultipleObjectsReturned:
-                log.exception('Error creating ImportedFile')
+                log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
                 obj.md5 = md5
