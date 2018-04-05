@@ -28,7 +28,7 @@ class GitHubService(Service):
 
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
-    url_pattern = re.compile(re.escape(GitHubOAuth2Adapter.web_url))
+    url_pattern = re.compile(re.escape(adapter.web_url))
 
     def sync(self):
         """Sync repositories and organizations."""
@@ -37,7 +37,7 @@ class GitHubService(Service):
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = self.paginate('{}/repos?per_page=100'.format(GitHubOAuth2Adapter.profile_url))
+        repos = self.paginate('{}/repos?per_page=100'.format(self.adapter.profile_url))
         try:
             for repo in repos:
                 self.create_repository(repo)
@@ -50,7 +50,7 @@ class GitHubService(Service):
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
         try:
-            orgs = self.paginate('{}/orgs'.format(GitHubOAuth2Adapter.profile_url))
+            orgs = self.paginate('{}/orgs'.format(self.adapter.profile_url))
             for org in orgs:
                 org_resp = self.get_session().get(org['url'])
                 org_obj = self.create_organization(org_resp.json())
@@ -197,7 +197,7 @@ class GitHubService(Service):
         try:
             resp = session.post(
                 ('{url}/repos/{owner}/{repo}/hooks'
-                 .format(owner=owner, repo=repo, url=GitHubOAuth2Adapter.api_url)),
+                 .format(owner=owner, repo=repo, url=self.adapter.api_url)),
                 data=data,
                 headers={'content-type': 'application/json'}
             )
