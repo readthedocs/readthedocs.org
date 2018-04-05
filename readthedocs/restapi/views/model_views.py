@@ -5,6 +5,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import logging
+from builtins import str
 
 from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
@@ -197,7 +198,7 @@ class ProjectViewSet(UserSelectViewSet):
             log.exception('Sync Versions Error')
             return Response(
                 {
-                    'error': e.message,
+                    'error': str(e),
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
