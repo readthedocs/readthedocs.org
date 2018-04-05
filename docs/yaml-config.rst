@@ -10,6 +10,8 @@ The file, ``readthedocs.yml`` (or ``.readthedocs.yml``), must be in the root dir
 Supported Settings
 ------------------
 
+.. _yaml__formats:
+
 formats
 ~~~~~~~
 
@@ -35,6 +37,8 @@ Choose ``none`` to build none of the formats.
         - epub
         - pdf
 
+.. _yaml__requirements_file:
+
 requirements_file
 ~~~~~~~~~~~~~~~~~
 
@@ -47,6 +51,8 @@ The path to your Pip requirements file.
 
 	requirements_file: requirements/docs.txt
 
+
+.. _yaml__conda:
 
 conda
 ~~~~~
@@ -70,12 +76,14 @@ The file option specified the Conda `environment file`_ to use.
 .. note:: Conda is only supported via the YAML file.
 
 
+.. _yaml__build:
+
 build
 ~~~~~
 
 The ``build`` block configures specific aspects of the documentation build.
 
-.. _yaml_build_image:
+.. _yaml__build__image:
 
 build.image
 ```````````
@@ -103,11 +111,15 @@ as defined here:
     python:
         version: 3.6
 
+.. _yaml__python:
+
 python
 ~~~~~~
 
 The ``python`` block allows you to configure aspects of the Python executable
 used for building documentation.
+
+.. _yaml__python__version:
 
 python.version
 ``````````````
@@ -122,14 +134,16 @@ will be selected.
 .. warning:: 
 
     The supported Python versions depends on the version of the build image your
-    project is using. The default build image that is used to build documentation
-    contains support for Python ``2.7`` and ``3.5``. 
-    See the :ref:`yaml_build_image` for more information on supported Python versions.
+    project is using. The default build image that is used to build
+    documentation contains support for Python ``2.7`` and ``3.5``.  See the
+    :ref:`yaml__build__image` for more information on supported Python versions.
 
 .. code-block:: yaml
 
     python:
        version: 3.5
+
+.. _yaml__python__setup_py_install:
 
 python.setup_py_install
 ```````````````````````
@@ -145,6 +159,8 @@ When true, install your project into the Virtualenv with
 	python:
 	   setup_py_install: true
 
+.. _yaml__python__pip_install:
+
 python.pip_install
 ``````````````````
 
@@ -159,33 +175,37 @@ documentation.
     python:
        pip_install: true
 
-.. To implement..
 
-	type
-	~~~~
+.. TODO not yet implemented. We should move these to another doc.
+.. ==============================================================
+.. 
+.. type
+.. ~~~~
+.. 
+.. * Default: ``sphinx``
+.. * Options: ``sphinx``, ``mkdocs``
+.. 
+.. The ``type`` block allows you to configure the build tool used for building
+.. your documentation.
+.. 
+.. .. code-block:: yaml
+.. 
+..     type: sphinx
+.. 
+.. conf_file
+.. ~~~~~~~~~
+.. 
+.. * Default: `None`
+.. * Type: Path (specified from the root of the project)
+.. 
+.. The path to a specific Sphinx ``conf.py`` file. If none is found, we will
+.. choose one.
+.. 
+.. .. code-block:: yaml
+.. 
+..     conf_file: project2/docs/conf.py
 
-    * Default: ``sphinx``
-    * Options: ``sphinx``, ``mkdocs``
-
-    The ``type`` block allows you to configure the build tool used for building
-    your documentation.
-
-	.. code-block:: yaml
-
-		type: sphinx
-
-	conf_file
-	~~~~~~~~~
-
-    * Default: `None`
-    * Type: Path (specified from the root of the project)
-
-    The path to a specific Sphinx ``conf.py`` file. If none is found, we will
-    choose one.
-
-	.. code-block:: yaml
-
-		conf_file: project2/docs/conf.py
+.. _yaml__python__extra_requirements:
 
 python.extra_requirements
 `````````````````````````

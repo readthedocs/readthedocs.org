@@ -3,6 +3,8 @@
 var constants = require('./constants');
 var rtddata = require('./rtd-data');
 
+var bowser = require('bowser');
+
 var rtd;
 
 /*
@@ -54,6 +56,23 @@ function create_footer_placement() {
     if (selector) {
         $('<div />').attr('id', element_id)
             .addClass(class_name).appendTo(selector);
+        return {'div_id': element_id, 'display_type': display_type};
+    }
+
+    return null;
+}
+
+/*
+ *  Creates a fixed footer placmenet
+ *  Returns the ID of the div or none if a fixed footer ad shouldn't be used
+ */
+function create_fixed_footer_placement() {
+    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
+    var display_type = constants.PROMO_TYPES.FIXED_FOOTER;
+
+    // Only propose the fixed footer ad for mobile
+    if (bowser && bowser.mobile) {
+        $('<div />').attr('id', element_id).appendTo('body');
         return {'div_id': element_id, 'display_type': display_type};
     }
 
@@ -113,7 +132,11 @@ function init() {
     var request_data = {format: "jsonp"};
     var div_ids = [];
     var display_types = [];
-    var placement_funcs = [create_footer_placement, create_sidebar_placement];
+    var placement_funcs = [
+        create_footer_placement,
+        create_sidebar_placement,
+        create_fixed_footer_placement,
+    ];
     var params;
     var placement;
 

@@ -15,7 +15,6 @@ from git.exc import BadName
 from six import PY2, StringIO
 
 from readthedocs.core.validators import validate_submodule_url
-
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
@@ -279,7 +278,7 @@ class Backend(BaseVCS):
             r = git.Repo(self.working_dir)
             if r.commit(ref):
                 return True
-        except BadName:
+        except (BadName, ValueError):
             return False
         return False
 
