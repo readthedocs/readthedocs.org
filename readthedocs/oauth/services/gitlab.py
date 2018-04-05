@@ -162,8 +162,7 @@ class GitLabService(Service):
 
             owner = fields.get('owner') or {}
             repo.avatar_url = (
-                fields.get('avatar_url') or owner.get('avatar_url')
-            )
+                fields.get('avatar_url') or owner.get('avatar_url'))
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
 
