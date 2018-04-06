@@ -1,3 +1,22 @@
+Version 2.3.6
+-------------
+
+:Date: April 05, 2018
+
+* `@agjohnson <http://github.com/agjohnson>`_: Drop readthedocs- prefix to submodule (`#3916 <https://github.com/rtfd/readthedocs.org/pull/3916>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: This fixes two bugs apparent in nesting of translations in subprojects (`#3909 <https://github.com/rtfd/readthedocs.org/pull/3909>`_)
+* `@humitos <http://github.com/humitos>`_: Use new django celery beat scheduler (`#3908 <https://github.com/rtfd/readthedocs.org/pull/3908>`_)
+* `@humitos <http://github.com/humitos>`_: Use a proper default for `docker` attribute on UpdateDocsTask (`#3907 <https://github.com/rtfd/readthedocs.org/pull/3907>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Handle errors from publish_parts (`#3905 <https://github.com/rtfd/readthedocs.org/pull/3905>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Drop pdbpp from testing requirements (`#3904 <https://github.com/rtfd/readthedocs.org/pull/3904>`_)
+* `@stsewd <http://github.com/stsewd>`_: Little improve on sync_versions (`#3902 <https://github.com/rtfd/readthedocs.org/pull/3902>`_)
+* `@humitos <http://github.com/humitos>`_: Save Docker image data in JSON file only for DockerBuildEnvironment (`#3897 <https://github.com/rtfd/readthedocs.org/pull/3897>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Single analytics file for all builders (`#3896 <https://github.com/rtfd/readthedocs.org/pull/3896>`_)
+* `@humitos <http://github.com/humitos>`_: Organize logging levels (`#3893 <https://github.com/rtfd/readthedocs.org/pull/3893>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Add ref links for easier intersphinx on yaml config page (`#3877 <https://github.com/rtfd/readthedocs.org/pull/3877>`_)
+* `@stsewd <http://github.com/stsewd>`_: Pin astroid to fix linter issue on travis (`#3816 <https://github.com/rtfd/readthedocs.org/pull/3816>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Anonymize IP addresses for Google Analytics (`#3626 <https://github.com/rtfd/readthedocs.org/pull/3626>`_)
+
 Version 2.3.5
 -------------
 
