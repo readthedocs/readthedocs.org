@@ -100,7 +100,7 @@ class BaseMkdocs(BaseBuilder):
         if 'theme_dir' not in user_config and self.use_theme:
             user_config['theme_dir'] = TEMPLATE_DIR
 
-        user_config['theme_name'] = user_config['theme_dir'].rsplit('/')[-1]
+        user_config['theme_name'] = user_config.get('theme_dir', 'readthedocs').rsplit('/')[-1]
 
         yaml.safe_dump(
             user_config,
