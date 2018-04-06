@@ -117,12 +117,10 @@ function adblock_admonition() {
     console.log(' - never let advertisers run 3rd party JavaScript');
     console.log(' - never sell user data to advertisers or other 3rd parties');
     console.log(' - only show advertisements of interest to developers');
-    console.log('You can read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
-
-    console.log('%cPlease whitelist Read the Docs on your adblocker!', 'font-size: 2em');
-    console.log('In Adblock syntax, that means adding the following filters:');
-    console.log('%c  @@||readthedocs.org/*', 'font-family: monospace');
-    console.log('%c  @@readthedocs.io^$document', 'font-family: monospace');
+    console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
+    console.log('Read more about Ads for Open Source: https://ads-for-open-source.readthedocs.io');
+    console.log('%cPlease whitelist Read the Docs on your adblocker using the following filter:', 'font-size: 2em');
+    console.log('https://ads-for-open-source.readthedocs.io/en/latest/_static/lists/readthedocs-ads.txt');
     console.log('--------------------------------------------------------------------------------------');
 }
 
