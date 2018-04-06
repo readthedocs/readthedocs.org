@@ -100,6 +100,8 @@ class BaseMkdocs(BaseBuilder):
         if 'theme_dir' not in user_config and self.use_theme:
             user_config['theme_dir'] = TEMPLATE_DIR
 
+        user_config['theme_name'] = user_config['theme_dir'].rsplit('/')[-1]
+
         yaml.safe_dump(
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
@@ -108,11 +110,11 @@ class BaseMkdocs(BaseBuilder):
         docs_path = os.path.join(self.root_path, docs_dir)
 
         # RTD javascript writing
-        rtd_data = self.generate_rtd_data(docs_dir=docs_dir)
+        rtd_data = self.generate_rtd_data(docs_dir=docs_dir, user_config=user_config)
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
             f.write(rtd_data)
 
-    def generate_rtd_data(self, docs_dir):
+    def generate_rtd_data(self, docs_dir, user_config):
         """Generate template properties and render readthedocs-data.js."""
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
@@ -121,7 +123,7 @@ class BaseMkdocs(BaseBuilder):
             'language': self.version.project.language,
             'programming_language': self.version.project.programming_language,
             'page': None,
-            'theme': "readthedocs",
+            'theme': user_config['theme_name'],
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
