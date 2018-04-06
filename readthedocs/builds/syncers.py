@@ -57,7 +57,8 @@ class RemoteSyncer(object):
             log.info('Remote Copy %s to %s on %s', path, target, app_servers)
             for server in app_servers:
                 mkdir_cmd = (
-                    'ssh %s@%s mkdir -p %s' % (sync_user, server, target))
+                    'ssh %s@%s mkdir -p %s' % (sync_user, server, target)
+                )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
                     log.error('Copy error to app servers: cmd=%s', mkdir_cmd)
@@ -69,8 +70,13 @@ class RemoteSyncer(object):
                 sync_cmd = (
                     "rsync -e 'ssh -T' -av --delete {path}{slash} {user}@{server}:{target}"
                     .format(
-                        path=path, slash=slash, user=sync_user, server=server,
-                        target=target))
+                        path=path,
+                        slash=slash,
+                        user=sync_user,
+                        server=server,
+                        target=target,
+                    )
+                )
                 ret = os.system(sync_cmd)
                 if ret != 0:
                     log.error('Copy error to app servers: cmd=%s', sync_cmd)
@@ -93,7 +99,10 @@ class DoubleRemotePuller(object):
         for server in app_servers:
             if not is_file:
                 mkdir_cmd = 'ssh {user}@{server} mkdir -p {target}'.format(
-                    user=sync_user, server=server, target=target)
+                    user=sync_user,
+                    server=server,
+                    target=target,
+                )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
                     log.error('MkDir error to app servers: cmd=%s', mkdir_cmd)
@@ -102,8 +111,13 @@ class DoubleRemotePuller(object):
                 "ssh {user}@{server} 'rsync -av "
                 "--delete --exclude projects {user}@{host}:{path} {target}'"
                 .format(
-                    host=host, path=path, user=sync_user, server=server,
-                    target=target))
+                    host=host,
+                    path=path,
+                    user=sync_user,
+                    server=server,
+                    target=target,
+                )
+            )
             ret = os.system(sync_cmd)
             if ret != 0:
                 log.error('Copy error to app servers: cmd=%s', sync_cmd)

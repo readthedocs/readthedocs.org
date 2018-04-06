@@ -119,11 +119,11 @@ This is the version of Python to use when building your documentation. If you
 specify only the major version of Python, the highest supported minor version
 will be selected.
 
-.. warning:: 
+.. warning::
 
     The supported Python versions depends on the version of the build image your
     project is using. The default build image that is used to build documentation
-    contains support for Python ``2.7`` and ``3.5``. 
+    contains support for Python ``2.7`` and ``3.5``.
     See the :ref:`yaml_build_image` for more information on supported Python versions.
 
 .. code-block:: yaml

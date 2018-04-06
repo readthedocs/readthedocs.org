@@ -73,7 +73,9 @@ class ProjectViewSet(UserSelectViewSet):
     def valid_versions(self, request, **kwargs):
         """Maintain state of versions that are wanted."""
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         if (not project.num_major or not project.num_minor or
                 not project.num_point):
             return Response(
@@ -102,7 +104,9 @@ class ProjectViewSet(UserSelectViewSet):
     @detail_route()
     def subprojects(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -112,7 +116,9 @@ class ProjectViewSet(UserSelectViewSet):
     @detail_route()
     def active_versions(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         versions = project.versions.filter(active=True)
         return Response({
             'versions': VersionSerializer(versions, many=True).data,
@@ -121,7 +127,9 @@ class ProjectViewSet(UserSelectViewSet):
     @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         token = GitHubService.get_token_for_project(project, force_local=True)
         return Response({
             'token': token,
@@ -130,13 +138,17 @@ class ProjectViewSet(UserSelectViewSet):
     @decorators.detail_route()
     def canonical_url(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         return Response({
             'url': project.get_docs_url(),
         })
 
     @decorators.detail_route(
-        permission_classes=[permissions.IsAdminUser], methods=['post'])
+        permission_classes=[permissions.IsAdminUser],
+        methods=['post'],
+    )
     def sync_versions(self, request, **kwargs):  # noqa: D205
         """
         Sync the version data in the repo (on the build server).
@@ -146,7 +158,9 @@ class ProjectViewSet(UserSelectViewSet):
         :returns: the identifiers for the versions that have been deleted.
         """
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
@@ -162,11 +176,17 @@ class ProjectViewSet(UserSelectViewSet):
             added_versions = set()
             if 'tags' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['tags'], type=TAG)
+                    project=project,
+                    versions=data['tags'],
+                    type=TAG,
+                )
                 added_versions.update(ret_set)
             if 'branches' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['branches'], type=BRANCH)
+                    project=project,
+                    versions=data['branches'],
+                    type=BRANCH,
+                )
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
@@ -185,7 +205,8 @@ class ProjectViewSet(UserSelectViewSet):
                 'Triggering new stable build: {project}:{version}'.format(
                     project=project.slug,
                     version=new_stable.identifier,
-                ))
+                ),
+            )
             trigger_build(project=project, version=new_stable)
 
             # Marking the tag that is considered the new stable version as
@@ -261,7 +282,9 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
             self.model.objects.api(self.request.user).filter(
                 account__provider__in=[
                     service.adapter.provider_id for service in registry
-                ]))
+                ],
+            )
+        )
 
 
 class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -287,7 +310,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         query = query.filter(
             account__provider__in=[
                 service.adapter.provider_id for service in registry
-            ])
+            ],
+        )
         return query
 
 

@@ -42,26 +42,31 @@ class BitbucketService(Service):
         # Get user repos
         try:
             repos = self.paginate(
-                'https://bitbucket.org/api/2.0/repositories/?role=member')
+                'https://bitbucket.org/api/2.0/repositories/?role=member',
+            )
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError) as e:
             log.exception('Error syncing Bitbucket repositories')
             raise Exception(
                 'Could not sync your Bitbucket repositories, '
-                'try reconnecting your account')
+                'try reconnecting your account',
+            )
 
         # Because privileges aren't returned with repository data, run query
         # again for repositories that user has admin role for, and update
         # existing repositories.
         try:
             resp = self.paginate(
-                'https://bitbucket.org/api/2.0/repositories/?role=admin')
+                'https://bitbucket.org/api/2.0/repositories/?role=admin',
+            )
             repos = (
                 RemoteRepository.objects.filter(
                     users=self.user,
                     full_name__in=[r['full_name'] for r in resp],
-                    account=self.account))
+                    account=self.account,
+                )
+            )
             for repo in repos:
                 repo.admin = True
                 repo.save()
@@ -72,7 +77,8 @@ class BitbucketService(Service):
         """Sync Bitbucket teams and team repositories."""
         try:
             teams = self.paginate(
-                'https://api.bitbucket.org/2.0/teams/?role=member')
+                'https://api.bitbucket.org/2.0/teams/?role=member',
+            )
             for team in teams:
                 org = self.create_organization(team)
                 repos = self.paginate(team['links']['repositories']['href'])
@@ -82,7 +88,8 @@ class BitbucketService(Service):
             log.exception('Error syncing Bitbucket organizations')
             raise Exception(
                 'Could not sync your Bitbucket team repositories, '
-                'try reconnecting your account')
+                'try reconnecting your account',
+            )
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -101,14 +108,16 @@ class BitbucketService(Service):
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if ((privacy == 'private') or
-            (fields['is_private'] is False and privacy == 'public')):
+                (fields['is_private'] is False and privacy == 'public')):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name'],
                 account=self.account,
             )
             if repo.organization and repo.organization != organization:
                 log.debug(
-                    'Not importing %s because mismatched orgs', fields['name'])
+                    'Not importing %s because mismatched orgs',
+                    fields['name'],
+                )
                 return None
             else:
                 repo.organization = organization
@@ -118,10 +127,12 @@ class BitbucketService(Service):
             repo.private = fields['is_private']
 
             # Default to HTTPS, use SSH for private repositories
-            clone_urls = dict(
-                (u['name'], u['href']) for u in fields['links']['clone'])
+            clone_urls = dict((u['name'], u['href'])
+                              for u in fields['links']['clone'])
             repo.clone_url = self.https_url_pattern.sub(
-                'https://bitbucket.org/', clone_urls.get('https'))
+                'https://bitbucket.org/',
+                clone_urls.get('https'),
+            )
             repo.ssh_url = clone_urls.get('ssh')
             if repo.private:
                 repo.clone_url = repo.ssh_url
@@ -140,7 +151,9 @@ class BitbucketService(Service):
             return repo
         else:
             log.debug(
-                'Not importing %s because mismatched type', fields['name'])
+                'Not importing %s because mismatched type',
+                fields['name'],
+            )
 
     def create_organization(self, fields):
         """
@@ -175,13 +188,18 @@ class BitbucketService(Service):
         """Get webhook JSON data to post to the API."""
         return json.dumps({
             'description': 'Read the Docs ({domain})'.format(
-                domain=settings.PRODUCTION_DOMAIN),
+                domain=settings.PRODUCTION_DOMAIN,
+            ),
             'url': 'https://{domain}{path}'.format(
-                domain=settings.PRODUCTION_DOMAIN, path=reverse(
-                    'api_webhook', kwargs={
+                domain=settings.PRODUCTION_DOMAIN,
+                path=reverse(
+                    'api_webhook',
+                    kwargs={
                         'project_slug': project.slug,
-                        'integration_pk': integration.pk
-                    })),
+                        'integration_pk': integration.pk,
+                    },
+                ),
+            ),
             'active': True,
             'events': ['repo:push'],
         })
@@ -204,10 +222,14 @@ class BitbucketService(Service):
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
-            resp = session.post((
-                'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
-                .format(owner=owner, repo=repo)), data=data,
-                                headers={'content-type': 'application/json'})
+            resp = session.post(
+                (
+                    'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
+                    .format(owner=owner, repo=repo)
+                ),
+                data=data,
+                headers={'content-type': 'application/json'},
+            )
             if resp.status_code == 201:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
@@ -255,7 +277,10 @@ class BitbucketService(Service):
             # Expect to throw KeyError here if provider_data is invalid
             url = integration.provider_data['links']['self']['href']
             resp = session.put(
-                url, data=data, headers={'content-type': 'application/json'})
+                url,
+                data=data,
+                headers={'content-type': 'application/json'},
+            )
             if resp.status_code == 200:
                 recv_data = resp.json()
                 integration.provider_data = recv_data

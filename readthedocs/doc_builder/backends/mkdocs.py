@@ -1,14 +1,17 @@
+# -*- coding: utf-8 -*-
 """
 MkDocs_ backend for building docs.
 
 .. _MkDocs: http://www.mkdocs.org/
 """
-from __future__ import absolute_import
-import os
-import logging
-import json
-import yaml
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
+import json
+import logging
+import os
+
+import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 
@@ -46,7 +49,8 @@ class BaseMkdocs(BaseBuilder):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(
             self.version.project.checkout_path(self.version.slug),
-            self.build_dir)
+            self.build_dir,
+        )
         self.root_path = self.version.project.checkout_path(self.version.slug)
 
     def load_yaml_config(self):
@@ -57,7 +61,7 @@ class BaseMkdocs(BaseBuilder):
         """
         try:
             return yaml.safe_load(
-                open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+                open(os.path.join(self.root_path, 'mkdocs.yml'), 'r'),
             )
         except IOError:
             return {
@@ -67,11 +71,14 @@ class BaseMkdocs(BaseBuilder):
             note = ''
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
-                note = ' (line %d, column %d)' % (mark.line + 1, mark.column + 1)
+                note = ' (line %d, column %d)' % (
+                    mark.line + 1,
+                    mark.column + 1,
+                )
             raise BuildEnvironmentError(
-                "Your mkdocs.yml could not be loaded, "
-                "possibly due to a syntax error%s" % (
-                    note,))
+                'Your mkdocs.yml could not be loaded, '
+                'possibly due to a syntax error%s' % (note,),
+            )
 
     def append_conf(self, **__):
         """Set mkdocs config values."""
@@ -89,7 +96,7 @@ class BaseMkdocs(BaseBuilder):
         user_config.setdefault('extra_javascript', []).extend([
             'readthedocs-data.js',
             'readthedocs-dynamic-include.js',
-            '%sstatic/core/js/readthedocs-doc-embed.js' % media_url
+            '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
         ])
         user_config.setdefault('extra_css', []).extend([
             '%scss/badge_only.css' % media_url,
@@ -102,7 +109,7 @@ class BaseMkdocs(BaseBuilder):
 
         yaml.safe_dump(
             user_config,
-            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w'),
         )
 
         docs_path = os.path.join(self.root_path, docs_dir)
@@ -113,7 +120,10 @@ class BaseMkdocs(BaseBuilder):
             f.write(rtd_data)
 
         dynamic_include = self.generate_dynamic_include()
-        with open(os.path.join(docs_path, 'readthedocs-dynamic-include.js'), 'w') as f:
+        with open(
+                os.path.join(docs_path, 'readthedocs-dynamic-include.js'),
+                'w',
+        ) as f:
             f.write(dynamic_include)
 
     def generate_rtd_data(self, docs_dir):
@@ -125,11 +135,15 @@ class BaseMkdocs(BaseBuilder):
             'language': self.version.project.language,
             'programming_language': self.version.project.programming_language,
             'page': None,
-            'theme': "readthedocs",
-            'builder': "mkdocs",
+            'theme': 'readthedocs',
+            'builder': 'mkdocs',
             'docroot': docs_dir,
-            'source_suffix': ".md",
-            'api_host': getattr(settings, 'PUBLIC_API_URL', 'https://readthedocs.org'),
+            'source_suffix': '.md',
+            'api_host': getattr(
+                settings,
+                'PUBLIC_API_URL',
+                'https://readthedocs.org',
+            ),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
         }
         data_json = json.dumps(readthedocs_data, indent=4)
@@ -145,7 +159,11 @@ class BaseMkdocs(BaseBuilder):
 
     def generate_dynamic_include(self):
         include_ctx = {
-            'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
+            'global_analytics_code': getattr(
+                settings,
+                'GLOBAL_ANALYTICS_CODE',
+                'UA-17997319-1',
+            ),
             'user_analytics_code': self.version.project.analytics_code,
         }
         tmpl = template_loader.get_template('doc_builder/include.js.tmpl')
@@ -158,13 +176,13 @@ class BaseMkdocs(BaseBuilder):
             self.python_env.venv_bin(filename='mkdocs'),
             self.builder,
             '--clean',
-            '--site-dir', self.build_dir,
+            '--site-dir',
+            self.build_dir,
         ]
         if self.use_theme:
             build_command.extend(['--theme', 'readthedocs'])
         cmd_ret = self.run(
-            *build_command,
-            cwd=checkout_path,
+            *build_command, cwd=checkout_path,
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
@@ -184,12 +202,12 @@ class MkdocsJSON(BaseMkdocs):
 
     def build(self):
         user_config = yaml.safe_load(
-            open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'r'),
         )
         if user_config['theme_dir'] == TEMPLATE_DIR:
             del user_config['theme_dir']
         yaml.safe_dump(
             user_config,
-            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w'),
         )
         return super(MkdocsJSON, self).build()

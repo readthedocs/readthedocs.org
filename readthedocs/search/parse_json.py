@@ -22,12 +22,17 @@ def process_all_json_files(version, build_dir=True):
         full_path = version.project.full_json_path(version.slug)
     else:
         full_path = version.project.get_production_media_path(
-            type_='json', version_slug=version.slug, include_file=False)
+            type_='json',
+            version_slug=version.slug,
+            include_file=False,
+        )
     html_files = []
     for root, _, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.fjson'):
-            if filename in ['search.fjson', 'genindex.fjson',
-                            'py-modindex.fjson']:
+            if filename in [
+                    'search.fjson',
+                    'genindex.fjson',
+                    'py-modindex.fjson', ]:
                 continue
             html_files.append(os.path.join(root, filename))
     page_list = []
@@ -123,8 +128,11 @@ def process_file(filename):
         log.info('Unable to index title for: %s', filename)
 
     return {
-        'headers': process_headers(data, filename), 'content': body_content,
-        'path': path, 'title': title, 'sections': sections
+        'headers': process_headers(data, filename),
+        'content': body_content,
+        'path': path,
+        'title': title,
+        'sections': sections,
     }
 
 

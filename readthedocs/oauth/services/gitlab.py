@@ -39,7 +39,8 @@ class GitLabService(Service):
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_base_url).netloc))
+        re.escape(urlparse(adapter.provider_base_url).netloc),
+    )
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
@@ -73,7 +74,8 @@ class GitLabService(Service):
             log.exception('Error syncing GitLab repositories')
             raise Exception(
                 'Could not sync your GitLab repositories, try reconnecting '
-                'your account')
+                'your account',
+            )
 
     def sync_organizations(self):
         orgs = self.paginate(
@@ -103,7 +105,8 @@ class GitLabService(Service):
             log.exception('Error syncing GitLab organizations')
             raise Exception(
                 'Could not sync your GitLab organization, try reconnecting '
-                'your account')
+                'your account',
+            )
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id
@@ -162,7 +165,8 @@ class GitLabService(Service):
 
             owner = fields.get('owner') or {}
             repo.avatar_url = (
-                fields.get('avatar_url') or owner.get('avatar_url'))
+                fields.get('avatar_url') or owner.get('avatar_url')
+            )
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
 
@@ -328,12 +332,16 @@ class GitLabService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitLab webhook update successful for project: %s', project)
+                    'GitLab webhook update successful for project: %s',
+                    project,
+                )
                 return (True, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitLab webhook update failed for project: %s', project)
+                'GitLab webhook update failed for project: %s',
+                project,
+            )
         else:
             log.exception(
                 'GitLab webhook update failed for project: %s',

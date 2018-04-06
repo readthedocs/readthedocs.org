@@ -22,8 +22,11 @@ def check_output(l, env=()):
     if env == ():
         output = subprocess.Popen(l, stdout=subprocess.PIPE).communicate()[0]
     else:
-        output = subprocess.Popen(l, stdout=subprocess.PIPE,
-                                  env=env).communicate()[0]
+        output = subprocess.Popen(
+            l,
+            stdout=subprocess.PIPE,
+            env=env,
+        ).communicate()[0]
     return output
 
 
@@ -41,10 +44,14 @@ def make_test_git():
     # TODO: move the ``log.info`` call inside the ``check_output```
     log.info(check_output(['git', 'init'] + [directory], env=env))
     log.info(
-        check_output(['git', 'config', 'user.email', 'dev@readthedocs.org'],
-                     env=env))
+        check_output(
+            ['git', 'config', 'user.email', 'dev@readthedocs.org'],
+            env=env,
+        ),
+    )
     log.info(
-        check_output(['git', 'config', 'user.name', 'Read the Docs'], env=env))
+        check_output(['git', 'config', 'user.name', 'Read the Docs'], env=env),
+    )
 
     # Set up the actual repository
     log.info(check_output(['git', 'add', '.'], env=env))
@@ -54,13 +61,14 @@ def make_test_git():
     # URL are not allowed and using a real URL will require Internet to clone
     # the repo
     log.info(
-        check_output(['git', 'checkout', '-b', 'submodule', 'master'], env=env))
+        check_output(['git', 'checkout', '-b', 'submodule', 'master'], env=env),
+    )
     # https://stackoverflow.com/a/37378302/2187091
     mkdir(pjoin(directory, 'foobar'))
     gitmodules_path = pjoin(directory, '.gitmodules')
     with open(gitmodules_path, 'w') as fh:
         fh.write(
-            '''[submodule "foobar"]\n\tpath = foobar\n\turl = https://foobar.com/git\n'''
+            '''[submodule "foobar"]\n\tpath = foobar\n\turl = https://foobar.com/git\n''',
         )
     log.info(
         check_output(
@@ -74,36 +82,61 @@ def make_test_git():
                 'foobar',
             ],
             env=env,
-        ))
+        ),
+    )
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
 
     # Add a relative submodule URL in the relativesubmodule branch
     log.info(
-        check_output(['git', 'checkout', '-b', 'relativesubmodule', 'master'],
-                     env=env))
-    log.info(
-        check_output([
-            'git', 'submodule', 'add', '-b', 'master', './', 'relativesubmodule'
-        ], env=env))
-    log.info(check_output(['git', 'add', '.'], env=env))
-    log.info(
-        check_output(['git', 'commit', '-m"Add relative submodule"'], env=env))
-    # Add an invalid submodule URL in the invalidsubmodule branch
-    log.info(
-        check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'],
-                     env=env))
+        check_output(
+            ['git', 'checkout', '-b', 'relativesubmodule', 'master'],
+            env=env,
+        ),
+    )
     log.info(
         check_output(
             [
-                'git', 'submodule', 'add', '-b', 'master', './',
-                'invalidsubmodule'
+                'git',
+                'submodule',
+                'add',
+                '-b',
+                'master',
+                './',
+                'relativesubmodule',
             ],
             env=env,
-        ))
+        ),
+    )
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(
-        check_output(['git', 'commit', '-m"Add invalid submodule"'], env=env))
+        check_output(['git', 'commit', '-m"Add relative submodule"'], env=env),
+    )
+    # Add an invalid submodule URL in the invalidsubmodule branch
+    log.info(
+        check_output(
+            ['git', 'checkout', '-b', 'invalidsubmodule', 'master'],
+            env=env,
+        ),
+    )
+    log.info(
+        check_output(
+            [
+                'git',
+                'submodule',
+                'add',
+                '-b',
+                'master',
+                './',
+                'invalidsubmodule',
+            ],
+            env=env,
+        ),
+    )
+    log.info(check_output(['git', 'add', '.'], env=env))
+    log.info(
+        check_output(['git', 'commit', '-m"Add invalid submodule"'], env=env),
+    )
 
     # Checkout to master branch again
     log.info(check_output(['git', 'checkout', 'master'], env=env))

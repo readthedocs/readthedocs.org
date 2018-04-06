@@ -204,4 +204,5 @@ class Service(object):
         # TODO Replace this check by keying project to remote repos
         return (
             cls.url_pattern is not None and
-            cls.url_pattern.search(project.repo) is not None)
+            cls.url_pattern.search(project.repo) is not None
+        )

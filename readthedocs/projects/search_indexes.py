@@ -94,22 +94,33 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
             return
         log.debug('(Search Index) Indexing %s:%s', obj.project, obj.path)
         document_pyquery_path = getattr(
-            settings, 'DOCUMENT_PYQUERY_PATH', 'div.document')
+            settings,
+            'DOCUMENT_PYQUERY_PATH',
+            'div.document',
+        )
         try:
             to_index = strip_tags(
-                PyQuery(content)(document_pyquery_path).html()).replace(
-                    u'¶', '')
+                PyQuery(content)(document_pyquery_path).html(),
+            ).replace(
+                u'¶',
+                '',
+            )
         except ValueError:
             # Pyquery returns ValueError if div.document doesn't exist.
             return
         if not to_index:
             log.info(
                 '(Search Index) Unable to index file: %s:%s, empty file',
-                obj.project, file_path)
+                obj.project,
+                file_path,
+            )
         else:
             log.debug(
-                '(Search Index) %s:%s length: %s', obj.project, file_path,
-                len(to_index))
+                '(Search Index) %s:%s length: %s',
+                obj.project,
+                file_path,
+                len(to_index),
+            )
         return to_index
 
     def get_model(self):
@@ -119,4 +130,6 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
         """Used when the entire index for model is updated."""
         return (
             self.get_model().objects.filter(
-                project__privacy_level=constants.PUBLIC))
+                project__privacy_level=constants.PUBLIC,
+            )
+        )

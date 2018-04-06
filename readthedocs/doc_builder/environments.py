@@ -74,9 +74,18 @@ class BuildCommand(BuildCommandResultMixin):
     """
 
     def __init__(
-            self, command, cwd=None, shell=False, environment=None,
-            combine_output=True, input_data=None, build_env=None, bin_path=None,
-            description=None, record_as_success=False):
+            self,
+            command,
+            cwd=None,
+            shell=False,
+            environment=None,
+            combine_output=True,
+            input_data=None,
+            build_env=None,
+            bin_path=None,
+            description=None,
+            record_as_success=False,
+    ):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -181,8 +190,10 @@ class BuildCommand(BuildCommandResultMixin):
 
     def get_command(self):
         """Flatten command."""
-        if hasattr(self.command,
-                   '__iter__') and not isinstance(self.command, str):
+        if hasattr(
+                self.command,
+                '__iter__',
+        ) and not isinstance(self.command, str):
             return ' '.join(self.command)
         return self.command
 
@@ -224,15 +235,21 @@ class DockerBuildCommand(BuildCommand):
         :param combine_output: combine STDERR into STDOUT
         """
         log.info(
-            "Running in container %s: '%s' [%s]", self.build_env.container_id,
-            self.get_command(), self.cwd)
+            "Running in container %s: '%s' [%s]",
+            self.build_env.container_id,
+            self.get_command(),
+            self.cwd,
+        )
 
         self.start_time = datetime.utcnow()
         client = self.build_env.get_client()
         try:
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
-                cmd=self.get_wrapped_command(), stdout=True, stderr=True)
+                cmd=self.get_wrapped_command(),
+                stdout=True,
+                stderr=True,
+            )
 
             output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
             try:
@@ -248,12 +265,14 @@ class DockerBuildCommand(BuildCommand):
             # not use the specific exit code, so we check if the word `Killed`
             # is in the last 15 lines of the command's output
             killed_in_output = 'Killed' in '\n'.join(
-                self.output.splitlines()[-15:])
+                self.output.splitlines()[-15:],
+            )
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1
                                                           and killed_in_output):
                 self.output = _(
                     'Command killed due to excessive memory '
-                    'consumption\n')
+                    'consumption\n',
+                )
         except DockerAPIError:
             self.exit_code = -1
             if self.output is None or not self.output:
@@ -273,17 +292,23 @@ class DockerBuildCommand(BuildCommand):
         """
         bash_escape_re = re.compile(
             r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
-            r'\[\\\]\^\`\{\|\}\~])')
+            r'\[\\\]\^\`\{\|\}\~])',
+        )
         prefix = ''
         if self.bin_path:
             prefix += 'PATH={0}:$PATH '.format(self.bin_path)
         return (
             "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
-                cwd=self.cwd, prefix=prefix, cmd=(
+                cwd=self.cwd,
+                prefix=prefix,
+                cmd=(
                     ' '.join([
                         bash_escape_re.sub(r'\\\1', part)
                         for part in self.command
-                    ]))))
+                    ])
+                ),
+            )
+        )
 
 
 class BaseEnvironment(object):
@@ -309,7 +334,8 @@ class BaseEnvironment(object):
                 project=self.project.slug,
                 version='latest',
                 msg=msg,
-            ))
+            ),
+        )
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
@@ -317,7 +343,8 @@ class BaseEnvironment(object):
 
     def run_command_class(
             self, cls, cmd, record=None, warn_only=False,
-            record_as_success=False, **kwargs):
+            record_as_success=False, **kwargs
+    ):
         """
         Run command from this environment.
 
@@ -419,8 +446,15 @@ class BuildEnvironment(BaseEnvironment):
     """
 
     def __init__(
-            self, project=None, version=None, build=None, config=None,
-            record=True, environment=None, update_on_success=True):
+            self,
+            project=None,
+            version=None,
+            build=None,
+            config=None,
+            record=True,
+            environment=None,
+            update_on_success=True,
+    ):
         super(BuildEnvironment, self).__init__(project, environment)
         self.version = version
         self.build = build
@@ -439,8 +473,11 @@ class BuildEnvironment(BaseEnvironment):
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
             LOG_TEMPLATE.format(
-                project=self.project.slug, version=self.version.slug,
-                msg='Build finished'))
+                project=self.project.slug,
+                version=self.version.slug,
+                msg='Build finished',
+            ),
+        )
         return ret
 
     def handle_exception(self, exc_type, exc_value, _):
@@ -458,8 +495,12 @@ class BuildEnvironment(BaseEnvironment):
             if not issubclass(exc_type, BuildEnvironmentWarning):
                 log.error(
                     LOG_TEMPLATE.format(
-                        project=self.project.slug, version=self.version.slug,
-                        msg=exc_value), exc_info=True)
+                        project=self.project.slug,
+                        version=self.version.slug,
+                        msg=exc_value,
+                    ),
+                    exc_info=True,
+                )
                 self.failure = exc_value
             return True
 
@@ -473,7 +514,8 @@ class BuildEnvironment(BaseEnvironment):
                 project=self.project.slug,
                 version=self.version.slug,
                 msg=msg,
-            ))
+            ),
+        )
 
     def run(self, *cmd, **kwargs):
         kwargs.update({
@@ -493,7 +535,8 @@ class BuildEnvironment(BaseEnvironment):
         commands."""  # noqa
         return (
             self.done and self.failure is None and
-            all(cmd.successful for cmd in self.commands))
+            all(cmd.successful for cmd in self.commands)
+        )
 
     @property
     def failed(self):
@@ -501,14 +544,17 @@ class BuildEnvironment(BaseEnvironment):
         return (
             self.done and (
                 self.failure is not None or
-                any(cmd.failed for cmd in self.commands)))
+                any(cmd.failed for cmd in self.commands)
+            )
+        )
 
     @property
     def done(self):
         """Is build in finished state."""
         return (
             self.build is not None and
-            self.build['state'] == BUILD_STATE_FINISHED)
+            self.build['state'] == BUILD_STATE_FINISHED
+        )
 
     def update_build(self, state=None):
         """
@@ -534,12 +580,15 @@ class BuildEnvironment(BaseEnvironment):
 
             # TODO drop exit_code and provide a more meaningful UX for error
             # reporting
-            if self.failure and isinstance(self.failure,
-                                           BuildEnvironmentException):
+            if self.failure and isinstance(
+                    self.failure,
+                    BuildEnvironmentException,
+            ):
                 self.build['exit_code'] = self.failure.status_code
             elif self.commands:
-                self.build['exit_code'] = max(
-                    [cmd.exit_code for cmd in self.commands])
+                self.build['exit_code'] = max([
+                    cmd.exit_code for cmd in self.commands
+                ],)
 
         self.build['setup'] = self.build['setup_error'] = ''
         self.build['output'] = self.build['error'] = ''
@@ -553,17 +602,21 @@ class BuildEnvironment(BaseEnvironment):
             # BuildEnvironmentError
             if not isinstance(
                     self.failure,
-                (BuildEnvironmentException, BuildEnvironmentWarning)):
+                (BuildEnvironmentException, BuildEnvironmentWarning),
+            ):
                 log.error(
                     'Build failed with unhandled exception: %s',
-                    str(self.failure), extra={
+                    str(self.failure),
+                    extra={
                         'stack': True,
                         'tags': {'build': self.build['id']},
-                    })
+                    },
+                )
                 self.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=self.build['id'],
-                    ))
+                    ),
+                )
             self.build['error'] = str(self.failure)
 
         # Attempt to stop unicode errors on build reporting
@@ -578,7 +631,8 @@ class BuildEnvironment(BaseEnvironment):
             # Build is done, but isn't successful, always update
             or (self.done and not self.successful)
             # Otherwise, are we explicitly to not update?
-            or self.update_on_success)
+            or self.update_on_success
+        )
         if update_build:
             try:
                 api_v2.build(self.build['id']).put(self.build)
@@ -629,7 +683,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                 build=self.build.get('id'),
                 project_id=self.project.pk,
                 project_name=self.project.slug,
-            )[:DOCKER_HOSTNAME_MAX_LEN])
+            )[:DOCKER_HOSTNAME_MAX_LEN],
+        )
         if self.config and self.config.build_image:
             self.container_image = self.config.build_image
         if self.project.container_image:
@@ -652,7 +707,9 @@ class DockerBuildEnvironment(BuildEnvironment):
                     exc = BuildEnvironmentError(
                         _(
                             'A build environment is currently '
-                            'running for this version'))
+                            'running for this version',
+                        ),
+                    )
                     self.failure = exc
                     self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
@@ -660,9 +717,13 @@ class DockerBuildEnvironment(BuildEnvironment):
                     log.warning(
                         LOG_TEMPLATE.format(
                             project=self.project.slug,
-                            version=self.version.slug, msg=(
+                            version=self.version.slug,
+                            msg=(
                                 'Removing stale container {0}'
-                                .format(self.container_id))))
+                                .format(self.container_id)
+                            ),
+                        ),
+                    )
                     client = self.get_client()
                     client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError):
@@ -726,8 +787,11 @@ class DockerBuildEnvironment(BuildEnvironment):
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
             LOG_TEMPLATE.format(
-                project=self.project.slug, version=self.version.slug,
-                msg='Build finished'))
+                project=self.project.slug,
+                version=self.version.slug,
+                msg='Build finished',
+            ),
+        )
         return ret
 
     def get_client(self):
@@ -753,7 +817,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             raise BuildEnvironmentError(
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                     build_id=self.build['id'],
-                ))
+                ),
+            )
 
     def get_container_host_config(self):
         """
@@ -831,14 +896,17 @@ class DockerBuildEnvironment(BuildEnvironment):
         if state is not None and state.get('Running') is False:
             if state.get('ExitCode') == DOCKER_TIMEOUT_EXIT_CODE:
                 self.failure = BuildEnvironmentError(
-                    _('Build exited due to time out'))
+                    _('Build exited due to time out'),
+                )
             elif state.get('OOMKilled', False):
                 self.failure = BuildEnvironmentError(
-                    _('Build exited due to excessive memory consumption'))
+                    _('Build exited due to excessive memory consumption'),
+                )
             elif state.get('Error'):
                 self.failure = BuildEnvironmentError((
                     _('Build exited due to unknown error: {0}')
-                    .format(state.get('Error'))))
+                    .format(state.get('Error'))
+                ))
 
     def create_container(self):
         """Create docker container."""
@@ -853,7 +921,9 @@ class DockerBuildEnvironment(BuildEnvironment):
                 command=(
                     '/bin/sh -c "sleep {time}; exit {exit}"'.format(
                         time=self.container_time_limit,
-                        exit=DOCKER_TIMEOUT_EXIT_CODE)),
+                        exit=DOCKER_TIMEOUT_EXIT_CODE,
+                    )
+                ),
                 name=self.container_id,
                 hostname=self.container_id,
                 host_config=self.get_container_host_config(),
@@ -868,7 +938,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                     version=self.version.slug,
                     msg=(
                         'Could not connect to the Docker API, '
-                        'make sure Docker is running'),
+                        'make sure Docker is running'
+                    ),
                 ),
             )
             # We don't raise an error here mentioning Docker, that is a
@@ -877,7 +948,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             raise BuildEnvironmentError(
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                     build_id=self.build['id'],
-                ))
+                ),
+            )
         except DockerAPIError as e:
             log.exception(
                 LOG_TEMPLATE.format(

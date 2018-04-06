@@ -84,7 +84,8 @@ class SyncRepositoryMixin(object):
             version_data = api_v2.version(version_pk).get()
         else:
             version_data = (
-                api_v2.version(project.slug).get(slug=LATEST)['objects'][0])
+                api_v2.version(project.slug).get(slug=LATEST)['objects'][0]
+            )
         return APIVersion(**version_data)
 
     def sync_repo(self):
@@ -102,7 +103,8 @@ class SyncRepositoryMixin(object):
 
         with self.project.repo_nonblockinglock(
                 version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30),
+        ):
 
             # Get the actual code on disk
             try:
@@ -143,7 +145,8 @@ class SyncRepositoryMixin(object):
                 # Hit the API ``sync_versions`` which may trigger a new build
                 # for the stable version
                 api_v2.project(
-                    self.project.pk).sync_versions.post(version_post_data)
+                    self.project.pk,
+                ).sync_versions.post(version_post_data)
             except HttpClientError:
                 log.exception('Sync Versions Exception')
             except Exception:
@@ -155,7 +158,11 @@ class SyncRepositoryMixin(object):
     def _log(self, msg):
         log.info(
             LOG_TEMPLATE.format(
-                project=self.project.slug, version=self.version.slug, msg=msg))
+                project=self.project.slug,
+                version=self.version.slug,
+                msg=msg,
+            ),
+        )
 
 
 class SyncRepositoryTask(SyncRepositoryMixin, Task):
@@ -207,9 +214,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     # TODO: the argument from the __init__ are used only in tests
     def __init__(
-            self, build_env=None, python_env=None, config=None, force=False,
-            search=True, localmedia=True, build=None, project=None,
-            version=None):
+            self,
+            build_env=None,
+            python_env=None,
+            config=None,
+            force=False,
+            search=True,
+            localmedia=True,
+            build=None,
+            project=None,
+            version=None,
+    ):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
@@ -230,12 +245,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def _log(self, msg):
         log.info(
             LOG_TEMPLATE.format(
-                project=self.project.slug, version=self.version.slug, msg=msg))
+                project=self.project.slug,
+                version=self.version.slug,
+                msg=msg,
+            ),
+        )
 
     # pylint: disable=arguments-differ
     def run(
             self, pk, version_pk=None, build_pk=None, record=True, docker=False,
-            search=True, force=False, localmedia=True, **__):
+            search=True, force=False, localmedia=True, **__
+    ):
         """
         Run a documentation sync n' build.
 
@@ -282,11 +302,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         except Exception as e:  # noqa
             log.exception(
                 'An unhandled exception was raised during build setup',
-                extra={'tags': {'build': build_pk}})
+                extra={'tags': {'build': build_pk}},
+            )
             self.setup_env.failure = BuildEnvironmentError(
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                     build_id=build_pk,
-                ))
+                ),
+            )
             self.setup_env.update_build(BUILD_STATE_FINISHED)
             return False
         else:
@@ -297,11 +319,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             except Exception as e:  # noqa
                 log.exception(
                     'An unhandled exception was raised during project build',
-                    extra={'tags': {'build': build_pk}})
+                    extra={'tags': {'build': build_pk}},
+                )
                 self.build_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=build_pk,
-                    ))
+                    ),
+                )
                 self.build_env.update_build(BUILD_STATE_FINISHED)
                 return False
 
@@ -325,30 +349,37 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         with self.setup_env:
             if self.project.skip:
                 raise BuildEnvironmentError(
-                    _('Builds for this project are temporarily disabled'))
+                    _('Builds for this project are temporarily disabled'),
+                )
             try:
                 self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
                 self.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
-                    'Version locked, retrying in 5 minutes.', status_code=423)
+                    'Version locked, retrying in 5 minutes.',
+                    status_code=423,
+                )
 
             try:
                 self.config = load_yaml_config(version=self.version)
             except ConfigError as e:
                 raise BuildEnvironmentError(
-                    'Problem parsing YAML configuration. {0}'.format(str(e)))
+                    'Problem parsing YAML configuration. {0}'.format(str(e)),
+                )
 
         if self.setup_env.failure or self.config is None:
             self._log(
                 'Failing build because of setup failure: %s' %
-                self.setup_env.failure)
+                self.setup_env.failure,
+            )
 
             # Send notification to users only if the build didn't fail because of
             # LockTimeout: this exception occurs when a build is triggered before the previous
             # one has finished (e.g. two webhooks, one after the other)
-            if not isinstance(self.setup_env.failure,
-                              vcs_support_utils.LockTimeout):
+            if not isinstance(
+                    self.setup_env.failure,
+                    vcs_support_utils.LockTimeout,
+            ):
                 self.send_notifications()
 
             return False
@@ -372,8 +403,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         else:
             env_cls = LocalBuildEnvironment
         self.build_env = env_cls(
-            project=self.project, version=self.version, config=self.config,
-            build=self.build, record=record, environment=env_vars)
+            project=self.project,
+            version=self.version,
+            config=self.config,
+            build=self.build,
+            record=record,
+            environment=env_vars,
+        )
 
         # Environment used for building code, usually with Docker
         with self.build_env:
@@ -386,8 +422,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 self._log('Using conda')
                 python_env_cls = Conda
             self.python_env = python_env_cls(
-                version=self.version, build_env=self.build_env,
-                config=self.config)
+                version=self.version,
+                build_env=self.build_env,
+                config=self.config,
+            )
 
             try:
                 self.setup_python_environment()
@@ -455,8 +493,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
         env = {
-            'READTHEDOCS': True, 'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug
+            'READTHEDOCS': True,
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug,
         }
 
         if self.config.use_conda:
@@ -464,12 +503,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
                 'CONDA_DEFAULT_ENV': self.version.slug,
                 'BIN_PATH': os.path.join(
-                    self.project.doc_path, 'conda', self.version.slug, 'bin')
+                    self.project.doc_path,
+                    'conda',
+                    self.version.slug,
+                    'bin',
+                ),
             })
         else:
             env.update({
                 'BIN_PATH': os.path.join(
-                    self.project.doc_path, 'envs', self.version.slug, 'bin')
+                    self.project.doc_path,
+                    'envs',
+                    self.version.slug,
+                    'bin',
+                ),
             })
 
         return env
@@ -496,8 +543,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.project.documentation_type = ret
 
     def update_app_instances(
-            self, html=False, localmedia=False, search=False, pdf=False,
-            epub=False):
+            self,
+            html=False,
+            localmedia=False,
+            search=False,
+            pdf=False,
+            epub=False,
+    ):
         """
         Update application instances with build artifacts.
 
@@ -535,7 +587,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 epub=epub,
             ),
             callback=sync_callback.s(
-                version_pk=self.version.pk, commit=self.build['commit']),
+                version_pk=self.version.pk,
+                commit=self.build['commit'],
+            ),
         )
 
     def setup_python_environment(self):
@@ -550,7 +604,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         with self.project.repo_nonblockinglock(
                 version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30),
+        ):
 
             # Check if the python version/build image in the current venv is the
             # same to be used in this build and if it differs, wipe the venv to
@@ -583,7 +638,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         outcomes = defaultdict(lambda: False)
         with self.project.repo_nonblockinglock(
                 version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30),
+        ):
             outcomes['html'] = self.build_docs_html()
             outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
@@ -609,9 +665,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Gracefully attempt to move files via task on web workers.
         try:
             broadcast(
-                type='app', task=move_files,
-                args=[self.version.pk,
-                      socket.gethostname()], kwargs=dict(html=True))
+                type='app',
+                task=move_files,
+                args=[
+                    self.version.pk,
+                    socket.gethostname(),
+                ],
+                kwargs=dict(html=True),
+            )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
 
@@ -658,7 +719,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         process.
         """
         builder = get_builder_class(builder_class)(
-            self.build_env, python_env=self.python_env)
+            self.build_env,
+            python_env=self.python_env,
+        )
         success = builder.build()
         builder.move()
         return success
@@ -671,8 +734,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk, version_pk, hostname=None, html=False, localmedia=False,
-        search=False, pdf=False, epub=False):
+        project_pk,
+        version_pk,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
+):
     """
     Sync build artifacts to application instances.
 
@@ -687,8 +757,14 @@ def sync_files(
 
     # Sync files to the web servers
     move_files(
-        version_pk, hostname, html=html, localmedia=localmedia, search=search,
-        pdf=pdf, epub=epub)
+        version_pk,
+        hostname,
+        html=html,
+        localmedia=localmedia,
+        search=search,
+        pdf=pdf,
+        epub=epub,
+    )
 
     # Symlink project
     symlink_project(project_pk)
@@ -699,8 +775,14 @@ def sync_files(
 
 @app.task(queue='web')
 def move_files(
-        version_pk, hostname, html=False, localmedia=False, search=False,
-        pdf=False, epub=False):
+        version_pk,
+        hostname,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
+):
     """
     Task to move built documentation to web servers.
 
@@ -720,42 +802,67 @@ def move_files(
     version = Version.objects.get(pk=version_pk)
     log.debug(
         LOG_TEMPLATE.format(
-            project=version.project.slug, version=version.slug,
-            msg='Moving files'))
+            project=version.project.slug,
+            version=version.slug,
+            msg='Moving files',
+        ),
+    )
 
     if html:
         from_path = version.project.artifact_path(
-            version=version.slug, type_=version.project.documentation_type)
+            version=version.slug,
+            type_=version.project.documentation_type,
+        )
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
     if 'sphinx' in version.project.documentation_type:
         if search:
             from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_search')
+                version=version.slug,
+                type_='sphinx_search',
+            )
             to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
+                type_='json',
+                version_slug=version.slug,
+                include_file=False,
+            )
             Syncer.copy(from_path, to_path, host=hostname)
 
         if localmedia:
             from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_localmedia')
+                version=version.slug,
+                type_='sphinx_localmedia',
+            )
             to_path = version.project.get_production_media_path(
-                type_='htmlzip', version_slug=version.slug, include_file=False)
+                type_='htmlzip',
+                version_slug=version.slug,
+                include_file=False,
+            )
             Syncer.copy(from_path, to_path, host=hostname)
 
         # Always move PDF's because the return code lies.
         if pdf:
             from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_pdf')
+                version=version.slug,
+                type_='sphinx_pdf',
+            )
             to_path = version.project.get_production_media_path(
-                type_='pdf', version_slug=version.slug, include_file=False)
+                type_='pdf',
+                version_slug=version.slug,
+                include_file=False,
+            )
             Syncer.copy(from_path, to_path, host=hostname)
         if epub:
             from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_epub')
+                version=version.slug,
+                type_='sphinx_epub',
+            )
             to_path = version.project.get_production_media_path(
-                type_='epub', version_slug=version.slug, include_file=False)
+                type_='epub',
+                version_slug=version.slug,
+                include_file=False,
+            )
             Syncer.copy(from_path, to_path, host=hostname)
 
 
@@ -775,12 +882,16 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     else:
         log.debug(
             'Unknown documentation type: %s',
-            version.project.documentation_type)
+            version.project.documentation_type,
+        )
         return
 
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info(
-        '(Search Index) Sending Data: %s [%s]', version.project.slug, log_msg)
+        '(Search Index) Sending Data: %s [%s]',
+        version.project.slug,
+        log_msg,
+    )
     index_search_request(
         version=version,
         page_list=page_list,
@@ -825,7 +936,8 @@ def remove_orphan_symlinks():
     for symlink in [PublicSymlink, PrivateSymlink]:
         for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
             valid_cnames = set(
-                Domain.objects.all().values_list('domain', flat=True))
+                Domain.objects.all().values_list('domain', flat=True),
+            )
             orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
@@ -864,23 +976,34 @@ def fileify(version_pk, commit):
     if not commit:
         log.info(
             LOG_TEMPLATE.format(
-                project=project.slug, version=version.slug, msg=(
+                project=project.slug,
+                version=version.slug,
+                msg=(
                     'Imported File not being built because no commit '
-                    'information')))
+                    'information'
+                ),
+            ),
+        )
         return
 
     path = project.rtd_build_path(version.slug)
     if path:
         log.info(
             LOG_TEMPLATE.format(
-                project=version.project.slug, version=version.slug,
-                msg='Creating ImportedFiles'))
+                project=version.project.slug,
+                version=version.slug,
+                msg='Creating ImportedFiles',
+            ),
+        )
         _manage_imported_files(version, path, commit)
     else:
         log.info(
             LOG_TEMPLATE.format(
-                project=project.slug, version=version.slug,
-                msg='No ImportedFile files'))
+                project=project.slug,
+                version=version.slug,
+                msg='No ImportedFile files',
+            ),
+        )
 
 
 def _manage_imported_files(version, path, commit):
@@ -895,7 +1018,9 @@ def _manage_imported_files(version, path, commit):
     for root, __, filenames in os.walk(path):
         for filename in filenames:
             dirpath = os.path.join(
-                root.replace(path, '').lstrip('/'), filename.lstrip('/'))
+                root.replace(path, '').lstrip('/'),
+                filename.lstrip('/'),
+            )
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
@@ -917,7 +1042,8 @@ def _manage_imported_files(version, path, commit):
     # Delete ImportedFiles from previous versions
     ImportedFile.objects.filter(
         project=version.project,
-        version=version).exclude(commit=commit).delete()
+        version=version,
+    ).exclude(commit=commit).delete()
     # Purge Cache
     cdn_ids = getattr(settings, 'CDN_IDS', None)
     if cdn_ids:
@@ -940,7 +1066,9 @@ def send_notifications(version_pk, build_pk):
     for hook in version.project.webhook_notifications.all():
         webhook_notification(version, build, hook.url)
     for email in version.project.emailhook_notifications.all().values_list(
-            'email', flat=True):
+            'email',
+            flat=True,
+    ):
         email_notification(version, build, email)
 
 
@@ -954,8 +1082,11 @@ def email_notification(version, build, email):
     """
     log.debug(
         LOG_TEMPLATE.format(
-            project=version.project.slug, version=version.slug,
-            msg='sending email to: %s' % email))
+            project=version.project.slug,
+            version=version.slug,
+            msg='sending email to: %s' % email,
+        ),
+    )
 
     # We send only what we need from the Django model objects here to avoid
     # serialization problems in the ``readthedocs.core.tasks.send_email_task``
@@ -982,10 +1113,12 @@ def email_notification(version, build, email):
 
     if build.commit:
         title = _('Failed: {project[name]} ({commit})').format(
-            commit=build.commit[:8], **context)
+            commit=build.commit[:8], **context
+        )
     else:
         title = _('Failed: {project[name]} ({version[verbose_name]})').format(
-            **context)
+            **context
+        )
 
     send_email(
         email,
@@ -1007,16 +1140,21 @@ def webhook_notification(version, build, hook_url):
     project = version.project
 
     data = json.dumps({
-        'name': project.name, 'slug': project.slug, 'build': {
+        'name': project.name,
+        'slug': project.slug,
+        'build': {
             'id': build.id,
             'success': build.success,
             'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
-        }
+        },
     })
     log.debug(
         LOG_TEMPLATE.format(
-            project=project.slug, version='',
-            msg='sending notification to: %s' % hook_url))
+            project=project.slug,
+            version='',
+            msg='sending notification to: %s' % hook_url,
+        ),
+    )
     try:
         requests.post(hook_url, data=data)
     except Exception:
@@ -1048,7 +1186,8 @@ def update_static_metadata(project_pk, path=None):
             project=project.slug,
             version='',
             msg='Updating static metadata',
-        ))
+        ),
+    )
     translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
     # Convert to JSON safe types
@@ -1067,8 +1206,11 @@ def update_static_metadata(project_pk, path=None):
     except (AttributeError, IOError) as e:
         log.debug(
             LOG_TEMPLATE.format(
-                project=project.slug, version='',
-                msg='Cannot write to metadata.json: {0}'.format(e)))
+                project=project.slug,
+                version='',
+                msg='Cannot write to metadata.json: {0}'.format(e),
+            ),
+        )
 
 
 # Random Tasks
@@ -1100,7 +1242,10 @@ def clear_pdf_artifacts(version):
         version = Version.objects.get(pk=version)
     remove_dir(
         version.project.get_production_media_path(
-            type_='pdf', version_slug=version.slug))
+            type_='pdf',
+            version_slug=version.slug,
+        ),
+    )
 
 
 @app.task()
@@ -1109,7 +1254,10 @@ def clear_epub_artifacts(version):
         version = Version.objects.get(pk=version)
     remove_dir(
         version.project.get_production_media_path(
-            type_='epub', version_slug=version.slug))
+            type_='epub',
+            version_slug=version.slug,
+        ),
+    )
 
 
 @app.task()
@@ -1118,7 +1266,10 @@ def clear_htmlzip_artifacts(version):
         version = Version.objects.get(pk=version)
     remove_dir(
         version.project.get_production_media_path(
-            type_='htmlzip', version_slug=version.slug))
+            type_='htmlzip',
+            version_slug=version.slug,
+        ),
+    )
 
 
 @app.task()
@@ -1155,7 +1306,8 @@ def finish_inactive_builds():
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state=BUILD_STATE_FINISHED) &
-        Q(date__lte=datetime.datetime.now() - delta))
+        Q(date__lte=datetime.datetime.now() - delta)
+    )
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
@@ -1163,7 +1315,8 @@ def finish_inactive_builds():
 
         if build.project.container_time_limit:
             custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit))
+                seconds=int(build.project.container_time_limit),
+            )
             if build.date + custom_delta > datetime.datetime.now():
                 # Do not mark as FINISHED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
@@ -1174,7 +1327,8 @@ def finish_inactive_builds():
         build.error = _(
             'This build was terminated due to inactivity. If you '
             'continue to encounter this error, file a support '
-            'request with and reference this build id ({0}).'.format(build.pk))
+            'request with and reference this build id ({0}).'.format(build.pk),
+        )
         build.save()
         builds_finished += 1
 

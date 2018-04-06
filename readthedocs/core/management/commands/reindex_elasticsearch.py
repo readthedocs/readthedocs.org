@@ -21,7 +21,8 @@ class Command(BaseCommand):
 
     help = __doc__
     option_list = BaseCommand.option_list + (
-        make_option('-p', dest='project', default='', help='Project to index'),)
+        make_option('-p', dest='project', default='', help='Project to index'),
+    )
 
     def handle(self, *args, **options):
         """Build/index all versions or a single project's version."""
@@ -33,7 +34,8 @@ class Command(BaseCommand):
             queryset = queryset.filter(project__slug=project)
             if not queryset.exists():
                 raise CommandError(
-                    'No project with slug: {slug}'.format(slug=project))
+                    'No project with slug: {slug}'.format(slug=project),
+                )
             log.info('Building all versions for %s', project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = queryset.filter(slug=LATEST)

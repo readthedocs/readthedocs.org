@@ -65,7 +65,8 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
         domain = Domain.objects.filter(
             Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project))
+            Q(project=project) | Q(project__subprojects__child=project),
+        )
         if domain.exists():
             return True
 
@@ -77,13 +78,15 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
     # Here we count the owner list from the projects that the user own
     # Then exclude the projects where there are more than one owner
     projects = instance.projects.all().annotate(
-        num_users=Count('users')).exclude(num_users__gt=1)
+        num_users=Count('users'),
+    ).exclude(num_users__gt=1)
 
     # Here we count the users list from the organization that the user belong
     # Then exclude the organizations where there are more than one user
     oauth_organizations = (
         instance.oauth_organizations.annotate(num_users=Count('users'))
-        .exclude(num_users__gt=1))
+        .exclude(num_users__gt=1)
+    )
 
     projects.delete()
     oauth_organizations.delete()

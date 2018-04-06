@@ -6,10 +6,9 @@ from __future__ import (
 
 import os
 
-from readthedocs.core.settings import Settings
-
 from celery.schedules import crontab
 
+from readthedocs.core.settings import Settings
 
 try:
     import readthedocsext  # noqa
@@ -156,7 +155,8 @@ class CommunityBaseSettings(Settings):
 
     # Paths
     SITE_ROOT = os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    )
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
     DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
     UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
@@ -202,7 +202,7 @@ class CommunityBaseSettings(Settings):
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'PREFIX': 'docs',
-        }
+        },
     }
     CACHE_MIDDLEWARE_SECONDS = 60
 
@@ -290,7 +290,7 @@ class CommunityBaseSettings(Settings):
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
         '^http://(.+)\.readthedocs\.io$',
-        '^https://(.+)\.readthedocs\.io$'
+        '^https://(.+)\.readthedocs\.io$',
     )
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
@@ -300,7 +300,7 @@ class CommunityBaseSettings(Settings):
         'accept',
         'origin',
         'authorization',
-        'x-csrftoken'
+        'x-csrftoken',
     )
 
     # RTD Settings
@@ -325,7 +325,7 @@ class CommunityBaseSettings(Settings):
     ALLOWED_HOSTS = ['*']
 
     ABSOLUTE_URL_OVERRIDES = {
-        'auth.user': lambda o: '/profiles/{}/'.format(o.username)
+        'auth.user': lambda o: '/profiles/{}/'.format(o.username),
     }
 
     INTERNAL_IPS = ('127.0.0.1',)
@@ -379,7 +379,7 @@ class CommunityBaseSettings(Settings):
             'console': {
                 'level': 'INFO',
                 'class': 'logging.StreamHandler',
-                'formatter': 'default'
+                'formatter': 'default',
             },
             'debug': {
                 'level': 'DEBUG',

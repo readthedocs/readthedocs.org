@@ -20,7 +20,9 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
     old_versions = {}
     old_version_values = project.versions.filter(type=type).values(
-        'identifier', 'verbose_name')
+        'identifier',
+        'verbose_name',
+    )
     for version in old_version_values:
         old_versions[version['verbose_name']] = version['identifier']
 
@@ -36,11 +38,13 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             else:
                 # Update slug with new identifier
                 Version.objects.filter(
-                    project=project, verbose_name=version_name).update(
-                        identifier=version_id,
-                        type=type,
-                        machine=False,
-                    )  # noqa
+                    project=project,
+                    verbose_name=version_name,
+                ).update(
+                    identifier=version_id,
+                    type=type,
+                    machine=False,
+                )  # noqa
 
                 log.info(
                     '(Sync Versions) Updated Version: [%s=%s] ',
@@ -85,8 +89,14 @@ def delete_versions(project, version_data):
 
 
 def index_search_request(
-        version, page_list, commit, project_scale, page_scale, section=True,
-        delete=True):
+        version,
+        page_list,
+        commit,
+        project_scale,
+        page_scale,
+        section=True,
+        delete=True,
+):
     """
     Update search indexes with build output JSON.
 
@@ -116,7 +126,8 @@ def index_search_request(
             'url': project.get_absolute_url(),
             'tags': None,
             'weight': project_scale,
-        })
+        },
+    )
 
     page_obj = PageIndex()
     section_obj = SectionIndex()

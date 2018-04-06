@@ -8,7 +8,7 @@ import textwrap
 
 from dateutil.parser import parse
 from future.moves.configparser import RawConfigParser
-from invoke import task, Exit
+from invoke import Exit, task
 
 
 @task
@@ -85,7 +85,10 @@ def prepare(ctx, version, since):
                     'In order to avoid rate limiting on the GitHub API, you can specify '
                     'an environment variable `GITHUB_TOKEN` with a personal access token. '
                     'There is no need for the token to have any permissions unless the '
-                    'repoistory is private.')))
+                    'repoistory is private.',
+                ),
+            ),
+        )
         print('')
     print('Updating changelog')
     ctx.run(cmd)
@@ -98,6 +101,5 @@ def release(ctx, version):
 
     Do this after prepare task and manual cleanup/commit
     """
-    ctx.run(
-        ('git tag {version} && '
-         'git push --tags').format(version=version))
+    ctx.run(('git tag {version} && '
+             'git push --tags').format(version=version),)
