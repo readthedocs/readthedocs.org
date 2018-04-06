@@ -180,3 +180,17 @@ class CoreTagsTests(TestCase):
         proj.documentation_type = 'mkdocs'
         url = core_tags.make_document_url(proj, LATEST, 'index.html')
         self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
+
+    def test_restructured_text(self):
+        value = '*test*'
+        result = core_tags.restructuredtext(value)
+        self.assertIn('<em>test</em>', result)
+
+    def test_restructured_text_invalid(self):
+        value = (
+            '*******\n'
+            'Test\n'
+            '****\n\n'
+        )
+        result = core_tags.restructuredtext(value)
+        self.assertEqual(result, value)

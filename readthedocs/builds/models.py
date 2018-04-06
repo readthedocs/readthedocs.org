@@ -247,7 +247,7 @@ class Version(models.Model):
         try:
             path = self.get_build_path()
             if path is not None:
-                log.debug('Removing build path {0} for {1}'.format(path, self))
+                log.debug('Removing build path %s for %s', path, self)
                 rmtree(path)
         except OSError:
             log.exception('Build path cleanup failed')

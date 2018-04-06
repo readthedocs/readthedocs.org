@@ -183,12 +183,15 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             self.project = self.version.project
             self.sync_repo()
             return True
-        # Catch unhandled errors when syncing
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
         except Exception:
+            # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
             )
-            return False
+        return False
 
 
 class UpdateDocsTask(SyncRepositoryMixin, Task):
@@ -234,7 +237,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=False, search=True, force=False, localmedia=True, **__):
+            docker=None, search=True, force=False, localmedia=True, **__):
         """
         Run a documentation sync n' build.
 
@@ -255,7 +258,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param version_pk int: Project Version id (latest if None)
         :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
-        :param docker bool: use docker to build the project
+        :param docker bool: use docker to build the project (if ``None``,
+            ``settings.DOCKER_ENABLE`` is used)
         :param search bool: update search
         :param force bool: force Sphinx build
         :param localmedia bool: update localmedia
@@ -265,6 +269,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :rtype: bool
         """
         try:
+            if docker is None:
+                docker = settings.DOCKER_ENABLE
+
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
@@ -294,7 +301,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # No exceptions in the setup step, catch unhandled errors in the
             # build steps
             try:
-                self.run_build(record=record, docker=docker)
+                self.run_build(docker=docker, record=record)
             except Exception as e:  # noqa
                 log.exception(
                     'An unhandled exception was raised during project build',
@@ -361,16 +368,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         return True
 
-    def run_build(self, docker=False, record=True):
+    def run_build(self, docker, record):
         """
         Build the docs in an environment.
 
-        If `docker` is True, or Docker is enabled by the settings.DOCKER_ENABLE
-        setting, then build in a Docker environment. Otherwise build locally.
+        :param docker: if ``True``, the build uses a ``DockerBuildEnvironment``,
+            otherwise it uses a ``LocalBuildEnvironment`` to run all the
+            commands to build the docs
+        :param record: whether or not record all the commands in the ``Build``
+            instance
         """
         env_vars = self.get_env_vars()
 
-        if docker or settings.DOCKER_ENABLE:
+        if docker:
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
@@ -513,7 +523,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s',
+                self.version,
+            )
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -898,7 +911,7 @@ def _manage_imported_files(version, path, commit):
                     name=filename,
                 )
             except ImportedFile.MultipleObjectsReturned:
-                log.exception('Error creating ImportedFile')
+                log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
                 obj.md5 = md5
