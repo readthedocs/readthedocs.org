@@ -3,6 +3,7 @@
 
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
+import os
 
 from builtins import object
 from random import choice
@@ -18,7 +19,8 @@ from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
-from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.core.utils import slugify, trigger_build, broadcast
+from readthedocs.projects.tasks import remove_dir
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
@@ -312,6 +314,7 @@ class BaseVersionsForm(forms.Form):
         versions = self.project.versions.all()
         for version in versions:
             self.save_version(version)
+            self.wipe_build_environment(version)
         default_version = self.cleaned_data.get('default-version', None)
         if default_version:
             self.project.default_version = default_version
@@ -336,6 +339,20 @@ class BaseVersionsForm(forms.Form):
         if version.active and not version.built and not version.uploaded:
             trigger_build(project=self.project, version=version)
 
+    def wipe_build_environment(self, version):
+        wipe_action = self.cleaned_data.get(
+            'wipe-{}'.format(version.slug),
+            False,
+        )
+        if wipe_action:
+            del_dirs = [
+                os.path.join(version.project.doc_path, 'checkouts', version.slug),
+                os.path.join(version.project.doc_path, 'envs', version.slug),
+                os.path.join(version.project.doc_path, 'conda', version.slug),
+            ]
+            for del_dir in del_dirs:
+                broadcast(type='build', task=remove_dir, args=[del_dir])
+
 
 def build_versions_form(project):
     """Versions form with a list of versions and version privacy levels."""
@@ -354,6 +371,7 @@ def build_versions_form(project):
     for version in versions_qs:
         field_name = 'version-{}'.format(version.slug)
         privacy_name = 'privacy-{}'.format(version.slug)
+        wipe_name = 'wipe-{}'.format(version.slug)
         if version.type == TAG:
             label = '{} ({})'.format(
                 version.verbose_name,
@@ -366,6 +384,12 @@ def build_versions_form(project):
             widget=DualCheckboxWidget(version),
             initial=version.active,
             required=False,
+        )
+        attrs[wipe_name] = forms.BooleanField(
+            # This isn't a real label, but just a slug for the template
+            label='wipe',
+            widget=forms.CheckboxInput,
+            required=False
         )
         attrs[privacy_name] = forms.ChoiceField(
             # This isn't a real label, but just a slug for the template
