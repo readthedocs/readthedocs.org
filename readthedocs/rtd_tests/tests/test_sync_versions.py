@@ -6,7 +6,6 @@ from __future__ import (
 import json
 
 from django.test import TestCase
-import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
@@ -153,7 +152,7 @@ class TestSyncVersions(TestCase):
         version_8 = Version.objects.get(slug='0.8.3')
         self.assertFalse(version_8.active)
 
-    def test_stable_stuck(self):
+    def test_normal_behaviour_for_stable_after_deleting_user_defined_tag(self):
         """
         The repository has a tag named ``stable``,
         when syncing the versions, the RTD's ``stable`` is lost
@@ -166,6 +165,7 @@ class TestSyncVersions(TestCase):
             verbose_name='0.8.3',
             type=TAG,
             active=False,
+            machine=True,
         )
         self.pip.update_stable_version()
         current_stable = self.pip.get_stable_version()
@@ -185,6 +185,7 @@ class TestSyncVersions(TestCase):
                 },
             ],
             'tags': [
+                # User new stable
                 {
                     'identifier': '1abc2def3',
                     'verbose_name': 'stable',
@@ -203,21 +204,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        # The new tag is the new stable
-        version8 = Version.objects.get(slug='0.8.3')
-        version_stable = Version.objects.get(slug='stable')
-        current_stable = self.pip.get_stable_version()
-        self.assertEqual(
-            version_stable.identifier,
-            current_stable.identifier,
-        )
-
-        # The current_stable lost its machine property
-        # it's not automatically updated anymore
-        self.assertFalse(current_stable.machine)
-
-        # Deleting the stable version should
-        # return the RTD's stable
+        # Deleting the stable version should return the RTD's stable
         version_post_data = {
             'branches': [
                 {
@@ -252,6 +239,7 @@ class TestSyncVersions(TestCase):
             '1abc2def3',
             current_stable.identifier,
         )
+        self.assertTrue(current_stable.machine)
 
 
 class TestStableVersion(TestCase):
@@ -570,8 +558,85 @@ class TestStableVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-    def test_user_defined_stable_version_with_tags(self):
+    def test_user_defined_stable_version_tag_with_tags(self):
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=True,
+        )
 
+        # A pre-existing active stable tag that was machine created
+        Version.objects.create(
+            project=self.pip,
+            identifier='foo',
+            type=TAG,
+            verbose_name='stable',
+            active=True,
+            machine=True,
+        )
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # A new user-defined stable branch
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': '0.9',
+                    'verbose_name': '0.9',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Didn't update to newest tag
+        version_9 = Version.objects.get(slug='0.9')
+        self.assertFalse(version_9.active)
+
+        # Did update to user-defined stable version
+        version_stable = Version.objects.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(
+            '1abc2def3',
+            self.pip.get_stable_version().identifier
+        )
+
+        # Check that posting again doesn't change anything from current state.
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        version_stable = Version.objects.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(
+            '1abc2def3',
+            self.pip.get_stable_version().identifier
+        )
+
+    def test_user_defined_stable_version_branch_with_tags(self):
         Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
@@ -583,7 +648,7 @@ class TestStableVersion(TestCase):
         Version.objects.create(
             project=self.pip,
             identifier='foo',
-            type='branch',
+            type=BRANCH,
             verbose_name='stable',
             active=True,
             machine=True,
@@ -613,11 +678,12 @@ class TestStableVersion(TestCase):
             ],
         }
 
-        self.client.post(
+        resp = self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
+        self.assertEqual(resp.status_code, 200)
 
         # Didn't update to newest tag
         version_9 = Version.objects.get(slug='0.9')
@@ -627,13 +693,23 @@ class TestStableVersion(TestCase):
         version_stable = Version.objects.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
-        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+        self.assertEqual(
+            'origin/stable',
+            self.pip.get_stable_version().identifier
+        )
 
         # Check that posting again doesn't change anything from current state.
-        self.client.post(
+        resp = self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
+        self.assertEqual(resp.status_code, 200)
 
-        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+        version_stable = Version.objects.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(
+            'origin/stable',
+            self.pip.get_stable_version().identifier
+        )
