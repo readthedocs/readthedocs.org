@@ -508,6 +508,140 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
+    def test_normal_behavior_for_latest_after_deleting_user_defined_tag(self):
+        """
+        The user creates a tag named ``latest`` on an existing repo,
+        when syncing the versions, the RTD's ``latest`` is lost
+        and doesn't update automatically anymore, when the tag is deleted
+        on the user repository, the RTD's ``latest`` is back.
+        """
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # User new stable
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The tag is the new latest
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            '1abc2def3',
+            version_latest.identifier
+        )
+
+        # Deleting the tag should return the RTD's latest
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The latest isn't stuck with the previous commit
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            'origin/master',
+            version_latest.identifier,
+        )
+        self.assertNotEqual(
+            '1abc2def3',
+            version_latest.identifier,
+        )
+        self.assertTrue(version_latest.machine)
+
+    def test_normal_behavior_for_latest_after_deleting_user_defined_branch(self):
+        """
+        The user creates a branch named ``latest`` on an existing repo,
+        when syncing the versions, the RTD's ``latest`` is lost
+        and doesn't update automatically anymore, when the branch is deleted
+        on the user repository, the RTD's ``latest`` is back.
+        """
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # User new latest
+                {
+                    'identifier': 'origin/latest',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The branch is the new latest
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            'origin/latest',
+            version_latest.identifier
+        )
+
+        # Deleting the branch should return the RTD's latest
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The latest isn't stuck with the previous branch
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            'origin/master',
+            version_latest.identifier,
+        )
+        self.assertNotEqual(
+            'origin/latest',
+            version_latest.identifier,
+        )
+        self.assertTrue(version_latest.machine)
+
 
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
