@@ -1118,3 +1118,122 @@ class TestStableVersion(TestCase):
             'origin/stable',
             self.pip.get_stable_version().identifier
         )
+
+
+class TestLatestVersion(TestCase):
+    fixtures = ['eric', 'test_data']
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        Version.objects.create(
+            project=self.pip,
+            identifier='origin/master',
+            verbose_name='master',
+            active=True,
+            machine=True,
+            type=BRANCH,
+        )
+        # When the project is saved, the RTD's ``latest`` version
+        # is created.
+        self.pip.save()
+
+    def test_user_defined_latest_version_tag(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # A new user-defined latest tag
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Did update to user-defined latest version
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            '1abc2def3',
+            version_latest.identifier
+        )
+
+        # Check that posting again doesn't change anything from current state.
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            '1abc2def3',
+            version_latest.identifier
+        )
+
+    def test_user_defined_latest_version_branch(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # A new user-defined latest branch
+                {
+                    'identifier': 'origin/latest',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Did update to user-defined latest version
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            'origin/latest',
+            version_latest.identifier
+        )
+
+        # Check that posting again doesn't change anything from current state.
+        resp = self.client.post(
+            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        self.pip.refresh_from_db()
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            'origin/latest',
+            version_latest.identifier
+        )
