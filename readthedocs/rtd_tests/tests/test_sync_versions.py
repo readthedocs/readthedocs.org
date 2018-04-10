@@ -204,7 +204,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         current_stable = self.pip.get_stable_version()
         version_stable = self.pip.versions.get(slug='stable')
         self.assertEqual(
@@ -237,7 +236,6 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous commit
-        self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -288,7 +286,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -321,7 +318,6 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous commit
-        self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -384,7 +380,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -415,7 +410,6 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous branch
-        self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -464,7 +458,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -495,7 +488,6 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous commit
-        self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
@@ -539,7 +531,6 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The tag is the new latest
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             '1abc2def3',
@@ -564,7 +555,6 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The latest isn't stuck with the previous commit
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'origin/master',
@@ -605,7 +595,6 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The branch is the new latest
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'origin/latest',
@@ -630,7 +619,6 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The latest isn't stuck with the previous branch
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'origin/master',
@@ -1009,7 +997,6 @@ class TestStableVersion(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Didn't update to newest tag
-        self.pip.refresh_from_db()
         version_9 = self.pip.versions.get(slug='0.9')
         self.assertFalse(version_9.active)
 
@@ -1030,7 +1017,6 @@ class TestStableVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
@@ -1089,7 +1075,6 @@ class TestStableVersion(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Didn't update to newest tag
-        self.pip.refresh_from_db()
         version_9 = self.pip.versions.get(slug='0.9')
         self.assertFalse(version_9.active)
 
@@ -1110,7 +1095,6 @@ class TestStableVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
@@ -1163,7 +1147,6 @@ class TestLatestVersion(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Did update to user-defined latest version
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertFalse(version_latest.machine)
         self.assertTrue(version_latest.active)
@@ -1180,7 +1163,6 @@ class TestLatestVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertFalse(version_latest.machine)
         self.assertTrue(version_latest.active)
@@ -1212,7 +1194,6 @@ class TestLatestVersion(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Did update to user-defined latest version
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertFalse(version_latest.machine)
         self.assertTrue(version_latest.active)
@@ -1229,7 +1210,6 @@ class TestLatestVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        self.pip.refresh_from_db()
         version_latest = self.pip.versions.get(slug='latest')
         self.assertFalse(version_latest.machine)
         self.assertTrue(version_latest.active)
