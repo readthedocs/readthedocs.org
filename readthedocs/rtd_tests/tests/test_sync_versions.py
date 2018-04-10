@@ -204,8 +204,9 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+        self.pip.refresh_from_db()
         current_stable = self.pip.get_stable_version()
-        version_stable = Version.objects.get(slug='stable')
+        version_stable = self.pip.versions.get(slug='stable')
         self.assertEqual(
             current_stable.identifier,
             version_stable.identifier
@@ -235,7 +236,8 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The version 8 should be the new stable
-        version8 = Version.objects.get(slug='0.8.3')
+        self.pip.refresh_from_db()
+        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             version8.identifier,
@@ -286,8 +288,9 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+        self.pip.refresh_from_db()
+        version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
-        version_stable = Version.objects.get(slug='stable')
         self.assertEqual(
             current_stable.identifier,
             version_stable.identifier
@@ -317,7 +320,8 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The version 8 should be the new stable
-        version8 = Version.objects.get(slug='0.8.3')
+        self.pip.refresh_from_db()
+        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             version8.identifier,
@@ -380,8 +384,9 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+        self.pip.refresh_from_db()
+        version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
-        version_stable = Version.objects.get(slug='stable')
         self.assertEqual(
             current_stable.identifier,
             version_stable.identifier
@@ -409,7 +414,8 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The version 8 should be the new stable
-        version8 = Version.objects.get(slug='0.8.3')
+        self.pip.refresh_from_db()
+        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             version8.identifier,
@@ -458,8 +464,9 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+        self.pip.refresh_from_db()
+        version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
-        version_stable = Version.objects.get(slug='stable')
         self.assertEqual(
             current_stable.identifier,
             version_stable.identifier
@@ -487,7 +494,8 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # The version 8 should be the new stable
-        version8 = Version.objects.get(slug='0.8.3')
+        self.pip.refresh_from_db()
+        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             version8.identifier,
@@ -867,11 +875,12 @@ class TestStableVersion(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Didn't update to newest tag
-        version_9 = Version.objects.get(slug='0.9')
+        self.pip.refresh_from_db()
+        version_9 = self.pip.versions.get(slug='0.9')
         self.assertFalse(version_9.active)
 
         # Did update to user-defined stable version
-        version_stable = Version.objects.get(slug='stable')
+        version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
         self.assertEqual(
@@ -887,7 +896,8 @@ class TestStableVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        version_stable = Version.objects.get(slug='stable')
+        self.pip.refresh_from_db()
+        version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
         self.assertEqual(
@@ -945,11 +955,12 @@ class TestStableVersion(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Didn't update to newest tag
-        version_9 = Version.objects.get(slug='0.9')
+        self.pip.refresh_from_db()
+        version_9 = self.pip.versions.get(slug='0.9')
         self.assertFalse(version_9.active)
 
         # Did update to user-defined stable version
-        version_stable = Version.objects.get(slug='stable')
+        version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
         self.assertEqual(
@@ -965,7 +976,8 @@ class TestStableVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        version_stable = Version.objects.get(slug='stable')
+        self.pip.refresh_from_db()
+        version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
         self.assertEqual(
