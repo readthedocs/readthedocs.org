@@ -985,7 +985,7 @@ class TestStableVersion(TestCase):
                 },
             ],
             'tags': [
-                # A new user-defined stable branch
+                # A new user-defined stable tag
                 {
                     'identifier': '1abc2def3',
                     'verbose_name': 'stable',
