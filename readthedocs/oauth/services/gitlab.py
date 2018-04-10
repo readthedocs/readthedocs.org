@@ -210,7 +210,7 @@ class GitLabService(Service):
         organization.save()
         return organization
 
-    def get_webhook_data(self, repo_id, integration, project):
+    def get_webhook_data(self, repo_id, project, integration):
         """
         Get webhook JSON data to post to the API.
 
@@ -259,7 +259,7 @@ class GitLabService(Service):
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
         repo_id = json.loads(project.remote_repository.json).get('id')
 
-        data = self.get_webhook_data(repo_id, integration, project)
+        data = self.get_webhook_data(repo_id, project, integration)
         resp = None
         try:
             resp = session.post(
