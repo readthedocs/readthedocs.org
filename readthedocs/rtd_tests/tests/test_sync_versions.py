@@ -212,7 +212,7 @@ class TestSyncVersions(TestCase):
             version_stable.identifier
         )
 
-        # Deleting the stable version should return the RTD's stable
+        # Deleting the tag should return the RTD's stable
         version_post_data = {
             'branches': [
                 {
@@ -235,7 +235,8 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        # The version 8 should be the new stable
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous commit
         self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
@@ -243,7 +244,6 @@ class TestSyncVersions(TestCase):
             version8.identifier,
             current_stable.identifier,
         )
-        # The stable isn't stuck with the previous commit
         self.assertNotEqual(
             '1abc2def3',
             current_stable.identifier,
@@ -296,7 +296,7 @@ class TestSyncVersions(TestCase):
             version_stable.identifier
         )
 
-        # Deleting the stable version should return the RTD's stable
+        # Deleting the tag should return the RTD's stable
         version_post_data = {
             'branches': [
                 {
@@ -319,7 +319,8 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        # The version 8 should be the new stable
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous commit
         self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
@@ -327,7 +328,6 @@ class TestSyncVersions(TestCase):
             version8.identifier,
             current_stable.identifier,
         )
-        # The stable isn't stuck with the previous commit
         self.assertNotEqual(
             '1abc2def3',
             current_stable.identifier,
@@ -392,7 +392,7 @@ class TestSyncVersions(TestCase):
             version_stable.identifier
         )
 
-        # Deleting the stable version should return the RTD's stable
+        # Deleting the branch should return the RTD's stable
         version_post_data = {
             'branches': [
                 {
@@ -413,7 +413,8 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        # The version 8 should be the new stable
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous branch
         self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
@@ -421,7 +422,6 @@ class TestSyncVersions(TestCase):
             version8.identifier,
             current_stable.identifier,
         )
-        # The stable isn't stuck with the previous branch
         self.assertNotEqual(
             'origin/stable',
             current_stable.identifier,
@@ -472,7 +472,7 @@ class TestSyncVersions(TestCase):
             version_stable.identifier
         )
 
-        # Deleting the stable version should return the RTD's stable
+        # Deleting the branch should return the RTD's stable
         version_post_data = {
             'branches': [
                 {
@@ -493,7 +493,8 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        # The version 8 should be the new stable
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous commit
         self.pip.refresh_from_db()
         version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
@@ -501,7 +502,6 @@ class TestSyncVersions(TestCase):
             version8.identifier,
             current_stable.identifier,
         )
-        # The stable isn't stuck with the previous commit
         self.assertNotEqual(
             'origin/stable',
             current_stable.identifier,
