@@ -284,7 +284,6 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
 
 class ProjectRelationshipForm(SettingsOverrideObject):
     _default_class = ProjectRelationshipBaseForm
-    _override_setting = 'PROJECT_RELATIONSHIP_FORM'
 
 
 class DualCheckboxWidget(forms.CheckboxInput):
@@ -571,7 +570,6 @@ class TranslationBaseForm(forms.Form):
 
 class TranslationForm(SettingsOverrideObject):
     _default_class = TranslationBaseForm
-    _override_setting = 'PROJECT_TRANSLATION_FORM'
 
 
 class RedirectForm(forms.ModelForm):
