@@ -133,6 +133,13 @@ Would be a waste of resources to made a new build each time a global setting is 
 Currently, RTD keeps a dedicated local repository for each version, which is updated before a build.
 RTD could have a central repository for this operations [#one-checkout]_.
 
+Configuration file and database options
+---------------------------------------
+
+To decouple the configuration file from the database and keep the compatibility with projects without one,
+we need to generate a YAML file from the existing database options,
+this will also help with the `Adoption of the configuration file`_.
+
 The build process
 -----------------
 
