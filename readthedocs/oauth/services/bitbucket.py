@@ -45,8 +45,7 @@ class BitbucketService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError) as e:
-            log.error('Error syncing Bitbucket repositories: %s',
-                      str(e), exc_info=True)
+            log.exception('Error syncing Bitbucket repositories')
             raise Exception('Could not sync your Bitbucket repositories, '
                             'try reconnecting your account')
 
@@ -80,8 +79,7 @@ class BitbucketService(Service):
                 for repo in repos:
                     self.create_repository(repo, organization=org)
         except ValueError as e:
-            log.error('Error syncing Bitbucket organizations: %s',
-                      str(e), exc_info=True)
+            log.exception('Error syncing Bitbucket organizations')
             raise Exception('Could not sync your Bitbucket team repositories, '
                             'try reconnecting your account')
 
@@ -220,19 +218,27 @@ class BitbucketService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info('Bitbucket webhook creation successful for project: %s',
-                         project)
+                log.info(
+                    'Bitbucket webhook creation successful for project: %s',
+                    project,
+                )
                 return (True, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.error('Bitbucket webhook creation failed for project: %s',
-                      project, exc_info=True)
+            log.exception(
+                'Bitbucket webhook creation failed for project: %s',
+                project,
+            )
         else:
-            log.error('Bitbucket webhook creation failed for project: %s',
-                      project)
+            log.exception(
+                'Bitbucket webhook creation failed for project: %s',
+                project,
+            )
             try:
-                log.debug('Bitbucket webhook creation failure response: %s',
-                          resp.json())
+                log.debug(
+                    'Bitbucket webhook creation failure response: %s',
+                    resp.json(),
+                )
             except ValueError:
                 pass
             return (False, resp)
@@ -263,20 +269,35 @@ class BitbucketService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info('Bitbucket webhook update successful for project: %s',
-                         project)
+                log.info(
+                    'Bitbucket webhook update successful for project: %s',
+                    project,
+                )
                 return (True, resp)
+
+            # Bitbucket returns 404 when the webhook doesn't exist. In this
+            # case, we call ``setup_webhook`` to re-configure it from scratch
+            if resp.status_code == 404:
+                return self.setup_webhook(project)
+
         # Catch exceptions with request or deserializing JSON
         except (KeyError, RequestException, ValueError):
-            log.error('Bitbucket webhook update failed for project: %s',
-                      project, exc_info=True)
+            log.exception(
+                'Bitbucket webhook update failed for project: %s',
+                project,
+            )
         else:
-            log.error('Bitbucket webhook update failed for project: %s',
-                      project)
+            log.exception(
+                'Bitbucket webhook update failed for project: %s',
+                project,
+            )
             # Response data should always be JSON, still try to log if not though
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug('Bitbucket webhook update failure response: %s', debug_data)
+            log.debug(
+                'Bitbucket webhook update failure response: %s',
+                debug_data,
+            )
             return (False, resp)

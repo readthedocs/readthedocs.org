@@ -84,6 +84,7 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
+            'django_celery_beat',
 
             # daniellindsleyrocksdahouse
             'haystack',
@@ -244,6 +245,7 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
         'hourly-remove-orphan-symlinks': {

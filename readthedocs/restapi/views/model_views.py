@@ -170,7 +170,7 @@ class ProjectViewSet(UserSelectViewSet):
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
-            log.exception('Sync Versions Error: %s', e.message)
+            log.exception('Sync Versions Error')
             return Response(
                 {
                     'error': e.message,

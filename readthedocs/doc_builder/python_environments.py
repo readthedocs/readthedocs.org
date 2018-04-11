@@ -9,13 +9,14 @@ import json
 import logging
 import os
 import shutil
-import six
 from builtins import object, open
 
+import six
 from django.conf import settings
 
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
+from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
@@ -110,12 +111,14 @@ class PythonEnvironment(object):
     @property
     def is_obsolete(self):
         """
-        Determine if the Python version of the venv obsolete.
+        Determine if the environment is obsolete for different reasons.
 
         It checks the the data stored at ``readthedocs-environment.json`` and
-        compares it against the Python version in the project version to be
-        built and the Docker image used to create the venv against the one in
-        the project version config.
+        compares it with the one to be used. In particular:
+
+        * the Python version (e.g. 2.7, 3, 3.6, etc)
+        * the Docker image name
+        * the Docker image hash
 
         :returns: ``True`` when it's obsolete and ``False`` otherwise
 
@@ -130,14 +133,29 @@ class PythonEnvironment(object):
         try:
             with open(self.environment_json_path(), 'r') as fpath:
                 environment_conf = json.load(fpath)
-            env_python_version = environment_conf['python']['version']
-            env_build_image = environment_conf['build']['image']
         except (IOError, TypeError, KeyError, ValueError):
-            log.error('Unable to read/parse readthedocs-environment.json file')
-            return False
+            log.warning('Unable to read/parse readthedocs-environment.json file')
+            # We remove the JSON file here to avoid cycling over time with a
+            # corrupted file.
+            os.remove(self.environment_json_path())
+            return True
 
-        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
+        env_python = environment_conf.get('python', {})
+        env_build = environment_conf.get('build', {})
+
+        # By defaulting non-existent options to ``None`` we force a wipe since
+        # we don't know how the environment was created
+        env_python_version = env_python.get('version', None)
+        env_build_image = env_build.get('image', None)
+        env_build_hash = env_build.get('hash', None)
+
+        if isinstance(self.build_env, DockerBuildEnvironment):
+            build_image = self.config.build_image or DOCKER_IMAGE
+            image_hash = self.build_env.image_hash
+        else:
+            # e.g. LocalBuildEnvironment
+            build_image = None
+            image_hash = None
 
         # If the user define the Python version just as a major version
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
@@ -146,21 +164,25 @@ class PythonEnvironment(object):
         return any([
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
+            env_build_hash != image_hash,
         ])
 
     def save_environment_json(self):
         """Save on disk Python and build image versions used to create the venv."""
-        # TODO: remove getattr when https://github.com/rtfd/readthedocs.org/pull/3339 got merged
-        build_image = getattr(self.config, 'build_image', self.version.project.container_image) or DOCKER_IMAGE  # noqa
-
         data = {
             'python': {
                 'version': self.config.python_full_version,
             },
-            'build': {
-                'image': build_image,
-            },
         }
+
+        if isinstance(self.build_env, DockerBuildEnvironment):
+            build_image = self.config.build_image or DOCKER_IMAGE
+            data.update({
+                'build': {
+                    'image': build_image,
+                    'hash': self.build_env.image_hash,
+                },
+            })
 
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects

@@ -42,8 +42,7 @@ class GitHubService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError) as e:
-            log.error('Error syncing GitHub repositories: %s',
-                      str(e), exc_info=True)
+            log.exception('Error syncing GitHub repositories')
             raise Exception('Could not sync your GitHub repositories, '
                             'try reconnecting your account')
 
@@ -62,8 +61,7 @@ class GitHubService(Service):
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError) as e:
-            log.error('Error syncing GitHub organizations: %s',
-                      str(e), exc_info=True)
+            log.exception('Error syncing GitHub organizations')
             raise Exception('Could not sync your GitHub organizations, '
                             'try reconnecting your account')
 
@@ -211,18 +209,25 @@ class GitHubService(Service):
                 return (True, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.error('GitHub webhook creation failed for project: %s',
-                      project, exc_info=True)
+            log.exception(
+                'GitHub webhook creation failed for project: %s',
+                project,
+            )
         else:
-            log.error('GitHub webhook creation failed for project: %s',
-                      project)
-            # Response data should always be JSON, still try to log if not though
+            log.exception(
+                'GitHub webhook creation failed for project: %s',
+                project,
+            )
+            # Response data should always be JSON, still try to log if not
+            # though
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug('GitHub webhook creation failure response: %s',
-                      debug_data)
+            log.debug(
+                'GitHub webhook creation failure response: %s',
+                debug_data,
+            )
             return (False, resp)
 
     def update_webhook(self, project, integration):
@@ -251,22 +256,36 @@ class GitHubService(Service):
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
-                log.info('GitHub webhook creation successful for project: %s',
-                         project)
+                log.info(
+                    'GitHub webhook creation successful for project: %s',
+                    project,
+                )
                 return (True, resp)
+
+            # GitHub returns 404 when the webhook doesn't exist. In this case,
+            # we call ``setup_webhook`` to re-configure it from scratch
+            if resp.status_code == 404:
+                return self.setup_webhook(project)
+
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            log.error('GitHub webhook update failed for project: %s',
-                      project, exc_info=True)
+            log.exception(
+                'GitHub webhook update failed for project: %s',
+                project,
+            )
         else:
-            log.error('GitHub webhook update failed for project: %s',
-                      project)
+            log.exception(
+                'GitHub webhook update failed for project: %s',
+                project,
+            )
             try:
                 debug_data = resp.json()
             except ValueError:
                 debug_data = resp.content
-            log.debug('GitHub webhook creation failure response: %s',
-                      debug_data)
+            log.debug(
+                'GitHub webhook creation failure response: %s',
+                debug_data,
+            )
             return (False, resp)
 
     @classmethod

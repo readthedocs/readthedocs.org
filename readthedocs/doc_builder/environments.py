@@ -445,12 +445,12 @@ class BuildEnvironment(BaseEnvironment):
         a failure and the context will be gracefully exited.
         """
         if exc_type is not None:
-            log.error(LOG_TEMPLATE
-                      .format(project=self.project.slug,
-                              version=self.version.slug,
-                              msg=exc_value),
-                      exc_info=True)
             if not issubclass(exc_type, BuildEnvironmentWarning):
+                log.error(LOG_TEMPLATE
+                          .format(project=self.project.slug,
+                                  version=self.version.slug,
+                                  msg=exc_value),
+                          exc_info=True)
                 self.failure = exc_value
             return True
 
@@ -574,10 +574,9 @@ class BuildEnvironment(BaseEnvironment):
             try:
                 api_v2.build(self.build['id']).put(self.build)
             except HttpClientError as e:
-                log.error(
-                    "Unable to update build: id=%d error=%s",
+                log.exception(
+                    "Unable to update build: id=%d",
                     self.build['id'],
-                    e.content,
                 )
             except Exception:
                 log.exception("Unknown build exception")
@@ -625,6 +624,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
         if self.config and self.config.build_image:
             self.container_image = self.config.build_image
+        if self.project.container_image:
+            self.container_image = self.project.container_image
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:
@@ -787,6 +788,13 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
 
     @property
+    def image_hash(self):
+        """Return the hash of the Docker image."""
+        client = self.get_client()
+        image_metadata = client.inspect_image(self.container_image)
+        return image_metadata.get('Id')
+
+    @property
     def container_id(self):
         """Return id of container if it is valid."""
         if self.container_name:
@@ -828,13 +836,13 @@ class DockerBuildEnvironment(BuildEnvironment):
     def create_container(self):
         """Create docker container."""
         client = self.get_client()
-        image = self.container_image
-        if self.project.container_image:
-            image = self.project.container_image
         try:
-            log.info('Creating Docker container: image=%s', image)
+            log.info(
+                'Creating Docker container: image=%s',
+                self.container_image,
+            )
             self.container = client.create_container(
-                image=image,
+                image=self.container_image,
                 command=('/bin/sh -c "sleep {time}; exit {exit}"'
                          .format(time=self.container_time_limit,
                                  exit=DOCKER_TIMEOUT_EXIT_CODE)),

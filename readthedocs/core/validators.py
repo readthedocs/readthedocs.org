@@ -52,6 +52,11 @@ validate_domain_name = DomainNameValidator()
 @deconstructible
 class RepositoryURLValidator(object):
 
+    disallow_relative_url = True
+
+    # Pattern for ``git@github.com:user/repo`` pattern
+    re_git_user = re.compile(r'^[\w]+@.+')
+
     def __call__(self, value):
         allow_private_repos = getattr(settings, 'ALLOW_PRIVATE_REPOS', False)
         public_schemes = ['https', 'http', 'git', 'ftps', 'ftp']
@@ -60,28 +65,51 @@ class RepositoryURLValidator(object):
         if allow_private_repos:
             valid_schemes += private_schemes
         url = urlparse(value)
-        if (
-                (  # pylint: disable=too-many-boolean-expressions
-                    url.scheme not in valid_schemes and
-                    '@' not in value and
-                    not value.startswith('lp:')
-                ) or
-                (
-                    value.startswith('/') or
-                    value.startswith('file://') or
-                    value.startswith('.')
-                )
-        ):
-            # Avoid ``/path/to/local/file`` and ``file://`` scheme but allow
-            # ``git@github.com:user/project.git`` and ``lp:bazaar``
-            raise ValidationError(_('Invalid scheme for URL'))
-        elif '&&' in value or '|' in value:
+
+        # Malicious characters go first
+        if '&&' in value or '|' in value:
             raise ValidationError(_('Invalid character in the URL'))
-        elif (
-                ('@' in value or url.scheme in private_schemes) and
-                not allow_private_repos
-        ):
-            raise ValidationError('Clonning via SSH is not supported')
-        return value
+        elif url.scheme in valid_schemes:
+            return value
+
+        # Repo URL is not a supported scheme at this point, but there are
+        # several cases where we might support it
+        # Launchpad
+        elif value.startswith('lp:'):
+            return value
+        # Relative paths are conditionally supported
+        elif value.startswith('.') and not self.disallow_relative_url:
+            return value
+        # SSH cloning and ``git@github.com:user/project.git``
+        elif self.re_git_user.search(value) or url.scheme in private_schemes:
+            if allow_private_repos:
+                return value
+            else:
+                # Throw a more helpful error message
+                raise ValidationError('Manual cloning via SSH is not supported')
+
+        # No more valid URLs without supported URL schemes
+        raise ValidationError(_('Invalid scheme for URL'))
+
+
+class SubmoduleURLValidator(RepositoryURLValidator):
+
+    """
+    A URL validator for repository submodules
+
+    If a repository has a relative submodule, the URL path is effectively the
+    supermodule's remote ``origin`` URL with the relative path applied.
+
+    From the git docs::
+
+        ``<repository>`` is the URL of the new submodule's origin repository.
+        This may be either an absolute URL, or (if it begins with ``./`` or
+        ``../``), the location relative to the superproject's default remote
+        repository
+    """
+
+    disallow_relative_url = False
+
 
 validate_repository_url = RepositoryURLValidator()
+validate_submodule_url = SubmoduleURLValidator()

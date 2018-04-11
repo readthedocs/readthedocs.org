@@ -36,6 +36,7 @@ def make_test_git():
     chdir(directory)
 
     # Initialize and configure
+    # TODO: move the ``log.info`` call inside the ``check_output```
     log.info(check_output(['git', 'init'] + [directory], env=env))
     log.info(check_output(
         ['git', 'config', 'user.email', 'dev@readthedocs.org'],
@@ -69,6 +70,14 @@ def make_test_git():
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add submodule"'], env=env))
 
+    # Add a relative submodule URL in the relativesubmodule branch
+    log.info(check_output(['git', 'checkout', '-b', 'relativesubmodule', 'master'], env=env))
+    log.info(check_output(
+        ['git', 'submodule', 'add', '-b', 'master', './', 'relativesubmodule'],
+        env=env
+    ))
+    log.info(check_output(['git', 'add', '.'], env=env))
+    log.info(check_output(['git', 'commit', '-m"Add relative submodule"'], env=env))
     # Add an invalid submodule URL in the invalidsubmodule branch
     log.info(check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'], env=env))
     log.info(check_output(
@@ -77,6 +86,7 @@ def make_test_git():
     ))
     log.info(check_output(['git', 'add', '.'], env=env))
     log.info(check_output(['git', 'commit', '-m"Add invalid submodule"'], env=env))
+
     # Checkout to master branch again
     log.info(check_output(['git', 'checkout', 'master'], env=env))
     chdir(path)

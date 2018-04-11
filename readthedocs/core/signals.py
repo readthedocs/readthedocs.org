@@ -20,6 +20,7 @@ WHITELIST_URLS = [
     '/api/v2/footer_html',
     '/api/v2/search',
     '/api/v2/docsearch',
+    '/api/v2/sustainability',
 ]
 
 
@@ -46,16 +47,19 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         if request.path_info.startswith(url):
             valid_url = True
 
+        # Don't do domain checking for this API for now
+        if request.path_info.startswith('/api/v2/sustainability'):
+            return True
+
     if valid_url:
         project_slug = request.GET.get('project', None)
         try:
             project = Project.objects.get(slug=project_slug)
         except Project.DoesNotExist:
             log.warning(
-                'Invalid project passed to domain. [{project}:{domain}'.format(
-                    project=project_slug,
-                    domain=host,
-                )
+                'Invalid project passed to domain. [%s:%s]',
+                project_slug,
+                host,
             )
             return False
 
