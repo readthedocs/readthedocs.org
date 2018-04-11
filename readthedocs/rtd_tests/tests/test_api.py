@@ -424,8 +424,7 @@ class IntegrationsTests(TestCase):
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
         payload['head_commit']['message'] = '[skip doc] Update version.py'
         client.post(
@@ -433,8 +432,7 @@ class IntegrationsTests(TestCase):
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
         payload['head_commit']['message'] = '''
 Update version.py
@@ -446,8 +444,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
     def test_gitlab_webhook(self, trigger_build):
         """GitLab webhook API."""
@@ -501,8 +498,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
         payload['commits'][0]['message'] = '[skip doc] Update version.py'
         client.post(
@@ -510,8 +506,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
         payload['commits'][0]['message'] = '''
 Update version.py
@@ -523,8 +518,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
@@ -610,8 +604,11 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_called_with(
+            force=True, version=mock.ANY, project=self.project
+        )
+        # Reset mock before test for skip build
+        trigger_build.reset_mock()
 
         payload['push']['changes'][0]['new']['target']['message'] = (
             '[skip doc] Update version.py'
@@ -621,8 +618,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
         payload['push']['changes'][0]['new']['target']['message'] = '''
 Update version.py
@@ -634,8 +630,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
     def test_generic_api_fails_without_auth(self, trigger_build):
         client = APIClient()
@@ -746,8 +741,11 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_called_with(
+            force=True, version=mock.ANY, project=self.project
+        )
+        # Reset mock before test for skip build
+        trigger_build.reset_mock()
 
         payload['branches'][0]['last_commit']['message'] = (
             '[skip doc] Update version.py'
@@ -760,8 +758,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
         payload['branches'][0]['last_commit']['message'] = '''
 Update version.py
@@ -776,8 +773,7 @@ Update version.py
             payload,
             format='json',
         )
-        trigger_build.assert_no_called(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
     def test_generic_api_respects_basic_auth(self, trigger_build):
         client = APIClient()
