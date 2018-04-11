@@ -44,7 +44,7 @@ class EnvironmentMockGroup(object):
                 'readthedocs.doc_builder.backends.sphinx.EpubBuilder.move'),
             'glob': mock.patch('readthedocs.doc_builder.backends.sphinx.glob'),
 
-            'docker': mock.patch('readthedocs.doc_builder.environments.Client'),
+            'docker': mock.patch('readthedocs.doc_builder.environments.APIClient'),
             'docker_client': mock.Mock(),
         }
         self.mocks = {}

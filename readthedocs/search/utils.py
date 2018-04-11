@@ -62,9 +62,15 @@ def valid_mkdocs_json(file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
+        log.warning(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return None
 
+    # TODO: wrap this in a try/except block and use ``exc_info=True`` in the
+    # ``log.warning`` call
     page_json = json.loads(content)
     for to_check in ['url', 'content']:
         if to_check not in page_json:
@@ -80,9 +86,14 @@ def parse_path_from_file(file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
+        log.warning(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     path = page_json['url']
 
@@ -104,9 +115,14 @@ def parse_content_from_file(file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s', file_path, e)
+        log.info(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     page_content = page_json['content']
     content = parse_content(page_content)
@@ -137,10 +153,14 @@ def parse_headers_from_file(documentation_type, file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s',
-                 file_path, e)
+        log.info(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     page_content = page_json['content']
     headers = parse_headers(documentation_type, page_content)
@@ -164,9 +184,14 @@ def parse_sections_from_file(documentation_type, file_path):
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
     except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s', file_path, e)
+        log.info(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     page_content = page_json['content']
     sections = parse_sections(documentation_type, page_content)

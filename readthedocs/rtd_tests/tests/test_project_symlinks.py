@@ -5,16 +5,16 @@ from builtins import object
 import os
 import shutil
 import tempfile
-import collections
-from functools import wraps
 
 import mock
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.tasks import broadcast_remove_orphan_symlinks, remove_orphan_symlinks, symlink_project
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 
 
@@ -165,6 +165,89 @@ class BaseSymlinkCnames(TempSiterootCase):
             filesystem['public_web_root'] = private_root
             filesystem['private_web_root'] = public_root
         self.assertFilesystem(filesystem)
+
+    def test_symlink_remove_orphan_symlinks(self):
+        self.domain = get(Domain, project=self.project, domain='woot.com',
+                          url='http://woot.com', cname=True)
+        self.symlink.symlink_cnames()
+
+        # Editing the Domain and calling save will symlink the new domain and
+        # leave the old one as orphan.
+        self.domain.domain = 'foobar.com'
+        self.domain.save()
+
+        filesystem = {
+            'private_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'private_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'private_web_root/kong'},
+                'woot.com': {'type': 'link', 'target': 'private_web_root/kong'},
+            },
+            'private_web_root': {'kong': {'en': {}}},
+            'public_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'public_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'public_web_root/kong'},
+                'woot.com': {'type': 'link', 'target': 'public_web_root/kong'},
+            },
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}}
+            }
+        }
+        if self.privacy == 'private':
+            public_root = filesystem['public_web_root'].copy()
+            private_root = filesystem['private_web_root'].copy()
+            filesystem['public_web_root'] = private_root
+            filesystem['private_web_root'] = public_root
+        self.assertFilesystem(filesystem)
+
+        remove_orphan_symlinks()
+        filesystem = {
+            'private_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'private_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'private_web_root/kong'},
+            },
+            'private_web_root': {'kong': {'en': {}}},
+            'public_cname_project': {
+                'foobar.com': {'type': 'link', 'target': 'user_builds/kong'},
+            },
+            'public_cname_root': {
+                'foobar.com': {'type': 'link', 'target': 'public_web_root/kong'},
+            },
+            'public_web_root': {
+                'kong': {'en': {'latest': {
+                    'type': 'link',
+                    'target': 'user_builds/kong/rtd-builds/latest',
+                }}},
+            },
+        }
+        if self.privacy == 'private':
+            public_root = filesystem['public_web_root'].copy()
+            private_root = filesystem['private_web_root'].copy()
+            filesystem['public_web_root'] = private_root
+            filesystem['private_web_root'] = public_root
+
+        self.assertFilesystem(filesystem)
+
+    def test_broadcast_remove_orphan_symlinks(self):
+        """Broadcast orphan symlinks is called with the proper attributes."""
+        with mock.patch('readthedocs.projects.tasks.broadcast') as broadcast:
+            broadcast_remove_orphan_symlinks()
+
+        broadcast.assert_called_with(
+            type='web',
+            task=remove_orphan_symlinks,
+            args=[],
+        )
 
     def test_symlink_cname_dont_link_missing_domains(self):
         """Domains should be relinked after deletion"""
@@ -908,3 +991,202 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             self.symlink.run()
         except:
             self.fail('Symlink run raised an exception on unicode slug')
+
+    def test_symlink_broadcast_calls_on_project_save(self):
+        """
+        Test calls to ``readthedocs.core.utils.broadcast`` on Project.save().
+
+        When a Project is saved, we need to check that we are calling
+        ``broadcast`` utility with the proper task and arguments to re-symlink
+        them.
+        """
+        with mock.patch('readthedocs.projects.models.broadcast') as broadcast:
+            project = get(Project)
+            # skipped on first save
+            broadcast.assert_not_called()
+
+            broadcast.reset_mock()
+            project.description = 'New description'
+            project.save()
+            # called once for this project itself
+            broadcast.assert_any_call(
+                type='app',
+                task=symlink_project,
+                args=[project.pk],
+            )
+
+            broadcast.reset_mock()
+            subproject = get(Project)
+            # skipped on first save
+            broadcast.assert_not_called()
+
+            project.add_subproject(subproject)
+            # subproject.save() is not called
+            broadcast.assert_not_called()
+
+            subproject.description = 'New subproject description'
+            subproject.save()
+            # subproject symlinks
+            broadcast.assert_any_call(
+                type='app',
+                task=symlink_project,
+                args=[subproject.pk],
+            )
+            # superproject symlinks
+            broadcast.assert_any_call(
+                type='app',
+                task=symlink_project,
+                args=[project.pk],
+            )
+
+
+@override_settings()
+class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
+
+    def setUp(self):
+        super(TestPublicPrivateSymlink, self).setUp()
+        from django.contrib.auth.models import User
+
+        self.user = get(User)
+        self.project = get(
+            Project, name='project', slug='project', privacy_level='public',
+            users=[self.user], main_language_project=None)
+        self.project.versions.update(privacy_level='public')
+        self.project.save()
+
+        self.subproject = get(
+            Project, name='subproject', slug='subproject', privacy_level='public',
+            users=[self.user], main_language_project=None)
+        self.subproject.versions.update(privacy_level='public')
+        self.subproject.save()
+
+    def test_change_subproject_privacy(self):
+        """
+        Change subproject's ``privacy_level`` creates proper symlinks.
+
+        When the ``privacy_level`` changes in the subprojects, we need to
+        re-symlink the superproject also to keep in sync its symlink under the
+        private/public roots.
+        """
+        filesystem_before = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'project': {
+                    'en': {},
+                },
+                'subproject': {
+                    'en': {},
+                },
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'project': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/project/rtd-builds/latest',
+                        },
+                    },
+                    'projects': {
+                        'subproject': {
+                            'type': 'link',
+                            'target': 'public_web_root/subproject',
+                        },
+                    },
+                },
+                'subproject': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/subproject/rtd-builds/latest',
+                        },
+                    },
+                },
+            },
+        }
+
+        filesystem_after = {
+            'private_cname_project': {},
+            'private_cname_root': {},
+            'private_web_root': {
+                'project': {
+                    'en': {},
+                    'projects': {
+                        'subproject': {
+                            'type': 'link',
+                            'target': 'private_web_root/subproject',
+                        },
+                    },
+                },
+                'subproject': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/subproject/rtd-builds/latest',
+                        },
+                    },
+                },
+            },
+            'public_cname_project': {},
+            'public_cname_root': {},
+            'public_web_root': {
+                'project': {
+                    'en': {
+                        'latest': {
+                            'type': 'link',
+                            'target': 'user_builds/project/rtd-builds/latest',
+                        },
+                    },
+                    'projects': {},
+                },
+                'subproject': {
+                    'en': {},
+                },
+            },
+        }
+
+        self.assertEqual(self.project.subprojects.all().count(), 0)
+        self.assertEqual(self.subproject.superprojects.all().count(), 0)
+        self.project.add_subproject(self.subproject)
+        self.assertEqual(self.project.subprojects.all().count(), 1)
+        self.assertEqual(self.subproject.superprojects.all().count(), 1)
+
+        self.assertTrue(self.project.versions.first().active)
+        self.assertTrue(self.subproject.versions.first().active)
+        symlink_project(self.project.pk)
+
+        self.assertFilesystem(filesystem_before)
+
+        self.client.force_login(self.user)
+        self.client.post(
+            reverse('project_version_detail',
+                    kwargs={
+                        'project_slug': self.subproject.slug,
+                        'version_slug': self.subproject.versions.first().slug,
+                    }),
+            data={'privacy_level': 'private', 'active': True},
+        )
+
+        self.assertEqual(self.subproject.versions.first().privacy_level, 'private')
+        self.assertTrue(self.subproject.versions.first().active)
+
+        self.client.post(
+            reverse('projects_advanced',
+                    kwargs={
+                        'project_slug': self.subproject.slug,
+                    }),
+            data={
+                # Required defaults
+                'python_interpreter': 'python',
+                'default_version': 'latest',
+
+                'privacy_level': 'private',
+            },
+        )
+
+        self.assertTrue(self.subproject.versions.first().active)
+        self.subproject.refresh_from_db()
+        self.assertEqual(self.subproject.privacy_level, 'private')
+        self.assertFilesystem(filesystem_after)

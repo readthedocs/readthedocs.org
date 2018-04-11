@@ -73,19 +73,37 @@ div.project-import-sidebar h2,
 div.project-import-sidebar h3 {
   font-size: 1.1em;
 }
-div.project-import-sidebar li.remote-org {
+div.project-import-sidebar li.remote-org,
+div.project-import-sidebar li.remote-filter {
   margin: .5em 0em;
   padding-left: 3em;
   cursor: pointer;
 }
-div.project-import-sidebar li.remote-org.remote-org-hidden span.remote-org-name {
+div.project-import-sidebar li.remote-org.remote-org-hidden span.remote-org-name,
+div.project-import-sidebar li.remote-filter.remote-org-hidden span.remote-org-name,
+div.project-import-sidebar li.remote-org.remote-filter-hidden span.remote-org-name,
+div.project-import-sidebar li.remote-filter.remote-filter-hidden span.remote-org-name,
+div.project-import-sidebar li.remote-org.remote-org-hidden span.remote-filter-name,
+div.project-import-sidebar li.remote-filter.remote-org-hidden span.remote-filter-name,
+div.project-import-sidebar li.remote-org.remote-filter-hidden span.remote-filter-name,
+div.project-import-sidebar li.remote-filter.remote-filter-hidden span.remote-filter-name {
   color: #ccc;
 }
-div.project-import-sidebar li.remote-org.remote-org-hidden img.remote-org-avatar {
+div.project-import-sidebar li.remote-org.remote-org-hidden img.remote-org-avatar,
+div.project-import-sidebar li.remote-filter.remote-org-hidden img.remote-org-avatar,
+div.project-import-sidebar li.remote-org.remote-filter-hidden img.remote-org-avatar,
+div.project-import-sidebar li.remote-filter.remote-filter-hidden img.remote-org-avatar,
+div.project-import-sidebar li.remote-org.remote-org-hidden img.remote-filter-avatar,
+div.project-import-sidebar li.remote-filter.remote-org-hidden img.remote-filter-avatar,
+div.project-import-sidebar li.remote-org.remote-filter-hidden img.remote-filter-avatar,
+div.project-import-sidebar li.remote-filter.remote-filter-hidden img.remote-filter-avatar {
   opacity: .3;
   filter: alpha(opacity=30);
 }
-div.project-import-sidebar li.remote-org img.remote-org-avatar {
+div.project-import-sidebar li.remote-org img.remote-org-avatar,
+div.project-import-sidebar li.remote-filter img.remote-org-avatar,
+div.project-import-sidebar li.remote-org img.remote-filter-avatar,
+div.project-import-sidebar li.remote-filter img.remote-filter-avatar {
   float: left;
   margin-left: -2.25em;
   margin-right: .5em;
@@ -97,7 +115,10 @@ div.project-import-sidebar li.remote-org img.remote-org-avatar {
   -webkit-border-radius: .2em;
   vertical-align: baseline;
 }
-div.project-import-sidebar li.remote-org a.remote-org-name {
+div.project-import-sidebar li.remote-org a.remote-org-name,
+div.project-import-sidebar li.remote-filter a.remote-org-name,
+div.project-import-sidebar li.remote-org a.remote-filter-name,
+div.project-import-sidebar li.remote-filter a.remote-filter-name {
   font-size: .9em;
   text-decoration: none;
   line-height: 1.5em;
