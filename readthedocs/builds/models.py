@@ -466,6 +466,27 @@ class Build(models.Model):
         """Return if build has a finished state."""
         return self.state == BUILD_STATE_FINISHED
 
+    def save(self, *args, **kwargs):
+        # TODO: remove this method. It's overridden just as a way to research a
+        # little more the issue where the ``build.pk`` doesn't match with the
+        # build id reported in the ``build.error`` message
+        # https://github.com/readthedocs/readthedocs-corporate/issues/274
+        msg = 'There was a problem with Read the Docs'
+        if self.error.startswith(msg) and str(self.pk) not in self.error:
+            log.error(
+                'Build.pk differs from "pk" in Build.error',
+                exc_info=True,
+                stack_info=True,
+                extra={
+                    'build': self,
+                    'project': self.project,
+                    'version': self.version,
+                    'stack': True,
+                    'tags': {'build': self.pk},
+                },
+            )
+        return super(Build, self).save(*args, **kwargs)
+
 
 class BuildCommandResultMixin(object):
 
