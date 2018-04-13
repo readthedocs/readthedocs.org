@@ -39,6 +39,7 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
+from readthedocs.builds.tasks import fileify
 from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
@@ -857,35 +858,6 @@ def symlink_subproject(project_pk):
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         sym.symlink_subprojects()
-
-
-@app.task(queue='web')
-def fileify(version_pk, commit):
-    """
-    Create ImportedFile objects for all of a version's files.
-
-    This is so we have an idea of what files we have in the database.
-    """
-    version = Version.objects.get(pk=version_pk)
-    project = version.project
-
-    if not commit:
-        log.info(LOG_TEMPLATE
-                 .format(project=project.slug, version=version.slug,
-                         msg=('Imported File not being built because no commit '
-                              'information')))
-        return
-
-    path = project.rtd_build_path(version.slug)
-    if path:
-        log.info(LOG_TEMPLATE
-                 .format(project=version.project.slug, version=version.slug,
-                         msg='Creating ImportedFiles'))
-        _manage_imported_files(version, path, commit)
-    else:
-        log.info(LOG_TEMPLATE
-                 .format(project=project.slug, version=version.slug,
-                         msg='No ImportedFile files'))
 
 
 def _manage_imported_files(version, path, commit):
