@@ -161,13 +161,20 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
-class SyncRepositoryTask(SyncRepositoryMixin, Task):
+class SyncRepositoryTask(Task):
 
     """Entry point to synchronize the VCS documentation."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.sync_repository'
+
+    def run(self, *args, **kwargs):
+        step = SyncRepositoryTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class SyncRepositoryTaskStep(SyncRepositoryMixin):
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
         """
@@ -194,7 +201,18 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         return False
 
 
-class UpdateDocsTask(SyncRepositoryMixin, Task):
+class UpdateDocsTask(Task):
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.update_docs'
+
+    def run(self, *args, **kwargs):
+        step = UpdateDocsTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     """
     The main entry point for updating documentation.
@@ -204,11 +222,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     html docs if needed.
     """
 
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
