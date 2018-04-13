@@ -10,6 +10,7 @@ from __future__ import (
 )
 
 import logging
+import textwrap
 
 from builtins import object
 from django.contrib import messages
@@ -112,20 +113,26 @@ class BuildDetail(BuildBase, DetailView):
                   "?title={title}{build_id}"
                   "&body={body}")
 
-        body = ("# Details:\n\n"
-                "*Project URL: https://readthedocs.org/projects/{projname}/\n"
-                "*Build URL(if applicable): https://readthedocs.org{build_path}\n"
-                "*Read the Docs username(if applicable): {uname}\n\n"
-                "## Expected Result\n\n"
-                "*A description of what you wanted to happen*\n\n"
-                "## Actual Result\n\n"
-                "*A description of what actually happened*").format(
+        body = """
+        # Details:
+
+        *Project URL: https://readthedocs.org/projects/{projname}/
+        *Build URL(if applicable): https://readthedocs.org{build_path}
+        *Read the Docs username(if applicable): {uname}
+
+        ## Expected Result
+
+        *A description of what you wanted to happen*
+
+        ## Actual Result
+
+        *A description of what actually happened*""".format(
             projname=self.project, build_path=self.request.path,
             uname=self.request.user)
 
         scheme_dict = {'title': quote("Build error with build id #"),
                        'build_id': context['build'].id,
-                       'body': quote(body)}
+                       'body': quote(textwrap.dedent(body))}
 
         issue_url = scheme.format(**scheme_dict)
         issue_url = urlparse(issue_url).geturl()
