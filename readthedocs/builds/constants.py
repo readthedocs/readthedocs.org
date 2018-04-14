@@ -50,3 +50,5 @@ NON_REPOSITORY_VERSIONS = (
     LATEST,
     STABLE,
 )
+
+LOG_TEMPLATE = '(Build) [{project}:{version}] {msg}'

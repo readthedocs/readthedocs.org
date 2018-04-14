@@ -1,56 +1,65 @@
 
 from __future__ import absolute_import
 
-import datetime
-import hashlib
-import json
 import logging
-import os
-import shutil
-import socket
-from collections import defaultdict
+import json
 
 import requests
-from builtins import str
-from celery import Task
-from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
+
+from .constants import LOG_TEMPLATE
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from readthedocs_build.config import ConfigError
-from slumber.exceptions import HttpClientError
-
-from readthedocs.builds.constants import (LATEST,
-                                          BUILD_STATE_CLONING,
-                                          BUILD_STATE_INSTALLING,
-                                          BUILD_STATE_BUILDING,
-                                          BUILD_STATE_FINISHED)
-from readthedocs.builds.models import Build, Version, APIVersion
-from readthedocs.builds.signals import build_complete
-from readthedocs.builds.syncers import Syncer
-from readthedocs.cdn.purge import purge
-from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
-from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
-                                                  DockerBuildEnvironment)
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
-from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.python_environments import Virtualenv, Conda
-from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
-from readthedocs.restapi.utils import index_search_request
-from readthedocs.search.parse_json import process_all_json_files
-from readthedocs.vcs_support import utils as vcs_support_utils
+from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.worker import app
-
 
 log = logging.getLogger(__name__)
 
-HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
+#copy of this function exists in projects/tasks.py
+def _manage_imported_files(version, path, commit):
+    """
+    Update imported files for version.
+
+    :param version: Version instance
+    :param path: Path to search
+    :param commit: Commit that updated path
+    """
+    changed_files = set()
+    for root, __, filenames in os.walk(path):
+        for filename in filenames:
+            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
+                                   filename.lstrip('/'))
+            full_path = os.path.join(root, filename)
+            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+            try:
+                obj, __ = ImportedFile.objects.get_or_create(
+                    project=version.project,
+                    version=version,
+                    path=dirpath,
+                    name=filename,
+                )
+            except ImportedFile.MultipleObjectsReturned:
+                log.warning('Error creating ImportedFile')
+                continue
+            if obj.md5 != md5:
+                obj.md5 = md5
+                changed_files.add(dirpath)
+            if obj.commit != commit:
+                obj.commit = commit
+            obj.save()
+    # Delete ImportedFiles from previous versions
+    ImportedFile.objects.filter(project=version.project,
+                                version=version
+                                ).exclude(commit=commit).delete()
+    # Purge Cache
+    cdn_ids = getattr(settings, 'CDN_IDS', None)
+    if cdn_ids:
+        if version.project.slug in cdn_ids:
+            changed_files = [resolve_path(
+                version.project, filename=fname, version_slug=version.slug,
+            ) for fname in changed_files]
+            purge(cdn_ids[version.project.slug], changed_files)
 
 
 @app.task(queue='web')
@@ -82,3 +91,88 @@ def fileify(version_pk, commit):
                          msg='No ImportedFile files'))
 
 
+def webhook_notification(version, build, hook_url):
+    """
+    Send webhook notification for project webhook.
+
+    :param version: Version instance to send hook for
+    :param build: Build instance that failed
+    :param hook_url: Hook URL to send to
+    """
+    project = version.project
+
+    data = json.dumps({
+        'name': project.name,
+        'slug': project.slug,
+        'build': {
+            'id': build.id,
+            'success': build.success,
+            'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
+        }
+    })
+    log.debug(LOG_TEMPLATE
+              .format(project=project.slug, version='',
+                      msg='sending notification to: %s' % hook_url))
+    try:
+        requests.post(hook_url, data=data)
+    except Exception:
+        log.exception('Failed to POST on webhook url: url=%s', hook_url)
+
+
+@app.task(queue='web')
+def send_notifications(version_pk, build_pk):
+    version = Version.objects.get(pk=version_pk)
+    build = Build.objects.get(pk=build_pk)
+
+    for hook in version.project.webhook_notifications.all():
+        webhook_notification(version, build, hook.url)
+    for email in version.project.emailhook_notifications.all().values_list('email', flat=True):
+        email_notification(version, build, email)
+
+
+def email_notification(version, build, email):
+    """
+    Send email notifications for build failure.
+
+    :param version: :py:class:`Version` instance that failed
+    :param build: :py:class:`Build` instance that failed
+    :param email: Email recipient address
+    """
+    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
+                                  msg='sending email to: %s' % email))
+
+    # We send only what we need from the Django model objects here to avoid
+    # serialization problems in the ``readthedocs.core.tasks.send_email_task``
+    context = {
+        'version': {
+            'verbose_name': version.verbose_name,
+        },
+        'project': {
+            'name': version.project.name,
+        },
+        'build': {
+            'pk': build.pk,
+            'error': build.error,
+        },
+        'build_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            build.get_absolute_url(),
+        ),
+        'unsub_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            reverse('projects_notifications', args=[version.project.slug]),
+        ),
+    }
+
+    if build.commit:
+        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
+    else:
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
+
+    send_email(
+        email,
+        title,
+        template='projects/email/build_failed.txt',
+        template_html='projects/email/build_failed.html',
+        context=context,
+    )
