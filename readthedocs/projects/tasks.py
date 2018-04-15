@@ -39,7 +39,7 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
-from readthedocs.builds.tasks import fileify, send_notifications, email_notification
+from readthedocs.builds.tasks import fileify, send_notifications, email_notification, clear_pdf_artifacts, clear_epub_artifacts
 from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink

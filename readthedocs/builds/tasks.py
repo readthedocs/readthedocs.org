@@ -4,19 +4,24 @@ from __future__ import absolute_import
 import datetime
 import logging
 import json
+import os
 import shutil
+import hashlib
 
 import requests
 from django.conf import settings
 from django.db.models import Q
 
 from .constants import LOG_TEMPLATE
+from readthedocs.projects.models import ImportedFile, Project, Domain
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
                                           BUILD_STATE_BUILDING,
                                           BUILD_STATE_FINISHED)
+from readthedocs.cdn.purge import purge
 from django.core.urlresolvers import reverse
+from readthedocs.core.resolver import resolve_path
 from django.utils.translation import ugettext_lazy as _
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.core.utils import send_email, broadcast
@@ -25,7 +30,7 @@ from readthedocs.worker import app
 
 log = logging.getLogger(__name__)
 
-#copy of this function exists in projects/tasks.py
+
 def _manage_imported_files(version, path, commit):
     """
     Update imported files for version.
