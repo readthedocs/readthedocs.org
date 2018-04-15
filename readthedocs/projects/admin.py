@@ -17,7 +17,7 @@ from .forms import FeatureForm
 from .models import (Project, ImportedFile, Feature,
                      ProjectRelationship, EmailHook, WebHook, Domain)
 from .notifications import ResourceUsageNotification
-from .tasks import remove_dir
+from readthedocs.builds.tasks import remove_dir
 
 
 class ProjectSendNotificationView(SendNotificationView):

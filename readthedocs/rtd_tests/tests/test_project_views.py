@@ -23,6 +23,7 @@ from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects import tasks
+from readthedocs.builds.tasks import remove_dir
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
@@ -379,7 +380,7 @@ class TestPrivateViews(MockBuildTestCase):
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             broadcast.assert_called_with(
                 type='app',
-                task=tasks.remove_dir,
+                task=remove_dir,
                 args=[project.doc_path])
 
     def test_subproject_create(self):

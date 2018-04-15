@@ -31,6 +31,7 @@ from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
 from readthedocs.projects import tasks
+from readthedocs.builds.tasks import remove_dir, clear_artifacts
 from readthedocs.projects.forms import (
     DomainForm, EmailHookForm, IntegrationForm, ProjectAdvancedForm,
     ProjectAdvertisingForm, ProjectBasicsForm, ProjectExtraForm,
@@ -175,7 +176,7 @@ def project_version_detail(request, project_slug, version_slug):
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
                 broadcast(
-                    type='app', task=tasks.clear_artifacts, args=[version.pk])
+                    type='app', task=clear_artifacts, args=[version.pk])
                 version.built = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
@@ -198,7 +199,7 @@ def project_delete(request, project_slug):
         Project.objects.for_admin_user(request.user), slug=project_slug)
 
     if request.method == 'POST':
-        broadcast(type='app', task=tasks.remove_dir, args=[project.doc_path])
+        broadcast(type='app', task=remove_dir, args=[project.doc_path])
         project.delete()
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
@@ -669,7 +670,7 @@ def project_version_delete_html(request, project_slug, version_slug):
     if not version.active:
         version.built = False
         version.save()
-        broadcast(type='app', task=tasks.clear_artifacts, args=[version.pk])
+        broadcast(type='app', task=clear_artifacts, args=[version.pk])
     else:
         return HttpResponseBadRequest(
             "Can't delete HTML for an active version.")

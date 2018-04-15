@@ -953,60 +953,6 @@ def update_static_metadata(project_pk, path=None):
         ))
 
 
-# Random Tasks
-@app.task()
-def remove_dir(path):
-    """
-    Remove a directory on the build/celery server.
-
-    This is mainly a wrapper around shutil.rmtree so that app servers can kill
-    things on the build server.
-    """
-    log.info("Removing %s", path)
-    shutil.rmtree(path, ignore_errors=True)
-
-
-@app.task()
-def clear_artifacts(version_pk):
-    """Remove artifacts from the web servers."""
-    version = Version.objects.get(pk=version_pk)
-    clear_pdf_artifacts(version)
-    clear_epub_artifacts(version)
-    clear_htmlzip_artifacts(version)
-    clear_html_artifacts(version)
-
-
-@app.task()
-def clear_pdf_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='pdf', version_slug=version.slug))
-
-
-@app.task()
-def clear_epub_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='epub', version_slug=version.slug))
-
-
-@app.task()
-def clear_htmlzip_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='htmlzip', version_slug=version.slug))
-
-
-@app.task()
-def clear_html_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.rtd_build_path(version=version.slug))
-
-
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
@@ -1016,48 +962,3 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
     fileify(version_pk, commit=commit)
     update_search(version_pk, commit=commit)
-
-
-@app.task()
-def finish_inactive_builds():
-    """
-    Finish inactive builds.
-
-    A build is consider inactive if it's not in ``FINISHED`` state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
-
-    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
-    ``error`` to be communicated to the user.
-    """
-    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    delta = datetime.timedelta(seconds=time_limit)
-    query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=datetime.datetime.now() - delta))
-
-    builds_finished = 0
-    builds = Build.objects.filter(query)[:50]
-    for build in builds:
-
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit))
-            if build.date + custom_delta > datetime.datetime.now():
-                # Do not mark as FINISHED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
-
-        build.success = False
-        build.state = BUILD_STATE_FINISHED
-        build.error = _(
-            'This build was terminated due to inactivity. If you '
-            'continue to encounter this error, file a support '
-            'request with and reference this build id ({0}).'.format(build.pk)
-        )
-        build.save()
-        builds_finished += 1
-
-    log.info(
-        'Builds marked as "Terminated due inactivity": %s',
-        builds_finished,
-    )
