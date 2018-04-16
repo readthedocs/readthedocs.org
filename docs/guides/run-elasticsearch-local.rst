@@ -2,14 +2,14 @@
 Enabling Elasticsearch on the local server
 ==========================================
 
-Read the Docs has been using Elasticsearch which is a platform for distributed search and analysis of data in real time. To enable the search feature on your local installation, you need to install the elasticsearch locally and run the Elastic server. 
+Read the Docs has been using Elasticsearch for indexing and searching. To enable this on your local installation, you need to install elasticsearch and run the Elastic server locally. 
 
 Installation has been mainly divided into following steps.
 
 1. Installing Java
 ------------------
 
-Elasticsearch requires JAVA 8 or later. Use `Oracle official documentation <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_. 
+Elasticsearch requires Java 8 or later. Use `Oracle official documentation <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_. 
 or opensource distribution like `OpenJDK <http://openjdk.java.net/install/>`_.
 
 After installing java, verify the installation by,::
@@ -26,15 +26,14 @@ The result should be something like this::
 2. Downloading and installing Elasticsearch
 -------------------------------------------
 
-Elasticsearch can be downloaded directly from elastic.co in zip, tar.gz, deb, or rpm packages. For Ubuntu, it's best to use the deb (Debian) package which will install everything you need to run Elasticsearch.
+Elasticsearch can be downloaded directly from elastic.co. For Ubuntu, it's best to use the deb (Debian) package which will install everything you need to run Elasticsearch.
 
-RTD currently uses elasticsearch 1.x which can be easily downloaded and installed from the `Official Website 
-<https://www.elastic.co/downloads/>`_.
+RTD currently uses elasticsearch 1.x which can be easily downloaded and installed from the `elastic.co 
+<https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-8/>`_.
 
-	1. First download the deb package version 1.3.8 from this `Link <https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-8>`_.
+Install the downloaded package by following command::
+	$ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
 
-	2. Install the downloaded package by following command 
-		``$ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb``
 
 3. Running Elasticsearch from command line
 ------------------------------------------
@@ -92,7 +91,7 @@ You should get something like:
 4. Index the data available at RTD database
 -------------------------------------------
 
-In order to search through the RTD database, you need to index it into the elasticsearch index.:: 
+In order to search through the RTD database, you need to index it into the elasticsearch index:: 
 
 	$ python manage.py reindex_elasticsearch
 
