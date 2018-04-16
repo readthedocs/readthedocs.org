@@ -14,13 +14,13 @@ or opensource distribution like `OpenJDK <http://openjdk.java.net/install/>`_.
 
 After installing java, verify the installation by,::
 
-	$ java -version
+    $ java -version
 
 The result should be something like this::
 
-	openjdk version "1.8.0_151"
-	OpenJDK Runtime Environment (build 1.8.0_151-8u151-b12-0ubuntu0.16.04.2-b12)
-	OpenJDK 64-Bit Server VM (build 25.151-b12, mixed mode)
+    openjdk version "1.8.0_151"
+    OpenJDK Runtime Environment (build 1.8.0_151-8u151-b12-0ubuntu0.16.04.2-b12)
+    OpenJDK 64-Bit Server VM (build 25.151-b12, mixed mode)
 
 
 2. Downloading and installing Elasticsearch
@@ -33,7 +33,7 @@ RTD currently uses elasticsearch 1.x which can be easily downloaded and installe
 
 Install the downloaded package by following command::
 
-	$ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
+    $ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
 
 
 3. Running Elasticsearch from command line
@@ -41,18 +41,18 @@ Install the downloaded package by following command::
 
 Elasticsearch is not started automatically after installation. How to start and stop Elasticsearch depends on whether your system uses SysV init or systemd (used by newer distributions). You can tell which is being used by running this command::
 
-	$ ps -p 1	
+    $ ps -p 1   
 
 **Running Elasticsearch with SysV init**
 
 Use the ``update-rc.d command`` to configure Elasticsearch to start automatically when the system boots up::
 
-	$ sudo update-rc.d elasticsearch defaults 95 10
+    $ sudo update-rc.d elasticsearch defaults 95 10
 
 Elasticsearch can be started and stopped using the service command::
 
-	$ sudo -i service elasticsearch start
-	$ sudo -i service elasticsearch stop
+    $ sudo -i service elasticsearch start
+    $ sudo -i service elasticsearch stop
 
 If Elasticsearch fails to start for any reason, it will print the reason for failure to STDOUT. Log files can be found in /var/log/elasticsearch/.
 
@@ -60,40 +60,40 @@ If Elasticsearch fails to start for any reason, it will print the reason for fai
 
 To configure Elasticsearch to start automatically when the system boots up, run the following commands::
 
-	$ sudo /bin/systemctl daemon-reload
-	$ sudo /bin/systemctl enable elasticsearch.service
+    $ sudo /bin/systemctl daemon-reload
+    $ sudo /bin/systemctl enable elasticsearch.service
 
 Elasticsearch can be started and stopped as follows::
 
-	$ sudo systemctl start elasticsearch.service
-	$ sudo systemctl stop elasticsearch.service
+    $ sudo systemctl start elasticsearch.service
+    $ sudo systemctl stop elasticsearch.service
 
 To verify run::
 
-	$ curl http://localhost:9200
+    $ curl http://localhost:9200
 
 You should get something like:
 
 .. code-block:: json
 
-	{
-		status: 200,
-		name: "Amina Synge",
-		version: {
-			number: "1.3.8",
-			build_hash: "475733ee0837fba18c00c3ee76cd49a08755550c",
-			build_timestamp: "2015-02-11T14:45:42Z",
-			build_snapshot: false,
-			lucene_version: "4.9"
-		},
-		tagline: "You Know, for Search"
-	}
+    {
+        status: 200,
+        name: "Amina Synge",
+        version: {
+            number: "1.3.8",
+            build_hash: "475733ee0837fba18c00c3ee76cd49a08755550c",
+            build_timestamp: "2015-02-11T14:45:42Z",
+            build_snapshot: false,
+            lucene_version: "4.9"
+        },
+        tagline: "You Know, for Search"
+    }
 
 4. Index the data available at RTD database
 -------------------------------------------
 
 In order to search through the RTD database, you need to index it into the elasticsearch index:: 
 
-	$ python manage.py reindex_elasticsearch
+    $ python manage.py reindex_elasticsearch
 
 You are ready to go!
