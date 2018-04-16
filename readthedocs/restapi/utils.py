@@ -43,16 +43,16 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
 
                 log.info(
                     '(Sync Versions) Updated Version: [%s=%s] ',
-                    version['verbose_name'],
-                    version['identifier'],
+                    version_name,
+                    version_id,
                 )
         else:
             # New Version
             created_version = Version.objects.create(
                 project=project,
                 type=type,
-                identifier=version['identifier'],
-                verbose_name=version['verbose_name'],
+                identifier=version_id,
+                verbose_name=version_name,
             )
             added.add(created_version.slug)
     if added:
