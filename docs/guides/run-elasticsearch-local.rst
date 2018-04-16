@@ -28,7 +28,7 @@ The result should be something like this::
 
 Elasticsearch can be downloaded directly from elastic.co. For Ubuntu, it's best to use the deb (Debian) package which will install everything you need to run Elasticsearch.
 
-RTD currently uses elasticsearch 1.x which can be easily downloaded and installed from the `elastic.co 
+RTD currently uses elasticsearch 1.x which can be easily downloaded and installed from `elastic.co 
 <https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-8/>`_.
 
 Install the downloaded package by following command::
