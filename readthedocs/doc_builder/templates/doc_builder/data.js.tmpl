@@ -6,6 +6,7 @@ var doc_slug = "{{ slug }}";
 var page_name = "{{ pagename }}";
 var html_theme = "{{ html_theme }}";
 
+// This variable is only defined on the RTD mkdocs theme
 if (typeof mkdocs_page_input_path !== "undefined") {
     READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
         0,
