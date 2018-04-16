@@ -33,9 +33,6 @@ or seeing paid ads if you want.
 You will still see :ref:`community ads <community-ads>`,
 which we run for free that promote community projects. 
 
-We have gone into more detail about our views in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
-Eric Holscher, one of our co-founders `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about funding open source this way on his blog.
-
 .. _ethical-info:
 
 Our worldview
@@ -93,6 +90,20 @@ We run the ads we want to have on our site,
 in a way that makes us feel good.
 
 .. _fake ad clicks: https://en.wikipedia.org/wiki/Click_fraud
+
+Additional details
+------------------
+
+* We have additional documentation on the
+  :doc:`technical details of our advertising <advertising-details>`.
+* We have an `advertising FAQ`_ written for advertisers.
+* We have gone into more detail about our views in our
+  `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
+* Eric Holscher, one of our co-founders
+  `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_
+  about funding open source this way on his blog.
+
+.. _advertising FAQ: https://readthedocs.org/sustainability/advertising/faq/
 
 Join us
 -------
