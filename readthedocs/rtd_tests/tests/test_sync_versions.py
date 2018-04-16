@@ -6,6 +6,7 @@ from __future__ import (
 import json
 
 from django.test import TestCase
+import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
@@ -152,6 +153,7 @@ class TestSyncVersions(TestCase):
         version_8 = Version.objects.get(slug='0.8.3')
         self.assertFalse(version_8.active)
 
+    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_stable_after_deleting_user_defined_tag(self):
         """
         The user creates a tag named ``stable`` on an existing repo,
@@ -248,6 +250,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
+    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_stable_after_deleting_user_defined_tag_2(self):
         """
         The user imports a new project with a tag named ``stable``,
@@ -330,6 +333,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
+    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_stable_after_deleting_user_defined_branch(self):
         """
         The user creates a branch named ``stable`` on an existing repo,
@@ -422,6 +426,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
+    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_stable_after_deleting_user_defined_branch_2(self):
         """
         The user imports a new project with a branch named ``stable``,
@@ -500,6 +505,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
+    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_latest_after_deleting_user_defined_tag(self):
         """
         The user creates a tag named ``latest`` on an existing repo,
@@ -566,6 +572,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(version_latest.machine)
 
+    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_latest_after_deleting_user_defined_branch(self):
         """
         The user creates a branch named ``latest`` on an existing repo,
@@ -1141,6 +1148,7 @@ class TestLatestVersion(TestCase):
         # is created.
         self.pip.save()
 
+    @pytest.mark.xfail(strict=True)
     def test_user_defined_latest_version_tag(self):
         version_post_data = {
             'branches': [
