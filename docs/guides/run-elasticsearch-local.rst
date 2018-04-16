@@ -32,6 +32,7 @@ RTD currently uses elasticsearch 1.x which can be easily downloaded and installe
 <https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-8/>`_.
 
 Install the downloaded package by following command::
+
 	$ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
 
 
