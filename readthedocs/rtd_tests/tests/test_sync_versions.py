@@ -1009,6 +1009,12 @@ class TestStableVersion(TestCase):
             self.pip.get_stable_version().identifier
         )
 
+        # There arent others stable slugs like stable_a
+        other_latest = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_latest.exists())
+
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
@@ -1024,6 +1030,10 @@ class TestStableVersion(TestCase):
             '1abc2def3',
             self.pip.get_stable_version().identifier
         )
+        other_latest = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_latest.exists())
 
     def test_user_defined_stable_version_branch_with_tags(self):
         Version.objects.create(
@@ -1086,6 +1096,11 @@ class TestStableVersion(TestCase):
             'origin/stable',
             self.pip.get_stable_version().identifier
         )
+        # There arent others stable slugs like stable_a
+        other_latest = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_latest.exists())
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
@@ -1102,6 +1117,10 @@ class TestStableVersion(TestCase):
             'origin/stable',
             self.pip.get_stable_version().identifier
         )
+        other_latest = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_latest.exists())
 
 
 class TestLatestVersion(TestCase):
@@ -1155,6 +1174,12 @@ class TestLatestVersion(TestCase):
             version_latest.identifier
         )
 
+        # There arent others latest slugs like latest_a
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
+
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
@@ -1170,6 +1195,10 @@ class TestLatestVersion(TestCase):
             '1abc2def3',
             version_latest.identifier
         )
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
 
     def test_user_defined_latest_version_branch(self):
         version_post_data = {
@@ -1202,6 +1231,12 @@ class TestLatestVersion(TestCase):
             version_latest.identifier
         )
 
+        # There arent others latest slugs like latest_a
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
+
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
             '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
@@ -1217,3 +1252,7 @@ class TestLatestVersion(TestCase):
             'origin/latest',
             version_latest.identifier
         )
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
