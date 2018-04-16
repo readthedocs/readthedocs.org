@@ -18,11 +18,10 @@ log = logging.getLogger(__name__)
 
 def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
-    old_versions = {}
-    old_version_values = project.versions.filter(type=type).values(
-        'identifier', 'verbose_name')
-    for version in old_version_values:
-        old_versions[version['verbose_name']] = version['identifier']
+    old_version_values = project.versions.filter(type=type).values_list(
+        'verbose_name', 'identifier'
+    )
+    old_versions = dict(old_version_values)
 
     added = set()
     # Add new versions
