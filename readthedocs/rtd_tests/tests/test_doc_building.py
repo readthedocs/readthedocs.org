@@ -21,6 +21,7 @@ from django.test import TestCase
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from mock import Mock, PropertyMock, mock_open, patch
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
@@ -28,9 +29,10 @@ from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import (
     BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
-from readthedocs.doc_builder.python_environments import Virtualenv
+from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
+from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
 
 DUMMY_BUILD_ID = 123
@@ -837,6 +839,241 @@ class TestDockerBuildCommand(TestCase):
         self.assertEqual(
             str(cmd.output),
             u'Command killed due to excessive memory consumption\n')
+
+
+class TestPythonEnvironment(TestCase):
+
+    def setUp(self):
+        self.project_sphinx = get(Project, documentation_type='sphinx')
+        self.version_sphinx = get(Version, project=self.project_sphinx)
+
+        self.project_mkdocs = get(Project, documentation_type='mkdocs')
+        self.version_mkdocs = get(Version, project=self.project_mkdocs)
+
+        self.build_env_mock = Mock()
+
+        self.base_requirements = [
+            'Pygments==2.2.0',
+            'setuptools==37.0.0',
+            'docutils==0.13.1',
+            'mock==1.0.1',
+            'pillow==2.6.1',
+            'alabaster>=0.7,<0.8,!=0.7.5',
+        ]
+        self.base_conda_requirements = [
+            'mock',
+            'pillow',
+        ]
+
+        self.pip_install_args = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '--use-wheel',
+            '--upgrade',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+
+    def test_install_core_requirements_sphinx(self):
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+        requirements_sphinx = [
+            'commonmark==0.5.4',
+            'recommonmark==0.4.0',
+            'sphinx==1.6.5',
+            'sphinx-rtd-theme<0.3',
+            'readthedocs-sphinx-ext<0.6',
+        ]
+        requirements = self.base_requirements + requirements_sphinx
+        args = self.pip_install_args + requirements
+        self.build_env_mock.run.assert_called_once_with(
+            *args, bin_path=mock.ANY
+        )
+
+    def test_install_core_requirements_mkdocs(self):
+        python_env = Virtualenv(
+            version=self.version_mkdocs,
+            build_env=self.build_env_mock
+        )
+        python_env.install_core_requirements()
+        requirements_mkdocs = [
+            'commonmark==0.5.4',
+            'recommonmark==0.4.0',
+            'mkdocs==0.15.0',
+        ]
+        requirements = self.base_requirements + requirements_mkdocs
+        args = self.pip_install_args + requirements
+        self.build_env_mock.run.assert_called_once_with(
+            *args, bin_path=mock.ANY
+        )
+
+    def test_install_user_requirements(self):
+        """
+        If a projects does not specify a requirements file,
+        RTD will choose one automatically.
+
+        First by searching under the docs/ directory and then under the root.
+        The files can be named as:
+
+        - ``pip_requirements.txt``
+        - ``requirements.txt``
+        """
+        self.build_env_mock.project = self.project_sphinx
+        self.build_env_mock.version = self.version_sphinx
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock
+        )
+
+        checkout_path = python_env.checkout_path
+        docs_requirements = os.path.join(
+            checkout_path, 'docs', 'requirements.txt'
+        )
+        root_requirements = os.path.join(
+            checkout_path, 'requirements.txt'
+        )
+        paths = {
+            os.path.join(checkout_path, 'docs'): True,
+        }
+        args = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '--exists-action=w',
+            '--cache-dir',
+            mock.ANY,  # cache path
+            'requirements_file'
+        ]
+
+        # One requirements file on the docs/ dir
+        # should be installed
+        paths[docs_requirements] = True
+        paths[root_requirements] = False
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        args[-1] = '-r{}'.format(docs_requirements)
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+        # One requirements file on the root dir
+        # should be installed
+        paths[docs_requirements] = False
+        paths[root_requirements] = True
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        args[-1] = '-r{}'.format(root_requirements)
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+        # Two requirements files on the root and  docs/ dirs
+        # the one on docs/ should be installed
+        paths[docs_requirements] = True
+        paths[root_requirements] = True
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        args[-1] = '-r{}'.format(docs_requirements)
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+        # No requirements file
+        # no requirements should be installed
+        self.build_env_mock.run.reset_mock()
+        paths[docs_requirements] = False
+        paths[root_requirements] = False
+        with fake_paths_lookup(paths):
+            python_env.install_user_requirements()
+        self.build_env_mock.run.assert_not_called()
+
+    def test_install_core_requirements_sphinx_conda(self):
+        python_env = Conda(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+        conda_sphinx = [
+            'sphinx',
+            'sphinx_rtd_theme',
+        ]
+        conda_requirements = self.base_conda_requirements + conda_sphinx
+        pip_requirements = [
+            'recommonmark',
+            'readthedocs-sphinx-ext',
+        ]
+
+        args_pip = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '-U',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+        args_pip.extend(pip_requirements)
+
+        args_conda = [
+            'conda',
+            'install',
+            '--yes',
+            '--name',
+            self.version_sphinx.slug,
+        ]
+        args_conda.extend(conda_requirements)
+
+        self.build_env_mock.run.assert_has_calls([
+            mock.call(*args_conda),
+            mock.call(*args_pip, bin_path=mock.ANY)
+        ])
+
+    def test_install_core_requirements_mkdocs_conda(self):
+        python_env = Conda(
+            version=self.version_mkdocs,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+        conda_requirements = self.base_conda_requirements
+        pip_requirements = [
+            'recommonmark',
+            'mkdocs',
+        ]
+
+        args_pip = [
+            'python',
+            mock.ANY,  # pip path
+            'install',
+            '-U',
+            '--cache-dir',
+            mock.ANY,  # cache path
+        ]
+        args_pip.extend(pip_requirements)
+
+        args_conda = [
+            'conda',
+            'install',
+            '--yes',
+            '--name',
+            self.version_mkdocs.slug,
+        ]
+        args_conda.extend(conda_requirements)
+
+        self.build_env_mock.run.assert_has_calls([
+            mock.call(*args_conda),
+            mock.call(*args_pip, bin_path=mock.ANY)
+        ])
+
+    def test_install_user_requirements_conda(self):
+        python_env = Conda(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_user_requirements()
+        self.build_env_mock.run.assert_not_called()
 
 
 class AutoWipeEnvironmentBase(object):
