@@ -336,7 +336,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_stable_after_deleting_user_defined_branch(self):
         """
         The user creates a branch named ``stable`` on an existing repo,
@@ -431,7 +430,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-    @pytest.mark.xfail(strict=True)
     def test_normal_behavior_for_stable_after_deleting_user_defined_branch_2(self):
         """
         The user imports a new project with a branch named ``stable``,
