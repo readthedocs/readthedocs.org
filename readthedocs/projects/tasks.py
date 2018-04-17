@@ -861,51 +861,6 @@ def symlink_subproject(project_pk):
         sym.symlink_subprojects()
 
 
-def _manage_imported_files(version, path, commit):
-    """
-    Update imported files for version.
-
-    :param version: Version instance
-    :param path: Path to search
-    :param commit: Commit that updated path
-    """
-    changed_files = set()
-    for root, __, filenames in os.walk(path):
-        for filename in filenames:
-            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                   filename.lstrip('/'))
-            full_path = os.path.join(root, filename)
-            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
-            try:
-                obj, __ = ImportedFile.objects.get_or_create(
-                    project=version.project,
-                    version=version,
-                    path=dirpath,
-                    name=filename,
-                )
-            except ImportedFile.MultipleObjectsReturned:
-                log.warning('Error creating ImportedFile')
-                continue
-            if obj.md5 != md5:
-                obj.md5 = md5
-                changed_files.add(dirpath)
-            if obj.commit != commit:
-                obj.commit = commit
-            obj.save()
-    # Delete ImportedFiles from previous versions
-    ImportedFile.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
-    # Purge Cache
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            changed_files = [resolve_path(
-                version.project, filename=fname, version_slug=version.slug,
-            ) for fname in changed_files]
-            purge(cdn_ids[version.project.slug], changed_files)
-
-
 @app.task(queue='web')
 def update_static_metadata(project_pk, path=None):
     """
