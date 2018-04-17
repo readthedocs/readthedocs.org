@@ -172,7 +172,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
 
         # 0.8.3 is the current stable
-        self.assertTrue(
+        self.assertEqual(
             version8.identifier,
             current_stable.identifier
         )
@@ -257,6 +257,7 @@ class TestSyncVersions(TestCase):
         on the user repository, the RTD's ``stable`` is back.
         """
         # There isn't a stable version yet
+        self.pip.versions.exclude(slug='master').delete()
         current_stable = self.pip.get_stable_version()
         self.assertIsNone(current_stable)
 
@@ -343,6 +344,8 @@ class TestSyncVersions(TestCase):
         and doesn't update automatically anymore, when the branch is deleted
         on the user repository, the RTD's ``stable`` is back.
         """
+        # Project with just branches
+        self.pip.versions.filter(type=TAG).delete()
         version8 = Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
@@ -355,7 +358,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
 
         # 0.8.3 is the current stable
-        self.assertTrue(
+        self.assertEqual(
             version8.identifier,
             current_stable.identifier
         )
@@ -437,6 +440,7 @@ class TestSyncVersions(TestCase):
         on the user repository, the RTD's ``stable`` is back.
         """
         # There isn't a stable version yet
+        self.pip.versions.exclude(slug='master').delete()
         current_stable = self.pip.get_stable_version()
         self.assertIsNone(current_stable)
 
@@ -471,6 +475,10 @@ class TestSyncVersions(TestCase):
             current_stable.identifier,
             version_stable.identifier
         )
+
+        # User activates the stable version
+        version_stable.active = True
+        version_stable.save()
 
         # Deleting the branch should return the RTD's stable
         version_post_data = {
