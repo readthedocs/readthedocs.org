@@ -157,8 +157,9 @@ class TestSyncVersions(TestCase):
         """
         The user creates a tag named ``stable`` on an existing repo,
         when syncing the versions, the RTD's ``stable`` is lost
-        and doesn't update automatically anymore, when the tag is deleted
-        on the user repository, the RTD's ``stable`` is back.
+        (set to machine=False) and doesn't update automatically anymore,
+        when the tag is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
         """
         version8 = Version.objects.create(
             project=self.pip,
@@ -253,8 +254,9 @@ class TestSyncVersions(TestCase):
         """
         The user imports a new project with a tag named ``stable``,
         when syncing the versions, the RTD's ``stable`` is lost
-        and doesn't update automatically anymore, when the tag is deleted
-        on the user repository, the RTD's ``stable`` is back.
+        (set to machine=False) and doesn't update automatically anymore,
+        when the tag is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
         """
         # There isn't a stable version yet
         self.pip.versions.exclude(slug='master').delete()
@@ -340,8 +342,9 @@ class TestSyncVersions(TestCase):
         """
         The user creates a branch named ``stable`` on an existing repo,
         when syncing the versions, the RTD's ``stable`` is lost
-        and doesn't update automatically anymore, when the branch is deleted
-        on the user repository, the RTD's ``stable`` is back.
+        (set to machine=False) and doesn't update automatically anymore,
+        when the branch is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
         """
         # Project with just branches
         self.pip.versions.filter(type=TAG).delete()
@@ -434,8 +437,9 @@ class TestSyncVersions(TestCase):
         """
         The user imports a new project with a branch named ``stable``,
         when syncing the versions, the RTD's ``stable`` is lost
-        and doesn't update automatically anymore, when the branch is deleted
-        on the user repository, the RTD's ``stable`` is back.
+        (set to machine=False) and doesn't update automatically anymore,
+        when the branch is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
         """
         # There isn't a stable version yet
         self.pip.versions.exclude(slug='master').delete()
@@ -518,8 +522,9 @@ class TestSyncVersions(TestCase):
         """
         The user creates a tag named ``latest`` on an existing repo,
         when syncing the versions, the RTD's ``latest`` is lost
-        and doesn't update automatically anymore, when the tag is deleted
-        on the user repository, the RTD's ``latest`` is back.
+        (set to machine=False) and doesn't update automatically anymore,
+        when the tag is deleted on the user repository, the RTD's ``latest``
+        is back (set to machine=True).
         """
         version_post_data = {
             'branches': [
@@ -585,8 +590,9 @@ class TestSyncVersions(TestCase):
         """
         The user creates a branch named ``latest`` on an existing repo,
         when syncing the versions, the RTD's ``latest`` is lost
-        and doesn't update automatically anymore, when the branch is deleted
-        on the user repository, the RTD's ``latest`` is back.
+        (set to machine=False) and doesn't update automatically anymore,
+        when the branch is deleted on the user repository, the RTD's ``latest``
+        is back (set to machine=True).
         """
         version_post_data = {
             'branches': [
