@@ -9,7 +9,9 @@ import logging
 
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
+from readthedocs.builds.constants import (LATEST, LATEST_VERBOSE_NAME,
+                                          NON_REPOSITORY_VERSIONS, STABLE,
+                                          STABLE_VERBOSE_NAME)
 from readthedocs.builds.models import Version
 from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
 
@@ -23,11 +25,14 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     )
     old_versions = dict(old_version_values)
 
-    added = set()
     # Add new versions
+    added = set()
+    has_user_stable = False
     for version in versions:
         version_id = version['identifier']
         version_name = version['verbose_name']
+        if version_name == STABLE_VERBOSE_NAME:
+            has_user_stable = True
         if version_name in old_versions:
             if version_id == old_versions[version_name]:
                 # Version is correct
@@ -55,6 +60,16 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 verbose_name=version_name,
             )
             added.add(created_version.slug)
+    if not has_user_stable:
+        stable_version = (
+            Version.objects
+            .filter(project=project, slug=STABLE, type=type)
+            .first()
+        )
+        if stable_version:
+            # Put back the RTD's stable version
+            stable_version.machine = True
+            stable_version.save()
     if added:
         log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
     return added
