@@ -62,8 +62,8 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             added.add(created_version.slug)
     if not has_user_stable:
         stable_version = (
-            Version.objects
-            .filter(project=project, slug=STABLE, type=type)
+            project.versions
+            .filter(slug=STABLE, type=type)
             .first()
         )
         if stable_version:
