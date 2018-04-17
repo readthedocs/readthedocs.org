@@ -34,7 +34,7 @@ This can include data such as:
 
 Typically, getting a user's page visit history is accomplished by the use of trackers
 (sometimes called beacons or pixels).
-For example, if a site uses a tracker from an ad network and a user visits their site,
+For example, if a site uses a tracker from an ad network and a user visits that site,
 the site can now target future advertising to that user -- a known past visitor --
 with that network. This is called *retargeting*.
 
