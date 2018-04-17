@@ -241,30 +241,3 @@ class SubprojectViewTests(TestCase):
             '/dashboard/my-mainproject/subprojects/my-subproject/delete/')
         self.assertEqual(response.status_code, 302)
         self.assertTrue(self.subproject not in [r.child for r in self.project.subprojects.all()])
-
-class URLResolution(TestCase):
-    def setUp(self):
-        self.user1 = new(User, username='foo+bar')
-        self.user1.set_password('test1')
-        self.user1.save()
-
-        self.user2 = new(User, username='abc+def@ghi.jkl')
-        self.user2.set_password('test2')
-        self.user2.save()
-
-        self.user3 = new(User, username='abc-def+ghi')
-        self.user3.set_password('test3')
-        self.user3.save()
-
-        self.client.login(username='foo+bar', password='test1')
-
-    def test_profile_details_page(self):
-
-        response = self.client.get('/profiles/foo+bar/')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get('/profiles/abc+def@ghi.jkl/')
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get('/profiles/abc-def+ghi/')
-        self.assertEqual(response.status_code, 200)
