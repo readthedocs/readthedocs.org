@@ -95,7 +95,8 @@ Additional details
 ------------------
 
 * We have additional documentation on the
-  :doc:`technical details of our advertising <advertising-details>`.
+  :doc:`technical details of our advertising <advertising-details>`
+  including our use of analytics.
 * We have an `advertising FAQ`_ written for advertisers.
 * We have gone into more detail about our views in our
   `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
