@@ -1032,10 +1032,10 @@ class TestStableVersion(TestCase):
         )
 
         # There arent others stable slugs like stable_a
-        other_latest = self.pip.versions.filter(
+        other_stable = self.pip.versions.filter(
             slug__startswith='stable_'
         )
-        self.assertFalse(other_latest.exists())
+        self.assertFalse(other_stable.exists())
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
@@ -1052,10 +1052,10 @@ class TestStableVersion(TestCase):
             '1abc2def3',
             self.pip.get_stable_version().identifier
         )
-        other_latest = self.pip.versions.filter(
+        other_stable = self.pip.versions.filter(
             slug__startswith='stable_'
         )
-        self.assertFalse(other_latest.exists())
+        self.assertFalse(other_stable.exists())
 
     def test_user_defined_stable_version_branch_with_tags(self):
         Version.objects.create(
@@ -1119,10 +1119,10 @@ class TestStableVersion(TestCase):
             self.pip.get_stable_version().identifier
         )
         # There arent others stable slugs like stable_a
-        other_latest = self.pip.versions.filter(
+        other_stable = self.pip.versions.filter(
             slug__startswith='stable_'
         )
-        self.assertFalse(other_latest.exists())
+        self.assertFalse(other_stable.exists())
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
@@ -1139,10 +1139,10 @@ class TestStableVersion(TestCase):
             'origin/stable',
             self.pip.get_stable_version().identifier
         )
-        other_latest = self.pip.versions.filter(
+        other_stable = self.pip.versions.filter(
             slug__startswith='stable_'
         )
-        self.assertFalse(other_latest.exists())
+        self.assertFalse(other_stable.exists())
 
 
 class TestLatestVersion(TestCase):
