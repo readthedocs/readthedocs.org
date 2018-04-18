@@ -164,7 +164,10 @@ class ResolverBase(object):
         relation = project.superprojects.first()
         if project.main_language_project:
             return self._get_canonical_project(project.main_language_project)
-        elif relation:
+        # If ``relation.parent == project`` means that the project has an
+        # inconsistent relationship and was added when this restriction didn't
+        # exist
+        elif relation and relation.parent != project:
             return self._get_canonical_project(relation.parent)
         return project
 

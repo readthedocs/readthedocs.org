@@ -292,6 +292,27 @@ class ResolverDomainTests(ResolverBase):
             self.assertEqual(url, 'pip.readthedocs.org')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_domain_resolver_subproject_itself(self):
+        """
+        Test inconsistent project/subproject relationship.
+
+        If a project is subproject of itself (inconsistent relationship) we
+        still resolves the proper domain.
+        """
+        # remove all possible subproject relationships
+        self.pip.subprojects.all().delete()
+
+        # add the project as subproject of itself
+        self.pip.add_subproject(self.pip)
+
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve_domain(project=self.pip)
+            self.assertEqual(url, 'readthedocs.org')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve_domain(project=self.pip)
+            self.assertEqual(url, 'pip.readthedocs.org')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_domain_resolver_translation(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.translation)
