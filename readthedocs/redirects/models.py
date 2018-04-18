@@ -126,8 +126,15 @@ class Redirect(models.Model):
                 version_slug=version_slug)
             return to
 
-    def redirect_exact(self, path, **__):
-        if path == self.from_url:
+    def redirect_exact(self, path, language=None, version_slug=None):
+        if language and version_slug:
+            # reconstruct the full path for an exact redirect
+            full_path = '/{language}/{version_slug}/{path}'.format(
+                language=language,
+                version_slug=version_slug,
+                path=path.lstrip('/'),
+            )
+        if full_path == self.from_url:
             log.debug('Redirecting %s', self)
             return self.to_url
         # Handle full sub-level redirects
