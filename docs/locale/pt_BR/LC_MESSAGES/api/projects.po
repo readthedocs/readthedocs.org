@@ -279,12 +279,12 @@ msgid ""
 msgstr ""
 
 # 6a2b786705274c008323db14a41b81c7
-#: ../../../readthedocs/projects/tasks.pydocstring of projects.tasks.fileify:1
+#: ../../../readthedocs/projects/tasks.pydocstring of projects.builds.fileify:1
 msgid "Create ImportedFile objects for all of a version's files."
 msgstr ""
 
 # 78e3cfd69fe14addb9dd6c3ccfe9c8cd
-#: ../../../readthedocs/projects/tasks.pydocstring of projects.tasks.fileify:3
+#: ../../../readthedocs/projects/tasks.pydocstring of projects.builds.fileify:3
 msgid ""
 "This is a prereq for indexing the docs for search. It also causes celery-"
 "haystack to kick off an index of the file."

@@ -254,7 +254,7 @@ class CommunityBaseSettings(Settings):
             'options': {'queue': 'web'},
         },
         'quarter-finish-inactive-builds': {
-            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'task': 'readthedocs.projects.builds.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
