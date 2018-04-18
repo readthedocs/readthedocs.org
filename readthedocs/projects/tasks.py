@@ -161,9 +161,11 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
+# TODO SyncRepositoryTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
 class SyncRepositoryTask(Task):
 
-    """Entry point to synchronize the VCS documentation."""
+    """Celery task to trigger VCS version sync."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
@@ -175,6 +177,17 @@ class SyncRepositoryTask(Task):
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
+
+    """Entry point to synchronize the VCS documentation.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
+    """
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
         """
@@ -201,6 +214,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
+# TODO UpdateDocsTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
 class UpdateDocsTask(Task):
 
     max_retries = 5
@@ -220,6 +235,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     It handles all of the logic around whether a project is imported, we created
     it or a webhook is received. Then it will sync the repository and build the
     html docs if needed.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
     """
 
     def __init__(self, build_env=None, python_env=None, config=None,
