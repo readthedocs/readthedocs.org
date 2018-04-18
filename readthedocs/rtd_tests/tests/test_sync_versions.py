@@ -154,7 +154,7 @@ class TestSyncVersions(TestCase):
         version_8 = Version.objects.get(slug='0.8.3')
         self.assertFalse(version_8.active)
 
-    def test_normal_behavior_for_stable_after_deleting_user_defined_tag(self):
+    def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
         """
         The user creates a tag named ``stable`` on an existing repo,
         when syncing the versions, the RTD's ``stable`` is lost
@@ -251,7 +251,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-    def test_normal_behavior_for_stable_after_deleting_user_defined_tag_2(self):
+    def test_machine_attr_when_user_define_stable_tag_and_delete_it_new_project(self):
         """
         The user imports a new project with a tag named ``stable``,
         when syncing the versions, the RTD's ``stable`` is lost
@@ -339,7 +339,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-    def test_normal_behavior_for_stable_after_deleting_user_defined_branch(self):
+    def test_machine_attr_when_user_define_stable_branch_and_delete_it(self):
         """
         The user creates a branch named ``stable`` on an existing repo,
         when syncing the versions, the RTD's ``stable`` is lost
@@ -434,7 +434,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-    def test_normal_behavior_for_stable_after_deleting_user_defined_branch_2(self):
+    def test_machine_attr_when_user_define_stable_branch_and_delete_it_new_project(self):
         """
         The user imports a new project with a branch named ``stable``,
         when syncing the versions, the RTD's ``stable`` is lost
@@ -519,7 +519,7 @@ class TestSyncVersions(TestCase):
         self.assertTrue(current_stable.machine)
 
     @pytest.mark.xfail(strict=True)
-    def test_normal_behavior_for_latest_after_deleting_user_defined_tag(self):
+    def test_machine_attr_when_user_define_latest_tag_and_delete_it(self):
         """
         The user creates a tag named ``latest`` on an existing repo,
         when syncing the versions, the RTD's ``latest`` is lost
@@ -587,7 +587,7 @@ class TestSyncVersions(TestCase):
         self.assertTrue(version_latest.machine)
 
     @pytest.mark.xfail(strict=True)
-    def test_normal_behavior_for_latest_after_deleting_user_defined_branch(self):
+    def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
         """
         The user creates a branch named ``latest`` on an existing repo,
         when syncing the versions, the RTD's ``latest`` is lost
