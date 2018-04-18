@@ -237,19 +237,26 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
                 'There is already a "{lang}" translation '
                 'for the {proj} project.'
             )
-            format_msg = msg.format(lang=language, proj=project.slug)
             if project.translations.filter(language=language).exists():
-                raise forms.ValidationError(format_msg)
+                raise forms.ValidationError(
+                    msg.format(lang=language, proj=project.slug)
+                )
             main_project = project.main_language_project
             if main_project:
                 if main_project.language == language:
-                    raise forms.ValidationError(format_msg)
-                siblings = (main_project.translations
-                            .filter(language=language)
-                            .exclude(pk=project.pk)
-                            .exists())
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+                siblings = (
+                    main_project.translations
+                    .filter(language=language)
+                    .exclude(pk=project.pk)
+                    .exists()
+                )
                 if siblings:
-                    raise forms.ValidationError(format_msg)
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
         return language
 
 
