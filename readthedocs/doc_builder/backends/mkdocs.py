@@ -114,7 +114,11 @@ class BaseMkdocs(BaseBuilder):
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
         """Generate template properties and render readthedocs-data.js."""
-        theme_name = mkdocs_config.get('theme_dir', 'readthedocs').rsplit('/')[-1]
+        # Get the theme name
+        theme_name = 'readthedocs'
+        theme_dir = mkdocs_config.get('theme_dir')
+        if theme_dir:
+            theme_name = theme_dir.rstrip('/').split('/')[-1]
 
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
