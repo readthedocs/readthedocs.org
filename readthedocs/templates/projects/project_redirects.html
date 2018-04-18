@@ -82,9 +82,14 @@
           <ul>
             {% for redirect in redirects %}
               <li class="module-item">
-                <span>
-                  {{ redirect }}
-                </span>
+                <div>
+                  {{ redirect.get_redirect_type_display }}
+                </div>
+                {% if redirect.get_from_to_url_display %}
+                  <div>
+                    {{ redirect.get_from_to_url_display }}
+                  </div>
+                {% endif %}
                 <ul class="module-item-menu">
                   <li>
                     <form method="post" action="{% url "projects_redirects_delete" project.slug %}">
