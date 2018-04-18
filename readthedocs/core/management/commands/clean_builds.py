@@ -44,14 +44,19 @@ class Command(BaseCommand):
                 version = Version.objects.get(id=build['version'])
                 latest_build = version.builds.latest('date')
                 if latest_build.date > max_date:
-                    log.warning('{0} is newer than {1}'.format(
-                        latest_build, max_date))
+                    log.warning(
+                        '%s is newer than %s',
+                        latest_build,
+                        max_date,
+                    )
                 path = version.get_build_path()
                 if path is not None:
                     log.info(
-                        ('Found stale build path for {0} '
-                         'at {1}, last used on {2}').format(
-                            version, path, latest_build.date))
+                        'Found stale build path for %s at %s, last used on %s',
+                        version,
+                        path,
+                        latest_build.date,
+                    )
                     if not options['dryrun']:
                         version.clean_build_path()
             except Version.DoesNotExist:

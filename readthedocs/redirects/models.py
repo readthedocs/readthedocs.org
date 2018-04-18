@@ -78,13 +78,30 @@ class Redirect(models.Model):
         ordering = ('-update_dt',)
 
     def __str__(self):
-        if self.redirect_type == 'prefix':
-            return ugettext('Prefix Redirect:') + ' %s ->' % self.from_url
-        elif self.redirect_type == 'page':
-            return ugettext('Page Redirect:') + ' %s -> %s' % (
-                self.from_url,
-                self.to_url)
-        return ugettext('Redirect: %s' % self.get_redirect_type_display())
+        redirect_text = '{type}: {from_to_url}'
+        if self.redirect_type in ['prefix', 'page', 'exact']:
+            return redirect_text.format(
+                type=self.get_redirect_type_display(),
+                from_to_url=self.get_from_to_url_display()
+            )
+        return ugettext('Redirect: {}'.format(
+            self.get_redirect_type_display())
+        )
+
+    def get_from_to_url_display(self):
+        if self.redirect_type in ['prefix', 'page', 'exact']:
+            from_url = self.from_url
+            to_url = self.to_url
+            if self.redirect_type == 'prefix':
+                to_url = '/{lang}/{version}/'.format(
+                    lang=self.project.language,
+                    version=self.project.default_version
+                )
+            return '{from_url} -> {to_url}'.format(
+                from_url=from_url,
+                to_url=to_url
+            )
+        return ''
 
     def get_full_path(self, filename, language=None, version_slug=None):
         """

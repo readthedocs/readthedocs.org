@@ -4,7 +4,7 @@ Security
 Security is very important to us at Read the Docs. We are committed to responsible reporting and disclosure of security issues.
 
 Reporting a security issue
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 If you believe you've discovered a security issue at Read the Docs, please contact us at **security@readthedocs.org** (optionally using our :ref:`pgp-key`). We request that you please not publicly disclose the issue until it has been addressed by us.
 
@@ -18,7 +18,7 @@ You can expect:
 .. _pgp-key:
 
 PGP key
-~~~~~~~
+-------
 
 You may use this `PGP key`_ to securely communicate with us and to verify signed messages you receive from us.
 
@@ -84,6 +84,17 @@ You may use this `PGP key`_ to securely communicate with us and to verify signed
 .. _security-issue-archive:
 
 Security issue archive
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
-It's only a matter of time...
+.. _security-2.3.0:
+
+Release 2.3.0
+~~~~~~~~~~~~~
+
+:ref:`version-2.3.0` resolves a security issue with translations on our community
+hosting site that allowed users to modify the hosted path of a target project by
+adding it as a translation project of their own project. A check was added to
+ensure project ownership before adding the project as a translation.
+
+In order to add a project as a translation now, users must now first be granted
+ownership in the translation project.

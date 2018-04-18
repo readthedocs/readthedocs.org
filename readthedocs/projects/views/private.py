@@ -286,8 +286,6 @@ class ImportDemoView(PrivateViewMixin, View):
                 messages.success(
                     request, _('Your demo project is currently being imported'))
             else:
-                for (__, msg) in list(form.errors.items()):
-                    log.error(msg)
                 messages.error(
                     request,
                     _('There was a problem adding the demo project'),
@@ -566,7 +564,11 @@ def project_translations(request, project_slug):
     """Project translations view and form view."""
     project = get_object_or_404(
         Project.objects.for_admin_user(request.user), slug=project_slug)
-    form = TranslationForm(data=request.POST or None, parent=project)
+    form = TranslationForm(
+        data=request.POST or None,
+        parent=project,
+        user=request.user,
+    )
 
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -596,7 +598,7 @@ def project_translations_delete(request, project_slug, child_slug):
         slug=project_slug,
     )
     subproj = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
+        project.translations,
         slug=child_slug,
     )
     project.translations.remove(subproj)

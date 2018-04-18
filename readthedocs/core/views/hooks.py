@@ -233,12 +233,13 @@ def gitlab_build(request):  # noqa: D205
         log.info(
             'GitLab webhook search: url=%s branches=%s',
             search_url,
-            branches
+            branches,
         )
         projects = get_project_from_url(search_url)
         if projects:
             return _build_url(search_url, projects, branches)
-        log.error('Project match not found: url=%s', search_url)
+
+        log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)
 
@@ -294,7 +295,7 @@ def bitbucket_build(request):
         log.info(
             'Bitbucket webhook search: url=%s branches=%s',
             search_url,
-            branches
+            branches,
         )
         log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
         projects = get_project_from_url(search_url)
@@ -304,10 +305,10 @@ def bitbucket_build(request):
             log.error(
                 'Commit/branch not found url=%s branches=%s',
                 search_url,
-                branches
+                branches,
             )
             return HttpResponseNotFound('Commit/branch not found')
-        log.error('Project match not found: url=%s', search_url)
+        log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)
 

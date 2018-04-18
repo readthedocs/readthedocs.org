@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 from os.path import exists
 
+import pytest
 from django.contrib.auth.models import User
+import django_dynamic_fixture as fixture
 
-from readthedocs.projects.models import Project
+from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.models import Project, Feature
 from readthedocs.rtd_tests.base import RTDTestCase
 
 from readthedocs.rtd_tests.utils import make_test_git, make_test_hg
@@ -77,6 +80,41 @@ class TestGitBackend(RTDTestCase):
         given_ids = [(x.identifier, x.verbose_name) for x in
                      self.project.vcs_repo().parse_tags(data)]
         self.assertEqual(expected_tags, given_ids)
+
+    def test_check_for_submodules(self):
+        repo = self.project.vcs_repo()
+
+        repo.checkout()
+        self.assertFalse(repo.are_submodules_available())
+
+        # The submodule branch contains one submodule
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_available())
+
+    def test_skip_submodule_checkout(self):
+        repo = self.project.vcs_repo()
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_available())
+        feature = fixture.get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.SKIP_SUBMODULES,
+        )
+        self.assertTrue(self.project.has_feature(Feature.SKIP_SUBMODULES))
+        self.assertFalse(repo.are_submodules_available())
+
+    def test_check_submodule_urls(self):
+        repo = self.project.vcs_repo()
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_valid())
+        repo.checkout('relativesubmodule')
+        self.assertTrue(repo.are_submodules_valid())
+
+    @pytest.mark.xfail(strict=True, reason="Fixture is not working correctly")
+    def test_check_invalid_submodule_urls(self):
+        with self.assertRaises(RepositoryError) as e:
+            repo.checkout('invalidsubmodule')
+            self.assertEqual(e.msg, RepositoryError.INVALID_SUBMODULES)
 
 
 class TestHgBackend(RTDTestCase):

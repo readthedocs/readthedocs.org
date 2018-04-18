@@ -17,7 +17,8 @@ from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
                                 VersionViewSet, DomainViewSet,
                                 RemoteOrganizationViewSet,
-                                RemoteRepositoryViewSet)
+                                RemoteRepositoryViewSet,
+                                SocialAccountViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, base_name='build')
@@ -30,6 +31,8 @@ router.register(
     r'remote/org', RemoteOrganizationViewSet, base_name='remoteorganization')
 router.register(
     r'remote/repo', RemoteRepositoryViewSet, base_name='remoterepository')
+router.register(
+    r'remote/account', SocialAccountViewSet, base_name='remoteaccount')
 router.register(r'comments', CommentViewSet, base_name="comments")
 
 urlpatterns = [
@@ -95,5 +98,14 @@ try:
         url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
     ]
     urlpatterns += api_search_urls
+except ImportError:
+    pass
+
+try:
+    from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
+
+    urlpatterns += [
+        url(r'^sustainability/', include(sustainability_urls)),
+    ]
 except ImportError:
     pass
