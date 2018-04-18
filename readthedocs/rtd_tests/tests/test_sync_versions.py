@@ -6,6 +6,7 @@ from __future__ import (
 import json
 
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
@@ -200,7 +201,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -230,7 +231,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -284,7 +285,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -318,7 +319,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -385,7 +386,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -413,7 +414,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -465,7 +466,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -497,7 +498,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -543,7 +544,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -567,7 +568,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -609,7 +610,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -633,7 +634,7 @@ class TestSyncVersions(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1011,7 +1012,7 @@ class TestStableVersion(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1038,7 +1039,7 @@ class TestStableVersion(TestCase):
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1099,7 +1100,7 @@ class TestStableVersion(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1125,7 +1126,7 @@ class TestStableVersion(TestCase):
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1181,7 +1182,7 @@ class TestLatestVersion(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1204,7 +1205,7 @@ class TestLatestVersion(TestCase):
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1238,7 +1239,7 @@ class TestLatestVersion(TestCase):
         }
 
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
@@ -1261,7 +1262,7 @@ class TestLatestVersion(TestCase):
 
         # Check that posting again doesn't change anything from current state.
         resp = self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
