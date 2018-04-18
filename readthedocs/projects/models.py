@@ -8,6 +8,7 @@ import fnmatch
 import logging
 import os
 from builtins import object  # pylint: disable=redefined-builtin
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -82,6 +83,7 @@ class Project(models.Model):
                                    related_name='projects')
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    abandoned_mail_sent = models.BooleanField(default=False)
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
@@ -576,6 +578,22 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return os.path.dirname(conf_file)
+
+    @property
+    def is_abandoned(self):
+        """Is project abandoned."""
+        if self.has_good_build:
+            latest_build = self.get_latest_build()
+            if latest_build:
+                latest_build_date = latest_build.date
+                today = datetime.today()
+                diff = today - latest_build_date
+                # Latest build a year ago.
+                if diff > timedelta(days=365):
+                    return True
+                return False
+            return False
+        return True
 
     @property
     def is_type_sphinx(self):

@@ -220,6 +220,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         # Places where we 302 on success -- These delete pages should probably be 405'ing
         '/dashboard/import/manual/demo/': {'status_code': 302},
         '/dashboard/pip/': {'status_code': 302},
+        '/dashboard/pip/send_abandoned_mail/': {'status_code':302},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
         '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
 
@@ -254,6 +255,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
         # Unauth access redirect for non-owners
         '/dashboard/pip/': {'status_code': 302},
+        '/dashboard/pip/send_abandoned_mail/': {'status_code':302},
 
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},

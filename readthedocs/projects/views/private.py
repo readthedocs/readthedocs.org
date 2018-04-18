@@ -8,7 +8,7 @@ import logging
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import (
@@ -26,7 +26,8 @@ from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils import broadcast, trigger_build, send_email
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.utils import attach_webhook, update_webhook
@@ -262,6 +263,27 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         """Determine if the user selected the `show advanced` field."""
         data = self.get_cleaned_data_for_step('basics') or {}
         return data.get('advanced', True)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def send_abandoned_mail(request, project_slug):
+    """Sends abandoned project email."""
+    project = Project.objects.get(slug=project_slug)
+    proj_name = project_slug
+    context = {'proj_name': proj_name}
+    subject = 'Rename request for abandoned project'
+    for user in project.users.all():
+        email = user.email
+        send_email(
+            recipient=email,
+            subject=subject,
+            template='projects/email/abandon_project.txt',
+            template_html='projects/email/abandon_project.html',
+            context=context)
+    project.abandoned_mail_sent = True
+    project.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
 class ImportDemoView(PrivateViewMixin, View):

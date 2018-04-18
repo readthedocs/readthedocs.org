@@ -115,9 +115,13 @@ class ProjectBasicsForm(ProjectForm):
         name = self.cleaned_data.get('name', '')
         if not self.instance.pk:
             potential_slug = slugify(name)
-            if Project.objects.filter(slug=potential_slug).exists():
-                raise forms.ValidationError(
-                    _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
+            project_exist = Project.objects.filter(slug=potential_slug).exists()
+            if project_exist:
+                project = Project.objects.get(slug=potential_slug)
+                project_url = project.get_absolute_url()
+                err_msg = ('Invalid project name, a <a href="{}" style="color: red">'
+                           'project</a> already exists with that name').format(project_url)
+                raise forms.ValidationError(mark_safe(err_msg)) # yapf: disable # noqa
         return name
 
     def clean_remote_repository(self):

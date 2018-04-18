@@ -23,6 +23,19 @@
         <a href="{{ project.get_absolute_url }}">{{ project }}</a>
       </h1>
     </div>
+    
+    {% if project.is_abandoned and request.user.is_superuser %}
+      <div class="abandon=project">
+        {% if not project.abandoned_mail_sent %}
+          <form action="{% url "send_abandoned_mail" project.slug %}" method="post">
+            {% csrf_token %}
+            <input type="submit" name="submit-btn" value="{% trans "Email project owner with our abandoned project email" %}"/>
+          </form>
+        {% else %}
+          <p><strong>{%trans "Abandonment mail was sent to the owner of the project." %}</strong></p>
+        {% endif %}
+      </div>
+    {% endif %}
 
     <div class="options">
 

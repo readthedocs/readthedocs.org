@@ -1,0 +1,9 @@
+{% extends "core/email/common.txt" %}
+
+{% load i18n %}
+
+{% block content %}
+We've had a request from one of our users for the project name {{proj_name}} on Read the Docs. You are the current owner, and we wanted to reach out to you in accordance with our Abandoned Project policy (http://docs.readthedocs.io/en/latest/abandoned-projects.html).
+
+Please reply at hello@readthedocs.com either allowing or disallowing the transfer of the name on Read the Docs within 6 weeks, otherwise we will take the action of *initiating the transfer to a new owner* by default.
+{% endblock %}
