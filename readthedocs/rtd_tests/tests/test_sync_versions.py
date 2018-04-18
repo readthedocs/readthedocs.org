@@ -208,10 +208,9 @@ class TestSyncVersions(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         current_stable = self.pip.get_stable_version()
-        version_stable = self.pip.versions.get(slug='stable')
         self.assertEqual(
-            current_stable.identifier,
-            version_stable.identifier
+            '1abc2def3',
+            current_stable.identifier
         )
 
         # Deleting the tag should return the RTD's stable
@@ -239,15 +238,10 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous commit
-        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            version8.identifier,
-            current_stable.identifier,
-        )
-        self.assertNotEqual(
-            '1abc2def3',
-            current_stable.identifier,
+            '0.8.3',
+            current_stable.identifier
         )
         self.assertTrue(current_stable.machine)
 
@@ -291,16 +285,15 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            current_stable.identifier,
-            version_stable.identifier
+            '1abc2def3',
+            current_stable.identifier
         )
 
         # User activates the stable version
-        version_stable.active = True
-        version_stable.save()
+        current_stable.active = True
+        current_stable.save()
 
         # Deleting the tag should return the RTD's stable
         version_post_data = {
@@ -327,15 +320,10 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous commit
-        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            version8.identifier,
-            current_stable.identifier,
-        )
-        self.assertNotEqual(
-            '1abc2def3',
-            current_stable.identifier,
+            '0.8.3',
+            current_stable.identifier
         )
         self.assertTrue(current_stable.machine)
 
@@ -349,7 +337,7 @@ class TestSyncVersions(TestCase):
         """
         # Project with just branches
         self.pip.versions.filter(type=TAG).delete()
-        version8 = Version.objects.create(
+        Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
             verbose_name='0.8.3',
@@ -362,7 +350,7 @@ class TestSyncVersions(TestCase):
 
         # 0.8.3 is the current stable
         self.assertEqual(
-            version8.identifier,
+            '0.8.3',
             current_stable.identifier
         )
         self.assertTrue(current_stable.machine)
@@ -392,11 +380,10 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            current_stable.identifier,
-            version_stable.identifier
+            'origin/stable',
+            current_stable.identifier
         )
 
         # Deleting the branch should return the RTD's stable
@@ -422,15 +409,10 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous branch
-        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            version8.identifier,
-            current_stable.identifier,
-        )
-        self.assertNotEqual(
-            'origin/stable',
-            current_stable.identifier,
+            'origin/0.8.3',
+            current_stable.identifier
         )
         self.assertTrue(current_stable.machine)
 
@@ -472,16 +454,15 @@ class TestSyncVersions(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        version_stable = self.pip.versions.get(slug='stable')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            current_stable.identifier,
-            version_stable.identifier
+            'origin/stable',
+            current_stable.identifier
         )
 
         # User activates the stable version
-        version_stable.active = True
-        version_stable.save()
+        current_stable.active = True
+        current_stable.save()
 
         # Deleting the branch should return the RTD's stable
         version_post_data = {
@@ -506,15 +487,10 @@ class TestSyncVersions(TestCase):
 
         # The version 8 should be the new stable.
         # The stable isn't stuck with the previous commit
-        version8 = self.pip.versions.get(slug='0.8.3')
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
-            version8.identifier,
-            current_stable.identifier,
-        )
-        self.assertNotEqual(
-            'origin/stable',
-            current_stable.identifier,
+            'origin/0.8.3',
+            current_stable.identifier
         )
         self.assertTrue(current_stable.machine)
 
@@ -578,11 +554,7 @@ class TestSyncVersions(TestCase):
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'origin/master',
-            version_latest.identifier,
-        )
-        self.assertNotEqual(
-            '1abc2def3',
-            version_latest.identifier,
+            version_latest.identifier
         )
         self.assertTrue(version_latest.machine)
 
@@ -644,10 +616,6 @@ class TestSyncVersions(TestCase):
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'origin/master',
-            version_latest.identifier,
-        )
-        self.assertNotEqual(
-            'origin/latest',
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
