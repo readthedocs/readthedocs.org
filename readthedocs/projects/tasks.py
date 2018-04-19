@@ -178,7 +178,8 @@ class SyncRepositoryTask(Task):
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
 
-    """Entry point to synchronize the VCS documentation.
+    """
+    Entry point to synchronize the VCS documentation.
 
     .. note::
 
@@ -186,7 +187,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         underlying task. Previously, we were using a custom ``celery.Task`` for
         this, but this class is only instantiated once -- on startup. The effect
         was that this instance shared state between workers.
-
     """
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
