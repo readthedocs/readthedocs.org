@@ -854,7 +854,7 @@ class TestPythonEnvironment(TestCase):
 
         self.base_requirements = [
             'Pygments==2.2.0',
-            'setuptools==37.0.0',
+            'setuptools<40',
             'docutils==0.13.1',
             'mock==1.0.1',
             'pillow==2.6.1',
