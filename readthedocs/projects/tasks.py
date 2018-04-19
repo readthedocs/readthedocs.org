@@ -161,13 +161,33 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
-class SyncRepositoryTask(SyncRepositoryMixin, Task):
+# TODO SyncRepositoryTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class SyncRepositoryTask(Task):
 
-    """Entry point to synchronize the VCS documentation."""
+    """Celery task to trigger VCS version sync."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.sync_repository'
+
+    def run(self, *args, **kwargs):
+        step = SyncRepositoryTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class SyncRepositoryTaskStep(SyncRepositoryMixin):
+
+    """Entry point to synchronize the VCS documentation.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
+    """
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
         """
@@ -194,7 +214,20 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         return False
 
 
-class UpdateDocsTask(SyncRepositoryMixin, Task):
+# TODO UpdateDocsTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class UpdateDocsTask(Task):
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.update_docs'
+
+    def run(self, *args, **kwargs):
+        step = UpdateDocsTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     """
     The main entry point for updating documentation.
@@ -202,13 +235,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     It handles all of the logic around whether a project is imported, we created
     it or a webhook is received. Then it will sync the repository and build the
     html docs if needed.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
     """
 
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
