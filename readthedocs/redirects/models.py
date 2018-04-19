@@ -144,6 +144,7 @@ class Redirect(models.Model):
             return to
 
     def redirect_exact(self, path, language=None, version_slug=None):
+        full_path = path
         if language and version_slug:
             # reconstruct the full path for an exact redirect
             full_path = self.get_full_path(path, language, version_slug)
