@@ -56,7 +56,7 @@ $(document).ready(function () {
 
       <div data-bind="visible: finished() && success()">
         <li>
-          <a class="" href="{{ build.version.get_absolute_url }}">
+          <a data-bind="attr: {href: docs_url}">
             {% trans "View docs" %}
           </a>
         </li>
