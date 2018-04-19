@@ -88,6 +88,9 @@ def map_project_slug(view_func):
     def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
         if project is None:
             if not project_slug:
+                # FIXME: this blows up when USE_SUBDOMAIN=False and DEBUG=False
+                # and accessing a single version project like:
+                # http://localhost:8000/docs/contribution-guide-org/
                 project_slug = request.slug
             try:
                 project = Project.objects.get(slug=project_slug)
