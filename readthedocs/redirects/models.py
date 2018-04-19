@@ -146,11 +146,7 @@ class Redirect(models.Model):
     def redirect_exact(self, path, language=None, version_slug=None):
         if language and version_slug:
             # reconstruct the full path for an exact redirect
-            full_path = '/{language}/{version_slug}/{path}'.format(
-                language=language,
-                version_slug=version_slug,
-                path=path.lstrip('/'),
-            )
+            full_path = self.get_full_path(path, language, version_slug)
         if full_path == self.from_url:
             log.debug('Redirecting %s', self)
             return self.to_url
