@@ -125,7 +125,7 @@ python.version
 ``````````````
 
 * Default: ``2.7``
-* Options: ``2.7``, ``2``, ``3.5``, ``3``
+* Options: ``2.7``, ``2``, ``3.3``, ``3.4``, ``3.5``, ``3.6``, ``3``
 
 This is the version of Python to use when building your documentation. If you
 specify only the major version of Python, the highest supported minor version
