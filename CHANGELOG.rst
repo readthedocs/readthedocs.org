@@ -1,3 +1,11 @@
+Version 2.3.8
+-------------
+
+:Date: April 20, 2018
+
+* `@agjohnson <http://github.com/agjohnson>`_: Give TaskStep class knowledge of the underlying task (`#3983 <https://github.com/rtfd/readthedocs.org/pull/3983>`_)
+* `@humitos <http://github.com/humitos>`_: Resolve domain when a project is a translation of itself (`#3981 <https://github.com/rtfd/readthedocs.org/pull/3981>`_)
+
 Version 2.3.7
 -------------
 
