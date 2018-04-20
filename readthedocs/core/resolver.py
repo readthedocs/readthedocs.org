@@ -167,6 +167,8 @@ class ResolverBase(object):
         # what you get if you have configured your project in a strange manner
         if projects is None:
             projects = [project]
+        else:
+            projects.append(project)
         next_project = None
 
         relation = project.superprojects.first()
