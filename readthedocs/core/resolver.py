@@ -162,11 +162,14 @@ class ResolverBase(object):
         :rtype: Project
         """
         relation = project.superprojects.first()
-        if project.main_language_project:
+        # If ``project.main_language_project == project`` means that the project
+        # it's a translation of itself and have an inconsistent
+        # relationship. It's was added when this restriction didn't exist yet
+        if project.main_language_project and project.main_language_project != project:
             return self._get_canonical_project(project.main_language_project)
-        # If ``relation.parent == project`` means that the project has an
-        # inconsistent relationship and was added when this restriction didn't
-        # exist
+        # If ``relation.parent == project`` means that the project is subproject
+        # of iteself. This is an inconsistent relationship and was added when
+        # this restriction didn't exist
         elif relation and relation.parent != project:
             return self._get_canonical_project(relation.parent)
         return project
