@@ -1,3 +1,10 @@
+Version 2.3.9
+-------------
+
+:Date: April 20, 2018
+
+* `@agjohnson <http://github.com/agjohnson>`_: Fix recursion problem more generally (`#3989 <https://github.com/rtfd/readthedocs.org/pull/3989>`_)
+
 Version 2.3.8
 -------------
 
