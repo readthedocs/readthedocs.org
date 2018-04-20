@@ -151,7 +151,7 @@ class ResolverBase(object):
                                    **kwargs),
         )
 
-    def _get_canonical_project(self, project):
+    def _get_canonical_project(self, project, projects=None):
         """
         Recursively get canonical project for subproject or translations.
 
@@ -159,19 +159,25 @@ class ResolverBase(object):
         subprojects, and vice versa, are supported.
 
         :type project: Project
+        :type projects: List of projects for iteration
         :rtype: Project
         """
+        # Track what projects have already been traversed to avoid infinite
+        # recursion. We can't determine a root project well here, so you get
+        # what you get if you have configured your project in a strange manner
+        if projects is None:
+            projects = [project]
+        else:
+            projects.append(project)
+        next_project = None
+
         relation = project.superprojects.first()
-        # If ``project.main_language_project == project`` means that the project
-        # it's a translation of itself and have an inconsistent
-        # relationship. It's was added when this restriction didn't exist yet
-        if project.main_language_project and project.main_language_project != project:
-            return self._get_canonical_project(project.main_language_project)
-        # If ``relation.parent == project`` means that the project is subproject
-        # of iteself. This is an inconsistent relationship and was added when
-        # this restriction didn't exist
-        elif relation and relation.parent != project:
-            return self._get_canonical_project(relation.parent)
+        if project.main_language_project:
+            next_project = project.main_language_project
+        elif relation:
+            next_project = relation.parent
+        if next_project and next_project not in projects:
+            return self._get_canonical_project(next_project, projects)
         return project
 
     def _get_project_subdomain(self, project):
