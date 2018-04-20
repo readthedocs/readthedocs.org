@@ -93,7 +93,6 @@ div.ethical-sidebar, div.ethical-footer {
 /* Fixed footer promotions */
 .ethical-fixedfooter {
     box-sizing: border-box;
-    width: 100%;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -105,6 +104,8 @@ div.ethical-sidebar, div.ethical-footer {
     padding: 0.5em 2.5em;
     text-align: center;
     color: #404040;
+    width: 100%;    /* Fallback for Opera Mini */
+    width: 100vw;
 }
 .ethical-fixedfooter a,
 .ethical-fixedfooter a:hover,

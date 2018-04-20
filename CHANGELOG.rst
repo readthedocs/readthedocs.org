@@ -1,3 +1,40 @@
+Version 2.3.7
+-------------
+
+:Date: April 19, 2018
+
+* `@humitos <http://github.com/humitos>`_: Fix server_error_500 path on single version (`#3975 <https://github.com/rtfd/readthedocs.org/pull/3975>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fix bookmark app lint failures (`#3969 <https://github.com/rtfd/readthedocs.org/pull/3969>`_)
+* `@humitos <http://github.com/humitos>`_: Use latest setuptools (39.0.1) by default on build process (`#3967 <https://github.com/rtfd/readthedocs.org/pull/3967>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Fix exact redirects. (`#3965 <https://github.com/rtfd/readthedocs.org/pull/3965>`_)
+* `@humitos <http://github.com/humitos>`_: Make `resolve_domain` work when a project is subproject of itself (`#3962 <https://github.com/rtfd/readthedocs.org/pull/3962>`_)
+* `@humitos <http://github.com/humitos>`_: Remove django-celery-beat and use the default scheduler (`#3959 <https://github.com/rtfd/readthedocs.org/pull/3959>`_)
+* `@xrmx <http://github.com/xrmx>`_: Fix some tests with postgres (`#3958 <https://github.com/rtfd/readthedocs.org/pull/3958>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Add advertising details docs (`#3955 <https://github.com/rtfd/readthedocs.org/pull/3955>`_)
+* `@humitos <http://github.com/humitos>`_: Use pur to upgrade python packages (`#3953 <https://github.com/rtfd/readthedocs.org/pull/3953>`_)
+* `@ze <http://github.com/ze>`_: Make adjustments to Projects page (`#3948 <https://github.com/rtfd/readthedocs.org/pull/3948>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Small change to Chinese language names (`#3947 <https://github.com/rtfd/readthedocs.org/pull/3947>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Don't share state in build task (`#3946 <https://github.com/rtfd/readthedocs.org/pull/3946>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fixed footer ad width fix (`#3944 <https://github.com/rtfd/readthedocs.org/pull/3944>`_)
+* `@humitos <http://github.com/humitos>`_: Allow extend Translation and Subproject form logic from corporate (`#3937 <https://github.com/rtfd/readthedocs.org/pull/3937>`_)
+* `@humitos <http://github.com/humitos>`_: Resync valid webhook for project manually imported (`#3935 <https://github.com/rtfd/readthedocs.org/pull/3935>`_)
+* `@humitos <http://github.com/humitos>`_: Resync webhooks from Admin (`#3933 <https://github.com/rtfd/readthedocs.org/pull/3933>`_)
+* `@humitos <http://github.com/humitos>`_: Fix attribute order call (`#3930 <https://github.com/rtfd/readthedocs.org/pull/3930>`_)
+* `@humitos <http://github.com/humitos>`_: Mention RTD in the Project URL of the issue template (`#3928 <https://github.com/rtfd/readthedocs.org/pull/3928>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Correctly report mkdocs theme name (`#3920 <https://github.com/rtfd/readthedocs.org/pull/3920>`_)
+* `@xrmx <http://github.com/xrmx>`_: Fixup DJANGO_SETTINGS_SKIP_LOCAL in tests (`#3899 <https://github.com/rtfd/readthedocs.org/pull/3899>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Show an adblock admonition in the dev console (`#3894 <https://github.com/rtfd/readthedocs.org/pull/3894>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix view docs link (`#3882 <https://github.com/rtfd/readthedocs.org/pull/3882>`_)
+* `@xrmx <http://github.com/xrmx>`_: templates: mark a few more strings for translations (`#3869 <https://github.com/rtfd/readthedocs.org/pull/3869>`_)
+* `@ze <http://github.com/ze>`_: Update quickstart from README (`#3847 <https://github.com/rtfd/readthedocs.org/pull/3847>`_)
+* `@vidartf <http://github.com/vidartf>`_: Fix page redirect preview (`#3811 <https://github.com/rtfd/readthedocs.org/pull/3811>`_)
+* `@stsewd <http://github.com/stsewd>`_: [RDY] Fix requirements file lookup (`#3800 <https://github.com/rtfd/readthedocs.org/pull/3800>`_)
+* `@aasis21 <http://github.com/aasis21>`_: Documentation for build notifications using webhooks. (`#3671 <https://github.com/rtfd/readthedocs.org/pull/3671>`_)
+* `@mashrikt <http://github.com/mashrikt>`_: [#2967] Scheduled tasks for cleaning up messages (`#3604 <https://github.com/rtfd/readthedocs.org/pull/3604>`_)
+* `@stsewd <http://github.com/stsewd>`_: Show URLS for exact redirect (`#3593 <https://github.com/rtfd/readthedocs.org/pull/3593>`_)
+* `@marcelstoer <http://github.com/marcelstoer>`_: Doc builder template should check for mkdocs_page_input_path before using it (`#3536 <https://github.com/rtfd/readthedocs.org/pull/3536>`_)
+* `@Code0x58 <http://github.com/Code0x58>`_: Document creation of slumber user (`#3461 <https://github.com/rtfd/readthedocs.org/pull/3461>`_)
+
 Version 2.3.6
 -------------
 
@@ -13,9 +50,6 @@ Version 2.3.6
 * `@humitos <http://github.com/humitos>`_: Save Docker image data in JSON file only for DockerBuildEnvironment (`#3897 <https://github.com/rtfd/readthedocs.org/pull/3897>`_)
 * `@davidfischer <http://github.com/davidfischer>`_: Single analytics file for all builders (`#3896 <https://github.com/rtfd/readthedocs.org/pull/3896>`_)
 * `@humitos <http://github.com/humitos>`_: Organize logging levels (`#3893 <https://github.com/rtfd/readthedocs.org/pull/3893>`_)
-* `@agjohnson <http://github.com/agjohnson>`_: Add ref links for easier intersphinx on yaml config page (`#3877 <https://github.com/rtfd/readthedocs.org/pull/3877>`_)
-* `@stsewd <http://github.com/stsewd>`_: Pin astroid to fix linter issue on travis (`#3816 <https://github.com/rtfd/readthedocs.org/pull/3816>`_)
-* `@davidfischer <http://github.com/davidfischer>`_: Anonymize IP addresses for Google Analytics (`#3626 <https://github.com/rtfd/readthedocs.org/pull/3626>`_)
 
 Version 2.3.5
 -------------

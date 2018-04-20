@@ -12,6 +12,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils import six
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -247,7 +248,8 @@ class APITests(TestCase):
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn('features', resp.data)
-        self.assertEqual(
+        six.assertCountEqual(
+            self,
             resp.data['features'],
             [feature1.feature_id, feature2.feature_id],
         )

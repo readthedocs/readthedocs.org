@@ -261,6 +261,12 @@ class GitHubService(Service):
                     project,
                 )
                 return (True, resp)
+
+            # GitHub returns 404 when the webhook doesn't exist. In this case,
+            # we call ``setup_webhook`` to re-configure it from scratch
+            if resp.status_code == 404:
+                return self.setup_webhook(project)
+
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
