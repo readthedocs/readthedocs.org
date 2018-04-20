@@ -6,7 +6,9 @@ import django_dynamic_fixture as fixture
 import mock
 from django.test import TestCase, override_settings
 
-from readthedocs.core.resolver import resolve, resolve_domain, resolve_path
+from readthedocs.core.resolver import (
+    Resolver, resolve, resolve_domain, resolve_path
+)
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -254,6 +256,88 @@ class ResolverPathOverrideTests(ResolverBase):
                 project=self.translation, filename='index.html', language='cz',
                 version_slug='foo')
             self.assertEqual(url, '/ja/foo/')
+
+
+class ResolverCanonicalProject(TestCase):
+
+    def test_project_with_same_translation_and_main_language(self):
+        proj1 = fixture.get(Project, main_language_project=None)
+        proj2 = fixture.get(Project, main_language_project=None)
+
+        self.assertFalse(proj1.translations.exists())
+        self.assertIsNone(proj1.main_language_project)
+        self.assertFalse(proj2.translations.exists())
+        self.assertIsNone(proj2.main_language_project)
+
+        proj1.translations.add(proj2)
+        proj1.main_language_project = proj2
+        proj1.save()
+        self.assertEqual(
+            proj1.main_language_project.main_language_project,
+            proj1
+        )
+
+        # This tests that we aren't going to re-recurse back to resolving proj1
+        r = Resolver()
+        self.assertEqual(r._get_canonical_project(proj1), proj2)
+
+    def test_project_with_same_superproject_and_translation(self):
+        proj1 = fixture.get(Project, main_language_project=None)
+        proj2 = fixture.get(Project, main_language_project=None)
+
+        self.assertFalse(proj1.translations.exists())
+        self.assertIsNone(proj1.main_language_project)
+        self.assertFalse(proj2.translations.exists())
+        self.assertIsNone(proj2.main_language_project)
+
+        proj2.translations.add(proj1)
+        proj2.add_subproject(proj1)
+        self.assertEqual(
+            proj1.main_language_project,
+            proj2,
+        )
+        self.assertEqual(
+            proj1.superprojects.first().parent,
+            proj2,
+        )
+
+        # This tests that we aren't going to re-recurse back to resolving proj1
+        r = Resolver()
+        self.assertEqual(r._get_canonical_project(proj1), proj2)
+
+    def test_project_with_same_grandchild_project(self):
+        # Note: we don't disallow this, but we also don't support this in our
+        # resolution (yet at least)
+        proj1 = fixture.get(Project, main_language_project=None)
+        proj2 = fixture.get(Project, main_language_project=None)
+        proj3 = fixture.get(Project, main_language_project=None)
+
+        self.assertFalse(proj1.translations.exists())
+        self.assertFalse(proj2.translations.exists())
+        self.assertFalse(proj3.translations.exists())
+        self.assertIsNone(proj1.main_language_project)
+        self.assertIsNone(proj2.main_language_project)
+        self.assertIsNone(proj3.main_language_project)
+
+        proj2.add_subproject(proj1)
+        proj3.add_subproject(proj2)
+        proj1.add_subproject(proj3)
+        self.assertEqual(
+            proj1.superprojects.first().parent,
+            proj2,
+        )
+        self.assertEqual(
+            proj2.superprojects.first().parent,
+            proj3,
+        )
+        self.assertEqual(
+            proj3.superprojects.first().parent,
+            proj1,
+        )
+
+        # This tests that we aren't going to re-recurse back to resolving proj1
+        r = Resolver()
+        self.assertEqual(r._get_canonical_project(proj1), proj3)
 
 
 class ResolverDomainTests(ResolverBase):
