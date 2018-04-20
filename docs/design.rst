@@ -24,16 +24,6 @@ This way you can quickly get started writing HTML -- or if you're
 modifying existing styles you can get a quick idea of how things
 will change site-wide.
 
-Typekit Fonts
--------------
-
-RTD uses `FF Meta`_ via TypeKit to render most display and body text.
-
-To make this work locally, you can register a free TypeKit account and
-create a site profile for ``localhost:8000`` that includes the linked font.
-
-.. _FF Meta: https://typekit.com/fonts/ff-meta-web-pro
-
 Readthedocs.org Changes
 -----------------------
 
