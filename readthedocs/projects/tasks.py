@@ -223,7 +223,7 @@ class UpdateDocsTask(Task):
     name = __name__ + '.update_docs'
 
     def run(self, *args, **kwargs):
-        step = UpdateDocsTaskStep()
+        step = UpdateDocsTaskStep(task=self)
         return step.run(*args, **kwargs)
 
 
@@ -247,7 +247,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
-                 build=None, project=None, version=None):
+                 build=None, project=None, version=None, task=None):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
@@ -264,6 +264,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = project
         if config is not None:
             self.config = config
+        self.task = task
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -375,7 +376,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             try:
                 self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
-                self.retry(exc=e, throw=False)
+                self.task.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
                     'Version locked, retrying in 5 minutes.',
                     status_code=423
@@ -444,6 +445,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 # the model to include an idea of these outcomes
                 outcomes = self.build_docs()
                 build_id = self.build.get('id')
+            except vcs_support_utils.LockTimeout as e:
+                self.task.retry(exc=e, throw=False)
+                raise BuildEnvironmentError(
+                    'Version locked, retrying in 5 minutes.',
+                    status_code=423
+                )
             except SoftTimeLimitExceeded:
                 raise BuildEnvironmentError(_('Build exited due to time out'))
 
