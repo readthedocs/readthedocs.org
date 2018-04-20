@@ -46,6 +46,7 @@ def make_document_url(project, version=None, page=''):
 def restructuredtext(value, short=False):
     try:
         from docutils.core import publish_parts
+        from docutils import ApplicationError
     except ImportError:
         if settings.DEBUG:
             raise template.TemplateSyntaxError(
@@ -59,8 +60,15 @@ def restructuredtext(value, short=False):
             'file_insertion_enabled': False,
         }
         docutils_settings.update(getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}))
-        parts = publish_parts(source=force_bytes(value), writer_name="html4css1",
-                              settings_overrides=docutils_settings)
+        try:
+            parts = publish_parts(
+                source=force_bytes(value),
+                writer_name="html4css1",
+                settings_overrides=docutils_settings,
+            )
+        except ApplicationError:
+            return force_text(value)
+
         out = force_text(parts["fragment"])
         try:
             if short:

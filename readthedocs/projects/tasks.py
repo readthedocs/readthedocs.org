@@ -161,13 +161,33 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
-class SyncRepositoryTask(SyncRepositoryMixin, Task):
+# TODO SyncRepositoryTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class SyncRepositoryTask(Task):
 
-    """Entry point to synchronize the VCS documentation."""
+    """Celery task to trigger VCS version sync."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.sync_repository'
+
+    def run(self, *args, **kwargs):
+        step = SyncRepositoryTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class SyncRepositoryTaskStep(SyncRepositoryMixin):
+
+    """
+    Entry point to synchronize the VCS documentation.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+    """
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
         """
@@ -183,15 +203,31 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             self.project = self.version.project
             self.sync_repo()
             return True
-        # Catch unhandled errors when syncing
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
         except Exception:
+            # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
             )
-            return False
+        return False
 
 
-class UpdateDocsTask(SyncRepositoryMixin, Task):
+# TODO UpdateDocsTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class UpdateDocsTask(Task):
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.update_docs'
+
+    def run(self, *args, **kwargs):
+        step = UpdateDocsTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     """
     The main entry point for updating documentation.
@@ -199,13 +235,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     It handles all of the logic around whether a project is imported, we created
     it or a webhook is received. Then it will sync the repository and build the
     html docs if needed.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
     """
 
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
                  build=None, project=None, version=None):
@@ -234,7 +273,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=False, search=True, force=False, localmedia=True, **__):
+            docker=None, search=True, force=False, localmedia=True, **__):
         """
         Run a documentation sync n' build.
 
@@ -255,7 +294,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param version_pk int: Project Version id (latest if None)
         :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
-        :param docker bool: use docker to build the project
+        :param docker bool: use docker to build the project (if ``None``,
+            ``settings.DOCKER_ENABLE`` is used)
         :param search bool: update search
         :param force bool: force Sphinx build
         :param localmedia bool: update localmedia
@@ -265,6 +305,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :rtype: bool
         """
         try:
+            if docker is None:
+                docker = settings.DOCKER_ENABLE
+
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
@@ -294,7 +337,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # No exceptions in the setup step, catch unhandled errors in the
             # build steps
             try:
-                self.run_build(record=record, docker=docker)
+                self.run_build(docker=docker, record=record)
             except Exception as e:  # noqa
                 log.exception(
                     'An unhandled exception was raised during project build',
@@ -361,16 +404,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         return True
 
-    def run_build(self, docker=False, record=True):
+    def run_build(self, docker, record):
         """
         Build the docs in an environment.
 
-        If `docker` is True, or Docker is enabled by the settings.DOCKER_ENABLE
-        setting, then build in a Docker environment. Otherwise build locally.
+        :param docker: if ``True``, the build uses a ``DockerBuildEnvironment``,
+            otherwise it uses a ``LocalBuildEnvironment`` to run all the
+            commands to build the docs
+        :param record: whether or not record all the commands in the ``Build``
+            instance
         """
         env_vars = self.get_env_vars()
 
-        if docker or settings.DOCKER_ENABLE:
+        if docker:
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
@@ -513,7 +559,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s',
+                self.version,
+            )
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -898,7 +947,7 @@ def _manage_imported_files(version, path, commit):
                     name=filename,
                 )
             except ImportedFile.MultipleObjectsReturned:
-                log.exception('Error creating ImportedFile')
+                log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
                 obj.md5 = md5

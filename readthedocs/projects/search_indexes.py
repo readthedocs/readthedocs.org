@@ -85,8 +85,11 @@ class ImportedFileIndex(indexes.SearchIndex, indexes.Indexable):
             with codecs.open(file_path, encoding='utf-8', mode='r') as f:
                 content = f.read()
         except IOError as e:
-            log.info('(Search Index) Unable to index file: %s, error :%s',
-                     file_path, e)
+            log.info(
+                '(Search Index) Unable to index file: %s',
+                file_path,
+                exc_info=True,
+            )
             return
         log.debug('(Search Index) Indexing %s:%s', obj.project, obj.path)
         document_pyquery_path = getattr(settings, 'DOCUMENT_PYQUERY_PATH',

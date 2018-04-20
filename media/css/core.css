@@ -129,7 +129,7 @@ form.form-wide textarea {
 #content { padding: 50px 0; }
 #content ul { margin-bottom: 20px; }
 
-#content #project_description { margin-bottom: 20px; }
+#project_description { margin-top: 20px; }
 /* Commenting this for now. Want to figure out how to make it look sane with small amounts of text. */
 /* #content p { background-color: #eee; } */
 
@@ -632,7 +632,6 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .left { float: left; }
 .right { float: right; }
 .right-menu { float: right; margin-right: 132px; }
-.quiet { color: #999; }
 .help_text { color: #999; }
 .highlighted { background-color: #ee9; padding: 0 1px; margin: 0 1px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 .first { margin-left: 0; padding-left: 0; }

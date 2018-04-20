@@ -4,17 +4,19 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import itertools
 import json
 import logging
 import os
 import shutil
-import six
 from builtins import object, open
 
+import six
 from django.conf import settings
 
 from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
+from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
@@ -147,7 +149,14 @@ class PythonEnvironment(object):
         env_build_image = env_build.get('image', None)
         env_build_hash = env_build.get('hash', None)
 
-        build_image = self.config.build_image or DOCKER_IMAGE
+        if isinstance(self.build_env, DockerBuildEnvironment):
+            build_image = self.config.build_image or DOCKER_IMAGE
+            image_hash = self.build_env.image_hash
+        else:
+            # e.g. LocalBuildEnvironment
+            build_image = None
+            image_hash = None
+
         # If the user define the Python version just as a major version
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
         # used to create the venv but we can still compare it against the new
@@ -155,21 +164,25 @@ class PythonEnvironment(object):
         return any([
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
-            env_build_hash != self.build_env.image_hash,
+            env_build_hash != image_hash,
         ])
 
     def save_environment_json(self):
         """Save on disk Python and build image versions used to create the venv."""
-        build_image = self.config.build_image or DOCKER_IMAGE
         data = {
             'python': {
                 'version': self.config.python_full_version,
             },
-            'build': {
-                'image': build_image,
-                'hash': self.build_env.image_hash,
-            },
         }
+
+        if isinstance(self.build_env, DockerBuildEnvironment):
+            build_image = self.config.build_image or DOCKER_IMAGE
+            data.update({
+                'build': {
+                    'image': build_image,
+                    'hash': self.build_env.image_hash,
+                },
+            })
 
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
@@ -210,8 +223,8 @@ class Virtualenv(PythonEnvironment):
             # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<40',
-                negative='setuptools==37.0.0',
+                positive='setuptools<41',
+                negative='setuptools<40',
             ),
             'docutils==0.13.1',
             'mock==1.0.1',
@@ -263,12 +276,13 @@ class Virtualenv(PythonEnvironment):
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
-            for path in [docs_dir, '']:
-                for req_file in ['pip_requirements.txt', 'requirements.txt']:
-                    test_path = os.path.join(self.checkout_path, path, req_file)
-                    if os.path.exists(test_path):
-                        requirements_file_path = test_path
-                        break
+            paths = [docs_dir, '']
+            req_files = ['pip_requirements.txt', 'requirements.txt']
+            for path, req_file in itertools.product(paths, req_files):
+                test_path = os.path.join(self.checkout_path, path, req_file)
+                if os.path.exists(test_path):
+                    requirements_file_path = test_path
+                    break
 
         if requirements_file_path:
             args = [

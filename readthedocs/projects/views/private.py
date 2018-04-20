@@ -296,8 +296,6 @@ class ImportDemoView(PrivateViewMixin, View):
                 messages.success(
                     request, _('Your demo project is currently being imported'))
             else:
-                for (__, msg) in list(form.errors.items()):
-                    log.error(msg)
                 messages.error(
                     request,
                     _('There was a problem adding the demo project'),

@@ -108,12 +108,18 @@ class BaseMkdocs(BaseBuilder):
         docs_path = os.path.join(self.root_path, docs_dir)
 
         # RTD javascript writing
-        rtd_data = self.generate_rtd_data(docs_dir=docs_dir)
+        rtd_data = self.generate_rtd_data(docs_dir=docs_dir, mkdocs_config=user_config)
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
             f.write(rtd_data)
 
-    def generate_rtd_data(self, docs_dir):
+    def generate_rtd_data(self, docs_dir, mkdocs_config):
         """Generate template properties and render readthedocs-data.js."""
+        # Get the theme name
+        theme_name = 'readthedocs'
+        theme_dir = mkdocs_config.get('theme_dir')
+        if theme_dir:
+            theme_name = theme_dir.rstrip('/').split('/')[-1]
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
@@ -121,7 +127,7 @@ class BaseMkdocs(BaseBuilder):
             'language': self.version.project.language,
             'programming_language': self.version.project.programming_language,
             'page': None,
-            'theme': "readthedocs",
+            'theme': theme_name,
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",

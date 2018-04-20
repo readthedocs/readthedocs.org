@@ -445,12 +445,12 @@ class BuildEnvironment(BaseEnvironment):
         a failure and the context will be gracefully exited.
         """
         if exc_type is not None:
-            log.error(LOG_TEMPLATE
-                      .format(project=self.project.slug,
-                              version=self.version.slug,
-                              msg=exc_value),
-                      exc_info=True)
             if not issubclass(exc_type, BuildEnvironmentWarning):
+                log.error(LOG_TEMPLATE
+                          .format(project=self.project.slug,
+                                  version=self.version.slug,
+                                  msg=exc_value),
+                          exc_info=True)
                 self.failure = exc_value
             return True
 
@@ -574,10 +574,9 @@ class BuildEnvironment(BaseEnvironment):
             try:
                 api_v2.build(self.build['id']).put(self.build)
             except HttpClientError as e:
-                log.error(
-                    "Unable to update build: id=%d error=%s",
+                log.exception(
+                    "Unable to update build: id=%d",
                     self.build['id'],
-                    e.content,
                 )
             except Exception:
                 log.exception("Unknown build exception")

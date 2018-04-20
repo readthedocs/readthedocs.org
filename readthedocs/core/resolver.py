@@ -81,10 +81,7 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
         """Resolve a URL with a subset of fields defined."""
-        relation = project.superprojects.first()
         cname = cname or project.domains.filter(canonical=True).first()
-        main_language_project = project.main_language_project
-
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
@@ -93,17 +90,27 @@ class ResolverBase(object):
 
         filename = self._fix_filename(project, filename)
 
-        if main_language_project:
-            project_slug = main_language_project.slug
-            language = project.language
-            subproject_slug = None
-        elif relation:
-            project_slug = relation.parent.slug
-            subproject_slug = relation.alias
-            cname = relation.parent.domains.filter(canonical=True).first()
-        else:
-            project_slug = project.slug
-            subproject_slug = None
+        current_project = project
+        project_slug = project.slug
+        subproject_slug = None
+        # We currently support more than 2 levels of nesting subprojects and
+        # translations, only loop twice to avoid sticking in the loop
+        for _ in range(0, 2):
+            main_language_project = current_project.main_language_project
+            relation = current_project.superprojects.first()
+
+            if main_language_project:
+                current_project = main_language_project
+                project_slug = main_language_project.slug
+                language = project.language
+                subproject_slug = None
+            elif relation:
+                current_project = relation.parent
+                project_slug = relation.parent.slug
+                subproject_slug = relation.alias
+                cname = relation.parent.domains.filter(canonical=True).first()
+            else:
+                break
 
         single_version = bool(project.single_version or single_version)
 
@@ -146,17 +153,22 @@ class ResolverBase(object):
 
     def _get_canonical_project(self, project):
         """
-        Get canonical project in the case of subproject or translations.
+        Recursively get canonical project for subproject or translations.
+
+        We need to recursively search here as a nested translations inside
+        subprojects, and vice versa, are supported.
 
         :type project: Project
         :rtype: Project
         """
-        main_language_project = project.main_language_project
         relation = project.superprojects.first()
-        if main_language_project:
-            return main_language_project
-        elif relation:
-            return relation.parent
+        if project.main_language_project:
+            return self._get_canonical_project(project.main_language_project)
+        # If ``relation.parent == project`` means that the project has an
+        # inconsistent relationship and was added when this restriction didn't
+        # exist
+        elif relation and relation.parent != project:
+            return self._get_canonical_project(relation.parent)
         return project
 
     def _get_project_subdomain(self, project):
