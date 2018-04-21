@@ -9,8 +9,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import (
-    HttpResponse, HttpResponseBadRequest, HttpResponseRedirect)
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -32,9 +31,8 @@ class BookmarkExistsView(View):
                      self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        return HttpResponse(
-            content=json.dumps({'error': 'You must POST!'}),
-            content_type='application/json',
+        return JsonResponse(
+            {'error': 'You must POST!'},
             status=405,
         )
 
@@ -52,9 +50,7 @@ class BookmarkExistsView(View):
             version = post_json['version']
             page = post_json['page']
         except KeyError:
-            return HttpResponseBadRequest(
-                content=json.dumps({'error': 'Invalid parameters'}),
-            )
+            return JsonResponse({'error': 'Invalid parameters'}, status=400)
         try:
             Bookmark.objects.get(
                 project__slug=project,
@@ -62,17 +58,9 @@ class BookmarkExistsView(View):
                 page=page,
             )
         except ObjectDoesNotExist:
-            return HttpResponse(
-                content=json.dumps({'exists': False}),
-                status=404,
-                content_type='application/json',
-            )
+            return JsonResponse({'exists': False}, status=404)
 
-        return HttpResponse(
-            content=json.dumps({'exists': True}),
-            status=200,
-            content_type='application/json',
-        )
+        return JsonResponse({'exists': True})
 
 
 class BookmarkListView(ListView):
@@ -99,11 +87,7 @@ class BookmarkAddView(View):
         return super(BookmarkAddView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request):
-        return HttpResponse(
-            content=json.dumps({'error': 'You must POST!'}),
-            content_type='application/json',
-            status=405,
-        )
+        return JsonResponse({'error': 'You must POST!'}, status=405)
 
     def post(self, request, *args, **kwargs):
         """
@@ -118,17 +102,15 @@ class BookmarkAddView(View):
             page_slug = post_json['page']
             url = post_json['url']
         except KeyError:
-            return HttpResponseBadRequest(
-                content=json.dumps({'error': 'Invalid parameters'}),
-            )
+            return JsonResponse({'error': 'Invalid parameters'}, status=400)
 
         try:
             project = Project.objects.get(slug=project_slug)
             version = project.versions.get(slug=version_slug)
         except ObjectDoesNotExist:
-            return HttpResponseBadRequest(
-                content=json.dumps(
-                    {'error': 'Project or Version does not exist'}),
+            return JsonResponse(
+                {'error': 'Project or Version does not exist'},
+                status=400,
             )
 
         Bookmark.objects.get_or_create(
@@ -138,11 +120,7 @@ class BookmarkAddView(View):
             version=version,
             page=page_slug,
         )
-        return HttpResponse(
-            json.dumps({'added': True}),
-            status=201,
-            content_type='application/json',
-        )
+        return JsonResponse({'added': True}, status=201)
 
 
 class BookmarkRemoveView(View):
@@ -179,9 +157,7 @@ class BookmarkRemoveView(View):
             url = post_json['url']
             page = post_json['page']
         except KeyError:
-            return HttpResponseBadRequest(
-                json.dumps({'error': 'Invalid parameters'}),
-            )
+            return JsonResponse({'error': 'Invalid parameters'}, status=400)
 
         bookmark = get_object_or_404(
             Bookmark,
@@ -193,8 +169,4 @@ class BookmarkRemoveView(View):
         )
         bookmark.delete()
 
-        return HttpResponse(
-            json.dumps({'removed': True}),
-            status=200,
-            content_type='application/json',
-        )
+        return JsonResponse({'removed': True})
