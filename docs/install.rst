@@ -65,9 +65,7 @@ need to install Python 3 with virtualenv in your system as well.
    If you want full support for searching inside your Read the Docs
    site you will need to install Elasticsearch_.
 
-   Ubuntu users could install this package as following::
-
-        sudo apt-get install elasticsearch
+   Ubuntu users could install this package by following :doc:`guides/run-elasticsearch-local`.
 
 .. note::
 
