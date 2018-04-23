@@ -1,5 +1,3 @@
-.. _running-elasticsearch-locally:
-
 ==========================================
 Enabling Elasticsearch on the local server
 ==========================================
