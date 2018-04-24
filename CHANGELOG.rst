@@ -1,3 +1,10 @@
+Version 2.3.10
+--------------
+
+:Date: April 24, 2018
+
+* `@humitos <http://github.com/humitos>`_: Downgrade docker to 3.1.3 (`#4003 <https://github.com/rtfd/readthedocs.org/pull/4003>`_)
+
 Version 2.3.9
 -------------
 
