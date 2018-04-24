@@ -53,6 +53,9 @@ class GitLabService(Service):
             # associated with the project. It only works with gitlab.com at the
             # moment (doesn't support custom gitlab installations)
             username, repo = get_gitlab_username_repo(project.repo)
+            if (username, repo) == (None, None):
+                return None
+
             repo_id = '{username}%2F{repo}'.format(
                 username=username,
                 repo=repo,
@@ -274,6 +277,9 @@ class GitLabService(Service):
         )
 
         repo_id = self._get_repo_id(project)
+        if repo_id is None:
+            return (False, None)
+
         data = self.get_webhook_data(repo_id, project, integration)
         resp = None
         try:
@@ -323,6 +329,9 @@ class GitLabService(Service):
         session = self.get_session()
 
         repo_id = self._get_repo_id(project)
+        if repo_id is None:
+            return (False, None)
+
         data = self.get_webhook_data(repo_id, project, integration)
         hook_id = integration.provider_data.get('id')
         resp = None
