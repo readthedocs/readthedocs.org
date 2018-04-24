@@ -270,7 +270,6 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        session = self.get_session()
         integration, _ = Integration.objects.get_or_create(
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
@@ -281,6 +280,7 @@ class GitLabService(Service):
             return (False, None)
 
         data = self.get_webhook_data(repo_id, project, integration)
+        session = self.get_session()
         resp = None
         try:
             resp = session.post(
