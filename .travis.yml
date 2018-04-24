@@ -17,7 +17,10 @@ cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/nvm.sh
+before_install:
+  - pip install --upgrade pip
 install:
+  - pip --version
   - pip install tox-travis
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   - source ~/.nvm/nvm.sh
