@@ -55,6 +55,130 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
 
+    def test_response_building(self):
+        """
+        The ``view docs`` attr should return a link
+        to the dashboard.
+        """
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = get(
+            Project,
+            language='en',
+            main_language_project=None,
+        )
+        version = get(
+            Version,
+            project=project,
+            built=False,
+            uploaded=False,
+        )
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            state='cloning',
+            exit_code=0,
+        )
+        resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        dashboard_url = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': project.slug,
+                'version_slug': version.slug,
+            },
+        )
+        build = resp.data
+        self.assertEqual(build['state'], 'cloning')
+        self.assertEqual(build['error'], '')
+        self.assertEqual(build['exit_code'], 0)
+        self.assertEqual(build['success'], True)
+        self.assertEqual(build['docs_url'], dashboard_url)
+
+    def test_response_finished_and_success(self):
+        """
+        The ``view docs`` attr should return a link
+        to the docs.
+        """
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = get(
+            Project,
+            language='en',
+            main_language_project=None,
+        )
+        version = get(
+            Version,
+            project=project,
+            built=True,
+            uploaded=True,
+        )
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            state='finished',
+            exit_code=0,
+        )
+        resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        docs_url = 'http://readthedocs.org/docs/{project}/en/{version}/'.format(
+            project=project.slug,
+            version=version.slug,
+        )
+        self.assertEqual(build['state'], 'finished')
+        self.assertEqual(build['error'], '')
+        self.assertEqual(build['exit_code'], 0)
+        self.assertEqual(build['success'], True)
+        self.assertEqual(build['docs_url'], docs_url)
+
+    def test_response_finished_and_fail(self):
+        """
+        The ``view docs`` attr should return a link
+        to the dashboard.
+        """
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = get(
+            Project,
+            language='en',
+            main_language_project=None,
+        )
+        version = get(
+            Version,
+            project=project,
+            built=False,
+            uploaded=False,
+        )
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            state='finished',
+            success=False,
+            exit_code=1,
+        )
+
+        resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        dashboard_url = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': project.slug,
+                'version_slug': version.slug,
+            },
+        )
+        build = resp.data
+        self.assertEqual(build['state'], 'finished')
+        self.assertEqual(build['error'], '')
+        self.assertEqual(build['exit_code'], 1)
+        self.assertEqual(build['success'], False)
+        self.assertEqual(build['docs_url'], dashboard_url)
+
     def test_make_build_without_permission(self):
         """Ensure anonymous/non-staff users cannot write the build endpoint."""
         client = APIClient()
