@@ -5,6 +5,7 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.core.urlresolvers import reverse
 
 from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.models import Project, ProjectRelationship
@@ -200,7 +201,19 @@ class ResolverBase(TestCase):
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_resolver_subproject_subdomain_alias(self):
+        url_name = 'project-sync-versions'
+
+        url = reverse(url_name, args=[1])
+        self.assertEqual(url, '/api/v2/project/1/sync_versions/')
+
         resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
+        # If this is executed, the tests will pass
+        # self.client.get('/projects/sub_alias/')
+
+        # Here Django fails to reverse the same url name
+        url = reverse(url_name, args=[1])
+        self.assertEqual(url, '/api/v2/project/1/sync_versions/')
+
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp._headers['location'][1],
