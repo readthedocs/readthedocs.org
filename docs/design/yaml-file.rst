@@ -109,7 +109,10 @@ The spec will be written using a validation schema such as https://json-schema-e
 Versioning the spec
 -------------------
 
-TODO
+The version of the spec that the user wants to use will be specified on the YAML file.
+The spec only will have mayor versions (1.0, not 1.2) [#specversioning]_.
+For keeping compatibility with older projects using a configuration file without a version,
+the latest compatible version will be used (1.0).
 
 Adoption of the configuration file
 ----------------------------------
