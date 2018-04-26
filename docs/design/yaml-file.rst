@@ -121,8 +121,8 @@ When a user creates a new project or it's on the settings page,
 we could suggest her/him an example of a functional configuration file with a minimal setup.
 And making clear where to put global configurations.
 
-Configuration file and database options
----------------------------------------
+For users that already have a project,
+we can suggest him/her a configuration file on each build based on the current settings.
 
 To decouple the configuration file from the per-version settings on the database and keep the compatibility with projects without one,
 we need to generate a YAML file from the existing database options,
