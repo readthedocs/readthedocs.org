@@ -73,6 +73,7 @@ So, they aren't covered with much detail here.
 - Project installation (virtual env, requirements file, sphinx configuration file, etc)
 - Additional builds (pdf, epub)
 - Python interpreter
+- Per-version redirects
 
 Configuration file
 ------------------
@@ -139,11 +140,12 @@ The build process
 -----------------
 
 - The repository is updated
-- Checkout to the default branch and read the global settings
-- Checkout to the current version and read the local settings
-- Before the build process the YAML file is shown (similar to ``cat config.py`` step).
+- Checkout to the current version
+- Retrieve the settings from the database
 - Try to parse the YAML file (the build fails if there is an error)
+- Merge the both settings (YAML file and database)
 - The version is built according to the settings
+- The settings used to build the documentation can be seen by the user
 
 Dependencies
 ------------
