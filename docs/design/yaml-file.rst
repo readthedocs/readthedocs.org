@@ -102,8 +102,9 @@ The spec of the configuration file must use this conventions.
 Spec
 ~~~~
 
-The current spec is documented on https://docs.readthedocs.io/en/latest/yaml-config.html
-and https://github.com/rtfd/readthedocs-build/blob/master/docs/spec.rst
+The current spec is documented on https://docs.readthedocs.io/en/latest/yaml-config.html.
+It will be used as base for the future spec.
+The spec will be written using a validation schema such as https://json-schema-everywhere.github.io/yaml.
 
 Versioning the spec
 -------------------
