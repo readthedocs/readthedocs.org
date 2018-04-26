@@ -67,7 +67,7 @@ Those configurations will be read from the YAML file in the current version that
 
 Several settings are already implemented and documented on
 https://docs.readthedocs.io/en/latest/yaml-config.html.
-So, they aren't covered with much detail here. 
+So, they aren't covered with much detail here.
 
 - Documentation type
 - Project installation (virtual env, requirements file, sphinx configuration file, etc)
@@ -124,9 +124,12 @@ And making clear where to put global configurations.
 For users that already have a project,
 we can suggest him/her a configuration file on each build based on the current settings.
 
-To decouple the configuration file from the per-version settings on the database and keep the compatibility with projects without one,
-we need to generate a YAML file from the existing database options,
-this will also help with the `Adoption of the configuration file`_.
+Configuration file and database
+-------------------------------
+
+The settings used in the build from the configuration file
+(and other metadata) needs to be stored in the database,
+this is for later usage only, not to populate existing fields.
 
 The build process
 -----------------
