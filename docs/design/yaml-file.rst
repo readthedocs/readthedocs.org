@@ -124,7 +124,7 @@ And making clear where to put global configurations.
 Configuration file and database options
 ---------------------------------------
 
-To decouple the configuration file from the database and keep the compatibility with projects without one,
+To decouple the configuration file from the per-version settings on the database and keep the compatibility with projects without one,
 we need to generate a YAML file from the existing database options,
 this will also help with the `Adoption of the configuration file`_.
 
