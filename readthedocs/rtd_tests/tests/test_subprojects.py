@@ -187,8 +187,7 @@ class ResolverBase(TestCase):
         fixture.get(Project, slug='sub_alias', language='ya')
 
     def tearDown(self):
-        #  set_urlconf(None)
-        pass
+        set_urlconf(None)
 
     @override_settings(
             PRODUCTION_DOMAIN='readthedocs.org',
