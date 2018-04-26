@@ -38,31 +38,27 @@ security and privacy reasons.
 - Repo type
 - Privacy level (this feature is planned to be removed [#privacy-level]_)
 - Project description (this feature is planned to be removed [#project-description]_)
-- Single version (*)
+- Single version
 - Default branch
-- Default version (*)
-- Domains (*)
-- Active versions (*)
+- Default version
+- Domains
+- Active versions
 - Translations
 - Subprojects
 - Integrations
 - Notifications
-
-.. note::
-   The items marked with ``(*)`` can be considered to be global settings.
-   But aren't too relevant right now or aren't related to the builds.
-
-Global settings
-~~~~~~~~~~~~~~~
-
-Those settings will be read from the YAML file on the ``default branch``.
-
 - Language
 - Programming Language
 - Project homepage
 - Tags
 - Analytics code
-- Redirects 
+- Global redirects
+
+Global settings
+~~~~~~~~~~~~~~~
+
+To keep consistency with the per-version settings and avoid confusion,
+this settings will not be stored in the YAML file and will be stored in the database only.
 
 Local settings
 ~~~~~~~~~~~~~~
