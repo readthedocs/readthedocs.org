@@ -119,19 +119,7 @@ Adoption of the configuration file
 
 When a user creates a new project or it's on the settings page,
 we could suggest her/him an example of a functional configuration file with a minimal setup.
-
-Main source for global configurations
--------------------------------------
-
-There are some global settings that are needed for the build process (like language).
-So it's needed to read this configurations from one source of truth before each build.
-This source can be taken from the ``default branch`` setting.
-RTD will checkout to this branch and read this configurations before the real build process starts.
-
-That solves one problem, but RTD still need to know when to update the others global settings.
-Would be a waste of resources to made a new build each time a global setting is updated for it to take effect.
-Currently, RTD keeps a dedicated local repository for each version, which is updated before a build.
-RTD could have a central repository for this operations [#one-checkout]_.
+And making clear where to put global configurations.
 
 Configuration file and database options
 ---------------------------------------
