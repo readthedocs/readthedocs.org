@@ -15,9 +15,8 @@ Scope
 - Have consistency around the spec
 - Proper documentation for the end user
 - Allow to specify the spec's version used on the YAML file
-- Show the YAML file on the build process
-- Show/suggest a YAML file at the project creation if it hasn't one
-- Have one source of truth for global configurations 
+- Collect/show metadata about the YAML file and build configuration
+- Promote the adoption of the configuration file 
 
 RTD settings
 ------------
