@@ -159,7 +159,7 @@ function adblock_nag() {
         div = $('<div />').appendTo(link);
 
         $('<p />').text('Support Read the Docs!').appendTo(div);
-        $('<p />').text('Please whitelist Read the Docs on your ad blocker and help keep us sustainable.').appendTo(div);
+        $('<p />').text('Please help keep us sustainable by allowing our ethical ads in your ad blocker.').appendTo(div);
         $('<p />').text('Thank you! \u2764\ufe0f').appendTo(div);
     }
 }
