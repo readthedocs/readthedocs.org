@@ -3,7 +3,7 @@ pip==10.0.0
 appdirs==1.4.3
 virtualenv==15.2.0
 docutils==0.14
-Sphinx==1.7.2
+Sphinx==1.7.4
 
 # 0.3.0 breaks sidebar
 # https://github.com/rtfd/sphinx_rtd_theme/issues/610
