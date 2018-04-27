@@ -6,9 +6,9 @@ from __future__ import (
 
 import os
 
-from readthedocs.core.settings import Settings
-
 from celery.schedules import crontab
+
+from readthedocs.core.settings import Settings
 
 
 try:
@@ -84,7 +84,6 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-            'django_celery_beat',
 
             # daniellindsleyrocksdahouse
             'haystack',
@@ -94,7 +93,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
-            'readthedocs.comments',
             'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
@@ -221,8 +219,8 @@ class CommunityBaseSettings(Settings):
         ('de', gettext('German')),
         ('gl', gettext('Galician')),
         ('vi', gettext('Vietnamese')),
-        ('zh-cn', gettext('Chinese')),
-        ('zh-tw', gettext('Taiwanese')),
+        ('zh-cn', gettext('Simplified Chinese')),
+        ('zh-tw', gettext('Traditional Chinese')),
         ('ja', gettext('Japanese')),
         ('uk', gettext('Ukrainian')),
         ('it', gettext('Italian')),
@@ -245,7 +243,6 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
-    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
         'hourly-remove-orphan-symlinks': {
@@ -256,6 +253,11 @@ class CommunityBaseSettings(Settings):
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'every-three-hour-clear-persistent-messages': {
+            'task': 'readthedocs.core.tasks.clear_persistent_messages',
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
     }
@@ -270,7 +272,6 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {

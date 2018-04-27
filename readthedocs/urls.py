@@ -63,7 +63,6 @@ api_urls = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^websupport/', include('readthedocs.comments.urls')),
 ]
 
 i18n_urls = [

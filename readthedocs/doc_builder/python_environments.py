@@ -4,6 +4,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import itertools
 import json
 import logging
 import os
@@ -222,8 +223,8 @@ class Virtualenv(PythonEnvironment):
             # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<40',
-                negative='setuptools==37.0.0',
+                positive='setuptools<41',
+                negative='setuptools<40',
             ),
             'docutils==0.13.1',
             'mock==1.0.1',
@@ -275,12 +276,13 @@ class Virtualenv(PythonEnvironment):
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
-            for path in [docs_dir, '']:
-                for req_file in ['pip_requirements.txt', 'requirements.txt']:
-                    test_path = os.path.join(self.checkout_path, path, req_file)
-                    if os.path.exists(test_path):
-                        requirements_file_path = test_path
-                        break
+            paths = [docs_dir, '']
+            req_files = ['pip_requirements.txt', 'requirements.txt']
+            for path, req_file in itertools.product(paths, req_files):
+                test_path = os.path.join(self.checkout_path, path, req_file)
+                if os.path.exists(test_path):
+                    requirements_file_path = test_path
+                    break
 
         if requirements_file_path:
             args = [

@@ -23,6 +23,7 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     DONT_HIT_DB = False
 
+    ACCOUNT_EMAIL_VERIFICATION = 'none'
     SESSION_COOKIE_DOMAIN = None
     CACHE_BACKEND = 'dummy://'
 

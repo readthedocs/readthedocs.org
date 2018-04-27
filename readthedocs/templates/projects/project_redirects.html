@@ -22,8 +22,8 @@
                 redirect_target = "/$lang/$version/faq.html";
             }
             else if (option === "page" ) {
-                redirect_from = "/$lang/$version/" + field_from_url.val();
-                redirect_target = "/$lang/$version/" + field_to_url.val();
+                redirect_from = "/$lang/$version/" + field_from_url.val().replace(/^\/+/, '');
+                redirect_target = "/$lang/$version/" + field_to_url.val().replace(/^\/+/, '');
             }
             else if (option === "exact" ) {
                 redirect_from =  field_from_url.val();
@@ -82,9 +82,14 @@
           <ul>
             {% for redirect in redirects %}
               <li class="module-item">
-                <span>
-                  {{ redirect }}
-                </span>
+                <div>
+                  {{ redirect.get_redirect_type_display }}
+                </div>
+                {% if redirect.get_from_to_url_display %}
+                  <div>
+                    {{ redirect.get_from_to_url_display }}
+                  </div>
+                {% endif %}
                 <ul class="module-item-menu">
                   <li>
                     <form method="post" action="{% url "projects_redirects_delete" project.slug %}">
