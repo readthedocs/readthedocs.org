@@ -12,7 +12,6 @@ import mock
 from taggit.models import Tag
 
 from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
-from readthedocs.comments.models import DocumentComment, NodeSnapshot
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project, Domain
@@ -294,8 +293,6 @@ class APIMixin(URLAccessMixin):
         self.build = get(Build, project=self.pip)
         self.build_command_result = get(BuildCommandResult, project=self.pip)
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
-        self.comment = get(DocumentComment, node__project=self.pip)
-        self.snapshot = get(NodeSnapshot, node=self.comment.node)
         self.social_account = get(SocialAccount)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
@@ -312,7 +309,6 @@ class APIMixin(URLAccessMixin):
             'buildcommandresult-detail': {'pk': self.build_command_result.pk},
             'version-detail': {'pk': self.pip.versions.all()[0].pk},
             'domain-detail': {'pk': self.domain.pk},
-            'comments-detail': {'pk': self.comment.pk},
             'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
             'remoteorganization-detail': {'pk': self.remote_org.pk},
             'remoterepository-detail': {'pk': self.remote_repo.pk},
@@ -324,7 +320,6 @@ class APIMixin(URLAccessMixin):
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
             'emailhook-detail': {'status_code': 403},
-            'comments-moderate': {'status_code': 405},
             'embed': {'status_code': 400},
             'docurl': {'status_code': 400},
             'cname': {'status_code': 400},
