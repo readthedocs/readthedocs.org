@@ -143,6 +143,27 @@ function adblock_admonition() {
     console.log('--------------------------------------------------------------------------------------');
 }
 
+function adblock_nag() {
+    // Place an ad block nag into the sidebar
+    var placement = create_sidebar_placement();
+    var url = 'https://ads-for-open-source.readthedocs.io/';
+    var container = null;
+    var div;
+    var link;
+
+    if (placement && placement.div_id) {
+        container = $('#' + placement.div_id);
+        container.attr('class', 'keep-us-sustainable');
+
+        link = $('<a />').attr('href', url).appendTo(container);
+        div = $('<div />').appendTo(link);
+
+        $('<p />').text('Support Read the Docs!').appendTo(div);
+        $('<p />').text('Please whitelist Read the Docs on your ad blocker and help keep us sustainable.').appendTo(div);
+        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(div);
+    }
+}
+
 function init() {
     var request_data = {format: "jsonp"};
     var div_ids = [];
@@ -207,6 +228,7 @@ function init() {
 
             if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
                 adblock_admonition();
+                adblock_nag();
             }
         },
     });
