@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.urlresolvers import set_urlconf, get_urlconf
 from django.http import Http404, HttpResponseBadRequest
 
 from readthedocs.core.utils import cname_to_slug
@@ -53,6 +54,9 @@ class SubdomainMiddleware(object):
             'PRODUCTION_DOMAIN',
             'readthedocs.org'
         )
+        # Django sets the urlconf for the current thread
+        # so we need to set this again later.
+        self.current_urlconf = get_urlconf()
 
         if public_domain is None:
             public_domain = production_domain
@@ -129,6 +133,12 @@ class SubdomainMiddleware(object):
             # raise Http404(_('Invalid hostname'))
         # Normal request.
         return None
+
+    def process_response(self, request, response):
+        # Reset URLconf for this thread
+        # to the original one.
+        set_urlconf(self.current_urlconf)
+        return response
 
 
 class SingleVersionMiddleware(object):

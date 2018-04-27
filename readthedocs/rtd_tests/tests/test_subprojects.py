@@ -192,6 +192,7 @@ class ResolverBase(TestCase):
         # this causes errors when using the reverse function.
         # This method call deletes that setting.
         #  set_urlconf(None)
+        pass
 
     @override_settings(
             PRODUCTION_DOMAIN='readthedocs.org',
