@@ -54,9 +54,6 @@ class SubdomainMiddleware(object):
             'PRODUCTION_DOMAIN',
             'readthedocs.org'
         )
-        # Django sets the urlconf for the current thread
-        # so we need to set this again later.
-        self.current_urlconf = get_urlconf()
 
         if public_domain is None:
             public_domain = production_domain
@@ -137,7 +134,7 @@ class SubdomainMiddleware(object):
     def process_response(self, request, response):
         # Reset URLconf for this thread
         # to the original one.
-        set_urlconf(self.current_urlconf)
+        set_urlconf(None)
         return response
 
 
