@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import mock
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse, set_urlconf
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -185,6 +186,12 @@ class ResolverBase(TestCase):
         relation.save()
         fixture.get(Project, slug='sub_alias', language='ya')
 
+    def tearDown(self):
+        # The urlconf value is preserved for the current thread,
+        # (is modified to ``readthedocs.core.urls.subdomain``)
+        # this causes errors when using the reverse function.
+        # This method call deletes that setting.
+        #  set_urlconf(None)
 
     @override_settings(
             PRODUCTION_DOMAIN='readthedocs.org',
