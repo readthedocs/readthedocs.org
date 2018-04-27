@@ -232,7 +232,11 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
             if field in extra_fields:
                 setattr(project, field, value)
         project.save()
+
+        # TODO: if we want to make the ``attach_webhook`` async, we need to
+        # consider the message shown to the user when not valid webhook.
         project_import.send(sender=project, request=self.request)
+
         self.trigger_initial_build(project)
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]))

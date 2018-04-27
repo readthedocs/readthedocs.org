@@ -36,6 +36,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
+    CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
