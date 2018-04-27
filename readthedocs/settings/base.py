@@ -273,7 +273,6 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {

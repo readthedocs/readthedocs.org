@@ -543,6 +543,18 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .navigable .profile_image img { border-radius:5px; }
 
 .profile #content { padding-top:8px; }
+
+/* login & signup pages */
+.login-page h3, .signup-page h3 {
+    margin: 40px 0;
+}
+.login-page .socialaccount_providers .button,
+.signup-page .socialaccount_providers .button {
+    display: inline-block;
+    float: none;
+    margin: 10px 0;
+}
+
 /* build page */
 
 #build_list select { width: 10em; }
