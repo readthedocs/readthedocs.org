@@ -23,12 +23,12 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import ImportedFile, Project
 
-from .utils import PostAuthentication, SearchMixin
+from .utils import PostAuthentication
 
 log = logging.getLogger(__name__)
 
 
-class ProjectResource(ModelResource, SearchMixin):
+class ProjectResource(ModelResource):
 
     """API resource for Project model."""
 
@@ -139,7 +139,7 @@ class VersionResource(ModelResource):
         ]
 
 
-class FileResource(ModelResource, SearchMixin):
+class FileResource(ModelResource):
 
     """API resource for ImportedFile model."""
 
@@ -152,17 +152,12 @@ class FileResource(ModelResource, SearchMixin):
         include_absolute_url = True
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
-        search_facets = ['project']
 
     def prepend_urls(self):
         return [
             url(
                 r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
                 self.wrap_view('get_schema'), name='api_get_schema'),
-            url(
-                r'^(?P<resource_name>%s)/search%s$' %
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_search'), name='api_get_search'),
             url(
                 r'^(?P<resource_name>%s)/anchor%s$' %
                 (self._meta.resource_name, trailing_slash()),
