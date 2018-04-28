@@ -1,6 +1,5 @@
 {% load i18n %}
 
-{% load highlight %}
 {% for result in page.object_list %}
   {% if result and result.object %}
       <li class="module-item">
@@ -15,7 +14,7 @@
           <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} - {{ result.title }}</a>
         </p>
         <p>
-          {% highlight result.text with query %}
+          {% result.text %}
         </p>
         {% endifequal %}
       </li>

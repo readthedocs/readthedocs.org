@@ -1,4 +1,4 @@
-{% load i18n highlight pagination_tags %}
+{% load i18n pagination_tags %}
 <!-- BEGIN search results -->
 <div class="module" id='search_module'>
   <div class="module-wrapper">
@@ -55,7 +55,7 @@
                 <a href="{% if result.absolute_url %}{{ result.absolute_url }}{% else %}{{ result.object.get_absolute_url }}{% endif %}?highlight={{ query }}">{{ result.project }} {% if result.version %} ({{ result.version }}) {% endif %} - {{ result.title }}</a>
               </p>
               <p>
-                {% highlight result.text with query %}
+                {% result.text %}
               </p>
               {% endifequal %}
             </li>
