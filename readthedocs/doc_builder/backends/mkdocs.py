@@ -124,6 +124,13 @@ class BaseMkdocs(BaseBuilder):
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
         )
 
+        # Write the mkdocs.yml to the build logs
+        self.run(
+            'cat',
+            'mkdocs.yml',
+            cwd=self.root_path,
+        )
+
     def generate_rtd_data(self, docs_dir, mkdocs_config):
         """Generate template properties and render readthedocs-data.js."""
         # Use the analytics code from mkdocs.yml if it isn't set already by Read the Docs
