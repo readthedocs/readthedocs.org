@@ -121,7 +121,7 @@ def do_not_track(request):
     dnt_header = request.META.get('HTTP_DNT')
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
-    return JsonResponse({
+    return JsonResponse({   # pylint: disable=redundant-content-type-for-json-response
         'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
         'same-party': [
             'readthedocs.org',
