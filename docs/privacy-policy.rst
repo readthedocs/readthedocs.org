@@ -54,11 +54,15 @@ Information from website browsers
 
 If you're **just browsing the website**, we collect the same basic information that most websites collect.
 We use common internet technologies, such as cookies and web server logs.
-This is stuff we collect from everybody, whether they have an account or not.
+We collect this basic information from everybody, whether they have an account or not.
 
-The information we collect about all visitors to our website includes
-the visitor's browser type, language preference, referring site,
-additional websites requested, and the date and time of each visitor request.
+The information we collect about all visitors to our website includes:
+
+* the visitor's browser type
+* language preference
+* referring site
+* the date and time of each visitor request
+
 We also collect potentially personally-identifying information
 like Internet Protocol (IP) addresses.
 
