@@ -25,7 +25,7 @@ from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects import tasks
 
 
-@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
 class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     wizard_class_slug = 'import_wizard_view'
