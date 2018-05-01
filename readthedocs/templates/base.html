@@ -17,22 +17,34 @@
 
   <!-- Google Analytics -->
   <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    if (window.doNotTrack || navigator.doNotTrack) {
+      console.log('Respecting DNT with respect to analytics...');
+    } else {
+      // For more details on analytics at Read the Docs, please see:
+      // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd');
-    ga('rtfd.set', 'anonymizeIp', true);
-    ga('rtfd.send', 'pageview');
+      ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd', {
+        'storage': 'none',
+        'cookieExpires': 0  // session cookie (expires on browser quit)
+      });
+      ga('rtfd.set', 'anonymizeIp', true);
+      ga('rtfd.send', 'pageview');
 
-    {% if DASHBOARD_ANALYTICS_CODE %}
-      // Dashboard Analytics Code
-      ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user');
-      ga('user.set', 'anonymizeIp', true);
-      ga('user.send', 'pageview');
-      // End Dashboard Analytics Code
-    {% endif %}
+      {% if DASHBOARD_ANALYTICS_CODE %}
+        // Dashboard Analytics Code
+        ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user', {
+          'storage': 'none',
+          'cookieExpires': 0  // session cookie (expires on browser quit)
+        });
+        ga('user.set', 'anonymizeIp', true);
+        ga('user.send', 'pageview');
+        // End Dashboard Analytics Code
+      {% endif %}
+    }
   </script>
   <!-- End Google Analytics -->
 

@@ -14,8 +14,13 @@ from tastypie.api import Api
 from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
-from readthedocs.core.views import (HomepageView, SupportView,
-                                    server_error_404, server_error_500)
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    server_error_404,
+    server_error_500,
+    do_not_track,
+)
 from readthedocs.search import views as search_views
 
 
@@ -34,7 +39,7 @@ basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^support/', SupportView.as_view(), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
-    url(r'^.well-known/security.txt',
+    url(r'^\.well-known/security.txt$',
         TemplateView.as_view(template_name='security.txt', content_type='text/plain')),
 ]
 
@@ -73,6 +78,14 @@ admin_urls = [
     url(r'^admin/', include(admin.site.urls)),
 ]
 
+dnt_urls = [
+    url(r'^\.well-known/dnt/$', do_not_track),
+
+    # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
+    url(r'^\.well-known/dnt-policy.txt$',
+        TemplateView.as_view(template_name='dnt-policy.txt', content_type='text/plain')),
+]
+
 debug_urls = add(
     [
         url('style-catalog/$',
@@ -83,7 +96,7 @@ debug_urls = add(
 
 # Export URLs
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
-          deprecated_urls]
+          dnt_urls, deprecated_urls]
 
 if settings.USE_PROMOS:
     # Include donation URL's

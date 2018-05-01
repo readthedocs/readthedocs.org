@@ -110,13 +110,50 @@ However, we always give advance notice in our issue tracker
 and via email about showing ads where none were shown before.
 
 
+.. _do-not-track:
+
+Do Not Track Policy
+-------------------
+
+Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
+Specifically, we support the `W3C's tracking preference expression`_
+and the `EFF's DNT Policy`_.
+
+This means:
+
+* We **do not** do behavioral ad targeting regardless of your DNT preference.
+  You probably already knew that from reading the rest of this document.
+* When DNT is enabled, both logged-in and logged-out users
+  are considered opted-out of analytics.
+* Regardless of DNT preference, our logs that contain IP addresses
+  and user agent strings are deleted after 10 days unless a DNT exception applies.
+* Our full DNT policy is `available here`_.
+
+For more details about DNT, visit `All About Do Not Track`_.
+
+Our DNT policy applies without reservation to ``readthedocs.org``.
+A best effort is made to apply this to documentation sites hosted for authors
+(typically ``*.readthedocs.io``, but also other domains),
+but we do not have complete control over the contents of these sites.
+
+.. _W3C's tracking preference expression: https://www.w3.org/TR/tracking-dnt/
+.. _EFF's DNT Policy: https://www.eff.org/issues/do-not-track
+.. _available here: https://readthedocs.org/.well-known/dnt-policy.txt
+.. _All About Do Not Track: http://www.allaboutdnt.com
+
+.. important::
+
+   Due to the nature of our environment where documentation is built as necessary,
+   the analytics opt-out only applies to documentation sites built after May 1, 2018.
+
+
 .. _advertising-analytics:
 
 Analytics
 ---------
 
 Analytics are a sensitive enough issue that they require their own section.
-In the spirit of full transparency, Read the Docs currently uses Google Analytics (GA).
+In the spirit of full transparency, Read the Docs uses Google Analytics (GA).
 
 GA is a contentious issue inside Read the Docs and in our community.
 Some users are very sensitive and privacy conscious to usage of GA.
@@ -125,13 +162,22 @@ The developers at Read the Docs understand that different users have different p
 and we try to respect the different viewpoints as much as possible while also accomplishing
 our own goals.
 
+We have taken steps to address some of the privacy concerns surrounding GA.
+These steps apply both to analytics collected by Read the Docs and when
+:doc:`authors enable analytics on their docs <guides/google-analytics>`.
+
+* Users can opt-out of analytics by using the Do Not Track feature of their browser.
+* Read the Docs instructs Google to anonymize IPs sent to them before they are stored.
+* The cookies set by GA are transient session cookies meaning they expire
+  when you quit your browser.
+
+Why we use analytics
+~~~~~~~~~~~~~~~~~~~~
+
 Advertisers ask us questions that are easily answered with an analytics solution like
 "how many users do you have in Switzerland browsing Python docs?". We need to be able
 to easily get this data. We also use data from GA for some development decisions such
 as what browsers to support (or not) or how much usage a particular page or feature gets.
-
-We have taken steps to address some of the privacy concerns.
-Read the Docs instructs Google to anonymize IPs sent to them before they are stored.
 
 Alternatives
 ~~~~~~~~~~~~

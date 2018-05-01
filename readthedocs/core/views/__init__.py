@@ -12,7 +12,7 @@ import os
 import logging
 
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -115,3 +115,17 @@ def server_error_404(request, exception, template_name='404.html'):  # pylint: d
     r = render(request, template_name)
     r.status_code = 404
     return r
+
+
+def do_not_track(request):
+    dnt_header = request.META.get('HTTP_DNT')
+
+    # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
+    return JsonResponse({
+        'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
+        'same-party': [
+            'readthedocs.org',
+            'readthedocs.io',
+        ],
+        'tracking': 'N' if dnt_header == '1' else 'T',
+    }, content_type='application/tracking-status+json')
