@@ -168,8 +168,7 @@ These steps apply both to analytics collected by Read the Docs and when
 
 * Users can opt-out of analytics by using the Do Not Track feature of their browser.
 * Read the Docs instructs Google to anonymize IPs sent to them before they are stored.
-* The cookies set by GA are transient session cookies meaning they expire
-  when you quit your browser.
+* The cookies set by GA expire more rapidly (30 days) than the default.
 
 Why we use analytics
 ~~~~~~~~~~~~~~~~~~~~

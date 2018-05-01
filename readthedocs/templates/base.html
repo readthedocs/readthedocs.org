@@ -17,7 +17,7 @@
 
   <!-- Google Analytics -->
   <script>
-    if (window.doNotTrack || navigator.doNotTrack) {
+    if (window.doNotTrack === '1' || navigator.doNotTrack === '1') {
       console.log('Respecting DNT with respect to analytics...');
     } else {
       // For more details on analytics at Read the Docs, please see:
@@ -28,8 +28,7 @@
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
       ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd', {
-        'storage': 'none',
-        'cookieExpires': 0  // session cookie (expires on browser quit)
+        'cookieExpires': 30 * 24 * 60 * 60
       });
       ga('rtfd.set', 'anonymizeIp', true);
       ga('rtfd.send', 'pageview');
@@ -37,8 +36,7 @@
       {% if DASHBOARD_ANALYTICS_CODE %}
         // Dashboard Analytics Code
         ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user', {
-          'storage': 'none',
-          'cookieExpires': 0  // session cookie (expires on browser quit)
+          'cookieExpires': 30 * 24 * 60 * 60
         });
         ga('user.set', 'anonymizeIp', true);
         ga('user.send', 'pageview');

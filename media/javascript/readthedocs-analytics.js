@@ -3,7 +3,7 @@
 
 
 // Skip analytics for users with Do Not Track enabled
-if (window.doNotTrack || navigator.doNotTrack) {
+if (window.doNotTrack === '1' || navigator.doNotTrack === '1') {
     console.log('Respecting DNT with respect to analytics...');
 } else {
     // RTD Analytics Code
@@ -15,8 +15,7 @@ if (window.doNotTrack || navigator.doNotTrack) {
     if (typeof READTHEDOCS_DATA !== 'undefined') {
         if (READTHEDOCS_DATA.global_analytics_code) {
             ga('create', READTHEDOCS_DATA.global_analytics_code, 'auto', 'rtfd', {
-              'storage': 'none',
-              'cookieExpires': 0  // session cookie (expires on browser quit)
+              'cookieExpires': 30 * 24 * 60 * 60
             });
             ga('rtfd.set', 'dimension1', READTHEDOCS_DATA.project);
             ga('rtfd.set', 'dimension2', READTHEDOCS_DATA.version);
@@ -31,8 +30,7 @@ if (window.doNotTrack || navigator.doNotTrack) {
         // User Analytics Code
         if (READTHEDOCS_DATA.user_analytics_code) {
             ga('create', READTHEDOCS_DATA.user_analytics_code, 'auto', 'user', {
-              'storage': 'none',
-              'cookieExpires': 0  // session cookie (expires on browser quit)
+              'cookieExpires': 30 * 24 * 60 * 60
             });
             ga('user.set', 'anonymizeIp', true);
             ga('user.send', 'pageview');
