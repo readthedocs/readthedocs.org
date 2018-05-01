@@ -75,7 +75,7 @@ def cname_to_slug(host):
     return slug
 
 
-def trigger_build(project, version=None, record=True, force=False, basic=False):
+def trigger_build(project, version=None, record=True, force=False):
     """
     Trigger build for project and version.
 
@@ -97,7 +97,6 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
         version_pk=version.pk,
         record=record,
         force=force,
-        basic=basic,
     )
 
     build = None
