@@ -106,7 +106,6 @@ def prepare_build(
         version = project.versions.get(slug=LATEST)
 
     kwargs = {
-        'pk': project.pk,
         'version_pk': version.pk,
         'record': record,
         'force': force,
@@ -140,7 +139,7 @@ def prepare_build(
     options['time_limit'] = int(time_limit * 1.2)
 
     update_docs_task = UpdateDocsTask()
-    return update_docs_task.si(kwargs=kwargs, **options)
+    return update_docs_task.si(project.pk, **kwargs, **options)
 
 
 def trigger_build(project, version=None, record=True, force=False):
