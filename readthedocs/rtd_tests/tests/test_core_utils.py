@@ -30,7 +30,6 @@ class CoreUtilTests(TestCase):
                 kwargs={
                     'pk': self.project.id,
                     'force': False,
-                    'basic': False,
                     'record': True,
                     'build_pk': mock.ANY,
                     'version_pk': self.version.id
@@ -51,7 +50,6 @@ class CoreUtilTests(TestCase):
                 kwargs={
                     'pk': self.project.id,
                     'force': False,
-                    'basic': False,
                     'record': True,
                     'build_pk': mock.ANY,
                     'version_pk': self.version.id
@@ -72,7 +70,6 @@ class CoreUtilTests(TestCase):
                 kwargs={
                     'pk': self.project.id,
                     'force': False,
-                    'basic': False,
                     'record': True,
                     'build_pk': mock.ANY,
                     'version_pk': self.version.id

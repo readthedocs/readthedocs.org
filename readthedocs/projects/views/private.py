@@ -231,10 +231,9 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         for field, value in list(form_data.items()):
             if field in extra_fields:
                 setattr(project, field, value)
-        basic_only = True
         project.save()
         project_import.send(sender=project, request=self.request)
-        trigger_build(project, basic=basic_only)
+        trigger_build(project)
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]))
 
@@ -271,7 +270,7 @@ class ImportDemoView(PrivateViewMixin, View):
             if form.is_valid():
                 project = form.save()
                 project.save()
-                trigger_build(project, basic=True)
+                trigger_build(project)
                 messages.success(
                     request, _('Your demo project is currently being imported'))
             else:
