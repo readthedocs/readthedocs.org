@@ -33,7 +33,7 @@ div.wrapper > div.col-minor {
 
 /* typography */
 
-body { font: 16px/24px "ff-meta-web-pro", "ff-meta-web-pro-1","ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #444; }
+body { font: 16px/24px Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; color: #444; }
 h1, h2, h3, h4, h5, h6 { color: #222; font-weight: bold; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7); }
 h1 { font-size: 28px; line-height: 36px; margin-bottom: 40px; }
 h2 { font-size: 24px; line-height: 28px; margin-bottom: 10px; }
@@ -49,8 +49,30 @@ a:hover { color: #111; }
 table { margin-bottom: 15px; }
 p { margin-bottom: 15px; }
 pre { margin: 15px 0; white-space: pre; overflow: auto; }
-pre, code, tt { font-family: "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; line-height: 20px; }
-textarea, input, select { font-family: "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; font-size: 16px; line-height: 20px; }
+pre, code, tt { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace; line-height: 20px; }
+textarea, input, select { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace; font-size: 16px; line-height: 20px; }
+
+@font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato/lato-bold.woff2') format('woff2'),
+         url('../fonts/lato/lato-bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato/lato-italic.woff2') format('woff2'),
+         url('../fonts/lato/lato-italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Lato';
+    src: url('../fonts/lato/lato-regular.woff2') format('woff2'),
+         url('../fonts/lato/lato-regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 @font-face {
   font-family: 'FontAwesome';
@@ -92,9 +114,9 @@ input[type="text"].field-error {
 }
 
 .navigable select { width: 150px;}
-select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font: 16/20px "inconsolata", "inconsolata-1", "inconsolata-2", 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace; }
+select { display: block; max-height: 300px; width: 250px; margin-bottom: 10px; font-size: 16px; line-height: 20px; font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace; }
 textarea { background: #fff; width: 435px; height: 150px; }
-input[type="submit"], input[type="button"], button, .button { font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; cursor: pointer;}
+input[type="submit"], input[type="button"], button, .button { font-family: Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; cursor: pointer;}
 .button { padding: 6px 10px; float: left; cursor: pointer; }
 input[type="submit"]:hover, input[type="button"]:hover, button:hover, .button:hover { background-color: #8ECC4C; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); border-color: #6B9939; border-bottom-color: #50732B; }
 input[type="submit"]:active, input[type="button"]:active, button:active, .button:active { box-shadow: none; -moz-box-shadow: none; -webkit-box-shadow: none; }
@@ -164,7 +186,7 @@ i { display: inline-block; padding:0; margin:0; padding-right:6px; position: rel
   .rtfd-header-search { position: absolute; top: 12px; left: 190px; width: 320px; }
   .rtfd-header-search input { padding: 0 5px; margin: 0; height: 25px; font-size: 14px; float: left; -moz-border-radius: 0; -webkit-border-radius: 0; border: none; }
   .rtfd-header-search input[type="text"] { -moz-border-radius-topleft: 3px; -moz-border-radius-bottomleft: 3px; -webkit-border-top-left-radius: 3px; -webkit-border-bottom-left-radius: 3px; width: 225px; }
-  .rtfd-header-search input[type="submit"] { font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; padding: 0 12px; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; font-weight: bold; color: #666; }
+  .rtfd-header-search input[type="submit"] { font-family: Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; padding: 0 12px; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; font-weight: bold; color: #666; }
   .rtfd-header-search input[type="submit"]:hover { text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); background-color: #8ECC4C; color: #fff; }
 
   /* header nav */
@@ -477,7 +499,7 @@ div.module.search-dashboard input {
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
 
-    font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif;
+    font-family: Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-weight: bold;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
     text-decoration: none;
@@ -521,6 +543,18 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .navigable .profile_image img { border-radius:5px; }
 
 .profile #content { padding-top:8px; }
+
+/* login & signup pages */
+.login-page h3, .signup-page h3 {
+    margin: 40px 0;
+}
+.login-page .socialaccount_providers .button,
+.signup-page .socialaccount_providers .button {
+    display: inline-block;
+    float: none;
+    margin: 10px 0;
+}
+
 /* build page */
 
 #build_list select { width: 10em; }
@@ -928,7 +962,7 @@ div.gold-subscription p.subscription-detail label {
 }
 
 div.gold-subscription p.subscription-detail-card > span {
-    font-family: monospace;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace;
 }
 
 div.gold-subscription > form {
@@ -1008,7 +1042,7 @@ div.button-bar li button {
 }
 
 select.dropdown { display: none; }
-.dropdown > a { font-family: "ff-meta-web-pro", "ff-meta-web-pro-1", "ff-meta-web-pro-2", Arial, "Helvetica Neue", sans-serif; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
+.dropdown > a { font-family: Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; color: #666; font-weight: bold; padding: 8px 15px; border: none; background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left; margin: 30px 5px 20px 0; text-shadow: 0 1px 0 rgba(255, 255, 255, 1); border: 1px solid #bfbfbf; display: block; text-decoration: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
 
 
 .dropdown { position: relative; display: inline-block; height: 32px; min-width:128px; }
@@ -1135,14 +1169,14 @@ div.httpexchange dl dt {
     font-weight: bold;
 }
 div.httpexchange dl dt {
-    font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace;
     font-size: .9em;
 }
 
 div.integration-details dl dd,
 div.httpexchange dl dd {
     display: inline;
-    font-family: 'inconsolata', 'bitstream vera sans mono', 'andale mono', 'lucida console', monospace;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace;
 }
 div.httpexchange dl dd {
     font-size: .9em;

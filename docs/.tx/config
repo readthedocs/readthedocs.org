@@ -112,11 +112,6 @@ file_filter = locale/<lang>/LC_MESSAGES/webhooks.po
 source_file = locale/pot/webhooks.pot
 source_lang = en
 
-[readthedocs-docs.api--bookmarks]
-file_filter = locale/<lang>/LC_MESSAGES/api/bookmarks.po
-source_file = locale/pot/api/bookmarks.pot
-source_lang = en
-
 [readthedocs-docs.api--builds]
 file_filter = locale/<lang>/LC_MESSAGES/api/builds.po
 source_file = locale/pot/api/builds.pot

@@ -243,7 +243,7 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
                     positive='sphinx<2',
-                    negative='sphinx==1.6.5',
+                    negative='sphinx==1.7.4',
                 ),
                 'sphinx-rtd-theme<0.3',
                 'readthedocs-sphinx-ext<0.6'

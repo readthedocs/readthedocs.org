@@ -21,8 +21,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
-
-from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
@@ -61,13 +59,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
 
-        bookmarks = Bookmark.objects.filter(user=self.request.user)
-
-        if bookmarks.exists:
-            context['bookmark_list'] = bookmarks[:3]
-        else:
-            bookmarks = None
-
         return context
 
 
@@ -82,17 +73,6 @@ def project_manage(__, project_slug):
     Now redirects to the normal /projects/<slug> view.
     """
     return HttpResponseRedirect(reverse('projects_detail', args=[project_slug]))
-
-
-@login_required
-def project_comments_moderation(request, project_slug):
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
-    return render(
-        request,
-        'projects/project_comments_moderation.html',
-        {'project': project},
-    )
 
 
 class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
@@ -531,20 +511,6 @@ def project_notifications(request, project_slug):
             'project': project,
             'emails': emails,
             'urls': urls,
-        },
-    )
-
-
-@login_required
-def project_comments_settings(request, project_slug):
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
-
-    return render(
-        request,
-        'projects/project_comments_settings.html',
-        {
-            'project': project,
         },
     )
 
