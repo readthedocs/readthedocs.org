@@ -23,8 +23,6 @@ readthedocs-build<2.1
 # django-tastypie 0.13.x and 0.14.0 are not compatible with our code
 django-tastypie==0.13.0
 
-django-haystack==2.8.1
-celery-haystack==0.10
 django-guardian==1.4.9
 django-extensions==2.0.6
 

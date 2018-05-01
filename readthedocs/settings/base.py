@@ -84,9 +84,6 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-
-            # daniellindsleyrocksdahouse
-            'haystack',
             'tastypie',
 
             # our apps
@@ -312,13 +309,6 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
-
-    # Haystack
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
