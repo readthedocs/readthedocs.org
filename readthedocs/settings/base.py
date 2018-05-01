@@ -90,7 +90,6 @@ class CommunityBaseSettings(Settings):
             'tastypie',
 
             # our apps
-            'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
             'readthedocs.core',

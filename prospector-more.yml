@@ -9,7 +9,6 @@ ignore-paths:
   - acl
   - api
   - betterversion
-  - bookmarks
   - builds
   - cdn
   - comments
