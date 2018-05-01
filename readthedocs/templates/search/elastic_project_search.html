@@ -37,7 +37,7 @@
           <div class="wide-search-bar-wrapper clearfix">
             <form action="." method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query|default_if_none:"" }}">
+                <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_project_search">
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
