@@ -233,9 +233,15 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
                 setattr(project, field, value)
         project.save()
         project_import.send(sender=project, request=self.request)
-        trigger_build(project)
+        self.trigger_initial_build(project)
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]))
+
+    def trigger_initial_build(self, project):
+        """
+        Trigger initial build.
+        """
+        return trigger_build(project)
 
     def is_advanced(self):
         """Determine if the user selected the `show advanced` field."""
