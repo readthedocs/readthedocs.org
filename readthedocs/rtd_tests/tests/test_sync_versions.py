@@ -558,7 +558,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(version_latest.machine)
 
-    @pytest.mark.xfail(strict=True)
     def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
         """
         The user creates a branch named ``latest`` on an existing repo,
