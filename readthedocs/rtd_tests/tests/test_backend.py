@@ -57,30 +57,6 @@ class TestGitBackend(RTDTestCase):
         repo.checkout()
         self.assertTrue(exists(repo.working_dir))
 
-    def test_parse_git_tags(self):
-        data = """\
-            3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
-            bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
-            c0288a17899b2c6818f74e3a90b77e2a1779f96a refs/tags/2.0.2
-            a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
-            c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
-            edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
-            274a5a8c988a804e40da098f59ec6c8f0378fe34 refs/tags/release/foobar
-         """
-        expected_tags = [
-            ('3b32886c8d3cb815df3793b3937b2e91d0fb00f1', '2.0.0'),
-            ('bd533a768ff661991a689d3758fcfe72f455435d', '2.0.1'),
-            ('c0288a17899b2c6818f74e3a90b77e2a1779f96a', '2.0.2'),
-            ('a63a2de628a3ce89034b7d1a5ca5e8159534eef0', '2.1.0.beta2'),
-            ('c7fc3d16ed9dc0b19f0d27583ca661a64562d21e', '2.1.0.rc1'),
-            ('edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1', '2.1.0.rc2'),
-            ('274a5a8c988a804e40da098f59ec6c8f0378fe34', 'release/foobar'),
-        ]
-
-        given_ids = [(x.identifier, x.verbose_name) for x in
-                     self.project.vcs_repo().parse_tags(data)]
-        self.assertEqual(expected_tags, given_ids)
-
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo()
 

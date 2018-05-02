@@ -122,46 +122,12 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run(
-            'git',
-            'show-ref',
-            '--tags',
-            record_as_success=True,
-        )
-        # error (or no tags found)
-        if retcode != 0:
-            return []
-        return self.parse_tags(stdout)
-
-    def parse_tags(self, data):
-        """
-        Parses output of show-ref --tags, eg:
-
-            3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
-            bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
-            c0288a17899b2c6818f74e3a90b77e2a1779f96a refs/tags/2.0.2
-            a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
-            c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
-            edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
-
-        Into VCSTag objects with the tag name as verbose_name and the commit
-        hash as identifier.
-        """
-        # parse the lines into a list of tuples (commit-hash, tag ref name)
-        # StringIO below is expecting Unicode data, so ensure that it gets it.
-        if not isinstance(data, str):
-            data = str(data)
-        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
-        raw_tags = csv.reader(StringIO(data), delimiter=delimiter)
-        vcs_tags = []
-        for row in raw_tags:
-            row = [f for f in row if f != '']
-            if row == []:
-                continue
-            commit_hash, name = row
-            clean_name = name.replace('refs/tags/', '')
-            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
-        return vcs_tags
+        repo = git.Repo(self.working_dir)
+        versions = [
+            VCSVersion(self, str(tag.commit), str(tag))
+            for tag in repo.tags
+        ]
+        return versions
 
     @property
     def branches(self):
