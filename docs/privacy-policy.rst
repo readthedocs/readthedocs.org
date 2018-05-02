@@ -288,7 +288,8 @@ We will retain and use your information as necessary to comply with
 our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.
 
-Our web server logs are deleted after 90 days barring legal obligations.
+Our web server logs for both readthedocs.org and documentation sites
+are deleted after 10 days barring legal obligations.
 
 
 Changes to our Privacy Policy
