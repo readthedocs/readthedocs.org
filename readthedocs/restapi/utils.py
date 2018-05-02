@@ -28,11 +28,14 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     # Add new versions
     added = set()
     has_user_stable = False
+    has_user_latest = False
     for version in versions:
         version_id = version['identifier']
         version_name = version['verbose_name']
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
+        if version_name == LATEST_VERBOSE_NAME:
+            has_user_latest = True
         if version_name in old_versions:
             if version_id == old_versions[version_name]:
                 # Version is correct
@@ -70,6 +73,18 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             # Put back the RTD's stable version
             stable_version.machine = True
             stable_version.save()
+    if not has_user_latest:
+        latest_version = (
+            project.versions
+            .filter(slug=LATEST, type=type)
+            .first()
+        )
+        if latest_version:
+            # Put back the RTD's latest version
+            latest_version.machine = True
+            latest_version.identifier = project.get_default_branch()
+            latest_version.verbose_name = LATEST_VERBOSE_NAME
+            latest_version.save()
     if added:
         log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
     return added
