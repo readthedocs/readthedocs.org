@@ -1133,6 +1133,9 @@ class TestLatestVersion(TestCase):
 
     @pytest.mark.xfail(strict=True)
     def test_user_defined_latest_version_tag(self):
+        # TODO: the ``latest`` versions are created
+        # as a BRANCH, then here we will have a
+        # ``latest_a`` version.
         version_post_data = {
             'branches': [
                 {
