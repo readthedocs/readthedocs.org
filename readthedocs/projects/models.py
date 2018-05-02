@@ -161,7 +161,7 @@ class Project(models.Model):
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
     show_version_warning = models.BooleanField(
-        _('Show version warning'), default=True,
+        _('Show version warning'), default=False,
         help_text=_('Show warning banner in non-stable versions.')
     )
 
