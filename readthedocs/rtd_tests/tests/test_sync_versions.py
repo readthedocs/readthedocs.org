@@ -615,7 +615,7 @@ class TestSyncVersions(TestCase):
         # The latest isn't stuck with the previous branch
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
-            'origin/master',
+            'master',
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
