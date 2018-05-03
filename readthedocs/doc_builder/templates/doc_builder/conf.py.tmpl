@@ -134,6 +134,6 @@ else:
 
 # Add custom RTD extension
 if 'extensions' in globals():
-    extensions.append("readthedocs_ext.readthedocs")
+    extensions.insert(0, "readthedocs_ext.readthedocs")
 else:
     extensions = ["readthedocs_ext.readthedocs"]
