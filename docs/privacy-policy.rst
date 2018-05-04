@@ -144,7 +144,57 @@ We may share User Personal Information with your permission,
 so we can perform services you have requested.
 
 We may share User Personal Information with a limited number of third-party vendors
-who process it on our behalf to provide or improve our service, and who have agreed to privacy restrictions similar to our own Privacy Statement. Our vendors perform services such as payment processing, customer support ticketing, network data transmission, and other similar services.
+who process it on our behalf to provide or improve our service,
+and who have agreed to privacy restrictions similar to our own Privacy Statement.
+
+
+Third-party vendors
+~~~~~~~~~~~~~~~~~~~
+
+As we mentioned, we may share some information with third-party vendors
+or it may be collected by them on our behalf.
+The information collected and stored by third parties
+is subject to their policies and practices.
+This list will be updated from time to time
+and we encourage you to check back periodically.
+
+Payment processing
+++++++++++++++++++
+
+Should you choose to donate to Read the Docs or purchase a `Gold subscription`_,
+your payment information and details will be processed by Stripe.
+Read the Docs does not store your payment information.
+
+.. _Gold subscription: https://readthedocs.org/accounts/gold/
+
+Site monitoring
++++++++++++++++
+
+Read the Docs uses Sentry and New Relic to diagnose errors
+and improve the performance of our site.
+Both companies take part in the EU-US Privacy Shield framework.
+We aim to minimize the amount of personal information shared,
+but the information may include your IP address.
+
+Analytics
++++++++++
+
+We go into detail on analytics in a
+:ref:`separate section specific to analytics <privacy-policy-analytics>`.
+
+Email newsletter
+++++++++++++++++
+
+If you sign up for the `Read the Docs email newsletter`_,
+your email address and name will be stored by Mailchimp.
+This newsletter is separate from creating a Read the Docs account and
+signing up for Read the Docs does not opt you in for the newsletter.
+
+You can manage your email subscription
+including unsubscribing and deleting your records with Mailchimp.
+There is a link to do so in the footer of any newsletter you receive from us.
+
+.. _Read the Docs email newsletter: http://readthedocs.us3.list-manage.com/subscribe?u=a6a22369cc2b356379cf789ca&id=a85a83a5a5
 
 
 Public Information on Read the Docs
@@ -175,6 +225,8 @@ or are used for performance or functionality.
 By using our website, you agree that we can place these types of cookies on your computer or device.
 If you disable your browser or device's ability to accept cookies,
 you will not be able to log in to Read the Docs.
+
+.. _privacy-policy-analytics:
 
 Google Analytics
 ~~~~~~~~~~~~~~~~
