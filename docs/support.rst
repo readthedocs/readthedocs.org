@@ -17,10 +17,9 @@ Good questions for Stack Overflow would be:
 Community Support
 -----------------
 
-Read the Docs is a community supported site,
-nobody is paid to handle readthedocs.org support.
-We are hoping to bring in enough money with our `Gold`_ program to change that,
-so please sign up if you are able.
+Read the Docs is a community- and ad-supported site.
+We hope to bring in enough money
+with our `Gold`_ and `Ethical Ads`_ programs to keep Read the Docs sustainable.
 
 **All people answering your questions are doing it with their own time,
 so please be kind and provide as much information as possible.**
@@ -58,5 +57,5 @@ or read more at https://readthedocs.com/services/#open-source-support.
 
 .. _Stack Overflow: http://stackoverflow.com/questions/tagged/read-the-docs
 .. _Github Issue Tracker: https://github.com/rtfd/readthedocs.org/issues
-.. _sign up: https://readthedocs.org/accounts/gold/
 .. _Gold: https://readthedocs.org/accounts/gold/
+.. _Ethical Ads: https://docs.readthedocs.io/en/latest/ethical-advertising.html

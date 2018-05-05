@@ -1,0 +1,51 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Set advertising preferences" %}{% endblock %}
+
+{% block profile-admin-advertising %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Set advertising preferences" %} {% endblock %}
+
+{% block edit_content %}
+  <p>
+    {% blocktrans %}
+      Read the Docs is an open source project.
+      In order to maintain service, we rely on both the
+      support of our users, and from sponsor support.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    {% blocktrans %}
+      For more details on advertising on Read the Docs
+      including the privacy protections we have in place for users
+      and community advertising we run on behalf of the open source community,
+      see <a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">our documentation</a>.
+    {% endblocktrans %}
+  </p>
+
+  {% if request.user.gold.count or request.user.goldonce.count %}
+    <p>
+      {% blocktrans %}
+        <strong>Note:</strong>
+        Since you are a Gold Member or donor, you <strong>will not</strong> see advertising as long as you are logged-in.
+        Thank you for supporting Read the Docs.
+      {% endblocktrans%}
+    </p>
+  {% else %}
+    <p>
+      {% url "gold_detail" as gold_detail %}
+      {% blocktrans %}
+        You may remove ads completely by becoming a <a href="{{ gold_detail }}">Gold member to Read the Docs</a>.
+      {% endblocktrans %}
+    </p>
+  {% endif %}
+
+  <form method="POST" action=".">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="submit" value="{% trans "Update advertisement preference" %}" id="submit"/>
+  </form>
+{% endblock %}
