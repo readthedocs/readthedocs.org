@@ -30,9 +30,9 @@ Supported settings
 formats
 ~~~~~~~
 
-* Default: ``htmlzip``, ``pdf``, ``epub``
+* Default: [``htmlzip``, ``pdf``, ``epub``]
 * Options: ``htmlzip``, ``pdf``, ``epub``
-* Type: List of options or ``null``
+* Type: List
 
 The formats of your documentation you want to be built.
 Set as an empty list ``[]`` to build none of the formats.
