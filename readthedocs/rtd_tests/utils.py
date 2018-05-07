@@ -89,10 +89,22 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
-
-    # Create some tags
     chdir(path)
     return directory
+
+
+def create_tag(directory, tag, annotated=False):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    path = getcwd()
+    chdir(directory)
+
+    command = ['git', 'tag']
+    if annotated:
+        command.extend(['-a', '-m', 'Some tag'])
+    command.append(tag)
+    check_output(command, env=env)
+    chdir(path)
 
 
 def make_test_hg():

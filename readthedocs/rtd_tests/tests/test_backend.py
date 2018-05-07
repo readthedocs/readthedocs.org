@@ -9,7 +9,7 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project, Feature
 from readthedocs.rtd_tests.base import RTDTestCase
 
-from readthedocs.rtd_tests.utils import make_test_git, make_test_hg
+from readthedocs.rtd_tests.utils import create_tag, make_test_git, make_test_hg
 
 
 class TestGitBackend(RTDTestCase):
@@ -56,6 +56,19 @@ class TestGitBackend(RTDTestCase):
         repo = self.project.vcs_repo()
         repo.checkout()
         self.assertTrue(exists(repo.working_dir))
+
+    def test_git_tags(self):
+        repo_path = self.project.repo
+        create_tag(repo_path, 'v01')
+        create_tag(repo_path, 'v02', annotated=True)
+        create_tag(repo_path, 'release-ünîø∂é')
+        repo = self.project.vcs_repo()
+        # Hack the repo path
+        repo.working_dir = repo_path
+        self.assertEqual(
+            set(['v01', 'v02', 'release-ünîø∂é']),
+            set(vcs.verbose_name for vcs in repo.tags)
+        )
 
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo()
