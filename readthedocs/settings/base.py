@@ -6,7 +6,10 @@ from __future__ import (
 
 import os
 
+from celery.schedules import crontab
+
 from readthedocs.core.settings import Settings
+
 
 try:
     import readthedocsext  # noqa
@@ -71,7 +74,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'linaro_django_pagination',
+            'dj_pagination',
             'taggit',
             'guardian',
             'django_gravatar',
@@ -81,16 +84,11 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-
-            # daniellindsleyrocksdahouse
-            'haystack',
             'tastypie',
 
             # our apps
-            'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
-            'readthedocs.comments',
             'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
@@ -131,7 +129,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'linaro_django_pagination.middleware.PaginationMiddleware',
+        'dj_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
@@ -217,8 +215,8 @@ class CommunityBaseSettings(Settings):
         ('de', gettext('German')),
         ('gl', gettext('Galician')),
         ('vi', gettext('Vietnamese')),
-        ('zh-cn', gettext('Chinese')),
-        ('zh-tw', gettext('Taiwanese')),
+        ('zh-cn', gettext('Simplified Chinese')),
+        ('zh-tw', gettext('Traditional Chinese')),
         ('ja', gettext('Japanese')),
         ('uk', gettext('Ukrainian')),
         ('it', gettext('Italian')),
@@ -241,6 +239,24 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULE = {
+        # Ran every hour on minute 30
+        'hourly-remove-orphan-symlinks': {
+            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
+            'schedule': crontab(minute=30),
+            'options': {'queue': 'web'},
+        },
+        'quarter-finish-inactive-builds': {
+            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'every-three-hour-clear-persistent-messages': {
+            'task': 'readthedocs.core.tasks.clear_persistent_messages',
+            'schedule': crontab(minute=0, hour='*/3'),
+            'options': {'queue': 'web'},
+        },
+    }
 
     # Docker
     DOCKER_ENABLE = False
@@ -252,7 +268,6 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
@@ -293,13 +308,6 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
-
-    # Haystack
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']

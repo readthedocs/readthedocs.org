@@ -6,6 +6,7 @@ from __future__ import (
 
 import logging
 
+from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
@@ -28,7 +29,7 @@ from ..serializers import (
     BuildAdminSerializer, BuildCommandSerializer, BuildSerializer,
     DomainSerializer, ProjectAdminSerializer, ProjectSerializer,
     RemoteOrganizationSerializer, RemoteRepositorySerializer,
-    VersionAdminSerializer, VersionSerializer)
+    SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
 
 log = logging.getLogger(__name__)
 
@@ -169,7 +170,7 @@ class ProjectViewSet(UserSelectViewSet):
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
-            log.exception('Sync Versions Error: %s', e.message)
+            log.exception('Sync Versions Error')
             return Response(
                 {
                     'error': e.message,
@@ -275,8 +276,26 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)
+
+        own = self.request.query_params.get('own', None)
+        if own is not None:
+            query = query.filter(
+                account__provider=own,
+                organization=None,
+            )
+
         query = query.filter(
             account__provider__in=[
                 service.adapter.provider_id for service in registry
             ])
         return query
+
+
+class SocialAccountViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsOwner]
+    renderer_classes = (JSONRenderer,)
+    serializer_class = SocialAccountSerializer
+    model = SocialAccount
+
+    def get_queryset(self):
+        return self.model.objects.filter(user=self.request.user.pk)

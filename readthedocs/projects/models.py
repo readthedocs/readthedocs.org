@@ -22,7 +22,7 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name
+from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
@@ -86,6 +86,7 @@ class Project(models.Model):
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
     repo = models.CharField(_('Repository URL'), max_length=255,
+                            validators=[validate_repository_url],
                             help_text=_('Hosted documentation repository URL'))
     repo_type = models.CharField(_('Repository type'), max_length=10,
                                  choices=constants.REPO_CHOICES, default='git')
@@ -136,6 +137,7 @@ class Project(models.Model):
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
+    # TODO: remove this?
     allow_comments = models.BooleanField(_('Allow Comments'), default=False)
     comment_moderation = models.BooleanField(
         _('Comment Moderation'), default=False,)
@@ -326,8 +328,26 @@ class Project(models.Model):
             log.exception('failed to sync supported versions')
         try:
             if not first_save:
-                broadcast(type='app', task=tasks.symlink_project,
-                          args=[self.pk],)
+                log.info(
+                    'Re-symlinking project and subprojects: project=%s',
+                    self.slug,
+                )
+                broadcast(
+                    type='app',
+                    task=tasks.symlink_project,
+                    args=[self.pk],
+                )
+                log.info(
+                    'Re-symlinking superprojects: project=%s',
+                    self.slug,
+                )
+                for relationship in self.superprojects.all():
+                    broadcast(
+                        type='app',
+                        task=tasks.symlink_project,
+                        args=[relationship.parent.pk],
+                    )
+
         except Exception:
             log.exception('failed to symlink project')
         try:
@@ -796,66 +816,6 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
-    def moderation_queue(self):
-        # non-optimal SQL warning.
-        from readthedocs.comments.models import DocumentComment
-        queue = []
-        comments = DocumentComment.objects.filter(node__project=self)
-        for comment in comments:
-            if not comment.has_been_approved_since_most_recent_node_change():
-                queue.append(comment)
-
-        return queue
-
-    def add_node(self, content_hash, page, version, commit):
-        """
-        Add comment node.
-
-        :param content_hash: Hash of node content
-        :param page: Doc page for node
-        :param version: Slug for project version to apply node to
-        :type version: str
-        :param commit: Commit that node was updated in
-        :type commit: str
-        """
-        from readthedocs.comments.models import NodeSnapshot, DocumentNode
-        project_obj = Project.objects.get(slug=self.slug)
-        version_obj = project_obj.versions.get(slug=version)
-        try:
-            NodeSnapshot.objects.get(hash=content_hash, node__project=project_obj,
-                                     node__version=version_obj, node__page=page,
-                                     commit=commit)
-            return False  # ie, no new node was created.
-        except NodeSnapshot.DoesNotExist:
-            DocumentNode.objects.create(
-                hash=content_hash,
-                page=page,
-                project=project_obj,
-                version=version_obj,
-                commit=commit
-            )
-        return True  # ie, it's True that a new node was created.
-
-    def add_comment(self, version_slug, page, content_hash, commit, user, text):
-        """
-        Add comment to node.
-
-        :param version_slug: Version slug to use for node lookup
-        :param page: Page to attach comment to
-        :param content_hash: Hash of content to apply comment to
-        :param commit: Commit that updated comment
-        :param user: :py:class:`User` instance that created comment
-        :param text: Comment text
-        """
-        from readthedocs.comments.models import DocumentNode
-        try:
-            node = self.nodes.from_hash(version_slug, page, content_hash)
-        except DocumentNode.DoesNotExist:
-            version = self.versions.get(slug=version_slug)
-            node = self.nodes.create(version=version, page=page,
-                                     hash=content_hash, commit=commit)
-        return node.comments.create(user=user, text=text)
-
     @property
     def features(self):
         return Feature.objects.for_project(self)
@@ -1049,12 +1009,14 @@ class Feature(models.Model):
     USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
+    SKIP_SUBMODULES = 'skip_submodules'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
     )
 
     projects = models.ManyToManyField(

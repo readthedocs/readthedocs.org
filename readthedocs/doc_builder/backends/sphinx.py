@@ -214,10 +214,7 @@ class HtmlBuilder(BaseSphinx):
 
     def __init__(self, *args, **kwargs):
         super(HtmlBuilder, self).__init__(*args, **kwargs)
-        if self.project.allow_comments:
-            self.sphinx_builder = 'readthedocs-comments'
-        else:
-            self.sphinx_builder = 'readthedocs'
+        self.sphinx_builder = 'readthedocs'
 
 
 class HtmlDirBuilder(HtmlBuilder):
@@ -225,10 +222,7 @@ class HtmlDirBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super(HtmlDirBuilder, self).__init__(*args, **kwargs)
-        if self.project.allow_comments:
-            self.sphinx_builder = 'readthedocsdirhtml-comments'
-        else:
-            self.sphinx_builder = 'readthedocsdirhtml'
+        self.sphinx_builder = 'readthedocsdirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):

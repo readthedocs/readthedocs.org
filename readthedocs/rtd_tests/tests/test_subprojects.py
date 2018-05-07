@@ -53,6 +53,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subproject.pk},
@@ -76,6 +77,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project, subproject],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subproject.pk},
@@ -102,6 +104,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project, subproject, subsubproject],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subsubproject.pk},
@@ -132,6 +135,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project, subproject],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subproject.pk},
@@ -176,15 +180,29 @@ class ResolverBase(TestCase):
             self.pip.add_subproject(self.subproject)
             self.pip.translations.add(self.translation)
 
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_resolver_subproject_alias(self):
         relation = self.pip.subprojects.first()
         relation.alias = 'sub_alias'
         relation.save()
-        with override_settings(USE_SUBDOMAIN=False):
-            resp = self.client.get('/docs/pip/projects/sub_alias/')
-            self.assertEqual(resp.status_code, 302)
-            self.assertEqual(
-                resp._headers['location'][1],
-                'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/'
+        fixture.get(Project, slug='sub_alias', language='ya')
+
+
+    @override_settings(
+            PRODUCTION_DOMAIN='readthedocs.org',
+            USE_SUBDOMAIN=False,
             )
+    def test_resolver_subproject_alias(self):
+        resp = self.client.get('/docs/pip/projects/sub_alias/')
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp._headers['location'][1],
+            'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/'
+        )
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_resolver_subproject_subdomain_alias(self):
+        resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp._headers['location'][1],
+            'http://pip.readthedocs.org/projects/sub_alias/ja/latest/'
+        )

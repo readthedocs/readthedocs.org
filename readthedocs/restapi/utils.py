@@ -29,7 +29,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     for version in versions:
         version_id = version['identifier']
         version_name = version['verbose_name']
-        if version_name in list(old_versions.keys()):
+        if version_name in old_versions:
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue
