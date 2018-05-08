@@ -55,3 +55,13 @@ for example ``http://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
+
+Version warning
+---------------
+
+This is the banner with the text *You are not using..*
+that is displayed on an unreleased version of your docs,
+redirecting the users to the latest version of your docs.
+
+This feature is disabled by default on new projects,
+you can enable it in the admin section of your docs (Advanced Settings).
