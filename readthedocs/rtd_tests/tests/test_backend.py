@@ -75,7 +75,7 @@ class TestGitBackend(RTDTestCase):
     @pytest.mark.skipif(six.PY2, reason='Python 3 only')
     def test_git_tags_unicode(self):
         repo_path = self.project.repo
-        create_git_tag(repo_path, 'release-ünîø∂é')
+        create_git_tag(repo_path, 'release-ünîø∂é'.encode())
         repo = self.project.vcs_repo()
         # Hack the repo path
         repo.working_dir = repo_path
