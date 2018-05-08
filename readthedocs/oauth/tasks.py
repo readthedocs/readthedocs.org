@@ -20,7 +20,17 @@ class SyncRemoteRepositories(PublicTask):
         user = User.objects.get(pk=user_id)
         for service_cls in registry:
             for service in service_cls.for_user(user):
-                service.sync()
+                # TODO: handle the serialization of a simple ``Exception``
+                # raised inside the task. Celery is returning:
+                # EncodeError('Object of type Exception is not JSON
+                # serializable'). Because of this, the task never ends and the
+                # FE keeps waiting forever. Also, if we have 3 accounts
+                # connected and the first one fails, the other two are not
+                # executed.
+                try:
+                    service.sync()
+                except Exception:
+                    pass
 
 
 sync_remote_repositories = SyncRemoteRepositories()
