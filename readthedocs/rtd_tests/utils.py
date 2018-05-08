@@ -16,12 +16,10 @@ from django.contrib.auth.models import User
 log = logging.getLogger(__name__)
 
 
-def check_output(l, env=()):
-    if env == ():
-        output = subprocess.Popen(l, stdout=subprocess.PIPE).communicate()[0]
-    else:
-        output = subprocess.Popen(l, stdout=subprocess.PIPE,
-                                  env=env).communicate()[0]
+def check_output(l, env=None):
+    output = subprocess.Popen(
+        l, stdout=subprocess.PIPE, universal_newlines=True, env=env
+    ).communicate()[0]
     log.info(output)
     return output
 

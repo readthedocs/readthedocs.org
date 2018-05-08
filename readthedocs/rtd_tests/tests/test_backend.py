@@ -4,7 +4,6 @@ from __future__ import absolute_import
 from os.path import exists
 
 import pytest
-import six
 from django.contrib.auth.models import User
 import django_dynamic_fixture as fixture
 
@@ -64,24 +63,13 @@ class TestGitBackend(RTDTestCase):
         repo_path = self.project.repo
         create_git_tag(repo_path, 'v01')
         create_git_tag(repo_path, 'v02', annotated=True)
+        create_git_tag(repo_path, 'release-ünîø∂é')
         repo = self.project.vcs_repo()
         # Hack the repo path
         repo.working_dir = repo_path
         self.assertEqual(
-            set(['v01', 'v02']),
+            set(['v01', 'v02', 'release-ünîø∂é']),
             set(vcs.verbose_name for vcs in repo.tags)
-        )
-
-    @pytest.mark.skipif(six.PY2, reason='Python 3 only')
-    def test_git_tags_unicode(self):
-        repo_path = self.project.repo
-        create_git_tag(repo_path, 'release-ünîø∂é'.encode())
-        repo = self.project.vcs_repo()
-        # Hack the repo path
-        repo.working_dir = repo_path
-        self.assertEqual(
-            ['release-ünîø∂é'],
-            [vcs.verbose_name for vcs in repo.tags]
         )
 
     def test_check_for_submodules(self):
