@@ -93,7 +93,7 @@ def make_test_git():
     return directory
 
 
-def create_tag(directory, tag, annotated=False):
+def create_git_tag(directory, tag, annotated=False):
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
     path = getcwd()
