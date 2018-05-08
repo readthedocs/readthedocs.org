@@ -62,8 +62,8 @@ class CoreUtilTests(TestCase):
         update_docs().si.assert_has_calls([
             mock.call(
                 self.project.pk,
-                time_limit=720,
-                soft_time_limit=600,
+                time_limit=3,
+                soft_time_limit=3,
                 queue=mock.ANY,
                 force=False,
                 record=True,
