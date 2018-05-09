@@ -7,9 +7,7 @@ from django.db import migrations
 
 def show_version_warning_to_existing_projects(apps, schema_editor):
     Project = apps.get_model('projects', 'Project')
-    for project in Project.objects.all():
-        project.show_version_warning = True
-        project.save()
+    Project.objects.all().update(show_version_warning=True)
 
 
 class Migration(migrations.Migration):
