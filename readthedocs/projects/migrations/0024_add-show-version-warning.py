@@ -35,11 +35,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='project',
-            name='comment_moderation',
-            field=models.BooleanField(default=False, verbose_name='Comment Moderation'),
-        ),
-        migrations.AlterField(
-            model_name='project',
             name='conf_py_file',
             field=models.CharField(blank=True, default='', help_text='Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</code>). Leave blank if you want us to find it for you.', max_length=255, verbose_name='Python configuration file'),
         ),
