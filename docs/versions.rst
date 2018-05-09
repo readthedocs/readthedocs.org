@@ -60,7 +60,7 @@ Version warning
 ---------------
 
 This is the banner with the text *You are not using..*
-that is displayed on an unreleased version of your docs,
+that is displayed on older versions of your docs (not stable or latest),
 redirecting the users to the latest version of your docs.
 
 This feature is disabled by default on new projects,
