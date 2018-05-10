@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Read the Docs configuration file",
+  "type": "object",
+  "required": [],
+  "properties": {
+
+    "version": {
+      "description": "The version of the spec to use",
+      "type": "string",
+      "enum": ["1", "2"],
+      "default": "1"
+    },
+
+    "formats": {
+      "description": "Formats of the documentation to be built",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["htmlzip", "pdf", "epub", "singlehtmllocalmedia"]
+      },
+      "default": ["htmlzip", "pdf", "epub", "singlehtmllocalmedia"],
+      "uniqueItems": true
+    },
+
+    "requirements_file": {
+      "description": "The path to the requirements file from the root of the project",
+      "type": "string"
+    },
+
+    "conda": {
+      "description": "Configuration for Conda support",
+      "type": "object",
+      "properties": {
+        "file": {
+          "description": "The path to the Conda environment file from the root of the project",
+          "type": "string"
+        }
+      }
+    },
+
+    "build": {
+      "description": "Configuration for the documentation build process",
+      "type": "object",
+      "properties": {
+        "image": {
+          "description": "The build docker image to be used",
+          "type": "string",
+          "enum": ["1.0", "2.0", "latest"],
+          "default": "2.0"
+        }
+      }
+    },
+    
+    "python": {
+      "description": "Configuration of the Python executable to be used",
+      "type": "object",
+      "properties": {
+        "version": {
+          "description": "The Python versions",
+          "type": "string",
+          "enum": ["2", "2.7", "3", "3.3", "3.4", "3.5", "3.6"],
+          "default": "2.7"
+        },
+        "setup_py_install": {
+          "description": "Install the project using python setup.py install",
+          "type": "boolean",
+          "default": false
+        },
+        "pip_install": {
+          "description": "Install your project with pip",
+          "type": "boolean",
+          "default": false
+        },
+        "extra_requirements": {
+          "description": "Extra requirements sections to install in addition to the package dependencies",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
