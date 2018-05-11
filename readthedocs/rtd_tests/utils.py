@@ -18,7 +18,8 @@ log = logging.getLogger(__name__)
 
 def check_output(l, env=None):
     output = subprocess.Popen(
-        l, stdout=subprocess.PIPE, universal_newlines=True, env=env
+        l, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        universal_newlines=True, env=env
     ).communicate()[0]
     log.info(output)
     return output
