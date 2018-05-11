@@ -1,0 +1,49 @@
+# Read the Docs configuration file
+
+# The version of the spec to be use
+# Default: '1'
+version: enum('1', '2', required=False)
+
+# Formats of the documentation to be built
+# Default: ['htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia']
+formats: list(enum('htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia'), required=False)
+
+# The path to the requirements file from the root of the project
+requirements_file: str(required=False)
+
+# Configuration for Conda support
+conda: include('conda', required=False)
+
+# Configuration for the documentation build process
+build: include('build', required=False)
+
+# Configuration of the Python executable to be used
+python: include('python', required=False)
+
+---
+
+conda:
+  # The path to the Conda environment file from the root of the project
+  file: str()
+
+build:
+  # The build docker image to be used
+  # Default: '2.0'
+  image: enum('1.0', '2.0', 'latest')
+
+python:
+  # The Python version
+  # Default: '2.7'
+  version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
+
+  # Install the project using python setup.py install
+  # Default: false
+  setup_py_install: bool(required=False)
+
+  # Install your project with pip 
+  # Default: false
+  pip_install: bool(required=False)
+
+  # Extra requirements sections to install in addition to the package dependencies
+  # Default: []
+  extra_requirements: list(str(), required=False)
