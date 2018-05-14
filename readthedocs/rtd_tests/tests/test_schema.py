@@ -73,6 +73,13 @@ formats:
         '''
         self.assertValidConfig(content)
 
+    def test_valid_formats_all(self):
+        content = '''
+version: "2"
+formats: all
+        '''
+        self.assertValidConfig(content)
+
     def test_invalid_formats(self):
         content = '''
 version: "2"
@@ -230,4 +237,101 @@ python:
         self.assertInvalidConfig(
             content,
             ['\'1\' is not a str']
+        )
+
+    def test_python_system_packages(self):
+        content = '''
+version: "2"
+python:
+  system_packages: {option}
+        '''
+        for option in ['true', 'false']:
+            self.assertValidConfig(content.format(option=option))
+
+    def test_invalid_python_system_packages(self):
+        content = '''
+version: "2"
+python:
+  system_packages: not true
+        '''
+        self.assertInvalidConfig(content, ['is not a bool'])
+
+    def test_sphinx(self):
+        content = '''
+version: "2"
+sphinx:
+   file: docs/conf.py
+        '''
+        self.assertValidConfig(content)
+
+    def test_invalid_sphinx(self):
+        content = '''
+version: "2"
+sphinx:
+  file: 2
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['is not a str']
+        )
+
+    def test_submodules_include(self):
+        content = '''
+version: "2"
+submodules:
+  include:
+    - one
+    - two
+    - three
+  recursive: false
+        '''
+        self.assertValidConfig(content)
+
+    def test_submodules_include_all(self):
+        content = '''
+version: "2"
+submodules:
+  include: all
+        '''
+        self.assertValidConfig(content)
+
+    def test_submodules_exclude(self):
+        content = '''
+version: "2"
+submodules:
+  exclude:
+    - one
+    - two
+    - three
+        '''
+        self.assertValidConfig(content)
+
+    def test_submodules_exclude_all(self):
+        content = '''
+version: "2"
+submodules:
+  exclude: all
+  recursive: true
+        '''
+        self.assertValidConfig(content)
+
+    def test_redirects(self):
+        content = '''
+version: "2"
+redirects:
+  page:
+    'guides/install.html': 'install.html'
+            '''
+        self.assertValidConfig(content)
+
+    def test_invalid_redirects(self):
+        content = '''
+version: "2"
+redirects:
+  page:
+    'guides/install.html': true
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['is not a str']
         )

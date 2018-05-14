@@ -5,7 +5,7 @@ version: enum('2')
 
 # Formats of the documentation to be built
 # Default: ['htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia']
-formats: list(enum('htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia'), required=False)
+formats: any(list(enum('htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia')), enum('all'), required=False)
 
 # The path to the requirements file from the root of the project
 requirements_file: str(required=False)
@@ -63,11 +63,11 @@ sphinx:
 submodules:
   # List of submodules to be included
   # Default: []
-  include: enum(list(str()), 'all', required=False)
+  include: any(list(str()), enum('all'), required=False)
 
   # List of submodules to be ignored
   # Default: []
-  exclude: enum(list(str()), 'all', required=False)
+  exclude: any(list(str()), enum('all'), required=False)
   
   # Do a recursive clone?
   # Default: false
