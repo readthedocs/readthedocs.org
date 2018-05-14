@@ -39,15 +39,18 @@ class TestSchemaV2(TestCase):
             self.assertIn(msg, str(excinfo.value))
 
     def test_minimal_config(self):
-        self.assertValidConfig('')
-
-    def test_valid_version(self):
         self.assertValidConfig('version: "2"')
 
     def test_invalid_version(self):
         self.assertInvalidConfig(
             'version: "latest"',
             ['version: \'latest\' not in']
+        )
+
+    def test_invalid_version_1(self):
+        self.assertInvalidConfig(
+            'version: "1"',
+            ['version: \'1\' not in']
         )
 
     def test_valid_formats(self):

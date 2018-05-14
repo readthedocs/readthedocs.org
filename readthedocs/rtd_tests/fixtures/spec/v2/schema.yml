@@ -1,8 +1,7 @@
 # Read the Docs configuration file
 
 # The version of the spec to be use
-# Default: '1'
-version: enum('1', '2', required=False)
+version: enum('2')
 
 # Formats of the documentation to be built
 # Default: ['htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia']
