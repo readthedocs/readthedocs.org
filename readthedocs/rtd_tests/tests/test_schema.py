@@ -30,10 +30,10 @@ class TestSchemaV2(TestCase):
         data = yamale.make_data(file)
         yamale.validate(self.schema, data)
 
-    def assertInvalidConfig(self, content, exc, msgs=()):
+    def assertInvalidConfig(self, content, msgs=()):
         file = self.create_yaml(content)
         data = yamale.make_data(file)
-        with pytest.raises(exc) as excinfo:
+        with pytest.raises(ValueError) as excinfo:
             yamale.validate(self.schema, data)
         for msg in msgs:
             self.assertIn(msg, str(excinfo.value))
@@ -44,9 +44,36 @@ class TestSchemaV2(TestCase):
     def test_valid_version(self):
         self.assertValidConfig('version: "2"')
 
-    def test_invalid_versin(self):
+    def test_invalid_version(self):
         self.assertInvalidConfig(
             'version: "latest"',
-            ValueError,
             ['version: \'latest\' not in']
         )
+
+    def test_valid_formats(self):
+        content = '''
+version: "2"
+formats:
+  - pdf
+  - singlehtmllocalmedia
+        '''
+        self.assertValidConfig(content)
+
+    def test_invalid_formats(self):
+        content = '''
+version: "2"
+formats:
+  - invalidformat
+  - singlehtmllocalmedia
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['formats', '\'invalidformat\' not in']
+        )
+
+    def tets_empty_formats(self):
+        content = '''
+version: "2"
+formats: []
+        '''
+        self.assertValidConfig(content)
