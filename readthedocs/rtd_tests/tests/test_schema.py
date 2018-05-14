@@ -62,6 +62,17 @@ formats:
         '''
         self.assertValidConfig(content)
 
+    def test_all_valid_formats(self):
+        content = '''
+version: "2"
+formats:
+  - htmlzip
+  - pdf
+  - epub
+  - singlehtmllocalmedia
+        '''
+        self.assertValidConfig(content)
+
     def test_invalid_formats(self):
         content = '''
 version: "2"
@@ -80,3 +91,143 @@ version: "2"
 formats: []
         '''
         self.assertValidConfig(content)
+
+    def test_valid_requirements_file(self):
+        content = '''
+version: "2"
+requirements_file: docs/requirements.txt
+        '''
+        self.assertValidConfig(content)
+
+    def test_invalid_requirements_file(self):
+        content = '''
+version: "2"
+requirements_file: 23
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['requirements_file: \'23\' is not a str']
+        )
+
+    def test_valid_conda(self):
+        content = '''
+version: "2"
+conda:
+  file: environment.yml
+        '''
+        self.assertValidConfig(content)
+
+    def test_invalid_conda(self):
+        content = '''
+version: "2"
+conda:
+   files: environment.yml
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['conda.file: Required']
+        )
+
+    def test_valid_build(self):
+        content = '''
+version: "2"
+build:
+  image: "{image}"
+        '''
+        for image in ['1.0', '2.0', 'latest']:
+            self.assertValidConfig(content.format(image=image))
+
+    def test_missing_key_build(self):
+        content = '''
+version: "2"
+build:
+  imagine: "2.0"
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['build.image: Required']
+        )
+
+    def test_invalid_build(self):
+        content = '''
+version: "2"
+build:
+  image: "4.0"
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['build.image: \'4.0\' not in']
+        )
+
+    def test_python_version(self):
+        content = '''
+version: "2"
+python:
+  version: "{version}"
+        '''
+        versions = ['2', '2.7', '3', '3.3', '3.4', '3.5', '3.6']
+        for version in versions:
+            self.assertValidConfig(content.format(version=version))
+
+    def test_invalid_python_version(self):
+        content = '''
+version: "2"
+python:
+  version: "4"
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['version: \'4\' not in']
+        )
+
+    def test_no_python_version(self):
+        content = '''
+version: "2"
+python:
+  guido: true
+        '''
+        self.assertValidConfig(content)
+
+    def test_python_install(self):
+        content = '''
+version: "2"
+python:
+  version: "3.6"
+  install: {install}
+        '''
+        for install in ['pip', 'setup.py']:
+            self.assertValidConfig(content.format(install=install))
+
+    def test_invalid_python_install(self):
+        content = '''
+version: "2"
+python:
+  install: guido
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['python.install: \'guido\' not in']
+        )
+
+    def test_python_extra_requirements(self):
+        content = '''
+version: "2"
+python:
+  extra_requirements:
+    - test
+    - dev
+        '''
+        self.assertValidConfig(content)
+
+    def test_invalid_python_extra_requirements(self):
+        content = '''
+version: "2"
+python:
+  extra_requirements:
+    - 1
+    - dev
+        '''
+        self.assertInvalidConfig(
+            content,
+            ['\'1\' is not a str']
+        )
