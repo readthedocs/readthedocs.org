@@ -1,10 +1,8 @@
-from os import path
-from os import getcwd
+from os import getcwd, path
 
-from django.test import TestCase
-import yamale
 import pytest
-
+import yamale
+from django.test import TestCase
 from readthedocs.rtd_tests.utils import apply_fs
 
 
@@ -27,12 +25,28 @@ class TestSchemaV2(TestCase):
         apply_fs(self.tmpdir, file)
         return path.join(self.tmpdir.strpath, 'rtd.yml')
 
-    def test_minimal_config(self):
-        file = self.create_yaml('')
+    def assertValidConfig(self, content):
+        file = self.create_yaml(content)
         data = yamale.make_data(file)
         yamale.validate(self.schema, data)
 
-    def test_valid_config(self):
-        file = self.create_yaml('version: "2"')
+    def assertInvalidConfig(self, content, exc, msgs=()):
+        file = self.create_yaml(content)
         data = yamale.make_data(file)
-        yamale.validate(self.schema, data)
+        with pytest.raises(exc) as excinfo:
+            yamale.validate(self.schema, data)
+        for msg in msgs:
+            self.assertIn(msg, str(excinfo.value))
+
+    def test_minimal_config(self):
+        self.assertValidConfig('')
+
+    def test_valid_version(self):
+        self.assertValidConfig('version: "2"')
+
+    def test_invalid_versin(self):
+        self.assertInvalidConfig(
+            'version: "latest"',
+            ValueError,
+            ['version: \'latest\' not in']
+        )
