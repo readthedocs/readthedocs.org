@@ -93,7 +93,7 @@ class TestProjectForms(TestCase):
                 self.assertEqual(form.is_valid(), valid, msg=url)
 
 
-class TestTranslationForm(TestCase):
+class TestTranslationForms(TestCase):
 
     def setUp(self):
         self.user_a = get(User)
