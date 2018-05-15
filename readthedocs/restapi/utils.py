@@ -34,9 +34,45 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
         version_name = version['verbose_name']
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
-        if version_name == LATEST_VERBOSE_NAME:
+            stable_version = (
+                project.versions
+                .filter(slug=STABLE)
+                .first()
+            )
+            if stable_version:
+                stable_version.identifier = version_id
+                stable_version.machine = False
+                stable_version.type = type
+                stable_version.save()
+            else:
+                created_version = Version.objects.create(
+                    project=project,
+                    type=type,
+                    identifier=version_id,
+                    verbose_name=version_name,
+                )
+                added.add(created_version.slug)
+        elif version_name == LATEST_VERBOSE_NAME:
             has_user_latest = True
-        if version_name in old_versions:
+            latest_version = (
+                project.versions
+                .filter(slug=LATEST)
+                .first()
+            )
+            if latest_version:
+                latest_version.identifier = version_id
+                latest_version.machine = False
+                latest_version.type = type
+                latest_version.save()
+            else:
+                created_version = Version.objects.create(
+                    project=project,
+                    type=type,
+                    identifier=version_id,
+                    verbose_name=version_name,
+                )
+                added.add(created_version.slug)
+        elif version_name in old_versions:
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue

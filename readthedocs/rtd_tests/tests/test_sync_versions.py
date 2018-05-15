@@ -494,7 +494,6 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(current_stable.machine)
 
-    @pytest.mark.xfail(strict=True)
     def test_machine_attr_when_user_define_latest_tag_and_delete_it(self):
         """
         The user creates a tag named ``latest`` on an existing repo,
@@ -541,6 +540,7 @@ class TestSyncVersions(TestCase):
                     'verbose_name': 'master',
                 },
             ],
+            'tags': []
         }
 
         resp = self.client.post(
@@ -553,7 +553,7 @@ class TestSyncVersions(TestCase):
         # The latest isn't stuck with the previous commit
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
-            'origin/master',
+            'master',
             version_latest.identifier
         )
         self.assertTrue(version_latest.machine)
@@ -1130,7 +1130,6 @@ class TestLatestVersion(TestCase):
         # is created.
         self.pip.save()
 
-    @pytest.mark.xfail(strict=True)
     def test_user_defined_latest_version_tag(self):
         # TODO: the ``latest`` versions are created
         # as a BRANCH, then here we will have a
