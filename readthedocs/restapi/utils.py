@@ -34,43 +34,25 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
         version_name = version['verbose_name']
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
-            stable_version = (
-                project.versions
-                .filter(slug=STABLE)
-                .first()
+            created_version = set_or_create_version(
+                project=project,
+                slug=STABLE,
+                version_id=version_id,
+                verbose_name=STABLE_VERBOSE_NAME,
+                type_=type
             )
-            if stable_version:
-                stable_version.identifier = version_id
-                stable_version.machine = False
-                stable_version.type = type
-                stable_version.save()
-            else:
-                created_version = Version.objects.create(
-                    project=project,
-                    type=type,
-                    identifier=version_id,
-                    verbose_name=version_name,
-                )
+            if created_version:
                 added.add(created_version.slug)
         elif version_name == LATEST_VERBOSE_NAME:
             has_user_latest = True
-            latest_version = (
-                project.versions
-                .filter(slug=LATEST)
-                .first()
+            created_version = set_or_create_version(
+                project=project,
+                slug=LATEST,
+                version_id=version_id,
+                verbose_name=LATEST_VERBOSE_NAME,
+                type_=type
             )
-            if latest_version:
-                latest_version.identifier = version_id
-                latest_version.machine = False
-                latest_version.type = type
-                latest_version.save()
-            else:
-                created_version = Version.objects.create(
-                    project=project,
-                    type=type,
-                    identifier=version_id,
-                    verbose_name=version_name,
-                )
+            if created_version:
                 added.add(created_version.slug)
         elif version_name in old_versions:
             if version_id == old_versions[version_name]:
@@ -124,6 +106,28 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     if added:
         log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
     return added
+
+
+def set_or_create_version(project, slug, version_id, verbose_name, type_):
+    version = (
+        project.versions
+        .filter(slug=slug)
+        .first()
+    )
+    if version:
+        version.identifier = version_id
+        version.machine = False
+        version.type = type_
+        version.save()
+    else:
+        created_version = Version.objects.create(
+            project=project,
+            type=type_,
+            identifier=version_id,
+            verbose_name=verbose_name,
+        )
+        return created_version
+    return None
 
 
 def delete_versions(project, version_data):
