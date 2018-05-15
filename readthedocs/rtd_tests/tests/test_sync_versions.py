@@ -154,6 +154,38 @@ class TestSyncVersions(TestCase):
         version_8 = Version.objects.get(slug='0.8.3')
         self.assertFalse(version_8.active)
 
+    def test_delete_version(self):
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=False,
+        )
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+        }
+
+        self.assertTrue(
+            Version.objects.filter(slug='0.8.3').exists()
+        )
+
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        # There isn't a v0.8.3
+        self.assertFalse(
+            Version.objects.filter(slug='0.8.3').exists()
+        )
+
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
         """
         The user creates a tag named ``stable`` on an existing repo,
