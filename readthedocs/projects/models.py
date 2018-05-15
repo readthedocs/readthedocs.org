@@ -162,7 +162,7 @@ class Project(models.Model):
             'If unchecked, users will still see community ads.'))
     show_version_warning = models.BooleanField(
         _('Show version warning'), default=False,
-        help_text=_('Show warning banner in non-stable versions.')
+        help_text=_('Show warning banner in non-stable nor latest versions.')
     )
 
     # Sphinx specific build options.
