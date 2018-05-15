@@ -38,7 +38,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 project=project,
                 slug=STABLE,
                 version_id=version_id,
-                verbose_name=STABLE_VERBOSE_NAME,
+                verbose_name=version_name,
                 type_=type
             )
             if created_version:
@@ -49,7 +49,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 project=project,
                 slug=LATEST,
                 version_id=version_id,
-                verbose_name=LATEST_VERBOSE_NAME,
+                verbose_name=version_name,
                 type_=type
             )
             if created_version:
