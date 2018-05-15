@@ -26,7 +26,7 @@
     {% endblocktrans %}
   </p>
 
-  {% if request.user.gold.count or request.user.goldonce.count %}
+  {% if request.user.gold.exists or request.user.goldonce.exists %}
     <p>
       {% blocktrans %}
         <strong>Note:</strong>
