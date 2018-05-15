@@ -73,14 +73,15 @@ class TestProjectForms(TestCase):
             ('user@one-ssh.domain.com:22/_ssh/docs', True),
          ] + common_urls
 
-        for url, valid in public_urls:
-            initial = {
-                'name': 'foo',
-                'repo_type': 'git',
-                'repo': url,
-            }
-            form = ProjectBasicsForm(initial)
-            self.assertEqual(form.is_valid(), valid, msg=url)
+        with override_settings(ALLOW_PRIVATE_REPOS=False):
+            for url, valid in public_urls:
+                initial = {
+                    'name': 'foo',
+                    'repo_type': 'git',
+                    'repo': url,
+                }
+                form = ProjectBasicsForm(initial)
+                self.assertEqual(form.is_valid(), valid, msg=url)
 
         with override_settings(ALLOW_PRIVATE_REPOS=True):
             for url, valid in private_urls:
