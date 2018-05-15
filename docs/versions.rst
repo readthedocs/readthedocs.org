@@ -59,9 +59,8 @@ but could also point to your latest released version.
 Version warning
 ---------------
 
-This is the banner with the text *You are not using..*
-that is displayed on older versions of your docs (not stable or latest),
-redirecting the users to the latest version of your docs.
+This is a banner that appears on the top of every page of your docs that aren't stable or latest.
+This banner has a text with a link redirecting the users to the latest version of your docs.
 
 This feature is disabled by default on new projects,
 you can enable it in the admin section of your docs (Advanced Settings).
