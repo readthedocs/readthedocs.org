@@ -65,7 +65,8 @@ class TestGitBackend(RTDTestCase):
         create_git_tag(repo_path, 'v02', annotated=True)
         create_git_tag(repo_path, 'release-ünîø∂é')
         repo = self.project.vcs_repo()
-        # Hack the repo path
+        # We aren't cloning the repo,
+        # so we need to hack the repo path
         repo.working_dir = repo_path
         self.assertEqual(
             set(['v01', 'v02', 'release-ünîø∂é']),
