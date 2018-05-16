@@ -16,7 +16,10 @@ function create_sidebar_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
 
-    if (rtd.is_rtd_theme()) {
+    if (rtd.is_mkdocs_builder() && rtd.is_rtd_theme()) {
+        selector = 'nav.wy-nav-side';
+        class_name = 'ethical-rtd';
+    } else if (rtd.is_rtd_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
         class_name = 'ethical-rtd';
     } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
