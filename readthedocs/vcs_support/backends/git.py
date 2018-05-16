@@ -17,6 +17,7 @@ from six import PY2, StringIO
 from readthedocs.core.validators import validate_submodule_url
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from builtins import str
 
 log = logging.getLogger(__name__)
 
