@@ -534,6 +534,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         project_data['has_valid_clone'] = True
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
+        self.version.project.has_valid_clone = True
 
     def update_documentation_type(self):
         """
