@@ -115,7 +115,7 @@ class ProjectAdmin(GuardedModelAdmin):
     actions = ['send_owner_email', 'ban_owner']
 
     def feature_flags(self, obj):
-        return ', '.join([f.feature_id for f in obj.features])
+        return ', '.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
