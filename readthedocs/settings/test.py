@@ -23,7 +23,6 @@ class CommunityTestSettings(CommunityDevSettings):
         return logging
 
 
-
 CommunityTestSettings.load_settings(__name__)
 
 CACHES = {

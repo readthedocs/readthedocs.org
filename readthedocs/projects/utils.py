@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """Utility functions used by projects."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import fnmatch
 import logging
@@ -8,13 +10,9 @@ import os
 import subprocess
 import traceback
 
-import redis
 import six
 from builtins import object, open
 from django.conf import settings
-from django.core.cache import cache
-from httplib2 import Http
-
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +22,10 @@ def version_from_slug(slug, version):
     from readthedocs.builds.models import Version, APIVersion
     from readthedocs.restapi.client import api
     if getattr(settings, 'DONT_HIT_DB', True):
-        version_data = api.version().get(project=slug, slug=version)['results'][0]
+        version_data = api.version().get(
+            project=slug,
+            slug=version,
+        )['results'][0]
         v = APIVersion(**version_data)
     else:
         v = Version.objects.get(project__slug=slug, slug=version)
@@ -73,7 +74,7 @@ def run(*commands):
         del environment['PYTHONHOME']
     cwd = os.getcwd()
     if not commands:
-        raise ValueError("run() requires one or more command-line strings")
+        raise ValueError('run() requires one or more command-line strings')
 
     for command in commands:
         # If command is a string, split it up by spaces to pass into Popen.
@@ -93,7 +94,7 @@ def run(*commands):
                 cwd=cwd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=environment
+                env=environment,
             )
 
             out, err = p.communicate()
@@ -102,7 +103,7 @@ def run(*commands):
             out = ''
             err = traceback.format_exc()
             ret = -1
-            log.exception("Command failed")
+            log.exception('Command failed')
 
     return (ret, out, err)
 
@@ -125,47 +126,6 @@ def safe_write(filename, contents):
     with open(filename, 'w', encoding='utf-8', errors='ignore') as fh:
         fh.write(contents)
         fh.close()
-
-
-def purge_version(version, mainsite=False, subdomain=False, cname=False):
-    varnish_servers = getattr(settings, 'VARNISH_SERVERS', None)
-    h = Http()
-    if varnish_servers:
-        for server in varnish_servers:
-            if subdomain:
-                # Send a request to the Server, to purge the URL of the Host.
-                host = "%s.readthedocs.org" % version.project.slug
-                headers = {'Host': host}
-                url = "/en/%s/*" % version.slug
-                to_purge = "http://%s%s" % (server, url)
-                log.info("Purging %s on %s", url, host)
-                h.request(to_purge, method="PURGE", headers=headers)
-            if mainsite:
-                headers = {'Host': "readthedocs.org"}
-                url = "/docs/%s/en/%s/*" % (version.project.slug, version.slug)
-                to_purge = "http://%s%s" % (server, url)
-                log.info("Purging %s on readthedocs.org", url)
-                h.request(to_purge, method="PURGE", headers=headers)
-                root_url = "/docs/%s/" % version.project.slug
-                to_purge = "http://%s%s" % (server, root_url)
-                log.info("Purging %s on readthedocs.org", root_url)
-                h.request(to_purge, method="PURGE", headers=headers)
-            if cname:
-                try:
-                    redis_client = cache.get_client(None)
-                    for cnamed in redis_client.smembers('rtd_slug:v1:%s'
-                                                        % version.project.slug):
-                        headers = {'Host': cnamed}
-                        url = "/en/%s/*" % version.slug
-                        to_purge = "http://%s%s" % (server, url)
-                        log.info("Purging %s on %s", url, cnamed)
-                        h.request(to_purge, method="PURGE", headers=headers)
-                        root_url = "/"
-                        to_purge = "http://%s%s" % (server, root_url)
-                        log.info("Purging %s on %s", root_url, cnamed)
-                        h.request(to_purge, method="PURGE", headers=headers)
-                except (AttributeError, redis.exceptions.ConnectionError):
-                    pass
 
 
 class DictObj(object):
