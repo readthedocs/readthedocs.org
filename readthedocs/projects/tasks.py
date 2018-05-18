@@ -548,6 +548,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         project_data['documentation_type'] = ret
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
+        self.version.project.documentation_type = ret
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
