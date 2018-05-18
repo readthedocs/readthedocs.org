@@ -3,7 +3,7 @@
 
 
 // Skip analytics for users with Do Not Track enabled
-if (window.doNotTrack === '1' || navigator.doNotTrack === '1') {
+if (navigator.doNotTrack === '1') {
     console.log('Respecting DNT with respect to analytics...');
 } else {
     // RTD Analytics Code
