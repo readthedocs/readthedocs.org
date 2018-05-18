@@ -282,6 +282,7 @@ def profile_detail(
     return render(request, template_name, context=context)
 
 
+@login_required
 def account_advertising(request):
     success_url = reverse(account_advertising)
 
