@@ -155,6 +155,10 @@ class Index(object):
             kwargs['routing'] = routing
         self.es.index(**kwargs)
 
+    def delete_index(self, index_name):
+
+        self.es.indices.delete(index=index_name)
+
     def delete_document(self, body, index=None, parent=None, routing=None):
         kwargs = {
             'index': index or self._index,
