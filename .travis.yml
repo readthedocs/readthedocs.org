@@ -22,8 +22,8 @@ cache:
 install:
   - wget ${ES_DOWNLOAD_URL}
   - tar -xzf elasticsearch-${ES_VERSION}.tar.gz
-  - ./elasticsearch-${ES_VERSION}/bin/elasticsearch &
   - ./elasticsearch-${ES_VERSION}/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
+  - ./elasticsearch-${ES_VERSION}/bin/elasticsearch &
   - pip install tox-travis
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   - source ~/.nvm/nvm.sh
