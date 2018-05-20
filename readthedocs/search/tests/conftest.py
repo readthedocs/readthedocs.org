@@ -1,3 +1,4 @@
+import json
 import pytest
 from django_dynamic_fixture import G
 from faker import Faker
@@ -37,9 +38,10 @@ def make_page_content():
 
     def make_content():
         data = {
+            'current_page_name': fake.sentence(),
             'title': fake.sentence(),
-            'body': fake.paragraphs(),
-            'toc': fake.word()
+            'body': fake.text(),
+            'toc': fake.text()
         }
         return data
 
@@ -49,12 +51,13 @@ def make_page_content():
 @pytest.fixture
 def make_page_file(make_page_content, make_temp_json_dir):
     def make_file():
-        import json
         page_content = make_page_content()
         file_name = fake.file_name(extension='fjson')
         directory = make_temp_json_dir()
         file_path = directory.join(file_name)
-        json.dump(page_content, file_path)
+        with open(str(file_path), 'w') as f:
+            json.dump(page_content, f)
+
         return directory
     return make_file
 
@@ -77,9 +80,7 @@ def version():
 @pytest.fixture
 def project(version, mocker, make_page_file):
     project = version.project
-    directory = make_page_file()
-    print directory
     media_path = mocker.patch('readthedocs.projects.models.Project.get_production_media_path')
-    media_path.side_effect = make_page_content
+    media_path.return_value = str(make_page_file())
     print project.get_production_media_path()
     return version.project

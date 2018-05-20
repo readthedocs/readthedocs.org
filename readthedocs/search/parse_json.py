@@ -38,6 +38,7 @@ def process_all_json_files(version, build_dir=True):
         # pylint: disable=bare-except
         except:
             pass
+    print page_list
     return page_list
 
 
