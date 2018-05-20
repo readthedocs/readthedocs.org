@@ -82,5 +82,4 @@ def project(version, mocker, make_page_file):
     project = version.project
     media_path = mocker.patch('readthedocs.projects.models.Project.get_production_media_path')
     media_path.return_value = str(make_page_file())
-    print project.get_production_media_path()
     return version.project

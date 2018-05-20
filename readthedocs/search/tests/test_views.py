@@ -14,4 +14,4 @@ class TestElasticSearch(object):
     def test_search_by_project_name(self, search, client, project):
         url = reverse('search')
         resp = client.get(url, {'q': project.name})
-        assert project.name in resp.content
+        assert project.name.encode('utf-8') in resp.content
