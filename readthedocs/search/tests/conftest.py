@@ -3,7 +3,7 @@ import pytest
 from django_dynamic_fixture import G
 from faker import Faker
 
-from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
 
 fake = Faker()
@@ -11,9 +11,10 @@ fake = Faker()
 
 @pytest.fixture(autouse=True)
 def mock_elastic_index(mocker):
-    mocker.patch.object(Index, '_index', fake.word())
+    mocker.patch.object(Index, '_index', fake.word().lower())
 
 
+@pytest.fixture(autouse=True)
 @pytest.fixture
 def search():
     # Create the index.
@@ -29,57 +30,49 @@ def search():
     sec = SectionIndex()
     sec.put_mapping()
 
-    yield
+    yield index
     index.delete_index(index_name=index_name)
 
 
 @pytest.fixture
-def make_page_content():
+def project():
+    return G(Project)
 
-    def make_content():
+
+@pytest.fixture
+def page_json():
+    version_contents = {}
+
+    def create_dummy_json():
         data = {
-            'current_page_name': fake.sentence(),
+            'path': fake.word(),
             'title': fake.sentence(),
-            'body': fake.text(),
-            'toc': fake.text()
+            'content': fake.text(),
+            'sections': fake.sentences(),
+            'headers': fake.sentences()
         }
         return data
 
-    yield make_content
+    def get_dummy_json(version, *args, **kwargs):
+        """Get dummy json content for a version page"""
+
+        # Check existing content of that version
+        # If not exist, generate new dummy content
+        content = version_contents.get(version.id)
+        if not content:
+            content = create_dummy_json()
+            # save in order to not regenerate dummy content for same version
+            version_contents[version.id] = content
+
+        return [content]
+
+    return get_dummy_json
 
 
 @pytest.fixture
-def make_page_file(make_page_content, make_temp_json_dir):
-    def make_file():
-        page_content = make_page_content()
-        file_name = fake.file_name(extension='fjson')
-        directory = make_temp_json_dir()
-        file_path = directory.join(file_name)
-        with open(str(file_path), 'w') as f:
-            json.dump(page_content, f)
+def mock_parse_json(mocker, page_json):
 
-        return directory
-    return make_file
-
-
-@pytest.fixture
-def make_temp_json_dir(tmpdir_factory):
-    def make_dir():
-        return tmpdir_factory.mktemp('json')
-
-    return make_dir
-
-
-@pytest.mark.django_db
-@pytest.fixture
-def version():
-    name = fake.name()
-    return G(Version, project__name=str(name))
-
-
-@pytest.fixture
-def project(version, mocker, make_page_file):
-    project = version.project
-    media_path = mocker.patch('readthedocs.projects.models.Project.get_production_media_path')
-    media_path.return_value = str(make_page_file())
-    return version.project
+    # patch the function from `projects.tasks` because it has been point to there
+    # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
+    mocked_function = mocker.patch('readthedocs.projects.tasks.process_all_json_files')
+    mocked_function.side_effect = page_json
