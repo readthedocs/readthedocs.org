@@ -237,6 +237,7 @@ class SearchBuilder(BaseSphinx):
     type = 'sphinx_search'
     sphinx_builder = 'json'
     sphinx_build_dir = '_build/json'
+    ignore_patterns = ['_static']
 
 
 class LocalMediaBuilder(BaseSphinx):
