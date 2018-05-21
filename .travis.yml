@@ -11,10 +11,9 @@ matrix:
       env: TOXENV=docs
     - python: 2.7
       env: TOXENV=lint
+      script: tox
     - python: 2.7
       env: TOXENV=eslint
-script:
-  - tox "'--including-search'"
 cache:
   directories:
     - ~/.cache/pip
@@ -30,7 +29,7 @@ install:
   - npm install
   - bower install
 script:
-  - tox
+  - ./scripts/travis/run_tests.sh
 notifications:
   slack:
     rooms:
