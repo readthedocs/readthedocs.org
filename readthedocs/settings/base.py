@@ -36,12 +36,12 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
-    TEMPLATE_DEBUG = DEBUG
     TASTYPIE_FULL_DEBUG = True
 
     # Domains and URLs
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
+    PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
@@ -84,16 +84,11 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-
-            # daniellindsleyrocksdahouse
-            'haystack',
             'tastypie',
 
             # our apps
-            'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
-            'readthedocs.comments',
             'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
@@ -273,7 +268,6 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
@@ -314,13 +308,6 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
-
-    # Haystack
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']

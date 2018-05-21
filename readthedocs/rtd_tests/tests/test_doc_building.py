@@ -884,8 +884,8 @@ class TestPythonEnvironment(TestCase):
         requirements_sphinx = [
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
-            'sphinx==1.6.5',
-            'sphinx-rtd-theme<0.3',
+            'sphinx==1.7.4',
+            'sphinx-rtd-theme<0.4',
             'readthedocs-sphinx-ext<0.6',
         ]
         requirements = self.base_requirements + requirements_sphinx

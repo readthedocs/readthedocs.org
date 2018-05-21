@@ -80,6 +80,36 @@ Read the Docs uses GeoLite2 data created by `MaxMind <http://maxmind.com>`_.
    This document will be updated if that happens.
 
 
+Where ads are shown
+-------------------
+
+We can place ads in:
+
+* the sidebar navigation
+* the footer of the page
+* on search result pages
+* a small footer fixed to the bottom of the viewport (mobile-only)
+* on 404 pages (rare)
+
+We show no more than one ad per page so you will never see both
+a sidebar ad and a footer ad on the same page.
+
+
+Themes
+~~~~~~
+
+Currently we show ads on:
+
+* Sphinx theme provided by Read the Docs
+* MkDocs theme provided by Read the Docs (beginning in May 2018)
+* Alabaster Sphinx theme
+
+This list will expand as we strive to put advertising on a
+larger percentage of the documentation served by us.
+However, we always give advance notice in our issue tracker
+and via email about showing ads where none were shown before.
+
+
 .. _advertising-analytics:
 
 Analytics

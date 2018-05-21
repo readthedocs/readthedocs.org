@@ -7,7 +7,6 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from readthedocs.constants import pattern_opts
-from readthedocs.comments.views import CommentViewSet
 from readthedocs.restapi import views
 from readthedocs.restapi.views import (
     core_views, footer_views, search_views, task_views, integrations
@@ -33,7 +32,6 @@ router.register(
     r'remote/repo', RemoteRepositoryViewSet, base_name='remoterepository')
 router.register(
     r'remote/account', SocialAccountViewSet, base_name='remoteaccount')
-router.register(r'comments', CommentViewSet, base_name="comments")
 
 urlpatterns = [
     url(r'^', include(router.urls)),

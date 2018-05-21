@@ -23,6 +23,7 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     DONT_HIT_DB = False
 
+    ACCOUNT_EMAIL_VERIFICATION = 'none'
     SESSION_COOKIE_DOMAIN = None
     CACHE_BACKEND = 'dummy://'
 
@@ -35,12 +36,6 @@ class CommunityDevSettings(CommunityBaseSettings):
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
-
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
