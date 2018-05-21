@@ -14,7 +14,7 @@ matrix:
     - python: 2.7
       env: TOXENV=eslint
 script:
-  - tox
+  - tox "'--including-search'"
 cache:
   directories:
     - ~/.cache/pip
