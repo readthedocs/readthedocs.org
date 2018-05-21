@@ -25,7 +25,7 @@ class TestElasticSearch(object):
 
         page = pq(resp.content)
         content = page.find('.module-list-wrapper .module-item-title')
-        assert project.name.encode('utf-8') in content.text()
+        assert project.name.encode('utf-8') in content.text().encode('utf-8')
 
     def test_search_by_file_content(self, client, page_json, project):
 
