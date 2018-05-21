@@ -34,16 +34,17 @@ readthedocs.org
     software documentation. This Privacy Policy applies to this site
     in full without reservation.
 
+readthedocs.com
+    This website is a commercial hosted offering for hosting private
+    documentation for corporate clients.
+    It is governed by this privacy policy but also separate
+    `terms <https://readthedocs.com/terms/>`_.
+
 readthedocs.io and other domains ("Documentation Sites")
     These public websites are where Read the Docs hosts documentation on
     behalf of documentation authors. A best effort is made to apply
     this Privacy Policy to these sites but the documentation
     may contain content and files created by documentation authors.
-
-readthedocs.com
-    This website is a commercial hosted offering for hosting private
-    documentation for corporate clients. It is governed by a separate
-    `policy and terms <https://readthedocs.com/terms/>`_.
 
 
 What information Read the Docs collects and why
@@ -132,7 +133,8 @@ in the section below on compelled disclosure.
 We **do** share certain aggregated, non-personally identifying information
 with others about how our users, collectively, use Read the Docs.
 For example, we may compile statistics on the prevalence of
-different types of documentation across Read the Docs.
+different types of documentation across Read the Docs for a blog post
+or popularity of programming languages for advertising partners.
 
 We **do** host advertising on Documentation Sites.
 This advertising is first-party advertising hosted by Read the Docs.
@@ -140,18 +142,24 @@ We **do not** run any code from advertisers and all ad images are hosted
 on Read the Docs' servers. For more details, see our document on
 :doc:`advertising-details`.
 
-We may share User Personal Information with your permission,
+We may use User Personal Information with your permission,
 so we can perform services you have requested.
+For example, if you request service on commercially hosted docs,
+we will ask your permission to sync your private repositories.
 
-We may share User Personal Information with a limited number of third-party vendors
+We may share User Personal Information with a limited number of third party vendors
 who process it on our behalf to provide or improve our service,
 and who have agreed to privacy restrictions similar to our own Privacy Statement.
+For more details, see our next section on
+:ref:`third parties <privacy-policy-third-parties>`.
 
 
-Third-party vendors
+.. _privacy-policy-third-parties:
+
+Third party vendors
 ~~~~~~~~~~~~~~~~~~~
 
-As we mentioned, we may share some information with third-party vendors
+As we mentioned, we may share some information with third party vendors
 or it may be collected by them on our behalf.
 The information collected and stored by third parties
 is subject to their policies and practices.
@@ -161,7 +169,8 @@ and we encourage you to check back periodically.
 Payment processing
 ++++++++++++++++++
 
-Should you choose to donate to Read the Docs or purchase a `Gold subscription`_,
+Should you choose to donate to Read the Docs, purchase a `Gold subscription`_,
+or become a subscriber to Read the Docs' commercial hosting product,
 your payment information and details will be processed by Stripe.
 Read the Docs does not store your payment information.
 
