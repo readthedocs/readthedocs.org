@@ -110,8 +110,12 @@ class ProjectAdmin(GuardedModelAdmin):
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline,
                VersionInline, DomainInline]
+    readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
     actions = ['send_owner_email', 'ban_owner']
+
+    def feature_flags(self, obj):
+        return ', '.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(

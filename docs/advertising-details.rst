@@ -117,6 +117,7 @@ Analytics
 
 Analytics are a sensitive enough issue that they require their own section.
 In the spirit of full transparency, Read the Docs currently uses Google Analytics (GA).
+We go into a bit of detail on our use of GA in our :doc:`privacy-policy`.
 
 GA is a contentious issue inside Read the Docs and in our community.
 Some users are very sensitive and privacy conscious to usage of GA.

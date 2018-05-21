@@ -36,12 +36,12 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
-    TEMPLATE_DEBUG = DEBUG
     TASTYPIE_FULL_DEBUG = True
 
     # Domains and URLs
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
+    PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
