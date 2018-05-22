@@ -218,6 +218,17 @@ We do not sell that content; it is yours.
 Our use of cookies and tracking
 -------------------------------
 
+Do Not Track
+~~~~~~~~~~~~
+
+Read the Docs complies with the "Do Not Track" ("DNT") standard
+recommended by the World Wide Web Consortium and the Electronic Frontier Foundation.
+Users on readthedocs.org or Documentation Sites with DNT enabled
+will be opted-out of analytics.
+Regardless of your DNT preference, Read the Docs does not use behavioral targeting for advertising.
+At this time, DNT does not apply to our commercial hosting solution on readthedocs.com.
+For more details, see our :ref:`Do Not Track policy <do-not-track>`.
+
 Cookies
 ~~~~~~~
 
@@ -258,6 +269,7 @@ collect any User Personal Information other than IP address;
 or correlate your IP address with your identity.
 Google provides further information about its own privacy practices and offers a
 `browser add-on to opt out of Google Analytics tracking <https://tools.google.com/dlpage/gaoptout>`_.
+You may also opt-out of analytics on Read the Docs by enabled Do Not Track.
 
 
 How Read the Docs secures your information
