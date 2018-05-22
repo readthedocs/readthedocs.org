@@ -141,8 +141,8 @@ These steps apply both to analytics collected by Read the Docs and when
 :doc:`authors enable analytics on their docs <guides/google-analytics>`.
 
 * Users can opt-out of analytics by using the Do Not Track feature of their browser.
-* Read the Docs instructs Google to anonymize IPs sent to them before they are stored.
-* The cookies set by GA expire more rapidly (30 days) than the default.
+* Read the Docs instructs Google to anonymize IP addresses sent to them.
+* The cookies set by GA expire in 30 days rather than the default 2 years.
 
 Why we use analytics
 ~~~~~~~~~~~~~~~~~~~~
