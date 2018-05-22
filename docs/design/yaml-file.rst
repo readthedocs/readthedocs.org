@@ -86,8 +86,9 @@ The file format is based on the YAML spec 1.2 [#yaml-spec]_
 
 The file must be on the root directory of the repository, and must be named as:
 
-- ``.readthedocs.yml``
 - ``readthedocs.yml``
+- ``readthedocs.yaml``
+- ``.readthedocs.yml``
 
 Conventions
 ~~~~~~~~~~~
