@@ -282,7 +282,8 @@ function ProjectImportView(instance, config) {
             .then(function (data) {
                 self.get_organizations();
                 self.get_accounts();
-                // re-sync
+                // This will trigger a new
+                // request to re-sync the repos
                 self.filter_by(self.filter_by());
             })
             .fail(function (error) {
