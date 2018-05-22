@@ -284,7 +284,7 @@ function ProjectImportView(instance, config) {
                 self.get_accounts();
                 // This will trigger a new
                 // request to re-sync the repos
-                self.filter_by(self.filter_by());
+                self.filter_by.valueHasMutated();
             })
             .fail(function (error) {
                 self.error(error);
