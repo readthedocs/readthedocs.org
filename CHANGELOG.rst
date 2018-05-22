@@ -1,3 +1,50 @@
+Version 2.3.12
+--------------
+
+:Date: May 21, 2018
+
+* `@stsewd <http://github.com/stsewd>`_: Remove Django deprecation warning (`#4112 <https://github.com/rtfd/readthedocs.org/pull/4112>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Display feature flags in the admin (`#4108 <https://github.com/rtfd/readthedocs.org/pull/4108>`_)
+* `@humitos <http://github.com/humitos>`_: Set valid clone in project instance inside the version object also (`#4105 <https://github.com/rtfd/readthedocs.org/pull/4105>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Use the latest theme version in the default builder (`#4096 <https://github.com/rtfd/readthedocs.org/pull/4096>`_)
+* `@humitos <http://github.com/humitos>`_: Use next field to redirect user when login is done by social (`#4083 <https://github.com/rtfd/readthedocs.org/pull/4083>`_)
+* `@humitos <http://github.com/humitos>`_: Update the `documentation_type` when it's set to 'auto' (`#4080 <https://github.com/rtfd/readthedocs.org/pull/4080>`_)
+* `@brainwane <http://github.com/brainwane>`_: Update link to license in philosophy document (`#4059 <https://github.com/rtfd/readthedocs.org/pull/4059>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Update local assets for theme to 0.3.1 tag (`#4047 <https://github.com/rtfd/readthedocs.org/pull/4047>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix unbalanced div (`#4044 <https://github.com/rtfd/readthedocs.org/pull/4044>`_)
+* `@stsewd <http://github.com/stsewd>`_: Remove haystack from code base (`#4039 <https://github.com/rtfd/readthedocs.org/pull/4039>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Subdomains use HTTPS if settings specify (`#3987 <https://github.com/rtfd/readthedocs.org/pull/3987>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Draft Privacy Policy (`#3978 <https://github.com/rtfd/readthedocs.org/pull/3978>`_)
+* `@humitos <http://github.com/humitos>`_: Allow import Gitlab repo manually and set a webhook automatically (`#3934 <https://github.com/rtfd/readthedocs.org/pull/3934>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Enable ads on the readthedocs mkdocs theme (`#3922 <https://github.com/rtfd/readthedocs.org/pull/3922>`_)
+* `@bansalnitish <http://github.com/bansalnitish>`_: Fixes #2953 - Url resolved with special characters (`#3725 <https://github.com/rtfd/readthedocs.org/pull/3725>`_)
+* `@Jigar3 <http://github.com/Jigar3>`_: Deleted bookmarks app (`#3663 <https://github.com/rtfd/readthedocs.org/pull/3663>`_)
+
+Version 2.3.11
+--------------
+
+:Date: May 01, 2018
+
+* `@agjohnson <http://github.com/agjohnson>`_: Update local assets for theme to 0.3.1 tag (`#4047 <https://github.com/rtfd/readthedocs.org/pull/4047>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix unbalanced div (`#4044 <https://github.com/rtfd/readthedocs.org/pull/4044>`_)
+* `@stsewd <http://github.com/stsewd>`_: Remove haystack from code base (`#4039 <https://github.com/rtfd/readthedocs.org/pull/4039>`_)
+* `@stsewd <http://github.com/stsewd>`_: Remove dead code from api v1 (`#4038 <https://github.com/rtfd/readthedocs.org/pull/4038>`_)
+* `@humitos <http://github.com/humitos>`_: Bump sphinx default version to 1.7.4 (`#4035 <https://github.com/rtfd/readthedocs.org/pull/4035>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Detail where ads are shown (`#4031 <https://github.com/rtfd/readthedocs.org/pull/4031>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Make email verification optional for dev (`#4024 <https://github.com/rtfd/readthedocs.org/pull/4024>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Support sign in and sign up with GH/GL/BB (`#4022 <https://github.com/rtfd/readthedocs.org/pull/4022>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Remove old varnish purge utility function (`#4019 <https://github.com/rtfd/readthedocs.org/pull/4019>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Remove build queue length warning on build list page (`#4018 <https://github.com/rtfd/readthedocs.org/pull/4018>`_)
+* `@stsewd <http://github.com/stsewd>`_: Don't check order on assertQuerysetEqual on tests for subprojects (`#4016 <https://github.com/rtfd/readthedocs.org/pull/4016>`_)
+* `@stsewd <http://github.com/stsewd>`_: Tests for view docs api response (`#4014 <https://github.com/rtfd/readthedocs.org/pull/4014>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: MkDocs projects use RTD's analytics privacy improvements (`#4013 <https://github.com/rtfd/readthedocs.org/pull/4013>`_)
+* `@humitos <http://github.com/humitos>`_: Release 2.3.10 (`#4009 <https://github.com/rtfd/readthedocs.org/pull/4009>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Remove typekit fonts (`#3982 <https://github.com/rtfd/readthedocs.org/pull/3982>`_)
+* `@stsewd <http://github.com/stsewd>`_: Move dynamic-fixture to testing requirements (`#3956 <https://github.com/rtfd/readthedocs.org/pull/3956>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix view docs link (`#3882 <https://github.com/rtfd/readthedocs.org/pull/3882>`_)
+* `@stsewd <http://github.com/stsewd>`_: [WIP] Remove comments app (`#3802 <https://github.com/rtfd/readthedocs.org/pull/3802>`_)
+* `@Jigar3 <http://github.com/Jigar3>`_: Deleted bookmarks app (`#3663 <https://github.com/rtfd/readthedocs.org/pull/3663>`_)
+
 Version 2.3.10
 --------------
 

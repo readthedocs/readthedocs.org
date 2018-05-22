@@ -21,8 +21,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
-
-from readthedocs.bookmarks.models import Bookmark
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
@@ -60,13 +58,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
-
-        bookmarks = Bookmark.objects.filter(user=self.request.user)
-
-        if bookmarks.exists:
-            context['bookmark_list'] = bookmarks[:3]
-        else:
-            bookmarks = None
 
         return context
 

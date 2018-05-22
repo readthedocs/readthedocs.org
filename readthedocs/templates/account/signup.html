@@ -20,6 +20,9 @@
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}
   <button type="submit">{% trans "Sign Up" %} &raquo;</button>
+  <p>
+    <small>{% blocktrans %}By signing up, you agree to our <a href="https://docs.readthedocs.io/en/latest/privacy-policy.html">privacy policy</a>.{% endblocktrans %}</small>
+  </p>
 </form>
 
 <h3>{% trans 'Or' %}</h3>

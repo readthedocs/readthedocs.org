@@ -593,6 +593,23 @@ class ResolverTests(ResolverBase):
             url = resolve(project=self.pip, private=False)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
 
+    @override_settings(
+        PRODUCTION_DOMAIN='readthedocs.org',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
+    def test_resolver_domain_https(self):
+        with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'https://pip.readthedocs.io/en/latest/')
+
+            url = resolve(project=self.pip, private=False)
+            self.assertEqual(url, 'https://pip.readthedocs.io/en/latest/')
+
+        with override_settings(PUBLIC_DOMAIN_USES_HTTPS=False):
+            url = resolve(project=self.pip, private=True)
+            self.assertEqual(url, 'http://pip.readthedocs.io/en/latest/')
+
 
 class ResolverAltSetUp(object):
 
