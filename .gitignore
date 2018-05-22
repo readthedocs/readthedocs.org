@@ -5,7 +5,7 @@
 *.swp
 .DS_Store
 .cache
-.coverage
+.coverage*
 .idea
 .vagrant
 .vscode
