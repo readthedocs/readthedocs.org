@@ -12,7 +12,7 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
-    ProjectBasicsForm, ProjectExtraForm, TranslationForm)
+    ProjectBasicsForm, ProjectExtraForm, TranslationForm, UpdateProjectForm)
 from readthedocs.projects.models import Project
 
 
@@ -260,3 +260,82 @@ class TestTranslationForm(TestCase):
             'is already a translation',
             ''.join(form.errors['project'])
         )
+
+    def test_cant_change_language_to_translation_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.translations.add(self.project_c_br)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'en',
+            },
+            instance=self.project_a_es
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "en" translation',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_b_en
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "es" translation',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        # to the same as its sibling
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'br',
+            },
+            instance=self.project_b_en
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "br" translation',
+            ''.join(form.errors['language'])
+        )
+
+    def test_can_change_language_to_self_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.translations.add(self.project_c_br)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_a_es.repo_type,
+                'name': self.project_a_es.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_a_es
+        )
+        self.assertTrue(form.is_valid())
+
+        # Translation tries to change lang
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'en',
+            },
+            instance=self.project_b_en
+        )
+        self.assertTrue(form.is_valid())
