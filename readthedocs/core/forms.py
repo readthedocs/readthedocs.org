@@ -8,7 +8,6 @@ import logging
 from builtins import object
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
@@ -26,8 +25,6 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         # Don't allow users edit someone else's user page
         fields = ['first_name', 'last_name', 'homepage']
-        if settings.USE_PROMOS:
-            fields.append('allow_ads')
 
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
@@ -66,6 +63,12 @@ class UserDeleteForm(forms.ModelForm):
             raise forms.ValidationError(_('Username does not match!'))
 
         return data
+
+
+class UserAdvertisingForm(forms.ModelForm):
+    class Meta(object):
+        model = UserProfile
+        fields = ['allow_ads']
 
 
 class FacetField(forms.MultipleChoiceField):
