@@ -125,6 +125,7 @@ def do_not_track(request):
         'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
         'same-party': [
             'readthedocs.org',
+            'readthedocs.com',
             'readthedocs.io',
         ],
         'tracking': 'N' if dnt_header == '1' else 'T',

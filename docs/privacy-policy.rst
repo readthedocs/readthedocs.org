@@ -236,10 +236,9 @@ For Read the Docs, this means:
   and user agent strings are deleted after 10 days unless a DNT exception applies.
 * Our full DNT policy is `available here`_.
 
-Our DNT policy applies without reservation to readthedocs.org.
+Our DNT policy applies without reservation to readthedocs.org and readthedocs.com.
 A best effort is made to apply this to Documentation Sites,
 but we do not have complete control over the contents of these sites.
-At this time, DNT **does not apply** to our commercial hosting solution on readthedocs.com.
 
 For more details about DNT, visit `All About Do Not Track`_.
 
