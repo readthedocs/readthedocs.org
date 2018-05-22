@@ -17,4 +17,6 @@ and sometimes can take up to a day before it starts reporting data.
    As a result, users with Do Not Track enabled will not be counted
    for the purpose of analytics.
 
-   For more details, see our :ref:`Do Not Track Policy <do-not-track>`.
+   For more details, see the
+   :ref:`Do Not Track section <privacy-policy-do-not-track>`
+   of our privacy policy.
