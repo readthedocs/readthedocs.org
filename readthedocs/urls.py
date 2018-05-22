@@ -94,8 +94,11 @@ debug_urls = add(
 )
 
 # Export URLs
-groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
-          dnt_urls, deprecated_urls]
+groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls, deprecated_urls]
+
+if settings.DO_NOT_TRACK_ENABLED:
+    # Include Do Not Track URLs if DNT is supported
+    groups.append(dnt_urls)
 
 if settings.USE_PROMOS:
     # Include donation URL's

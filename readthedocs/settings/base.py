@@ -332,6 +332,9 @@ class CommunityBaseSettings(Settings):
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
 
+    # Do Not Track support
+    DO_NOT_TRACK_ENABLED = False
+
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
