@@ -23,7 +23,6 @@ class CommunityTestSettings(CommunityDevSettings):
         return logging
 
 
-
 CommunityTestSettings.load_settings(__name__)
 
 CACHES = {
@@ -35,6 +34,6 @@ CACHES = {
 
 if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
     try:
-        from local_settings import *  # noqa
+        from .local_settings import *  # noqa
     except ImportError:
         pass

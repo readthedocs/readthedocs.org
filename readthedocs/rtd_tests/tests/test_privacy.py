@@ -32,8 +32,11 @@ class PrivacyTests(TestCase):
     def _create_kong(self, privacy_level='private',
                      version_privacy_level='private'):
         self.client.login(username='eric', password='test')
-        log.info(("Making kong with privacy: %s and version privacy: %s"
-                  % (privacy_level, version_privacy_level)))
+        log.info(
+            "Making kong with privacy: %s and version privacy: %s",
+            privacy_level,
+            version_privacy_level,
+        )
         # Create project via project form, simulate import wizard without magic
         form = UpdateProjectForm(
             data={'repo_type': 'git',

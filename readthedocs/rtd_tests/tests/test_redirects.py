@@ -148,6 +148,17 @@ class RedirectAppTests(TestCase):
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
 
     @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_exact(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='exact',
+            from_url='/en/latest/install.html', to_url='/en/latest/tutorial/install.html'
+        )
+        r = self.client.get('/en/latest/install.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_keeps_version_number(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='page',

@@ -58,8 +58,7 @@ class RemoteSyncer(object):
                 mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (sync_user, server, target))
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
-                    log.info("COPY ERROR to app servers:")
-                    log.info(mkdir_cmd)
+                    log.error("Copy error to app servers: cmd=%s", mkdir_cmd)
                 if is_file:
                     slash = ""
                 else:
@@ -75,8 +74,7 @@ class RemoteSyncer(object):
                         target=target))
                 ret = os.system(sync_cmd)
                 if ret != 0:
-                    log.info("COPY ERROR to app servers.")
-                    log.info(sync_cmd)
+                    log.error("Copy error to app servers: cmd=%s", sync_cmd)
 
 
 class DoubleRemotePuller(object):
@@ -100,8 +98,7 @@ class DoubleRemotePuller(object):
                 )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
-                    log.info("MKDIR ERROR to app servers:")
-                    log.info(mkdir_cmd)
+                    log.error("MkDir error to app servers: cmd=%s", mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = (
                 "ssh {user}@{server} 'rsync -av "
@@ -114,8 +111,7 @@ class DoubleRemotePuller(object):
                     target=target))
             ret = os.system(sync_cmd)
             if ret != 0:
-                log.info("COPY ERROR to app servers.")
-                log.info(sync_cmd)
+                log.error("Copy error to app servers: cmd=%s", sync_cmd)
 
 
 class RemotePuller(object):
@@ -142,7 +138,11 @@ class RemotePuller(object):
         )
         ret = os.system(sync_cmd)
         if ret != 0:
-            log.error("COPY ERROR to app servers. Command: [{}] Return: [{}]".format(sync_cmd, ret))
+            log.error(
+                "Copy error to app servers. Command: [%s] Return: [%s]",
+                sync_cmd,
+                ret,
+            )
 
 
 class Syncer(SettingsOverrideObject):

@@ -58,7 +58,9 @@ Information about development is also available:
    team
    gsoc
    code-of-conduct
+   privacy-policy
    ethical-advertising
+   advertising-details
    sponsors
    open-source-philosophy
    story

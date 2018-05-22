@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.services import (
     BitbucketService, GitHubService, GitLabService, registry)
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
@@ -74,9 +75,21 @@ def update_webhook(project, integration, request=None):
     service_cls = SERVICE_MAP.get(integration.integration_type)
     if service_cls is None:
         return None
-    account = project.remote_repository.account
-    service = service_cls(request.user, account)
-    updated, __ = service.update_webhook(project, integration)
+
+    try:
+        account = project.remote_repository.account
+        service = service_cls(request.user, account)
+        updated, __ = service.update_webhook(project, integration)
+    except Project.remote_repository.RelatedObjectDoesNotExist:
+        # The project was imported manually and doesn't have a RemoteRepository
+        # attached. We do brute force over all the accounts registered for this
+        # service
+        service_accounts = service_cls.for_user(request.user)
+        for service in service_accounts:
+            updated, __ = service.update_webhook(project, integration)
+            if updated:
+                break
+
     if updated:
         messages.success(request, _('Webhook activated'))
         project.has_valid_webhook = True

@@ -1,21 +1,5 @@
-// Google Analytics is a contentious issue inside Read the Docs and in our community.
-// Some users are very sensitive and privacy conscious to usage of GA.
-// Other users want their own GA tracker on their docs to see the usage their docs get.
-// The developers at Read the Docs understand that different users have different priorities
-// and we try to respect the different viewpoints as much as possible while also accomplishing
-// our own goals.
-
-// Read the Docs largely funds our operations and development through advertising and
-// advertisers ask us questions that are easily answered with an analytics solution like
-// "how many users do you have in Switzerland browsing Python docs?". We need to be able
-// to easily get this data. We also use data from GA for some development decisions such
-// as what browsers to support (or not) or how much usage a particular page/feature gets.
-
-// We have taken steps with GA to address some of the privacy issues.
-// Read the Docs instructs Google to anonymize IPs sent to them before they are stored (see below).
-
-// We are always exploring our options with respect to analytics and if you would like
-// to discuss further, feel free to open an issue on github.
+// For more details on analytics at Read the Docs, please see:
+// https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
 
 
 // RTD Analytics Code

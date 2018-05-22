@@ -12,7 +12,7 @@ from readthedocs.doc_builder.config import ConfigWrapper
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.projects.tasks import UpdateDocsTask
+from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
@@ -44,7 +44,7 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
-        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
 
@@ -68,7 +68,7 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
-        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
         task.build_docs()
@@ -93,7 +93,7 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
-        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
 
@@ -119,7 +119,7 @@ class BuildEnvironmentTests(TestCase):
         config = ConfigWrapper(version=version, yaml_config=create_load({
             'formats': ['epub']
         })()[0])
-        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
 
@@ -128,32 +128,6 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.epub_build.assert_called_once_with()
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.pdf_build.called)
-
-    def test_builder_comments(self):
-        '''Normal build with comments'''
-        project = get(Project,
-                      documentation_type='sphinx',
-                      allow_comments=True,
-                      versions=[fixture()])
-        version = project.versions.all()[0]
-        build_env = LocalBuildEnvironment(version=version, project=project, build={})
-        python_env = Virtualenv(version=version, build_env=build_env)
-        builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(build_env, python_env)
-        self.assertEqual(builder.sphinx_builder, 'readthedocs-comments')
-
-    def test_builder_no_comments(self):
-        '''Test builder without comments'''
-        project = get(Project,
-                      documentation_type='sphinx',
-                      allow_comments=False,
-                      versions=[fixture()])
-        version = project.versions.all()[0]
-        build_env = LocalBuildEnvironment(version=version, project=project, build={})
-        python_env = Virtualenv(version=version, build_env=build_env)
-        builder_class = get_builder_class(project.documentation_type)
-        builder = builder_class(build_env, python_env)
-        self.assertEqual(builder.sphinx_builder, 'readthedocs')
 
     def test_build_pdf_latex_failures(self):
         '''Build failure if latex fails'''
@@ -174,7 +148,7 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
-        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
         # Mock out the separate calls to Popen using an iterable side_effect
@@ -216,7 +190,7 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
-        task = UpdateDocsTask(build_env=build_env, project=project, python_env=python_env,
+        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
         # Mock out the separate calls to Popen using an iterable side_effect

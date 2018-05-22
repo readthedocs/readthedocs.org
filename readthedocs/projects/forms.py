@@ -4,9 +4,9 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-from builtins import object
 from random import choice
 
+from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -19,6 +19,7 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
@@ -212,8 +213,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'repo',
             'repo_type',
             # Extra
-            # 'allow_comments',
-            # 'comment_moderation',
             'documentation_type',
             'language',
             'programming_language',
@@ -222,7 +221,7 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
         )
 
 
-class ProjectRelationshipForm(forms.ModelForm):
+class ProjectRelationshipBaseForm(forms.ModelForm):
 
     """Form to add/update project relationships."""
 
@@ -235,7 +234,7 @@ class ProjectRelationshipForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
         self.user = kwargs.pop('user')
-        super(ProjectRelationshipForm, self).__init__(*args, **kwargs)
+        super(ProjectRelationshipBaseForm, self).__init__(*args, **kwargs)
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
@@ -271,6 +270,10 @@ class ProjectRelationshipForm(forms.ModelForm):
             .exclude(superprojects__isnull=False)
             .exclude(pk=self.project.pk))
         return queryset
+
+
+class ProjectRelationshipForm(SettingsOverrideObject):
+    _default_class = ProjectRelationshipBaseForm
 
 
 class DualCheckboxWidget(forms.CheckboxInput):
@@ -473,7 +476,7 @@ class WebHookForm(forms.Form):
         return self.project
 
 
-class TranslationForm(forms.Form):
+class TranslationBaseForm(forms.Form):
 
     """Project translation form."""
 
@@ -482,7 +485,7 @@ class TranslationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
         self.user = kwargs.pop('user')
-        super(TranslationForm, self).__init__(*args, **kwargs)
+        super(TranslationBaseForm, self).__init__(*args, **kwargs)
         self.fields['project'].choices = self.get_choices()
 
     def get_choices(self):
@@ -553,6 +556,10 @@ class TranslationForm(forms.Form):
         # state.
         self.parent.save()
         return project
+
+
+class TranslationForm(SettingsOverrideObject):
+    _default_class = TranslationBaseForm
 
 
 class RedirectForm(forms.ModelForm):

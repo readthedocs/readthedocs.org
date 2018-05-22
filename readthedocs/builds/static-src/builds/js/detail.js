@@ -51,6 +51,7 @@ function BuildDetailView(instance) {
         return commands_display;
     });
     self.commit = ko.observable(instance.commit);
+    self.docs_url = ko.observable(instance.docs_url);
 
     /* Others */
     self.legacy_output = ko.observable(false);
@@ -70,6 +71,7 @@ function BuildDetailView(instance) {
             self.error(data.error);
             self.length(data.length);
             self.commit(data.commit);
+            self.docs_url(data.docs_url);
             var n;
             for (n in data.commands) {
                 var command = data.commands[n];

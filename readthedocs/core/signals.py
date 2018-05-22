@@ -57,10 +57,9 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             project = Project.objects.get(slug=project_slug)
         except Project.DoesNotExist:
             log.warning(
-                'Invalid project passed to domain. [{project}:{domain}'.format(
-                    project=project_slug,
-                    domain=host,
-                )
+                'Invalid project passed to domain. [%s:%s]',
+                project_slug,
+                host,
             )
             return False
 
