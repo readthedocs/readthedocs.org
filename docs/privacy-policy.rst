@@ -218,16 +218,41 @@ We do not sell that content; it is yours.
 Our use of cookies and tracking
 -------------------------------
 
+.. _privacy-policy-do-not-track:
+
 Do Not Track
 ~~~~~~~~~~~~
 
-Read the Docs complies with the "Do Not Track" ("DNT") standard
-recommended by the World Wide Web Consortium and the Electronic Frontier Foundation.
-Users on readthedocs.org or Documentation Sites with DNT enabled
-will be opted-out of analytics.
-Regardless of your DNT preference, Read the Docs does not use behavioral targeting for advertising.
-At this time, DNT does not apply to our commercial hosting solution on readthedocs.com.
-For more details, see our :ref:`Do Not Track policy <do-not-track>`.
+Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
+Specifically, we support the `W3C's tracking preference expression`_
+and the `EFF's DNT Policy`_.
+
+For Read the Docs, this means:
+
+* We **do not** do behavioral ad targeting regardless of your DNT preference.
+* When DNT is enabled, both logged-in and logged-out users
+  are considered opted-out of :ref:`analytics <privacy-policy-analytics>`.
+* Regardless of DNT preference, our logs that contain IP addresses
+  and user agent strings are deleted after 10 days unless a DNT exception applies.
+* Our full DNT policy is `available here`_.
+
+Our DNT policy applies without reservation to readthedocs.org.
+A best effort is made to apply this to Documentation Sites,
+but we do not have complete control over the contents of these sites.
+At this time, DNT **does not apply** to our commercial hosting solution on readthedocs.com.
+
+For more details about DNT, visit `All About Do Not Track`_.
+
+.. important::
+
+   Due to the nature of our environment where documentation is built as necessary,
+   the DNT analytics opt-out for Documentation Sites only applies
+   for those sites generated after May 1, 2018.
+
+.. _W3C's tracking preference expression: https://www.w3.org/TR/tracking-dnt/
+.. _EFF's DNT Policy: https://www.eff.org/issues/do-not-track
+.. _available here: https://readthedocs.org/.well-known/dnt-policy.txt
+.. _All About Do Not Track: http://www.allaboutdnt.com
 
 Cookies
 ~~~~~~~
