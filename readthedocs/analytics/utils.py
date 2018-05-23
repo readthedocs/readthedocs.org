@@ -12,7 +12,7 @@ try:
 except ImportError:
     from .vendor import ipaddress
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)   # noqa
 
 # Used to anonymize an IP by zero-ing out the last 2 bytes
 MASK = int('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000', 16)

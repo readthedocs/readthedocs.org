@@ -11,7 +11,7 @@ from .tasks import analytics_event
 from .utils import get_client_ip
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)   # noqa
 
 
 @receiver(footer_response)
