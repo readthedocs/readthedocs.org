@@ -3,7 +3,7 @@
 from __future__ import absolute_import, unicode_literals
 import logging
 
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 import requests
 
 try:
@@ -33,7 +33,7 @@ def get_client_ip(request):
 def anonymize_ipaddress(ip_address):
     """Anonymizes an IP address by zeroing the last 2 bytes"""
     try:
-        ip_obj = ipaddress.ip_address(force_unicode(ip_address))
+        ip_obj = ipaddress.ip_address(force_text(ip_address))
     except ValueError:
         return None
 
