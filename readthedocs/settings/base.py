@@ -59,8 +59,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_HTTPONLY = True
-    # See: docs/advertising-details.rst
-    CSRF_COOKIE_AGE = None  # session cookie (expires on browser quit)
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
     # Application classes
     @property
