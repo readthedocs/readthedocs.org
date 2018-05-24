@@ -9,8 +9,6 @@ receive a webhook notification, we determine if the change is related to an
 active version for your project, and if it is, a build is triggered for that
 version.
 
-.. _integration-detail:
-
 Webhook Integrations
 --------------------
 
@@ -32,7 +30,7 @@ manually configure a webhook for your project.
 To manually set up a webhook, click **Add integration** on your project's
 **Integrations** admin dashboard page and select the integration type you'd like
 to add. After you have added the integration, you'll see a URL for the
-integration on the :ref:`integration detail page <integration-detail>`. Use this
+integration on the :ref:`integration detail page <Webhook Integrations>`. Use this
 URL when setting up a new webhook with your provider -- these steps vary
 depending on the provider:
 

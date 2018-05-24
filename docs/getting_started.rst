@@ -13,10 +13,8 @@ Write Your Docs
 
 You have two options for formatting your documentation:
 
-* :ref:`in-rst`
-* :ref:`in-markdown`
-
-.. _in-rst:
+* `In reStructuredText`_
+* `In Markdown`_
 
 In reStructuredText
 ~~~~~~~~~~~~~~~~~~~
@@ -52,8 +50,6 @@ or `this template`_ if you need help). Build them to see how they look::
 
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs.
-
-.. _in-markdown:
 
 In Markdown
 ~~~~~~~~~~~
