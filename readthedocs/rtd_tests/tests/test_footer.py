@@ -111,7 +111,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
         }
@@ -123,7 +123,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
         }
@@ -136,7 +136,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
         }
@@ -164,7 +164,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 1.0.0 of Pip ({})'.format(version.pk),
             'url': '/dashboard/pip/version/1.0.0/',
-            'slug': ('1.0.0',),
+            'slug': '1.0.0',
             'version': '1.0.0',
             'is_highest': False,
         }
@@ -178,7 +178,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
         }
@@ -189,7 +189,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
         }
@@ -206,7 +206,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 2.0.0 of Pip ({})'.format(version.pk),
             'url': '/dashboard/pip/version/2.0.0/',
-            'slug': ('2.0.0',),
+            'slug': '2.0.0',
             'version': '2.0.0',
             'is_highest': False,
         }

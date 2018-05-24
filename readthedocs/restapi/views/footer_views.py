@@ -43,7 +43,7 @@ def get_version_compare_data(project, base_version=None):
     }
     if highest_version_obj:
         ret_val['url'] = highest_version_obj.get_absolute_url()
-        ret_val['slug'] = (highest_version_obj.slug,)
+        ret_val['slug'] = highest_version_obj.slug
     if base_version and base_version.slug != LATEST:
         try:
             base_version_comparable = parse_version_failsafe(
