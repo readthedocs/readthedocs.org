@@ -134,6 +134,9 @@ else:
 
 # Add custom RTD extension
 if 'extensions' in globals():
+    # Insert at the beginning because it can interfere
+    # with other extensions.
+    # See https://github.com/rtfd/readthedocs.org/pull/4054
     extensions.insert(0, "readthedocs_ext.readthedocs")
 else:
     extensions = ["readthedocs_ext.readthedocs"]
