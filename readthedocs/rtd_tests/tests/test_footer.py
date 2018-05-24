@@ -36,6 +36,7 @@ class Testmaker(APITestCase):
         self.assertTrue(r.data['version_active'])
         self.assertTrue(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
+        self.assertFalse(r.data['show_version_warning'])
         self.assertEqual(r.context['main_project'], self.pip)
         self.assertEqual(r.status_code, 200)
 
@@ -91,6 +92,12 @@ class Testmaker(APITestCase):
         home_request = self.factory.get('/')
         mid.process_request(home_request)
         self.assertEqual(home_request.session.TEST_COOKIE_NAME, 'testcookie')
+
+    def test_show_version_warning(self):
+        self.pip.show_version_warning = True
+        self.pip.save()
+        response = self.render()
+        self.assertTrue(response.data['show_version_warning'])
 
 
 class TestVersionCompareFooter(TestCase):
