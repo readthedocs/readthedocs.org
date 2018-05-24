@@ -126,7 +126,8 @@ def do_not_track(request):
         'same-party': [
             'readthedocs.org',
             'readthedocs.com',
-            'readthedocs.io',
+            'readthedocs.io',           # .org Documentation Sites
+            'readthedocs-hosted.com',   # .com Documentation Sites
         ],
         'tracking': 'N' if dnt_header == '1' else 'T',
     }, content_type='application/tracking-status+json')

@@ -40,8 +40,8 @@ readthedocs.com
     It is governed by this privacy policy but also separate
     `terms <https://readthedocs.com/terms/>`_.
 
-readthedocs.io and other domains ("Documentation Sites")
-    These public websites are where Read the Docs hosts documentation on
+readthedocs.io, readthedocs-hosted.com, and other domains ("Documentation Sites")
+    These websites are where Read the Docs hosts documentation on
     behalf of documentation authors. A best effort is made to apply
     this Privacy Policy to these sites but the documentation
     may contain content and files created by documentation authors.
