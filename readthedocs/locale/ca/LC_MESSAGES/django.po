@@ -1,15 +1,16 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Readthedocs Catalan translation.
+# Copyright (C) 2010-2017 Read the Docs, Inc & contributors
+# This file is distributed under the same license as the readthedocs package.
 #
 # Translators:
 # Joan Queralt <jqueralt@gmail.com>, 2014-2015
+# David Planella <david.planella@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-19 15:31-0700\n"
-"PO-Revision-Date: 2015-02-17 21:38+0000\n"
+"PO-Revision-Date: 2017-12-03 13:45+0100\n"
 "Last-Translator: Joan Queralt <jqueralt@gmail.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/projects/p/readthedocs/"
 "language/ca/)\n"
@@ -18,10 +19,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 #: api/utils.py:97
 msgid "Sorry, no results on that page."
-msgstr "No hi ha cap resultat per aquesta pàgina"
+msgstr "No hi ha cap resultat per a aquesta pàgina."
 
 #: api/utils.py:183
 #, python-format
@@ -47,9 +49,8 @@ msgid "Version"
 msgstr "Versió"
 
 #: bookmarks/models.py:25
-#, fuzzy
 msgid "Page"
-msgstr "Pàgina inicial"
+msgstr "Pàgina"
 
 #: bookmarks/models.py:27 builds/models.py:337 comments/models.py:163
 #: comments/models.py:228 donate/models.py:185 integrations/models.py:123
@@ -71,19 +72,19 @@ msgstr "Activat"
 
 #: builds/constants.py:14
 msgid "Cloning"
-msgstr "Clonant"
+msgstr "S'està clonant"
 
 #: builds/constants.py:15
 msgid "Installing"
-msgstr "Instal·lant"
+msgstr "S'està instal·lant"
 
 #: builds/constants.py:16
 msgid "Building"
-msgstr "Construint"
+msgstr "S'està muntant"
 
 #: builds/constants.py:17
 msgid "Finished"
-msgstr "Acabat"
+msgstr "S'ha finalitzat"
 
 #: builds/constants.py:21
 msgid "HTML"
@@ -99,7 +100,7 @@ msgstr "Epub"
 
 #: builds/constants.py:27
 msgid "Manpage"
-msgstr "Manpage"
+msgstr "Pàgina de manual"
 
 #: builds/constants.py:28
 msgid "Dash"
@@ -132,7 +133,7 @@ msgstr "Nom detallat"
 #: builds/models.py:67 oauth/models.py:45 projects/models.py:87
 #: projects/models.py:842
 msgid "Slug"
-msgstr "Slug"
+msgstr "Sufix de l'URL"
 
 #: builds/models.py:70
 msgid "Supported"
@@ -153,7 +154,7 @@ msgstr "Carregat"
 
 #: builds/models.py:75 projects/models.py:213
 msgid "Privacy Level"
-msgstr "Nivell privat"
+msgstr "Nivell de privadesa"
 
 #: builds/models.py:76
 msgid "Level of privacy for this Version."
@@ -197,7 +198,7 @@ msgstr "Estat"
 
 #: builds/models.py:338
 msgid "Success"
-msgstr "Amb èxit"
+msgstr "Correcte"
 
 #: builds/models.py:340
 msgid "Setup"
@@ -229,10 +230,8 @@ msgid "Build Length"
 msgstr "Construint"
 
 #: builds/models.py:349
-#, fuzzy
-#| msgid "Build"
 msgid "Builder"
-msgstr "Construeix"
+msgstr "Muntador"
 
 #: builds/models.py:363
 #, python-format
@@ -244,9 +243,8 @@ msgid "Build"
 msgstr "Construeix"
 
 #: builds/models.py:410
-#, fuzzy
 msgid "Command"
-msgstr "publica"
+msgstr "Ordre"
 
 #: builds/models.py:411 oauth/models.py:97 projects/models.py:88
 #: templates/core/project_details.html:77
@@ -255,13 +253,11 @@ msgstr "Descripció"
 
 #: builds/models.py:412
 msgid "Command output"
-msgstr ""
+msgstr "Sortida de l'ordre"
 
 #: builds/models.py:413
-#, fuzzy
-#| msgid "Exit code"
 msgid "Command exit code"
-msgstr "Codi de sortida"
+msgstr "Codi de sortida de l'ordre"
 
 #: builds/models.py:415
 msgid "Start time"
@@ -294,7 +290,7 @@ msgstr ""
 
 #: comments/models.py:165 donate/models.py:59
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #: core/admin.py:28
 #, fuzzy
@@ -343,10 +339,8 @@ msgid "Homepage"
 msgstr "Pàgina d'inici"
 
 #: core/models.py:26
-#, fuzzy
-#| msgid "Documentation type"
 msgid "See paid advertising"
-msgstr "Tipus de documentació"
+msgstr "Mostra publicitat comercial"
 
 #: core/models.py:27
 msgid "If unchecked, you will still see community ads."
@@ -438,13 +432,11 @@ msgstr "Data de modificació"
 
 #: donate/models.py:29 projects/constants.py:90
 msgid "Public"
-msgstr "Públic"
+msgstr "Pública"
 
 #: donate/models.py:31
-#, fuzzy
-#| msgid "Last name"
 msgid "name"
-msgstr "Cognoms"
+msgstr "nom"
 
 #: donate/models.py:32 oauth/models.py:47
 msgid "Email"
@@ -455,16 +447,12 @@ msgid "Amount"
 msgstr ""
 
 #: donate/models.py:36
-#, fuzzy
-#| msgid "To URL"
 msgid "Logo URL"
-msgstr "URL destí"
+msgstr "URL del logotip"
 
 #: donate/models.py:38
-#, fuzzy
-#| msgid "Git URL"
 msgid "Site URL"
-msgstr "URL a Git"
+msgstr "URL del lloc web"
 
 #: donate/models.py:57 oauth/models.py:46 oauth/models.py:95
 #: projects/models.py:86 projects/models.py:841
@@ -472,16 +460,12 @@ msgid "Name"
 msgstr "Nom"
 
 #: donate/models.py:58
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Analytics ID"
-msgstr "Codi d'Analytics"
+msgstr "Identificador d'analítica web"
 
 #: donate/models.py:60
-#, fuzzy
-#| msgid "Git URL"
 msgid "Link URL"
-msgstr "URL a Git"
+msgstr "URL de l'enllaç"
 
 #: donate/models.py:61
 msgid "Image URL"
@@ -509,7 +493,7 @@ msgstr "Clics"
 
 #: donate/models.py:67 projects/models.py:237
 msgid "Programming Language"
-msgstr ""
+msgstr "Llengua de programació"
 
 #: donate/models.py:70 projects/models.py:105
 msgid "Theme"
@@ -547,7 +531,7 @@ msgstr "Filtrat per"
 #: donate/templates/donate/create.html:6 donate/templates/donate/list.html:6
 #: donate/templates/donate/success.html:6
 msgid "Sustainability"
-msgstr ""
+msgstr "Sostenibilitat"
 
 #: donate/templates/donate/create.html:75
 #: donate/templates/donate/ethicalads.html:70
@@ -690,12 +674,11 @@ msgstr[1] ""
 #: templates/projects/project_redirects.html:93
 #: templates/projects/project_translations.html:26
 msgid "Remove"
-msgstr "Elimina"
+msgstr "Suprimeix"
 
 #: gold/templates/gold/projects.html:48
-#, fuzzy
 msgid "Add a project"
-msgstr "Edita el Projecte"
+msgstr "Afegeix un projecte"
 
 #: gold/templates/gold/projects.html:50
 #, fuzzy
@@ -725,10 +708,8 @@ msgstr ""
 
 #: gold/templates/gold/subscription_confirm_delete.html:19
 #: gold/templates/gold/subscription_detail.html:54
-#, fuzzy
-#| msgid "Description"
 msgid "Cancel Subscription"
-msgstr "Descripció"
+msgstr "Cancel·la la subscripció"
 
 #: gold/templates/gold/subscription_detail.html:7
 #: gold/templates/gold/subscription_detail.html:31
@@ -769,10 +750,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: gold/templates/gold/subscription_detail.html:67
-#, fuzzy
-#| msgid "Sub Projects"
 msgid "Select Projects"
-msgstr "Sub Projectes"
+msgstr "Seleccioneu els projectes"
 
 #: gold/templates/gold/subscription_form.html:40
 msgid ""
@@ -863,19 +842,17 @@ msgstr ""
 
 #: integrations/models.py:125 integrations/models.py:128
 msgid "Request headers"
-msgstr ""
+msgstr "Capçaleres de la sol·licitud"
 
 #: integrations/models.py:126
 msgid "Request body"
-msgstr ""
+msgstr "Cos de la sol·licitud"
 
 #: integrations/models.py:129
 msgid "Response body"
-msgstr ""
+msgstr "Cos de la resposta"
 
 #: integrations/models.py:132
-#, fuzzy
-#| msgid "Status Code:"
 msgid "Status code"
 msgstr "Codi d'estat"
 
@@ -901,10 +878,8 @@ msgid "Generic API incoming webhook"
 msgstr ""
 
 #: integrations/models.py:246
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Integration type"
-msgstr "Tipus de documentació"
+msgstr "Tipus d'integració"
 
 #: integrations/models.py:250
 msgid "Provider data"
@@ -916,10 +891,8 @@ msgid "{0} for {1}"
 msgstr ""
 
 #: notifications/forms.py:27
-#, fuzzy
-#| msgid "Notifications"
 msgid "Notification"
-msgstr "Notificacions"
+msgstr "Notificació"
 
 #: oauth/models.py:38 oauth/models.py:82
 msgid "Users"
@@ -927,7 +900,7 @@ msgstr "Usuaris"
 
 #: oauth/models.py:41 oauth/models.py:85
 msgid "Connected account"
-msgstr ""
+msgstr "Compte connectat"
 
 #: oauth/models.py:48
 msgid "Avatar image URL"
@@ -952,10 +925,8 @@ msgid "Full Name"
 msgstr "Nom complet"
 
 #: oauth/models.py:98
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
 msgid "Description of the project"
-msgstr "La descripció del projecte en reStructuredText"
+msgstr "Descripció del projecte"
 
 #: oauth/models.py:99
 msgid "Owner avatar image URL"
@@ -966,24 +937,20 @@ msgid "SSH URL"
 msgstr "URL SSH"
 
 #: oauth/models.py:105
-#, fuzzy
-#| msgid "Repository URL"
 msgid "Repository clone URL"
-msgstr "URL del repositori"
+msgstr "URL del dipòsit"
 
 #: oauth/models.py:110
 msgid "HTML URL"
 msgstr "URL HTML"
 
 #: oauth/models.py:112
-#, fuzzy
-#| msgid "Repository"
 msgid "Private repository"
-msgstr "Repositori"
+msgstr "Dipòsit privat"
 
 #: oauth/models.py:113
 msgid "Has admin privilege"
-msgstr ""
+msgstr "Té permisos d'administració"
 
 #: oauth/models.py:114
 msgid "vcs"
@@ -1133,10 +1100,8 @@ msgstr ""
 "clon públic (http:// or git://)"
 
 #: projects/forms.py:139
-#, fuzzy
-#| msgid "Repository"
 msgid "Repository invalid"
-msgstr "Repositori"
+msgstr "Dipòsit no vàlid"
 
 #: projects/forms.py:181 projects/models.py:201
 msgid "(Beta) The Python interpreter used to create the virtual environment."
@@ -1200,10 +1165,8 @@ msgid "Child"
 msgstr "Fill"
 
 #: projects/models.py:57
-#, fuzzy
-#| msgid "Aliases"
 msgid "Alias"
-msgstr "Àlies"
+msgstr "Sobrenom"
 
 #: projects/models.py:89
 msgid "The reStructuredText description of the project"
@@ -1211,20 +1174,19 @@ msgstr "La descripció del projecte en reStructuredText"
 
 #: projects/models.py:91
 msgid "Repository URL"
-msgstr "URL del repositori"
+msgstr "URL del dipòsit"
 
 #: projects/models.py:92
 msgid "Hosted documentation repository URL"
-msgstr ""
+msgstr "URL del dipòsit del qual es publica la documentació"
 
 #: projects/models.py:93
 msgid "Repository type"
-msgstr "Tipus de repositori"
+msgstr "Tipus de dipòsit"
 
 #: projects/models.py:95
-#, fuzzy
 msgid "Project homepage"
-msgstr "Pàgina inicial del projecte"
+msgstr "Pàgina d'inici del projecte"
 
 #: projects/models.py:96
 msgid "The project's homepage"
@@ -1260,7 +1222,7 @@ msgstr "Sufix"
 
 #: projects/models.py:112
 msgid "Single version"
-msgstr "Versió senzilla"
+msgstr "Versió única"
 
 #: projects/models.py:113
 msgid ""
@@ -1329,9 +1291,8 @@ msgid "Allow Comments"
 msgstr ""
 
 #: projects/models.py:143
-#, fuzzy
 msgid "Comment Moderation"
-msgstr "Configuració"
+msgstr "Moderació de comentaris"
 
 #: projects/models.py:144
 msgid "CDN Enabled"
@@ -1407,7 +1368,7 @@ msgstr "El directori on hi ha conf.py"
 
 #: projects/models.py:179
 msgid "Python configuration file"
-msgstr "Fitxer de configuració de Python"
+msgstr "Fitxer de configuració del Python"
 
 #: projects/models.py:180
 #, fuzzy
@@ -1427,7 +1388,7 @@ msgstr "Destacat"
 
 #: projects/models.py:185
 msgid "Skip"
-msgstr "Salta"
+msgstr "Omet"
 
 #: projects/models.py:186
 msgid "Mirror"
@@ -1449,7 +1410,7 @@ msgstr ""
 
 #: projects/models.py:197
 msgid "Python Interpreter"
-msgstr "Intèrpret Python"
+msgstr "Intèrpret del Python"
 
 #: projects/models.py:205
 msgid "Use system packages"
@@ -1469,19 +1430,19 @@ msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
 msgstr ""
-"(Beta) Nivell de privacitat que desitgeu en el repositori. Protegit "
-"significa Públic, però no en els llistats."
+"(Beta) Nivell de privadesa d'aquest dipòsit. Protegit significa públic, però "
+"sense aparèixer en cap llistat."
 
 #: projects/models.py:218
 msgid "Version Privacy Level"
-msgstr "Nivell de privacitat de la versió"
+msgstr "Nivell de privadesa de la versió"
 
 #: projects/models.py:221
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
-"(Beta) Nivell de privacitat per defecte que desitgeu en les versions "
-"construïdes de la documentació."
+"(Beta) Nivell de privadesa per defecte de les versions de documentació "
+"muntades."
 
 #: projects/models.py:226
 msgid "Related projects"
@@ -1599,17 +1560,15 @@ msgstr ""
 
 #: projects/views/private.py:103 projects/views/private.py:119
 msgid "Project settings updated"
-msgstr ""
+msgstr "S'han actualitzat els paràmetres del projecte"
 
 #: projects/views/private.py:151
-#, fuzzy
 msgid "Project versions updated"
-msgstr "Edita les versions del Projecte"
+msgstr "S'han actualitzat les versions del projecte"
 
 #: projects/views/private.py:204
-#, fuzzy
 msgid "Project deleted"
-msgstr "Àlies del projecte"
+msgstr "S'ha suprimit el projecte"
 
 #: projects/views/private.py:289
 #, fuzzy
@@ -1653,7 +1612,7 @@ msgstr "Redirecciona el prefix"
 
 #: redirects/models.py:32
 msgid "Page Redirect"
-msgstr "Redirecciona la pàgina"
+msgstr "Redirecció de la pàgina"
 
 #: redirects/models.py:33
 #, fuzzy
@@ -1717,10 +1676,8 @@ msgid "Prefix Redirect:"
 msgstr "Redirecciona el prefix"
 
 #: redirects/models.py:84
-#, fuzzy
-#| msgid "Page Redirect"
 msgid "Page Redirect:"
-msgstr "Redirecciona la pàgina"
+msgstr "Redirecció de la pàgina:"
 
 #: redirects/models.py:87
 #, python-format
@@ -1794,7 +1751,7 @@ msgstr ""
 #: templates/account/email.html:5 templates/account/email.html:9
 #: templates/profiles/base_profile_edit.html:51
 msgid "Change Email"
-msgstr ""
+msgstr "Canvia l'adreça electrònica"
 
 #: templates/account/email.html:13
 msgid "The following email addresses are associated with your account:"
@@ -1817,9 +1774,8 @@ msgid "Make Primary"
 msgstr ""
 
 #: templates/account/email.html:38
-#, fuzzy
 msgid "Re-send Verification"
-msgstr "Elimina les notificacions"
+msgstr "Torna a enviar la verificació"
 
 #: templates/account/email.html:46
 msgid "Warning:"
@@ -1832,14 +1788,12 @@ msgid ""
 msgstr ""
 
 #: templates/account/email.html:51
-#, fuzzy
 msgid "Add E-mail Address"
-msgstr "Afeigiu una adreça de correu on enviar les notificacions"
+msgstr "Afegeix una adreça electrònica"
 
 #: templates/account/email.html:56
-#, fuzzy
 msgid "Add E-mail"
-msgstr "Correu electrònic"
+msgstr "Afegeix una adreça electrònica"
 
 #: templates/account/email.html:65
 msgid "Do you really want to remove the selected email address?"
@@ -1950,15 +1904,12 @@ msgid "Bookmarks"
 msgstr "Marcadors"
 
 #: templates/bookmarks/bookmark_list.html:20
-#, fuzzy
 msgid "All Bookmarks"
-msgstr "Marcadors"
+msgstr "Totes les adreces d'interès"
 
 #: templates/builds/build_detail.html:36
-#, fuzzy
-#| msgid "Deleted"
 msgid "Completed"
-msgstr "Eliminat"
+msgstr "S'ha completat"
 
 #: templates/builds/build_detail.html:41
 #, fuzzy
@@ -1968,7 +1919,7 @@ msgstr "Data de construcció"
 
 #: templates/builds/build_detail.html:45
 msgid "seconds"
-msgstr ""
+msgstr "segons"
 
 #: templates/builds/build_detail.html:51
 #, fuzzy
@@ -1992,20 +1943,16 @@ msgstr ""
 "      "
 
 #: templates/builds/build_detail.html:86
-#, fuzzy
-#| msgid "Build Started"
 msgid "Build completed"
-msgstr "Ha començat la construcció"
+msgstr "S'ha completat el muntatge"
 
 #: templates/builds/build_detail.html:91
-#, fuzzy
-#| msgid "Build Date"
 msgid "Build failed"
-msgstr "Data de construcció"
+msgstr "Ha fallat el muntatge"
 
 #: templates/builds/build_detail.html:99
 msgid "Show full build output"
-msgstr ""
+msgstr "Mostra la sortida completa del muntatge"
 
 #: templates/builds/build_detail.html:105
 #, fuzzy
@@ -2022,10 +1969,8 @@ msgid "Environment Standard Error"
 msgstr "Error estàndard d'entorn"
 
 #: templates/builds/build_detail.html:120
-#, fuzzy
-#| msgid "Build Standard Error"
 msgid "Build Errors"
-msgstr "Construeix l'error estàndard"
+msgstr "Errors del muntatge"
 
 #: templates/builds/build_detail.html:154
 msgid "Command time:"
@@ -2046,11 +1991,11 @@ msgstr ""
 
 #: templates/builds/build_list.html:46
 msgid "Build Version:"
-msgstr "Versió de la construcció:"
+msgstr "Versió de muntatge:"
 
 #: templates/builds/build_list.html:62
 msgid "Recent Builds"
-msgstr "Construccions recents"
+msgstr "Muntatges recents"
 
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html:7
@@ -2059,7 +2004,7 @@ msgstr "Etiquetes populars"
 
 #: templates/core/build_list_detailed.html:7
 msgid "Passed"
-msgstr "Passat"
+msgstr "Correcte"
 
 #: templates/core/build_list_detailed.html:7
 msgid "Failed"
@@ -2074,11 +2019,11 @@ msgstr "versió %(slug)s (%(type)s)"
 #: templates/core/project_list_detailed.html:27
 #, python-format
 msgid "%(date)s ago"
-msgstr "en data %(date)s"
+msgstr "fa %(date)s"
 
 #: templates/core/build_list_detailed.html:14
 msgid "No builds found"
-msgstr "No s'ha trobat cap construcció"
+msgstr "No s'ha trobat cap muntatge"
 
 #: templates/core/email/base.html:78
 msgid "Hello!"
@@ -2106,23 +2051,20 @@ msgid "Settings"
 msgstr "Configuració"
 
 #: templates/core/header.html:31
-#, fuzzy
-#| msgid "Supported"
 msgid "Support"
-msgstr "Suportat"
+msgstr "Assistència"
 
 #: templates/core/header.html:34 templates/error_header.html:24
 msgid "Log Out"
-msgstr "Sortida"
+msgstr "Surt"
 
 #: templates/core/header.html:41
-#, fuzzy
 msgid "Log In"
-msgstr "Entrada"
+msgstr "Entra"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
-msgstr "Crea, allotja i mostra documentació."
+msgstr "Creeu, publiqueu i consulteu documentació."
 
 #. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/core/home-header.html:17
@@ -2136,7 +2078,7 @@ msgstr "o"
 
 #: templates/core/home-header.html:19 templates/error_header.html:28
 msgid "Log in"
-msgstr "Entrada"
+msgstr "Entreu"
 
 #: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:35
@@ -2175,12 +2117,12 @@ msgstr ""
 
 #: templates/core/project_bar_base.html:54
 msgid "Overview"
-msgstr "Visió de conjunt"
+msgstr "Visió general"
 
 #: templates/core/project_bar_base.html:56
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
-msgstr "Descàrregues"
+msgstr "Baixades"
 
 #: templates/core/project_bar_base.html:58
 #: templates/core/project_list_detailed.html:39
@@ -2190,7 +2132,7 @@ msgstr "Cerca"
 
 #: templates/core/project_bar_base.html:60
 msgid "Builds"
-msgstr "Construccions"
+msgstr "Muntatges"
 
 #: templates/core/project_bar_base.html:62
 #: templates/core/project_details.html:19
@@ -2203,33 +2145,30 @@ msgstr "Versions"
 
 #: templates/core/project_bar_base.html:72
 #: templates/projects/project_edit_base.html:29
-#, fuzzy
 msgid "Comments"
-msgstr "publica"
+msgstr "Comentaris"
 
 #: templates/core/project_bar_base.html:73
 #: templates/profiles/base_profile.html:29
 #: templates/profiles/base_profile_edit.html:31
 msgid "Admin"
-msgstr "Admin"
+msgstr "Administració"
 
 #: templates/core/project_detail_right.html:9
 msgid "Repository"
-msgstr "Repositori"
+msgstr "Dipòsit"
 
 #: templates/core/project_detail_right.html:15
 msgid "Last Built"
 msgstr "Darrera construcció"
 
 #: templates/core/project_detail_right.html:22
-#, fuzzy
 msgid "passed"
-msgstr "Passat"
+msgstr "correcte"
 
 #: templates/core/project_detail_right.html:24
-#, fuzzy
 msgid "failed"
-msgstr "Ha fallat"
+msgstr "ha fallat"
 
 #: templates/core/project_detail_right.html:37
 msgid "Owners"
@@ -2253,7 +2192,7 @@ msgstr "No hi ha etiquetes"
 
 #: templates/core/project_detail_right.html:77
 msgid "Project Privacy Level"
-msgstr "Nivell de privacitat del Projecte"
+msgstr "Nivell de privadesa del projecte"
 
 #: templates/core/project_detail_right.html:86
 msgid "Short URLs"
@@ -2267,11 +2206,11 @@ msgstr "Traduccions"
 
 #: templates/core/project_detail_right.html:108
 msgid "Sub Projects"
-msgstr "Sub Projectes"
+msgstr "Subprojectes"
 
 #: templates/core/project_detail_right.html:121
 msgid "'latest' Version"
-msgstr "'darrera' versió"
+msgstr "'Darrera' versió"
 
 #: templates/core/project_details.html:31
 #, python-format
@@ -2287,9 +2226,8 @@ msgstr "Edita"
 
 #: templates/core/project_details.html:50
 #: templates/projects/project_version_list.html:59
-#, fuzzy
 msgid "No active versions."
-msgstr "Trieu versions actives"
+msgstr "No hi ha cap versió activa."
 
 #: templates/core/project_details.html:60
 msgid "Build a version"
@@ -2297,11 +2235,11 @@ msgstr "Construeix una versió"
 
 #: templates/core/project_downloads.html:30
 msgid "No downloads for this project."
-msgstr "No hi ha cap descàrrega d'aquest projecte."
+msgstr "No hi ha cap baixada per a aquest projecte."
 
 #: templates/core/project_list_detailed.html:29
 msgid "No builds"
-msgstr "Cap construcció"
+msgstr "No hi ha cap muntatge"
 
 #: templates/core/project_list_detailed.html:47
 #: templates/core/project_list_featured.html:25
@@ -2453,9 +2391,8 @@ msgid "Read the Docs is funded by the community"
 msgstr ""
 
 #: templates/notifications/send_notification_form.html:6
-#, fuzzy
 msgid "Send Email"
-msgstr "Correu electrònic"
+msgstr "Envia un correu electrònic"
 
 #: templates/notifications/send_notification_form.html:9
 msgid ""
@@ -2486,14 +2423,14 @@ msgstr ""
 
 #: templates/notifications/send_notification_form.html:41
 msgid "Send Messages"
-msgstr ""
+msgstr "Envia els missatges"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
 #: templates/projects/project_import.html:189
 #: templates/projects/project_import.html:195
 msgid "previous"
-msgstr "previ"
+msgstr "anterior"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
@@ -2533,13 +2470,13 @@ msgstr "Perfil"
 
 #: templates/profiles/base_profile_edit.html:48
 msgid "Details"
-msgstr ""
+msgstr "Detalls"
 
 #: templates/profiles/base_profile_edit.html:49
 #: templates/socialaccount/connections.html:5
 #: templates/socialaccount/connections.html:7
 msgid "Connected Services"
-msgstr ""
+msgstr "Serveis connectats"
 
 #: templates/profiles/base_profile_edit.html:52
 msgid "Gold"
@@ -2570,7 +2507,7 @@ msgstr "Perfil de %(user)s"
 
 #: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
 msgid "Project Alias"
-msgstr "Àlies del projecte"
+msgstr "Sobrenom del projecte"
 
 #: templates/projects/alias_edit.html:12
 msgid "Add an alias for a project version."
@@ -2598,16 +2535,12 @@ msgid "Edit Domains"
 msgstr "Edita les notificacions"
 
 #: templates/projects/domain_confirm_delete.html:13
-#, fuzzy
-#| msgid "Confirm flagging"
 msgid "Confirm Delete"
-msgstr "Confirma el marcatge"
+msgstr "Confirma la supressió"
 
 #: templates/projects/domain_confirm_delete.html:18
-#, fuzzy
-#| msgid "Confirm flagging"
 msgid "Confirm"
-msgstr "Confirma el marcatge"
+msgstr "Confirma-ho"
 
 #: templates/projects/domain_form.html:16
 #, fuzzy
@@ -2649,9 +2582,8 @@ msgid "Add new Domain"
 msgstr ""
 
 #: templates/projects/import_base.html:4
-#, fuzzy
 msgid "Add a Project"
-msgstr "Edita el Projecte"
+msgstr "Afegeix un projecte"
 
 #: templates/projects/import_base.html:27
 #: templates/search/elastic_project_search.html:123
@@ -2677,9 +2609,8 @@ msgid "Previous"
 msgstr "Previ"
 
 #: templates/projects/import_basics.html:5
-#, fuzzy
 msgid "Project Details"
-msgstr "Àlies del projecte"
+msgstr "Detalls del projecte"
 
 #: templates/projects/import_basics.html:8
 msgid ""
@@ -2692,9 +2623,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/import_extra.html:20
-#, fuzzy
 msgid "Project Extra Details"
-msgstr "Nivell de privacitat del Projecte"
+msgstr "Detalls addicionals del projecte"
 
 #: templates/projects/import_extra.html:23
 msgid ""
@@ -2714,7 +2644,7 @@ msgstr "Inapropiat"
 
 #: templates/projects/includes/flagging.html:9
 msgid "Spam"
-msgstr "Spam"
+msgstr "Brossa"
 
 #: templates/projects/includes/flagging.html:10
 msgid "Duplicate"
@@ -2722,7 +2652,7 @@ msgstr "Duplicat"
 
 #: templates/projects/includes/icon_built.html:9
 msgid "Not built"
-msgstr "No construït"
+msgstr "No s'ha muntat"
 
 #: templates/projects/integration_exchange_detail.html:5
 #: templates/projects/integration_form.html:5
@@ -2730,10 +2660,8 @@ msgstr "No construït"
 #: templates/projects/integration_list.html:5
 #: templates/projects/integration_list.html:12
 #: templates/projects/project_edit_base.html:25
-#, fuzzy
-#| msgid "Internal Links"
 msgid "Integrations"
-msgstr "Enllaços interns"
+msgstr "Integracions"
 
 #: templates/projects/integration_exchange_detail.html:12
 msgid "Exchange"
@@ -2741,10 +2669,8 @@ msgstr ""
 
 #: templates/projects/integration_form.html:21
 #: templates/projects/integration_list.html:20
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add integration"
-msgstr "Afegeix mantenidor"
+msgstr "Afegeix una integració"
 
 #: templates/projects/integration_generic_webhook_detail.html:7
 msgid ""
@@ -2762,10 +2688,8 @@ msgid "No intergrations are currently configured"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:5
-#, fuzzy
-#| msgid "Internal Links"
 msgid "Integration"
-msgstr "Enllaços interns"
+msgstr "Integració"
 
 #: templates/projects/integration_webhook_detail.html:13
 #, python-format
@@ -2819,18 +2743,14 @@ msgid ""
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:84
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        %(version)s Epub\n"
-#| "      "
+#, python-format
 msgid ""
 "\n"
 "              %(date)s ago\n"
 "            "
 msgstr ""
 "\n"
-"        %(version)s Epub\n"
+"        fa %(date)s\n"
 "      "
 
 #: templates/projects/integration_webhook_detail.html:92
@@ -2892,7 +2812,7 @@ msgstr "sagnat real del codi"
 
 #: templates/projects/legend.html:34
 msgid "reStructuredText Primer"
-msgstr "reStructuredText Primer"
+msgstr "Programa d'aprenentatge del reStructuredText"
 
 #: templates/projects/onboard_detail.html:9
 msgid "Start building your documentation"
@@ -2910,9 +2830,8 @@ msgid ""
 msgstr ""
 
 #: templates/projects/onboard_detail.html:21
-#, fuzzy
 msgid "Build latest version"
-msgstr "Construeix una versió"
+msgstr "Munta la darrera versió"
 
 #: templates/projects/onboard_detail.html:29
 msgid "Your documentation is ready to use"
@@ -2981,10 +2900,8 @@ msgstr "Configuració avançada"
 
 #: templates/projects/project_advertising.html:5
 #: templates/projects/project_advertising.html:12
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation Advertising"
-msgstr "Tipus de documentació"
+msgstr "Publicitat a la documentació"
 
 #: templates/projects/project_advertising.html:16
 msgid ""
@@ -3130,25 +3047,21 @@ msgid "Update advertisement preference"
 msgstr ""
 
 #: templates/projects/project_analytics.html:47
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Analytics"
-msgstr "Codi d'Analytics"
+msgstr "Analítica web"
 
 #: templates/projects/project_analytics.html:51
 msgid "This shows the last 7 days of data from your project."
 msgstr ""
 
 #: templates/projects/project_analytics.html:63
-#, fuzzy
 msgid "Pages"
-msgstr "Pàgina inicial"
+msgstr "Pàgines"
 
 #: templates/projects/project_comments_settings.html:5
 #: templates/projects/project_comments_settings.html:12
-#, fuzzy
 msgid "Comments Settings"
-msgstr "Configuració"
+msgstr "Configuració dels comentaris"
 
 #: templates/projects/project_comments_settings.html:16
 msgid "Settings for comments and moderation."
@@ -3156,19 +3069,18 @@ msgstr ""
 
 #: templates/projects/project_create.html:21
 msgid "Create a new project"
-msgstr "Creeu un nou projecte"
+msgstr "Crea un projecte nou"
 
 #: templates/projects/project_create.html:24
 msgid "Create a New Project"
-msgstr "Crea un nou projecte"
+msgstr "Crea un projecte nou"
 
 #: templates/projects/project_create.html:29
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
 msgstr ""
-"Creeu aquí documentació nova. En cas que ja tingueu documents en un "
-"repositori públic"
+"Creeu documentació nova aquí. Si ja teniu documents en un dipòsit públic,"
 
 #: templates/projects/project_create.html:30
 msgid "import an existing project"
@@ -3183,9 +3095,8 @@ msgid "Important Versions"
 msgstr "Versions importants"
 
 #: templates/projects/project_dashboard_base.html:72
-#, fuzzy
 msgid "No builds yet"
-msgstr "Cap construcció"
+msgstr "No hi ha cap muntatge"
 
 #: templates/projects/project_dashboard_base.html:77
 #, python-format
@@ -3218,11 +3129,11 @@ msgstr ""
 
 #: templates/projects/project_edit.html:22
 msgid "Edit Project"
-msgstr "Edita el Projecte"
+msgstr "Edita el projecte"
 
 #: templates/projects/project_edit.html:39
 msgid "delete"
-msgstr "elimina"
+msgstr "suprimeix"
 
 #: templates/projects/project_edit_base.html:21
 #: templates/projects/project_users.html:8
@@ -3233,7 +3144,7 @@ msgstr "Mantenidors"
 #: templates/projects/project_redirects.html:8
 #: templates/projects/project_redirects.html:78
 msgid "Redirects"
-msgstr "Redirecciona"
+msgstr "Redireccions"
 
 #: templates/projects/project_edit_base.html:24
 #: templates/projects/projectrelationship_form.html:5
@@ -3250,7 +3161,7 @@ msgstr "Notificacions"
 
 #: templates/projects/project_edit_base.html:27
 msgid "Advertising"
-msgstr ""
+msgstr "Publicitat"
 
 #: templates/projects/project_embed.html:48
 msgid "Embed API"
@@ -3267,27 +3178,23 @@ msgstr "Fitxer"
 
 #: templates/projects/project_embed.html:57
 msgid "Select a File"
-msgstr ""
+msgstr "Seleccioneu un fitxer"
 
 #: templates/projects/project_embed.html:64
-#, fuzzy
-#| msgid "Description"
 msgid "Section"
-msgstr "Descripció"
+msgstr "Secció"
 
 #: templates/projects/project_embed.html:72
 msgid "Show content"
-msgstr ""
+msgstr "Mostra el contingut"
 
 #: templates/projects/project_embed.html:74
-#, fuzzy
-#| msgid "Examples"
 msgid "Example Usage"
-msgstr "Exemples"
+msgstr "Exemple d'utilització"
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
-msgstr ""
+msgstr "Importa un dipòsit remot"
 
 #: templates/projects/project_import.html:49
 msgid "There was an error with your request:"
@@ -3295,13 +3202,11 @@ msgstr ""
 
 #: templates/projects/project_import.html:62
 msgid "Refresh your accounts"
-msgstr ""
+msgstr "Actualitza els comptes"
 
 #: templates/projects/project_import.html:71
-#, fuzzy
-#| msgid "Repository"
 msgid "Import a Repository"
-msgstr "Repositori"
+msgstr "Importa un dipòsit"
 
 #: templates/projects/project_import.html:83
 #, python-format
@@ -3317,13 +3222,12 @@ msgid ""
 msgstr ""
 
 #: templates/projects/project_import.html:102
-#, fuzzy
 msgid "Connect to GitHub"
-msgstr "Importa un projecte de GitHub"
+msgstr "Connecta't al GitHub"
 
 #: templates/projects/project_import.html:113
 msgid "Connect to Bitbucket"
-msgstr ""
+msgstr "Connecta't al Bitbucket"
 
 #: templates/projects/project_import.html:147
 msgid "This repository requires admin access to import"
@@ -3339,11 +3243,9 @@ msgid "This repository has already been imported"
 msgstr "Aquesta versió ja és activa"
 
 #: templates/projects/project_import.html:166
-#, fuzzy
-#| msgid "View Docs"
 msgctxt "verb, action to see in detail"
 msgid "\"View\""
-msgstr "Visualització de documents"
+msgstr "Mostra la documentació"
 
 #: templates/projects/project_import.html:174
 msgid "Add"
@@ -3360,28 +3262,26 @@ msgid "Import Manually"
 msgstr ""
 
 #: templates/projects/project_import.html:232
-#, fuzzy
-#| msgid "Organization"
 msgid "Filter by Organization"
-msgstr "Organització"
+msgstr "Filtra per organització"
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
 #, python-format
 msgid "Projects by %(username)s tagged with %(tag)s"
-msgstr "Projectes de %(username)s etqiuetats amb %(tag)s"
+msgstr "Projectes d'en/na %(username)s amb etiquetes %(tag)s"
 
 #: templates/projects/project_list.html:11
 #: templates/projects/project_list.html:29
 #, python-format
 msgid "Projects by %(username)s"
-msgstr "Projectes de %(username)s"
+msgstr "Projectes d'en/na %(username)s"
 
 #: templates/projects/project_list.html:15
 #: templates/projects/project_list.html:33
 #, python-format
 msgid "Projects tagged with %(tag)s"
-msgstr "Projectes etiquetats amb %(tag)s"
+msgstr "Projectes amb etiquetes %(tag)s"
 
 #: templates/projects/project_notifications.html:5
 msgid "Edit Notifications"
@@ -3399,7 +3299,7 @@ msgstr "Notificacions existents"
 
 #: templates/projects/project_notifications.html:44
 msgid "Remove Notifications"
-msgstr "Elimina les notificacions"
+msgstr "Suprimeix les notificacions"
 
 #: templates/projects/project_notifications.html:62
 msgid "New Email Notifications"
@@ -3471,7 +3371,7 @@ msgstr "Mantenidors existents"
 
 #: templates/projects/project_users.html:28
 msgid "Remove Maintainer"
-msgstr "Elimina mantenidor"
+msgstr "Suprimeix el mantenidor"
 
 #: templates/projects/project_users.html:44
 msgid "Add Maintainer"
@@ -3487,23 +3387,21 @@ msgid "%(version_name)s"
 msgstr "%(version_name)s"
 
 #: templates/projects/project_version_list.html:24
-#, fuzzy
 msgid "Active Versions"
-msgstr "Trieu versions actives"
+msgstr "Versions actives"
 
 #: templates/projects/project_version_list.html:45
 #: templates/projects/project_version_list.html:98
 msgid "Wipe"
-msgstr ""
+msgstr "Neteja"
 
 #: templates/projects/project_version_list.html:72
-#, fuzzy
 msgid "Inactive Versions"
-msgstr "Trieu versions actives"
+msgstr "Versions inactives"
 
 #: templates/projects/project_version_list.html:96
 msgid "Clean"
-msgstr ""
+msgstr "Neteja"
 
 #: templates/projects/project_versions.html:4
 msgid "Edit Project Versions"
@@ -3515,11 +3413,11 @@ msgstr "Escolliu la versió que redireccionarà."
 
 #: templates/projects/project_versions.html:27
 msgid "Choose Active Versions"
-msgstr "Trieu versions actives"
+msgstr "Escolliu les versions actives"
 
 #: templates/projects/project_versions.html:29
 msgid "Active versions below will show up on the site."
-msgstr "Les versions actives de sota es mostraran al lloc."
+msgstr "Les versions actives de més avall apareixeran en línia."
 
 #: templates/projects/projectrelationship_form.html:22
 #, fuzzy
@@ -3535,9 +3433,8 @@ msgstr "Projectes relacionats"
 
 #: templates/projects/projectrelationship_form.html:38
 #: templates/projects/projectrelationship_list.html:41
-#, fuzzy
 msgid "Add subproject"
-msgstr "Edita el Projecte"
+msgstr "Afegeix un subprojecte"
 
 #: templates/projects/projectrelationship_list.html:16
 msgid ""
@@ -3559,9 +3456,8 @@ msgid "View subprojects of %(project)s"
 msgstr "Cerca %(project)s"
 
 #: templates/projects/projectrelationship_list.html:60
-#, fuzzy
 msgid "Project page"
-msgstr "Pàgina inicial del projecte"
+msgstr "Pàgina d'inici del projecte"
 
 #: templates/projects/projectrelationship_list.html:70
 msgid "No subprojects are currently configured"
@@ -3621,7 +3517,7 @@ msgstr "Cerca: %(query)s"
 #: templates/search/elastic_project_search.html:70
 #: templates/search/elastic_search.html:123 templates/search/search.html:17
 msgid "Go crazy."
-msgstr "Tornar-se boig."
+msgstr "Cerca"
 
 #: templates/search/base_search.html:9 templates/search/faceted_results.html:49
 msgid "Project:"
@@ -3678,7 +3574,7 @@ msgstr "Filtrat per"
 
 #: templates/search/faceted_results.html:18
 msgid "remove"
-msgstr "elimina"
+msgstr "suprimeix"
 
 #: templates/search/faceted_results.html:21
 msgid "Filter by Project"
