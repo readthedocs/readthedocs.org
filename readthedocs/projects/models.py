@@ -198,7 +198,7 @@ class Project(models.Model):
         max_length=20,
         choices=constants.PYTHON_CHOICES,
         default='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'))
 
     use_system_packages = models.BooleanField(
@@ -212,13 +212,13 @@ class Project(models.Model):
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Level of privacy that you want on the repository. '
+        help_text=_('Level of privacy that you want on the repository. '
                     'Protected means public but not in listings.'))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default=getattr(
             settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Default level of privacy you want on built '
+        help_text=_('Default level of privacy you want on built '
                     'versions of documentation.'))
 
     # Subprojects
