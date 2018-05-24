@@ -79,10 +79,10 @@ class SubdomainMiddleware(object):
                 'localhost' not in host and
                 'testserver' not in host):
             request.cname = True
-            domains = Domain.objects.filter(domain=host)
-            if domains.count():
+            domains = Domain.objects.filter(domain=full_host)
+            if domains.exists():
                 for domain in domains:
-                    if domain.domain == host:
+                    if domain.domain == full_host:
                         request.slug = domain.project.slug
                         request.urlconf = SUBDOMAIN_URLCONF
                         request.domain_object = True
