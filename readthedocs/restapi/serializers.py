@@ -60,6 +60,8 @@ class ProjectAdminSerializer(ProjectSerializer):
             'requirements_file',
             'python_interpreter',
             'features',
+            'has_valid_clone',
+            'has_valid_webhook',
         )
 
 
