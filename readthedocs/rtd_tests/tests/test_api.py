@@ -277,7 +277,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['commands'][0]['run_time'], 5)
         self.assertEqual(build['commands'][0]['description'], 'foo')
 
-    def test_get_raw_log(self):
+    def test_get_raw_log_success(self):
         build = get(Build, project_id=1, version_id=1, builder='foo')
         get(
             BuildCommandResult,
@@ -298,12 +298,101 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
-        self.assertIn('RTD build information', resp.content.decode())
-        self.assertIn('Build: {}'.format(build.id), resp.content.decode())
-        self.assertIn('Project: {}'.format(build.project.id), resp.content.decode())
-        self.assertIn('Version: {}'.format(build.commit), resp.content.decode())
-        self.assertIn('State: {}'.format(build.state), resp.content.decode())
-        self.assertIn('Success: {}'.format(build.success), resp.content.decode())
+        self.assertIn('Read the Docs build information', resp.content.decode())
+        self.assertIn('Build id: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.slug), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.version.slug), resp.content.decode())
+        self.assertIn('Commit: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('Date: ', resp.content.decode())
+        self.assertIn('State: finished', resp.content.decode())
+        self.assertIn('Success: True', resp.content.decode())
+        self.assertIn('[rtd-command-info]', resp.content.decode())
+        self.assertIn(
+            'python setup.py install\nInstalling dependencies...',
+            resp.content.decode()
+        )
+        self.assertIn(
+            'git checkout master\nSwitched to branch "master"',
+            resp.content.decode()
+        )
+
+    def test_get_raw_log_building(self):
+        build = get(
+            Build, project_id=1, version_id=1,
+            builder='foo', success=False,
+            exit_code=1, state='building',
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='python setup.py install',
+            output='Installing dependencies...',
+            exit_code=1,
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='git checkout master',
+            output='Switched to branch "master"'
+        )
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertIn('Read the Docs build information', resp.content.decode())
+        self.assertIn('Build id: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.slug), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.version.slug), resp.content.decode())
+        self.assertIn('Commit: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('Date: ', resp.content.decode())
+        self.assertIn('State: building', resp.content.decode())
+        self.assertIn('Success: Unknow', resp.content.decode())
+        self.assertIn('[rtd-command-info]', resp.content.decode())
+        self.assertIn(
+            'python setup.py install\nInstalling dependencies...',
+            resp.content.decode()
+        )
+        self.assertIn(
+            'git checkout master\nSwitched to branch "master"',
+            resp.content.decode()
+        )
+
+    def test_get_raw_log_failure(self):
+        build = get(
+            Build, project_id=1, version_id=1,
+            builder='foo', success=False, exit_code=1
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='python setup.py install',
+            output='Installing dependencies...',
+            exit_code=1,
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='git checkout master',
+            output='Switched to branch "master"'
+        )
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertIn('Read the Docs build information', resp.content.decode())
+        self.assertIn('Build id: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.slug), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.version.slug), resp.content.decode())
+        self.assertIn('Commit: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('Date: ', resp.content.decode())
+        self.assertIn('State: finished', resp.content.decode())
+        self.assertIn('Success: False', resp.content.decode())
         self.assertIn('[rtd-command-info]', resp.content.decode())
         self.assertIn(
             'python setup.py install\nInstalling dependencies...',
