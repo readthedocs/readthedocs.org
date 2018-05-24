@@ -92,12 +92,11 @@ def build_branches(project, branch_list):
 def get_project_from_url(url):
     if not url:
         return Project.objects.none()
-    else:
-        projects = (
-            Project.objects.filter(repo__iendswith=url) |
-            Project.objects.filter(repo__iendswith=url + '.git')
-        )
-        return projects
+    projects = (
+        Project.objects.filter(repo__iendswith=url) |
+        Project.objects.filter(repo__iendswith=url + '.git')
+    )
+    return projects
 
 
 def log_info(project, msg):
