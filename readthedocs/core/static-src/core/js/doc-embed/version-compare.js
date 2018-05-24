@@ -6,8 +6,13 @@ function init(data) {
 
     /// Out of date message
 
-    if (data.is_highest) {
+    if (data.is_stable) {
         return;
+    }
+
+    var message = 'You are not using the most up to date version of the library.';
+    if (data.is_highest) {
+      message = 'You are not using the stable version of the library.';
     }
 
     var currentURL = window.location.pathname.replace(rtd['version'], data.slug);
@@ -15,8 +20,8 @@ function init(data) {
         '<div class="admonition warning"> ' +
         '<p class="first admonition-title">Note</p> ' +
         '<p class="last"> ' +
-        'You are not using the most up to date version of the library. ' +
-        '<a href="#"></a> is the newest version.' +
+         message + ' ' +
+        '<a href="#"></a> is the stable version.' +
         '</p>' +
         '</div>');
 
