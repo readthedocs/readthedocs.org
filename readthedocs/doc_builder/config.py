@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""An API to load config from a 'readthedocs.yml', 'readthedocs.yaml', or '.readthedocs.yml' file."""
+"""An API to load config from a readthedocs.yml file."""
 
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
@@ -134,7 +134,7 @@ class ConfigWrapper(object):
 
 def load_yaml_config(version):
     """
-    Load a configuration from `readthedocs.yml`, `readthedocs.yaml`, or `.readthedocs.yml` file.
+    Load a configuration from `readthedocs.yml` file.
 
     This uses the configuration logic from `readthedocs-build`, which will keep
     parsing consistent between projects.
