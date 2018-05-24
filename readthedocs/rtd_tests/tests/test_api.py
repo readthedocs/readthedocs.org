@@ -735,6 +735,8 @@ class APIVersionTests(TestCase):
                 'enable_epub_build': True,
                 'enable_pdf_build': True,
                 'features': ['allow_deprecated_webhooks'],
+                'has_valid_clone': False,
+                'has_valid_webhook': False,
                 'id': 6,
                 'install_project': False,
                 'language': 'en',
