@@ -385,7 +385,7 @@ We will retain and use your information as necessary to comply with
 our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.
 
-Our web server logs for both readthedocs.org and documentation sites
+Our web server logs for readthedocs.org, readthedocs.com, and Documentation Sites
 are deleted after 10 days barring legal obligations.
 
 
