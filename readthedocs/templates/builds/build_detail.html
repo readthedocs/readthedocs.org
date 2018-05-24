@@ -62,7 +62,6 @@ $(document).ready(function () {
         </li>
       </div>
 
-      {% if request.user.is_staff %}
       <div data-bind="visible: finished()">
         <li>
           <a href="{% url "build-detail" build.pk "txt" %}">
@@ -70,7 +69,6 @@ $(document).ready(function () {
           </a>
         </li>
       </div>
-      {% endif %}
     </ul>
 
     <div class="build-id">
