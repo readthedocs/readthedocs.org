@@ -7,7 +7,22 @@ The file, ``readthedocs.yml`` (or ``.readthedocs.yml``), must be in the root dir
 .. warning:: This feature is in a beta state.
              Please file an `issue`_ if you find anything wrong.
 
-Supported Settings
+
+Here is an example of how this file looks like:
+
+.. code:: yaml
+
+   # .readthedocs.yml
+
+   build:
+     image: latest
+   
+   python:
+     version: 3.6
+     setup_py_install: true
+
+
+Supported settings
 ------------------
 
 .. _yaml__formats:
@@ -15,11 +30,12 @@ Supported Settings
 formats
 ~~~~~~~
 
-* Default: ``htmlzip``, ``pdf``, ``epub``
-* Options: ``htmlzip``, ``pdf``, ``epub``, ``none``
+* Default: [``htmlzip``, ``pdf``, ``epub``]
+* Options: ``htmlzip``, ``pdf``, ``epub``
+* Type: List
 
 The formats of your documentation you want to be built.
-Choose ``none`` to build none of the formats.
+Set as an empty list ``[]`` to build none of the formats.
 
 .. note:: We will always build an HTML & JSON version of your documentation.
 		  These are used for web serving & search indexing, respectively.
@@ -27,8 +43,7 @@ Choose ``none`` to build none of the formats.
 .. code-block:: yaml
 
     # Don't build any extra formats
-    formats:
-        - none
+    formats: []
 
 .. code-block:: yaml
 
@@ -42,15 +57,14 @@ Choose ``none`` to build none of the formats.
 requirements_file
 ~~~~~~~~~~~~~~~~~
 
-* Default: `None`
+* Default: ``null``
 * Type: Path (specified from the root of the project)
 
-The path to your Pip requirements file.
+The path to your pip requirements file.
 
 .. code-block:: yaml
 
-	requirements_file: requirements/docs.txt
-
+   requirements_file: requirements/docs.txt
 
 .. _yaml__conda:
 
@@ -62,19 +76,17 @@ The ``conda`` block allows for configuring our support for Conda.
 conda.file
 ``````````
 
-* Default: `None`
+* Default: ``null``
 * Type: Path (specified from the root of the project)
 
 The file option specified the Conda `environment file`_ to use.
 
-
 .. code-block:: yaml
 
-	conda:
-	    file: environment.yml
+   conda:
+     file: environment.yml
 
 .. note:: Conda is only supported via the YAML file.
-
 
 .. _yaml__build:
 
@@ -87,7 +99,6 @@ The ``build`` block configures specific aspects of the documentation build.
 
 build.image
 ```````````
-
 
 * Default: :djangosetting:`DOCKER_IMAGE`
 * Options: ``1.0``, ``2.0``, ``latest``
@@ -127,9 +138,9 @@ python.version
 * Default: ``2.7``
 * Options: ``2.7``, ``2``, ``3.5``, ``3``
 
-This is the version of Python to use when building your documentation. If you
-specify only the major version of Python, the highest supported minor version
-will be selected.
+This is the version of Python to use when building your documentation.
+If you specify only the major version of Python,
+the highest supported minor version will be selected.
 
 .. warning:: 
 
@@ -148,7 +159,7 @@ will be selected.
 python.setup_py_install
 ```````````````````````
 
-* Default: `False`
+* Default: ``false``
 * Type: Boolean
 
 When true, install your project into the Virtualenv with
@@ -164,10 +175,10 @@ When true, install your project into the Virtualenv with
 python.pip_install
 ``````````````````
 
-* Default: `False`
+* Default: ``false``
 * Type: Boolean
 
-When true, install your project into the Virtualenv with pip when building
+When ``true``, install your project into the virtualenv with pip when building
 documentation.
 
 .. code-block:: yaml
@@ -215,7 +226,7 @@ python.extra_requirements
 
 List of `extra requirements`_ sections to install, additionally to the
 `package default dependencies`_. Only works if ``python.pip_install`` option
-above is set to ``True``.
+above is set to ``true``.
 
 Let's say your Python package has a ``setup.py`` which looks like this:
 

@@ -37,6 +37,8 @@ class BaseBuilder(object):
 
     _force = False
 
+    ignore_patterns = []
+
     # old_artifact_path = ..
 
     def __init__(self, build_env, python_env, force=False):
@@ -63,7 +65,12 @@ class BaseBuilder(object):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
             log.info('Copying %s on the local filesystem', self.type)
-            shutil.copytree(self.old_artifact_path, self.target)
+            log.info('Ignoring patterns %s', self.ignore_patterns)
+            shutil.copytree(
+                self.old_artifact_path,
+                self.target,
+                ignore=shutil.ignore_patterns(*self.ignore_patterns)
+            )
         else:
             log.warning('Not moving docs, because the build dir is unknown.')
 

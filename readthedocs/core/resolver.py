@@ -144,9 +144,17 @@ class ResolverBase(object):
                 version_slug = project.get_default_version()
             private = self._get_private(project, version_slug)
 
+        domain = self.resolve_domain(project, private=private)
+
+        # Use HTTPS if settings specify
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
+        if use_https and public_domain and public_domain in domain:
+            protocol = 'https'
+
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
-            domain=self.resolve_domain(project, private=private),
+            domain=domain,
             path=self.resolve_path(project, filename=filename, private=private,
                                    **kwargs),
         )
