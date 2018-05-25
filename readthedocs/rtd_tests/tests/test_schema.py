@@ -6,7 +6,7 @@ from django.test import TestCase
 from readthedocs.rtd_tests.utils import apply_fs
 
 
-class TestSchemaV2(TestCase):
+class TestYAMLSchemaV2(TestCase):
 
     def setUp(self):
         base_path = path.join(getcwd(), 'rtd_tests/fixtures/spec/v2')
@@ -19,10 +19,10 @@ class TestSchemaV2(TestCase):
         self.tmpdir = tmpdir
 
     def create_yaml(self, content):
-        file = {
+        fs = {
             'rtd.yml': content,
         }
-        apply_fs(self.tmpdir, file)
+        apply_fs(self.tmpdir, fs)
         return path.join(self.tmpdir.strpath, 'rtd.yml')
 
     def assertValidConfig(self, content):
@@ -44,13 +44,13 @@ class TestSchemaV2(TestCase):
     def test_invalid_version(self):
         self.assertInvalidConfig(
             'version: "latest"',
-            ['version: \'latest\' not in']
+            ["version: 'latest' not in"]
         )
 
     def test_invalid_version_1(self):
         self.assertInvalidConfig(
             'version: "1"',
-            ['version: \'1\' not in']
+            ["version: '1' not in"]
         )
 
     def test_valid_formats(self):
@@ -89,7 +89,7 @@ formats:
         '''
         self.assertInvalidConfig(
             content,
-            ['formats', '\'invalidformat\' not in']
+            ['formats', "'invalidformat' not in"]
         )
 
     def tets_empty_formats(self):
@@ -113,7 +113,7 @@ requirements_file: 23
         '''
         self.assertInvalidConfig(
             content,
-            ['requirements_file: \'23\' is not a str']
+            ["requirements_file: '23' is not a str"]
         )
 
     def test_valid_conda(self):
@@ -163,7 +163,7 @@ build:
         '''
         self.assertInvalidConfig(
             content,
-            ['build.image: \'4.0\' not in']
+            ["build.image: '4.0' not in"]
         )
 
     def test_python_version(self):
@@ -184,7 +184,7 @@ python:
         '''
         self.assertInvalidConfig(
             content,
-            ['version: \'4\' not in']
+            ["version: '4' not in"]
         )
 
     def test_no_python_version(self):
@@ -213,7 +213,7 @@ python:
         '''
         self.assertInvalidConfig(
             content,
-            ['python.install: \'guido\' not in']
+            ["python.install: 'guido' not in"]
         )
 
     def test_python_extra_requirements(self):
@@ -236,7 +236,7 @@ python:
         '''
         self.assertInvalidConfig(
             content,
-            ['\'1\' is not a str']
+            ["'1' is not a str"]
         )
 
     def test_python_system_packages(self):
