@@ -52,8 +52,7 @@ httplib2==0.11.3
 GitPython==2.1.9
 
 # Search
-elasticsearch==1.5.0
-pyelasticsearch==0.7.1
+elasticsearch==5.5.2
 pyquery==1.4.0
 
 # Utils

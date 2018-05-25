@@ -55,16 +55,19 @@ def elastic_search(request):
     if results:
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
-            for key, val in list(hit['fields'].items()):
+            for key, val in list(hit['_source'].items()):
                 if isinstance(val, list):
-                    results['hits']['hits'][num]['fields'][key] = val[0]
+                    results['hits']['hits'][num]['_source'][key] = val[0]
+            # we cannot render attributes starting with an underscore
+            hit['fields'] = hit['_source']
+            del hit['_source']
 
-        if 'facets' in results:
+        if 'aggregations' in results:
             for facet_type in ['project', 'version', 'taxonomy', 'language']:
-                if facet_type in results['facets']:
+                if facet_type in results['aggregations']:
                     facets[facet_type] = collections.OrderedDict()
-                    for term in results['facets'][facet_type]['terms']:
-                        facets[facet_type][term['term']] = term['count']
+                    for term in results['aggregations'][facet_type]['buckets']:
+                        facets[facet_type][term['key']] = term['doc_count']
 
     if settings.DEBUG:
         print(pprint(results))
