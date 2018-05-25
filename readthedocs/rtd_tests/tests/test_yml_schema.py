@@ -6,7 +6,7 @@ from django.test import TestCase
 from readthedocs.rtd_tests.utils import apply_fs
 
 
-class TestYAMLSchemaV2(TestCase):
+class TestYMLSchemaV2(TestCase):
 
     def setUp(self):
         base_path = path.join(getcwd(), 'rtd_tests/fixtures/spec/v2')
