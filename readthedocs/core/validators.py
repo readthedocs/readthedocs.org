@@ -46,6 +46,7 @@ class DomainNameValidator(RegexValidator):
                 raise exc
             super(DomainNameValidator, self).__call__(idnavalue)
 
+
 validate_domain_name = DomainNameValidator()
 
 
