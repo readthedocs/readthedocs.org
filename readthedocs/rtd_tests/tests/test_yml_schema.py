@@ -44,16 +44,16 @@ class TestYMLSchemaV2(TestCase):
     def test_invalid_version(self):
         self.assertInvalidConfig(
             'version: "latest"',
-            ["version: 'latest' not in"]
+            ['version:', "'latest' not in"]
         )
 
     def test_invalid_version_1(self):
         self.assertInvalidConfig(
             'version: "1"',
-            ["version: '1' not in"]
+            ['version', "'1' not in"]
         )
 
-    def test_valid_formats(self):
+    def test_formats(self):
         content = '''
 version: "2"
 formats:
@@ -61,7 +61,7 @@ formats:
         '''
         self.assertValidConfig(content)
 
-    def test_all_valid_formats(self):
+    def test_formats_all(self):
         content = '''
 version: "2"
 formats:
@@ -71,14 +71,14 @@ formats:
         '''
         self.assertValidConfig(content)
 
-    def test_valid_formats_all(self):
+    def test_formats_key_all(self):
         content = '''
 version: "2"
 formats: all
         '''
         self.assertValidConfig(content)
 
-    def test_invalid_formats(self):
+    def test_formats_invalid(self):
         content = '''
 version: "2"
 formats:
@@ -90,14 +90,14 @@ formats:
             ['formats', "'invalidformat' not in"]
         )
 
-    def tets_empty_formats(self):
+    def tets_formats_empty(self):
         content = '''
 version: "2"
 formats: []
         '''
         self.assertValidConfig(content)
 
-    def test_valid_conda(self):
+    def test_conda(self):
         content = '''
 version: "2"
 conda:
@@ -105,7 +105,7 @@ conda:
         '''
         self.assertValidConfig(content)
 
-    def test_invalid_conda(self):
+    def test_conda_invalid(self):
         content = '''
 version: "2"
 conda:
@@ -116,7 +116,7 @@ conda:
             ['conda.environment: Required']
         )
 
-    def test_valid_build(self):
+    def test_build(self):
         content = '''
 version: "2"
 build:
@@ -125,15 +125,15 @@ build:
         for image in ['1.0', '2.0', 'latest']:
             self.assertValidConfig(content.format(image=image))
 
-    def test_missing_key_build(self):
+    def test_build_missing_image_key(self):
         content = '''
 version: "2"
 build:
-  imagine: "2.0"
+  imagine: "2.0"  # note the typo
         '''
         self.assertValidConfig(content)
 
-    def test_invalid_build(self):
+    def test_build_invalid(self):
         content = '''
 version: "2"
 build:
@@ -154,7 +154,7 @@ python:
         for version in versions:
             self.assertValidConfig(content.format(version=version))
 
-    def test_invalid_python_version(self):
+    def test_python_version_invalid(self):
         content = '''
 version: "2"
 python:
@@ -173,7 +173,7 @@ python:
         '''
         self.assertValidConfig(content)
 
-    def test_valid_requirements_file(self):
+    def test_valid_requirements(self):
         content = '''
 version: "2"
 python:
@@ -189,9 +189,8 @@ python:
         '''
         self.assertInvalidConfig(
             content,
-            ["requirements: '23' is not a str"]
+            ['requirements:', "'23' is not a str"]
         )
-
 
     def test_python_install(self):
         content = '''
@@ -203,7 +202,7 @@ python:
         for install in ['pip', 'setup.py']:
             self.assertValidConfig(content.format(install=install))
 
-    def test_invalid_python_install(self):
+    def test_python_install_invalid(self):
         content = '''
 version: "2"
 python:
@@ -224,7 +223,7 @@ python:
         '''
         self.assertValidConfig(content)
 
-    def test_invalid_python_extra_requirements(self):
+    def test_python_extra_requirements_invalid(self):
         content = '''
 version: "2"
 python:
@@ -246,7 +245,7 @@ python:
         for option in ['true', 'false']:
             self.assertValidConfig(content.format(option=option))
 
-    def test_invalid_python_system_packages(self):
+    def test_python_system_packages_invalid(self):
         content = '''
 version: "2"
 python:
@@ -266,7 +265,7 @@ sphinx:
         '''
         self.assertValidConfig(content)
 
-    def test_invalid_sphinx(self):
+    def test_sphinx_invalid(self):
         content = '''
 version: "2"
 sphinx:
