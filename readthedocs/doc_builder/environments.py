@@ -672,7 +672,7 @@ class DockerBuildEnvironment(BuildEnvironment):
 
         try:
             self.create_container()
-        except:  # pylint: disable=broad-except
+        except:  # noqa
             self.__exit__(*sys.exc_info())
             raise
         return self
