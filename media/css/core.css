@@ -654,8 +654,9 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer a:hover, #footer a:active { color: white; text-decoration: underline; }
 
 /* Social icons */
-#footer .social { font-family: FontAwesome; margin-left: 25px; }
-#footer .social li { float: left; }
+#footer .social { font-family: FontAwesome; text-align: center; margin-top: 30px; }
+#footer .social:after { clear: both; content: ''; display: table; }
+#footer .social li { width: 50px; display: inline-block; }
 #footer .social a { text-decoration: none; opacity: 0.5; }
 #footer .social a:hover, #footer .social a:visited { opacity: 1; }
 #footer .social .icon { display: inline-block; width: 36px; height: 36px; font-size: 24px;}
@@ -666,6 +667,13 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer .footer-bottom { margin-top: 30px; }
 #footer select { float: left; width: 175px; padding: 2px; height: 24px; font-size: 12px; margin-right: 10px; }
 #footer input[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
+
+/* Other footer forms */
+#footer #email-signup { margin-bottom: 20px; }
+#footer #email-signup:after { clear: both; content:''; display: table; }
+#footer #email-signup p { padding-right: 10px; font-size: 14px; color: #BCC1C3; }
+#footer label { color: #BCC1C3; font-weight: normal; }
+#footer input[type="text"], #footer input[type="email"] { padding: 4px; font-size: 12px; line-height: 16px; margin-bottom: 5px }
 
 
 /* utils */
