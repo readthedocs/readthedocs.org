@@ -4,11 +4,8 @@
 version: enum('2')
 
 # Formats of the documentation to be built
-# Default: ['htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia']
-formats: any(list(enum('htmlzip', 'pdf', 'epub', 'singlehtmllocalmedia')), enum('all'), required=False)
-
-# The path to the requirements file from the root of the project
-requirements_file: str(required=False)
+# Default: []
+formats: any(list(enum('htmlzip', 'pdf', 'epub')), enum('all'), required=False)
 
 # Configuration for Conda support
 conda: include('conda', required=False)
@@ -16,33 +13,41 @@ conda: include('conda', required=False)
 # Configuration for the documentation build process
 build: include('build', required=False)
 
-# Configuration of the Python executable to be used
+# Configuration of the Python environment to be used
 python: include('python', required=False)
 
-# Configuration for sphinx
+# Configuration for sphinx documentation
 sphinx: include('sphinx', required=False)
+
+# Configuration for mkdocs documentation
+mkdocs: include('mkdocs', required=False)
 
 # Submodules configuration
 submodules: include('submodules', required=False)
 
 # Redirects for the current version to be built
-redirects: include('redirects', required=False)
+# Key/value list, represent redirects of type `type`
+# from url -> to url
+redirects: map(enum('page'), map(str(), str()), required=False)
 
 ---
 
 conda:
   # The path to the Conda environment file from the root of the project
-  file: str()
+  environment: str()
 
 build:
   # The build docker image to be used
   # Default: '2.0'
-  image: enum('1.0', '2.0', 'latest')
+  image: enum('1.0', '2.0', 'latest', required=False)
 
 python:
   # The Python version
   # Default: '2.7'
-  version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
+  version: enum('2', '2.7', '3', '3.5', '3.6', required=False)
+
+  # The path to the requirements file from the root of the project
+  requirements: str(required=False)
 
   # Install the project using python setup.py install or pip
   install: enum('pip', 'setup.py', required=False)
@@ -58,7 +63,10 @@ python:
 sphinx:  
   # The path to the conf.py file
   # Default: rtd will try to find it
-  file: str(required=False)
+  configuration: str(required=False)
+
+mkdocs:
+  # Something
 
 submodules:
   # List of submodules to be included
@@ -72,8 +80,3 @@ submodules:
   # Do a recursive clone?
   # Default: false
   recursive: bool(required=False)
-
-redirects:
-  # Key/value list, represent redirects of type page
-  # from url -> to url
-  page: map(str(), str())

@@ -58,7 +58,6 @@ class TestYAMLSchemaV2(TestCase):
 version: "2"
 formats:
   - pdf
-  - singlehtmllocalmedia
         '''
         self.assertValidConfig(content)
 
@@ -69,7 +68,6 @@ formats:
   - htmlzip
   - pdf
   - epub
-  - singlehtmllocalmedia
         '''
         self.assertValidConfig(content)
 
@@ -99,28 +97,11 @@ formats: []
         '''
         self.assertValidConfig(content)
 
-    def test_valid_requirements_file(self):
-        content = '''
-version: "2"
-requirements_file: docs/requirements.txt
-        '''
-        self.assertValidConfig(content)
-
-    def test_invalid_requirements_file(self):
-        content = '''
-version: "2"
-requirements_file: 23
-        '''
-        self.assertInvalidConfig(
-            content,
-            ["requirements_file: '23' is not a str"]
-        )
-
     def test_valid_conda(self):
         content = '''
 version: "2"
 conda:
-  file: environment.yml
+  environment: environment.yml
         '''
         self.assertValidConfig(content)
 
@@ -132,7 +113,7 @@ conda:
         '''
         self.assertInvalidConfig(
             content,
-            ['conda.file: Required']
+            ['conda.environment: Required']
         )
 
     def test_valid_build(self):
@@ -150,20 +131,17 @@ version: "2"
 build:
   imagine: "2.0"
         '''
-        self.assertInvalidConfig(
-            content,
-            ['build.image: Required']
-        )
+        self.assertValidConfig(content)
 
     def test_invalid_build(self):
         content = '''
 version: "2"
 build:
-  image: "4.0"
+  image: "9.0"
         '''
         self.assertInvalidConfig(
             content,
-            ["build.image: '4.0' not in"]
+            ["build.image: '9.0' not in"]
         )
 
     def test_python_version(self):
@@ -172,7 +150,7 @@ version: "2"
 python:
   version: "{version}"
         '''
-        versions = ['2', '2.7', '3', '3.3', '3.4', '3.5', '3.6']
+        versions = ['2', '2.7', '3', '3.5', '3.6']
         for version in versions:
             self.assertValidConfig(content.format(version=version))
 
@@ -194,6 +172,26 @@ python:
   guido: true
         '''
         self.assertValidConfig(content)
+
+    def test_valid_requirements_file(self):
+        content = '''
+version: "2"
+python:
+  requirements: docs/requirements.txt
+        '''
+        self.assertValidConfig(content)
+
+    def test_invalid_requirements_file(self):
+        content = '''
+version: "2"
+python:
+  requirements: 23
+        '''
+        self.assertInvalidConfig(
+            content,
+            ["requirements: '23' is not a str"]
+        )
+
 
     def test_python_install(self):
         content = '''
@@ -252,9 +250,13 @@ python:
         content = '''
 version: "2"
 python:
-  system_packages: not true
+  system_packages: {value}
         '''
-        self.assertInvalidConfig(content, ['is not a bool'])
+        for value in ['not true', "''", '[]']:
+            self.assertInvalidConfig(
+                content.format(value=value),
+                ['is not a bool']
+            )
 
     def test_sphinx(self):
         content = '''
@@ -268,7 +270,7 @@ sphinx:
         content = '''
 version: "2"
 sphinx:
-  file: 2
+  configuration: 2
         '''
         self.assertInvalidConfig(
             content,
