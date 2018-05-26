@@ -37,6 +37,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -98,6 +99,7 @@ def map_project_slug(view_func):
     return inner_view
 
 
+@csrf_exempt
 @map_project_slug
 @map_subproject_slug
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
@@ -105,6 +107,7 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
     return HttpResponseRedirect(resolve(subproject or project))
 
 
+@csrf_exempt
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
@@ -144,6 +147,7 @@ def _serve_file(request, filename, basepath):
         return response
 
 
+@csrf_exempt
 @map_project_slug
 @map_subproject_slug
 def serve_docs(
