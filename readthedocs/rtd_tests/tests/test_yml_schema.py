@@ -1,283 +1,327 @@
-from os import getcwd, path
+from os import path
 
 import pytest
-import yamale
-from django.test import TestCase
+from readthedocs.rtdyml import BuildConfig
 from readthedocs.rtd_tests.utils import apply_fs
 
 
-class TestYMLSchemaV2(TestCase):
+def create_yaml(tmpdir, content):
+    fs = {
+        'environment.yml': '',
+        'rtd.yml': content,
+        'docs': {
+            'conf.py': '',
+            'requirements.txt': '',
+        },
+    }
+    apply_fs(tmpdir, fs)
+    return path.join(tmpdir.strpath, 'rtd.yml')
 
-    def setUp(self):
-        base_path = path.join(getcwd(), 'rtd_tests/fixtures/spec/v2')
-        self.schema = yamale.make_schema(
-            path.join(base_path, 'schema.yml')
-        )
 
-    @pytest.fixture(autouse=True)
-    def tmpdir(self, tmpdir):
-        self.tmpdir = tmpdir
+def assertValidConfig(tmpdir, content):
+    file = create_yaml(tmpdir, content)
+    build = BuildConfig(file)
+    build.validate()
 
-    def create_yaml(self, content):
-        fs = {
-            'rtd.yml': content,
-        }
-        apply_fs(self.tmpdir, fs)
-        return path.join(self.tmpdir.strpath, 'rtd.yml')
 
-    def assertValidConfig(self, content):
-        file = self.create_yaml(content)
-        data = yamale.make_data(file)
-        yamale.validate(self.schema, data)
+def assertInvalidConfig(tmpdir, content, msgs=()):
+    file = create_yaml(tmpdir, content)
+    with pytest.raises(ValueError) as excinfo:
+        BuildConfig(file).validate()
+    for msg in msgs:
+        msg in str(excinfo.value)
 
-    def assertInvalidConfig(self, content, msgs=()):
-        file = self.create_yaml(content)
-        data = yamale.make_data(file)
-        with pytest.raises(ValueError) as excinfo:
-            yamale.validate(self.schema, data)
-        for msg in msgs:
-            self.assertIn(msg, str(excinfo.value))
 
-    def test_minimal_config(self):
-        self.assertValidConfig('version: "2"')
+def test_minimal_config(tmpdir):
+    assertValidConfig(tmpdir, 'version: "2"')
 
-    def test_invalid_version(self):
-        self.assertInvalidConfig(
-            'version: "latest"',
-            ['version:', "'latest' not in"]
-        )
 
-    def test_invalid_version_1(self):
-        self.assertInvalidConfig(
-            'version: "1"',
-            ['version', "'1' not in"]
-        )
+def test_invalid_version(tmpdir):
+    assertInvalidConfig(
+        tmpdir,
+        'version: "latest"',
+        ['version:', "'latest' not in"]
+    )
 
-    def test_formats(self):
-        content = '''
+
+def test_invalid_version_1(tmpdir):
+    assertInvalidConfig(
+        tmpdir,
+        'version: "1"',
+        ['version', "'1' not in"]
+    )
+
+
+def test_formats(tmpdir):
+    content = '''
 version: "2"
 formats:
   - pdf
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_formats_all(self):
-        content = '''
+
+def test_formats_all(tmpdir):
+    content = '''
 version: "2"
 formats:
   - htmlzip
   - pdf
   - epub
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_formats_key_all(self):
-        content = '''
+
+def test_formats_key_all(tmpdir):
+    content = '''
 version: "2"
 formats: all
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_formats_invalid(self):
-        content = '''
+
+def test_formats_invalid(tmpdir):
+    content = '''
 version: "2"
 formats:
   - invalidformat
   - singlehtmllocalmedia
-        '''
-        self.assertInvalidConfig(
-            content,
-            ['formats', "'invalidformat' not in"]
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ['formats', "'invalidformat' not in"]
+    )
 
-    def tets_formats_empty(self):
-        content = '''
+
+def test_formats_empty(tmpdir):
+    content = '''
 version: "2"
 formats: []
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_conda(self):
-        content = '''
+
+def test_conda(tmpdir):
+    content = '''
 version: "2"
 conda:
   environment: environment.yml
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_conda_invalid(self):
-        content = '''
+
+def test_conda_invalid(tmpdir):
+    content = '''
 version: "2"
 conda:
-   files: environment.yml
-        '''
-        self.assertInvalidConfig(
-            content,
-            ['conda.environment: Required']
-        )
+  environment: environment.yaml
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ['environment.yaml', 'is not a path']
+    )
 
-    def test_build(self):
-        content = '''
+
+def test_conda_missing_key(tmpdir):
+    content = '''
+version: "2"
+conda:
+  files: environment.yml
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ['conda.environment: Required']
+    )
+
+
+@pytest.mark.parametrize('value', ['1.0', '2.0', 'latest'])
+def test_build(tmpdir, value):
+    content = '''
 version: "2"
 build:
-  image: "{image}"
-        '''
-        for image in ['1.0', '2.0', 'latest']:
-            self.assertValidConfig(content.format(image=image))
+  image: "{value}"
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
 
-    def test_build_missing_image_key(self):
-        content = '''
+
+def test_build_missing_image_key(tmpdir):
+    content = '''
 version: "2"
 build:
   imagine: "2.0"  # note the typo
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_build_invalid(self):
-        content = '''
+
+def test_build_invalid(tmpdir):
+    content = '''
 version: "2"
 build:
   image: "9.0"
-        '''
-        self.assertInvalidConfig(
-            content,
-            ["build.image: '9.0' not in"]
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ["build.image: '9.0' not in"]
+    )
 
-    def test_python_version(self):
-        content = '''
+
+@pytest.mark.parametrize('value', ['2', '2.7', '3', '3.5', '3.6'])
+def test_python_version(tmpdir, value):
+    content = '''
 version: "2"
 python:
-  version: "{version}"
-        '''
-        versions = ['2', '2.7', '3', '3.5', '3.6']
-        for version in versions:
-            self.assertValidConfig(content.format(version=version))
+  version: "{value}"
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
 
-    def test_python_version_invalid(self):
-        content = '''
+
+def test_python_version_invalid(tmpdir):
+    content = '''
 version: "2"
 python:
   version: "4"
-        '''
-        self.assertInvalidConfig(
-            content,
-            ["version: '4' not in"]
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ["version: '4' not in"]
+    )
 
-    def test_no_python_version(self):
-        content = '''
+
+def test_no_python_version(tmpdir):
+    content = '''
 version: "2"
 python:
   guido: true
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_valid_requirements(self):
-        content = '''
+
+def test_valid_requirements(tmpdir):
+    content = '''
 version: "2"
 python:
   requirements: docs/requirements.txt
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_invalid_requirements_file(self):
-        content = '''
+
+def test_invalid_requirements_file(tmpdir):
+    content = '''
 version: "2"
 python:
   requirements: 23
-        '''
-        self.assertInvalidConfig(
-            content,
-            ['requirements:', "'23' is not a str"]
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ['requirements:', "'23' is not a path"]
+    )
 
-    def test_python_install(self):
-        content = '''
+
+@pytest.mark.parametrize('value', ['pip', 'setup.py'])
+def test_python_install(tmpdir, value):
+    content = '''
 version: "2"
 python:
   version: "3.6"
-  install: {install}
-        '''
-        for install in ['pip', 'setup.py']:
-            self.assertValidConfig(content.format(install=install))
+  install: {value}
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
 
-    def test_python_install_invalid(self):
-        content = '''
+
+def test_python_install_invalid(tmpdir):
+    content = '''
 version: "2"
 python:
   install: guido
-        '''
-        self.assertInvalidConfig(
-            content,
-            ["python.install: 'guido' not in"]
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ["python.install: 'guido' not in"]
+    )
 
-    def test_python_extra_requirements(self):
-        content = '''
+
+def test_python_extra_requirements(tmpdir):
+    content = '''
 version: "2"
 python:
   extra_requirements:
     - test
     - dev
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_python_extra_requirements_invalid(self):
-        content = '''
+
+def test_python_extra_requirements_invalid(tmpdir):
+    content = '''
 version: "2"
 python:
   extra_requirements:
     - 1
     - dev
-        '''
-        self.assertInvalidConfig(
-            content,
-            ["'1' is not a str"]
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ["'1' is not a str"]
+    )
 
-    def test_python_system_packages(self):
-        content = '''
-version: "2"
-python:
-  system_packages: {option}
-        '''
-        for option in ['true', 'false']:
-            self.assertValidConfig(content.format(option=option))
 
-    def test_python_system_packages_invalid(self):
-        content = '''
+@pytest.mark.parametrize('value', ['true', 'false'])
+def test_python_system_packages(tmpdir, value):
+    content = '''
 version: "2"
 python:
   system_packages: {value}
-        '''
-        for value in ['not true', "''", '[]']:
-            self.assertInvalidConfig(
-                content.format(value=value),
-                ['is not a bool']
-            )
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
 
-    def test_sphinx(self):
-        content = '''
+
+@pytest.mark.parametrize('value', ['not true', "''", '[]'])
+def test_python_system_packages_invalid(tmpdir, value):
+    content = '''
+version: "2"
+python:
+  system_packages: {value}
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content.format(value=value),
+        ['is not a bool']
+    )
+
+
+def test_sphinx(tmpdir):
+    content = '''
 version: "2"
 sphinx:
-   file: docs/conf.py
-        '''
-        self.assertValidConfig(content)
+  file: docs/conf.py  # Default value for configuration key
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_sphinx_invalid(self):
-        content = '''
+
+@pytest.mark.parametrize('value', ['2', 'environment.py'])
+def test_sphinx_invalid(tmpdir, value):
+    content = '''
 version: "2"
 sphinx:
-  configuration: 2
-        '''
-        self.assertInvalidConfig(
-            content,
-            ['is not a str']
-        )
+  configuration: {value}
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ['is not a path']
+    )
 
-    def test_submodules_include(self):
-        content = '''
+
+def test_submodules_include(tmpdir):
+    content = '''
 version: "2"
 submodules:
   include:
@@ -285,54 +329,60 @@ submodules:
     - two
     - three
   recursive: false
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_submodules_include_all(self):
-        content = '''
+
+def test_submodules_include_all(tmpdir):
+    content = '''
 version: "2"
 submodules:
-  include: all
-        '''
-        self.assertValidConfig(content)
+include: all
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_submodules_exclude(self):
-        content = '''
+
+def test_submodules_exclude(tmpdir):
+    content = '''
 version: "2"
 submodules:
-  exclude:
-    - one
-    - two
-    - three
-        '''
-        self.assertValidConfig(content)
+exclude:
+  - one
+  - two
+  - three
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_submodules_exclude_all(self):
-        content = '''
+
+def test_submodules_exclude_all(tmpdir):
+    content = '''
 version: "2"
 submodules:
   exclude: all
   recursive: true
-        '''
-        self.assertValidConfig(content)
+    '''
+    assertValidConfig(tmpdir, content)
 
-    def test_redirects(self):
-        content = '''
+
+def test_redirects(tmpdir):
+    content = '''
 version: "2"
 redirects:
   page:
     'guides/install.html': 'install.html'
-            '''
-        self.assertValidConfig(content)
+        '''
+    assertValidConfig(tmpdir, content)
 
-    def test_invalid_redirects(self):
-        content = '''
+
+def test_invalid_redirects(tmpdir):
+    content = '''
 version: "2"
 redirects:
   page:
     'guides/install.html': true
-        '''
-        self.assertInvalidConfig(
-            content,
-            ['is not a str']
-        )
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        ['is not a str']
+    )
