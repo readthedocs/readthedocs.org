@@ -305,7 +305,7 @@ class GitLabService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
@@ -363,7 +363,7 @@ class GitLabService(Service):
             log.exception(
                 'GitLab webhook update failed for project: %s', project)
         else:
-            log.exception(
+            log.error(
                 'GitLab webhook update failed for project: %s',
                 project,
             )

@@ -23,7 +23,7 @@ function init(data) {
     warning
       .find('a')
       .attr('href', currentURL)
-      .text(data.version);
+      .text(data.slug);
 
     var body = $("div.body");
     if (!body.length) {

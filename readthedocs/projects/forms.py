@@ -187,6 +187,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'conf_py_file',
             'default_branch',
             'default_version',
+            'show_version_warning',
             'enable_pdf_build',
             'enable_epub_build',
             # Privacy
@@ -227,6 +228,36 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'project_url',
             'tags',
         )
+
+    def clean_language(self):
+        language = self.cleaned_data['language']
+        project = self.instance
+        if project:
+            msg = _(
+                'There is already a "{lang}" translation '
+                'for the {proj} project.'
+            )
+            if project.translations.filter(language=language).exists():
+                raise forms.ValidationError(
+                    msg.format(lang=language, proj=project.slug)
+                )
+            main_project = project.main_language_project
+            if main_project:
+                if main_project.language == language:
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+                siblings = (
+                    main_project.translations
+                    .filter(language=language)
+                    .exclude(pk=project.pk)
+                    .exists()
+                )
+                if siblings:
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+        return language
 
 
 class ProjectRelationshipBaseForm(forms.ModelForm):
