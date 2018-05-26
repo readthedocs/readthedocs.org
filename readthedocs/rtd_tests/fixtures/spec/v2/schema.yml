@@ -34,7 +34,7 @@ redirects: map(enum('page'), map(str(), str()), required=False)
 
 conda:
   # The path to the Conda environment file from the root of the project
-  environment: str()
+  environment: path()
 
 build:
   # The build docker image to be used
@@ -47,7 +47,7 @@ python:
   version: enum('2', '2.7', '3', '3.5', '3.6', required=False)
 
   # The path to the requirements file from the root of the project
-  requirements: str(required=False)
+  requirements: path(required=False)
 
   # Install the project using python setup.py install or pip
   install: enum('pip', 'setup.py', required=False)
@@ -63,7 +63,7 @@ python:
 sphinx:  
   # The path to the conf.py file
   # Default: rtd will try to find it
-  configuration: str(required=False)
+  configuration: path(required=False)
 
 mkdocs:
   # Something
