@@ -6,8 +6,6 @@ from pyquery import PyQuery as pq
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
-from readthedocs.search import parse_json
 from .dummy_data import DUMMY_PAGE_JSON
 
 

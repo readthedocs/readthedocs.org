@@ -15,7 +15,6 @@ def mock_elastic_index(mocker):
 
 
 @pytest.fixture(autouse=True)
-@pytest.fixture
 def search():
     # Create the index.
     index = Index()
