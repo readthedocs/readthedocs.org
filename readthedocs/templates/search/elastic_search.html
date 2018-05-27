@@ -46,7 +46,7 @@
     {% if facets.project %}
       <h5> Projects </h5>
         {% for name, count in facets.project.items %}
-          <li class="{% if project == name %}active{% endif %}">
+          <li class="{% if project == name %}active{% endif %} project-list">
             {% if project == name %}
               <a href="?{% url_replace request 'project' ''  %}">{{ name }}
             {% else %}
@@ -63,7 +63,7 @@
 
       <h5>Version</h5> 
         {% for name, count in facets.version.items %}
-          <li class="{% if version == name %}active{% endif %}">
+          <li class="{% if version == name %}active{% endif %} version-list">
             {% if version == name %}
               <a href="?{% url_replace request 'version' ''  %}">{{ name }}
             {% else %}

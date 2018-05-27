@@ -1,10 +1,10 @@
-import json
 import pytest
 from django_dynamic_fixture import G
 from faker import Faker
 
 from readthedocs.projects.models import Project
 from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
+from .dummy_data import DUMMY_PAGE_JSON, ALL_PROJECTS
 
 fake = Faker()
 
@@ -35,44 +35,26 @@ def search():
 
 
 @pytest.fixture
-def project():
-    return G(Project)
+def all_projects():
+    return [G(Project, slug=project_name, name=project_name) for project_name in ALL_PROJECTS]
 
 
 @pytest.fixture
-def page_json():
-    version_contents = {}
+def project(all_projects):
+    # Return a single project
+    return all_projects[0]
 
-    def create_dummy_json():
-        data = {
-            'path': fake.word(),
-            'title': fake.sentence(),
-            'content': fake.text(),
-            'sections': fake.sentences(),
-            'headers': fake.sentences()
-        }
-        return data
 
-    def get_dummy_json(version, *args, **kwargs):
-        """Get dummy json content for a version page"""
-
-        # Check existing content of that version
-        # If not exist, generate new dummy content
-        content = version_contents.get(version.id)
-        if not content:
-            content = create_dummy_json()
-            # save in order to not regenerate dummy content for same version
-            version_contents[version.id] = content
-
-        return [content]
-
-    return get_dummy_json
+def get_dummy_page_json(version, *args, **kwargs):
+    dummy_page_json = DUMMY_PAGE_JSON
+    project_name = version.project.name
+    return dummy_page_json.get(project_name)
 
 
 @pytest.fixture
-def mock_parse_json(mocker, page_json):
+def mock_parse_json(mocker):
 
     # patch the function from `projects.tasks` because it has been point to there
     # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
     mocked_function = mocker.patch('readthedocs.projects.tasks.process_all_json_files')
-    mocked_function.side_effect = page_json
+    mocked_function.side_effect = get_dummy_page_json
