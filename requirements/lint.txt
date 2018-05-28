@@ -3,7 +3,13 @@ maxcdn
 # astroid 1.6.2 breaks pylint-django
 # https://github.com/PyCQA/pylint-django/issues/117
 astroid==1.6.1
-pylint
-prospector
-pylint-django
-pyflakes
+prospector==0.12.7
+pycodestyle==2.0.0
+pydocstyle==2.1.1
+pyflakes==2.0.0
+pylint==1.9.1
+pylint-celery==0.3
+pylint-common==0.2.5
+pylint-django==0.11
+pylint-flask==0.5
+pylint-plugin-utils==0.2.6
