@@ -164,7 +164,7 @@ RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (an
 How do I support multiple languages of documentation?
 -----------------------------------------------------
 
-See the section on :ref:`Localization of Documentation`.
+See the section on :doc:`localization`.
 
 Does Read The Docs work well with "legible" docstrings?
 -------------------------------------------------------

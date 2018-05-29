@@ -132,8 +132,8 @@ class Project(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
-        help_text=_('Type of documentation you are building. <a href="http://'
-                    'sphinx-doc.org/builders.html#sphinx.builders.html.'
+        help_text=_('Type of documentation you are building. <a href="'
+                    'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
@@ -160,6 +160,10 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    show_version_warning = models.BooleanField(
+        _('Show version warning'), default=False,
+        help_text=_('Show warning banner in non-stable nor latest versions.')
+    )
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(

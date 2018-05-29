@@ -53,11 +53,14 @@ pre, code, tt { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberatio
 textarea, input, select { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace; font-size: 16px; line-height: 20px; }
 
 @font-face {
+    font-family: 'Lato';
     src: url('../fonts/lato/Lato-Bold.eot'); /* IE9 Compat Modes */
     src: url('../fonts/lato/Lato-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
          url('../fonts/lato/Lato-Bold.woff2') format('woff2'), /* Modern Browsers */
          url('../fonts/lato/Lato-Bold.woff') format('woff'), /* Modern Browsers */
          url('../fonts/lato/Lato-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
 }
 @font-face {
     font-family: 'Lato';

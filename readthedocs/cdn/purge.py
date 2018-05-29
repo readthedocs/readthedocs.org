@@ -21,6 +21,7 @@ def chunks(in_list, chunk_size):
     for i in range(0, len(in_list), chunk_size):
         yield in_list[i:i + chunk_size]
 
+
 if CDN_USERNAME and CDN_KEY and CDN_SECRET and CDN_SERVICE == 'maxcdn':
     from maxcdn import MaxCDN
     api = MaxCDN(CDN_USERNAME, CDN_KEY, CDN_SECRET)

@@ -1,3 +1,16 @@
+Version 2.3.13
+--------------
+
+:Date: May 23, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`_: Build static assets (`#4136 <https://github.com/rtfd/readthedocs.org/pull/4136>`_)
+* `@stsewd <http://github.com/stsewd>`_: Don't sync _static dir for search builder (`#4120 <https://github.com/rtfd/readthedocs.org/pull/4120>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Use the latest Lato release (`#4093 <https://github.com/rtfd/readthedocs.org/pull/4093>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Update Gold Member marketing (`#4063 <https://github.com/rtfd/readthedocs.org/pull/4063>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fix missing fonts (`#4060 <https://github.com/rtfd/readthedocs.org/pull/4060>`_)
+* `@stsewd <http://github.com/stsewd>`_: Additional validation when changing the project language (`#3790 <https://github.com/rtfd/readthedocs.org/pull/3790>`_)
+* `@stsewd <http://github.com/stsewd>`_: Improve yaml config docs (`#3685 <https://github.com/rtfd/readthedocs.org/pull/3685>`_)
+
 Version 2.3.12
 --------------
 

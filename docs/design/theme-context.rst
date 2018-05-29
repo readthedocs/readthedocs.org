@@ -25,74 +25,76 @@ Note that this dictionary is injected under the main key `readthedocs`:
 
 .. code:: python
 
-    'readthedocs': {
-        'v1': {
-            'version': {
-                'id': int,
-                'slug': str,
-                'verbose_name': str,
-                'identifier': str,
-                'type': str,
-                'build_date': str,
-                'downloads': {
-                    'pdf: str,
-                    'htmlzip': str,
-                    'epub': str
-                },
-                'links': [{
-                    'href': 'https://readthedocs.org/api/v2/version/{id}/',
-                    'rel': 'self
-                }]
-            },
-            'project': {
-                'id': int
-                'name': str,
-                'slug': str,
-                'description': str,
-                'language': str,
-                'canonical_url': str,
-                'subprojects': [{
-                    'id': int
-                    'name': str,
-                    'slug': str,
-                    'description': str,
-                    'language': str,
-                    'canonical_url': str,
-                    'links': [{
-                        'href': 'https://readthedocs.org/api/v2/project/{id}/',
-                        'rel': 'self
-                    }]
-                }],
-                'links': [{
-                    'href': 'https://readthedocs.org/api/v2/project/{id}/',
-                    'rel': 'self
-                }]
-            },
-            'sphinx': {
-                'html_theme': str,
-                'source_suffix': str
-            },
-            'analytics': {
-                'user_analytics_code': str,
-                'global_analytics_code': str
-            },
-            'vcs': {
-                'type': str,  # 'bitbucket', 'github', 'gitlab' or 'svn'
-                'user': str,
-                'repo': str,
-                'commit': str,
-                'version': str,
-                'display': bool,
-                'conf_py_path': str
-            },
-            'meta': {
-                'API_HOST': str,
-                'MEDIA_URL': str,
-                'PRODUCTION_DOMAIN': str,
-                'READTHEDOCS': True
-            }
-        }
-    }
+   {
+       'readthedocs': {
+           'v1': {
+               'version': {
+                   'id': int,
+                   'slug': str,
+                   'verbose_name': str,
+                   'identifier': str,
+                   'type': str,
+                   'build_date': str,
+                   'downloads': {
+                       'pdf': str,
+                       'htmlzip': str,
+                       'epub': str
+                   },
+                   'links': [{
+                       'href': 'https://readthedocs.org/api/v2/version/{id}/',
+                       'rel': 'self'
+                   }],
+               },
+               'project': {
+                   'id': int,
+                   'name': str,
+                   'slug': str,
+                   'description': str,
+                   'language': str,
+                   'canonical_url': str,
+                   'subprojects': [{
+                       'id': int,
+                       'name': str,
+                       'slug': str,
+                       'description': str,
+                       'language': str,
+                       'canonical_url': str,
+                       'links': [{
+                           'href': 'https://readthedocs.org/api/v2/project/{id}/',
+                           'rel': 'self'
+                       }]
+                   }],
+                   'links': [{
+                       'href': 'https://readthedocs.org/api/v2/project/{id}/',
+                       'rel': 'self'
+                   }]
+               },
+               'sphinx': {
+                   'html_theme': str,
+                   'source_suffix': str
+               },
+               'analytics': {
+                   'user_analytics_code': str,
+                   'global_analytics_code': str
+               },
+               'vcs': {
+                   'type': str,  # 'bitbucket', 'github', 'gitlab' or 'svn'
+                   'user': str,
+                   'repo': str,
+                   'commit': str,
+                   'version': str,
+                   'display': bool,
+                   'conf_py_path': str
+               },
+               'meta': {
+                   'API_HOST': str,
+                   'MEDIA_URL': str,
+                   'PRODUCTION_DOMAIN': str,
+                   'READTHEDOCS': True
+               }
+           }
+       }
+   }
 
 
 .. warning::

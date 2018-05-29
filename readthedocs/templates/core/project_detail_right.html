@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block owners %}
-    <h3>{% trans "Owners" %}</h3>
+    <h3>{% trans "Maintainers" %}</h3>
     <p>
       {% for user in project.users.all %}
       <a href="{% url "profiles_profile_detail" user.username %}">{% gravatar user.email 32 %}</a>

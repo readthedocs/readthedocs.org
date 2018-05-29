@@ -90,9 +90,12 @@ def build_branches(project, branch_list):
 
 
 def get_project_from_url(url):
+    if not url:
+        return Project.objects.none()
     projects = (
         Project.objects.filter(repo__iendswith=url) |
-        Project.objects.filter(repo__iendswith=url + '.git'))
+        Project.objects.filter(repo__iendswith=url + '.git')
+    )
     return projects
 
 
@@ -278,6 +281,8 @@ def bitbucket_build(request):
                 branches = [commit.get('branch', '')
                             for commit in data['commits']]
                 repository = data['repository']
+                if not repository['absolute_url']:
+                    return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org{0}'.format(
                     repository['absolute_url'].rstrip('/')
                 )
@@ -285,6 +290,8 @@ def bitbucket_build(request):
                 changes = data['push']['changes']
                 branches = [change['new']['name']
                             for change in changes]
+                if not data['repository']['full_name']:
+                    return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org/{0}'.format(
                     data['repository']['full_name']
                 )
