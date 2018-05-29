@@ -132,7 +132,7 @@ class Project(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
-        help_text=_('Type of documentation you are building. <a href="http://'
+        help_text=_('Type of documentation you are building. <a href="'
                     'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
 
