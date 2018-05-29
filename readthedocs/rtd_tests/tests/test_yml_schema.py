@@ -2,7 +2,7 @@ from os import path
 
 import pytest
 from readthedocs.rtdyml import BuildConfig
-from readthedocs.rtd_tests.utils import apply_fs
+from readthedocs_build.testing import utils
 
 
 def create_yaml(tmpdir, content):
@@ -14,7 +14,7 @@ def create_yaml(tmpdir, content):
             'requirements.txt': '',
         },
     }
-    apply_fs(tmpdir, fs)
+    utils.apply_fs(tmpdir, fs)
     return path.join(tmpdir.strpath, 'rtd.yml')
 
 
