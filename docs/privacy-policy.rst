@@ -191,6 +191,14 @@ Analytics
 We go into detail on analytics in a
 :ref:`separate section specific to analytics <privacy-policy-analytics>`.
 
+Support Desk
+++++++++++++
+
+Read the Docs uses Intercom to manage support requests
+for documentation hosted through our commercial hosting on readthedocs.com.
+If you request support -- typically via email -- Intercom may process
+your contact information.
+
 Email newsletter
 ++++++++++++++++
 
