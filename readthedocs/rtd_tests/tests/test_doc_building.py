@@ -78,6 +78,17 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -86,9 +97,95 @@ class TestLocalBuildEnvironment(TestCase):
             'setup_error': u'',
             'length': mock.ANY,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+            'exit_code': 0,
+        })
+
+    def test_command_not_recorded(self):
+        """Normal build in passing state with no command recorded."""
+        self.mocks.configure_mock('process', {
+            'communicate.return_value': (b'This is okay', '')
+        })
+        type(self.mocks.process).returncode = PropertyMock(return_value=0)
+
+        build_env = LocalBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo', 'test', record=False)
+        self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
+        self.assertTrue(build_env.successful)
+        self.assertEqual(len(build_env.commands), 0)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': '',
+            'length': mock.ANY,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_record_command_as_success(self):
+        self.mocks.configure_mock('process', {
+            'communicate.return_value': (b'This is okay', '')
+        })
+        type(self.mocks.process).returncode = PropertyMock(return_value=1)
+
+        build_env = LocalBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo', 'test', record_as_success=True)
+        self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
+        self.assertTrue(build_env.successful)
+        self.assertEqual(len(build_env.commands), 1)
+        self.assertEqual(build_env.commands[0].output, u'This is okay')
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': u'',
+            'length': mock.ANY,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
             'exit_code': 0,
         })
@@ -115,17 +212,18 @@ class TestLocalBuildEnvironment(TestCase):
                 self.mocks.mocks['api_v2.build']().put.assert_called_with({
                     'id': DUMMY_BUILD_ID,
                     'version': self.version.pk,
-                    'success': True,
                     'project': self.project.pk,
-                    'setup_error': u'',
+                    'setup_error': '',
                     'length': mock.ANY,
                     'error': '',
-                    'setup': u'',
-                    'output': u'',
+                    'setup': '',
+                    'output': '',
                     'state': BUILD_STATE_CLONING,
                     'builder': mock.ANY,
-                    'exit_code': 0,
                 })
+            self.assertIsNone(build_env.failure)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
 
     def test_failing_execution(self):
         """Build in failing state."""
@@ -151,6 +249,17 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 1,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -159,9 +268,9 @@ class TestLocalBuildEnvironment(TestCase):
             'setup_error': u'',
             'length': mock.ANY,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
             'exit_code': 1,
         })
@@ -184,17 +293,19 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'length': mock.ANY,
             'error': 'Foobar',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
             'exit_code': 1,
         })
@@ -216,20 +327,22 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'length': mock.ANY,
             'error': (
                 'There was a problem with Read the Docs while building your '
                 'documentation. Please report this to us with your build id (123).'
             ),
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -274,17 +387,19 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': True,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'length': 0,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -304,6 +419,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
     def test_environment_failed_build_without_update_but_with_error(self):
@@ -322,18 +439,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'Test',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -354,12 +473,14 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': (
@@ -367,9 +488,9 @@ class TestDockerBuildEnvironment(TestCase):
                 "documentation. Please report this to us with your build id "
                 "(123)."
             ),
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -397,6 +518,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -437,6 +560,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': -1,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -469,18 +603,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'Failed',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -507,18 +643,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'Inner failed',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -550,18 +688,124 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 1,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_command_not_recorded(self):
+        """Command execution through Docker without record the command."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 1},
+            })
+
+        build_env = DockerBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo test', cwd='/tmp', record=False)
+
+        self.mocks.docker_client.exec_create.assert_called_with(
+            container='build-123-project-6-pip',
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
+        self.assertEqual(len(build_env.commands), 0)
+        self.assertFalse(build_env.failed)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': '',
+            'length': 0,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_record_command_as_success(self):
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 1},
+            })
+
+        build_env = DockerBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo test', cwd='/tmp', record_as_success=True)
+
+        self.mocks.docker_client.exec_create.assert_called_with(
+            container='build-123-project-6-pip',
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
+        self.assertEqual(build_env.commands[0].exit_code, 0)
+        self.assertEqual(build_env.commands[0].output, u'This is the return')
+        self.assertEqual(build_env.commands[0].error, None)
+        self.assertFalse(build_env.failed)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': '',
+            'exit_code': 0,
+            'length': 0,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -594,6 +838,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -638,18 +893,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'A build environment is currently running for this version',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -685,6 +942,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
