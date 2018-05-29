@@ -1,3 +1,5 @@
+"""Validator for the RTD configuration file."""
+
 from os import path
 
 import six
@@ -12,8 +14,12 @@ V2_SCHEMA = path.join(
 
 
 class PathValidator(Validator):
+
     """
-    Docstring
+    Path validator
+
+    Checks if the given value is a string and a existing
+    file.
     """
 
     tag = 'path'
@@ -32,19 +38,22 @@ class PathValidator(Validator):
 
 class BuildConfig(object):
 
+    """Wrapper object to validate to configuration file."""
+
     def __init__(self, configuration_file):
         self.configuration_file = configuration_file
         self.data = yamale.make_data(self.configuration_file)
         self.schema = yamale.make_schema(
             V2_SCHEMA,
-            validators=self.get_validators()
+            validators=self._get_validators()
         )
 
-    def get_validators(self):
+    def _get_validators(self):
         validators = DefaultValidators.copy()
         PathValidator.configuration_file = self.configuration_file
         validators[PathValidator.tag] = PathValidator
         return validators
 
     def validate(self):
+        """Validate the current configuration file."""
         return yamale.validate(self.schema, self.data)
