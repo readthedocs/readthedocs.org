@@ -178,6 +178,7 @@
             </p>
           </div>
 
+          {% block language-select-form %}
           <div class="column-setlang">
             {% get_current_language as current_lang %}
             <form action="/i18n/setlang/" method="post" style="float: right">
@@ -196,6 +197,7 @@
             </form>
           </div>
         </div>
+        {% endblock language-select-form %}
 
         {% endblock %}
 
