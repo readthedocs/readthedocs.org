@@ -31,7 +31,7 @@ def analytics_pageview(pageview_data):
     Send a pageview to Google Analytics
 
     :see: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
-    :param kwargs: pageview parameters to send to GA
+    :param pageview_data: pageview parameters to send to GA
     """
     data = {
         't': 'pageview',
@@ -49,7 +49,7 @@ def analytics_event(event_data):
     Send an analytics event to Google Analytics
 
     :see: https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide#event
-    :param kwargs: event parameters to send to GA
+    :param event_data: event parameters to send to GA
     """
     data = {
         't': 'event',       # GA event - don't change

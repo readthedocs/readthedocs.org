@@ -1010,7 +1010,6 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
-    USE_SERVER_SIDE_ANALYTICS = 'server_side_analytics'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1018,7 +1017,6 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
-        (USE_SERVER_SIDE_ANALYTICS, _('Use server side analytics')),
     )
 
     projects = models.ManyToManyField(

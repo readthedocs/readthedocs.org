@@ -10,7 +10,3 @@ class AnalyticsAppConfig(AppConfig):
 
     name = 'readthedocs.analytics'
     verbose_name = 'Analytics'
-
-    def ready(self):
-        """Fired once during Django startup"""
-        import readthedocs.analytics.signals  # noqa

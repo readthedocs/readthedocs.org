@@ -1,10 +1,14 @@
 """Utilities related to analytics"""
 
 from __future__ import absolute_import, unicode_literals
+import hashlib
 import logging
 
-from django.utils.encoding import force_text
+from django.conf import settings
+from django.utils.encoding import force_text, force_bytes
+from django.utils.crypto import get_random_string
 import requests
+from user_agents import parse
 
 try:
     # Python 3.3+ only
@@ -41,11 +45,28 @@ def anonymize_ipaddress(ip_address):
     return anonymized_ip.compressed
 
 
+def anonymize_useragent(user_agent):
+    """Anonymizes rare user agents"""
+    # If the browser family is not recognized, this is a rare user agent
+    parsed_ua = parse(user_agent)
+    if parsed_ua.browser.family == 'Other' or parsed_ua.os.family == 'Other':
+        return 'Rare user agent'
+
+    return user_agent
+
+
 def send_to_analytics(data):
     """Sends data to Google Analytics"""
-    if data['uip']:
+    if data.get('uip') and data.get('ua'):
+        data['uid'] = generate_client_id(data['uip'], data['ua'])
+
+    if 'uip' in data:
         # Anonymize IP address if applicable
         data['uip'] = anonymize_ipaddress(data['uip'])
+
+    if 'ua' in data:
+        # Anonymize user agent if it is rare
+        data['ua'] = anonymize_useragent(data['ua'])
 
     resp = None
     try:
@@ -58,3 +79,29 @@ def send_to_analytics(data):
 
     if resp and not resp.ok:
         log.warning('Unknown error sending to Google Analytics')
+
+
+def generate_client_id(ip_address, user_agent):
+    """
+    Create an advertising ID
+
+    This simplifies things but essentially if a user has the same IP and same UA,
+    this will treat them as the same user for analytics purposes
+    """
+    salt = b'advertising-client-id'
+
+    hash_id = hashlib.sha256()
+    hash_id.update(force_bytes(settings.SECRET_KEY))
+    hash_id.update(salt)
+    if ip_address:
+        hash_id.update(force_bytes(ip_address))
+    if user_agent:
+        hash_id.update(force_bytes(user_agent))
+
+    if not ip_address and not user_agent:
+        # Since no IP and no UA were specified,
+        # there's no way to distinguish sessions.
+        # Instead, just treat every user differently
+        hash_id.update(force_bytes(get_random_string()))
+
+    return hash_id.hexdigest()
