@@ -287,14 +287,13 @@ class TestProject(TestCase):
             follow=True
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertContains(resp, 'error')
         self.assertContains(
             resp,
             'There is already a &quot;es&quot; translation '
             'for the read-the-docs project'
         )
 
-    def test_user_can_change_project_whith_same_lang(self):
+    def test_user_can_change_project_with_same_lang(self):
         user_a = User.objects.get(username='eric')
         project_a = Project.objects.get(slug='read-the-docs')
         project_b = get(
@@ -322,7 +321,7 @@ class TestProject(TestCase):
             follow=True
         )
         self.assertEqual(resp.status_code, 200)
-        self.assertNotContains(resp, 'error')
+        self.assertNotContains(resp, 'There is already a')
 
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})
