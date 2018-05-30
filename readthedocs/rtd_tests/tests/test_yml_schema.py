@@ -344,7 +344,7 @@ sphinx:
     assertValidConfig(tmpdir, content)
 
 
-@pytest.mark.parametrize('value', ['2', 'environment.py'])
+@pytest.mark.parametrize('value', ['2', 'non-existent-file.yml'])
 def test_sphinx_invalid(tmpdir, value):
     content = '''
 version: "2"
@@ -399,7 +399,7 @@ mkdocs:
     assertValidConfig(tmpdir, content)
 
 
-@pytest.mark.parametrize('value', ['2', 'environment.py'])
+@pytest.mark.parametrize('value', ['2', 'non-existent-file.yml'])
 def test_mkdocs_invalid(tmpdir, value):
     content = '''
 version: "2"
