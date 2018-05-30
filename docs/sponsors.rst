@@ -32,7 +32,6 @@ Past sponsors
 .. _Rackspace: http://www.rackspace.com/
 .. _Mozilla: https://www.mozilla.org/en-US/
 .. _Twilio: http://twilio.com/
-.. _Signal: http://signal.twilio.com/
 
 
 Sponsorship Information

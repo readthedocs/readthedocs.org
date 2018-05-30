@@ -1,26 +1,18 @@
-.. _installing-read-the-docs:
-
 Installation
 ============
 
 Here is a step by step plan on how to install Read the Docs.
 It will get you to a point of having a local running instance.
 
-.. warning::
 
-    Read the Docs does not itself run under Python 3 (though it does support
-    building documentation for Python 3 projects). Please ensure the subsequent
-    steps are performed using Python 2.7.
-
-
-First, obtain `Python 2.7`_ and virtualenv_ if you do not already have them. Using a
+First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them. Using a
 virtual environment will make the installation easier, and will help to avoid
 clutter in your system-wide libraries. You will also need Git_ in order to
-clone the repository. If you plan to import Python 3 project to your RTD then you'll
-need to install Python 3 with virtualenv in your system as well.
+clone the repository. If you plan to import Python 2.7 project to your RTD then you'll
+need to install Python 2.7 with virtualenv in your system as well.
 
 
-.. _Python 2.7: http://www.python.org/
+.. _Python 3.6: http://www.python.org/
 .. _virtualenv: http://pypi.python.org/pypi/virtualenv
 .. _Git: http://git-scm.com/
 .. _Homebrew: http://brew.sh/
@@ -30,7 +22,7 @@ need to install Python 3 with virtualenv in your system as well.
 
 .. note::
 
-    Requires Git version >=1.9
+    Requires Git version >=2
 
 .. note::
 

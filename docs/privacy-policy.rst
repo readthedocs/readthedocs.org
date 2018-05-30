@@ -40,8 +40,8 @@ readthedocs.com
     It is governed by this privacy policy but also separate
     `terms <https://readthedocs.com/terms/>`_.
 
-readthedocs.io and other domains ("Documentation Sites")
-    These public websites are where Read the Docs hosts documentation on
+readthedocs.io, readthedocs-hosted.com, and other domains ("Documentation Sites")
+    These websites are where Read the Docs hosts documentation on
     behalf of documentation authors. A best effort is made to apply
     this Privacy Policy to these sites but the documentation
     may contain content and files created by documentation authors.
@@ -151,10 +151,7 @@ We may share User Personal Information with a limited number of third party vend
 who process it on our behalf to provide or improve our service,
 and who have agreed to privacy restrictions similar to our own Privacy Statement.
 For more details, see our next section on
-:ref:`third parties <privacy-policy-third-parties>`.
-
-
-.. _privacy-policy-third-parties:
+:ref:`third parties <privacy-policy:Third party vendors>`.
 
 Third party vendors
 ~~~~~~~~~~~~~~~~~~~
@@ -189,7 +186,15 @@ Analytics
 +++++++++
 
 We go into detail on analytics in a
-:ref:`separate section specific to analytics <privacy-policy-analytics>`.
+:ref:`separate section specific to analytics <privacy-policy:Google Analytics>`.
+
+Support Desk
+++++++++++++
+
+Read the Docs uses Intercom to manage support requests
+for documentation hosted through our commercial hosting on readthedocs.com.
+If you request support -- typically via email -- Intercom may process
+your contact information.
 
 Email newsletter
 ++++++++++++++++
@@ -218,6 +223,41 @@ We do not sell that content; it is yours.
 Our use of cookies and tracking
 -------------------------------
 
+.. _privacy-policy-do-not-track:
+
+Do Not Track
+~~~~~~~~~~~~
+
+Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
+Specifically, we support the `W3C's tracking preference expression`_
+and the `EFF's DNT Policy`_.
+
+For Read the Docs, this means:
+
+* We **do not** do behavioral ad targeting regardless of your DNT preference.
+* When DNT is enabled, both logged-in and logged-out users
+  are considered opted-out of :ref:`analytics <privacy-policy-analytics>`.
+* Regardless of DNT preference, our logs that contain IP addresses
+  and user agent strings are deleted after 10 days unless a DNT exception applies.
+* Our full DNT policy is `available here`_.
+
+Our DNT policy applies without reservation to readthedocs.org and readthedocs.com.
+A best effort is made to apply this to Documentation Sites,
+but we do not have complete control over the contents of these sites.
+
+For more details about DNT, visit `All About Do Not Track`_.
+
+.. important::
+
+   Due to the nature of our environment where documentation is built as necessary,
+   the DNT analytics opt-out for Documentation Sites only applies
+   for those sites generated after May 1, 2018.
+
+.. _W3C's tracking preference expression: https://www.w3.org/TR/tracking-dnt/
+.. _EFF's DNT Policy: https://www.eff.org/issues/do-not-track
+.. _available here: https://readthedocs.org/.well-known/dnt-policy.txt
+.. _All About Do Not Track: http://www.allaboutdnt.com
+
 Cookies
 ~~~~~~~
 
@@ -234,8 +274,6 @@ or are used for performance or functionality.
 By using our website, you agree that we can place these types of cookies on your computer or device.
 If you disable your browser or device's ability to accept cookies,
 you will not be able to log in to Read the Docs.
-
-.. _privacy-policy-analytics:
 
 Google Analytics
 ~~~~~~~~~~~~~~~~
@@ -258,6 +296,7 @@ collect any User Personal Information other than IP address;
 or correlate your IP address with your identity.
 Google provides further information about its own privacy practices and offers a
 `browser add-on to opt out of Google Analytics tracking <https://tools.google.com/dlpage/gaoptout>`_.
+You may also opt-out of analytics on Read the Docs by enabled Do Not Track.
 
 
 How Read the Docs secures your information
@@ -349,7 +388,7 @@ We will retain and use your information as necessary to comply with
 our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.
 
-Our web server logs for both readthedocs.org and documentation sites
+Our web server logs for readthedocs.org, readthedocs.com, and Documentation Sites
 are deleted after 10 days barring legal obligations.
 
 

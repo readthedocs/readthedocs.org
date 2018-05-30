@@ -185,7 +185,6 @@ class ResolverBase(TestCase):
         relation.save()
         fixture.get(Project, slug='sub_alias', language='ya')
 
-
     @override_settings(
             PRODUCTION_DOMAIN='readthedocs.org',
             USE_SUBDOMAIN=False,

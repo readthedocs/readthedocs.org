@@ -110,13 +110,23 @@ However, we always give advance notice in our issue tracker
 and via email about showing ads where none were shown before.
 
 
+.. _advertising-details-do-not-track:
+
+Do Not Track Policy
+-------------------
+
+Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
+For more details, see the :ref:`Do Not Track section <privacy-policy-do-not-track>`
+of our privacy policy.
+
+
 .. _advertising-analytics:
 
 Analytics
 ---------
 
 Analytics are a sensitive enough issue that they require their own section.
-In the spirit of full transparency, Read the Docs currently uses Google Analytics (GA).
+In the spirit of full transparency, Read the Docs uses Google Analytics (GA).
 We go into a bit of detail on our use of GA in our :doc:`privacy-policy`.
 
 GA is a contentious issue inside Read the Docs and in our community.
@@ -126,13 +136,21 @@ The developers at Read the Docs understand that different users have different p
 and we try to respect the different viewpoints as much as possible while also accomplishing
 our own goals.
 
+We have taken steps to address some of the privacy concerns surrounding GA.
+These steps apply both to analytics collected by Read the Docs and when
+:doc:`authors enable analytics on their docs <guides/google-analytics>`.
+
+* Users can opt-out of analytics by using the Do Not Track feature of their browser.
+* Read the Docs instructs Google to anonymize IP addresses sent to them.
+* The cookies set by GA expire in 30 days rather than the default 2 years.
+
+Why we use analytics
+~~~~~~~~~~~~~~~~~~~~
+
 Advertisers ask us questions that are easily answered with an analytics solution like
 "how many users do you have in Switzerland browsing Python docs?". We need to be able
 to easily get this data. We also use data from GA for some development decisions such
 as what browsers to support (or not) or how much usage a particular page or feature gets.
-
-We have taken steps to address some of the privacy concerns.
-Read the Docs instructs Google to anonymize IPs sent to them before they are stored.
 
 Alternatives
 ~~~~~~~~~~~~

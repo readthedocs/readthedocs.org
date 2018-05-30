@@ -290,8 +290,7 @@ def parse_mkdocs_sections(content):
                     'content': h2_content,
                 }
     # we're unsure which exceptions can be raised
-    # pylint: disable=bare-except
-    except:
+    except:  # noqa
         log.exception('Failed indexing')
 
 

@@ -153,7 +153,6 @@ class Service(object):
                 url,
                 debug_data,
             )
-        else:
             return []
 
     def sync(self):

@@ -115,7 +115,7 @@
     <div class="module search search-dashboard">
       <form action="{% url 'search' %}" method="GET">
         <div class="text-input-wrapper search search-dashboard">
-          <input type="text" name="q" class="search">
+          <input type="text" name="q" class="search" placeholder="{% trans 'Search Read the Docs' %}">
           {% if type %}
             <input type="hidden" name="type" value="{{ type }}">
           {% endif %}
