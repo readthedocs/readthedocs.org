@@ -6,7 +6,8 @@
   "dependencies": {
     "bowser": "^1.9.3",
     "cssfilter": "0.0.8",
-    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git"
+    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git",
+    "npm": "^6.1.0"
   },
   "devDependencies": {
     "bower": "*",
