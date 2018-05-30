@@ -60,13 +60,24 @@ python:
   # Default: false
   system_packages: bool(required=False)
 
-sphinx:  
+sphinx:
   # The path to the conf.py file
   # Default: rtd will try to find it
   configuration: path(required=False)
 
+  # Add the -W option to sphinx-build
+  # Default: false
+  fail_on_warning: bool(required=False)
+
 mkdocs:
-  # Something
+  # The path to the mkdocs.yml file
+  # Default: rtd will try to find it
+  configuration: path(required=False)
+
+  # Add the --strict optio to mkdocs build
+  # Default: false
+  fail_on_warning: bool(required=False)
+
 
 submodules:
   # List of submodules to be included
