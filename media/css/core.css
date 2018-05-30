@@ -54,22 +54,31 @@ textarea, input, select { font-family: SFMono-Regular, Menlo, Monaco, Consolas, 
 
 @font-face {
     font-family: 'Lato';
-    src: url('../fonts/lato/lato-bold.woff2') format('woff2'),
-         url('../fonts/lato/lato-bold.woff') format('woff');
+    src: url('../fonts/lato/Lato-Bold.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/lato/Lato-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/lato/Lato-Bold.woff2') format('woff2'), /* Modern Browsers */
+         url('../fonts/lato/Lato-Bold.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/lato/Lato-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
 }
 @font-face {
     font-family: 'Lato';
-    src: url('../fonts/lato/lato-italic.woff2') format('woff2'),
-         url('../fonts/lato/lato-italic.woff') format('woff');
+    src: url('../fonts/lato/Lato-Italic.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/lato/Lato-Italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/lato/Lato-Italic.woff2') format('woff2'), /* Modern Browsers */
+         url('../fonts/lato/Lato-Italic.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/lato/Lato-Italic.ttf') format('truetype');
     font-weight: normal;
     font-style: italic;
 }
 @font-face {
     font-family: 'Lato';
-    src: url('../fonts/lato/lato-regular.woff2') format('woff2'),
-         url('../fonts/lato/lato-regular.woff') format('woff');
+    src: url('../fonts/lato/Lato-Regular.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/lato/Lato-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/lato/Lato-Regular.woff2') format('woff2'), /* Modern Browsers */
+         url('../fonts/lato/Lato-Regular.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/lato/Lato-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -645,8 +654,9 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer a:hover, #footer a:active { color: white; text-decoration: underline; }
 
 /* Social icons */
-#footer .social { font-family: FontAwesome; margin-left: 25px; }
-#footer .social li { float: left; }
+#footer .social { font-family: FontAwesome; text-align: center; }
+#footer .social:after { clear: both; content: ''; display: table; }
+#footer .social li { width: 50px; display: inline-block; }
 #footer .social a { text-decoration: none; opacity: 0.5; }
 #footer .social a:hover, #footer .social a:visited { opacity: 1; }
 #footer .social .icon { display: inline-block; width: 36px; height: 36px; font-size: 24px;}
@@ -657,6 +667,13 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer .footer-bottom { margin-top: 30px; }
 #footer select { float: left; width: 175px; padding: 2px; height: 24px; font-size: 12px; margin-right: 10px; }
 #footer input[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
+
+/* Other footer forms */
+#footer #email-signup { margin-bottom: 20px; }
+#footer #email-signup:after { clear: both; content:''; display: table; }
+#footer #email-signup p { padding-right: 10px; font-size: 14px; color: #BCC1C3; }
+#footer label { color: #BCC1C3; font-weight: normal; }
+#footer input[type="text"], #footer input[type="email"] { padding: 4px; font-size: 12px; line-height: 16px; margin-bottom: 5px }
 
 
 /* utils */

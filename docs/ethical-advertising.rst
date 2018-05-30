@@ -9,10 +9,10 @@ and we're calling it **Ethical Ads**.
 **Ethical Ads respect users while providing value to advertisers.**
 We don't track you, sell your data, or anything else.
 We simply show ads to users, based on the content of the pages you look at.
-We also give 10% of our ad space to :ref:`community projects <community-ads>`,
+We also give 10% of our ad space to :ref:`community projects <ethical-advertising:Community Ads>`,
 as our way of saying thanks to the open source community.
 
-We talk a bit below about :ref:`our worldview on advertising <ethical-info>`,
+We talk a bit below about :ref:`our worldview on advertising <ethical-advertising:Our Worldview>`,
 if you want to know more.
 
 .. important::
@@ -28,14 +28,12 @@ and we value your feedback.
 If you ever want to reach out about this effort,
 feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 
-You can :ref:`opt out <opt-out>` of having paid ads on your projects,
+You can :ref:`opt out <ethical-advertising:Opting out>` of having paid ads on your projects,
 or seeing paid ads if you want.
-You will still see :ref:`community ads <community-ads>`,
+You will still see :ref:`community ads <ethical-advertising:Community Ads>`,
 which we run for free that promote community projects. 
 
-.. _ethical-info:
-
-Our worldview
+Our Worldview
 -------------
 
 We're building the advertising model we want to exist:
@@ -72,8 +70,8 @@ They should run before your content,
 they should take over the page,
 the bigger, weirder, or flashier the better.
 
-We opt out.
-~~~~~~~~~~~
+We opt out
+~~~~~~~~~~
 
 * We don't store personal information about you.
 * We only keep track of views and clicks.
@@ -128,12 +126,13 @@ There are a large number of projects that we care about in the software ecosyste
 We'll show 10% of our ad inventory each month to support an open source project that we care about.
 `Send us an email <mailto:rev@readthedocs.org>`_ to be considered for our Community Ads program.
 
-.. _opt-out:
-
 Opting Out
 ----------
 
 We have added multiple ways to opt out of the advertising on Read the Docs.
+
+Users can go ad-free for as long as they are logged-in
+by becoming a `Gold Member of Read the Docs <https://readthedocs.org/accounts/gold/>`_.
 
 Users can opt out of seeing paid advertisements on documentation pages:
 
@@ -153,4 +152,3 @@ Project opt out options include:
 * Supporting us with `your time <http://docs.readthedocs.org/en/latest/contribute.html?>`_ by contributing to the project.
 * Moving to our `paid product <https://readthedocs.com/pricing/?>`_ over at readthedocs.com.
 * Opting out without doing any of the above. This will make us a little sad, but we understand not everyone has the means to contribute back.
-

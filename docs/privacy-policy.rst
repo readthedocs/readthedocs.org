@@ -151,10 +151,7 @@ We may share User Personal Information with a limited number of third party vend
 who process it on our behalf to provide or improve our service,
 and who have agreed to privacy restrictions similar to our own Privacy Statement.
 For more details, see our next section on
-:ref:`third parties <privacy-policy-third-parties>`.
-
-
-.. _privacy-policy-third-parties:
+:ref:`third parties <privacy-policy:Third party vendors>`.
 
 Third party vendors
 ~~~~~~~~~~~~~~~~~~~
@@ -189,7 +186,15 @@ Analytics
 +++++++++
 
 We go into detail on analytics in a
-:ref:`separate section specific to analytics <privacy-policy-analytics>`.
+:ref:`separate section specific to analytics <privacy-policy:Google Analytics>`.
+
+Support Desk
+++++++++++++
+
+Read the Docs uses Intercom to manage support requests
+for documentation hosted through our commercial hosting on readthedocs.com.
+If you request support -- typically via email -- Intercom may process
+your contact information.
 
 Email newsletter
 ++++++++++++++++
@@ -269,8 +274,6 @@ or are used for performance or functionality.
 By using our website, you agree that we can place these types of cookies on your computer or device.
 If you disable your browser or device's ability to accept cookies,
 you will not be able to log in to Read the Docs.
-
-.. _privacy-policy-analytics:
 
 Google Analytics
 ~~~~~~~~~~~~~~~~

@@ -44,7 +44,7 @@ class Command(BaseCommand):
             log.info("Reindexing %s", version)
             try:
                 commit = version.project.vcs_repo(version.slug).commit
-            except:  # pylint: disable=bare-except
+            except:  # noqa
                 # An exception can be thrown here in production, but it's not
                 # documented what the exception here is
                 commit = None
