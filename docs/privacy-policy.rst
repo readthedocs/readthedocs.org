@@ -4,7 +4,7 @@
 Privacy Policy
 ==============
 
-Effective date: **May 25, 2018**
+Effective date: **May 30, 2018**
 
 Welcome to Read the Docs.
 At Read the Docs, we believe in protecting the privacy of our
