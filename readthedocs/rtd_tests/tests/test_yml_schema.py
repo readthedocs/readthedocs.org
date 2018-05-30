@@ -193,7 +193,7 @@ python:
     )
 
 
-def test_no_python_version(tmpdir):
+def test_python_version_no_key(tmpdir):
     content = '''
 version: "2"
 python:
@@ -202,7 +202,7 @@ python:
     assertValidConfig(tmpdir, content)
 
 
-def test_valid_requirements(tmpdir):
+def test_python_requirements(tmpdir):
     content = '''
 version: "2"
 python:
@@ -211,7 +211,7 @@ python:
     assertValidConfig(tmpdir, content)
 
 
-def test_invalid_requirements_file(tmpdir):
+def test_python_requirements_invalid(tmpdir):
     content = '''
 version: "2"
 python:
@@ -222,6 +222,15 @@ python:
         content,
         ['requirements:', "'23' is not a path"]
     )
+
+
+def test_python_requirements_null(tmpdir):
+    content = '''
+version: "2"
+python:
+  requirements: null
+    '''
+    assertValidConfig(tmpdir, content)
 
 
 @pytest.mark.parametrize('value', ['pip', 'setup.py'])
@@ -248,6 +257,15 @@ python:
     )
 
 
+def test_python_install_null(tmpdir):
+    content = '''
+version: "2"
+python:
+  install: null
+    '''
+    assertValidConfig(tmpdir, content)
+
+
 def test_python_extra_requirements(tmpdir):
     content = '''
 version: "2"
@@ -272,6 +290,16 @@ python:
         content,
         ["'1' is not a str"]
     )
+
+
+@pytest.mark.parametrize('value', ['', 'null', '[]'])
+def test_python_extra_requirements_empty(tmpdir, value):
+    content = '''
+version: "2"
+python:
+  extra_requirements: {value}
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
 
 
 @pytest.mark.parametrize('value', ['true', 'false'])
@@ -462,7 +490,7 @@ redirects:
     assertValidConfig(tmpdir, content)
 
 
-def test_invalid_redirects(tmpdir):
+def test_redirects_invalid(tmpdir):
     content = '''
 version: "2"
 redirects:
@@ -474,3 +502,12 @@ redirects:
         content,
         ['is not a str']
     )
+
+
+@pytest.mark.parametrize('value', ['', 'null', '{}'])
+def test_redirects_empty(tmpdir, value):
+    content = '''
+version: "2"
+redirects: {value}
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
