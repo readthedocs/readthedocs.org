@@ -1,4 +1,4 @@
-My build is using too many resources
+My Build is Using Too Many Resources
 ====================================
 
 We limit build resources to make sure that users don't overwhelm our build systems.
