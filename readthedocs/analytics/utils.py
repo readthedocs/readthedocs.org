@@ -34,7 +34,7 @@ def get_client_ip(request):
     return ip_address
 
 
-def anonymize_ipaddress(ip_address):
+def anonymize_ip_address(ip_address):
     """Anonymizes an IP address by zeroing the last 2 bytes"""
     try:
         ip_obj = ipaddress.ip_address(force_text(ip_address))
@@ -45,7 +45,7 @@ def anonymize_ipaddress(ip_address):
     return anonymized_ip.compressed
 
 
-def anonymize_useragent(user_agent):
+def anonymize_user_agent(user_agent):
     """Anonymizes rare user agents"""
     # If the browser family is not recognized, this is a rare user agent
     parsed_ua = parse(user_agent)
@@ -62,11 +62,11 @@ def send_to_analytics(data):
 
     if 'uip' in data:
         # Anonymize IP address if applicable
-        data['uip'] = anonymize_ipaddress(data['uip'])
+        data['uip'] = anonymize_ip_address(data['uip'])
 
     if 'ua' in data:
         # Anonymize user agent if it is rare
-        data['ua'] = anonymize_useragent(data['ua'])
+        data['ua'] = anonymize_user_agent(data['ua'])
 
     resp = None
     try:
