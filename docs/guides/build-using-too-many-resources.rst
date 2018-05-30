@@ -3,7 +3,9 @@ My build is using too many resources
 
 We limit build resources to make sure that users don't overwhelm our build systems.
 If you are running into this issue,
-there are a couple fixes that you might try:
+there are a couple fixes that you might try.
+
+.. note:: The current build limits can be found on our :doc:`/builds` page.
 
 Reduce formats you're building
 ------------------------------
