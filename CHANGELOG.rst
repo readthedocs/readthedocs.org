@@ -1,3 +1,45 @@
+Version 2.3.14
+--------------
+
+:Date: May 30, 2018
+
+* `@ericholscher <http://github.com/ericholscher>`_: Remove CSS override that doesn't exist. (`#4165 <https://github.com/rtfd/readthedocs.org/pull/4165>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Include a DMCA request template (`#4164 <https://github.com/rtfd/readthedocs.org/pull/4164>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: No CSRF cookie for docs pages (`#4153 <https://github.com/rtfd/readthedocs.org/pull/4153>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Small footer rework (`#4150 <https://github.com/rtfd/readthedocs.org/pull/4150>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix prospector dependencies (`#4149 <https://github.com/rtfd/readthedocs.org/pull/4149>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Remove deploy directory which is unused. (`#4147 <https://github.com/rtfd/readthedocs.org/pull/4147>`_)
+* `@stsewd <http://github.com/stsewd>`_: Use autosectionlabel extension (`#4146 <https://github.com/rtfd/readthedocs.org/pull/4146>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Add Intercom to the privacy policy (`#4145 <https://github.com/rtfd/readthedocs.org/pull/4145>`_)
+* `@humitos <http://github.com/humitos>`_: Minimum refactor to decide_if_cors (`#4143 <https://github.com/rtfd/readthedocs.org/pull/4143>`_)
+* `@stsewd <http://github.com/stsewd>`_: Ignore migrations from coverage report (`#4141 <https://github.com/rtfd/readthedocs.org/pull/4141>`_)
+* `@stsewd <http://github.com/stsewd>`_: 5xx status in old webhooks (`#4139 <https://github.com/rtfd/readthedocs.org/pull/4139>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Fix with Lato Bold font (`#4138 <https://github.com/rtfd/readthedocs.org/pull/4138>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Release 2.3.13 (`#4137 <https://github.com/rtfd/readthedocs.org/pull/4137>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Build static assets (`#4136 <https://github.com/rtfd/readthedocs.org/pull/4136>`_)
+* `@xrmx <http://github.com/xrmx>`_: oauth/services: correct error handling in paginate (`#4134 <https://github.com/rtfd/readthedocs.org/pull/4134>`_)
+* `@xrmx <http://github.com/xrmx>`_: oauth/services: don't abuse log.exception (`#4133 <https://github.com/rtfd/readthedocs.org/pull/4133>`_)
+* `@cedk <http://github.com/cedk>`_: Use quiet mode to retrieve branches from mercurial (`#4114 <https://github.com/rtfd/readthedocs.org/pull/4114>`_)
+* `@humitos <http://github.com/humitos>`_: Add `has_valid_clone` and `has_valid_webhook` to ProjectAdminSerializer (`#4107 <https://github.com/rtfd/readthedocs.org/pull/4107>`_)
+* `@stsewd <http://github.com/stsewd>`_: Put the rtd extension to the beginning of the list (`#4054 <https://github.com/rtfd/readthedocs.org/pull/4054>`_)
+* `@stsewd <http://github.com/stsewd>`_: Use gitpython for tags (`#4052 <https://github.com/rtfd/readthedocs.org/pull/4052>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Do Not Track support (`#4046 <https://github.com/rtfd/readthedocs.org/pull/4046>`_)
+* `@stsewd <http://github.com/stsewd>`_: Set urlconf to None after changing SUBDOMAIN setting (`#4032 <https://github.com/rtfd/readthedocs.org/pull/4032>`_)
+* `@humitos <http://github.com/humitos>`_: Fix /404/ testing page (`#3976 <https://github.com/rtfd/readthedocs.org/pull/3976>`_)
+* `@xrmx <http://github.com/xrmx>`_: Fix some tests with postgres (`#3958 <https://github.com/rtfd/readthedocs.org/pull/3958>`_)
+* `@xrmx <http://github.com/xrmx>`_: Fixup DJANGO_SETTINGS_SKIP_LOCAL in tests (`#3899 <https://github.com/rtfd/readthedocs.org/pull/3899>`_)
+* `@xrmx <http://github.com/xrmx>`_: templates: mark a few more strings for translations (`#3869 <https://github.com/rtfd/readthedocs.org/pull/3869>`_)
+* `@ze <http://github.com/ze>`_: Make search bar in dashboard have a more clear message. (`#3844 <https://github.com/rtfd/readthedocs.org/pull/3844>`_)
+* `@varunotelli <http://github.com/varunotelli>`_: Pointed users to Python3.6 (`#3817 <https://github.com/rtfd/readthedocs.org/pull/3817>`_)
+* `@stsewd <http://github.com/stsewd>`_: [RDY] Fix tests for environment (`#3764 <https://github.com/rtfd/readthedocs.org/pull/3764>`_)
+* `@ajatprabha <http://github.com/ajatprabha>`_: Ticket #3694: rename owners to maintainers (`#3703 <https://github.com/rtfd/readthedocs.org/pull/3703>`_)
+* `@SanketDG <http://github.com/SanketDG>`_: Refactor to replace old logging to avoid mangling (`#3677 <https://github.com/rtfd/readthedocs.org/pull/3677>`_)
+* `@stsewd <http://github.com/stsewd>`_: Add rstcheck to CI (`#3624 <https://github.com/rtfd/readthedocs.org/pull/3624>`_)
+* `@techtonik <http://github.com/techtonik>`_: Update Git on prod (`#3615 <https://github.com/rtfd/readthedocs.org/pull/3615>`_)
+* `@stsewd <http://github.com/stsewd>`_: Allow to hide version warning (`#3595 <https://github.com/rtfd/readthedocs.org/pull/3595>`_)
+* `@cclauss <http://github.com/cclauss>`_: Modernize Python 2 code to get ready for Python 3 (`#3514 <https://github.com/rtfd/readthedocs.org/pull/3514>`_)
+* `@stsewd <http://github.com/stsewd>`_: Consistent version format (`#3504 <https://github.com/rtfd/readthedocs.org/pull/3504>`_)
+
 Version 2.3.13
 --------------
 
