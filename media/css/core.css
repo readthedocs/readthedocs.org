@@ -12,8 +12,6 @@ blockquote, q {quotes:"" "";}
 a img {border:none;}
 ol,ul{list-style:none}
 hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; color: #bfbfbf; margin: 15px 0; padding: 0; }
-*:focus { outline: none; }
-
 
 /* general layout */
 
