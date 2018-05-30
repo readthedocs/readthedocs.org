@@ -21,6 +21,7 @@ django.setup()
 
 sys.path.append(os.path.abspath('_ext'))
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinxcontrib.httpdomain',
@@ -78,6 +79,9 @@ html_theme_options = {
     'logo_only': True,
     'display_version': False,
 }
+
+# Activate autosectionlabel plugin
+autosectionlabel_prefix_document = True
 
 
 def setup(app):
