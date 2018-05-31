@@ -19,7 +19,7 @@ class VersionManagerBase(models.Manager):
     """
     Version manager for manager only queries.
 
-    For queries not suitable for the :py:cls:`VersionQuerySet`, such as create
+    For queries not suitable for the :py:class:`VersionQuerySet`, such as create
     queries.
     """
 

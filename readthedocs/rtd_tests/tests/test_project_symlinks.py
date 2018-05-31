@@ -59,7 +59,7 @@ class TempSiterootCase(object):
     temporary path.  Each test is therefore isolated, and cleanup will remove
     these paths after the test case wraps up.
 
-    And subclasses that implement :py:cls:`TestCase` should also make use of
+    And subclasses that implement :py:class:`TestCase` should also make use of
     :py:func:`override_settings`.
     """
 
