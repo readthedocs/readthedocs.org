@@ -21,11 +21,6 @@
 .. automodule:: readthedocs.projects.models
     :members:
 
-:mod:`readthedocs.projects.search_indexes`
-------------------------------------------
-.. automodule:: readthedocs.projects.search_indexes
-    :members:
-
 :mod:`readthedocs.projects.tasks`
 ---------------------------------
 .. automodule:: readthedocs.projects.tasks
