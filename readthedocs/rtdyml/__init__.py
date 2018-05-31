@@ -14,29 +14,56 @@ V2_SCHEMA = path.join(
 
 ALL = 'all'
 
+DEFAULT_VALUES = {
+    'formats': [],
+    'conda': None,
+    'build': {
+        'image': '2.0',
+    },
+    'python': {
+        'version': '3.6',
+        'requirements': None,
+        'install': None,
+        'extra_requirements': [],
+        'system_packages': False,
+    },
+    'sphinx': {
+        'configuration': None,
+        'fail_on_warning': False,
+    },
+    'mkdocs': {
+        'configuration': None,
+        'fail_on_warning': False,
+    },
+    'submodules': {
+        'include': [],
+        'exclude': [],
+        'recursive': False,
+    },
+    'redirects': None,
+}
+
 
 def flatten(dic, keep_key=False, position=None):
-    """
-    Returns a flattened dictionary from a dictionary of nested dictionaries.
-    """
+    """Returns a flattened dictionary from a dictionary of nested dictionaries."""
     child = {}
 
-    for k, v in dic.items():
-        if isinstance(k, six.string_types):
-            k = k.replace('.', '_')
+    for key, value in dic.items():
+        if isinstance(key, six.string_types):
+            key = key.replace('.', '_')
         if position:
-            item_position = '{}.{}'.format(position, k)
+            item_position = '{}.{}'.format(position, key)
         else:
-            item_position = k
+            item_position = key
 
-        if isinstance(v, dict):
+        if isinstance(value, dict):
             child.update(
-                flatten(dic[k], keep_key, item_position)
+                flatten(dic[key], keep_key, item_position)
             )
             if keep_key:
-                child[item_position] = v
+                child[item_position] = value
         else:
-            child[item_position] = v
+            child[item_position] = value
 
     return child
 
@@ -71,7 +98,7 @@ class BuildConfig(object):
     def __init__(self, configuration_file):
         self.configuration_file = configuration_file
         self.data = yamale.make_data(self.configuration_file)
-        self.defaults = self._get_defaults()
+        self.defaults = flatten(DEFAULT_VALUES, keep_key=True)
         self.schema = yamale.make_schema(
             V2_SCHEMA,
             validators=self._get_validators()
@@ -83,41 +110,11 @@ class BuildConfig(object):
         validators[PathValidator.tag] = PathValidator
         return validators
 
-    def _get_defaults(self):
-        defaults = {
-            'formats': [],
-            'conda': None,
-            'build': {
-                'image': '2.0',
-            },
-            'python': {
-                'version': '3.6',
-                'requirements': None,
-                'install': None,
-                'extra_requirements': [],
-                'system_packages': False,
-            },
-            'sphinx': {
-                'configuration': None,
-                'fail_on_warning': False,
-            },
-            'mkdocs': {
-                'configuration': None,
-                'fail_on_warning': False,
-            },
-            'submodules': {
-                'include': [],
-                'exclude': [],
-                'recursive': False,
-            },
-            'redirects': None,
-        }
-        return flatten(defaults, keep_key=True)
-
     def check_constraints(self):
         """
-        Check constraints between keys, such as relations of uniquiness.
-        Also set default values.
+        Check constraints between keys.
+
+        Such as relations of uniquiness and set default values for those.
         """
         constraints = {
             'Documentation type': {
@@ -148,12 +145,10 @@ class BuildConfig(object):
                 )
 
     def set_defaults(self):
-        """
-        Set default values to the currently processed data.
-        """
-        for k, v in self.defaults.items():
-            if k not in self.data[0]:
-                self.data[0][k] = v
+        """Set default values to the currently processed data."""
+        for key, value in self.defaults.items():
+            if key not in self.data[0]:
+                self.data[0][key] = value
 
     def validate(self):
         """Validate the current configuration file."""
