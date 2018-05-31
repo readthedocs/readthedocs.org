@@ -27,6 +27,7 @@ extensions = [
     'sphinxcontrib.httpdomain',
     'djangodocs',
     'doc_extensions',
+    'autoapi.extension',
 ]
 templates_path = ['_templates']
 
@@ -82,3 +83,8 @@ html_theme_options = {
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+# Document Python Code
+autoapi_type = 'python'
+autoapi_dirs = ['../readthedocs']
+autoapi_ignore = ['*rtd_tests*', '*migrations*']

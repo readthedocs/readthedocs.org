@@ -32,7 +32,7 @@ Here is a list of all the things that the proper nouns point at:
 Example layout
 --------------
 
-.. code-block::
+Filesystem::
 
     cname_root/
         docs.fabfile.org -> /web_root/fabric

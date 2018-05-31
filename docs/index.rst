@@ -106,7 +106,7 @@ Information about development is also available:
    i18n
    issue-labels
    security
-   api/index
+   autoapi/index
 
 .. _business-docs:
 
