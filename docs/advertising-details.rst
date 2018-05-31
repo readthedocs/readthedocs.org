@@ -67,17 +67,11 @@ Instead, we target based solely upon:
 * General geography
 
   * We allow advertisers to target ads to a list of countries or to exclude
-    countries from their advertising.
+    countries from their advertising. For ads targeting the USA, we also support
+    targeting by state or by metro area (DMA specifically).
   * We geolocate a user's IP address to a country when a request is made.
 
 Read the Docs uses GeoLite2 data created by `MaxMind <http://maxmind.com>`_.
-
-.. note::
-
-   We are considering expanding geographic targeting in the USA and Canada.
-   Because the USA and Canada are so large, we are considering allowing ads to be
-   targeted to a state or province or to a major metro area (DMA).
-   This document will be updated if that happens.
 
 
 Where ads are shown
