@@ -44,7 +44,7 @@ build:
 
 python:
   # The Python version
-  # Default: '2.7'
+  # Default: '3.6'
   version: enum('2', '2.7', '3', '3.5', '3.6', required=False)
 
   # The path to the requirements file from the root of the project

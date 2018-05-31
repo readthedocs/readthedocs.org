@@ -344,6 +344,24 @@ sphinx:
     assertValidConfig(tmpdir, content)
 
 
+def test_sphinx_and_mkdocs_invalid(tmpdir):
+    content = '''
+version: "2"
+sphinx:
+  configuration: docs/conf.py
+mkdocs:
+  configuration: mkdocs.yml
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        [
+            'Documentation type can not have',
+            "['sphinx', 'mkdocs'] at the same time"
+        ]
+    )
+
+
 @pytest.mark.parametrize('value', ['2', 'non-existent-file.yml'])
 def test_sphinx_invalid(tmpdir, value):
     content = '''
@@ -478,6 +496,23 @@ submodules:
   recursive: true
     '''
     assertValidConfig(tmpdir, content)
+
+
+def test_submodules_exclude_and_include_invalid(tmpdir):
+    content = '''
+version: "2"
+submodules:
+    exclude: all
+    include: all
+    '''
+    assertInvalidConfig(
+        tmpdir,
+        content,
+        [
+            'Submodules can not have',
+            "['submodules.exclude', 'submodules.include'] at the same time"
+        ]
+    )
 
 
 def test_redirects(tmpdir):
