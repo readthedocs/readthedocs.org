@@ -71,7 +71,9 @@ function init() {
         dataType: "jsonp",
         data: get_data,
         success: function (data) {
-            versionCompare.init(data.version_compare);
+            if (data.show_version_warning) {
+                versionCompare.init(data.version_compare);
+            }
             injectFooter(data);
             setupBookmarkCSRFToken();
         },

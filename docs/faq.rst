@@ -6,7 +6,8 @@ My project isn't building with autodoc
 
 First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project.
 
-If you are still seeing errors because of C library dependencies, please see :ref:`mock-c-extensions`.
+If you are still seeing errors because of C library dependencies,
+please see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
 How do I change my slug (the URL your docs are served at)?
 ----------------------------------------------------------
@@ -55,8 +56,6 @@ environment, and will be set to ``True`` when building on RTD::
     {% if READTHEDOCS %}
     Woo
     {% endif %}
-
-.. _mock-c-extensions:
 
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
@@ -164,7 +163,7 @@ RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (an
 How do I support multiple languages of documentation?
 -----------------------------------------------------
 
-See the section on :ref:`Localization of Documentation`.
+See the section on :doc:`localization`.
 
 Does Read The Docs work well with "legible" docstrings?
 -------------------------------------------------------

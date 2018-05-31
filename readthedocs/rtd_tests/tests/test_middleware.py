@@ -1,11 +1,13 @@
 from __future__ import absolute_import
+
 from django.http import Http404
 from django.core.cache import cache
+from django.core.urlresolvers import get_urlconf, set_urlconf
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
-from django_dynamic_fixture import get, new
+from django_dynamic_fixture import get
 
 from corsheaders.middleware import CorsMiddleware
 from mock import patch
@@ -39,6 +41,29 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.slug, 'pip')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_restore_urlconf_after_request(self):
+        """
+        The urlconf attribute for the current thread
+        should remain intact after each request,
+        When is set to None it means 'use default from settings'.
+        """
+        set_urlconf(None)
+        urlconf = get_urlconf()
+        self.assertIsNone(urlconf)
+
+        self.client.get(self.url, HTTP_HOST='pip.readthedocs.org')
+        urlconf = get_urlconf()
+        self.assertIsNone(urlconf)
+
+        self.client.get(self.url)
+        urlconf = get_urlconf()
+        self.assertIsNone(urlconf)
+
+        self.client.get(self.url, HTTP_HOST='pip.readthedocs.org')
+        urlconf = get_urlconf()
+        self.assertIsNone(urlconf)
 
     @override_settings(PRODUCTION_DOMAIN='prod.readthedocs.org')
     def test_subdomain_different_length(self):

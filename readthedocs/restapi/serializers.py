@@ -60,6 +60,8 @@ class ProjectAdminSerializer(ProjectSerializer):
             'requirements_file',
             'python_interpreter',
             'features',
+            'has_valid_clone',
+            'has_valid_webhook',
         )
 
 
@@ -100,6 +102,8 @@ class BuildSerializer(serializers.ModelSerializer):
     """Build serializer for user display, doesn't display internal fields."""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
+    project_slug = serializers.ReadOnlyField(source='project.slug')
+    version_slug = serializers.ReadOnlyField(source='version.slug')
     docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
     state_display = serializers.ReadOnlyField(source='get_state_display')
 
