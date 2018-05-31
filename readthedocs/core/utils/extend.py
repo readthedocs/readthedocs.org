@@ -15,7 +15,7 @@ def get_override_class(proxy_class, default_class=None):
     The `proxy_class` is the main class that is used, and `default_class` is the
     default class that this proxy class will instantiate.  If `default_class` is
     not defined, this will be inferred from the `proxy_class`, as is defined in
-    :py:cls:`SettingsOverrideObject`.
+    :py:class:`SettingsOverrideObject`.
     """
     if default_class is None:
         default_class = getattr(proxy_class, '_default_class')

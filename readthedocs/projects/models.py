@@ -850,7 +850,7 @@ class APIProject(Project):
     Project proxy model for API data deserialization.
 
     This replaces the pattern where API data was deserialized into a mocked
-    :py:cls:`Project` object. This pattern was confusing, as it was not explicit
+    :py:class:`Project` object. This pattern was confusing, as it was not explicit
     as to what form of object you were working with -- API backed or database
     backed.
 
