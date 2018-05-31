@@ -1,3 +1,19 @@
+Version 2.4.0
+-------------
+
+:Date: May 31, 2018
+
+* This fixes assets that were generated against old dependencies in 2.3.14
+* `@agjohnson <http://github.com/agjohnson>`_: Fix issues with search javascript (`#4176 <https://github.com/rtfd/readthedocs.org/pull/4176>`_)
+* `@stsewd <http://github.com/stsewd>`_: Use anonymous refs in CHANGELOG (`#4173 <https://github.com/rtfd/readthedocs.org/pull/4173>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix some warnings on docs (`#4172 <https://github.com/rtfd/readthedocs.org/pull/4172>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Update the privacy policy date (`#4171 <https://github.com/rtfd/readthedocs.org/pull/4171>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Note about state and metro ad targeting (`#4169 <https://github.com/rtfd/readthedocs.org/pull/4169>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Add another guide around fixing memory usage. (`#4168 <https://github.com/rtfd/readthedocs.org/pull/4168>`_)
+* `@stsewd <http://github.com/stsewd>`_: Download raw build log (`#3585 <https://github.com/rtfd/readthedocs.org/pull/3585>`_)
+* `@stsewd <http://github.com/stsewd>`_: Add "edit" and "view docs" buttons to subproject list (`#3572 <https://github.com/rtfd/readthedocs.org/pull/3572>`_)
+* `@kennethlarsen <http://github.com/kennethlarsen>`_: Remove outline reset to bring back outline (`#3512 <https://github.com/rtfd/readthedocs.org/pull/3512>`_)
+
 Version 2.3.14
 --------------
 
