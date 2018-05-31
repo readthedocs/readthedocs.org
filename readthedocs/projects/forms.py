@@ -277,7 +277,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
-            self.fields['child'].disabled = True
+            self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
         else:
             self.fields['child'].queryset = self.get_subproject_queryset()
 
