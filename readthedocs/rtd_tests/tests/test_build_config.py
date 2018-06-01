@@ -1,8 +1,40 @@
 from os import path
 
 import pytest
-from readthedocs.buildconfig import BuildConfig
+import six
 from readthedocs_build.testing import utils
+
+import yamale
+from yamale.validators import DefaultValidators, Validator
+
+
+V2_SCHEMA = path.join(
+    path.dirname(__file__),
+    '../fixtures/spec/v2/schema.yml'
+)
+
+
+class PathValidator(Validator):
+
+    """
+    Path validator
+
+    Checks if the given value is a string and a existing
+    file.
+    """
+
+    tag = 'path'
+    constraints = []
+    configuration_file = '.'
+
+    def _is_valid(self, value):
+        if isinstance(value, six.string_types):
+            file_ = path.join(
+                path.dirname(self.configuration_file),
+                value
+            )
+            return path.exists(file_)
+        return False
 
 
 def create_yaml(tmpdir, content):
@@ -19,16 +51,28 @@ def create_yaml(tmpdir, content):
     return path.join(tmpdir.strpath, 'rtd.yml')
 
 
+def validate_schema(file):
+    validators = DefaultValidators.copy()
+    PathValidator.configuration_file = file
+    validators[PathValidator.tag] = PathValidator
+
+    data = yamale.make_data(file)
+    schema = yamale.make_schema(
+        V2_SCHEMA,
+        validators=validators
+    )
+    yamale.validate(schema, data)
+
+
 def assertValidConfig(tmpdir, content):
     file = create_yaml(tmpdir, content)
-    build = BuildConfig(file)
-    build.validate()
+    validate_schema(file)
 
 
 def assertInvalidConfig(tmpdir, content, msgs=()):
     file = create_yaml(tmpdir, content)
     with pytest.raises(ValueError) as excinfo:
-        BuildConfig(file).validate()
+        validate_schema(file)
     for msg in msgs:
         msg in str(excinfo.value)
 
@@ -344,24 +388,6 @@ sphinx:
     assertValidConfig(tmpdir, content)
 
 
-def test_sphinx_and_mkdocs_invalid(tmpdir):
-    content = '''
-version: "2"
-sphinx:
-  configuration: docs/conf.py
-mkdocs:
-  configuration: mkdocs.yml
-    '''
-    assertInvalidConfig(
-        tmpdir,
-        content,
-        [
-            'Documentation type can not have',
-            "['sphinx', 'mkdocs'] at the same time"
-        ]
-    )
-
-
 @pytest.mark.parametrize('value', ['2', 'non-existent-file.yml'])
 def test_sphinx_invalid(tmpdir, value):
     content = '''
@@ -496,23 +522,6 @@ submodules:
   recursive: true
     '''
     assertValidConfig(tmpdir, content)
-
-
-def test_submodules_exclude_and_include_invalid(tmpdir):
-    content = '''
-version: "2"
-submodules:
-    exclude: all
-    include: all
-    '''
-    assertInvalidConfig(
-        tmpdir,
-        content,
-        [
-            'Submodules can not have',
-            "['submodules.exclude', 'submodules.include'] at the same time"
-        ]
-    )
 
 
 def test_redirects(tmpdir):
