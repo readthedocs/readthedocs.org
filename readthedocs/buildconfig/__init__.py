@@ -44,6 +44,17 @@ DEFAULT_VALUES = {
     'redirects': None,
 }
 
+CONSTRAINTS = {
+    'Documentation type': {
+        'unique': ['sphinx', 'mkdocs'],
+        'default': 'sphinx',
+    },
+    'Submodules': {
+        'unique': ['submodules.include', 'submodules.exclude'],
+        'default': 'submodules.include',
+    }
+}
+
 
 def flatten(dic, keep_key=False, position=None):
     """
@@ -65,7 +76,7 @@ def flatten(dic, keep_key=False, position=None):
 
     {
         'key': value,
-        'nested': ...,
+        'nested': {...},
         'nested.subkey': 'value'
     }
     """
@@ -118,16 +129,22 @@ class BuildConfig(object):
 
     """Wrapper object to validate to configuration file."""
 
+    _schema = V2_SCHEMA
+    _default_values = DEFAULT_VALUES
+    _constraints = CONSTRAINTS
+
     def __init__(self, configuration_file):
         self.configuration_file = configuration_file
         self.data = yamale.make_data(self.configuration_file)
-        self.defaults = flatten(DEFAULT_VALUES, keep_key=True)
+        self.defaults = flatten(self._default_values, keep_key=True)
+        self.constraints = self._constraints
         self.schema = yamale.make_schema(
-            V2_SCHEMA,
+            self._schema,
             validators=self._get_validators()
         )
 
     def _get_validators(self):
+        """Custom validators for yamale."""
         validators = DefaultValidators.copy()
         PathValidator.configuration_file = self.configuration_file
         validators[PathValidator.tag] = PathValidator
@@ -139,18 +156,7 @@ class BuildConfig(object):
 
         Such as relations of uniquiness and set default values for those.
         """
-        constraints = {
-            'Documentation type': {
-                'unique': ['sphinx', 'mkdocs'],
-                'default': 'sphinx',
-            },
-            'Submodules': {
-                'unique': ['submodules.include', 'submodules.exclude'],
-                'default': 'submodules.include',
-            }
-        }
-
-        for subject, constraint in constraints.items():
+        for subject, constraint in self.constraints.items():
             present_keys = [
                 key
                 for key in constraint['unique']
@@ -177,4 +183,5 @@ class BuildConfig(object):
         """Validate the current configuration file."""
         self.check_constraints()
         self.set_defaults()
-        return yamale.validate(self.schema, self.data)
+        yamale.validate(self.schema, self.data)
+        return self.data[0]
