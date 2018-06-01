@@ -39,13 +39,13 @@ conda:
 
 build:
   # The build docker image to be used
-  # Default: '2.0'
-  image: enum('1.0', '2.0', 'latest', required=False)
+  # Default: 'latest'
+  image: enum('stable', 'latest', required=False)
 
 python:
-  # The Python version
-  # Default: '3.6'
-  version: enum('2', '2.7', '3', '3.5', '3.6', required=False)
+  # The Python version (this depends on the build image)
+  # Default: '3'
+  version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
 
   # The path to the requirements file from the root of the project
   # Default: null

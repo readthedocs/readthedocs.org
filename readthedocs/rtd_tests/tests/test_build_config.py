@@ -182,7 +182,7 @@ conda:
     )
 
 
-@pytest.mark.parametrize('value', ['1.0', '2.0', 'latest'])
+@pytest.mark.parametrize('value', ['stable', 'latest'])
 def test_build(tmpdir, value):
     content = '''
 version: "2"
