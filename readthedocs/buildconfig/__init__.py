@@ -46,7 +46,29 @@ DEFAULT_VALUES = {
 
 
 def flatten(dic, keep_key=False, position=None):
-    """Returns a flattened dictionary from a dictionary of nested dictionaries."""
+    """
+    Returns a flattened dictionary
+
+    Given a dictionary of nested dictionaries, it returns
+    a dictionary with all nested keys at the top level.
+
+    For example
+
+    {
+        'key': 'value',
+        'nested': {
+            'subkey': 'value'
+        },
+    }
+
+    Becomes
+
+    {
+        'key': value,
+        'nested': ...,
+        'nested.subkey': 'value'
+    }
+    """
     child = {}
 
     for key, value in dic.items():

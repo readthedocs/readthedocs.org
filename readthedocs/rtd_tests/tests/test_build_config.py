@@ -1,7 +1,7 @@
 from os import path
 
 import pytest
-from readthedocs.rtdyml import BuildConfig
+from readthedocs.buildconfig import BuildConfig
 from readthedocs_build.testing import utils
 
 
