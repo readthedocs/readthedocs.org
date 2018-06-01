@@ -109,7 +109,6 @@ class Index(object):
 
     def refresh_index(self, index=None):
         index = index or self._index
-
         self.es.indices.refresh(index=index)
 
     def put_mapping(self, index=None):

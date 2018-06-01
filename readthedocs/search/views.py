@@ -66,7 +66,6 @@ def elastic_search(request):
                     for term in results['facets'][facet_type]['terms']:
                         facets[facet_type][term['term']] = term['count']
 
-
     if settings.DEBUG:
         print(pprint(results))
         print(pprint(facets))

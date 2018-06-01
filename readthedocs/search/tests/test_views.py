@@ -14,10 +14,13 @@ from .dummy_data import DUMMY_PAGE_JSON
 class TestElasticSearch(object):
     url = reverse('search')
 
+    def _reindex_elasticsearch(self, es_index):
+        call_command('reindex_elasticsearch')
+        es_index.refresh_index()
+
     @pytest.fixture(autouse=True)
     def elastic_index(self, mock_parse_json, all_projects, search):
-        call_command('reindex_elasticsearch')
-        search.refresh_index()
+        self._reindex_elasticsearch(es_index=search)
 
     def test_search_by_project_name(self, client, project):
         resp = client.get(self.url, {'q': project.name})
@@ -100,3 +103,22 @@ class TestElasticSearch(object):
             content_versions.append(slug)
 
         assert sorted(project_versions) == sorted(content_versions)
+
+    def test_file_search_subprojects(self, client, all_projects, search):
+        """File search should return results from subprojects also"""
+        project = all_projects[0]
+        subproject = all_projects[1]
+        project.add_subproject(subproject)
+        self._reindex_elasticsearch(es_index=search)
+        # Add another project as subproject of the project
+
+        # Now search with subproject content but explicitly filter by the parent project
+        data = DUMMY_PAGE_JSON[subproject.slug][1]
+        title = data['title']
+        print(title)
+        resp = client.get(self.url, {'q': title.split()[0], 'type': 'file', 'project': project.slug})
+        assert resp.status_code == 200
+
+        page = pq(resp.content)
+        content = page.find('.module-list-wrapper .module-item-title')
+        assert title in content.text()
