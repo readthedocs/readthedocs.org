@@ -17,7 +17,7 @@ from future.backports.urllib.parse import urlparse
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import TAG
+from readthedocs.builds.constants import TAG, LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -171,13 +171,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
-    python_interpreter = forms.ChoiceField(
-        choices=constants.PYTHON_CHOICES,
-        initial='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
-                    'environment.'),
-    )
-
     class Meta(object):
         model = Project
         fields = (
@@ -202,58 +195,59 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             # Version Support
             # 'num_major', 'num_minor', 'num_point',
         )
+        initial = {'analytics_code': 'foo'}
 
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
 
         # default_version ChoiceField
-        self.versions_qs = self.instance.versions.all()
-        self.active = self.versions_qs.filter(active=True)
-        if self.active.exists():
-            self.version_choices = [(version.slug, version.verbose_name) for version in self.active]
-            self.fields['default_version'] = forms.ChoiceField(
-                help_text=_('The version of your project that / redirects to'),
-                choices=self.version_choices,
-            )
+        versions_qs = self.instance.versions.all()
+        active = versions_qs.filter(active=True)
+
+        if active.exists():
+            version_choices = [(version.slug, version.verbose_name) for version in active]
+            version_choices = version_choices + [(LATEST, None)]
+            self.fields['default_version'].widget = forms.Select(choices=version_choices)
 
         # default_branch ChoiceField
-        self.branches = self.instance.vcs_repo().branches
-        self.branch_options = [each.verbose_name for each in self.branches]
-        self.branch_choices = [(each.verbose_name, each.verbose_name) for each in self.branches]
-        self.fields['default_branch'] = forms.ChoiceField(
-            choices=self.branch_choices,
-            help_text=_('What branch "latest" points to.')
-        )
+        branches = self.instance.vcs_repo().branches
+        branch_choices = [(branch.verbose_name, branch.verbose_name) for branch in branches]
+        branch_choices = [(None, None)] + branch_choices
+        self.fields['default_branch'].widget = forms.Select(choices=branch_choices)
 
         # configuration file ChoiceField
-        self.fields['conf_py_file'] = forms.ChoiceField(
-            required=False,
-            choices=self.give_file_choices('conf.py'),
-            help_text=_('Path from project root to <code>conf.py</code> file '
-                        '(ex. <code>docs/conf.py</code>). ')
-        )
-        if(not self.fields['conf_py_file'].choices):
+        conf_file_choices = self.give_file_choices('conf.py')
+        if(not conf_file_choices):
+            conf_file_choices = [(None, None)]
             self.fields['conf_py_file'].help_text = _('Path from project root to <code>conf.py'
                                                       ' </code> file (ex. <code>docs/conf.py'
                                                       '</code>). No <code>conf.py</code> file'
                                                       ' found in your project. Please make sure'
-                                                      ' it contains  <code>conf.py</code> file.'
-                                                      )
+                                                      ' it contains  <code>conf.py</code> file.')
+        self.fields['conf_py_file'].widget = forms.Select(choices=conf_file_choices)
+
         # requirements file ChoiceField
-        self.fields['requirements_file'] = forms.ChoiceField(
-            choices=self.give_file_choices('requirements.txt'),
-            required=False,
-            help_text=_(
-                'A <a '
-                'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-                'pip requirements file</a> needed to build your documentation. '
-                'Path from the root of your project.')
-        )
+        requirements_file_choices = self.give_file_choices('requirements.txt')
+        if(not requirements_file_choices):
+            requirements_file_choices = [(None, None)]
+            self.fields['requirements_file'].help_text = _('A <a href="https://pip.pypa.io/en/'
+                                                           'latest/user_guide.html#requirements-'
+                                                           'files"> pip requirements file</a>'
+                                                           ' needed to build your documentation.'
+                                                           ' Path from the root of your project.'
+                                                           ' No <code>requirements.txt</code> file'
+                                                           ' found in your project.')
+        self.fields['requirements_file'].widget = forms.Select(choices=requirements_file_choices)
+
+        # python interpreter ChoiceField
+        self.fields['python_interpreter'].widget = forms.Select(choices=constants.PYTHON_CHOICES)
 
     def give_file_choices(self, file_name):
         files = self.instance.full_find(file_name, self.instance.get_default_branch())
         branch_path = self.instance.checkout_path(self.instance.get_default_branch())
         choices = [(each.replace(branch_path, ''), each.replace(branch_path, '')) for each in files]
+        if(not files):
+            choices = None
         return choices
 
     def clean_conf_py_file(self):
