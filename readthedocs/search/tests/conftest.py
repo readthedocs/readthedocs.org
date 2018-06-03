@@ -1,22 +1,18 @@
 import random
 import string
-from copy import deepcopy
 from random import shuffle
 
 import pytest
 from django_dynamic_fixture import G
-from faker import Faker
 
 from readthedocs.projects.models import Project
 from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
 from .dummy_data import DUMMY_PAGE_JSON, ALL_PROJECTS
 
-fake = Faker()
-
 
 @pytest.fixture(autouse=True)
 def mock_elastic_index(mocker):
-    index_name = ''.join([random.choice(string.ascii_letters) for _ in xrange(5)])
+    index_name = ''.join([random.choice(string.ascii_letters) for _ in range(5)])
     mocker.patch.object(Index, '_index', index_name.lower())
 
 

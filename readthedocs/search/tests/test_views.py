@@ -7,7 +7,6 @@ from pyquery import PyQuery as pq
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.search.tests.utils import get_search_query
-from .dummy_data import DUMMY_PAGE_JSON
 
 
 @pytest.mark.django_db
