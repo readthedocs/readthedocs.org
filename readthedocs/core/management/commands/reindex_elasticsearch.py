@@ -53,4 +53,4 @@ class Command(BaseCommand):
                 update_search(version.pk, commit,
                               delete_non_commit_files=False)
             except Exception:
-                log.exception('Reindex failed for %s', version)
+                log.debug('Reindex failed for %s', version)

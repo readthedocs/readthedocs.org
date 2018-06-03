@@ -1,3 +1,8 @@
+import random
+import string
+from copy import deepcopy
+from random import shuffle
+
 import pytest
 from django_dynamic_fixture import G
 from faker import Faker
@@ -11,11 +16,12 @@ fake = Faker()
 
 @pytest.fixture(autouse=True)
 def mock_elastic_index(mocker):
-    mocker.patch.object(Index, '_index', fake.word().lower())
+    index_name = ''.join([random.choice(string.ascii_letters) for _ in xrange(5)])
+    mocker.patch.object(Index, '_index', index_name.lower())
 
 
 @pytest.fixture(autouse=True)
-def search():
+def es_index(mock_elastic_index):
     # Create the index.
     index = Index()
     index_name = index.timestamped_index()
@@ -35,7 +41,9 @@ def search():
 
 @pytest.fixture
 def all_projects():
-    return [G(Project, slug=project_name, name=project_name) for project_name in ALL_PROJECTS]
+    projects = [G(Project, slug=project_slug, name=project_slug) for project_slug in ALL_PROJECTS]
+    shuffle(projects)
+    return projects
 
 
 @pytest.fixture
@@ -50,7 +58,7 @@ def get_dummy_page_json(version, *args, **kwargs):
     return dummy_page_json.get(project_name)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_parse_json(mocker):
 
     # patch the function from `projects.tasks` because it has been point to there

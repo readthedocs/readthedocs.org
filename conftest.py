@@ -1,3 +1,6 @@
+import logging
+
+
 def pytest_addoption(parser):
     parser.addoption('--including-search', action='store_true', dest="searchtests",
                      default=False, help="enable search tests")
