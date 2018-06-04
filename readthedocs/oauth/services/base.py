@@ -11,12 +11,9 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from builtins import object
 from django.conf import settings
-from django.http import HttpRequest
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
-
-from readthedocs.oauth.notifications import PermissionRevokedNotification
 
 log = logging.getLogger(__name__)
 
