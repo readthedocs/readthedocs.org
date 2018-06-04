@@ -148,13 +148,12 @@ class Service(object):
                 # Bad credentials: the token we have in our database is not
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account
-
-                notification = PermissionRevokedNotification(
-                    context_object=self.account,
-                    request=HttpRequest(),
-                    user=self.user,
+                raise Exception(
+                    'Our access to your {provider} account was revoked. '
+                    'Please, reconnect it from your social account connections'.format(
+                        provider=self.provider_name,
+                    ),
                 )
-                notification.send()
                 return []
 
             next_url = self.get_next_url_to_paginate(resp)
