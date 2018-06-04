@@ -147,7 +147,7 @@ class Service(object):
                 # needs to reconnect his account
                 raise Exception(
                     'Our access to your {provider} account was revoked. '
-                    'Please, reconnect it from your social account connections'.format(
+                    'Please, reconnect it from your social account connections.'.format(
                         provider=self.provider_name,
                     ),
                 )
