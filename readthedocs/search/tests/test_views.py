@@ -6,6 +6,7 @@ from pyquery import PyQuery as pq
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 from readthedocs.search.tests.utils import get_search_query
 
 
@@ -36,16 +37,43 @@ class TestElasticSearch(object):
 
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
 
+    def test_search_project_show_languages(self, client, project, es_index):
+        """Test that searching project should show all available languages"""
+        # Create a project in bn and add it as a translation
+        G(Project, language='bn', name=project.name)
+        self._reindex_elasticsearch(es_index=es_index)
+
+        result, page = self._get_search_result(url=self.url, client=client,
+                                               search_params={'q': project.name})
+
+        content = page.find('.navigable .language-list')
+        # There should be 2 languages
+        assert len(content) == 2
+        assert 'bn' in content.text()
+
+    def test_search_project_filter_language(self, client, project, es_index):
+        """Test that searching project filtered according to language"""
+        # Create a project in bn and add it as a translation
+        translate = G(Project, language='bn', name=project.name)
+        self._reindex_elasticsearch(es_index=es_index)
+        search_params = {'q': project.name, 'language': 'bn'}
+
+        result, page = self._get_search_result(url=self.url, client=client,
+                                               search_params=search_params)
+
+        # There should be only 1 result
+        assert len(result) == 1
+
+        content = page.find('.navigable .language-list')
+        # There should be 1 languages
+        assert len(content) == 1
+        assert 'bn' in content.text()
+
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_by_file_content(self, client, project, data_type, page_num):
         query = get_search_query(project_slug=project.slug, page_num=page_num,
                                  data_type=data_type)
-
-        versions = project.versions.all()
-        # There should be only one version of the project
-        assert len(versions) == 1
-        print(query, page_num, data_type)
 
         result, _ = self._get_search_result(url=self.url, client=client,
                                             search_params={'q': query, 'type': 'file'})
@@ -88,13 +116,12 @@ class TestElasticSearch(object):
         assert 'pipeline' not in result.text()
 
         # But there should be 2 projects in the left side column
-        # as the query is preset in both projects
+        # as the query is present in both projects
         content = page.find('.navigable .project-list')
         if len(content) != 2:
             pytest.xfail("failing because currently project list not show")
         else:
             assert 'kuma' and 'pipeline' in content.text()
-
 
     @pytest.mark.xfail(reason="Versions are not showing correctly! Fixme while rewrite!")
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
@@ -134,9 +161,9 @@ class TestElasticSearch(object):
         """File search should return results from subprojects also"""
         project = all_projects[0]
         subproject = all_projects[1]
+        # Add another project as subproject of the project
         project.add_subproject(subproject)
         self._reindex_elasticsearch(es_index=es_index)
-        # Add another project as subproject of the project
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query(project_slug=subproject.slug)

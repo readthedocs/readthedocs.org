@@ -4,6 +4,7 @@ import os
 _DATA_FILES = {
     'pipeline': ['installation.json', 'signals.json'],
     'kuma': ['documentation.json', 'docker.json'],
+    'docs': ['story.json', 'wiping.json'],
 }
 
 
