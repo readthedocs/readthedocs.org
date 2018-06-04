@@ -56,8 +56,9 @@ class EmailBackend(Backend):
     name = 'email'
 
     def send(self, notification):
-        # FIXME: if it's an ERROR an email is received and sometimes it's not
-        # necessary (PermissionRevokedNotification for example)
+        # FIXME: if the level is an ERROR an email is received and sometimes
+        # it's not necessary. This behavior should be clearly documented in the
+        # code
         if notification.level >= REQUIREMENT:
             send_email(
                 recipient=notification.user.email,
