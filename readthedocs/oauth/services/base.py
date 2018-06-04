@@ -151,7 +151,6 @@ class Service(object):
                         provider=self.provider_name,
                     ),
                 )
-                return []
 
             next_url = self.get_next_url_to_paginate(resp)
             results = self.get_paginated_results(resp)
