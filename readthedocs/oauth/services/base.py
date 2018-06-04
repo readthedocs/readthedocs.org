@@ -11,11 +11,12 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from builtins import object
 from django.conf import settings
-from messages_extends import WARNING_PERSISTENT
-from messages_extends.models import Message
+from django.http import HttpRequest
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
+
+from readthedocs.oauth.notifications import PermissionRevokedNotification
 
 log = logging.getLogger(__name__)
 
@@ -147,15 +148,13 @@ class Service(object):
                 # Bad credentials: the token we have in our database is not
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account
-                message = 'Our access to your {} account was revoked. You ' \
-                          'will need to reconnect it from your profile ' \
-                          'settings.'.format(self.provider_name)
-                # TODO: there is no way to close the message and mark as read
-                Message.objects.create(
+
+                notification = PermissionRevokedNotification(
+                    context_object=self.account,
+                    request=HttpRequest(),
                     user=self.user,
-                    message=message,
-                    level=WARNING_PERSISTENT,
                 )
+                notification.send()
                 return []
 
             next_url = self.get_next_url_to_paginate(resp)
@@ -229,4 +228,5 @@ class Service(object):
         # TODO Replace this check by keying project to remote repos
         return (
             cls.url_pattern is not None and
-            cls.url_pattern.search(project.repo) is not None)
+            cls.url_pattern.search(project.repo) is not None
+        )
