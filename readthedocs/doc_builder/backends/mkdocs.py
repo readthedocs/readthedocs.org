@@ -48,8 +48,21 @@ class BaseMkdocs(BaseBuilder):
             self.version.project.checkout_path(self.version.slug),
             self.build_dir)
         self.root_path = self.version.project.checkout_path(self.version.slug)
+        self.yaml_file = self.find_yaml_config()
 
-    def load_yaml_config(self, yaml_file):
+    def find_yaml_config(self):
+        docs_dir = self.docs_dir()
+        for path in [docs_dir, '']:
+            test_path = os.path.join(
+                self.project.checkout_path(self.version.slug),
+                path,
+                'mkdocs.yml'
+            )
+            if os.path.exists(test_path):
+                return test_path
+        return None
+
+    def load_yaml_config(self):
         """
         Load a YAML config.
 
@@ -57,7 +70,7 @@ class BaseMkdocs(BaseBuilder):
         """
         try:
             return yaml.safe_load(
-                open(yaml_file, 'r')
+                open(self.yaml_file, 'r')
             )
         except IOError:
             return {
@@ -73,25 +86,12 @@ class BaseMkdocs(BaseBuilder):
                 'possibly due to a syntax error{note}'.format(note=note)
             )
 
-    def find_yaml_config(self):
-        docs_dir = self.docs_dir()
-        for path in [docs_dir, '']:
-            test_path = os.path.join(
-                self.project.checkout_path(self.version.slug),
-                path,
-                'mkdocs.yml'
-            )
-            if os.path.exists(test_path):
-                return test_path
-        return None
-
     def append_conf(self, **__):
         """Set mkdocs config values."""
-        yaml_file = self.find_yaml_config()
-        if not yaml_file:
-            yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
+        if not self.yaml_file:
+            self.yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
 
-        user_config = self.load_yaml_config(yaml_file)
+        user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
         user_docs_dir = user_config.get('docs_dir')
@@ -132,7 +132,7 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs configuration
         yaml.safe_dump(
             user_config,
-            open(yaml_file, 'w')
+            open(self.yaml_file, 'w')
         )
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
@@ -185,6 +185,7 @@ class BaseMkdocs(BaseBuilder):
             self.builder,
             '--clean',
             '--site-dir', self.build_dir,
+            '--config-file', self.yaml_file,
         ]
         if self.use_theme:
             build_command.extend(['--theme', 'readthedocs'])
