@@ -120,20 +120,20 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        build_env = namedtuple('project', 'version')
-        build_env.project = self.project
-        build_env.version = self.version
-
-        self.searchbuilder = MkdocsHTML(build_env=build_env, python_env=None)
+        self.build_env = namedtuple('project', 'version')
+        self.build_env.project = self.project
+        self.build_env.version = self.version
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_append_conf_create_yaml(self, checkout_path):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
         checkout_path.return_value = tmpdir
-        # root_path is initialized before the mock
-        self.searchbuilder.root_path = tmpdir
 
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
         self.searchbuilder.append_conf()
 
         # There is a mkdocs.yml file created
@@ -180,11 +180,12 @@ class MkdocsBuilderTest(TestCase):
             },
             open(yaml_file, 'w')
         )
-
         checkout_path.return_value = tmpdir
-        # root_path is initialized before the mock
-        self.searchbuilder.root_path = tmpdir
 
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
         self.searchbuilder.append_conf()
 
         config = yaml.safe_load(open(yaml_file))
@@ -228,11 +229,12 @@ class MkdocsBuilderTest(TestCase):
             },
             open(yaml_file, 'w')
         )
-
         checkout_path.return_value = tmpdir
-        # root_path is initialized before the mock
-        self.searchbuilder.root_path = tmpdir
 
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
         self.searchbuilder.append_conf()
 
         config = yaml.safe_load(open(yaml_file))
