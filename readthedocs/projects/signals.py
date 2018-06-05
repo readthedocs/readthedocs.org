@@ -5,7 +5,6 @@ import django.dispatch
 from django.dispatch import receiver
 
 
-
 before_vcs = django.dispatch.Signal(providing_args=["version"])
 after_vcs = django.dispatch.Signal(providing_args=["version"])
 
