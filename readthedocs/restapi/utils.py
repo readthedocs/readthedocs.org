@@ -34,25 +34,25 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
         version_name = version['verbose_name']
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
-            created_version = set_or_create_version(
+            created_version, created = set_or_create_version(
                 project=project,
                 slug=STABLE,
                 version_id=version_id,
                 verbose_name=version_name,
                 type_=type
             )
-            if created_version:
+            if created:
                 added.add(created_version.slug)
         elif version_name == LATEST_VERBOSE_NAME:
             has_user_latest = True
-            created_version = set_or_create_version(
+            created_version, created = set_or_create_version(
                 project=project,
                 slug=LATEST,
                 version_id=version_id,
                 verbose_name=version_name,
                 type_=type
             )
-            if created_version:
+            if created:
                 added.add(created_version.slug)
         elif version_name in old_versions:
             if version_id == old_versions[version_name]:
@@ -109,6 +109,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
 
 
 def set_or_create_version(project, slug, version_id, verbose_name, type_):
+    """Search or create a version and set its machine atribute to false."""
     version = (
         project.versions
         .filter(slug=slug)
@@ -126,8 +127,8 @@ def set_or_create_version(project, slug, version_id, verbose_name, type_):
             identifier=version_id,
             verbose_name=verbose_name,
         )
-        return created_version
-    return None
+        return created_version, True
+    return version, False
 
 
 def delete_versions(project, version_data):
