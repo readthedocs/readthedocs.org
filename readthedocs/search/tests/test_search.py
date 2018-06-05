@@ -4,7 +4,7 @@ import django_dynamic_fixture as fixture
 from django.test import TestCase, RequestFactory
 
 from readthedocs.projects.models import Project
-from readthedocsext.search.docsearch import DocSearch
+from readthedocs.search.docsearch import DocSearch
 
 
 @mock.patch('readthedocsext.search.docsearch.execute_version_search')

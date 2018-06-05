@@ -11,7 +11,7 @@ from readthedocs.restapi import views
 from readthedocs.restapi.views import (
     core_views, footer_views, search_views, task_views, integrations
 )
-from readthedocs.search.search.docsearch import DocSearch
+from readthedocs.search.docsearch import DocSearch
 
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
