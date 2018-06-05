@@ -2,14 +2,18 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-from collections import namedtuple
 import os
 import tempfile
+from collections import namedtuple
 
-from django.test import TestCase
-from mock import patch, Mock
 import pytest
+import yaml
+from django.test import TestCase
+from django_dynamic_fixture import get
+from mock import patch
 
+from readthedocs.builds.models import Version
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx, SearchBuilder
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
@@ -108,3 +112,153 @@ class SphinxSearchBuilderTest(TestCase):
         # There is a dest/other/ but not a dest/_static
         self.assertFalse(os.path.exists(dest_static))
         self.assertTrue(os.path.exists(dest_other))
+
+
+class MkdocsBuilderTest(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
+        self.version = get(Version, project=self.project)
+
+        build_env = namedtuple('project', 'version')
+        build_env.project = self.project
+        build_env.version = self.version
+
+        self.searchbuilder = MkdocsHTML(build_env=build_env, python_env=None)
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_create_yaml(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        checkout_path.return_value = tmpdir
+        # root_path is initialized before the mock
+        self.searchbuilder.root_path = tmpdir
+
+        self.searchbuilder.append_conf()
+
+        # There is a mkdocs.yml file created
+        generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
+        self.assertTrue(os.path.exists(generated_yaml))
+        config = yaml.safe_load(open(generated_yaml))
+        self.assertEqual(
+            config['docs_dir'],
+            os.path.join(tmpdir, 'docs')
+        )
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/media/css/badge_only.css',
+                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+            ]
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+            ]
+        )
+        self.assertIsNone(
+            config['google_analytics'],
+        )
+        self.assertEqual(
+            config['site_name'],
+            'mkdocs'
+        )
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_existing_yaml_on_root(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'google_analytics': ['UA-1234-5', 'mkdocs.org'],
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+
+        checkout_path.return_value = tmpdir
+        # root_path is initialized before the mock
+        self.searchbuilder.root_path = tmpdir
+
+        self.searchbuilder.append_conf()
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['docs_dir'],
+            'docs'
+        )
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/media/css/badge_only.css',
+                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+            ]
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+            ]
+        )
+        self.assertIsNone(
+            config['google_analytics'],
+        )
+        self.assertEqual(
+            config['site_name'],
+            'mkdocs'
+        )
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_existing_yaml_on_docs_dir(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'docs', 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'google_analytics': ['UA-1234-5', 'mkdocs.org'],
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+
+        checkout_path.return_value = tmpdir
+        # root_path is initialized before the mock
+        self.searchbuilder.root_path = tmpdir
+
+        self.searchbuilder.append_conf()
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['docs_dir'],
+            'docs'
+        )
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/media/css/badge_only.css',
+                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+            ]
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+            ]
+        )
+        self.assertIsNone(
+            config['google_analytics'],
+        )
+        self.assertEqual(
+            config['site_name'],
+            'mkdocs'
+        )
