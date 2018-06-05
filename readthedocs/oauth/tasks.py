@@ -58,7 +58,6 @@ def attach_webhook(project_pk, user_pk):
         notification.send()
         return None
 
-
     user_accounts = service.for_user(user)
     for account in user_accounts:
         success, __ = account.setup_webhook(project)

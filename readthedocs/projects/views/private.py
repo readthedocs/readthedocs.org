@@ -243,9 +243,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
             reverse('projects_detail', args=[project.slug]))
 
     def trigger_initial_build(self, project):
-        """
-        Trigger initial build.
-        """
+        """Trigger initial build."""
         update_docs = prepare_build(project)
         task_promise = chain(
             attach_webhook.si(project.pk, self.request.user.pk),
