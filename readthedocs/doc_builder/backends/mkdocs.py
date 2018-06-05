@@ -53,8 +53,6 @@ class BaseMkdocs(BaseBuilder):
         """
         Load a YAML config.
 
-        Finds the ``mkdocs.yml`` file in the docs/ directory
-        or the root project.
         Raise BuildEnvironmentError if failed due to syntax errors.
         """
         try:
