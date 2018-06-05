@@ -58,7 +58,6 @@ def attach_webhook(project_pk, user_pk):
         notification.send()
         return None
 
-    from celery.contrib import rdb; rdb.set_trace()
 
     user_accounts = service.for_user(user)
     for account in user_accounts:
@@ -88,8 +87,11 @@ def attach_webhook(project_pk, user_pk):
         )
         notification.send()
     else:
+        from allauth.socialaccount.providers import registry as allauth_registry
+
+        provider = allauth_registry.by_id(service.adapter.provider_id)
         notification = AttachWebhookNotification(
-            context_object=service,
+            context_object=provider,
             request=HttpRequest(),
             user=user,
             success=False,

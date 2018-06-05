@@ -8,7 +8,7 @@ from readthedocs.notifications.constants import HTML, WARNING, INFO
 class AttachWebhookNotification(Notification):
 
     name = 'attach_webhook'
-    context_object_name = 'socialaccount'
+    context_object_name = 'provider'
     subject_success = 'Attach webhook success'
     subject_fail = 'Attach webhook failed'
 
@@ -32,7 +32,7 @@ class AttachWebhookNotification(Notification):
     def get_template_names(self, backend_name, source_format=HTML):
         return 'oauth/notifications/{name}_{status}_{backend}.{source_format}'.format(
             name=self.name,
-            status='success' if self.success else 'failed',
+            status='success' if self.success else 'fail',
             backend=backend_name,
             source_format=source_format,
         )
