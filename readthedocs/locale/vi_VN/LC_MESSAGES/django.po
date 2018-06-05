@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 15:31-0700\n"
+"POT-Creation-Date: 2018-06-05 16:28+0200\n"
 "PO-Revision-Date: 2016-04-09 17:17+0000\n"
 "Last-Translator: Xuân Sâm Đinh <xuansamdinh.n2i@gmail.com>\n"
 "Language-Team: Vietnamese (Viet Nam) (http://www.transifex.com/readthedocs/"
@@ -20,49 +20,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: api/utils.py:97
-msgid "Sorry, no results on that page."
-msgstr "Xin lỗi, không tìm thấy kết quả nào trên trang đó."
-
-#: api/utils.py:183
+#: api/utils.py:47
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr ""
 "Cung cấp sai nguồn tài nguyên tìm kiếm dữ liệu (không đúng loại).: %(error)s"
-
-#: bookmarks/models.py:19 core/models.py:21 donate/models.py:33
-#: gold/models.py:36 projects/models.py:84
-msgid "User"
-msgstr "Người sử dụng"
-
-#: bookmarks/models.py:21 builds/models.py:43 builds/models.py:309
-#: builds/models.py:329 comments/models.py:72 projects/models.py:837
-#: redirects/models.py:53
-msgid "Project"
-msgstr "Dự án"
-
-#: bookmarks/models.py:23 builds/models.py:331 comments/models.py:74
-#: projects/models.py:99 projects/models.py:839
-msgid "Version"
-msgstr "Phiên bản"
-
-#: bookmarks/models.py:25
-msgid "Page"
-msgstr ""
-
-#: bookmarks/models.py:27 builds/models.py:337 comments/models.py:163
-#: comments/models.py:228 donate/models.py:185 integrations/models.py:123
-msgid "Date"
-msgstr "Ngày tháng"
-
-#: bookmarks/models.py:28
-msgid "URL"
-msgstr "URL"
-
-#: bookmarks/models.py:35
-#, python-format
-msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
-msgstr "Đánh dấu %(url)s cho %(user)s (%(pk)s)"
 
 #: builds/constants.py:13
 msgid "Triggered"
@@ -116,181 +78,180 @@ msgstr "Tag"
 msgid "Unknown"
 msgstr "Không rõ"
 
-#: builds/models.py:46 builds/models.py:333
+#: builds/models.py:50 builds/models.py:395 builds/models.py:416
+#: projects/models.py:896 redirects/models.py:53
+msgid "Project"
+msgstr "Dự án"
+
+#: builds/models.py:54 builds/models.py:420
 msgid "Type"
 msgstr "Kiểu"
 
-#: builds/models.py:55
+#: builds/models.py:65
 msgid "Identifier"
 msgstr "Định danh"
 
-#: builds/models.py:61
+#: builds/models.py:71
 msgid "Verbose Name"
 msgstr "Tên chi tiết"
 
-#: builds/models.py:67 oauth/models.py:45 projects/models.py:87
-#: projects/models.py:842
+#: builds/models.py:78 oauth/models.py:46 projects/models.py:84
+#: projects/models.py:901
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:70
+#: builds/models.py:80
 msgid "Supported"
 msgstr "Không hỗ trợ"
 
-#: builds/models.py:71 oauth/models.py:43 oauth/models.py:90
+#: builds/models.py:81 oauth/models.py:44 oauth/models.py:92
 #: redirects/models.py:26 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "Đang hoạt động"
 
-#: builds/models.py:72 templates/projects/includes/icon_built.html:4
+#: builds/models.py:82 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "Đã được xây dựng"
 
-#: builds/models.py:73 templates/projects/includes/icon_built.html:7
+#: builds/models.py:83 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "Đã được tải lên"
 
-#: builds/models.py:75 projects/models.py:213
+#: builds/models.py:85 projects/models.py:217
 msgid "Privacy Level"
 msgstr "Mức độ bảo mật"
 
-#: builds/models.py:76
+#: builds/models.py:89
 msgid "Level of privacy for this Version."
 msgstr "Mức độ bảo mật cho phiên bản này."
 
-#: builds/models.py:79
+#: builds/models.py:92
 msgid "Machine Created"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:89
+#: builds/models.py:102
 msgid "View Version"
 msgstr "Xem phiên bản"
 
-#: builds/models.py:93
-#, python-format
-msgid "Version %(version)s of %(project)s (%(pk)s)"
+#: builds/models.py:106
+#, fuzzy, python-brace-format
+#| msgid "Version %(version)s of %(project)s (%(pk)s)"
+msgid "Version {version} of {project} ({pk})"
 msgstr "Phiên bản %(version)s của dự án %(project)s (%(pk)s)"
 
-#: builds/models.py:311
+#: builds/models.py:396
 msgid "From slug"
 msgstr ""
 
-#: builds/models.py:312
+#: builds/models.py:398
 msgid "To slug"
 msgstr ""
 
-#: builds/models.py:314
+#: builds/models.py:399
 msgid "Largest"
 msgstr "Lớn nhất"
 
-#: builds/models.py:317
-#, python-format
-msgid "Alias for %(project)s: %(from)s -> %(to)s"
+#: builds/models.py:403
+#, python-brace-format
+msgid "Alias for {project}: {_from} -> {to}"
 msgstr ""
 
-#: builds/models.py:335
+#: builds/models.py:418 projects/models.py:97 projects/models.py:898
+#: templates/base.html:208
+msgid "Version"
+msgstr "Phiên bản"
+
+#: builds/models.py:422
 msgid "State"
 msgstr "Trạng thái"
 
-#: builds/models.py:338
+#: builds/models.py:423 integrations/models.py:128
+msgid "Date"
+msgstr "Ngày tháng"
+
+#: builds/models.py:424
 msgid "Success"
 msgstr "Thành công"
 
-#: builds/models.py:340
+#: builds/models.py:426
 msgid "Setup"
 msgstr "Cài đặt"
 
-#: builds/models.py:341
+#: builds/models.py:427
 msgid "Setup error"
 msgstr "Lỗi cài đặt"
 
-#: builds/models.py:342
+#: builds/models.py:428
 msgid "Output"
 msgstr "Đầu ra"
 
-#: builds/models.py:343 templates/builds/build_detail.html:130
+#: builds/models.py:429 templates/builds/build_detail.html:175
 msgid "Error"
 msgstr "Lỗi"
 
-#: builds/models.py:344
+#: builds/models.py:430
 msgid "Exit code"
 msgstr ""
 
-#: builds/models.py:345 projects/models.py:845
+#: builds/models.py:432 projects/models.py:904
 msgid "Commit"
 msgstr ""
 
-#: builds/models.py:347
+#: builds/models.py:434
 #, fuzzy
 #| msgid "Building"
 msgid "Build Length"
 msgstr "Đang xây dựng"
 
-#: builds/models.py:349
+#: builds/models.py:437
 #, fuzzy
 #| msgid "Builds"
 msgid "Builder"
 msgstr "Các phiên bản xây dựng"
 
-#: builds/models.py:363
-#, python-format
-msgid "Build %(project)s for %(usernames)s (%(pk)s)"
+#: builds/models.py:440
+msgid "Cold Storage"
 msgstr ""
 
-#: builds/models.py:407 templates/core/project_details.html:68
+#: builds/models.py:453
+#, python-brace-format
+msgid "Build {project} for {usernames} ({pk})"
+msgstr ""
+
+#: builds/models.py:501
 msgid "Build"
 msgstr ""
 
-#: builds/models.py:410
+#: builds/models.py:503
 msgid "Command"
 msgstr ""
 
-#: builds/models.py:411 oauth/models.py:97 projects/models.py:88
-#: templates/core/project_details.html:77
+#: builds/models.py:504 oauth/models.py:104 projects/models.py:85
+#: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Miêu tả"
 
-#: builds/models.py:412
+#: builds/models.py:505
 msgid "Command output"
 msgstr ""
 
-#: builds/models.py:413
+#: builds/models.py:506
 msgid "Command exit code"
 msgstr ""
 
-#: builds/models.py:415
+#: builds/models.py:508
 msgid "Start time"
 msgstr ""
 
-#: builds/models.py:416
+#: builds/models.py:509
 msgid "End time"
 msgstr ""
 
-#: builds/models.py:425
+#: builds/models.py:519
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
-msgstr ""
-
-#: comments/models.py:76 projects/models.py:175 projects/models.py:843
-msgid "Path"
-msgstr "Đường dẫn"
-
-#: comments/models.py:78
-msgid "Raw Source"
-msgstr ""
-
-#: comments/models.py:123
-msgid "Hash"
-msgstr ""
-
-#: comments/models.py:164
-msgid "Rating"
-msgstr ""
-
-#: comments/models.py:165 donate/models.py:59
-msgid "Text"
 msgstr ""
 
 #: core/admin.py:28
@@ -315,330 +276,137 @@ msgstr "Các dự án liên quan"
 msgid "has project with recent builds"
 msgstr ""
 
-#: core/forms.py:19
+#: core/forms.py:21
 msgid "First name"
 msgstr "Tên"
 
-#: core/forms.py:20
+#: core/forms.py:22
 msgid "Last name"
 msgstr "Họ"
 
-#: core/middleware.py:119 core/middleware.py:126
+#: core/forms.py:51
+#, fuzzy
+#| msgid "User"
+msgid "Username"
+msgstr "Người sử dụng"
+
+#: core/forms.py:52
+msgid "Please type your username to confirm."
+msgstr ""
+
+#: core/forms.py:63
+#, fuzzy
+#| msgid "User %(name)s does not exist"
+msgid "Username does not match!"
+msgstr "Người dùng %(name)s không tồn tại."
+
+#: core/middleware.py:121 core/middleware.py:128
 msgid "Invalid hostname"
 msgstr "Hostname không đúng"
 
-#: core/models.py:23
+#: core/models.py:25 gold/models.py:36 projects/models.py:81
+msgid "User"
+msgstr "Người sử dụng"
+
+#: core/models.py:26
 msgid "Whitelisted"
 msgstr "Đã được cho phép"
 
-#: core/models.py:24
+#: core/models.py:27
 msgid "Banned"
 msgstr ""
 
-#: core/models.py:25
+#: core/models.py:28
 msgid "Homepage"
 msgstr "Trang chủ"
 
-#: core/models.py:26
+#: core/models.py:30
 #, fuzzy
 #| msgid "Documentation type"
 msgid "See paid advertising"
 msgstr "Kiểu tài liệu"
 
-#: core/models.py:27
+#: core/models.py:31
 msgid "If unchecked, you will still see community ads."
 msgstr ""
 
-#: core/models.py:30
+#: core/models.py:35
 msgid "Allow email"
 msgstr "Cho phép email"
 
-#: core/models.py:31
+#: core/models.py:36
 msgid "Show your email on VCS contributions."
 msgstr ""
 "Hiển thị email của bạn trên những đóng góp qua PM quản lý phiên bản (VCS)."
 
-#: core/models.py:36
+#: core/models.py:42
 #, python-format
 msgid "%(username)s's profile"
 msgstr "Hồ sơ của %(username)s"
 
-#: core/validators.py:23
+#: core/validators.py:25
 msgid "Enter a valid plain or internationalized domain name value"
 msgstr ""
 
-#: core/validators.py:31
+#: core/validators.py:33
 msgid "Enter a valid domain name value"
 msgstr ""
 
-#: doc_builder/environments.py:231
+#: core/validators.py:72
+#, fuzzy
+#| msgid "Invalid character in repo name"
+msgid "Invalid character in the URL"
+msgstr "Có ký tự không được phép trong tên repo"
+
+#: core/validators.py:93
+msgid "Invalid scheme for URL"
+msgstr ""
+
+#: doc_builder/environments.py:249
 msgid "Command killed due to excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:236
+#: doc_builder/environments.py:254
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:425
-msgid "An unexpected error occurred"
-msgstr ""
-
-#: doc_builder/environments.py:497
+#: doc_builder/environments.py:645
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:603 projects/tasks.py:215
+#: doc_builder/environments.py:827 projects/tasks.py:455
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:606
+#: doc_builder/environments.py:830
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:609
+#: doc_builder/environments.py:833
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
 
-#: donate/forms.py:39
-msgid "Make this donation public"
+#: doc_builder/exceptions.py:22
+#, python-brace-format
+msgid ""
+"There was a problem with Read the Docs while building your documentation. "
+"Please report this to us with your build id ({build_id})."
 msgstr ""
 
-#: donate/forms.py:42
-msgid "Your name and image will be displayed on the donation page"
+#: doc_builder/exceptions.py:30
+msgid "Build environment creation failed"
 msgstr ""
 
-#: donate/forms.py:43
-msgid "Your email is used for Gravatar and so we can send you a receipt"
-msgstr ""
-
-#: donate/forms.py:44
-msgid "URL of your company's logo, images should be 300x300 pixels or less"
-msgstr ""
-
-#: donate/forms.py:45
-msgid "Companies donating over $400 can specify a logo URL and site link"
-msgstr ""
-
-#: donate/forms.py:110
-msgid "Your email is used so we can send you a receipt"
-msgstr ""
-
-#: donate/models.py:27 donate/models.py:54 gold/models.py:33 oauth/models.py:35
-#: oauth/models.py:78 projects/models.py:80
+#: gold/models.py:33 oauth/models.py:36 oauth/models.py:80
+#: projects/models.py:77
 msgid "Publication date"
 msgstr "Ngày xuất bản"
 
-#: donate/models.py:28 donate/models.py:55 gold/models.py:34 oauth/models.py:36
-#: oauth/models.py:79 projects/models.py:81
+#: gold/models.py:34 oauth/models.py:37 oauth/models.py:81
+#: projects/models.py:78
 msgid "Modified date"
 msgstr "Ngày thay đổi"
-
-#: donate/models.py:29 projects/constants.py:90
-msgid "Public"
-msgstr "Công cộng"
-
-#: donate/models.py:31
-#, fuzzy
-#| msgid "Last name"
-msgid "name"
-msgstr "Họ"
-
-#: donate/models.py:32 oauth/models.py:47
-msgid "Email"
-msgstr ""
-
-#: donate/models.py:35
-msgid "Amount"
-msgstr ""
-
-#: donate/models.py:36
-#, fuzzy
-#| msgid "To URL"
-msgid "Logo URL"
-msgstr "Đến URL"
-
-#: donate/models.py:38
-#, fuzzy
-#| msgid "Short URLs"
-msgid "Site URL"
-msgstr "URL ngắn"
-
-#: donate/models.py:57 oauth/models.py:46 oauth/models.py:95
-#: projects/models.py:86 projects/models.py:841
-msgid "Name"
-msgstr "Tên"
-
-#: donate/models.py:58
-#, fuzzy
-#| msgid "Analytics code"
-msgid "Analytics ID"
-msgstr "Mã Analytics"
-
-#: donate/models.py:60
-msgid "Link URL"
-msgstr ""
-
-#: donate/models.py:61
-msgid "Image URL"
-msgstr ""
-
-#: donate/models.py:62
-#, fuzzy
-#| msgid "Build Type"
-msgid "Display Type"
-msgstr "Kiểu tạo dựng"
-
-#: donate/models.py:64
-msgid "Sold Impressions"
-msgstr ""
-
-#: donate/models.py:65
-msgid "Sold Days"
-msgstr ""
-
-#: donate/models.py:66
-msgid "Sold Clicks"
-msgstr ""
-
-#: donate/models.py:67 projects/models.py:237
-msgid "Programming Language"
-msgstr ""
-
-#: donate/models.py:70 projects/models.py:105
-msgid "Theme"
-msgstr ""
-
-#: donate/models.py:73
-msgid "Community Ad"
-msgstr ""
-
-#: donate/models.py:74 projects/constants.py:69
-msgid "Live"
-msgstr ""
-
-#: donate/models.py:186
-msgid "Offer"
-msgstr ""
-
-#: donate/models.py:188
-msgctxt "View"
-msgid "Number of display on a screen that were sold"
-msgstr ""
-
-#: donate/models.py:189
-msgid "Clicks"
-msgstr ""
-
-#: donate/models.py:262
-#, fuzzy
-#| msgid "Filter"
-msgid "Filter Type"
-msgstr "Bộ lọc"
-
-#: donate/templates/donate/create.html:6 donate/templates/donate/list.html:6
-#: donate/templates/donate/success.html:6
-msgid "Sustainability"
-msgstr ""
-
-#: donate/templates/donate/create.html:75
-#: donate/templates/donate/ethicalads.html:70
-msgid "Custom amount"
-msgstr ""
-
-#: donate/templates/donate/create.html:79
-msgid "1 Hour"
-msgstr ""
-
-#: donate/templates/donate/create.html:80
-msgid "2 Hours"
-msgstr ""
-
-#: donate/templates/donate/create.html:81
-msgid "4 Hours"
-msgstr ""
-
-#: donate/templates/donate/create.html:82
-msgid "1 Day"
-msgstr ""
-
-#: donate/templates/donate/create.html:83
-msgid "2 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:84
-msgid "3 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:85
-msgid "4 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:86
-msgid "5 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:87
-msgid "2 Weeks"
-msgstr ""
-
-#: donate/templates/donate/create.html:88
-msgid "3 Weeks"
-msgstr ""
-
-#: donate/templates/donate/create.html:89
-msgid "4 Weeks"
-msgstr ""
-
-#: donate/templates/donate/create.html:100
-msgid "Donate"
-msgstr "Quyên góp"
-
-#: donate/templates/donate/ethicalads-success.html:6
-msgid "Sponsorship"
-msgstr ""
-
-#: donate/templates/donate/ethicalads.html:6
-msgid "Pay for your ad"
-msgstr ""
-
-#: donate/templates/donate/ethicalads.html:85
-msgid "Pay"
-msgstr ""
-
-#: donate/templates/donate/list.html:77
-#: donate/templates/donate/progress.html:63
-#, fuzzy
-#| msgid "Donate"
-msgid "Donate Now"
-msgstr "Quyên góp"
-
-#: donate/templates/donate/progress.html:25
-msgid "Read More"
-msgstr ""
-
-#: donate/templates/donate/promo_404.html:6 templates/401.html:6
-#: templates/404.html:6
-msgid "Maze Found"
-msgstr ""
-
-#: donate/templates/donate/promo_500.html:5 templates/500.html:5
-msgid "Server Error"
-msgstr "Lỗi máy chủ"
-
-#: donate/templates/donate/promo_detail.html:6
-#, fuzzy
-#| msgid "Project Alias"
-msgid "Promo Detail"
-msgstr "Tên phụ cho dự án"
-
-#: donate/views.py:36
-msgid "Your payment has been received"
-msgstr ""
-
-#: donate/views.py:52
-msgid "Your contribution has been received"
-msgstr ""
 
 #: gold/models.py:37 gold/templates/gold/subscription_detail.html:40
 msgid "Level"
@@ -679,8 +447,9 @@ msgstr[0] ""
 #: gold/templates/gold/projects.html:42 templates/account/email.html:39
 #: templates/projects/domain_list.html:27
 #: templates/projects/project_notifications.html:56
-#: templates/projects/project_redirects.html:93
-#: templates/projects/project_translations.html:26
+#: templates/projects/project_redirects.html:98
+#: templates/projects/project_translations.html:43
+#: templates/projects/project_users.html:39
 msgid "Remove"
 msgstr "Xóa"
 
@@ -697,15 +466,6 @@ msgid "Choose which project you would like to add."
 msgstr "Chọn một dự án để thêm dự án con"
 
 #: gold/templates/gold/projects.html:55 templates/projects/domain_form.html:32
-#: templates/projects/domain_list.html:38
-#: templates/projects/project_advanced.html:33
-#: templates/projects/project_edit.html:36
-#: templates/projects/project_notifications.html:69
-#: templates/projects/project_notifications.html:80
-#: templates/projects/project_redirects.html:109
-#: templates/projects/project_translations.html:36
-#: templates/projects/project_users.html:51
-#: templates/projects/project_versions.html:53
 msgid "Submit"
 msgstr ""
 
@@ -742,7 +502,7 @@ msgid "Card"
 msgstr ""
 
 #: gold/templates/gold/subscription_detail.html:50
-#: gold/templates/gold/subscription_form.html:135
+#: gold/templates/gold/subscription_form.html:138
 #, fuzzy
 #| msgid "Description"
 msgid "Update Subscription"
@@ -801,13 +561,19 @@ msgstr ""
 
 #: gold/templates/gold/subscription_form.html:63
 msgid ""
+"Becoming a Gold Member also makes Read the Docs ad-free for as long as you "
+"are logged-in."
+msgstr ""
+
+#: gold/templates/gold/subscription_form.html:66
+msgid ""
 "\n"
 "      You can also make one-time donations on our <a href=\"https://"
 "readthedocs.org/sustainability/\">sustainability</a> page.\n"
 "    "
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:71
+#: gold/templates/gold/subscription_form.html:74
 msgid ""
 "\n"
 "    We ask that folks who use custom Domains give Read the Docs $5 per "
@@ -817,462 +583,519 @@ msgid ""
 "    "
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:89
+#: gold/templates/gold/subscription_form.html:92
 msgid "Become a Gold Member"
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:91
+#: gold/templates/gold/subscription_form.html:94
 msgid "Update Your Subscription"
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:106
+#: gold/templates/gold/subscription_form.html:109
 msgid "Current card"
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:117
+#: gold/templates/gold/subscription_form.html:120
 #, fuzzy
 #| msgid "Credit Card"
 msgid "Edit Card"
 msgstr "Thẻ Credit"
 
-#: gold/templates/gold/subscription_form.html:133
+#: gold/templates/gold/subscription_form.html:136
+#: templates/account/signup.html:10 templates/account/signup.html:22
 #, fuzzy
 #| msgid "Sign up"
 msgid "Sign Up"
 msgstr "Tạo tài khoản"
 
-#: gold/templates/gold/subscription_form.html:139
+#: gold/templates/gold/subscription_form.html:142
 msgid "All information is submitted directly to Stripe."
 msgstr ""
 
-#: gold/views.py:72
+#: gold/views.py:76
 msgid "Your subscription has been updated"
 msgstr ""
 
-#: gold/views.py:84
+#: gold/views.py:89
 msgid "Your subscription has been cancelled"
 msgstr ""
 
-#: integrations/models.py:125 integrations/models.py:128
+#: integrations/models.py:130 integrations/models.py:133
 msgid "Request headers"
 msgstr ""
 
-#: integrations/models.py:126
+#: integrations/models.py:131
 msgid "Request body"
 msgstr ""
 
-#: integrations/models.py:129
+#: integrations/models.py:134
 msgid "Response body"
 msgstr ""
 
-#: integrations/models.py:132
+#: integrations/models.py:137
 #, fuzzy
 #| msgid "Status Code:"
 msgid "Status code"
 msgstr "Mã tình trạng:"
 
-#: integrations/models.py:141
+#: integrations/models.py:147
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr ""
 
-#: integrations/models.py:236
+#: integrations/models.py:246
 msgid "GitHub incoming webhook"
 msgstr ""
 
-#: integrations/models.py:237
+#: integrations/models.py:247
 msgid "Bitbucket incoming webhook"
 msgstr ""
 
-#: integrations/models.py:238
+#: integrations/models.py:248
 msgid "GitLab incoming webhook"
 msgstr ""
 
-#: integrations/models.py:239
+#: integrations/models.py:249
 msgid "Generic API incoming webhook"
 msgstr ""
 
-#: integrations/models.py:246
+#: integrations/models.py:256
 #, fuzzy
 #| msgid "Documentation type"
 msgid "Integration type"
 msgstr "Kiểu tài liệu"
 
-#: integrations/models.py:250
+#: integrations/models.py:260
 msgid "Provider data"
 msgstr ""
 
-#: integrations/models.py:262
+#: integrations/models.py:273
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr ""
 
-#: notifications/forms.py:27
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr ""
 
-#: oauth/models.py:38 oauth/models.py:82
+#: oauth/models.py:40 oauth/models.py:85
 msgid "Users"
 msgstr ""
 
-#: oauth/models.py:41 oauth/models.py:85
+#: oauth/models.py:42 oauth/models.py:87
 msgid "Connected account"
 msgstr ""
 
-#: oauth/models.py:48
-msgid "Avatar image URL"
+#: oauth/models.py:47 oauth/models.py:101 projects/models.py:83
+#: projects/models.py:900
+msgid "Name"
+msgstr "Tên"
+
+#: oauth/models.py:48 templates/base.html:131
+msgid "Email"
 msgstr ""
 
 #: oauth/models.py:49
+msgid "Avatar image URL"
+msgstr ""
+
+#: oauth/models.py:51
 #, fuzzy
 #| msgid "Organization"
 msgid "URL to organization page"
 msgstr "Tổ chức"
 
-#: oauth/models.py:52 oauth/models.py:117
+#: oauth/models.py:53 oauth/models.py:140
 msgid "Serialized API response"
 msgstr ""
 
-#: oauth/models.py:88
+#: oauth/models.py:90
 msgid "Organization"
 msgstr "Tổ chức"
 
-#: oauth/models.py:96
+#: oauth/models.py:102
 msgid "Full Name"
 msgstr "Tên đầy đủ"
 
-#: oauth/models.py:98
+#: oauth/models.py:107
 #, fuzzy
 #| msgid "The reStructuredText description of the project"
 msgid "Description of the project"
 msgstr "Miêu tả chi tiết dự án bằng reStructureText"
 
-#: oauth/models.py:99
+#: oauth/models.py:110
 msgid "Owner avatar image URL"
 msgstr ""
 
-#: oauth/models.py:102
+#: oauth/models.py:116
 msgid "SSH URL"
 msgstr ""
 
-#: oauth/models.py:105
+#: oauth/models.py:122
 #, fuzzy
 #| msgid "Repository URL"
 msgid "Repository clone URL"
 msgstr "URL của kho"
 
-#: oauth/models.py:110
+#: oauth/models.py:129
 msgid "HTML URL"
 msgstr ""
 
-#: oauth/models.py:112
+#: oauth/models.py:131
 #, fuzzy
 #| msgid "Repository"
 msgid "Private repository"
 msgstr "Repository"
 
-#: oauth/models.py:113
+#: oauth/models.py:132
 msgid "Has admin privilege"
 msgstr ""
 
-#: oauth/models.py:114
+#: oauth/models.py:134
 msgid "vcs"
 msgstr ""
 
-#: oauth/utils.py:34
+#: oauth/utils.py:43
 msgid ""
 "Webhook activation failed. There are no connected services for this project."
 msgstr ""
 
-#: oauth/utils.py:43 oauth/utils.py:73
+#: oauth/utils.py:51 oauth/utils.py:94
 msgid "Webhook activated"
 msgstr ""
 
-#: oauth/utils.py:51
+#: oauth/utils.py:60
 msgid "Webhook activation failed. Make sure you have permissions to set it."
 msgstr ""
 
-#: oauth/utils.py:56
+#: oauth/utils.py:67
 #, python-brace-format
 msgid ""
 "No accounts available to set webhook on. Please connect your {network} "
 "account."
 msgstr ""
 
-#: oauth/utils.py:79
+#: oauth/utils.py:101
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr ""
 
-#: payments/forms.py:84
+#: payments/forms.py:85
 msgid "Card number"
 msgstr ""
 
-#: payments/forms.py:93
+#: payments/forms.py:94
 msgid "Card expiration"
 msgstr ""
 
-#: payments/forms.py:102
+#: payments/forms.py:103
 msgid "Card CVV"
 msgstr ""
 
-#: payments/forms.py:170
+#: payments/forms.py:171
 msgid "There was a problem communicating with Stripe"
 msgstr ""
 
-#: projects/constants.py:21
-msgid "Automatically Choose"
+#: profiles/views.py:301
+msgid "Updated your advertising preferences"
 msgstr ""
 
-#: projects/constants.py:22
-msgid "Sphinx Html"
-msgstr ""
-
-#: projects/constants.py:23
-msgid "Mkdocs (Markdown)"
-msgstr ""
-
-#: projects/constants.py:24
-msgid "Sphinx HtmlDir"
+#: projects/admin.py:91
+msgid "Yes"
 msgstr ""
 
 #: projects/constants.py:25
+msgid "Automatically Choose"
+msgstr ""
+
+#: projects/constants.py:26
+msgid "Sphinx Html"
+msgstr ""
+
+#: projects/constants.py:27
+msgid "Mkdocs (Markdown)"
+msgstr ""
+
+#: projects/constants.py:28
+msgid "Sphinx HtmlDir"
+msgstr ""
+
+#: projects/constants.py:29
 msgid "Sphinx Single Page HTML"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:30
+#: projects/constants.py:34
 msgid "Default"
 msgstr "Chuẩn"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:32
+#: projects/constants.py:36
 msgid "Sphinx Docs"
 msgstr ""
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:36
+#: projects/constants.py:40
 msgid "Traditional"
 msgstr "Truyền thống"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:38
+#: projects/constants.py:42
 msgid "Nature"
 msgstr "Tự nhiên"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:40
+#: projects/constants.py:44
 msgid "Haiku"
 msgstr "Haiku"
 
-#: projects/constants.py:70
+#: projects/constants.py:73
+msgid "Live"
+msgstr ""
+
+#: projects/constants.py:74
 msgid "Deleted"
 msgstr "Đã xóa"
 
-#: projects/constants.py:79
+#: projects/constants.py:83
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:80
+#: projects/constants.py:84
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:81
+#: projects/constants.py:85
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:82
+#: projects/constants.py:86
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:91
+#: projects/constants.py:94
+msgid "Public"
+msgstr "Công cộng"
+
+#: projects/constants.py:95
 msgid "Protected"
 msgstr "Bảo vệ"
 
-#: projects/constants.py:92
+#: projects/constants.py:96
 msgid "Private"
 msgstr "Riêng tư"
 
-#: projects/constants.py:103
+#: projects/constants.py:107
 msgid "CPython 2.x"
 msgstr ""
 
-#: projects/constants.py:104
+#: projects/constants.py:108
 msgid "CPython 3.x"
 msgstr ""
 
-#: projects/forms.py:92
+#: projects/exceptions.py:17
+#, fuzzy
+#| msgid ""
+#| "Your configuration file is invalid, make sure it contains conf.py in it."
+msgid ""
+"A configuration file was not found. Make sure you have a conf.py file in "
+"your repository."
+msgstr ""
+"Có vấn đề với tập tin thiết lập của bạn, xin hãy đảm bảo nó có chứa conf.py."
+
+#: projects/exceptions.py:22
+msgid ""
+"We found more than one conf.py and are not sure which one to use. Please, "
+"specify the correct file under the Advanced settings tab in the project's "
+"Admin."
+msgstr ""
+
+#: projects/exceptions.py:33
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct."
+msgstr ""
+
+#: projects/exceptions.py:37
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct and your repository is public. Private "
+"repositories are not supported."
+msgstr ""
+
+#: projects/exceptions.py:43
+msgid "One or more submodule URLs are not valid."
+msgstr ""
+
+#: projects/forms.py:97
 msgid "Edit advanced project options"
 msgstr ""
 
-#: projects/forms.py:115
+#: projects/forms.py:120
 msgid "Invalid project name, a project already exists with that name"
 msgstr ""
 
-#: projects/forms.py:122
-msgid "Invalid character in repo name"
-msgstr "Có ký tự không được phép trong tên repo"
-
-#: projects/forms.py:125
-msgid ""
-"It looks like you entered a private repo - please use the public (http:// or "
-"git://) clone url"
-msgstr ""
-"Có vẻ bạn đã nhập một repo không công cộng (private) - xin hãy dùng địa chỉ "
-"clone công cộng (bắt đầu bằng http:// hoặc git://)"
-
-#: projects/forms.py:139
+#: projects/forms.py:133
 #, fuzzy
 #| msgid "Repository"
 msgid "Repository invalid"
 msgstr "Repository"
 
-#: projects/forms.py:181 projects/models.py:201
+#: projects/forms.py:176 projects/models.py:205
 msgid "(Beta) The Python interpreter used to create the virtual environment."
 msgstr "(Beta) Trình thông dịch Python được dùng để tạo môi trường ảo."
 
-#: projects/forms.py:212
+#: projects/forms.py:209
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "Có vấn đề với tập tin thiết lập của bạn, xin hãy đảm bảo nó có chứa conf.py."
 
-#: projects/forms.py:261
+#: projects/forms.py:237
+#, python-brace-format
+msgid "There is already a \"{lang}\" translation for the {proj} project."
+msgstr ""
+
+#: projects/forms.py:289
 #, fuzzy
 #| msgid "Project version these docs apply to, i.e. 1.0a"
 msgid "Subproject nesting is not supported"
 msgstr "Phiên bản của dự án tương ứng với những tài liệu này (1.0a,...)"
 
-#: projects/forms.py:339 templates/core/project_detail_right.html:118
+#: projects/forms.py:296
+msgid "A project can not be a subproject of itself"
+msgstr ""
+
+#: projects/forms.py:384 templates/core/project_detail_right.html:133
 msgid "Default Version"
 msgstr "Phiên bản mặc định"
 
-#: projects/forms.py:366
+#: projects/forms.py:414
 msgid "Zip file of HTML"
 msgstr "Tập Zip chứa HTML"
 
-#: projects/forms.py:368
+#: projects/forms.py:416
 msgid "Overwrite existing HTML?"
 msgstr "Bạn có muốn ghi đè HTML đã có sẵn?"
 
-#: projects/forms.py:381
+#: projects/forms.py:429
 msgid "That version is already active!"
 msgstr "Phiên bản này đã được kích hoạt sẵn rồi!"
 
-#: projects/forms.py:383
+#: projects/forms.py:431
 msgid "Must upload a zip file."
 msgstr "Bắt buộc phải tải lên một tập tin zip."
 
-#: projects/forms.py:398
+#: projects/forms.py:446
 msgid "Version of the project you are uploading HTML for"
 msgstr "Phiên bản của dự án mà bạn đang tải HTML lên"
 
-#: projects/forms.py:418
-#, python-format
-msgid "User %(name)s does not exist"
+#: projects/forms.py:467
+#, fuzzy, python-brace-format
+#| msgid "User %(name)s does not exist"
+msgid "User {name} does not exist"
 msgstr "Người dùng %(name)s không tồn tại."
 
-#: projects/forms.py:484
-#, python-format
-msgid "Project %(name)s does not exist"
-msgstr "Dự án %(name)s không tồn tại"
-
-#: projects/forms.py:556
+#: projects/forms.py:661
 msgid "Only 1 Domain can be canonical at a time."
 msgstr ""
 
-#: projects/models.py:53
+#: projects/models.py:50
 msgid "Parent"
 msgstr "Cha"
 
-#: projects/models.py:55
+#: projects/models.py:52
 msgid "Child"
 msgstr "Con"
 
-#: projects/models.py:57
+#: projects/models.py:54
 #, fuzzy
 #| msgid "Aliases"
 msgid "Alias"
 msgstr "Các tên phụ"
 
-#: projects/models.py:89
+#: projects/models.py:86
 msgid "The reStructuredText description of the project"
 msgstr "Miêu tả chi tiết dự án bằng reStructureText"
 
-#: projects/models.py:91
+#: projects/models.py:88
 msgid "Repository URL"
 msgstr "URL của kho"
 
-#: projects/models.py:92
+#: projects/models.py:90
 msgid "Hosted documentation repository URL"
 msgstr ""
 
-#: projects/models.py:93
+#: projects/models.py:91
 msgid "Repository type"
 msgstr "Kiểu repository"
 
-#: projects/models.py:95
+#: projects/models.py:93
 #, fuzzy
 #| msgid "The project's homepage"
 msgid "Project homepage"
 msgstr "Trang chủ của dự án"
 
-#: projects/models.py:96
+#: projects/models.py:94
 msgid "The project's homepage"
 msgstr "Trang chủ của dự án"
 
-#: projects/models.py:97
+#: projects/models.py:95
 msgid "Canonical URL"
 msgstr ""
 
-#: projects/models.py:98
+#: projects/models.py:96
 msgid "URL that documentation is expected to serve from"
 msgstr ""
 
-#: projects/models.py:100
+#: projects/models.py:98
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "Phiên bản của dự án tương ứng với những tài liệu này (1.0a,...)"
 
-#: projects/models.py:102
+#: projects/models.py:100
 msgid "Copyright"
 msgstr "Bản quyền"
 
-#: projects/models.py:103
+#: projects/models.py:101
 msgid "Project copyright information"
 msgstr "Thông tin bản quyền của dự án"
 
-#: projects/models.py:108
+#: projects/models.py:103
+msgid "Theme"
+msgstr ""
+
+#: projects/models.py:106
 msgid "Examples"
 msgstr "Ví dụ"
 
-#: projects/models.py:109
+#: projects/models.py:107
 msgid "Suffix"
 msgstr "Gắn thêm đuôi"
 
-#: projects/models.py:112
+#: projects/models.py:110
 msgid "Single version"
 msgstr "Phiên bản đơn lẻ"
 
-#: projects/models.py:113
+#: projects/models.py:111
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
 "you will <b>never</b> have multiple versions of your docs."
 msgstr ""
 
-#: projects/models.py:118
+#: projects/models.py:116
 msgid "Default version"
 msgstr "Phiên bản mặc định"
 
-#: projects/models.py:119
+#: projects/models.py:117
 msgid "The version of your project that / redirects to"
 msgstr "Phiên bản mà / trỏ tới"
 
-#: projects/models.py:123
+#: projects/models.py:121
 msgid "Default branch"
 msgstr "Nhánh mặc định"
 
-#: projects/models.py:124
+#: projects/models.py:122
 #, fuzzy
 #| msgid ""
 #| "What branch \"latest\" points to. Leave empty to use the default value "
@@ -1284,28 +1107,29 @@ msgstr ""
 "Nơi mà nhánh \"latest\" trỏ tới. Bỏ trống để sử dụng giá trị mặc định cho "
 "VCS của bạn (VD: trunk hoặc master)."
 
-#: projects/models.py:128
+#: projects/models.py:126
 msgid "Requirements file"
 msgstr ""
 
-#: projects/models.py:130
+#: projects/models.py:128
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
 "\">pip requirements file</a> needed to build your documentation. Path from "
 "the root of your project."
 msgstr ""
 
-#: projects/models.py:135
+#: projects/models.py:133
 msgid "Documentation type"
 msgstr "Kiểu tài liệu"
 
-#: projects/models.py:137
+#: projects/models.py:135
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info</a>."
 msgstr ""
 
-#: projects/models.py:142
+#: projects/models.py:141
 msgid "Allow Comments"
 msgstr ""
 
@@ -1363,33 +1187,45 @@ msgstr ""
 msgid "If unchecked, users will still see community ads."
 msgstr ""
 
-#: projects/models.py:166
-msgid "Enable EPUB build"
+#: projects/models.py:164
+msgid "Show version warning"
 msgstr ""
 
-#: projects/models.py:168
-msgid "Create a EPUB version of your documentation with each build."
+#: projects/models.py:165
+msgid "Show warning banner in non-stable nor latest versions."
 msgstr ""
 
 #: projects/models.py:170
-msgid "Enable PDF build"
+msgid "Enable EPUB build"
 msgstr ""
 
 #: projects/models.py:172
-msgid "Create a PDF version of your documentation with each build."
+msgid "Create a EPUB version of your documentation with each build."
+msgstr ""
+
+#: projects/models.py:174
+msgid "Enable PDF build"
 msgstr ""
 
 #: projects/models.py:176
+msgid "Create a PDF version of your documentation with each build."
+msgstr ""
+
+#: projects/models.py:179 projects/models.py:902
+msgid "Path"
+msgstr "Đường dẫn"
+
+#: projects/models.py:180
 #, fuzzy
 #| msgid "The directory where conf.py lives"
 msgid "The directory where <code>conf.py</code> lives"
 msgstr "Thư mục chứa file conf.py"
 
-#: projects/models.py:179
+#: projects/models.py:183
 msgid "Python configuration file"
 msgstr "Tập tin thiết lập bằng Python"
 
-#: projects/models.py:180
+#: projects/models.py:184
 #, fuzzy
 #| msgid ""
 #| "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
@@ -1401,25 +1237,25 @@ msgstr ""
 "Đường dẫn từ thư mục gốc của dự án đến tập tin conf.py (VD: docs/conf.py). "
 "Bỏ trống để hệ thống tự tìm."
 
-#: projects/models.py:184
+#: projects/models.py:188
 msgid "Featured"
 msgstr "Tính năng"
 
-#: projects/models.py:185
+#: projects/models.py:189
 msgid "Skip"
 msgstr "Bỏ qua"
 
-#: projects/models.py:186
+#: projects/models.py:190
 msgid "Mirror"
 msgstr ""
 
-#: projects/models.py:188
+#: projects/models.py:192
 #, fuzzy
 #| msgid "(All Projects)"
 msgid "Install Project"
 msgstr "(Tất cả các dự án)"
 
-#: projects/models.py:189
+#: projects/models.py:193
 #, fuzzy
 #| msgid "Install your project inside a virtualenv using setup.py install"
 msgid ""
@@ -1427,23 +1263,23 @@ msgid ""
 msgstr ""
 "Cài đặt dự án của bạn trong một virtualenv sử dụng lệnh setup.py install"
 
-#: projects/models.py:197
+#: projects/models.py:201
 msgid "Python Interpreter"
 msgstr "Trình thông dịch Python"
 
-#: projects/models.py:205
+#: projects/models.py:209
 msgid "Use system packages"
 msgstr "Sử dụng các gói của hệ thống"
 
-#: projects/models.py:206
+#: projects/models.py:210
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 
-#: projects/models.py:210
+#: projects/models.py:214
 msgid "Django Packages URL"
 msgstr ""
 
-#: projects/models.py:215
+#: projects/models.py:219
 msgid ""
 "(Beta) Level of privacy that you want on the repository. Protected means "
 "public but not in listings."
@@ -1451,165 +1287,217 @@ msgstr ""
 "(Beta) Mức độ bảo mật mà bạn muốn áp dụng cho kho. Bảo vệ có nghĩa như công "
 "cộng nhưng sẽ không nằm trong danh sách liệt kê các kho."
 
-#: projects/models.py:218
+#: projects/models.py:222
 msgid "Version Privacy Level"
 msgstr ""
 
-#: projects/models.py:221
+#: projects/models.py:225
 msgid ""
 "(Beta) Default level of privacy you want on built versions of documentation."
 msgstr ""
 
-#: projects/models.py:226
+#: projects/models.py:230
 msgid "Related projects"
 msgstr "Các dự án liên quan"
 
-#: projects/models.py:230
+#: projects/models.py:234
 msgid "Language"
 msgstr "Ngôn ngữ"
 
-#: projects/models.py:231
+#: projects/models.py:235
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
 
-#: projects/models.py:240
+#: projects/models.py:241
+msgid "Programming Language"
+msgstr ""
+
+#: projects/models.py:245
 msgid "The primary programming language the project is written in."
 msgstr ""
 
-#: projects/models.py:250
+#: projects/models.py:255
 msgid "Number of Major versions"
 msgstr ""
 
-#: projects/models.py:254
+#: projects/models.py:259
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 
-#: projects/models.py:257
+#: projects/models.py:262
 msgid "Number of Minor versions"
 msgstr ""
 
-#: projects/models.py:261
+#: projects/models.py:266
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 
-#: projects/models.py:264
+#: projects/models.py:269
 msgid "Number of Point versions"
 msgstr ""
 
-#: projects/models.py:268
+#: projects/models.py:273
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 
-#: projects/models.py:272
+#: projects/models.py:277
 msgid "This project has been built with a webhook"
 msgstr ""
 
-#: projects/models.py:275
+#: projects/models.py:280
 msgid "This project has been successfully cloned"
 msgstr ""
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:287
+#: projects/models.py:292
 msgid "View Project"
 msgstr "Xem dự án"
 
-#: projects/models.py:309
+#: projects/models.py:315
 msgid "Model must have slug"
 msgstr ""
 
-#: projects/models.py:844
+#: projects/models.py:903
 msgid "MD5 checksum"
 msgstr "Mã checksum MD5"
 
-#: projects/models.py:874
+#: projects/models.py:933
 msgid "URL to send the webhook to"
 msgstr ""
 
-#: projects/models.py:886
+#: projects/models.py:945
 msgid "Domain"
 msgstr ""
 
-#: projects/models.py:889
+#: projects/models.py:948
 msgid "This Domain was auto-created"
 msgstr ""
 
-#: projects/models.py:892
+#: projects/models.py:951
 #, fuzzy
 #| msgid "There are no builds for this project"
 msgid "This Domain is a CNAME for the project"
 msgstr "Không có phiên bản xây dựng nào cho dự án này"
 
-#: projects/models.py:896
+#: projects/models.py:956
 msgid "This Domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:899
+#: projects/models.py:960
 msgid "Use HTTPS"
 msgstr ""
 
-#: projects/models.py:901
+#: projects/models.py:962
 msgid "SSL is enabled for this domain"
 msgstr ""
 
-#: projects/models.py:903
+#: projects/models.py:965
 msgid "Number of times this domain has been hit"
 msgstr ""
 
-#: projects/tasks.py:143
+#: projects/models.py:1019
+#, fuzzy
+#| msgid "Single version"
+msgid "Use latest version of Sphinx"
+msgstr "Phiên bản đơn lẻ"
+
+#: projects/models.py:1020
+msgid "Use latest version of setuptools"
+msgstr ""
+
+#: projects/models.py:1021
+msgid "Allow deprecated webhook views"
+msgstr ""
+
+#: projects/models.py:1022
+msgid "Always run pip install --upgrade"
+msgstr ""
+
+#: projects/models.py:1023
+msgid "Skip git submodule checkout"
+msgstr ""
+
+#: projects/models.py:1033
+#, fuzzy
+#| msgid "Identifier"
+msgid "Feature identifier"
+msgstr "Định danh"
+
+#: projects/models.py:1038
+msgid "Date feature was added"
+msgstr ""
+
+#: projects/models.py:1042
+msgid "Historical default is True"
+msgstr ""
+
+#: projects/tasks.py:99
+#, python-brace-format
+msgid "Repository type \"{repo_type}\" unknown"
+msgstr ""
+
+#: projects/tasks.py:375
 msgid "Builds for this project are temporarily disabled"
 msgstr ""
 
-#: projects/tasks.py:816
+#: projects/tasks.py:1027
 #, python-brace-format
-msgid "Failed: {project.name} ({commit})"
+msgid "Failed: {project[name]} ({commit})"
 msgstr ""
 
-#: projects/tasks.py:818
+#: projects/tasks.py:1029
 #, python-brace-format
-msgid "Failed: {project.name} ({version.verbose_name})"
+msgid "Failed: {project[name]} ({version[verbose_name]})"
 msgstr ""
 
-#: projects/views/private.py:103 projects/views/private.py:119
+#: projects/tasks.py:1213
+#, python-brace-format
+msgid ""
+"This build was terminated due to inactivity. If you continue to encounter "
+"this error, file a support request with and reference this build id ({0})."
+msgstr ""
+
+#: projects/views/private.py:82 projects/views/private.py:98
 msgid "Project settings updated"
 msgstr ""
 
-#: projects/views/private.py:151
+#: projects/views/private.py:131
 #, fuzzy
 #| msgid "Project version these docs apply to, i.e. 1.0a"
 msgid "Project versions updated"
 msgstr "Phiên bản của dự án tương ứng với những tài liệu này (1.0a,...)"
 
-#: projects/views/private.py:204
+#: projects/views/private.py:183
 #, fuzzy
 #| msgid "Project Alias"
 msgid "Project deleted"
 msgstr "Tên phụ cho dự án"
 
-#: projects/views/private.py:289
+#: projects/views/private.py:267
 #, fuzzy
 #| msgid "That version is already active!"
 msgid "The demo project is already imported!"
 msgstr "Phiên bản này đã được kích hoạt sẵn rồi!"
 
-#: projects/views/private.py:298
+#: projects/views/private.py:276
 msgid "Your demo project is currently being imported"
 msgstr ""
 
-#: projects/views/private.py:303
+#: projects/views/private.py:280
 msgid "There was a problem adding the demo project"
 msgstr ""
 
-#: projects/views/private.py:350
+#: projects/views/private.py:333
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
 "account on your <a href=\"{url}\">connected services page</a>."
 msgstr ""
 
-#: projects/views/private.py:794
+#: projects/views/private.py:791
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
@@ -1693,86 +1581,85 @@ msgstr "tái định hướng"
 msgid "redirects"
 msgstr ""
 
-#: redirects/models.py:82
-#, fuzzy
-#| msgid "Prefix Redirect"
-msgid "Prefix Redirect:"
-msgstr "Tiền tố tái định hương"
-
-#: redirects/models.py:84
-#, fuzzy
-#| msgid "Page Redirect"
-msgid "Page Redirect:"
-msgstr "Trang tái định hướng"
-
 #: redirects/models.py:87
-#, python-format
-msgid "Redirect: %s"
-msgstr ""
+#, fuzzy
+#| msgid "Redirect Type"
+msgid "Redirect: {}"
+msgstr "Kiểu tái định hướng"
 
-#: settings/base.py:197
+#: settings/base.py:209
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:198
+#: settings/base.py:210
 msgid "English"
 msgstr "Tiếng Anh"
 
-#: settings/base.py:199
+#: settings/base.py:211
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:200
+#: settings/base.py:212
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:201
+#: settings/base.py:213
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:202
+#: settings/base.py:214
 msgid "French"
 msgstr ""
 
-#: settings/base.py:203
+#: settings/base.py:215
 msgid "Russian"
 msgstr ""
 
-#: settings/base.py:204
+#: settings/base.py:216
 msgid "German"
 msgstr ""
 
-#: settings/base.py:205
+#: settings/base.py:217
 msgid "Galician"
 msgstr ""
 
-#: settings/base.py:206
+#: settings/base.py:218
 msgid "Vietnamese"
 msgstr "Tiếng Việt"
 
-#: settings/base.py:207
-msgid "Chinese"
-msgstr "Tiếng Trung"
+#: settings/base.py:219
+msgid "Simplified Chinese"
+msgstr ""
 
-#: settings/base.py:208
-msgid "Taiwanese"
-msgstr "Tiếng Đài Loan"
+#: settings/base.py:220
+#, fuzzy
+#| msgid "Traditional"
+msgid "Traditional Chinese"
+msgstr "Truyền thống"
 
-#: settings/base.py:209
+#: settings/base.py:221
 msgid "Japanese"
 msgstr "Tiếng Nhật"
 
-#: settings/base.py:210
+#: settings/base.py:222
 msgid "Ukrainian"
 msgstr "Tiếng Ukcraina"
 
-#: settings/base.py:211
+#: settings/base.py:223
 msgid "Italian"
 msgstr ""
 
-#: settings/base.py:212
+#: settings/base.py:224
 msgid "Korean"
 msgstr ""
+
+#: templates/401.html:6 templates/404.html:6
+msgid "Maze Found"
+msgstr ""
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "Lỗi máy chủ"
 
 #: templates/account/email.html:5 templates/account/email.html:9
 #: templates/profiles/base_profile_edit.html:51
@@ -1843,22 +1730,29 @@ msgstr ""
 msgid "Verify your email address"
 msgstr ""
 
-#: templates/account/email/password_reset_key_message.html:16
-#: templates/account/email/password_reset_key_message.txt:11
+#: templates/account/email/password_reset_key_message.html:7
+#: templates/account/email/password_reset_key_message.txt:6
 msgid ""
-"If you did not request to reset you password, you can disregard this email."
+"A request has been made to reset your Read the Docs password. To confirm "
+"this reset request, please go to:"
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html:15
+#: templates/account/email/password_reset_key_message.txt:10
+msgid ""
+"If you did not request to reset your password, you can disregard this email."
 msgstr ""
 
 #: templates/account/email/password_reset_key_subject.txt:3
 msgid "Password reset"
 msgstr ""
 
-#: templates/account/login.html:6 templates/account/login.html:10
-#: templates/account/login.html:21
+#: templates/account/login.html:6 templates/account/login.html:12
+#: templates/account/login.html:23
 msgid "Sign In"
 msgstr "Đăng nhập"
 
-#: templates/account/login.html:12
+#: templates/account/login.html:14
 #, python-format
 msgid ""
 "If you have not created an account yet, then please\n"
@@ -1867,13 +1761,20 @@ msgstr ""
 "Nếu bạn chưa tạo tài khoản, vui lòng <a href=\"%(signup_url)s\">đăng ký</a> "
 "trước."
 
-#: templates/account/login.html:22
+#: templates/account/login.html:27
+#, fuzzy, python-format
+#| msgid ""
+#| "If you forgot your password, <a href=\"/accounts/password/reset/\">reset "
+#| "it.</a>"
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
 msgstr ""
 "Nếu bạn quên mật khẩu, <a href=\"/accounts/password/reset/\">thiết đặt lại "
 "mật khẩu.</a>"
+
+#: templates/account/login.html:31 templates/account/signup.html:28
+msgid "Or"
+msgstr ""
 
 #: templates/account/password_change.html:5
 #: templates/account/password_change.html:9
@@ -1882,86 +1783,151 @@ msgstr ""
 msgid "Change Password"
 msgstr "Thay đổi mật khẩu"
 
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/account/signup.html:5 templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "Tạo tài khoản"
+
+#: templates/account/signup.html:13
+#, fuzzy, python-format
+#| msgid ""
+#| "If you have not created an account yet, then please\n"
+#| "<a href=\"%(signup_url)s\">sign up</a> first."
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr ""
+"Nếu bạn chưa tạo tài khoản, vui lòng <a href=\"%(signup_url)s\">đăng ký</a> "
+"trước."
+
+#: templates/account/signup.html:24
+msgid ""
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
+"latest/privacy-policy.html\">privacy policy</a>."
+msgstr ""
+
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr ""
 
-#: templates/base.html:92
-msgid "Docs"
+#: templates/base.html:121
+msgid "Stay Updated"
 msgstr ""
 
-#: templates/base.html:95
-#, fuzzy, python-format
-#| msgid ""
-#| "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
-#| "contributors\">humans</a>. Funded by <a href=\"https://www.gittip.com/"
-#| "readthedocs/\">readers like you</a>."
-msgid ""
-"\n"
-"        Made by <a href=\"https://docs.readthedocs.io/en/latest/team.html"
-"\">humans</a>. Funded by <a href=\"%(gold_detail)s\">readers like you</a>.\n"
-"        "
+#: templates/base.html:125
+msgid "Blog"
 msgstr ""
-"Được tạo ra bởi <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
-"contributors\">những người thực sự</a>. Được tài trợ bởi <a href=\"https://"
-"www.gittip.com/readthedocs/\">những bạn đọc như bạn</a>."
+
+#: templates/base.html:129
+msgid ""
+"Sign up for our newsletter to get our latest blog updates delivered to your "
+"inbox weekly."
+msgstr ""
+
+#: templates/base.html:139
+msgid "Subscribe"
+msgstr ""
+
+#: templates/base.html:147
+msgid "Get Involved"
+msgstr ""
+
+#: templates/base.html:151
+msgid "Getting Started Guide"
+msgstr ""
+
+#: templates/base.html:154
+#, fuzzy
+#| msgid "Documentation type"
+msgid "Documentation"
+msgstr "Kiểu tài liệu"
+
+#: templates/base.html:157
+msgid "Contributing"
+msgstr ""
+
+#: templates/base.html:160
+msgid "Team"
+msgstr ""
+
+#: templates/base.html:163
+msgid "Open Source Philosophy"
+msgstr ""
+
+#: templates/base.html:170
+msgid "Business Info"
+msgstr ""
+
+#: templates/base.html:175
+msgid "Advertise with Us"
+msgstr ""
+
+#: templates/base.html:178
+#, fuzzy
+#| msgid "Repository"
+msgid "Private Hosting"
+msgstr "Repository"
+
+#: templates/base.html:182
+#, fuzzy
+#| msgid "Supported"
+msgid "Supporters"
+msgstr "Không hỗ trợ"
+
+#: templates/base.html:185
+#, fuzzy
+#| msgid "Privacy Level"
+msgid "Privacy Policy"
+msgstr "Mức độ bảo mật"
+
+#: templates/base.html:204
+msgid "Read the Docs, Inc & contributors"
+msgstr ""
+
+#: templates/base.html:227
+#, fuzzy
+#| msgid "Language"
+msgid "Change Language"
+msgstr "Ngôn ngữ"
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr "Bộ lọc"
 
-#: templates/bookmarks/bookmark_delete.html:4
-#: templates/bookmarks/bookmark_delete.html:6
-#: templates/projects/project_delete.html:4
-#: templates/projects/project_delete.html:6
-#, python-format
-msgid "Delete %(name)s?"
-msgstr ""
-
-#: templates/bookmarks/bookmark_delete.html:9
-#: templates/projects/project_delete.html:9
-#: templates/projects/project_resync_webhook.html:9
-msgid "You sure?"
-msgstr "Bạn có chắc chắn không?"
-
-#: templates/bookmarks/bookmark_delete.html:12
-#: templates/projects/project_delete.html:12
-msgid "Delete forever"
-msgstr "Xóa mãi mãi"
-
-#: templates/bookmarks/bookmark_list.html:7
-msgid "Bookmarks"
-msgstr "Những trang đã đánh dấu"
-
-#: templates/bookmarks/bookmark_list.html:20
-#, fuzzy
-#| msgid "Bookmarks"
-msgid "All Bookmarks"
-msgstr "Những trang đã đánh dấu"
-
-#: templates/builds/build_detail.html:36
+#: templates/builds/build_detail.html:37
 #, fuzzy
 #| msgid "Deleted"
 msgid "Completed"
 msgstr "Đã xóa"
 
-#: templates/builds/build_detail.html:41
+#: templates/builds/build_detail.html:42
 #, fuzzy
 #| msgid "Build Date"
 msgid "Build took"
 msgstr "Ngày tạo"
 
-#: templates/builds/build_detail.html:45
+#: templates/builds/build_detail.html:46
 msgid "seconds"
 msgstr ""
 
-#: templates/builds/build_detail.html:51
+#: templates/builds/build_detail.html:52
 #, fuzzy
 #| msgid "Built"
 msgid "Built on"
 msgstr "Đã được xây dựng"
 
-#: templates/builds/build_detail.html:58
+#: templates/builds/build_detail.html:60
+#, fuzzy
+#| msgid "View Docs"
+msgid "View docs"
+msgstr "Xem tài liệu"
+
+#: templates/builds/build_detail.html:68
+#, fuzzy
+#| msgid "View Version"
+msgid "View raw"
+msgstr "Xem phiên bản"
+
+#: templates/builds/build_detail.html:75
 #, python-format
 msgid ""
 "\n"
@@ -1969,64 +1935,74 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/builds/build_detail.html:86
+#: templates/builds/build_detail.html:107
 #, fuzzy
 #| msgid "Build Started"
 msgid "Build completed"
 msgstr "Quá trình xây dựng đã bắt đầu"
 
-#: templates/builds/build_detail.html:91
+#: templates/builds/build_detail.html:112
 #, fuzzy
 #| msgid "Build Date"
 msgid "Build failed"
 msgstr "Ngày tạo"
 
-#: templates/builds/build_detail.html:99
+#: templates/builds/build_detail.html:121
+#, python-format
+msgid ""
+"\n"
+"              Having trouble with your build environment?\n"
+"              Try <a href=\"%(wipe_url)s\">resetting it</a>.\n"
+"            "
+msgstr ""
+
+#: templates/builds/build_detail.html:131
+#, python-format
+msgid ""
+"\n"
+"              Don't want <em>setup.py install</em> called?\n"
+"              Change the <strong>Install Project</strong> setting in your <a "
+"href=\"%(advanced_url)s\">advanced settings</a>.\n"
+"            "
+msgstr ""
+
+#: templates/builds/build_detail.html:144
 msgid "Show full build output"
 msgstr ""
 
-#: templates/builds/build_detail.html:105
+#: templates/builds/build_detail.html:150
 #, fuzzy
 #| msgid "Build Standard Output"
 msgid "Build Output"
 msgstr "Tạo bản xuất ra chuẩn"
 
-#: templates/builds/build_detail.html:109
+#: templates/builds/build_detail.html:154
 msgid "Setup Output"
 msgstr "Đầu ra của lệnh cài đặt"
 
-#: templates/builds/build_detail.html:114
+#: templates/builds/build_detail.html:159
 msgid "Environment Standard Error"
 msgstr ""
 
-#: templates/builds/build_detail.html:120
+#: templates/builds/build_detail.html:165
 #, fuzzy
 #| msgid "Builds"
 msgid "Build Errors"
 msgstr "Các phiên bản xây dựng"
 
-#: templates/builds/build_detail.html:154
+#: templates/builds/build_detail.html:199
 msgid "Command time:"
 msgstr ""
 
-#: templates/builds/build_detail.html:159
+#: templates/builds/build_detail.html:204
 msgid "Return"
 msgstr ""
 
-#: templates/builds/build_list.html:23
-#, python-format
-msgid ""
-"\n"
-"    Whoa! The build queue is %(queue_length)s tasks long, new builds may "
-"take a while.\n"
-"  "
-msgstr ""
-
-#: templates/builds/build_list.html:46
+#: templates/builds/build_list.html:36
 msgid "Build Version:"
 msgstr ""
 
-#: templates/builds/build_list.html:62
+#: templates/builds/build_list.html:52
 msgid "Recent Builds"
 msgstr ""
 
@@ -2074,26 +2050,26 @@ msgstr "Read the Docs"
 msgid "No objects found"
 msgstr ""
 
-#: templates/core/header.html:29
+#: templates/core/header.html:28
 msgid "My Projects"
 msgstr "Dự án của tôi"
 
-#: templates/core/header.html:30 templates/projects/project_edit.html:27
+#: templates/core/header.html:29 templates/projects/project_edit.html:13
 #: templates/projects/project_edit_base.html:17
 msgid "Settings"
 msgstr ""
 
-#: templates/core/header.html:31
+#: templates/core/header.html:30
 #, fuzzy
 #| msgid "Supported"
 msgid "Support"
 msgstr "Không hỗ trợ"
 
-#: templates/core/header.html:34 templates/error_header.html:24
+#: templates/core/header.html:33 templates/error_header.html:24
 msgid "Log Out"
 msgstr "Đăng xuất"
 
-#: templates/core/header.html:41
+#: templates/core/header.html:39
 #, fuzzy
 #| msgid "Log in"
 msgid "Log In"
@@ -2103,13 +2079,9 @@ msgstr "Đăng nhập"
 msgid "Create, host, and browse documentation."
 msgstr "Tạo, xuất bản và tìm kiếm tài liệu."
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
-#: templates/core/home-header.html:17
-msgid "Sign up"
-msgstr "Tạo tài khoản"
-
-#. Translators: The 'or' here is in between 'Submit' and 'delete'.
-#: templates/core/home-header.html:19 templates/projects/project_edit.html:38
+#. Translators: The 'or' here is in between 'Save' and 'Delete project'.
+#: templates/core/home-header.html:19 templates/projects/project_edit.html:24
+#: templates/projects/project_version_detail.html:23
 msgid "or"
 msgstr "hoặc"
 
@@ -2120,7 +2092,7 @@ msgstr "Đăng nhập"
 #: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_version_list.html:50
+#: templates/projects/project_version_list.html:49
 msgid "View Docs"
 msgstr "Xem tài liệu"
 
@@ -2161,9 +2133,12 @@ msgstr ""
 msgid "Downloads"
 msgstr ""
 
+#. Translators: This is about starting a search
 #: templates/core/project_bar_base.html:58
 #: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
+#: templates/search/elastic_project_search.html:52
+#: templates/search/elastic_search.html:123
 msgid "Search"
 msgstr ""
 
@@ -2181,11 +2156,6 @@ msgid "Versions"
 msgstr "Các phiên ban"
 
 #: templates/core/project_bar_base.html:72
-#: templates/projects/project_edit_base.html:29
-msgid "Comments"
-msgstr ""
-
-#: templates/core/project_bar_base.html:73
 #: templates/profiles/base_profile.html:29
 #: templates/profiles/base_profile_edit.html:31
 msgid "Admin"
@@ -2195,78 +2165,98 @@ msgstr ""
 msgid "Repository"
 msgstr "Repository"
 
-#: templates/core/project_detail_right.html:15
+#: templates/core/project_detail_right.html:21
 msgid "Last Built"
 msgstr "Lần xây dựng gần đây nhất"
 
-#: templates/core/project_detail_right.html:22
+#: templates/core/project_detail_right.html:28
 #, fuzzy
 #| msgid "Passed"
 msgid "passed"
 msgstr "Qua"
 
-#: templates/core/project_detail_right.html:24
+#: templates/core/project_detail_right.html:30
 #, fuzzy
 #| msgid "Failed"
 msgid "failed"
 msgstr "Lỗi"
 
-#: templates/core/project_detail_right.html:37
-msgid "Owners"
+#: templates/core/project_detail_right.html:33
+#, fuzzy
+#| msgid "Building"
+msgid "Currently Building"
+msgstr "Đang xây dựng"
+
+#: templates/core/project_detail_right.html:36
+#: templates/projects/project_dashboard_base.html:72
+#, fuzzy
+#| msgid "Build Type"
+msgid "No builds yet"
+msgstr "Kiểu tạo dựng"
+
+#: templates/core/project_detail_right.html:43
+#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_users.html:8
+msgid "Maintainers"
 msgstr ""
 
-#: templates/core/project_detail_right.html:47
+#: templates/core/project_detail_right.html:53
 msgid "Home Page"
 msgstr ""
 
-#: templates/core/project_detail_right.html:55
+#: templates/core/project_detail_right.html:61
 msgid "Badge"
 msgstr ""
 
-#: templates/core/project_detail_right.html:65
+#: templates/core/project_detail_right.html:70
 msgid "Tags"
 msgstr "Các tag"
 
-#: templates/core/project_detail_right.html:70
-msgid "No tags"
-msgstr "Không có tag nào"
+#: templates/core/project_detail_right.html:78
+#, fuzzy
+#| msgid "The project's homepage"
+msgid "Project has no tags."
+msgstr "Trang chủ của dự án"
 
-#: templates/core/project_detail_right.html:77
+#: templates/core/project_detail_right.html:82
+#, python-format
+msgid ""
+"\n"
+"          Add some in your <a href=\"%(edit_url)s\">project settings</a>.\n"
+"          "
+msgstr ""
+
+#: templates/core/project_detail_right.html:92
 msgid "Project Privacy Level"
 msgstr ""
 
-#: templates/core/project_detail_right.html:86
+#: templates/core/project_detail_right.html:101
 msgid "Short URLs"
 msgstr "URL ngắn"
 
-#: templates/core/project_detail_right.html:97
+#: templates/core/project_detail_right.html:112
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr ""
 
-#: templates/core/project_detail_right.html:108
+#: templates/core/project_detail_right.html:123
 msgid "Sub Projects"
 msgstr ""
 
-#: templates/core/project_detail_right.html:121
+#: templates/core/project_detail_right.html:136
 msgid "'latest' Version"
-msgstr ""
-
-#: templates/core/project_details.html:31
-#, python-format
-msgid " %(slug)s "
 msgstr ""
 
 #: templates/core/project_details.html:43
 #: templates/projects/domain_list.html:26
-#: templates/projects/project_version_list.html:46
-#: templates/projects/project_version_list.html:99
+#: templates/projects/project_version_list.html:45
+#: templates/projects/project_version_list.html:97
 msgid "Edit"
 msgstr "Chỉnh sửa"
 
 #: templates/core/project_details.html:50
-#: templates/projects/project_version_list.html:59
+#: templates/projects/project_version_list.html:58
 #, fuzzy
 #| msgid "Single version"
 msgid "No active versions."
@@ -2275,6 +2265,12 @@ msgstr "Phiên bản đơn lẻ"
 #: templates/core/project_details.html:60
 msgid "Build a version"
 msgstr ""
+
+#: templates/core/project_details.html:69
+#, fuzzy
+#| msgid "Single version"
+msgid "Build version"
+msgstr "Phiên bản đơn lẻ"
 
 #: templates/core/project_downloads.html:30
 msgid "No downloads for this project."
@@ -2302,6 +2298,13 @@ msgstr ""
 #, fuzzy
 #| msgid "Read the Docs"
 msgid "Search all the docs"
+msgstr "Read the Docs"
+
+#: templates/core/widesearchbar.html:12
+#: templates/projects/project_dashboard_base.html:118
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "Search Read the Docs"
 msgstr "Read the Docs"
 
 #. Translators: This is about starting a search
@@ -2347,65 +2350,114 @@ msgstr ""
 msgid "Thank you for contributing to the quality of this site!"
 msgstr ""
 
-#: templates/homepage.html:7
+#: templates/homepage.html:8
+msgid ""
+"Read the Docs simplifies technical documentation by automating building, "
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+
+#: templates/homepage.html:11
 msgid "Home"
 msgstr "Trang chủ"
 
-#: templates/homepage.html:43
-msgid "What is this place?"
-msgstr "Nơi này là sao?"
-
 #: templates/homepage.html:45
-msgid ""
-"\n"
-"Read the Docs hosts documentation, making it fully searchable and easy to "
-"find.\n"
-"You can import your docs using any major version control system, including "
-"Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
-"\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for <a href=\"http://docs.readthedocs.io/en/latest/"
-"versions.html\">versioning</a> so you can build docs from tags and branches "
-"of your code in your repository. \n"
+msgid "Technical documentation lives here"
 msgstr ""
 
-#: templates/homepage.html:53
+#: templates/homepage.html:47
 msgid ""
 "\n"
-"  Hosting documentation is free and simple,\n"
-"  <a href=\"https://docs.readthedocs.io/en/latest/getting_started.html"
-"\">read our guide</a>\n"
-"  to get started!\n"
+"      Read the Docs simplifies software documentation by automating "
+"building,\n"
+"      versioning, and hosting of your docs for you.\n"
+"      "
 msgstr ""
 
 #: templates/homepage.html:60
+#, python-format
 msgid ""
 "\n"
-"Read the Docs is <b>community supported</b>. \n"
-"It depends on users like you to contribute to development,\n"
-"support,\n"
-"and operations.\n"
-"You can learn more about how to <a href=\"https://docs.readthedocs.io/en/"
-"latest/contribute.html\">contribute</a> in our docs.\n"
-"Thanks so much to our wonderful <a href=\"https://docs.readthedocs.io/en/"
-"latest/team.html\">community team</a> who helps us run the site.\n"
-"Read the Docs wouldn't be possible without them.\n"
-"Please consider joining today,\n"
-"as we always need more contributors to the project.\n"
+"        We will host your documentation for free forever.\n"
+"        There are no tricks. We help %(projects_count_intcomma)s open source "
+"projects\n"
+"        share their docs.\n"
+"        "
 msgstr ""
 
-#: templates/homepage.html:85
+#: templates/homepage.html:71
+msgid ""
+"\n"
+"        Whenever you push code to your favorite version control system,\n"
+"        whether that is Git, Mercurial, Bazaar, or Subversion, we will\n"
+"        automatically build your docs so your code and documentation are\n"
+"        never out of sync.\n"
+"        "
+msgstr ""
+
+#: templates/homepage.html:86
+msgid ""
+"\n"
+"        Of course we build and host your docs for the web, but they are\n"
+"        also vieweable as PDFs, as single page HTML, and for eReaders.\n"
+"        No additional configuration is required.\n"
+"        "
+msgstr ""
+
+#: templates/homepage.html:96
+msgid ""
+"\n"
+"        We can host and build multiple versions of your docs so having a\n"
+"        1.0 version of your docs and a 2.0 version of your docs is as easy\n"
+"        as having a separate branch or tag in your version control system.\n"
+"        "
+msgstr ""
+
+#: templates/homepage.html:109
+msgid "Getting started guide"
+msgstr ""
+
+#: templates/homepage.html:121
 msgid "Featured Projects"
 msgstr "Những dự án nên xem qua"
 
-#: templates/homepage.html:106
-#, fuzzy
-#| msgid "Recently Updated Projects"
-msgid "Recently updated projects"
-msgstr "Những dự án mới được cập nhật"
-
-#: templates/homepage.html:122
+#: templates/homepage.html:135
 msgid "Read the Docs is funded by the community"
+msgstr ""
+
+#: templates/homepage.html:142
+#, python-format
+msgid ""
+"\n"
+"    Read the Docs is a huge resource that millions of developers rely on\n"
+"    for software documentation. It would not be possible without the\n"
+"    support of our\n"
+"    <a href=\"%(sponsors_url)s\">sponsors</a>,\n"
+"    <a href=\"%(advertising_url)s\">advertisers</a>,\n"
+"    and <a href=\"%(gold_detail)s\">readers like you</a>.\n"
+"    "
+msgstr ""
+
+#: templates/homepage.html:153
+msgid ""
+"\n"
+"      Read the Docs is <strong>community supported</strong>.\n"
+"      It depends on users like you to contribute to development, support, "
+"and operations.\n"
+"      You can learn more about how to <a href=\"https://docs.readthedocs.io/"
+"en/latest/contribute.html\">contribute</a> in our docs.\n"
+"      Thanks so much to our wonderful <a href=\"https://docs.readthedocs.io/"
+"en/latest/team.html\">community team</a> who helps us run the site.\n"
+"      Read the Docs wouldn't be possible without them.\n"
+"      "
+msgstr ""
+
+#: templates/homepage.html:163
+msgid ""
+"\n"
+"      Hosting for the project is graciously provided by <a href=\"http://www."
+"rackspace.com/cloud/\">Rackspace</a>.\n"
+"      "
 msgstr ""
 
 #: templates/notifications/send_notification_form.html:6
@@ -2444,15 +2496,15 @@ msgstr ""
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
-#: templates/projects/project_import.html:189
-#: templates/projects/project_import.html:195
+#: templates/projects/project_import.html:172
+#: templates/projects/project_import.html:178
 msgid "previous"
 msgstr ""
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
-#: templates/projects/project_import.html:199
-#: templates/projects/project_import.html:205
+#: templates/projects/project_import.html:182
+#: templates/projects/project_import.html:188
 msgid "next"
 msgstr ""
 
@@ -2493,7 +2545,71 @@ msgid "Connected Services"
 msgstr ""
 
 #: templates/profiles/base_profile_edit.html:52
+#: templates/profiles/private/delete_account.html:5
+#: templates/profiles/private/delete_account.html:9
+#: templates/profiles/private/delete_account.html:18
+msgid "Delete Account"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:53
 msgid "Gold"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:55
+#: templates/projects/project_edit_base.html:28
+msgid "Advertising"
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:5
+#: templates/profiles/private/advertising_profile.html:9
+msgid "Set advertising preferences"
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:13
+#: templates/projects/project_advertising.html:16
+msgid ""
+"\n"
+"      Read the Docs is an open source project.\n"
+"      In order to maintain service, we rely on both the\n"
+"      support of our users, and from sponsor support.\n"
+"    "
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:21
+#: templates/projects/project_advertising.html:50
+msgid ""
+"\n"
+"      For more details on advertising on Read the Docs\n"
+"      including the privacy protections we have in place for users\n"
+"      and community advertising we run on behalf of the open source "
+"community,\n"
+"      see <a href=\"https://docs.readthedocs.io/en/latest/ethical-"
+"advertising.html\">our documentation</a>.\n"
+"    "
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:31
+msgid ""
+"\n"
+"        <strong>Note:</strong>\n"
+"        Since you are a Gold Member or donor, you <strong>will not</strong> "
+"see advertising as long as you are logged-in.\n"
+"        Thank you for supporting Read the Docs.\n"
+"      "
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:40
+#, python-format
+msgid ""
+"\n"
+"        You may remove ads completely by becoming a <a href=\"%(gold_detail)s"
+"\">Gold member to Read the Docs</a>.\n"
+"      "
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:49
+#: templates/projects/project_advertising.html:133
+msgid "Update advertisement preference"
 msgstr ""
 
 #: templates/profiles/private/create_profile.html:5
@@ -2504,6 +2620,10 @@ msgstr "Tạo hồ sơ của bạn"
 #: templates/profiles/private/create_profile.html:16
 msgid "Create it!"
 msgstr "Tạo!"
+
+#: templates/profiles/private/delete_account.html:16
+msgid "Be careful! This can not be undone!"
+msgstr ""
 
 #: templates/profiles/private/edit_profile.html:5
 #: templates/profiles/private/edit_profile.html:9
@@ -2528,7 +2648,7 @@ msgid "Add an alias for a project version."
 msgstr "Thêm tên khác cho một phiên bản của dự án."
 
 #: templates/projects/alias_edit.html:16
-#: templates/projects/project_create.html:34
+#: templates/projects/project_create.html:19
 msgid "Create"
 msgstr ""
 
@@ -2585,6 +2705,16 @@ msgstr "Các dự án con có sẵn"
 msgid "Add new Domain"
 msgstr ""
 
+#: templates/projects/domain_list.html:38
+#: templates/projects/project_import.html:157
+#: templates/projects/project_notifications.html:69
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_redirects.html:114
+#: templates/projects/project_translations.html:53
+#: templates/projects/project_users.html:51
+msgid "Add"
+msgstr ""
+
 #: templates/projects/import_base.html:4
 #, fuzzy
 #| msgid "Project"
@@ -2592,11 +2722,10 @@ msgid "Add a Project"
 msgstr "Dự án"
 
 #: templates/projects/import_base.html:27
-#: templates/search/elastic_project_search.html:123
-#: templates/search/elastic_project_search.html:125
+#: templates/search/elastic_project_search.html:105
+#: templates/search/elastic_project_search.html:107
 #: templates/search/elastic_search.html:196
-#: templates/search/elastic_search.html:198 templates/search/search.html:58
-#: templates/search/search.html:60
+#: templates/search/elastic_search.html:198
 msgid "Next"
 msgstr ""
 
@@ -2607,11 +2736,10 @@ msgid "Finish"
 msgstr "Đã hoàn thành"
 
 #: templates/projects/import_base.html:33
-#: templates/search/elastic_project_search.html:117
-#: templates/search/elastic_project_search.html:119
+#: templates/search/elastic_project_search.html:99
+#: templates/search/elastic_project_search.html:101
 #: templates/search/elastic_search.html:190
-#: templates/search/elastic_search.html:192 templates/search/search.html:52
-#: templates/search/search.html:54
+#: templates/search/elastic_search.html:192
 msgid "Previous"
 msgstr ""
 
@@ -2631,11 +2759,11 @@ msgid ""
 "    "
 msgstr ""
 
-#: templates/projects/import_extra.html:20
+#: templates/projects/import_extra.html:5
 msgid "Project Extra Details"
 msgstr ""
 
-#: templates/projects/import_extra.html:23
+#: templates/projects/import_extra.html:8
 msgid ""
 "\n"
 "      Here are a few more project options that you may need to configure.\n"
@@ -2695,7 +2823,7 @@ msgid "Token"
 msgstr ""
 
 #: templates/projects/integration_list.html:38
-msgid "No intergrations are currently configured"
+msgid "No integrations are currently configured."
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:5
@@ -2753,6 +2881,10 @@ msgid ""
 "          our webhook documentation\n"
 "        </a>\n"
 "      "
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:76
+msgid "Recent Activity"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:84
@@ -2839,17 +2971,17 @@ msgid ""
 "        "
 msgstr ""
 
-#: templates/projects/onboard_detail.html:21
+#: templates/projects/onboard_detail.html:22
 #, fuzzy
 #| msgid "Single version"
 msgid "Build latest version"
 msgstr "Phiên bản đơn lẻ"
 
-#: templates/projects/onboard_detail.html:29
+#: templates/projects/onboard_detail.html:30
 msgid "Your documentation is ready to use"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:33
+#: templates/projects/onboard_detail.html:34
 msgid ""
 "\n"
 "              Your documentation has been built.\n"
@@ -2861,11 +2993,17 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/projects/onboard_detail.html:46
+#: templates/projects/onboard_detail.html:42
+#, fuzzy
+#| msgid "Import HTML Documentation"
+msgid "View your documentation"
+msgstr "Nhập tài liệu HTML"
+
+#: templates/projects/onboard_detail.html:47
 msgid "Your documentation failed to build"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:50
+#: templates/projects/onboard_detail.html:51
 msgid ""
 "\n"
 "              There was a problem building your documentation,\n"
@@ -2877,17 +3015,29 @@ msgid ""
 "            "
 msgstr ""
 
-#: templates/projects/onboard_detail.html:63
+#: templates/projects/onboard_detail.html:60
+#, fuzzy
+#| msgid "Build Standard Output"
+msgid "View build output"
+msgstr "Tạo bản xuất ra chuẩn"
+
+#: templates/projects/onboard_detail.html:64
 msgid "Your documentation is building"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:66
+#: templates/projects/onboard_detail.html:67
 msgid ""
 "\n"
 "          You'll be able to view your documentation in a minute or two,\n"
 "          once your project is done building.\n"
 "        "
 msgstr ""
+
+#: templates/projects/onboard_import.html:5
+#, fuzzy
+#| msgid "Create, host, and browse documentation."
+msgid "Ready to share your documentation"
+msgstr "Tạo, xuất bản và tìm kiếm tài liệu."
 
 #: templates/projects/onboard_import.html:10
 #, python-format
@@ -2901,13 +3051,36 @@ msgid ""
 "        "
 msgstr ""
 
-#: templates/projects/project_advanced.html:22
+#: templates/projects/onboard_import.html:19
+#, python-format
+msgid ""
+"\n"
+"          Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own "
+"demo project</a>.\n"
+"        "
+msgstr ""
+
+#: templates/projects/onboard_import.html:24
+#: templates/projects/project_dashboard_base.html:53
+#, fuzzy
+#| msgid "Import an existing project"
+msgid "Import a Project"
+msgstr "Nhập một dự án đã có sẵn"
+
+#: templates/projects/project_advanced.html:7
 msgid "Edit Advanced Project Settings"
 msgstr ""
 
-#: templates/projects/project_advanced.html:27
+#: templates/projects/project_advanced.html:12
 #: templates/projects/project_edit_base.html:18
 msgid "Advanced Settings"
+msgstr ""
+
+#: templates/projects/project_advanced.html:18
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_detail.html:22
+#: templates/projects/project_versions.html:53
+msgid "Save"
 msgstr ""
 
 #: templates/projects/project_advertising.html:5
@@ -2916,16 +3089,6 @@ msgstr ""
 #| msgid "Documentation type"
 msgid "Documentation Advertising"
 msgstr "Kiểu tài liệu"
-
-#: templates/projects/project_advertising.html:16
-msgid ""
-"\n"
-"      Read the Docs is an open source project, maintained and operated by\n"
-"      full-time volunteers. In order to maintain service, we rely on both "
-"the\n"
-"      support of our users, and from sponsor support.\n"
-"    "
-msgstr ""
 
 #: templates/projects/project_advertising.html:24
 msgid ""
@@ -2959,22 +3122,11 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/projects/project_advertising.html:50
-msgid ""
-"\n"
-"      For more information on our stance on sponsor advertisements, we "
-"wrote\n"
-"      more about our stance\n"
-"      <a href=\"https://blog.readthedocs.com/ads-on-read-the-docs/\">on our "
-"blog</a>.\n"
-"    "
-msgstr ""
-
-#: templates/projects/project_advertising.html:57
+#: templates/projects/project_advertising.html:58
 msgid "Opting out"
 msgstr ""
 
-#: templates/projects/project_advertising.html:60
+#: templates/projects/project_advertising.html:61
 msgid ""
 "\n"
 "      If you do not wish to support Read the Docs with use of this ad "
@@ -2983,7 +3135,7 @@ msgid ""
 "    "
 msgstr ""
 
-#: templates/projects/project_advertising.html:68
+#: templates/projects/project_advertising.html:69
 msgid ""
 "\n"
 "        If you have an open source project, and can contribute financially,\n"
@@ -2992,11 +3144,11 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/projects/project_advertising.html:75
+#: templates/projects/project_advertising.html:76
 msgid "I can contribute financially"
 msgstr ""
 
-#: templates/projects/project_advertising.html:80
+#: templates/projects/project_advertising.html:81
 msgid ""
 "\n"
 "        If your project is an open source project, you most certainly also\n"
@@ -3007,11 +3159,11 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/projects/project_advertising.html:88
+#: templates/projects/project_advertising.html:89
 msgid "I can contribute my time"
 msgstr ""
 
-#: templates/projects/project_advertising.html:93
+#: templates/projects/project_advertising.html:94
 msgid ""
 "\n"
 "        If you are part of a company that uses Read the Docs to host\n"
@@ -3021,15 +3173,15 @@ msgid ""
 "      "
 msgstr ""
 
-#: templates/projects/project_advertising.html:101
+#: templates/projects/project_advertising.html:102
 msgid "Learn more about a paid plan"
 msgstr ""
 
-#: templates/projects/project_advertising.html:106
+#: templates/projects/project_advertising.html:107
 msgid "Still can't help?"
 msgstr ""
 
-#: templates/projects/project_advertising.html:109
+#: templates/projects/project_advertising.html:110
 msgid ""
 "\n"
 "      If you can't contribute your support for your open source project, "
@@ -3043,7 +3195,7 @@ msgid ""
 "    "
 msgstr ""
 
-#: templates/projects/project_advertising.html:119
+#: templates/projects/project_advertising.html:120
 msgid ""
 "\n"
 "      If you are a company hosting commercial documentation on our "
@@ -3054,10 +3206,6 @@ msgid ""
 "find\n"
 "      a way to offer your support.\n"
 "    "
-msgstr ""
-
-#: templates/projects/project_advertising.html:132
-msgid "Update advertisement preference"
 msgstr ""
 
 #: templates/projects/project_analytics.html:47
@@ -3074,31 +3222,22 @@ msgstr ""
 msgid "Pages"
 msgstr ""
 
-#: templates/projects/project_comments_settings.html:5
-#: templates/projects/project_comments_settings.html:12
-msgid "Comments Settings"
-msgstr ""
-
-#: templates/projects/project_comments_settings.html:16
-msgid "Settings for comments and moderation."
-msgstr ""
-
-#: templates/projects/project_create.html:21
+#: templates/projects/project_create.html:6
 msgid "Create a new project"
 msgstr "Tạo một dự án mới"
 
-#: templates/projects/project_create.html:24
+#: templates/projects/project_create.html:9
 msgid "Create a New Project"
 msgstr "Tạo một dự án mới"
 
-#: templates/projects/project_create.html:29
+#: templates/projects/project_create.html:14
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
 msgstr ""
 "Tạo tài liệu mới ở đây. Nếu bạn đã có tài liệu ở một repository công cộng,"
 
-#: templates/projects/project_create.html:30
+#: templates/projects/project_create.html:15
 msgid "import an existing project"
 msgstr "nhập một dự án sẵn có"
 
@@ -3109,12 +3248,6 @@ msgstr "Trang tổng hợp của dự án"
 #: templates/projects/project_dashboard_base.html:20
 msgid "Important Versions"
 msgstr ""
-
-#: templates/projects/project_dashboard_base.html:72
-#, fuzzy
-#| msgid "Build Type"
-msgid "No builds yet"
-msgstr "Kiểu tạo dựng"
 
 #: templates/projects/project_dashboard_base.html:77
 #, python-format
@@ -3136,6 +3269,11 @@ msgstr ""
 msgid "failing"
 msgstr ""
 
+#: templates/projects/project_dashboard_base.html:134
+#: templates/projects/project_dashboard_base.html:143
+msgid "Connect your Accounts"
+msgstr ""
+
 #: templates/projects/project_dashboard_base.html:137
 msgid ""
 "\n"
@@ -3144,18 +3282,45 @@ msgid ""
 "          "
 msgstr ""
 
-#: templates/projects/project_edit.html:22
+#: templates/projects/project_dashboard_base.html:153
+msgid "Learn More"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:155
+#, python-format
+msgid ""
+"\n"
+"          Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read "
+"the Docs</a>.\n"
+"          It contains lots of information about how to get the most out of "
+"RTD.\n"
+"        "
+msgstr ""
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr ""
+
+#: templates/projects/project_delete.html:9
+#: templates/projects/project_resync_webhook.html:9
+msgid "You sure?"
+msgstr "Bạn có chắc chắn không?"
+
+#: templates/projects/project_delete.html:12
+msgid "Delete forever"
+msgstr "Xóa mãi mãi"
+
+#: templates/projects/project_edit.html:8
 msgid "Edit Project"
 msgstr ""
 
-#: templates/projects/project_edit.html:39
-msgid "delete"
-msgstr "xóa"
-
-#: templates/projects/project_edit_base.html:21
-#: templates/projects/project_users.html:8
-msgid "Maintainers"
-msgstr ""
+#: templates/projects/project_edit.html:25
+#, fuzzy
+#| msgid "Related projects"
+msgid "Delete project"
+msgstr "Các dự án liên quan"
 
 #: templates/projects/project_edit_base.html:22
 #: templates/projects/project_redirects.html:8
@@ -3176,10 +3341,6 @@ msgstr "Dự án con"
 msgid "Notifications"
 msgstr ""
 
-#: templates/projects/project_edit_base.html:27
-msgid "Advertising"
-msgstr ""
-
 #: templates/projects/project_embed.html:48
 msgid "Embed API"
 msgstr ""
@@ -3189,7 +3350,6 @@ msgid "Embed content into any site on the internet dynamically."
 msgstr ""
 
 #: templates/projects/project_embed.html:55
-#: templates/search/faceted_results.html:54
 msgid "File"
 msgstr ""
 
@@ -3217,79 +3377,67 @@ msgstr "Ví dụ"
 msgid "Import a Remote Repository"
 msgstr ""
 
-#: templates/projects/project_import.html:49
+#: templates/projects/project_import.html:50
 msgid "There was an error with your request:"
 msgstr ""
 
-#: templates/projects/project_import.html:62
+#: templates/projects/project_import.html:63
 msgid "Refresh your accounts"
 msgstr ""
 
-#: templates/projects/project_import.html:71
+#: templates/projects/project_import.html:72
 #, fuzzy
 #| msgid "Repository"
 msgid "Import a Repository"
 msgstr "Repository"
 
-#: templates/projects/project_import.html:83
+#: templates/projects/project_import.html:84
 #, python-format
 msgid ""
 "No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
 "accounts</a>."
 msgstr ""
 
-#: templates/projects/project_import.html:90
+#: templates/projects/project_import.html:91
 msgid ""
 "You don't currently have any connected accounts. Connect your account to be "
 "able to easily set up projects."
 msgstr ""
 
-#: templates/projects/project_import.html:102
-msgid "Connect to GitHub"
-msgstr ""
-
-#: templates/projects/project_import.html:113
-msgid "Connect to Bitbucket"
-msgstr ""
-
-#: templates/projects/project_import.html:147
+#: templates/projects/project_import.html:130
 msgid "This repository requires admin access to import"
 msgstr ""
 
-#: templates/projects/project_import.html:156
+#: templates/projects/project_import.html:139
 msgid "Locked"
 msgstr ""
 
-#: templates/projects/project_import.html:165
+#: templates/projects/project_import.html:148
 msgid "This repository has already been imported"
 msgstr ""
 
-#: templates/projects/project_import.html:166
+#: templates/projects/project_import.html:149
 #, fuzzy
 #| msgid "View Docs"
 msgctxt "verb, action to see in detail"
 msgid "\"View\""
 msgstr "Xem tài liệu"
 
-#: templates/projects/project_import.html:174
-msgid "Add"
-msgstr ""
-
-#: templates/projects/project_import.html:218
+#: templates/projects/project_import.html:201
 msgid ""
 "You can import your project manually if it isn't listed here or connected to "
 "one of your accounts."
 msgstr ""
 
-#: templates/projects/project_import.html:225
+#: templates/projects/project_import.html:208
 msgid "Import Manually"
 msgstr ""
 
-#: templates/projects/project_import.html:232
+#: templates/projects/project_import.html:215
 #, fuzzy
-#| msgid "Organization"
-msgid "Filter by Organization"
-msgstr "Tổ chức"
+#| msgid "Repository"
+msgid "Filter repositories"
+msgstr "Repository"
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
@@ -3360,16 +3508,26 @@ msgid "Edit Translations"
 msgstr ""
 
 #: templates/projects/project_translations.html:16
-msgid ""
-"This allows you to add translations to your project. Select the project "
-"below that is a translation of your current project."
+msgid "To add a translation to your project, select a project below."
 msgstr ""
 
-#: templates/projects/project_translations.html:19
-msgid "Existing Translations"
+#: templates/projects/project_translations.html:23
+#, python-format
+msgid ""
+"This project is already configured as the <code>%(language)s</code> "
+"translation of \"%(main_project)s\". Nested translations are not supported."
 msgstr ""
 
 #: templates/projects/project_translations.html:31
+#, python-format
+msgid "View translations of \"%(main_project)s\"."
+msgstr ""
+
+#: templates/projects/project_translations.html:37
+msgid "Existing Translations"
+msgstr ""
+
+#: templates/projects/project_translations.html:49
 msgid "Choose which project you would like to add as a translation."
 msgstr ""
 
@@ -3404,24 +3562,23 @@ msgstr ""
 msgid "%(version_name)s"
 msgstr ""
 
+#: templates/projects/project_version_detail.html:24
+msgid "wipe "
+msgstr ""
+
 #: templates/projects/project_version_list.html:24
 #, fuzzy
 #| msgid "View Version"
 msgid "Active Versions"
 msgstr "Xem phiên bản"
 
-#: templates/projects/project_version_list.html:45
-#: templates/projects/project_version_list.html:98
-msgid "Wipe"
-msgstr ""
-
-#: templates/projects/project_version_list.html:72
+#: templates/projects/project_version_list.html:71
 #, fuzzy
 #| msgid "View Version"
 msgid "Inactive Versions"
 msgstr "Xem phiên bản"
 
-#: templates/projects/project_version_list.html:96
+#: templates/projects/project_version_list.html:95
 msgid "Clean"
 msgstr ""
 
@@ -3478,13 +3635,7 @@ msgstr ""
 msgid "View subprojects of %(project)s"
 msgstr ""
 
-#: templates/projects/projectrelationship_list.html:60
-#, fuzzy
-#| msgid "The project's homepage"
-msgid "Project page"
-msgstr "Trang chủ của dự án"
-
-#: templates/projects/projectrelationship_list.html:70
+#: templates/projects/projectrelationship_list.html:79
 msgid "No subprojects are currently configured"
 msgstr ""
 
@@ -3532,81 +3683,39 @@ msgstr ""
 msgid "Upload"
 msgstr "Tải lên"
 
-#: templates/search/base_facet.html:5 templates/search/search.html:5
-#, python-format
-msgid "Search: %(query)s"
-msgstr ""
-
-#. Translators: This is about starting a search
-#: templates/search/base_facet.html:27
-#: templates/search/elastic_project_search.html:70
-#: templates/search/elastic_search.html:123 templates/search/search.html:17
-msgid "Go crazy."
-msgstr ""
-
-#: templates/search/base_search.html:9 templates/search/faceted_results.html:49
-msgid "Project:"
-msgstr "Dự án:"
-
-#: templates/search/base_search.html:14
-msgid "File:"
-msgstr "Tập tin:"
-
-#: templates/search/base_search.html:24
-#: templates/search/elastic_project_search.html:101
-#: templates/search/elastic_search.html:174
-#: templates/search/faceted_results.html:63
-msgid "No results found. Bummer."
-msgstr ""
-
 #: templates/search/elastic_project_search.html:5
 #: templates/search/elastic_search.html:5
 #, python-format
 msgid "Search: %(query)s "
 msgstr ""
 
-#: templates/search/elastic_project_search.html:84
-#: templates/search/elastic_search.html:137 templates/search/search.html:31
+#: templates/search/elastic_project_search.html:66
+#: templates/search/elastic_search.html:137
 #, python-format
 msgid "Results for %(query)s"
 msgstr ""
 
-#: templates/search/faceted_author.html:8
-msgid "By Author"
+#: templates/search/elastic_project_search.html:83
+#: templates/search/elastic_search.html:174
+msgid "No results found. Bummer."
 msgstr ""
 
-#: templates/search/faceted_author.html:13
-msgid "Author"
+#: templates/security.html:5
+msgid "Security"
 msgstr ""
 
-#: templates/search/faceted_author.html:21
-msgid "No author facets."
-msgstr ""
+#: templates/security.html:9
+#, fuzzy
+#| msgid "Read the Docs"
+msgid "Security at Read the Docs"
+msgstr "Read the Docs"
 
-#: templates/search/faceted_results.html:7
-#, python-format
-msgid "%(count)s Results for %(query)s"
-msgstr ""
-
-#: templates/search/faceted_results.html:7
-msgid "No search term entered"
-msgstr ""
-
-#. Translators: The refers to filtering a search by using facets
-#: templates/search/faceted_results.html:15
-msgid "Filtered by"
-msgstr ""
-
-#: templates/search/faceted_results.html:18
-msgid "remove"
-msgstr ""
-
-#: templates/search/faceted_results.html:21
-msgid "Filter by Project"
-msgstr ""
-
-#: templates/search/faceted_results.html:32
-msgid "No project facets."
+#: templates/security.html:11
+msgid ""
+"\n"
+"  For more details on security at Read the Docs or to report a security "
+"issue, please see our <a href=\"https://docs.readthedocs.io/en/latest/"
+"security.html\">security policy</a>.\n"
 msgstr ""
 
 #: templates/socialaccount/authentication_error.html:5
@@ -3647,7 +3756,7 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"             Connect to %(brand_name)s\n"
+"             %(verbiage)s %(brand_name)s\n"
 "           "
 msgstr ""
 
@@ -3655,9 +3764,168 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"           Connect to %(provider_name)s\n"
+"           %(verbiage)s %(provider_name)s\n"
 "         "
 msgstr ""
+
+#: templates/wipe_version.html:16
+#, python-format
+msgid ""
+"\n"
+"    Remove build environment for <em>%(slug)s</em> version.\n"
+msgstr ""
+
+#: templates/wipe_version.html:23
+msgid ""
+"\n"
+"        Your project environment has been wiped.\n"
+"    "
+msgstr ""
+
+#: templates/wipe_version.html:28
+msgid ""
+"\n"
+"        Having trouble getting your documentation build to complete?  By "
+"clicking on the button below you'll clean out your build checkouts and "
+"environment, but not your generated documentation.\n"
+"    "
+msgstr ""
+
+#: templates/wipe_version.html:33
+msgid "Wipe"
+msgstr ""
+
+#~ msgid "Sorry, no results on that page."
+#~ msgstr "Xin lỗi, không tìm thấy kết quả nào trên trang đó."
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
+#~ msgstr "Đánh dấu %(url)s cho %(user)s (%(pk)s)"
+
+#, fuzzy
+#~| msgid "Last name"
+#~ msgid "name"
+#~ msgstr "Họ"
+
+#, fuzzy
+#~| msgid "To URL"
+#~ msgid "Logo URL"
+#~ msgstr "Đến URL"
+
+#, fuzzy
+#~| msgid "Short URLs"
+#~ msgid "Site URL"
+#~ msgstr "URL ngắn"
+
+#, fuzzy
+#~| msgid "Analytics code"
+#~ msgid "Analytics ID"
+#~ msgstr "Mã Analytics"
+
+#, fuzzy
+#~| msgid "Build Type"
+#~ msgid "Display Type"
+#~ msgstr "Kiểu tạo dựng"
+
+#, fuzzy
+#~| msgid "Filter"
+#~ msgid "Filter Type"
+#~ msgstr "Bộ lọc"
+
+#~ msgid "Donate"
+#~ msgstr "Quyên góp"
+
+#, fuzzy
+#~| msgid "Donate"
+#~ msgid "Donate Now"
+#~ msgstr "Quyên góp"
+
+#, fuzzy
+#~| msgid "Project Alias"
+#~ msgid "Promo Detail"
+#~ msgstr "Tên phụ cho dự án"
+
+#~ msgid ""
+#~ "It looks like you entered a private repo - please use the public (http:// "
+#~ "or git://) clone url"
+#~ msgstr ""
+#~ "Có vẻ bạn đã nhập một repo không công cộng (private) - xin hãy dùng địa "
+#~ "chỉ clone công cộng (bắt đầu bằng http:// hoặc git://)"
+
+#~ msgid "Project %(name)s does not exist"
+#~ msgstr "Dự án %(name)s không tồn tại"
+
+#, fuzzy
+#~| msgid "Prefix Redirect"
+#~ msgid "Prefix Redirect:"
+#~ msgstr "Tiền tố tái định hương"
+
+#, fuzzy
+#~| msgid "Page Redirect"
+#~ msgid "Page Redirect:"
+#~ msgstr "Trang tái định hướng"
+
+#~ msgid "Chinese"
+#~ msgstr "Tiếng Trung"
+
+#~ msgid "Taiwanese"
+#~ msgstr "Tiếng Đài Loan"
+
+#, fuzzy
+#~| msgid ""
+#~| "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+#~| "contributors\">humans</a>. Funded by <a href=\"https://www.gittip.com/"
+#~| "readthedocs/\">readers like you</a>."
+#~ msgid ""
+#~ "\n"
+#~ "        Made by <a href=\"https://docs.readthedocs.io/en/latest/team.html"
+#~ "\">humans</a>. Funded by <a href=\"%(gold_detail)s\">readers like you</"
+#~ "a>.\n"
+#~ "        "
+#~ msgstr ""
+#~ "Được tạo ra bởi <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
+#~ "contributors\">những người thực sự</a>. Được tài trợ bởi <a href="
+#~ "\"https://www.gittip.com/readthedocs/\">những bạn đọc như bạn</a>."
+
+#~ msgid "Bookmarks"
+#~ msgstr "Những trang đã đánh dấu"
+
+#, fuzzy
+#~| msgid "Bookmarks"
+#~ msgid "All Bookmarks"
+#~ msgstr "Những trang đã đánh dấu"
+
+#~ msgid "No tags"
+#~ msgstr "Không có tag nào"
+
+#~ msgid "What is this place?"
+#~ msgstr "Nơi này là sao?"
+
+#, fuzzy
+#~| msgid "Recently Updated Projects"
+#~ msgid "Recently updated projects"
+#~ msgstr "Những dự án mới được cập nhật"
+
+#~ msgid "delete"
+#~ msgstr "xóa"
+
+#, fuzzy
+#~| msgid "Organization"
+#~ msgid "Filter by Organization"
+#~ msgstr "Tổ chức"
+
+#, fuzzy
+#~| msgid "The project's homepage"
+#~ msgid "Project page"
+#~ msgstr "Trang chủ của dự án"
+
+#~ msgid "Project:"
+#~ msgstr "Dự án:"
+
+#~ msgid "File:"
+#~ msgstr "Tập tin:"
 
 #~ msgid "Any"
 #~ msgstr "Bất kỳ"
@@ -3790,6 +4058,3 @@ msgstr ""
 
 #~ msgid "User profiles"
 #~ msgstr "Hồ sơ người dùng"
-
-#~ msgid "Import an existing project"
-#~ msgstr "Nhập một dự án đã có sẵn"
