@@ -791,7 +791,10 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
             # This is a brute force form of the webhook sync, if a project has a
             # webhook or a remote repository object, the user should be using
             # the per-integration sync instead.
-            attach_webhook(project=self.get_project(), request=request)
+            attach_webhook(
+                project_pk=self.get_project().pk,
+                user_pk=request.user.pk,
+            )
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
