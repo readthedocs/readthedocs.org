@@ -49,15 +49,17 @@ class BaseMkdocs(BaseBuilder):
             self.build_dir)
         self.root_path = self.version.project.checkout_path(self.version.slug)
 
-    def load_yaml_config(self):
+    def load_yaml_config(self, yaml_file):
         """
         Load a YAML config.
 
+        Finds the ``mkdocs.yml`` file in the docs/ directory
+        or the root project.
         Raise BuildEnvironmentError if failed due to syntax errors.
         """
         try:
             return yaml.safe_load(
-                open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
+                open(yaml_file, 'r')
             )
         except IOError:
             return {
@@ -69,14 +71,29 @@ class BaseMkdocs(BaseBuilder):
                 mark = exc.problem_mark
                 note = ' (line %d, column %d)' % (mark.line + 1, mark.column + 1)
             raise BuildEnvironmentError(
-                "Your mkdocs.yml could not be loaded, "
-                "possibly due to a syntax error%s" % (
-                    note,))
+                'Your mkdocs.yml could not be loaded, '
+                'possibly due to a syntax error{note}'.format(note=note)
+            )
+
+    def find_yaml_config(self):
+        docs_dir = self.docs_dir()
+        for path in [docs_dir, '']:
+            test_path = os.path.join(
+                self.project.checkout_path(self.version.slug),
+                path,
+                'mkdocs.yml'
+            )
+            if os.path.exists(test_path):
+                return test_path
+        return None
 
     def append_conf(self, **__):
         """Set mkdocs config values."""
-        # Pull mkdocs config data
-        user_config = self.load_yaml_config()
+        yaml_file = self.find_yaml_config()
+        if not yaml_file:
+            yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
+
+        user_config = self.load_yaml_config(yaml_file)
 
         # Handle custom docs dirs
         user_docs_dir = user_config.get('docs_dir')
@@ -103,7 +120,10 @@ class BaseMkdocs(BaseBuilder):
         docs_path = os.path.join(self.root_path, docs_dir)
 
         # RTD javascript writing
-        rtd_data = self.generate_rtd_data(docs_dir=docs_dir, mkdocs_config=user_config)
+        rtd_data = self.generate_rtd_data(
+            docs_dir=docs_dir,
+            mkdocs_config=user_config
+        )
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
             f.write(rtd_data)
 
@@ -114,7 +134,7 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs configuration
         yaml.safe_dump(
             user_config,
-            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
+            open(yaml_file, 'w')
         )
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
@@ -125,7 +145,8 @@ class BaseMkdocs(BaseBuilder):
         if theme_dir:
             theme_name = theme_dir.rstrip('/').split('/')[-1]
 
-        # Use the analytics code from mkdocs.yml if it isn't set already by Read the Docs
+        # Use the analytics code from mkdocs.yml
+        # if it isn't set already by Read the Docs.
         analytics_code = self.version.project.analytics_code
         if not analytics_code and mkdocs_config.get('google_analytics'):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
