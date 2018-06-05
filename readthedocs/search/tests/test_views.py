@@ -7,7 +7,7 @@ from pyquery import PyQuery as pq
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.search.tests.utils import get_search_query
+from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
 @pytest.mark.django_db
@@ -72,8 +72,8 @@ class TestElasticSearch(object):
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_by_file_content(self, client, project, data_type, page_num):
-        query = get_search_query(project_slug=project.slug, page_num=page_num,
-                                 data_type=data_type)
+        query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
+                                                   data_type=data_type)
 
         result, _ = self._get_search_result(url=self.url, client=client,
                                             search_params={'q': query, 'type': 'file'})
@@ -119,7 +119,7 @@ class TestElasticSearch(object):
         # as the query is present in both projects
         content = page.find('.navigable .project-list')
         if len(content) != 2:
-            pytest.xfail("failing because currently project list not show")
+            pytest.xfail("failing because currently all projects are not showing in project list")
         else:
             assert 'kuma' and 'pipeline' in content.text()
 
@@ -133,7 +133,7 @@ class TestElasticSearch(object):
         versions = [G(Version, project=project) for _ in range(3)]
         self._reindex_elasticsearch(es_index=es_index)
 
-        query = get_search_query(project_slug=project.slug)
+        query = get_search_query_from_project_file(project_slug=project.slug)
 
         result, page = self._get_search_result(url=self.url, client=client,
                                                search_params={'q': query, 'type': 'file'})
@@ -166,7 +166,7 @@ class TestElasticSearch(object):
         self._reindex_elasticsearch(es_index=es_index)
 
         # Now search with subproject content but explicitly filter by the parent project
-        query = get_search_query(project_slug=subproject.slug)
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
         search_params = {'q': query, 'type': 'file', 'project': project.slug}
         result, page = self._get_search_result(url=self.url, client=client,
                                                search_params=search_params)
