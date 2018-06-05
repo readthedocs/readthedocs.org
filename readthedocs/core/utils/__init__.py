@@ -139,7 +139,13 @@ def prepare_build(
     options['time_limit'] = int(time_limit * 1.2)
 
     update_docs_task = UpdateDocsTask()
-    return update_docs_task.si(project.pk, **kwargs, **options)
+
+    # Py 2.7 doesn't support ``**`` expand syntax twice. We create just one big
+    # kwargs (including the options) for this and expand it just once.
+    # return update_docs_task.si(project.pk, **kwargs, **options)
+    kwargs.update(options)
+
+    return update_docs_task.si(project.pk, **kwargs)
 
 
 def trigger_build(project, version=None, record=True, force=False):
