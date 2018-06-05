@@ -38,7 +38,7 @@ class Notification(object):
 
     def get_subject(self):
         template = Template(self.subject)
-        return template.render(context=self.get_context_data())
+        return template.render(context=Context(self.get_context_data()))
 
     def get_context_data(self):
         return {
