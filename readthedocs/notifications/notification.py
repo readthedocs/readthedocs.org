@@ -38,15 +38,15 @@ class Notification(object):
 
     def get_subject(self):
         template = Template(self.subject)
-        return template.render(context=Context(self.get_context_data()))
+        return template.render(context=self.get_context_data())
 
     def get_context_data(self):
         return {
             self.context_object_name: self.object,
             'request': self.request,
             'production_uri': '{scheme}://{host}'.format(
-                scheme='https', host=settings.PRODUCTION_DOMAIN
-            )
+                scheme='https', host=settings.PRODUCTION_DOMAIN,
+            ),
         }
 
     def get_template_names(self, backend_name, source_format=constants.HTML):
@@ -71,7 +71,7 @@ class Notification(object):
                 backend_name=backend_name,
                 source_format=source_format,
             ),
-            context=Context(self.get_context_data()),
+            context=self.get_context_data(),
         )
 
     def send(self):
