@@ -41,6 +41,7 @@ def check_output(command, env=None):
     return output
 
 
+@restoring_chdir
 def make_test_git():
     directory = mkdtemp()
     path = get_readthedocs_app_path()
@@ -104,7 +105,6 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
-    chdir(path)
     return directory
 
 
@@ -151,6 +151,7 @@ def delete_git_branch(directory, branch):
     check_output(command, env=env)
 
 
+@restoring_chdir
 def make_test_hg():
     directory = mkdtemp()
     path = get_readthedocs_app_path()
@@ -162,7 +163,6 @@ def make_test_hg():
     log.info(check_output(['hg', 'init'] + [directory]))
     log.info(check_output(['hg', 'add', '.']))
     log.info(check_output(['hg', 'commit', '-u', hguser, '-m"init"']))
-    chdir(path)
     return directory
 
 
