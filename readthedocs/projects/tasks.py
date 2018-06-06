@@ -39,7 +39,6 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
-from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
@@ -968,14 +967,13 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project,
                                 version=version
                                 ).exclude(commit=commit).delete()
-    # Purge Cache
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            changed_files = [resolve_path(
-                version.project, filename=fname, version_slug=version.slug,
-            ) for fname in changed_files]
-            purge(cdn_ids[version.project.slug], changed_files)
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @app.task(queue='web')
