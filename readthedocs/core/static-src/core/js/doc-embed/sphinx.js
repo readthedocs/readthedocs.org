@@ -27,7 +27,7 @@ function init() {
     });
 
     /// Inject the Read the Docs Sphinx theme code
-    /// This is necessary on older versions of the RTD theme (<=0.3.0)
+    /// This is necessary on older versions of the RTD theme (<0.4.0)
     /// and on themes other then the RTD theme (used for the version menu)
     if ((rtd.builder === undefined || rtd.builder === 'sphinx') && window.SphinxRtdTheme === undefined) {
         sphinx_theme = require('sphinx-rtd-theme');  // eslint-disable-line global-require
