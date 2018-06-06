@@ -87,6 +87,20 @@ function Promo(data) {
     this.div_id = data.div_id || '';
     this.html = data.html || '';
     this.display_type = data.display_type || '';
+
+    // Handler when a promo receives a click
+    this.click_handler = function () {
+        // This needs to handle both old style legacy analytics for previously built docs
+        // as well as the newer universal analytics
+        if (typeof ga !== 'undefined') {
+            ga('rtfd.send', 'event', 'Promo', 'Click', data.id);
+        } else if (typeof _gaq !== 'undefined') {
+            _gaq.push(
+                ['rtfd._setAccount', 'UA-17997319-1'],
+                ['rtfd._trackEvent', 'Promo', 'Click', data.id]
+            );
+        }
+    };
 }
 
 /*
@@ -94,6 +108,8 @@ function Promo(data) {
  */
 Promo.prototype.display = function () {
     $('#' + this.div_id).html(this.html);
+    $('#' + this.div_id).find('a[href*="/sustainability/click/"]')
+        .on('click', this.click_handler);
 
     this.post_promo_display();
 };
