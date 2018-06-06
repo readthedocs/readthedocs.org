@@ -15,6 +15,8 @@ after_build = django.dispatch.Signal(providing_args=["version"])
 
 project_import = django.dispatch.Signal(providing_args=["project"])
 
+files_changed = django.dispatch.Signal(providing_args=["project", "files"])
+
 
 @receiver(project_import)
 def handle_project_import(sender, **kwargs):

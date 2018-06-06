@@ -235,7 +235,7 @@ class Virtualenv(PythonEnvironment):
         ]
 
         if self.project.documentation_type == 'mkdocs':
-            requirements.append('mkdocs==0.15.0')
+            requirements.append('mkdocs==0.17.3')
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x

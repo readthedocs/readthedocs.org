@@ -1171,7 +1171,7 @@ class TestPythonEnvironment(TestCase):
         requirements_mkdocs = [
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
-            'mkdocs==0.15.0',
+            'mkdocs==0.17.3',
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements

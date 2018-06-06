@@ -17,9 +17,6 @@ from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 
 log = logging.getLogger(__name__)
 
-TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
-OVERRIDE_TEMPLATE_DIR = '%s/readthedocs/templates/mkdocs/overrides' % settings.SITE_ROOT
-
 
 def get_absolute_media_url():
     """
@@ -41,6 +38,16 @@ class BaseMkdocs(BaseBuilder):
     """Mkdocs builder."""
 
     use_theme = True
+
+    # The default theme for mkdocs (outside of RTD) is the 'mkdocs' theme
+    # For RTD, our default is the 'readthedocs' theme
+    READTHEDOCS_THEME_NAME = 'readthedocs'
+
+    # Overrides for the 'readthedocs' theme that include
+    # search utilities and version selector
+    READTHEDOCS_TEMPLATE_OVERRIDE_DIR = (
+        '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
+    )
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
@@ -96,10 +103,6 @@ class BaseMkdocs(BaseBuilder):
             '%scss/readthedocs-doc-embed.css' % media_url,
         ])
 
-        # Set our custom theme dir for mkdocs
-        if 'theme_dir' not in user_config and self.use_theme:
-            user_config['theme_dir'] = TEMPLATE_DIR
-
         docs_path = os.path.join(self.root_path, docs_dir)
 
         # RTD javascript writing
@@ -111,20 +114,25 @@ class BaseMkdocs(BaseBuilder):
         # This supports using RTD's privacy improvements around analytics
         user_config['google_analytics'] = None
 
-        # Write the mkdocs configuration
+        # If using the readthedocs theme, apply the readthedocs.org overrides
+        # These use a global readthedocs search and customize the version selector
+        self.apply_theme_override(user_config)
+
+        # Write the modified mkdocs configuration
         yaml.safe_dump(
             user_config,
             open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
         )
 
+        # Write the mkdocs.yml to the build logs
+        self.run(
+            'cat',
+            'mkdocs.yml',
+            cwd=self.root_path,
+        )
+
     def generate_rtd_data(self, docs_dir, mkdocs_config):
         """Generate template properties and render readthedocs-data.js."""
-        # Get the theme name
-        theme_name = 'readthedocs'
-        theme_dir = mkdocs_config.get('theme_dir')
-        if theme_dir:
-            theme_name = theme_dir.rstrip('/').split('/')[-1]
-
         # Use the analytics code from mkdocs.yml if it isn't set already by Read the Docs
         analytics_code = self.version.project.analytics_code
         if not analytics_code and mkdocs_config.get('google_analytics'):
@@ -138,7 +146,7 @@ class BaseMkdocs(BaseBuilder):
             'language': self.version.project.language,
             'programming_language': self.version.project.programming_language,
             'page': None,
-            'theme': theme_name,
+            'theme': self.get_theme_name(mkdocs_config),
             'builder': "mkdocs",
             'docroot': docs_dir,
             'source_suffix': ".md",
@@ -176,6 +184,51 @@ class BaseMkdocs(BaseBuilder):
         )
         return cmd_ret.successful
 
+    def get_theme_name(self, mkdocs_config):
+        """
+        Get the theme configuration in the mkdocs_config
+
+        In v0.17.0, the theme configuration switched
+        from two separate configs (both optional) to a nested directive.
+
+        :see: http://www.mkdocs.org/about/release-notes/#theme-customization-1164
+        :returns: the name of the theme RTD will use
+        """
+        theme_setting = mkdocs_config.get('theme')
+        if isinstance(theme_setting, dict):
+            # Full nested theme config (the new configuration)
+            return theme_setting.get('name') or self.READTHEDOCS_THEME_NAME
+
+        if theme_setting:
+            # A string which is the name of the theme
+            return theme_setting
+
+        theme_dir = mkdocs_config.get('theme_dir')
+        if theme_dir:
+            # Use the name of the directory in this project's custom theme directory
+            return theme_dir.rstrip('/').split('/')[-1]
+
+        return self.READTHEDOCS_THEME_NAME
+
+    def apply_theme_override(self, mkdocs_config):
+        """
+        Apply theme overrides for the RTD theme (modifies the ``mkdocs_config`` parameter)
+
+        In v0.17.0, the theme configuration switched
+        from two separate configs (both optional) to a nested directive.
+        How to override the theme depends on whether the new or old configuration
+        is used.
+
+        :see: http://www.mkdocs.org/about/release-notes/#theme-customization-1164
+        """
+        if self.get_theme_name(mkdocs_config) == self.READTHEDOCS_THEME_NAME:
+            # Overriding the theme is only necessary if the 'readthedocs' theme is used
+            theme_setting = mkdocs_config.get('theme')
+            if isinstance(theme_setting, dict):
+                theme_setting['custom_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+            else:
+                mkdocs_config['theme_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+
 
 class MkdocsHTML(BaseMkdocs):
     type = 'mkdocs'
@@ -188,15 +241,3 @@ class MkdocsJSON(BaseMkdocs):
     builder = 'json'
     build_dir = '_build/json'
     use_theme = False
-
-    def build(self):
-        user_config = yaml.safe_load(
-            open(os.path.join(self.root_path, 'mkdocs.yml'), 'r')
-        )
-        if user_config['theme_dir'] == TEMPLATE_DIR:
-            del user_config['theme_dir']
-        yaml.safe_dump(
-            user_config,
-            open(os.path.join(self.root_path, 'mkdocs.yml'), 'w')
-        )
-        return super(MkdocsJSON, self).build()

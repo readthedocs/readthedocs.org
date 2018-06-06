@@ -11,9 +11,7 @@ sphinx_rtd_theme==0.2.5b1
 
 Pygments==2.2.0
 
-# latest compatible version with our code
-# https://github.com/rtfd/readthedocs.org/pull/2916#discussion_r172991757
-mkdocs==0.15.0
+mkdocs==0.17.3
 
 django==1.9.13
 six==1.11.0
