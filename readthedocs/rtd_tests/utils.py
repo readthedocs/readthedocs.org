@@ -19,6 +19,19 @@ from readthedocs.doc_builder.base import restoring_chdir
 log = logging.getLogger(__name__)
 
 
+def get_readthedocs_app_path():
+    """
+    Return the absolute path of the ``readthedocs`` app.
+    """
+    path = getcwd()
+    if path.endswith('readthedocsinc'):
+        # readthedocs-corporate
+        path = pjoin(path, '..', '..', 'readthedocs.org', 'readthedocs')
+        return path
+
+    return path
+
+
 def check_output(command, env=None):
     output = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -30,7 +43,7 @@ def check_output(command, env=None):
 
 def make_test_git():
     directory = mkdtemp()
-    path = getcwd()
+    path = get_readthedocs_app_path()
     sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
@@ -140,7 +153,7 @@ def delete_git_branch(directory, branch):
 
 def make_test_hg():
     directory = mkdtemp()
-    path = getcwd()
+    path = get_readthedocs_app_path()
     sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
