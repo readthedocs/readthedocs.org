@@ -72,6 +72,10 @@ To verify run::
 
     $ curl http://localhost:9200
 
+You need the icu plugin::
+
+    $ elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
+
 You should get something like:
 
 .. code-block:: json
