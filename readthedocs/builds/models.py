@@ -19,6 +19,7 @@ from django.utils.translation import ugettext
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
+from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
@@ -150,6 +151,9 @@ class Version(models.Model):
         # Therefore just return the identifier to make a safe guess.
         log.debug('TODO: Raise an exception here. Testing what cases it happens')
         return self.identifier
+
+    def get_url(self):
+        return resolve_path(self.project, version_slug=self.slug)
 
     def get_absolute_url(self):
         if not self.built and not self.uploaded:
