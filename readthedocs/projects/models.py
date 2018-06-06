@@ -132,11 +132,12 @@ class Project(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
-        help_text=_('Type of documentation you are building. <a href="http://'
-                    'sphinx-doc.org/builders.html#sphinx.builders.html.'
+        help_text=_('Type of documentation you are building. <a href="'
+                    'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
+    # TODO: remove this?
     allow_comments = models.BooleanField(_('Allow Comments'), default=False)
     comment_moderation = models.BooleanField(
         _('Comment Moderation'), default=False,)
@@ -159,6 +160,10 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    show_version_warning = models.BooleanField(
+        _('Show version warning'), default=False,
+        help_text=_('Show warning banner in non-stable nor latest versions.')
+    )
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
@@ -815,66 +820,6 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
-    def moderation_queue(self):
-        # non-optimal SQL warning.
-        from readthedocs.comments.models import DocumentComment
-        queue = []
-        comments = DocumentComment.objects.filter(node__project=self)
-        for comment in comments:
-            if not comment.has_been_approved_since_most_recent_node_change():
-                queue.append(comment)
-
-        return queue
-
-    def add_node(self, content_hash, page, version, commit):
-        """
-        Add comment node.
-
-        :param content_hash: Hash of node content
-        :param page: Doc page for node
-        :param version: Slug for project version to apply node to
-        :type version: str
-        :param commit: Commit that node was updated in
-        :type commit: str
-        """
-        from readthedocs.comments.models import NodeSnapshot, DocumentNode
-        project_obj = Project.objects.get(slug=self.slug)
-        version_obj = project_obj.versions.get(slug=version)
-        try:
-            NodeSnapshot.objects.get(hash=content_hash, node__project=project_obj,
-                                     node__version=version_obj, node__page=page,
-                                     commit=commit)
-            return False  # ie, no new node was created.
-        except NodeSnapshot.DoesNotExist:
-            DocumentNode.objects.create(
-                hash=content_hash,
-                page=page,
-                project=project_obj,
-                version=version_obj,
-                commit=commit
-            )
-        return True  # ie, it's True that a new node was created.
-
-    def add_comment(self, version_slug, page, content_hash, commit, user, text):
-        """
-        Add comment to node.
-
-        :param version_slug: Version slug to use for node lookup
-        :param page: Page to attach comment to
-        :param content_hash: Hash of content to apply comment to
-        :param commit: Commit that updated comment
-        :param user: :py:class:`User` instance that created comment
-        :param text: Comment text
-        """
-        from readthedocs.comments.models import DocumentNode
-        try:
-            node = self.nodes.from_hash(version_slug, page, content_hash)
-        except DocumentNode.DoesNotExist:
-            version = self.versions.get(slug=version_slug)
-            node = self.nodes.create(version=version, page=page,
-                                     hash=content_hash, commit=commit)
-        return node.comments.create(user=user, text=text)
-
     @property
     def features(self):
         return Feature.objects.for_project(self)
@@ -905,7 +850,7 @@ class APIProject(Project):
     Project proxy model for API data deserialization.
 
     This replaces the pattern where API data was deserialized into a mocked
-    :py:cls:`Project` object. This pattern was confusing, as it was not explicit
+    :py:class:`Project` object. This pattern was confusing, as it was not explicit
     as to what form of object you were working with -- API backed or database
     backed.
 

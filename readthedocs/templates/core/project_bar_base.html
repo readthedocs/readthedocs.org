@@ -68,7 +68,6 @@
         {% endcomment %}
 
         {% if request.user|is_admin:project %}
-          <!-- <li class="{{ comments_active }}"><a href="{% url "projects_comments_moderation" project.slug %}">{% trans "Comments" %}</a></li> -->
           <li class="{{ edit_active }} project-admin"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>
         {% endif %}
       </ul>

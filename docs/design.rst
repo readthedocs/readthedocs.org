@@ -1,5 +1,3 @@
-.. _designing-read-the-docs:
-
 Designing Read the Docs
 =======================
 
@@ -9,7 +7,7 @@ time and design skills to Read the Docs? That's
 a few features available to ease the process of
 working with Read the Doc's CSS and static assets.
 
-To start, you should follow the :ref:`installing-read-the-docs` instructions
+To start, you should follow the :doc:`install` instructions
 to get a working copy of the Read the Docs repository locally.
 
 Style Catalog
@@ -23,16 +21,6 @@ for a quick overview of the currently available styles.
 This way you can quickly get started writing HTML -- or if you're
 modifying existing styles you can get a quick idea of how things
 will change site-wide.
-
-Typekit Fonts
--------------
-
-RTD uses `FF Meta`_ via TypeKit to render most display and body text.
-
-To make this work locally, you can register a free TypeKit account and
-create a site profile for ``localhost:8000`` that includes the linked font.
-
-.. _FF Meta: https://typekit.com/fonts/ff-meta-web-pro
 
 Readthedocs.org Changes
 -----------------------
@@ -54,7 +42,7 @@ your example project.
 Contributing
 ------------
 
-Contributions should follow the :ref:`contributing-to-read-the-docs` guidelines where applicable -- ideally you'll
+Contributions should follow the :doc:`contribute` guidelines where applicable -- ideally you'll
 create a pull request against the `Read the Docs GitHub project`_ from your forked repo and include
 a brief description of what you added / removed / changed, as well as an attached image (you can just
 take a screenshot and drop it into the PR creation form) of the effects of your changes.
@@ -64,7 +52,3 @@ browsers, IE8+ -- that's not to say it needs to be pixel-perfect in older browse
 making changes that render older browsers utterly unusable (or provide a sane fallback).
 
 .. _Read the Docs GitHub project: https://github.com/rtfd/readthedocs.org/pulls
-
-
-
-

@@ -112,7 +112,10 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 @never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project."""
-    badge_path = 'projects/badges/%s.svg'
+    style = request.GET.get('style', 'flat')
+    if style not in ("flat", "plastic", "flat-square", "for-the-badge", "social"):
+        style = "flat"
+    badge_path = 'projects/badges/%s-' + style + '.svg'
     version_slug = request.GET.get('version', LATEST)
     try:
         version = Version.objects.public(request.user).get(

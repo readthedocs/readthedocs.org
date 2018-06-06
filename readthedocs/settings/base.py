@@ -6,9 +6,9 @@ from __future__ import (
 
 import os
 
-from readthedocs.core.settings import Settings
-
 from celery.schedules import crontab
+
+from readthedocs.core.settings import Settings
 
 
 try:
@@ -36,12 +36,12 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
-    TEMPLATE_DEBUG = DEBUG
     TASTYPIE_FULL_DEBUG = True
 
     # Domains and URLs
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
+    PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
@@ -59,6 +59,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
     # Application classes
     @property
@@ -84,17 +85,11 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-            'django_celery_beat',
-
-            # daniellindsleyrocksdahouse
-            'haystack',
             'tastypie',
 
             # our apps
-            'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
-            'readthedocs.comments',
             'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
@@ -245,7 +240,6 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
-    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
         'hourly-remove-orphan-symlinks': {
@@ -256,6 +250,11 @@ class CommunityBaseSettings(Settings):
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'every-three-hour-clear-persistent-messages': {
+            'task': 'readthedocs.core.tasks.clear_persistent_messages',
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
     }
@@ -270,7 +269,6 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
@@ -312,13 +310,6 @@ class CommunityBaseSettings(Settings):
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
 
-    # Haystack
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
-
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
     ES_DEFAULT_NUM_REPLICAS = 0
@@ -339,6 +330,9 @@ class CommunityBaseSettings(Settings):
     # Stripe
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
+
+    # Do Not Track support
+    DO_NOT_TRACK_ENABLED = False
 
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None

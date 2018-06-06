@@ -6,17 +6,15 @@ You will have your docs imported on Read the Docs in 5 minutes,
 displayed beautifully for the world.
 
 If you are already using Sphinx or Markdown for your docs, skip ahead to
-:ref:`import-docs`.
+:ref:`getting_started:Import Your Docs`.
 
 Write Your Docs
 ---------------
 
 You have two options for formatting your documentation:
 
-* :ref:`in-rst`
-* :ref:`in-markdown`
-
-.. _in-rst:
+* `In reStructuredText`_
+* `In Markdown`_
 
 In reStructuredText
 ~~~~~~~~~~~~~~~~~~~
@@ -53,8 +51,6 @@ or `this template`_ if you need help). Build them to see how they look::
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs.
 
-.. _in-markdown:
-
 In Markdown
 ~~~~~~~~~~~
 
@@ -83,8 +79,6 @@ Then in your ``conf.py``:
 
 .. _this blog post: http://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
-.. _connect-account:
-
 Sign Up and Connect an External Account
 ---------------------------------------
 
@@ -97,8 +91,6 @@ To connect your account, go to your *Settings* dashboard and select *Connected
 Services*. From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
 account. This process will ask you to authorize a connection to Read the Docs,
 that allows us to read information about and clone your repositories.
-
-.. _import-docs:
 
 Import Your Docs
 ----------------
@@ -131,8 +123,8 @@ Add an optional homepage URL and some tags, and then click **Next**.
 Once your project is created, you'll need to manually configure the repository
 webhook if you would like to have new changesets to trigger builds for your
 project on Read the Docs. Go to your project's **Integrations** page to
-configure a new webhook, or see :ref:`our steps for webhook creation
-<webhook-creation>` for more information on this process.
+configure a new webhook, or see :ref:`our steps for webhook creation <webhooks:Webhook Creation>`
+for more information on this process.
 
 Within a few seconds your code will automatically be fetched from your public repository,
 and the documentation will be built.

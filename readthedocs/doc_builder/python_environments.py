@@ -4,6 +4,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import itertools
 import json
 import logging
 import os
@@ -222,8 +223,8 @@ class Virtualenv(PythonEnvironment):
             # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<40',
-                negative='setuptools==37.0.0',
+                positive='setuptools<41',
+                negative='setuptools<40',
             ),
             'docutils==0.13.1',
             'mock==1.0.1',
@@ -234,7 +235,7 @@ class Virtualenv(PythonEnvironment):
         ]
 
         if self.project.documentation_type == 'mkdocs':
-            requirements.append('mkdocs==0.15.0')
+            requirements.append('mkdocs==0.17.3')
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x
@@ -242,9 +243,9 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
                     positive='sphinx<2',
-                    negative='sphinx==1.6.5',
+                    negative='sphinx==1.7.4',
                 ),
-                'sphinx-rtd-theme<0.3',
+                'sphinx-rtd-theme<0.4',
                 'readthedocs-sphinx-ext<0.6'
             ])
 
@@ -275,12 +276,13 @@ class Virtualenv(PythonEnvironment):
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
-            for path in [docs_dir, '']:
-                for req_file in ['pip_requirements.txt', 'requirements.txt']:
-                    test_path = os.path.join(self.checkout_path, path, req_file)
-                    if os.path.exists(test_path):
-                        requirements_file_path = test_path
-                        break
+            paths = [docs_dir, '']
+            req_files = ['pip_requirements.txt', 'requirements.txt']
+            for path, req_file in itertools.product(paths, req_files):
+                test_path = os.path.join(self.checkout_path, path, req_file)
+                if os.path.exists(test_path):
+                    requirements_file_path = test_path
+                    break
 
         if requirements_file_path:
             args = [

@@ -389,7 +389,7 @@ class BuildEnvironment(BaseEnvironment):
     Any exceptions raised inside this context and handled by the eventual
     :py:meth:`__exit__` method, specifically, inside :py:meth:`handle_exception`
     and :py:meth:`update_build`. If the exception is a subclass of
-    :py:cls:`BuildEnvironmentError`, then this error message is added to the
+    :py:class:`BuildEnvironmentError`, then this error message is added to the
     build object and is shown to the user as the top-level failure reason for
     why the build failed. Other exceptions raise a general failure warning on
     the build.
@@ -672,7 +672,7 @@ class DockerBuildEnvironment(BuildEnvironment):
 
         try:
             self.create_container()
-        except:  # pylint: disable=broad-except
+        except:  # noqa
             self.__exit__(*sys.exc_info())
             raise
         return self

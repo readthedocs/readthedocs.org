@@ -107,6 +107,10 @@ class Index(object):
         }
         self.es.indices.create(index=index, body=body)
 
+    def refresh_index(self, index=None):
+        index = index or self._index
+        self.es.indices.refresh(index=index)
+
     def put_mapping(self, index=None):
         index = index or self._index
         self.es.indices.put_mapping(self._type, self.get_mapping(), index)
@@ -154,6 +158,10 @@ class Index(object):
         if routing:
             kwargs['routing'] = routing
         self.es.index(**kwargs)
+
+    def delete_index(self, index_name):
+
+        self.es.indices.delete(index=index_name)
 
     def delete_document(self, body, index=None, parent=None, routing=None):
         kwargs = {

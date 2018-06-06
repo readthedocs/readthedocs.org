@@ -19,6 +19,22 @@ Here are a few examples:
 You can see it in action in the `Read the Docs README`_.
 They will link back to your project's documentation page on Read the Docs.
 
+Style
+-----
+
+Now you can pass the ``style`` GET argument,
+to get custom styled badges same as you would for shields.io. 
+If no argument is passed, ``flat`` is used as default.
+
+STYLE | BADGE
+------------ | -------------
+flat | ![Flat Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat)
+flat-square | ![Flat-Square Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat-square)
+for-the-badge | ![ Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=for-the-badge)
+plastic | ![Plastic Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=plastic)
+social | ![Social Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=social)
+
+
 Project Pages
 -------------
 
@@ -26,7 +42,7 @@ You will now see badges embedded in your `project page`_.
 The default badge will be pointed at the *default version* you have specified for your project.
 The badge URLs look like this::
 
-    https://readthedocs.org/projects/pip/badge/?version=latest
+    https://readthedocs.org/projects/pip/badge/?version=latest&style=plastic
 
 You can replace the version argument with any version that you want to show a badge for.
 If you click on the badge icon,

@@ -30,7 +30,7 @@ from slumber.exceptions import HttpClientError
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
-from .signals import before_vcs, after_vcs, before_build, after_build
+from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -39,7 +39,6 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
-from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
@@ -161,13 +160,33 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
-class SyncRepositoryTask(SyncRepositoryMixin, Task):
+# TODO SyncRepositoryTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class SyncRepositoryTask(Task):
 
-    """Entry point to synchronize the VCS documentation."""
+    """Celery task to trigger VCS version sync."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.sync_repository'
+
+    def run(self, *args, **kwargs):
+        step = SyncRepositoryTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class SyncRepositoryTaskStep(SyncRepositoryMixin):
+
+    """
+    Entry point to synchronize the VCS documentation.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+    """
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
         """
@@ -194,7 +213,20 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         return False
 
 
-class UpdateDocsTask(SyncRepositoryMixin, Task):
+# TODO UpdateDocsTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class UpdateDocsTask(Task):
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.update_docs'
+
+    def run(self, *args, **kwargs):
+        step = UpdateDocsTaskStep(task=self)
+        return step.run(*args, **kwargs)
+
+
+class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     """
     The main entry point for updating documentation.
@@ -202,16 +234,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     It handles all of the logic around whether a project is imported, we created
     it or a webhook is received. Then it will sync the repository and build the
     html docs if needed.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
     """
 
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
-                 build=None, project=None, version=None):
+                 build=None, project=None, version=None, task=None):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
@@ -228,6 +263,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.project = project
         if config is not None:
             self.config = config
+        self.task = task
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -339,7 +375,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             try:
                 self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
-                self.retry(exc=e, throw=False)
+                self.task.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
                     'Version locked, retrying in 5 minutes.',
                     status_code=423
@@ -408,6 +444,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # the model to include an idea of these outcomes
                 outcomes = self.build_docs()
                 build_id = self.build.get('id')
+            except vcs_support_utils.LockTimeout as e:
+                self.task.retry(exc=e, throw=False)
+                raise BuildEnvironmentError(
+                    'Version locked, retrying in 5 minutes.',
+                    status_code=423
+                )
             except SoftTimeLimitExceeded:
                 raise BuildEnvironmentError(_('Build exited due to time out'))
 
@@ -491,6 +533,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         project_data['has_valid_clone'] = True
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
+        self.version.project.has_valid_clone = True
 
     def update_documentation_type(self):
         """
@@ -505,6 +548,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         project_data['documentation_type'] = ret
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
+        self.version.project.documentation_type = ret
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
@@ -923,14 +967,13 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project,
                                 version=version
                                 ).exclude(commit=commit).delete()
-    # Purge Cache
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            changed_files = [resolve_path(
-                version.project, filename=fname, version_slug=version.slug,
-            ) for fname in changed_files]
-            purge(cdn_ids[version.project.slug], changed_files)
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @app.task(queue='web')
