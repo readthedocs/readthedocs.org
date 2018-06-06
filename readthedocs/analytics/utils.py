@@ -18,9 +18,6 @@ except ImportError:
 
 log = logging.getLogger(__name__)   # noqa
 
-# Used to anonymize an IP by zero-ing out the last 2 bytes
-MASK = int('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000', 16)
-
 
 def get_client_ip(request):
     """Gets the real IP based on a request object"""
@@ -36,12 +33,15 @@ def get_client_ip(request):
 
 def anonymize_ip_address(ip_address):
     """Anonymizes an IP address by zeroing the last 2 bytes"""
+    # Used to anonymize an IP by zero-ing out the last 2 bytes
+    ip_mask = int('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000', 16)
+
     try:
         ip_obj = ipaddress.ip_address(force_text(ip_address))
     except ValueError:
         return None
 
-    anonymized_ip = ipaddress.ip_address(int(ip_obj) & MASK)
+    anonymized_ip = ipaddress.ip_address(int(ip_obj) & ip_mask)
     return anonymized_ip.compressed
 
 
