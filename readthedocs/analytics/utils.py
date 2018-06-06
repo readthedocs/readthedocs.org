@@ -73,6 +73,7 @@ def send_to_analytics(data):
         resp = requests.post(
             'https://www.google-analytics.com/collect',
             data=data,
+            timeout=3,      # seconds
         )
     except requests.Timeout:
         log.warning('Timeout sending to Google Analytics')
