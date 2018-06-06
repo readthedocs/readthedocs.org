@@ -30,7 +30,7 @@ from slumber.exceptions import HttpClientError
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
-from .signals import before_vcs, after_vcs, before_build, after_build
+from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
