@@ -424,25 +424,41 @@ class TestPrivateMixins(MockBuildTestCase):
 class TestBadges(TestCase):
     """Test a static badge asset is served for each build."""
 
+    # To set `flat` as default style as done in code.
+    def get_badge_path(self, version, style='flat'):
+            return static(self.BADGE_PATH % (version, style))
+
     def setUp(self):
-        self.BADGE_PATH = 'projects/badges/%s.svg'
+        self.BADGE_PATH = 'projects/badges/%s-%s.svg'
         self.project = get(Project, slug='badgey')
         self.version = Version.objects.get(project=self.project)
         self.badge_url = reverse('project_badge', args=[self.project.slug])
 
     def test_unknown_badge(self):
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = static(self.BADGE_PATH % 'unknown')
+        static_badge = self.get_badge_path('unknown')
         self.assertEquals(res.url, static_badge)
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = static(self.BADGE_PATH % 'passing')
+        static_badge = self.get_badge_path('passing')
         self.assertEquals(res.url, static_badge)
 
     def test_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = static(self.BADGE_PATH % 'failing')
+        static_badge = self.get_badge_path('failing')
+        self.assertEquals(res.url, static_badge)
+
+    def test_plastic_failing_badge(self):
+        get(Build, project=self.project, version=self.version, success=False)
+        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'plastic'})
+        static_badge = self.get_badge_path('failing', 'plastic')
+        self.assertEquals(res.url, static_badge)
+
+    def test_social_passing_badge(self):
+        get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug , 'style': 'social'})
+        static_badge = self.get_badge_path('passing', 'social')
         self.assertEquals(res.url, static_badge)
