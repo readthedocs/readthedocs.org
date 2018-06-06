@@ -26,38 +26,44 @@ DEFAULT_PARAMETERS = {
 
 
 @app.task(queue='web')
-def analytics_pageview(pageview_data):
+def analytics_pageview(url, title=None, **kwargs):
     """
     Send a pageview to Google Analytics
 
     :see: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
-    :param pageview_data: pageview parameters to send to GA
+    :param url: the URL of the pageview
+    :param title: the title of the page being viewed
+    :param kwargs: extra pageview parameters to send to GA
     """
     data = {
         't': 'pageview',
-        'dl': None,         # URL of the pageview (required)
-        'dt': None,         # Title of the page
+        'dl': url,          # URL of the pageview (required)
+        'dt': title,        # Title of the page
     }
     data.update(DEFAULT_PARAMETERS)
-    data.update(pageview_data)
+    data.update(kwargs)
     send_to_analytics(data)
 
 
 @app.task(queue='web')
-def analytics_event(event_data):
+def analytics_event(event_category, event_action, event_label=None, event_value=None, **kwargs):
     """
     Send an analytics event to Google Analytics
 
     :see: https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide#event
-    :param event_data: event parameters to send to GA
+    :param event_category: the category of the event
+    :param event_action: the action of the event (use action words like "click")
+    :param event_label: an optional string to differentiate the event
+    :param event_value: an optional numeric value for the event
+    :param kwargs: extra event parameters to send to GA
     """
     data = {
-        't': 'event',       # GA event - don't change
-        'ec': None,         # Event category (required)
-        'ea': None,         # Event action (required)
-        'el': None,         # Event label
-        'ev': None,         # Event value (numeric)
+        't': 'event',           # GA event - don't change
+        'ec': event_category,   # Event category (required)
+        'ea': event_action,     # Event action (required)
+        'el': event_label,      # Event label
+        'ev': event_value,      # Event value (numeric)
     }
     data.update(DEFAULT_PARAMETERS)
-    data.update(event_data)
+    data.update(kwargs)
     send_to_analytics(data)

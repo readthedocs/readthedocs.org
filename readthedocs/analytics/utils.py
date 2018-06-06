@@ -69,6 +69,7 @@ def send_to_analytics(data):
         data['ua'] = anonymize_user_agent(data['ua'])
 
     resp = None
+    log.debug('Sending data to analytics: %s', data)
     try:
         resp = requests.post(
             'https://www.google-analytics.com/collect',
