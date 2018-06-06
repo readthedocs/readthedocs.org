@@ -26,13 +26,25 @@ Now you can pass the ``style`` GET argument,
 to get custom styled badges same as you would for shields.io. 
 If no argument is passed, ``flat`` is used as default.
 
-STYLE | BADGE
------------- | -------------
-flat | ![Flat Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat)
-flat-square | ![Flat-Square Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=flat-square)
-for-the-badge | ![ Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=for-the-badge)
-plastic | ![Plastic Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=plastic)
-social | ![Social Badge](https://readthedocs.org/projects/pip/badge/?version=latest&style=social)
++---------------+---------------------+
+| STYLE         | BADGE               |
++===============+=====================+
+| flat          | |Flat Badge|        |
++---------------+---------------------+
+| flat-square   | |Flat-Square Badge| |
++---------------+---------------------+
+| for-the-badge | |Badge|             |
++---------------+---------------------+
+| plastic       | |Plastic Badge|     |
++---------------+---------------------+
+| social        | |Social Badge|      |
++---------------+---------------------+
+
+.. |Flat Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=flat
+.. |Flat-Square Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=flat-square
+.. |Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=for-the-badge
+.. |Plastic Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=plastic
+.. |Social Badge| image:: https://readthedocs.org/projects/pip/badge/?version=latest&style=social
 
 
 Project Pages
