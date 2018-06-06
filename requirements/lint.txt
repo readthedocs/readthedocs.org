@@ -1,5 +1,4 @@
 -r pip.txt
-maxcdn==0.0.7
 astroid==1.6.4
 pylint==1.9.1
 pylint-django==0.11.1
