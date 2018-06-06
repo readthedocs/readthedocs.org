@@ -1,3 +1,40 @@
+Version 2.5.0
+-------------
+
+:Date: June 06, 2018
+
+* `@ericholscher <http://github.com/ericholscher>`_: Fix Build: Convert md to rst in docs (`#4199 <https://github.com/rtfd/readthedocs.org/pull/4199>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Remove maxcdn reqs (`#4194 <https://github.com/rtfd/readthedocs.org/pull/4194>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Add missing gitignore item for ES testing (`#4193 <https://github.com/rtfd/readthedocs.org/pull/4193>`_)
+* `@xrmx <http://github.com/xrmx>`_: fabfile: update i18n helpers (`#4189 <https://github.com/rtfd/readthedocs.org/pull/4189>`_)
+* `@xrmx <http://github.com/xrmx>`_: Update italian locale (`#4188 <https://github.com/rtfd/readthedocs.org/pull/4188>`_)
+* `@xrmx <http://github.com/xrmx>`_: locale: update and build the english translation (`#4187 <https://github.com/rtfd/readthedocs.org/pull/4187>`_)
+* `@safwanrahman <http://github.com/safwanrahman>`_: Test for search functionality (`#4116 <https://github.com/rtfd/readthedocs.org/pull/4116>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Update mkdocs to the latest (`#4041 <https://github.com/rtfd/readthedocs.org/pull/4041>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Ad block nag to urge people to whitelist (`#4037 <https://github.com/rtfd/readthedocs.org/pull/4037>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Decouple the theme JS from readthedocs.org (`#3968 <https://github.com/rtfd/readthedocs.org/pull/3968>`_)
+* `@xrmx <http://github.com/xrmx>`_: tests: fixup url tests in test_privacy_urls (`#3966 <https://github.com/rtfd/readthedocs.org/pull/3966>`_)
+* `@fenilgandhi <http://github.com/fenilgandhi>`_: Add support for different badge styles (`#3632 <https://github.com/rtfd/readthedocs.org/pull/3632>`_)
+* `@benjaoming <http://github.com/benjaoming>`_: Add Mexican Spanish as a project language (`#3588 <https://github.com/rtfd/readthedocs.org/pull/3588>`_)
+* `@stsewd <http://github.com/stsewd>`_: Wrap versions' list to look more consistent (`#3445 <https://github.com/rtfd/readthedocs.org/pull/3445>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Move CDN code to external abstraction (`#2091 <https://github.com/rtfd/readthedocs.org/pull/2091>`_)
+
+Version 2.4.0
+-------------
+
+:Date: May 31, 2018
+
+* This fixes assets that were generated against old dependencies in 2.3.14
+* `@agjohnson <http://github.com/agjohnson>`_: Fix issues with search javascript (`#4176 <https://github.com/rtfd/readthedocs.org/pull/4176>`_)
+* `@stsewd <http://github.com/stsewd>`_: Use anonymous refs in CHANGELOG (`#4173 <https://github.com/rtfd/readthedocs.org/pull/4173>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix some warnings on docs (`#4172 <https://github.com/rtfd/readthedocs.org/pull/4172>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Update the privacy policy date (`#4171 <https://github.com/rtfd/readthedocs.org/pull/4171>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Note about state and metro ad targeting (`#4169 <https://github.com/rtfd/readthedocs.org/pull/4169>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Add another guide around fixing memory usage. (`#4168 <https://github.com/rtfd/readthedocs.org/pull/4168>`_)
+* `@stsewd <http://github.com/stsewd>`_: Download raw build log (`#3585 <https://github.com/rtfd/readthedocs.org/pull/3585>`_)
+* `@stsewd <http://github.com/stsewd>`_: Add "edit" and "view docs" buttons to subproject list (`#3572 <https://github.com/rtfd/readthedocs.org/pull/3572>`_)
+* `@kennethlarsen <http://github.com/kennethlarsen>`_: Remove outline reset to bring back outline (`#3512 <https://github.com/rtfd/readthedocs.org/pull/3512>`_)
+
 Version 2.3.14
 --------------
 

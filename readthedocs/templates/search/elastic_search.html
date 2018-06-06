@@ -27,7 +27,7 @@
       {% if facets.language %}
         <h5> Language </h5>
           {% for name, count in facets.language.items %}
-            <li class="{% if language == name %}active{% endif %}">
+            <li class="{% if language == name %}active{% endif %} language-list">
               {% if language == name %}
                 <a href="?{% url_replace request 'language' ''  %}">{{ name }}
               {% else %}
@@ -46,7 +46,7 @@
     {% if facets.project %}
       <h5> Projects </h5>
         {% for name, count in facets.project.items %}
-          <li class="{% if project == name %}active{% endif %}">
+          <li class="{% if project == name %}active{% endif %} project-list">
             {% if project == name %}
               <a href="?{% url_replace request 'project' ''  %}">{{ name }}
             {% else %}
@@ -61,9 +61,9 @@
 
     {% if facets.version %}
 
-      <h5>Version</h5> 
+      <h5>Version</h5>
         {% for name, count in facets.version.items %}
-          <li class="{% if version == name %}active{% endif %}">
+          <li class="{% if version == name %}active{% endif %} version-list">
             {% if version == name %}
               <a href="?{% url_replace request 'version' ''  %}">{{ name }}
             {% else %}
