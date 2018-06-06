@@ -177,9 +177,10 @@ div.ethical-sidebar, div.ethical-footer {
 /* Read the Docs theme specific fixes */
 .wy-body-for-nav .keep-us-sustainable {
     margin: 1em 2em 1em 1em;
+    color: #b3b3b3;
 }
 .wy-body-for-nav .keep-us-sustainable a {
-    color: #b3b3b3;
+    color: #efefef;
     font-size: 14px;
     line-height: 20px;
 }

@@ -138,6 +138,7 @@ function adblock_admonition() {
     console.log(' - only show advertisements of interest to developers');
     console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
     console.log('Read more about Ads for Open Source: https://ads-for-open-source.readthedocs.io');
+    console.log('Or go ad-free: https://readthedocs.org/sustainability/');
     console.log('%cPlease whitelist Read the Docs on your adblocker using the following filter:', 'font-size: 2em');
     console.log('https://ads-for-open-source.readthedocs.io/en/latest/_static/lists/readthedocs-ads.txt');
     console.log('--------------------------------------------------------------------------------------');
@@ -146,21 +147,16 @@ function adblock_admonition() {
 function adblock_nag() {
     // Place an ad block nag into the sidebar
     var placement = create_sidebar_placement();
-    var url = 'https://ads-for-open-source.readthedocs.io/';
+    var unblock_url = 'https://ads-for-open-source.readthedocs.io/';
+    var ad_free_url = 'https://readthedocs.org/sustainability/';
     var container = null;
-    var div;
-    var link;
 
     if (placement && placement.div_id) {
-        container = $('#' + placement.div_id);
-        container.attr('class', 'keep-us-sustainable');
+        container = $('#' + placement.div_id).attr('class', 'keep-us-sustainable');
 
-        link = $('<a />').attr('href', url).appendTo(container);
-        div = $('<div />').appendTo(link);
-
-        $('<p />').text('Support Read the Docs!').appendTo(div);
-        $('<p />').text('Please help keep us sustainable by allowing our ethical ads in your ad blocker.').appendTo(div);
-        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(div);
+        $('<p />').text('Support Read the Docs!').appendTo(container);
+        $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
+        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(container);
     }
 }
 
