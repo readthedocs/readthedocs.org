@@ -4,7 +4,7 @@ from __future__ import (absolute_import, print_function, unicode_literals)
 from django.db import models, migrations
 from future.backports.urllib.parse import urlparse
 
-import readthedocs.core.validators
+import readthedocs.projects.validators
 
 
 def migrate_url(apps, schema_editor):
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='domain',
             name='domain',
-            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[readthedocs.core.validators.DomainNameValidator()]),
+            field=models.CharField(unique=True, max_length=255, verbose_name='Domain', validators=[readthedocs.projects.validators.DomainNameValidator()]),
 
         ),
     ]
