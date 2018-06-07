@@ -42,11 +42,9 @@ MkDocs
 ~~~~~~
 
 When you choose *Mkdocs* as your *Documentation Type*,
-we will first look for a ``mkdocs.yml`` file in your repository.
+we will first look for a ``mkdocs.yml`` file in the root of your repository.
 If we don't find one,
 we will generate one for you.
-We will look inside a ``doc`` or ``docs`` directory first,
-and then default to the top-level of your documentation.
 
 Then MkDocs will build any files with a ``.md`` extension.
 As MkDocs doesn't support automatic PDF generation, 
