@@ -18,5 +18,5 @@ and sometimes can take up to a day before it starts reporting data.
    for the purpose of analytics.
 
    For more details, see the
-   :ref:`Do Not Track section <privacy-policy-do-not-track>`
+   :ref:`Do Not Track section <privacy-policy:Do Not Track>`
    of our privacy policy.
