@@ -6,7 +6,6 @@ code.
 
 .. toctree::
 
-    bookmarks
     builds
     doc_builder
     core

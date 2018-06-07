@@ -16,7 +16,12 @@ from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = ['/api/v2/footer_html', '/api/v2/search', '/api/v2/docsearch']
+WHITELIST_URLS = [
+    '/api/v2/footer_html',
+    '/api/v2/search',
+    '/api/v2/docsearch',
+    '/api/v2/sustainability',
+]
 
 
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
@@ -37,10 +42,16 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     if 'HTTP_ORIGIN' not in request.META:
         return False
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
+
+    # Don't do domain checking for this API for now
+    if request.path_info.startswith('/api/v2/sustainability'):
+        return True
+
     valid_url = False
     for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
             valid_url = True
+            break
 
     if valid_url:
         project_slug = request.GET.get('project', None)
@@ -48,10 +59,9 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
             project = Project.objects.get(slug=project_slug)
         except Project.DoesNotExist:
             log.warning(
-                'Invalid project passed to domain. [{project}:{domain}'.format(
-                    project=project_slug,
-                    domain=host,
-                )
+                'Invalid project passed to domain. [%s:%s]',
+                project_slug,
+                host,
             )
             return False
 

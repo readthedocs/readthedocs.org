@@ -47,19 +47,15 @@ when you push to GitHub.
 #. Create an account on `Read the Docs`_.  You will get an email verifying your
    email address which you should accept within 7 days.
 
-#. Log in and click on "Import".
+#. Log in and click on "Import a Project".
 
-#. Give your project a name, add the HTTPS link for your GitHub project, and
-   select Git as your repository type.
+#. Click "Connect to GitHub" in order to connect your account's repositories to GitHub.
 
-#. Fill in the rest of the form as needed and click "Create".
+#. When prompted on GitHub, give access to your account.
 
-#. On GitHub, navigate to your repository and click on "Settings".
+#. Click "Import a Repository" and select any desired repository.
 
-#. In the sidebar, click on "Web Hooks & Services", then find and click on the
-   "ReadTheDocs" service.
-
-#. Check the "Active" setting and click "Update Settings".
+#. Change any information if desired and click "Next".
 
 #. All done.  Commit away and your project will auto-update.
 

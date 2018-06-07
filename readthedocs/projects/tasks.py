@@ -30,7 +30,7 @@ from slumber.exceptions import HttpClientError
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
-from .signals import before_vcs, after_vcs, before_build, after_build
+from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -39,7 +39,6 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
-from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
@@ -151,14 +150,43 @@ class SyncRepositoryMixin(object):
             except Exception:
                 log.exception('Unknown Sync Versions Exception')
 
+    # TODO this is duplicated in the classes below, and this should be
+    # refactored out anyways, as calling from the method removes the original
+    # caller from logging.
+    def _log(self, msg):
+        log.info(LOG_TEMPLATE
+                 .format(project=self.project.slug,
+                         version=self.version.slug,
+                         msg=msg))
 
-class SyncRepositoryTask(SyncRepositoryMixin, Task):
 
-    """Entry point to synchronize the VCS documentation."""
+# TODO SyncRepositoryTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class SyncRepositoryTask(Task):
+
+    """Celery task to trigger VCS version sync."""
 
     max_retries = 5
     default_retry_delay = (7 * 60)
     name = __name__ + '.sync_repository'
+
+    def run(self, *args, **kwargs):
+        step = SyncRepositoryTaskStep()
+        return step.run(*args, **kwargs)
+
+
+class SyncRepositoryTaskStep(SyncRepositoryMixin):
+
+    """
+    Entry point to synchronize the VCS documentation.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+    """
 
     def run(self, version_pk):  # pylint: disable=arguments-differ
         """
@@ -174,15 +202,31 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             self.project = self.version.project
             self.sync_repo()
             return True
-        # Catch unhandled errors when syncing
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
         except Exception:
+            # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
             )
-            return False
+        return False
 
 
-class UpdateDocsTask(SyncRepositoryMixin, Task):
+# TODO UpdateDocsTask should be refactored into a standard celery task,
+# there is no more need to have this be a separate class
+class UpdateDocsTask(Task):
+
+    max_retries = 5
+    default_retry_delay = (7 * 60)
+    name = __name__ + '.update_docs'
+
+    def run(self, *args, **kwargs):
+        step = UpdateDocsTaskStep(task=self)
+        return step.run(*args, **kwargs)
+
+
+class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     """
     The main entry point for updating documentation.
@@ -190,16 +234,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     It handles all of the logic around whether a project is imported, we created
     it or a webhook is received. Then it will sync the repository and build the
     html docs if needed.
+
+    .. note::
+
+        This is implemented as a separate class to isolate each run of the
+        underlying task. Previously, we were using a custom ``celery.Task`` for
+        this, but this class is only instantiated once -- on startup. The effect
+        was that this instance shared state between workers.
+
     """
 
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    # TODO: the argument from the __init__ are used only in tests
     def __init__(self, build_env=None, python_env=None, config=None,
                  force=False, search=True, localmedia=True,
-                 build=None, project=None, version=None):
+                 build=None, project=None, version=None, task=None):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
@@ -216,6 +263,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.project = project
         if config is not None:
             self.config = config
+        self.task = task
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -225,7 +273,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=False, search=True, force=False, localmedia=True, **__):
+            docker=None, search=True, force=False, localmedia=True, **__):
         """
         Run a documentation sync n' build.
 
@@ -246,7 +294,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :param version_pk int: Project Version id (latest if None)
         :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
-        :param docker bool: use docker to build the project
+        :param docker bool: use docker to build the project (if ``None``,
+            ``settings.DOCKER_ENABLE`` is used)
         :param search bool: update search
         :param force bool: force Sphinx build
         :param localmedia bool: update localmedia
@@ -256,6 +305,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         :rtype: bool
         """
         try:
+            if docker is None:
+                docker = settings.DOCKER_ENABLE
+
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
@@ -285,7 +337,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # No exceptions in the setup step, catch unhandled errors in the
             # build steps
             try:
-                self.run_build(record=record, docker=docker)
+                self.run_build(docker=docker, record=record)
             except Exception as e:  # noqa
                 log.exception(
                     'An unhandled exception was raised during project build',
@@ -323,7 +375,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             try:
                 self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
-                self.retry(exc=e, throw=False)
+                self.task.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
                     'Version locked, retrying in 5 minutes.',
                     status_code=423
@@ -352,16 +404,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         return True
 
-    def run_build(self, docker=False, record=True):
+    def run_build(self, docker, record):
         """
         Build the docs in an environment.
 
-        If `docker` is True, or Docker is enabled by the settings.DOCKER_ENABLE
-        setting, then build in a Docker environment. Otherwise build locally.
+        :param docker: if ``True``, the build uses a ``DockerBuildEnvironment``,
+            otherwise it uses a ``LocalBuildEnvironment`` to run all the
+            commands to build the docs
+        :param record: whether or not record all the commands in the ``Build``
+            instance
         """
         env_vars = self.get_env_vars()
 
-        if docker or settings.DOCKER_ENABLE:
+        if docker:
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
@@ -389,6 +444,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # the model to include an idea of these outcomes
                 outcomes = self.build_docs()
                 build_id = self.build.get('id')
+            except vcs_support_utils.LockTimeout as e:
+                self.task.retry(exc=e, throw=False)
+                raise BuildEnvironmentError(
+                    'Version locked, retrying in 5 minutes.',
+                    status_code=423
+                )
             except SoftTimeLimitExceeded:
                 raise BuildEnvironmentError(_('Build exited due to time out'))
 
@@ -472,6 +533,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         project_data['has_valid_clone'] = True
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
+        self.version.project.has_valid_clone = True
 
     def update_documentation_type(self):
         """
@@ -486,6 +548,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         project_data['documentation_type'] = ret
         api_v2.project(self.project.pk).put(project_data)
         self.project.documentation_type = ret
+        self.version.project.documentation_type = ret
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
@@ -504,7 +567,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     'built': True,
                 })
         except HttpClientError:
-            log.exception('Updating version failed, skipping file sync: version=%s' % self.version)
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s',
+                self.version,
+            )
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -761,7 +827,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.error('Unknown documentation type: %s',
+        log.debug('Unknown documentation type: %s',
                   version.project.documentation_type)
         return
 
@@ -799,6 +865,34 @@ def symlink_domain(project_pk, domain_pk, delete=False):
             sym.remove_symlink_cname(domain)
         else:
             sym.symlink_cnames(domain)
+
+
+@app.task(queue='web')
+def remove_orphan_symlinks():
+    """
+    Remove orphan symlinks.
+
+    List CNAME_ROOT for Public and Private symlinks, check that all the listed
+    cname exist in the database and if doesn't exist, they are un-linked.
+    """
+    for symlink in [PublicSymlink, PrivateSymlink]:
+        for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
+            valid_cnames = set(Domain.objects.all().values_list('domain', flat=True))
+            orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
+            for cname in orphan_cnames:
+                orphan_domain_path = os.path.join(domain_path, cname)
+                log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
+                os.unlink(orphan_domain_path)
+
+
+@app.task(queue='web')
+def broadcast_remove_orphan_symlinks():
+    """
+    Broadcast the task ``remove_orphan_symlinks`` to all our web servers.
+
+    This task is executed by CELERY BEAT.
+    """
+    broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
 @app.task(queue='web')
@@ -861,7 +955,7 @@ def _manage_imported_files(version, path, commit):
                     name=filename,
                 )
             except ImportedFile.MultipleObjectsReturned:
-                log.exception('Error creating ImportedFile')
+                log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
                 obj.md5 = md5
@@ -873,14 +967,13 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project,
                                 version=version
                                 ).exclude(commit=commit).delete()
-    # Purge Cache
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            changed_files = [resolve_path(
-                version.project, filename=fname, version_slug=version.slug,
-            ) for fname in changed_files]
-            purge(cdn_ids[version.project.slug], changed_files)
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @app.task(queue='web')
@@ -904,28 +997,41 @@ def email_notification(version, build, email):
     """
     log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
                                   msg='sending email to: %s' % email))
-    context = {'version': version,
-               'project': version.project,
-               'build': build,
-               'build_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   build.get_absolute_url()),
-               'unsub_url': 'https://{0}{1}'.format(
-                   getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-                   reverse('projects_notifications', args=[version.project.slug])),
-               }
+
+    # We send only what we need from the Django model objects here to avoid
+    # serialization problems in the ``readthedocs.core.tasks.send_email_task``
+    context = {
+        'version': {
+            'verbose_name': version.verbose_name,
+        },
+        'project': {
+            'name': version.project.name,
+        },
+        'build': {
+            'pk': build.pk,
+            'error': build.error,
+        },
+        'build_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            build.get_absolute_url(),
+        ),
+        'unsub_url': 'https://{0}{1}'.format(
+            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            reverse('projects_notifications', args=[version.project.slug]),
+        ),
+    }
 
     if build.commit:
-        title = _('Failed: {project.name} ({commit})').format(commit=build.commit[:8], **context)
+        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
     else:
-        title = _('Failed: {project.name} ({version.verbose_name})').format(**context)
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
 
     send_email(
         email,
         title,
         template='projects/email/build_failed.txt',
         template_html='projects/email/build_failed.html',
-        context=context
+        context=context,
     )
 
 
@@ -951,7 +1057,10 @@ def webhook_notification(version, build, hook_url):
     log.debug(LOG_TEMPLATE
               .format(project=project.slug, version='',
                       msg='sending notification to: %s' % hook_url))
-    requests.post(hook_url, data=data)
+    try:
+        requests.post(hook_url, data=data)
+    except Exception:
+        log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
 
 @app.task(queue='web')

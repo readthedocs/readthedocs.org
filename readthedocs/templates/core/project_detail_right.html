@@ -7,7 +7,13 @@
 {% block repo %}
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
-    <p class="detail-long">{{ project.repo|urlize }}</p>
+    <p class="detail-long">
+      {% if project.repo|slice:':4' == 'http' %}
+        {{ project.repo|urlize }}
+      {% else %}
+        {{ project.repo }}
+      {% endif %}
+    </p>
   {% endif %}
 {% endblock %}
 
@@ -34,7 +40,7 @@
 {% endblock %}
 
 {% block owners %}
-    <h3>{% trans "Owners" %}</h3>
+    <h3>{% trans "Maintainers" %}</h3>
     <p>
       {% for user in project.users.all %}
       <a href="{% url "profiles_profile_detail" user.username %}">{% gravatar user.email 32 %}</a>

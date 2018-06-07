@@ -52,7 +52,7 @@ Example layout
         fabric -> rtd-builds/fabric/en/latest/ # single version
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from builtins import object
 import os
 import shutil
@@ -85,14 +85,6 @@ class Symlink(object):
         )
         self.sanity_check()
 
-    def _log(self, msg, level='info'):
-        logger = getattr(log, level)
-        logger(constants.LOG_TEMPLATE
-               .format(project=self.project.slug,
-                       version='',
-                       msg=msg)
-               )
-
     def sanity_check(self):
         """
         Make sure the project_root is the proper structure before continuing.
@@ -100,7 +92,9 @@ class Symlink(object):
         This will leave it in the proper state for the single_project setting.
         """
         if os.path.islink(self.project_root) and not self.project.single_version:
-            self._log("Removing single version symlink")
+            log.info(constants.LOG_TEMPLATE.format(
+                     project=self.project.slug, version='',
+                     msg="Removing single version symlink"))
             os.unlink(self.project_root)
             safe_makedirs(self.project_root)
         elif (self.project.single_version and
@@ -152,7 +146,9 @@ class Symlink(object):
         else:
             domains = Domain.objects.filter(project=self.project)
         for dom in domains:
-            self._log(u"Symlinking CNAME: {0} -> {1}".format(dom.domain, self.project.slug))
+            log_msg = 'Symlinking CNAME: {0} -> {1}'.format(dom.domain, self.project.slug)
+            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                   version='', msg=log_msg))
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
@@ -164,7 +160,9 @@ class Symlink(object):
 
     def remove_symlink_cname(self, domain):
         """Remove CNAME symlink."""
-        self._log(u"Removing symlink for CNAME {0}".format(domain.domain))
+        log_msg = "Removing symlink for CNAME {0}".format(domain.domain)
+        log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                               version='', msg=log_msg))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
         os.unlink(symlink)
 
@@ -190,7 +188,9 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
-                self._log(u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
+                log_msg = "Symlinking subproject: {0} -> {1}".format(from_slug, to_slug)
+                log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                       version='', msg=log_msg))
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
@@ -232,7 +232,10 @@ class Symlink(object):
             safe_makedirs(language_dir)
 
         for (language, slug) in list(translations.items()):
-            self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
+
+            log_msg = 'Symlinking translation: {0}->{1}'.format(language, slug)
+            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                   version='', msg=log_msg))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             run(['ln', '-nsf', docs_dir, symlink])
@@ -285,7 +288,9 @@ class Symlink(object):
             if not os.path.exists(version_dir):
                 safe_makedirs(version_dir)
         for version in version_queryset:
-            self._log(u"Symlinking Version: %s" % version)
+            log_msg = 'Symlinking Version: {}'.format(version)
+            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                   version='', msg=log_msg))
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             run(['ln', '-nsf', docs_dir, symlink])

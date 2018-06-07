@@ -7,9 +7,5 @@ django-mailgun==0.2.2
 
 hiredis==0.1.2
 
-maxcdn==0.0.7
-
 #For resizing images
 pillow
-
-cssselect==0.7.1

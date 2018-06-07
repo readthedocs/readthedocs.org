@@ -13,7 +13,6 @@ The code is open source, and `available on GitHub`_.
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _reStructuredText: http://sphinx.pocoo.org/rest.html
 .. _CommonMark: http://commonmark.org/
-.. _Markdown: http://daringfireball.net/projects/markdown/syntax
 .. _Subversion: http://subversion.tigris.org/
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
@@ -58,7 +57,9 @@ Information about development is also available:
    team
    gsoc
    code-of-conduct
+   privacy-policy
    ethical-advertising
+   advertising-details
    sponsors
    open-source-philosophy
    story
@@ -104,6 +105,7 @@ Information about development is also available:
    settings
    i18n
    issue-labels
+   security
    api/index
 
 .. _business-docs:

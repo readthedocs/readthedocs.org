@@ -1,7 +1,7 @@
 -r pip.txt
-maxcdn
-astroid
-pylint
-prospector
-pylint-django
-pyflakes
+astroid==1.6.4
+pylint==1.9.1
+pylint-django==0.11.1
+pylint-celery==0.3
+prospector==0.12.10
+pyflakes==2.0.0

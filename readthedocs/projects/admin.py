@@ -102,16 +102,20 @@ class ProjectAdmin(GuardedModelAdmin):
     """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'repo', 'repo_type', 'allow_comments', 'featured', 'theme')
-    list_filter = ('repo_type', 'allow_comments', 'featured', 'privacy_level',
+    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured', 'theme')
+    list_filter = ('repo_type', 'featured', 'privacy_level',
                    'documentation_type', 'programming_language',
                    ProjectOwnerBannedFilter)
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline,
                VersionInline, DomainInline]
+    readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
     actions = ['send_owner_email', 'ban_owner']
+
+    def feature_flags(self, obj):
+        return ', '.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(

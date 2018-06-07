@@ -1,6 +1,6 @@
 {% extends "projects/base_project.html" %}
 
-{% load core_tags i18n highlight  %}
+{% load core_tags i18n %}
 
 {% block title %}{% blocktrans with query=query|default:"" %}Search: {{ query }} {% endblocktrans %}{% endblock %}
 
@@ -27,7 +27,7 @@
       {% if facets.language %}
         <h5> Language </h5>
           {% for name, count in facets.language.items %}
-            <li class="{% if language == name %}active{% endif %}">
+            <li class="{% if language == name %}active{% endif %} language-list">
               {% if language == name %}
                 <a href="?{% url_replace request 'language' ''  %}">{{ name }}
               {% else %}
@@ -46,7 +46,7 @@
     {% if facets.project %}
       <h5> Projects </h5>
         {% for name, count in facets.project.items %}
-          <li class="{% if project == name %}active{% endif %}">
+          <li class="{% if project == name %}active{% endif %} project-list">
             {% if project == name %}
               <a href="?{% url_replace request 'project' ''  %}">{{ name }}
             {% else %}
@@ -61,9 +61,9 @@
 
     {% if facets.version %}
 
-      <h5>Version</h5> 
+      <h5>Version</h5>
         {% for name, count in facets.version.items %}
-          <li class="{% if version == name %}active{% endif %}">
+          <li class="{% if version == name %}active{% endif %} version-list">
             {% if version == name %}
               <a href="?{% url_replace request 'version' ''  %}">{{ name }}
             {% else %}
@@ -120,7 +120,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
-                <input type="submit" value="{% trans "Go crazy." %}">
+                <input type="submit" value="{% trans 'Search' %}">
               </div>
             </form>
           </div>

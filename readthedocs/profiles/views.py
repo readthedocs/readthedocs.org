@@ -13,8 +13,9 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.context import RequestContext
+from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.core.forms import UserDeleteForm
+from readthedocs.core.forms import UserDeleteForm, UserAdvertisingForm
 
 
 def create_profile(
@@ -279,3 +280,35 @@ def profile_detail(
 
     context.update({'profile': profile_obj})
     return render(request, template_name, context=context)
+
+
+@login_required
+def account_advertising(request):
+    success_url = reverse(account_advertising)
+
+    try:
+        profile_obj = request.user.profile
+    except ObjectDoesNotExist:
+        return HttpResponseRedirect(reverse('profiles_profile_create'))
+
+    if request.method == 'POST':
+        form = UserAdvertisingForm(
+            data=request.POST,
+            instance=profile_obj,
+        )
+        if form.is_valid():
+            form.save()
+            messages.info(request, _('Updated your advertising preferences'))
+            return HttpResponseRedirect(success_url)
+    else:
+        form = UserAdvertisingForm(instance=profile_obj)
+
+    return render(
+        request,
+        'profiles/private/advertising_profile.html',
+        context={
+            'form': form,
+            'profile': profile_obj,
+            'user': profile_obj.user,
+        },
+    )

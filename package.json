@@ -4,18 +4,20 @@
   "description": "Read the Docs build dependencies",
   "author": "Anthony Johnson <anthony@readthedocs.com>",
   "dependencies": {
+    "bowser": "^1.9.3",
     "cssfilter": "0.0.8",
-    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git"
+    "github-changelog": "git+https://github.com/agjohnson/github-changelog.git",
+    "npm": "^6.1.0"
   },
   "devDependencies": {
-    "bower": "*",
+    "bower": "^1.8.4",
     "bower-resolve": "^2.2.1",
     "browserify": "*",
     "debowerify": "git+https://github.com/agjohnson/debowerify.git#8c6b9a7",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0",
     "event-stream": "^3.3.1",
-    "gulp": "*",
+    "gulp": "^3.9.1",
     "gulp-eslint": "^3.0.1",
     "gulp-less": "^3.0.3",
     "gulp-rename": "^1.2.2",
@@ -26,6 +28,9 @@
     "less": "^2.7.3",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "resolutions": {
+    "natives": "1.1.3"
   },
   "private": true,
   "license": "MIT",

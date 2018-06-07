@@ -53,6 +53,22 @@ $(document).ready(function () {
           {{ build.builder }}
         </li>
       {% endif %}
+
+      <div data-bind="visible: finished() && success()">
+        <li>
+          <a data-bind="attr: {href: docs_url}">
+            {% trans "View docs" %}
+          </a>
+        </li>
+      </div>
+
+      <div data-bind="visible: finished()">
+        <li>
+          <a href="{% url "build-detail" build.pk "txt" %}">
+            {% trans "View raw" %}
+          </a>
+        </li>
+      </div>
     </ul>
 
     <div class="build-id">

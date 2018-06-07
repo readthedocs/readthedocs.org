@@ -16,6 +16,8 @@
 _build
 bower_components/
 contrib/supervisord.log
+contrib/supervisord.pid
+celerybeat-schedule.*
 deploy/.vagrant
 dist/*
 local_settings.py
@@ -30,6 +32,7 @@ media/man
 media/pdf
 media/static
 node_modules
+package-lock.json
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds
@@ -45,6 +48,8 @@ readthedocs/htmlcov
 tags
 .python-version
 *.pyo
+.pytest_cache/
+scripts/travis/elasticsearch*
 
 # Environments
 .env

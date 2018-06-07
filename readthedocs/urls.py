@@ -14,8 +14,13 @@ from tastypie.api import Api
 from readthedocs.api.base import (ProjectResource, UserResource,
                                   VersionResource, FileResource)
 from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
-from readthedocs.core.views import (HomepageView, SupportView,
-                                    server_error_404, server_error_500)
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    server_error_404,
+    server_error_500,
+    do_not_track,
+)
 from readthedocs.search import views as search_views
 
 
@@ -34,10 +39,11 @@ basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^support/', SupportView.as_view(), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
+    url(r'^\.well-known/security.txt$',
+        TemplateView.as_view(template_name='security.txt', content_type='text/plain')),
 ]
 
 rtd_urls = [
-    url(r'^bookmarks/', include('readthedocs.bookmarks.urls')),
     url(r'^search/$', search_views.elastic_search, name='search'),
     url(r'^dashboard/', include('readthedocs.projects.urls.private')),
     url(r'^profiles/', include('readthedocs.profiles.urls.public')),
@@ -61,7 +67,6 @@ api_urls = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^websupport/', include('readthedocs.comments.urls')),
 ]
 
 i18n_urls = [
@@ -70,6 +75,14 @@ i18n_urls = [
 
 admin_urls = [
     url(r'^admin/', include(admin.site.urls)),
+]
+
+dnt_urls = [
+    url(r'^\.well-known/dnt/$', do_not_track),
+
+    # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
+    url(r'^\.well-known/dnt-policy.txt$',
+        TemplateView.as_view(template_name='dnt-policy.txt', content_type='text/plain')),
 ]
 
 debug_urls = add(
@@ -81,8 +94,11 @@ debug_urls = add(
 )
 
 # Export URLs
-groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
-          deprecated_urls]
+groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls, deprecated_urls]
+
+if settings.DO_NOT_TRACK_ENABLED:
+    # Include Do Not Track URLs if DNT is supported
+    groups.append(dnt_urls)
 
 if settings.USE_PROMOS:
     # Include donation URL's

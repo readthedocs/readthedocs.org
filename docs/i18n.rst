@@ -1,5 +1,3 @@
-.. _i18n:
-
 Internationalization
 ====================
 
@@ -258,9 +256,6 @@ The updated files can now be localized in a `PO editor
 <https://en.wikipedia.org/wiki/Category:Software-localization_tools>`_ or
 crowd-sourced online translation tool.
 
-
-.. _i18n-compiling:
-
 Compiling to MO
 ^^^^^^^^^^^^^^^
 
@@ -288,7 +283,7 @@ push -s`` (for English) or ``tx push -t <language>`` (for non-English).
 
 To pull changes from Transifex, run ``tx pull -a``. Note that Transifex does
 not compile the translation files, so you have to do this after the pull (see
-the :ref:`i18n-compiling` section).
+the `Compiling to MO`_ section).
 
 For more information about the ``tx`` command, read the `Transifex client's
 help pages <http://help.transifex.com/features/client/>`_.

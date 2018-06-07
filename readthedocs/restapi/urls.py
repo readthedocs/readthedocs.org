@@ -7,7 +7,6 @@ from django.conf.urls import url, include
 from rest_framework import routers
 
 from readthedocs.constants import pattern_opts
-from readthedocs.comments.views import CommentViewSet
 from readthedocs.restapi import views
 from readthedocs.restapi.views import (
     core_views, footer_views, search_views, task_views, integrations
@@ -17,7 +16,8 @@ from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
                                 VersionViewSet, DomainViewSet,
                                 RemoteOrganizationViewSet,
-                                RemoteRepositoryViewSet)
+                                RemoteRepositoryViewSet,
+                                SocialAccountViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, base_name='build')
@@ -30,7 +30,8 @@ router.register(
     r'remote/org', RemoteOrganizationViewSet, base_name='remoteorganization')
 router.register(
     r'remote/repo', RemoteRepositoryViewSet, base_name='remoterepository')
-router.register(r'comments', CommentViewSet, base_name="comments")
+router.register(
+    r'remote/account', SocialAccountViewSet, base_name='remoteaccount')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
@@ -95,5 +96,14 @@ try:
         url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
     ]
     urlpatterns += api_search_urls
+except ImportError:
+    pass
+
+try:
+    from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
+
+    urlpatterns += [
+        url(r'^sustainability/', include(sustainability_urls)),
+    ]
 except ImportError:
     pass

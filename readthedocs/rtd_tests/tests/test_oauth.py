@@ -485,3 +485,8 @@ class GitLabOAuthTests(TestCase):
             m.return_value = True
             repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
+
+    def test_setup_webhook(self):
+        success, response = self.service.setup_webhook(self.project)
+        self.assertFalse(success)
+        self.assertIsNone(response)

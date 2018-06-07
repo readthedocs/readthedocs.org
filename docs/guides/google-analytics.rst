@@ -10,3 +10,13 @@ You can enable it by:
 Once your documentation rebuilds it will include your Analytics tracking code and start sending data.
 Google Analytics usually takes 60 minutes,
 and sometimes can take up to a day before it starts reporting data.
+
+.. note::
+
+   Read the Docs takes some extra precautions with analytics to protect user privacy.
+   As a result, users with Do Not Track enabled will not be counted
+   for the purpose of analytics.
+
+   For more details, see the
+   :ref:`Do Not Track section <privacy-policy-do-not-track>`
+   of our privacy policy.

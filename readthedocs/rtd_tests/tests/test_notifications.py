@@ -80,7 +80,7 @@ class NotificationBackendTests(TestCase):
                 request=mock.ANY,
                 template='core/email/common.txt',
                 context={'content': 'Test'},
-                subject=u'This is 1',
+                subject=u'This is {}'.format(build.id),
                 template_html='core/email/common.html',
                 recipient=user.email,
             )

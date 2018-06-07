@@ -1,5 +1,3 @@
-.. _issue-label-overview:
-
 Overview of issue labels
 ========================
 

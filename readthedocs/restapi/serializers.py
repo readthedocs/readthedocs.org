@@ -3,6 +3,8 @@
 from __future__ import absolute_import
 
 from builtins import object
+
+from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -58,6 +60,8 @@ class ProjectAdminSerializer(ProjectSerializer):
             'requirements_file',
             'python_interpreter',
             'features',
+            'has_valid_clone',
+            'has_valid_webhook',
         )
 
 
@@ -98,6 +102,9 @@ class BuildSerializer(serializers.ModelSerializer):
     """Build serializer for user display, doesn't display internal fields."""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
+    project_slug = serializers.ReadOnlyField(source='project.slug')
+    version_slug = serializers.ReadOnlyField(source='version.slug')
+    docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
     state_display = serializers.ReadOnlyField(source='get_state_display')
 
     class Meta(object):
@@ -157,3 +164,27 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
         request = self.context['request']
         if request.user is not None and request.user.is_authenticated():
             return obj.matches(request.user)
+
+
+class ProviderSerializer(serializers.Serializer):
+
+    id = serializers.CharField(max_length=20)
+    name = serializers.CharField(max_length=20)
+
+
+class SocialAccountSerializer(serializers.ModelSerializer):
+
+    username = serializers.SerializerMethodField()
+    avatar_url = serializers.URLField(source='get_avatar_url')
+    provider = ProviderSerializer(source='get_provider')
+
+    class Meta(object):
+        model = SocialAccount
+        exclude = ('extra_data',)
+
+    def get_username(self, obj):
+        return (
+            obj.extra_data.get('username') or
+            obj.extra_data.get('login')
+            # FIXME: which one is GitLab?
+        )

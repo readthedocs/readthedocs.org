@@ -46,9 +46,11 @@
         </li>
 
       {% empty %}
-      <p>
-      {% trans "No active versions." %}
-      </p>
+        <li class="module-item">
+          <p class="quiet">
+            {% trans "No active versions." %}
+          </p>
+        </li>
       {% endfor %}
       </ul>
     </div>
@@ -66,24 +68,21 @@
           <option value="{{ version.slug }}">{{ version.slug }}</option>
         {% endfor %}
         </select>
-        <input type="submit" value="{% trans "Build" %}">
+        <input type="submit" value="{% trans "Build version" %}">
       </form>
     </div>
   </div>
 {% endif %}
 {% endblock %}
 
-<div id="project_description">
 {% if project.description %}
+<div id="project_description">
   <h3>{% trans "Description" %}</h3>
-  <div id="project_description">
   <p>
     {{ project.description|restructuredtext }}
   </p>
-  </div>
-{% endif %}
 </div>
-
+{% endif %}
 
 </div>{# END .module #}
 

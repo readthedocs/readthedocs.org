@@ -6,5 +6,9 @@ var doc_slug = "{{ slug }}";
 var page_name = "{{ pagename }}";
 var html_theme = "{{ html_theme }}";
 
-READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
-    0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+// mkdocs_page_input_path is only defined on the RTD mkdocs theme but it isn't 
+// available on all pages (e.g. missing in search result)
+if (typeof mkdocs_page_input_path !== "undefined") {
+  READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(
+      0, mkdocs_page_input_path.lastIndexOf(READTHEDOCS_DATA.source_suffix));
+}

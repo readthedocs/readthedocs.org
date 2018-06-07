@@ -1,5 +1,3 @@
-.. _contributing-to-read-the-docs:
-
 Contributing to Read the Docs
 =============================
 
@@ -27,7 +25,7 @@ Contributing to development
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:ref:`Installation Guide <installing-read-the-docs>`. After that is done we
+:doc:`Installation Guide <install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
@@ -236,7 +234,7 @@ few more at hand to further categorize issues.
 .. _milestone: https://github.com/rtfd/readthedocs.org/milestones
 
 For a full list of available labels and their meanings, see
-:ref:`issue-label-overview`.
+:doc:`issue-labels`.
 
 Helpful links for triaging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

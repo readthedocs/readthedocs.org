@@ -16,13 +16,20 @@ var configMethods = {
     },
 
     is_sphinx_builder: function () {
-        return (!('builder' in this) || this.builder != 'mkdocs');
+        return (!('builder' in this) || this.builder !== 'mkdocs');
+    },
+
+    is_mkdocs_builder: function () {
+        return (!('builder' in this) || this.builder === 'mkdocs');
     },
 
     get_theme_name: function () {
         // Crappy heuristic, but people change the theme name on us.  So we have to
         // do some duck typing.
         if (this.theme !== constants.THEME_RTD) {
+            if (this.theme === constants.THEME_MKDOCS_RTD) {
+                return constants.THEME_RTD;
+            }
             if ($('div.rst-other-versions').length === 1) {
                 return constants.THEME_RTD;
             }
@@ -33,7 +40,6 @@ var configMethods = {
     show_promo: function () {
         return (
             this.api_host !== 'https://readthedocs.com' &&
-            this.is_sphinx_builder() &&
             this.theme_supports_promo());
     }
 };
