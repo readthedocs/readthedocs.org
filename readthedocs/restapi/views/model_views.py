@@ -9,8 +9,9 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status, viewsets
+from django.template.loader import render_to_string
 from rest_framework.decorators import detail_route
-from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH, TAG
@@ -32,6 +33,28 @@ from ..serializers import (
     SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
 
 log = logging.getLogger(__name__)
+
+
+class PlainTextBuildRenderer(BaseRenderer):
+
+    """
+    Custom renderer for text/plain format.
+
+    charset is 'utf-8' by default.
+    """
+
+    media_type = 'text/plain'
+    format = 'txt'
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        renderer_context = renderer_context or {}
+        response = renderer_context.get('response')
+        if not response or response.exception:
+            return data.get('detail', '').encode(self.charset)
+        data = render_to_string(
+            'restapi/log.txt', {'build': data}
+        )
+        return data.encode(self.charset)
 
 
 class UserSelectViewSet(viewsets.ModelViewSet):
@@ -170,7 +193,7 @@ class ProjectViewSet(UserSelectViewSet):
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
-            log.exception('Sync Versions Error: %s', e.message)
+            log.exception('Sync Versions Error')
             return Response(
                 {
                     'error': e.message,
@@ -213,7 +236,7 @@ class VersionViewSet(UserSelectViewSet):
 
 class BuildViewSetBase(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build

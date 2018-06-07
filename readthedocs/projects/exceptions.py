@@ -39,6 +39,10 @@ class RepositoryError(BuildEnvironmentError):
         'Private repositories are not supported.'
     )
 
+    INVALID_SUBMODULES = _(
+        'One or more submodule URLs are not valid.'
+    )
+
     def get_default_message(self):
         if settings.ALLOW_PRIVATE_REPOS:
             return self.PRIVATE_ALLOWED

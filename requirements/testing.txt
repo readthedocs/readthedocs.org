@@ -1,12 +1,14 @@
 -r pip.txt
 
+django-dynamic-fixture==2.0.0
+
 pytest<4,>=3.3.2
 pytest-django==3.1.2
 pytest-xdist==1.22.0
 apipkg==1.4
 execnet==1.5.0
 Mercurial==4.4.2
+pytest-mock==1.10.0
 
 # local debugging tools
-pdbpp
 datadiff

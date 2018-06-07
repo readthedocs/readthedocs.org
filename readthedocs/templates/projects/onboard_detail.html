@@ -38,7 +38,7 @@
             {% endblocktrans %}
             </p>
 
-            <input type="submit" value="View your documentation" />
+            <input type="submit" value="{% trans "View your documentation" %}"/>
           </form>
         {% else %}
           {% comment %}Last build failed{% endcomment %}
@@ -55,7 +55,7 @@
             {% endblocktrans %}
             </p>
 
-            <input type="submit" value="View build output" />
+            <input type="submit" value="{% trans "View build output" %}"/>
           </form>
         {% endif %}
       {% else %}

@@ -93,9 +93,10 @@ class ProjectSpamMixin(object):
 
     def post(self, request, *args, **kwargs):
         if request.user.profile.banned:
-            log.error(
+            log.info(
                 'Rejecting project POST from shadowbanned user %s',
-                request.user)
+                request.user,
+            )
             return HttpResponseRedirect(self.get_failure_url())
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
@@ -104,11 +105,12 @@ class ProjectSpamMixin(object):
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()
-                log.error(
+                log.info(
                     'Spam detected from new user, shadowbanned user %s',
-                    request.user)
+                    request.user,
+                )
             else:
-                log.error('Spam detected from user %s', request.user)
+                log.info('Spam detected from user %s', request.user)
             return HttpResponseRedirect(self.get_failure_url())
 
     def get_failure_url(self):

@@ -1,8 +1,8 @@
 ## Details
 
-* Project URL: 
+* Read the Docs project URL:
 * Build URL (if applicable):
-* Read the Docs username (if applicable): 
+* Read the Docs username (if applicable):
 
 ## Expected Result
 

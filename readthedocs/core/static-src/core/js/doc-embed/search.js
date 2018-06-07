@@ -49,7 +49,8 @@ function attach_elastic_search_query(data) {
                             .attr('href', item_url)
                             .html(fields.title)
                         );
-                        if (fields.project !== project) {
+                        // fields.project is returned as an array
+                        if (fields.project.indexOf(project) === -1) {
                             list_item.append(
                                 $('<span>')
                                 .text(" (from project " + fields.project + ")")

@@ -1,22 +1,25 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.forms import ProjectExtraForm, TranslationForm
+from readthedocs.projects.forms import (
+    ProjectBasicsForm, ProjectExtraForm, TranslationForm, UpdateProjectForm)
 from readthedocs.projects.models import Project
 
 
 class TestProjectForms(TestCase):
-
     @mock.patch.object(ClassifierValidator, '__call__')
     def test_form_spam(self, mocked_validator):
-        """Form description field fails spam validation"""
+        """Form description field fails spam validation."""
         mocked_validator.side_effect = ProjectSpamError
 
         data = {
@@ -27,6 +30,67 @@ class TestProjectForms(TestCase):
         form = ProjectExtraForm(data)
         with self.assertRaises(ProjectSpamError):
             form.is_valid()
+
+    def test_import_repo_url(self):
+        """Validate different type of repository URLs on importing a Project."""
+
+        common_urls = [
+            # Invalid
+            ('./path/to/relative/folder', False),
+            ('../../path/to/relative/folder', False),
+            ('../../path/to/@/folder', False),
+            ('/path/to/local/folder', False),
+            ('/path/to/@/folder', False),
+            ('file:///path/to/local/folder', False),
+            ('file:///path/to/@/folder', False),
+            ('github.com/humitos/foo', False),
+            ('https://github.com/|/foo', False),
+            ('git://github.com/&&/foo', False),
+            # Valid
+            ('git://github.com/humitos/foo', True),
+            ('http://github.com/humitos/foo', True),
+            ('https://github.com/humitos/foo', True),
+            ('http://gitlab.com/humitos/foo', True),
+            ('http://bitbucket.com/humitos/foo', True),
+            ('ftp://ftpserver.com/humitos/foo', True),
+            ('ftps://ftpserver.com/humitos/foo', True),
+            ('lp:zaraza', True),
+        ]
+
+        public_urls = [
+            ('git@github.com:humitos/foo', False),
+            ('ssh://git@github.com/humitos/foo', False),
+            ('ssh+git://github.com/humitos/foo', False),
+            ('strangeuser@bitbucket.org:strangeuser/readthedocs.git', False),
+            ('user@one-ssh.domain.com:22/_ssh/docs', False),
+        ] + common_urls
+
+        private_urls = [
+            ('git@github.com:humitos/foo', True),
+            ('ssh://git@github.com/humitos/foo', True),
+            ('ssh+git://github.com/humitos/foo', True),
+            ('strangeuser@bitbucket.org:strangeuser/readthedocs.git', True),
+            ('user@one-ssh.domain.com:22/_ssh/docs', True),
+         ] + common_urls
+
+        for url, valid in public_urls:
+            initial = {
+                'name': 'foo',
+                'repo_type': 'git',
+                'repo': url,
+            }
+            form = ProjectBasicsForm(initial)
+            self.assertEqual(form.is_valid(), valid, msg=url)
+
+        with override_settings(ALLOW_PRIVATE_REPOS=True):
+            for url, valid in private_urls:
+                initial = {
+                    'name': 'foo',
+                    'repo_type': 'git',
+                    'repo': url,
+                }
+                form = ProjectBasicsForm(initial)
+                self.assertEqual(form.is_valid(), valid, msg=url)
 
 
 class TestTranslationForm(TestCase):
@@ -196,3 +260,82 @@ class TestTranslationForm(TestCase):
             'is already a translation',
             ''.join(form.errors['project'])
         )
+
+    def test_cant_change_language_to_translation_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.translations.add(self.project_c_br)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'en',
+            },
+            instance=self.project_a_es
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "en" translation',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_b_en
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "es" translation',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        # to the same as its sibling
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'br',
+            },
+            instance=self.project_b_en
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "br" translation',
+            ''.join(form.errors['language'])
+        )
+
+    def test_can_change_language_to_self_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.translations.add(self.project_c_br)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_a_es.repo_type,
+                'name': self.project_a_es.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_a_es
+        )
+        self.assertTrue(form.is_valid())
+
+        # Translation tries to change lang
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'en',
+            },
+            instance=self.project_b_en
+        )
+        self.assertTrue(form.is_valid())

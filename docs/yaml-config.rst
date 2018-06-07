@@ -7,17 +7,35 @@ The file, ``readthedocs.yml`` (or ``.readthedocs.yml``), must be in the root dir
 .. warning:: This feature is in a beta state.
              Please file an `issue`_ if you find anything wrong.
 
-Supported Settings
+
+Here is an example of how this file looks like:
+
+.. code:: yaml
+
+   # .readthedocs.yml
+
+   build:
+     image: latest
+   
+   python:
+     version: 3.6
+     setup_py_install: true
+
+
+Supported settings
 ------------------
+
+.. _yaml__formats:
 
 formats
 ~~~~~~~
 
-* Default: ``htmlzip``, ``pdf``, ``epub``
-* Options: ``htmlzip``, ``pdf``, ``epub``, ``none``
+* Default: [``htmlzip``, ``pdf``, ``epub``]
+* Options: ``htmlzip``, ``pdf``, ``epub``
+* Type: List
 
 The formats of your documentation you want to be built.
-Choose ``none`` to build none of the formats.
+Set as an empty list ``[]`` to build none of the formats.
 
 .. note:: We will always build an HTML & JSON version of your documentation.
 		  These are used for web serving & search indexing, respectively.
@@ -25,8 +43,7 @@ Choose ``none`` to build none of the formats.
 .. code-block:: yaml
 
     # Don't build any extra formats
-    formats:
-        - none
+    formats: []
 
 .. code-block:: yaml
 
@@ -35,18 +52,21 @@ Choose ``none`` to build none of the formats.
         - epub
         - pdf
 
+.. _yaml__requirements_file:
+
 requirements_file
 ~~~~~~~~~~~~~~~~~
 
-* Default: `None`
+* Default: ``null``
 * Type: Path (specified from the root of the project)
 
-The path to your Pip requirements file.
+The path to your pip requirements file.
 
 .. code-block:: yaml
 
-	requirements_file: requirements/docs.txt
+   requirements_file: requirements/docs.txt
 
+.. _yaml__conda:
 
 conda
 ~~~~~
@@ -56,30 +76,29 @@ The ``conda`` block allows for configuring our support for Conda.
 conda.file
 ``````````
 
-* Default: `None`
+* Default: ``null``
 * Type: Path (specified from the root of the project)
 
 The file option specified the Conda `environment file`_ to use.
 
-
 .. code-block:: yaml
 
-	conda:
-	    file: environment.yml
+   conda:
+     file: environment.yml
 
 .. note:: Conda is only supported via the YAML file.
 
+.. _yaml__build:
 
 build
 ~~~~~
 
 The ``build`` block configures specific aspects of the documentation build.
 
-.. _yaml_build_image:
+.. _yaml__build__image:
 
 build.image
 ```````````
-
 
 * Default: :djangosetting:`DOCKER_IMAGE`
 * Options: ``1.0``, ``2.0``, ``latest``
@@ -103,11 +122,15 @@ as defined here:
     python:
         version: 3.6
 
+.. _yaml__python:
+
 python
 ~~~~~~
 
 The ``python`` block allows you to configure aspects of the Python executable
 used for building documentation.
+
+.. _yaml__python__version:
 
 python.version
 ``````````````
@@ -115,26 +138,28 @@ python.version
 * Default: ``2.7``
 * Options: ``2.7``, ``2``, ``3.5``, ``3``
 
-This is the version of Python to use when building your documentation. If you
-specify only the major version of Python, the highest supported minor version
-will be selected.
+This is the version of Python to use when building your documentation.
+If you specify only the major version of Python,
+the highest supported minor version will be selected.
 
 .. warning:: 
 
     The supported Python versions depends on the version of the build image your
-    project is using. The default build image that is used to build documentation
-    contains support for Python ``2.7`` and ``3.5``. 
-    See the :ref:`yaml_build_image` for more information on supported Python versions.
+    project is using. The default build image that is used to build
+    documentation contains support for Python ``2.7`` and ``3.5``.  See the
+    :ref:`yaml__build__image` for more information on supported Python versions.
 
 .. code-block:: yaml
 
     python:
        version: 3.5
 
+.. _yaml__python__setup_py_install:
+
 python.setup_py_install
 ```````````````````````
 
-* Default: `False`
+* Default: ``false``
 * Type: Boolean
 
 When true, install your project into the Virtualenv with
@@ -145,13 +170,15 @@ When true, install your project into the Virtualenv with
 	python:
 	   setup_py_install: true
 
+.. _yaml__python__pip_install:
+
 python.pip_install
 ``````````````````
 
-* Default: `False`
+* Default: ``false``
 * Type: Boolean
 
-When true, install your project into the Virtualenv with pip when building
+When ``true``, install your project into the virtualenv with pip when building
 documentation.
 
 .. code-block:: yaml
@@ -159,33 +186,37 @@ documentation.
     python:
        pip_install: true
 
-.. To implement..
 
-	type
-	~~~~
+.. TODO not yet implemented. We should move these to another doc.
+.. ==============================================================
+.. 
+.. type
+.. ~~~~
+.. 
+.. * Default: ``sphinx``
+.. * Options: ``sphinx``, ``mkdocs``
+.. 
+.. The ``type`` block allows you to configure the build tool used for building
+.. your documentation.
+.. 
+.. .. code-block:: yaml
+.. 
+..     type: sphinx
+.. 
+.. conf_file
+.. ~~~~~~~~~
+.. 
+.. * Default: `None`
+.. * Type: Path (specified from the root of the project)
+.. 
+.. The path to a specific Sphinx ``conf.py`` file. If none is found, we will
+.. choose one.
+.. 
+.. .. code-block:: yaml
+.. 
+..     conf_file: project2/docs/conf.py
 
-    * Default: ``sphinx``
-    * Options: ``sphinx``, ``mkdocs``
-
-    The ``type`` block allows you to configure the build tool used for building
-    your documentation.
-
-	.. code-block:: yaml
-
-		type: sphinx
-
-	conf_file
-	~~~~~~~~~
-
-    * Default: `None`
-    * Type: Path (specified from the root of the project)
-
-    The path to a specific Sphinx ``conf.py`` file. If none is found, we will
-    choose one.
-
-	.. code-block:: yaml
-
-		conf_file: project2/docs/conf.py
+.. _yaml__python__extra_requirements:
 
 python.extra_requirements
 `````````````````````````
@@ -195,7 +226,7 @@ python.extra_requirements
 
 List of `extra requirements`_ sections to install, additionally to the
 `package default dependencies`_. Only works if ``python.pip_install`` option
-above is set to ``True``.
+above is set to ``true``.
 
 Let's say your Python package has a ``setup.py`` which looks like this:
 

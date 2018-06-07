@@ -90,9 +90,12 @@ def build_branches(project, branch_list):
 
 
 def get_project_from_url(url):
+    if not url:
+        return Project.objects.none()
     projects = (
         Project.objects.filter(repo__iendswith=url) |
-        Project.objects.filter(repo__iendswith=url + '.git'))
+        Project.objects.filter(repo__iendswith=url + '.git')
+    )
     return projects
 
 
@@ -160,7 +163,7 @@ def github_build(request):  # noqa: D205
     GitHub webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GitHubWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.GitHubWebhookView`
         instead of this view function
 
     This will search for projects matching either a stripped down HTTP or SSH
@@ -215,7 +218,7 @@ def gitlab_build(request):  # noqa: D205
     GitLab webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GitLabWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.GitLabWebhookView`
         instead of this view function
 
     Search project repository URLs using the site URL from GitLab webhook payload.
@@ -233,12 +236,13 @@ def gitlab_build(request):  # noqa: D205
         log.info(
             'GitLab webhook search: url=%s branches=%s',
             search_url,
-            branches
+            branches,
         )
         projects = get_project_from_url(search_url)
         if projects:
             return _build_url(search_url, projects, branches)
-        log.error('Project match not found: url=%s', search_url)
+
+        log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)
 
@@ -249,7 +253,7 @@ def bitbucket_build(request):
     Consume webhooks from multiple versions of Bitbucket's API.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
         instead of this view function
 
     New webhooks are set up with v2, but v1 webhooks will still point to this
@@ -277,6 +281,8 @@ def bitbucket_build(request):
                 branches = [commit.get('branch', '')
                             for commit in data['commits']]
                 repository = data['repository']
+                if not repository['absolute_url']:
+                    return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org{0}'.format(
                     repository['absolute_url'].rstrip('/')
                 )
@@ -284,6 +290,8 @@ def bitbucket_build(request):
                 changes = data['push']['changes']
                 branches = [change['new']['name']
                             for change in changes]
+                if not data['repository']['full_name']:
+                    return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org/{0}'.format(
                     data['repository']['full_name']
                 )
@@ -294,7 +302,7 @@ def bitbucket_build(request):
         log.info(
             'Bitbucket webhook search: url=%s branches=%s',
             search_url,
-            branches
+            branches,
         )
         log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
         projects = get_project_from_url(search_url)
@@ -304,10 +312,10 @@ def bitbucket_build(request):
             log.error(
                 'Commit/branch not found url=%s branches=%s',
                 search_url,
-                branches
+                branches,
             )
             return HttpResponseNotFound('Commit/branch not found')
-        log.error('Project match not found: url=%s', search_url)
+        log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)
 
@@ -319,7 +327,7 @@ def generic_build(request, project_id_or_slug=None):
 
     .. warning:: **DEPRECATED**
 
-      Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
+      Use :py:class:`readthedocs.restapi.views.integrations.GenericWebhookView`
       instead of this view function
     """
     try:

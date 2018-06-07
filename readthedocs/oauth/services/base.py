@@ -138,7 +138,7 @@ class Service(object):
             return results
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
-            log.error('access_token or refresh_token failed: %s', url)
+            log.warning('access_token or refresh_token failed: %s', url)
             raise Exception('You should reconnect your account')
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -149,8 +149,10 @@ class Service(object):
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'paginate failed at %s with response: %s', url, debug_data)
-        else:
+                'Paginate failed at %s with response: %s',
+                url,
+                debug_data,
+            )
             return []
 
     def sync(self):

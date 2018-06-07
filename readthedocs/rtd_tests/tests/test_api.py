@@ -12,11 +12,12 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils import six
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Feature, Project
@@ -53,6 +54,130 @@ class APIBuildTests(TestCase):
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
+
+    def test_response_building(self):
+        """
+        The ``view docs`` attr should return a link
+        to the dashboard.
+        """
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = get(
+            Project,
+            language='en',
+            main_language_project=None,
+        )
+        version = get(
+            Version,
+            project=project,
+            built=False,
+            uploaded=False,
+        )
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            state='cloning',
+            exit_code=0,
+        )
+        resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        dashboard_url = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': project.slug,
+                'version_slug': version.slug,
+            },
+        )
+        build = resp.data
+        self.assertEqual(build['state'], 'cloning')
+        self.assertEqual(build['error'], '')
+        self.assertEqual(build['exit_code'], 0)
+        self.assertEqual(build['success'], True)
+        self.assertEqual(build['docs_url'], dashboard_url)
+
+    def test_response_finished_and_success(self):
+        """
+        The ``view docs`` attr should return a link
+        to the docs.
+        """
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = get(
+            Project,
+            language='en',
+            main_language_project=None,
+        )
+        version = get(
+            Version,
+            project=project,
+            built=True,
+            uploaded=True,
+        )
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            state='finished',
+            exit_code=0,
+        )
+        resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        docs_url = 'http://readthedocs.org/docs/{project}/en/{version}/'.format(
+            project=project.slug,
+            version=version.slug,
+        )
+        self.assertEqual(build['state'], 'finished')
+        self.assertEqual(build['error'], '')
+        self.assertEqual(build['exit_code'], 0)
+        self.assertEqual(build['success'], True)
+        self.assertEqual(build['docs_url'], docs_url)
+
+    def test_response_finished_and_fail(self):
+        """
+        The ``view docs`` attr should return a link
+        to the dashboard.
+        """
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = get(
+            Project,
+            language='en',
+            main_language_project=None,
+        )
+        version = get(
+            Version,
+            project=project,
+            built=False,
+            uploaded=False,
+        )
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            state='finished',
+            success=False,
+            exit_code=1,
+        )
+
+        resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        dashboard_url = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': project.slug,
+                'version_slug': version.slug,
+            },
+        )
+        build = resp.data
+        self.assertEqual(build['state'], 'finished')
+        self.assertEqual(build['error'], '')
+        self.assertEqual(build['exit_code'], 1)
+        self.assertEqual(build['success'], False)
+        self.assertEqual(build['docs_url'], dashboard_url)
 
     def test_make_build_without_permission(self):
         """Ensure anonymous/non-staff users cannot write the build endpoint."""
@@ -152,6 +277,140 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['commands'][0]['run_time'], 5)
         self.assertEqual(build['commands'][0]['description'], 'foo')
 
+    def test_get_raw_log_success(self):
+        build = get(Build, project_id=1, version_id=1, builder='foo')
+        get(
+            BuildCommandResult,
+            build=build,
+            command='python setup.py install',
+            output='Installing dependencies...'
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='git checkout master',
+            output='Switched to branch "master"'
+        )
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertIn('Read the Docs build information', resp.content.decode())
+        self.assertIn('Build id: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.slug), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.version.slug), resp.content.decode())
+        self.assertIn('Commit: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('Date: ', resp.content.decode())
+        self.assertIn('State: finished', resp.content.decode())
+        self.assertIn('Success: True', resp.content.decode())
+        self.assertIn('[rtd-command-info]', resp.content.decode())
+        self.assertIn(
+            'python setup.py install\nInstalling dependencies...',
+            resp.content.decode()
+        )
+        self.assertIn(
+            'git checkout master\nSwitched to branch "master"',
+            resp.content.decode()
+        )
+
+    def test_get_raw_log_building(self):
+        build = get(
+            Build, project_id=1, version_id=1,
+            builder='foo', success=False,
+            exit_code=1, state='building',
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='python setup.py install',
+            output='Installing dependencies...',
+            exit_code=1,
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='git checkout master',
+            output='Switched to branch "master"'
+        )
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertIn('Read the Docs build information', resp.content.decode())
+        self.assertIn('Build id: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.slug), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.version.slug), resp.content.decode())
+        self.assertIn('Commit: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('Date: ', resp.content.decode())
+        self.assertIn('State: building', resp.content.decode())
+        self.assertIn('Success: Unknow', resp.content.decode())
+        self.assertIn('[rtd-command-info]', resp.content.decode())
+        self.assertIn(
+            'python setup.py install\nInstalling dependencies...',
+            resp.content.decode()
+        )
+        self.assertIn(
+            'git checkout master\nSwitched to branch "master"',
+            resp.content.decode()
+        )
+
+    def test_get_raw_log_failure(self):
+        build = get(
+            Build, project_id=1, version_id=1,
+            builder='foo', success=False, exit_code=1
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='python setup.py install',
+            output='Installing dependencies...',
+            exit_code=1,
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command='git checkout master',
+            output='Switched to branch "master"'
+        )
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        self.assertEqual(resp.status_code, 200)
+
+        self.assertIn('Read the Docs build information', resp.content.decode())
+        self.assertIn('Build id: {}'.format(build.id), resp.content.decode())
+        self.assertIn('Project: {}'.format(build.project.slug), resp.content.decode())
+        self.assertIn('Version: {}'.format(build.version.slug), resp.content.decode())
+        self.assertIn('Commit: {}'.format(build.commit), resp.content.decode())
+        self.assertIn('Date: ', resp.content.decode())
+        self.assertIn('State: finished', resp.content.decode())
+        self.assertIn('Success: False', resp.content.decode())
+        self.assertIn('[rtd-command-info]', resp.content.decode())
+        self.assertIn(
+            'python setup.py install\nInstalling dependencies...',
+            resp.content.decode()
+        )
+        self.assertIn(
+            'git checkout master\nSwitched to branch "master"',
+            resp.content.decode()
+        )
+
+    def test_get_invalid_raw_log(self):
+        client = APIClient()
+
+        api_user = get(User, user='test', password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/{0}.txt'.format(404))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
@@ -247,7 +506,8 @@ class APITests(TestCase):
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn('features', resp.data)
-        self.assertEqual(
+        six.assertCountEqual(
+            self,
             resp.data['features'],
             [feature1.feature_id, feature2.feature_id],
         )
@@ -609,6 +869,8 @@ class APIVersionTests(TestCase):
                 'enable_epub_build': True,
                 'enable_pdf_build': True,
                 'features': ['allow_deprecated_webhooks'],
+                'has_valid_clone': False,
+                'has_valid_webhook': False,
                 'id': 6,
                 'install_project': False,
                 'language': 'en',

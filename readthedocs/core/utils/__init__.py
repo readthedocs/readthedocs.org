@@ -16,7 +16,6 @@ from django.utils.text import slugify as slugify_base
 from future.backports.urllib.parse import urlparse
 from celery import group, chord
 
-from ..tasks import send_email_task
 from readthedocs.builds.constants import LATEST
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
@@ -144,6 +143,8 @@ def send_email(recipient, subject, template, template_html, context=None,
         Task :py:func:`readthedocs.core.tasks.send_email_task`
             Task that handles templating and sending email message
     """
+    from ..tasks import send_email_task
+
     if context is None:
         context = {}
     context['uri'] = '{scheme}://{host}'.format(

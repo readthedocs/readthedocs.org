@@ -3,6 +3,8 @@
 var constants = require('./constants');
 var rtddata = require('./rtd-data');
 
+var bowser = require('bowser');
+
 var rtd;
 
 /*
@@ -14,7 +16,10 @@ function create_sidebar_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
 
-    if (rtd.is_rtd_theme()) {
+    if (rtd.is_mkdocs_builder() && rtd.is_rtd_theme()) {
+        selector = 'nav.wy-nav-side';
+        class_name = 'ethical-rtd';
+    } else if (rtd.is_rtd_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
         class_name = 'ethical-rtd';
     } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
@@ -61,21 +66,20 @@ function create_footer_placement() {
 }
 
 /*
- *  Returns an array of possible places where a promo could go
+ *  Creates a fixed footer placmenet
+ *  Returns the ID of the div or none if a fixed footer ad shouldn't be used
  */
-function get_placements() {
-    var placements = [];
-    var placement_funcs = [create_footer_placement, create_sidebar_placement];
-    var placement;
+function create_fixed_footer_placement() {
+    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
+    var display_type = constants.PROMO_TYPES.FIXED_FOOTER;
 
-    for (var i = 0; i < placement_funcs.length; i += 1) {
-        placement = placement_funcs[i]();
-        if (placement) {
-            placements.push(placement);
-        }
+    // Only propose the fixed footer ad for mobile
+    if (bowser && bowser.mobile) {
+        $('<div />').attr('id', element_id).appendTo('body');
+        return {'div_id': element_id, 'display_type': display_type};
     }
 
-    return placements;
+    return null;
 }
 
 function Promo(data) {
@@ -124,12 +128,52 @@ Promo.prototype.post_promo_display = function () {
         // Alabaster only
         $('<hr />').insertBefore('#' + this.div_id + '.ethical-alabaster .ethical-footer');
     }
-
 };
 
+function adblock_admonition() {
+    console.log('---------------------------------------------------------------------------------------');
+    console.log('Read the Docs hosts documentation for tens of thousands of open source projects.');
+    console.log('We fund our development (we are open source) and operations through advertising.');
+
+    console.log('We promise to:');
+    console.log(' - never let advertisers run 3rd party JavaScript');
+    console.log(' - never sell user data to advertisers or other 3rd parties');
+    console.log(' - only show advertisements of interest to developers');
+    console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
+    console.log('Read more about Ads for Open Source: https://ads-for-open-source.readthedocs.io');
+    console.log('Or go ad-free: https://readthedocs.org/sustainability/');
+    console.log('%cPlease whitelist Read the Docs on your adblocker using the following filter:', 'font-size: 2em');
+    console.log('https://ads-for-open-source.readthedocs.io/en/latest/_static/lists/readthedocs-ads.txt');
+    console.log('--------------------------------------------------------------------------------------');
+}
+
+function adblock_nag() {
+    // Place an ad block nag into the sidebar
+    var placement = create_sidebar_placement();
+    var unblock_url = 'https://ads-for-open-source.readthedocs.io/';
+    var ad_free_url = 'https://readthedocs.org/sustainability/';
+    var container = null;
+
+    if (placement && placement.div_id) {
+        container = $('#' + placement.div_id).attr('class', 'keep-us-sustainable');
+
+        $('<p />').text('Support Read the Docs!').appendTo(container);
+        $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
+        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(container);
+    }
+}
+
 function init() {
-    var post_data = {};
+    var request_data = {format: "jsonp"};
+    var div_ids = [];
+    var display_types = [];
+    var placement_funcs = [
+        create_footer_placement,
+        create_sidebar_placement,
+        create_fixed_footer_placement,
+    ];
     var params;
+    var placement;
 
     rtd = rtddata.get();
 
@@ -137,32 +181,40 @@ function init() {
         return;
     }
 
-    post_data.placements = get_placements(rtd);
-    post_data.project = rtd.project;
+    for (var i = 0; i < placement_funcs.length; i += 1) {
+        placement = placement_funcs[i]();
+        if (placement) {
+            div_ids.push(placement.div_id);
+            display_types.push(placement.display_type);
+        }
+    }
+
+    request_data.div_ids = div_ids.join('|');
+    request_data.display_types = display_types.join('|');
+    request_data.project = rtd.project;
 
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
         // Force a specific promo to be displayed
         params = new URL(window.location).searchParams;
         if (params.get('force_promo')) {
-            post_data.force_promo = params.get('force_promo');
+            request_data.force_promo = params.get('force_promo');
         }
 
         // Force a promo from a specific campaign
         if (params.get('force_campaign')) {
-            post_data.force_campaign = params.get('force_campaign');
+            request_data.force_campaign = params.get('force_campaign');
         }
     }
 
     // Request a promo to inject onto the page
     $.ajax({
         url: rtd.api_host + "/api/v2/sustainability/",
-        type: 'post',
+        crossDomain: true,
         xhrFields: {
             withCredentials: true,
         },
-        dataType: "json",
-        data: JSON.stringify(post_data),
-        contentType: "application/json",
+        dataType: "jsonp",
+        data: request_data,
         success: function (data) {
             var promo;
             if (data && data.div_id && data.html) {
@@ -170,8 +222,13 @@ function init() {
                 promo.display();
             }
         },
-        error: function () {
+        error: function (xhr, textStatus, errorThrown) {
             console.error('Error loading Read the Docs promo');
+
+            if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
+                adblock_admonition();
+                adblock_nag();
+            }
         },
     });
 }

@@ -4,9 +4,9 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-from builtins import object
 from random import choice
 
+from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -19,6 +19,7 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
@@ -119,17 +120,6 @@ class ProjectBasicsForm(ProjectForm):
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
         return name
 
-    def clean_repo(self):
-        repo = self.cleaned_data.get('repo', '').strip()
-        pvt_repos = getattr(settings, 'ALLOW_PRIVATE_REPOS', False)
-        if '&&' in repo or '|' in repo:
-            raise forms.ValidationError(_('Invalid character in repo name'))
-        elif '@' in repo and not pvt_repos:
-            raise forms.ValidationError(
-                _('It looks like you entered a private repo - please use the '
-                  'public (http:// or git://) clone url'))  # yapf: disable
-        return repo
-
     def clean_remote_repository(self):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if not remote_repo:
@@ -183,7 +173,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES,
         initial='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'),
     )
 
@@ -197,6 +187,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'conf_py_file',
             'default_branch',
             'default_version',
+            'show_version_warning',
             'enable_pdf_build',
             'enable_epub_build',
             # Privacy
@@ -230,8 +221,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'repo',
             'repo_type',
             # Extra
-            # 'allow_comments',
-            # 'comment_moderation',
             'description',
             'documentation_type',
             'language',
@@ -240,8 +229,38 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'tags',
         )
 
+    def clean_language(self):
+        language = self.cleaned_data['language']
+        project = self.instance
+        if project:
+            msg = _(
+                'There is already a "{lang}" translation '
+                'for the {proj} project.'
+            )
+            if project.translations.filter(language=language).exists():
+                raise forms.ValidationError(
+                    msg.format(lang=language, proj=project.slug)
+                )
+            main_project = project.main_language_project
+            if main_project:
+                if main_project.language == language:
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+                siblings = (
+                    main_project.translations
+                    .filter(language=language)
+                    .exclude(pk=project.pk)
+                    .exists()
+                )
+                if siblings:
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+        return language
 
-class ProjectRelationshipForm(forms.ModelForm):
+
+class ProjectRelationshipBaseForm(forms.ModelForm):
 
     """Form to add/update project relationships."""
 
@@ -254,11 +273,11 @@ class ProjectRelationshipForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
         self.user = kwargs.pop('user')
-        super(ProjectRelationshipForm, self).__init__(*args, **kwargs)
+        super(ProjectRelationshipBaseForm, self).__init__(*args, **kwargs)
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
-            self.fields['child'].disabled = True
+            self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
         else:
             self.fields['child'].queryset = self.get_subproject_queryset()
 
@@ -290,6 +309,10 @@ class ProjectRelationshipForm(forms.ModelForm):
             .exclude(superprojects__isnull=False)
             .exclude(pk=self.project.pk))
         return queryset
+
+
+class ProjectRelationshipForm(SettingsOverrideObject):
+    _default_class = ProjectRelationshipBaseForm
 
 
 class DualCheckboxWidget(forms.CheckboxInput):
@@ -492,7 +515,7 @@ class WebHookForm(forms.Form):
         return self.project
 
 
-class TranslationForm(forms.Form):
+class TranslationBaseForm(forms.Form):
 
     """Project translation form."""
 
@@ -501,7 +524,7 @@ class TranslationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
         self.user = kwargs.pop('user')
-        super(TranslationForm, self).__init__(*args, **kwargs)
+        super(TranslationBaseForm, self).__init__(*args, **kwargs)
         self.fields['project'].choices = self.get_choices()
 
     def get_choices(self):
@@ -572,6 +595,10 @@ class TranslationForm(forms.Form):
         # state.
         self.parent.save()
         return project
+
+
+class TranslationForm(SettingsOverrideObject):
+    _default_class = TranslationBaseForm
 
 
 class RedirectForm(forms.ModelForm):
