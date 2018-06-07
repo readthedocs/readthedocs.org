@@ -26,7 +26,9 @@
   {% endif %}
 
 {% empty %}
-    <p>
-    {% trans "No downloads for this project." %}
+  <li class="module-item">
+    <p class="quiet">
+      {% trans "No downloads for this project." %}
     </p>
+  </li>
 {% endfor %}
