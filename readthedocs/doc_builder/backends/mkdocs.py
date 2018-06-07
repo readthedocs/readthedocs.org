@@ -3,12 +3,14 @@ MkDocs_ backend for building docs.
 
 .. _MkDocs: http://www.mkdocs.org/
 """
-from __future__ import absolute_import
-import os
-import logging
-import json
-import yaml
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
+import json
+import logging
+import os
+
+import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 
@@ -146,7 +148,7 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs.yml to the build logs
         self.run(
             'cat',
-            self.yaml_file,
+            os.path.relpath(self.yaml_file, self.root_path),
             cwd=self.root_path,
         )
 

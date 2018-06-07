@@ -8,6 +8,7 @@ from collections import namedtuple
 
 import pytest
 import yaml
+import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 from mock import patch
@@ -137,6 +138,8 @@ class MkdocsBuilderTest(TestCase):
         )
         self.searchbuilder.append_conf()
 
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
         # There is a mkdocs.yml file created
         generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
         self.assertTrue(os.path.exists(generated_yaml))
@@ -190,6 +193,8 @@ class MkdocsBuilderTest(TestCase):
         )
         self.searchbuilder.append_conf()
 
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
         config = yaml.safe_load(open(yaml_file))
         self.assertEqual(
             config['docs_dir'],
@@ -239,6 +244,8 @@ class MkdocsBuilderTest(TestCase):
             python_env=None
         )
         self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'docs/mkdocs.yml', cwd=mock.ANY)
 
         config = yaml.safe_load(open(yaml_file))
         self.assertEqual(
