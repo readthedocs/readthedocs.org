@@ -6,8 +6,8 @@ Read the Docs has been using Elasticsearch for indexing and searching. To enable
 
 Installation has been mainly divided into following steps.
 
-1. Installing Java
-------------------
+Installing Java
+---------------
 
 Elasticsearch requires Java 8 or later. Use `Oracle official documentation <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_. 
 or opensource distribution like `OpenJDK <http://openjdk.java.net/install/>`_.
@@ -23,8 +23,8 @@ The result should be something like this::
     OpenJDK 64-Bit Server VM (build 25.151-b12, mixed mode)
 
 
-2. Downloading and installing Elasticsearch
--------------------------------------------
+Downloading and installing Elasticsearch
+----------------------------------------
 
 Elasticsearch can be downloaded directly from elastic.co. For Ubuntu, it's best to use the deb (Debian) package which will install everything you need to run Elasticsearch.
 
@@ -35,9 +35,15 @@ Install the downloaded package by following command::
 
     $ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
 
+Custom setup
+------------
 
-3. Running Elasticsearch from command line
-------------------------------------------
+You need the icu plugin::
+
+    $ elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
+
+Running Elasticsearch from command line
+---------------------------------------
 
 Elasticsearch is not started automatically after installation. How to start and stop Elasticsearch depends on whether your system uses SysV init or systemd (used by newer distributions). You can tell which is being used by running this command::
 
@@ -72,9 +78,6 @@ To verify run::
 
     $ curl http://localhost:9200
 
-You need the icu plugin::
-
-    $ elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
 
 You should get something like:
 
@@ -93,8 +96,24 @@ You should get something like:
         tagline: "You Know, for Search"
     }
 
-4. Index the data available at RTD database
--------------------------------------------
+Index the data available at RTD database
+----------------------------------------
+
+You need to create the indexes::
+
+    from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
+
+    index = Index()
+    index_name = index.timestamped_index()
+    index.create_index(index_name)
+    index.update_aliases(index_name)
+    # Update mapping
+    proj = ProjectIndex()
+    proj.put_mapping()
+    page = PageIndex()
+    page.put_mapping()
+    sec = SectionIndex()
+    sec.put_mapping()
 
 In order to search through the RTD database, you need to index it into the elasticsearch index:: 
 
