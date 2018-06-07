@@ -57,18 +57,17 @@ class BaseMkdocs(BaseBuilder):
             self.version.project.checkout_path(self.version.slug),
             self.build_dir)
         self.root_path = self.version.project.checkout_path(self.version.slug)
-        self.yaml_file = self.find_yaml_config()
+        self.yaml_file = self.get_yaml_config()
 
-    def find_yaml_config(self):
-        docs_dir = self.docs_dir()
-        for path in [docs_dir, '']:
-            test_path = os.path.join(
-                self.project.checkout_path(self.version.slug),
-                path,
-                'mkdocs.yml'
-            )
-            if os.path.exists(test_path):
-                return test_path
+    def get_yaml_config(self):
+        """Find the ``mkdocs.yml`` file in the project root."""
+        # TODO: try to load from the configuration file first.
+        test_path = os.path.join(
+            self.project.checkout_path(self.version.slug),
+            'mkdocs.yml'
+        )
+        if os.path.exists(test_path):
+            return test_path
         return None
 
     def load_yaml_config(self):
@@ -245,7 +244,8 @@ class BaseMkdocs(BaseBuilder):
         :see: http://www.mkdocs.org/about/release-notes/#theme-customization-1164
         """
         if self.get_theme_name(mkdocs_config) == self.READTHEDOCS_THEME_NAME:
-            # Overriding the theme is only necessary if the 'readthedocs' theme is used
+            # Overriding the theme is only necessary
+            # if the 'readthedocs' theme is used.
             theme_setting = mkdocs_config.get('theme')
             if isinstance(theme_setting, dict):
                 theme_setting['custom_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
