@@ -79,9 +79,7 @@ To verify run::
     $ curl http://localhost:9200
 
 
-You should get something like:
-
-.. code-block:: json
+You should get something like::
 
     {
         status: 200,
