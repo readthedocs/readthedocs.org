@@ -14,7 +14,7 @@ from django_dynamic_fixture import get
 from mock import patch
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
+from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx, SearchBuilder
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
@@ -221,4 +221,100 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(
             config['site_name'],
             'mkdocs'
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_override_theme_new_style(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'theme': {
+                    'name': 'readthedocs',
+                },
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['theme'],
+            {
+                'name': 'readthedocs',
+                'custom_dir': BaseMkdocs.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+            }
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_override_theme_old_style(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'theme': 'readthedocs',
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['theme_dir'],
+            BaseMkdocs.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_dont_override_theme(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'theme': 'not-readthedocs',
+                'theme_dir': 'not-readthedocs',
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['theme_dir'],
+            'not-readthedocs'
         )
