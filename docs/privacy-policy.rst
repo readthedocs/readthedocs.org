@@ -223,7 +223,6 @@ We do not sell that content; it is yours.
 Our use of cookies and tracking
 -------------------------------
 
-.. _privacy-policy-do-not-track:
 
 Do Not Track
 ~~~~~~~~~~~~
@@ -236,7 +235,7 @@ For Read the Docs, this means:
 
 * We **do not** do behavioral ad targeting regardless of your DNT preference.
 * When DNT is enabled, both logged-in and logged-out users
-  are considered opted-out of :ref:`analytics <privacy-policy-analytics>`.
+  are considered opted-out of :ref:`analytics <privacy-policy:Google Analytics>`.
 * Regardless of DNT preference, our logs that contain IP addresses
   and user agent strings are deleted after 10 days unless a DNT exception applies.
 * Our full DNT policy is `available here`_.
