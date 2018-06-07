@@ -124,8 +124,9 @@ class MkdocsBuilderTest(TestCase):
         self.build_env.project = self.project
         self.build_env.version = self.version
 
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_append_conf_create_yaml(self, checkout_path):
+    def test_append_conf_create_yaml(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
         checkout_path.return_value = tmpdir
@@ -167,8 +168,9 @@ class MkdocsBuilderTest(TestCase):
             'mkdocs'
         )
 
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_append_conf_existing_yaml_on_root(self, checkout_path):
+    def test_append_conf_existing_yaml_on_root(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
         yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
@@ -216,8 +218,9 @@ class MkdocsBuilderTest(TestCase):
             'mkdocs'
         )
 
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_append_conf_existing_yaml_on_docs_dir(self, checkout_path):
+    def test_append_conf_existing_yaml_on_docs_dir(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
         yaml_file = os.path.join(tmpdir, 'docs', 'mkdocs.yml')

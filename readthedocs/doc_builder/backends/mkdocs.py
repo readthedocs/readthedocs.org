@@ -133,7 +133,8 @@ class BaseMkdocs(BaseBuilder):
         user_config['google_analytics'] = None
 
         # If using the readthedocs theme, apply the readthedocs.org overrides
-        # These use a global readthedocs search and customize the version selector
+        # These use a global readthedocs search
+        # and customize the version selector.
         self.apply_theme_override(user_config)
 
         # Write the modified mkdocs configuration
@@ -145,7 +146,7 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs.yml to the build logs
         self.run(
             'cat',
-            'mkdocs.yml',
+            self.yaml_file,
             cwd=self.root_path,
         )
 
