@@ -30,3 +30,8 @@ class RedirectSingleVersionTests(TestCase):
         with override_settings(USE_SUBDOMAIN=True):
             self.assertEqual(self.pip.get_docs_url(),
                              'http://pip.public.readthedocs.org/en/latest/')
+
+    def test_access_documentation(self):
+        with override_settings(USE_SUBDOMAIN=False):
+            resp = self.client.get(self.pip.get_docs_url())
+            self.assertEqual(resp.status_code, 200)
