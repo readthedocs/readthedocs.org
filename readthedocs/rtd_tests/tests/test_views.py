@@ -84,10 +84,6 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/pip/')
         self.assertRedirectToLogin(response)
 
-    def test_comments_moderation(self):
-        response = self.client.get('/dashboard/pip/comments_moderation/')
-        self.assertRedirectToLogin(response)
-
     def test_edit(self):
         response = self.client.get('/dashboard/pip/edit/')
         self.assertRedirectToLogin(response)
@@ -136,10 +132,6 @@ class PrivateViewsAreProtectedTests(TestCase):
 
     def test_project_notifications(self):
         response = self.client.get('/dashboard/pip/notifications/')
-        self.assertRedirectToLogin(response)
-
-    def test_project_comments(self):
-        response = self.client.get('/dashboard/pip/comments/')
         self.assertRedirectToLogin(response)
 
     def test_project_notifications_delete(self):

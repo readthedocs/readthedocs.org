@@ -17,22 +17,32 @@
 
   <!-- Google Analytics -->
   <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    if ({{ DO_NOT_TRACK_ENABLED | lower }} && navigator.doNotTrack === '1') {
+      console.log('Respecting DNT with respect to analytics...');
+    } else {
+      // For more details on analytics at Read the Docs, please see:
+      // https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd');
-    ga('rtfd.set', 'anonymizeIp', true);
-    ga('rtfd.send', 'pageview');
+      ga('create', '{{ GLOBAL_ANALYTICS_CODE }}', 'auto', 'rtfd', {
+        'cookieExpires': 30 * 24 * 60 * 60
+      });
+      ga('rtfd.set', 'anonymizeIp', true);
+      ga('rtfd.send', 'pageview');
 
-    {% if DASHBOARD_ANALYTICS_CODE %}
-      // Dashboard Analytics Code
-      ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user');
-      ga('user.set', 'anonymizeIp', true);
-      ga('user.send', 'pageview');
-      // End Dashboard Analytics Code
-    {% endif %}
+      {% if DASHBOARD_ANALYTICS_CODE %}
+        // Dashboard Analytics Code
+        ga('create', '{{ DASHBOARD_ANALYTICS_CODE }}', 'auto', 'user', {
+          'cookieExpires': 30 * 24 * 60 * 60
+        });
+        ga('user.set', 'anonymizeIp', true);
+        ga('user.send', 'pageview');
+        // End Dashboard Analytics Code
+      {% endif %}
+    }
   </script>
   <!-- End Google Analytics -->
 
@@ -48,7 +58,6 @@
     require('jquery');
   </script>
 
-  <script src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
   <script src="{{ MEDIA_URL }}javascript/base.js"></script>
   <script src="{% static 'core/js/site.js' %}"></script>
   <script>
@@ -57,11 +66,6 @@
   </script>
 
   {% block extra_scripts %}{% endblock %}
-
-  <!-- typekit -->
-
-  <script src="//use.typekit.net/haq4xtp.js"></script>
-  <script>try{Typekit.load();}catch(e){}</script>
 
 </head>
 
@@ -110,60 +114,84 @@
         {% block footer-content %}
 
         <div class="column-logo">
-          <div class="footerlogo"></div>
+          <div id="email-signup">
+            <form action="https://readthedocs.us3.list-manage.com/subscribe/post?u=a6a22369cc2b356379cf789ca&amp;id=a85a83a5a5" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+              <div>
+                <h4>{% trans 'Stay Updated' %}</h4>
 
-          <ul class="social">
-            <li><a href="https://github.com/rtfd/readthedocs.org" rel="noopener noreferrer"><span class="icon github"></span></a></li>
-            <li><a href="https://twitter.com/readthedocs" rel="noopener noreferrer"><span class="icon twitter"></span></a></li>
-          </ul>
+                <ul>
+                  <li>
+                    <a href="https://blog.readthedocs.com/">{% trans 'Blog' %}</a>
+                  </li>
+                </ul>
+
+                <p>{% trans 'Sign up for our newsletter to get our latest blog updates delivered to your inbox weekly.' %}</p>
+                <div>
+                  <label for="mce-EMAIL">{% trans 'Email' %}</label>
+                  <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" placeholder="you@example.com">
+                </div>
+                <div id="mce-responses" class="clear">
+                  <div class="response" id="mce-error-response" style="display:none"></div>
+                  <div class="response" id="mce-success-response" style="display:none"></div>
+                </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+                <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_a6a22369cc2b356379cf789ca_a85a83a5a5" tabindex="-1" value=""></div>
+                <div class="clear"><input type="submit" value="{% trans 'Subscribe' %}" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+              </div>
+            </form>
+          </div>
+
         </div>
 
         <div class="column-about">
-          <h4>{%  trans "About Us" %}</h4>
+          <h4>{% trans 'Get Involved' %}</h4>
 
           <ul>
             <li>
-              <a href="https://docs.readthedocs.io/en/latest/team.html">{%  trans "Team" %}</a>
+              <a href="https://docs.readthedocs.io/en/latest/getting_started.html">{% trans 'Getting Started Guide' %}</a>
             </li>
             <li>
-              <a href="https://docs.readthedocs.io/en/latest/open-source-philosophy.html">{% trans "Open Source Philosophy" %}</a>
-            <li>
-              <a href="http://blog.readthedocs.com/">{% trans "Blog" %}</a>
+              <a href="https://docs.readthedocs.io">{% trans 'Documentation' %}</a>
             </li>
             <li>
-              <a href="https://docs.readthedocs.io/en/latest/sponsors.html">{% trans "Our Sponsors" %}</a>
+              <a href="https://docs.readthedocs.io/en/latest/contribute.html">{% trans 'Contributing' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/team.html">{% trans 'Team' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/open-source-philosophy.html">{% trans 'Open Source Philosophy' %}</a>
+            </li>
+          </ul>
+
+        </div>
+
+        <div class="column-rtd">
+          <h4>{% trans 'Business Info' %}</h4>
+
+          <ul>
+            <li>
+              {% url "advertising" as advertising_url %}
+              <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">{% trans 'Advertise with Us' %}</a>
+            </li>
+            <li>
+              <a href="https://readthedocs.com">{% trans 'Private Hosting' %}</a>
+            </li>
+            <li>
+              {% url "donate" as donate_url %}
+              <a href='{{ donate_url }}'>{% trans 'Supporters' %}</a>
+            </li>
+            <li>
+              <a href="https://docs.readthedocs.io/en/latest/privacy-policy.html">{% trans 'Privacy Policy' %}</a>
             </li>
           </ul>
         </div>
 
-        <div class="column-rtd">
-          <h4>{%  trans "Read the Docs" %}</h4>
+        <div class="clearfix"></div>
 
-          <ul>
-            <li>
-              <a href="https://docs.readthedocs.io/en/latest/getting_started.html">{% trans "Getting Started Guide" %}</a>
-            </li>
-            <li>
-              <a href="https://docs.readthedocs.io">{% trans "Documentation" %}</a>
-            </li>
-            <li>
-              <a href="https://docs.readthedocs.io/en/latest/contribute.html">{% trans "Contributing" %}</a>
-            </li>
-            <li>
-              {% url "advertising" as advertising_url %}
-              <a href="{{ advertising_url | default:'https://readthedocs.org/sustainability/advertising/' }}">{%  trans "Advertise with Us" %}</a>
-            </li>
-            <li>
-              <a href="https://readthedocs.com">{%  trans "Commercial Support" %}</a>
-            </li>
-            <li>
-              {% url "gold_detail" as gold_detail %}
-              <a href="{{ gold_detail }}">{%  trans "Read the Docs Gold" %}</a>
-            </li>
-            <li>
-              {% url "donate" as donate_url %}
-              <a href='{{ donate_url }}'>{% trans "Donate" %}</a>
-            </li>
+        <div class="social-column">
+          <ul class="social">
+            <li><a href="https://github.com/rtfd/readthedocs.org" rel="noopener noreferrer"><span class="icon github"></span></a></li>
+            <li><a href="https://twitter.com/readthedocs" rel="noopener noreferrer"><span class="icon twitter"></span></a></li>
           </ul>
         </div>
 
@@ -172,30 +200,33 @@
         <div class="footer-bottom">
           <div class="column-copyright">
             <p>
-              <small>
-                &copy; Copyright {% now "Y" %}, {% trans "Read the Docs, Inc & contributors" %} -
-                {% trans "Version" %} {% readthedocs_version %}
-              </small>
+              <small>&copy; Copyright {% now "Y" %}, {% trans 'Read the Docs, Inc & contributors' %}</small>
+            </p>
+
+            <p>
+              <small>{% trans 'Version' %} {% readthedocs_version %}</small>
             </p>
           </div>
 
-          <div class="column-setlang">
-            {% get_current_language as current_lang %}
-            <form action="/i18n/setlang/" method="post" style="float: right">
-              <input name="next" type="hidden" value="/" />
-              {% csrf_token %}
-              <select name="language">
-                {% for lang in LANGUAGES %}
-                  {% if lang.0 == current_lang %}
-                  <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                  {% else %}
-                  <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-              <input type="submit" value="{% trans 'Change Language' %}" name="submit">
-            </form>
-          </div>
+          {% block language-select-form %}
+            <div class="column-setlang">
+              {% get_current_language as current_lang %}
+              <form action="/i18n/setlang/" method="post" style="float: right">
+                <input name="next" type="hidden" value="/" />
+                {% csrf_token %}
+                <select name="language">
+                  {% for lang in LANGUAGES %}
+                    {% if lang.0 == current_lang %}
+                    <option selected="selected" value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                    {% else %}
+                    <option value="{{ lang.0 }}">{{ lang.0|language_name_local }} [{{ lang.1 }}]</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+                <input type="submit" value="{% trans 'Change Language' %}" name="submit">
+              </form>
+            </div>
+          {% endblock language-select-form %}
         </div>
 
         {% endblock %}

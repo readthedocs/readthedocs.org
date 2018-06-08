@@ -2,15 +2,20 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-from collections import namedtuple
 import os
 import tempfile
+from collections import namedtuple
 
-from django.test import TestCase
-from mock import patch, Mock
 import pytest
+import yaml
+import mock
+from django.test import TestCase
+from django_dynamic_fixture import get
+from mock import patch
 
-from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.builds.models import Version
+from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
+from readthedocs.doc_builder.backends.sphinx import BaseSphinx, SearchBuilder
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 
@@ -69,3 +74,247 @@ class SphinxBuilderTest(TestCase):
         expected_conf_py = os.path.join(os.path.dirname(__file__), '..', 'files', 'conf.py')
         with open(generated_conf_py) as gf, open(expected_conf_py) as ef:
             self.assertEqual(gf.read(), ef.read())
+
+
+class SphinxSearchBuilderTest(TestCase):
+
+    fixtures = ['test_data']
+
+    def setUp(self):
+        self.project = Project.objects.get(slug='pip')
+        self.version = self.project.versions.first()
+
+        build_env = namedtuple('project', 'version')
+        build_env.project = self.project
+        build_env.version = self.version
+
+        self.searchbuilder = SearchBuilder(build_env=build_env, python_env=None)
+
+    def test_ignore_patterns(self):
+        src = tempfile.mkdtemp()
+        src_static = os.path.join(src, '_static/')
+        src_other = os.path.join(src, 'other/')
+        os.mkdir(src_static)
+        os.mkdir(src_other)
+
+        dest = tempfile.mkdtemp()
+        dest_static = os.path.join(dest, '_static/')
+        dest_other = os.path.join(dest, 'other/')
+
+        self.searchbuilder.old_artifact_path = src
+        self.searchbuilder.target = dest
+
+        # There is a _static/ dir in src/ but not in dest/
+        self.assertTrue(os.path.exists(src_static))
+        self.assertFalse(os.path.exists(dest_static))
+
+        self.searchbuilder.move()
+
+        # There is a dest/other/ but not a dest/_static
+        self.assertFalse(os.path.exists(dest_static))
+        self.assertTrue(os.path.exists(dest_other))
+
+
+class MkdocsBuilderTest(TestCase):
+
+    def setUp(self):
+        self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
+        self.version = get(Version, project=self.project)
+
+        self.build_env = namedtuple('project', 'version')
+        self.build_env.project = self.project
+        self.build_env.version = self.version
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_create_yaml(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        # There is a mkdocs.yml file created
+        generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
+        self.assertTrue(os.path.exists(generated_yaml))
+        config = yaml.safe_load(open(generated_yaml))
+        self.assertEqual(
+            config['docs_dir'],
+            os.path.join(tmpdir, 'docs')
+        )
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/media/css/badge_only.css',
+                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+            ]
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+            ]
+        )
+        self.assertIsNone(
+            config['google_analytics'],
+        )
+        self.assertEqual(
+            config['site_name'],
+            'mkdocs'
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_existing_yaml_on_root(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'google_analytics': ['UA-1234-5', 'mkdocs.org'],
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['docs_dir'],
+            'docs'
+        )
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/media/css/badge_only.css',
+                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+            ]
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+            ]
+        )
+        self.assertIsNone(
+            config['google_analytics'],
+        )
+        self.assertEqual(
+            config['site_name'],
+            'mkdocs'
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_override_theme_new_style(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'theme': {
+                    'name': 'readthedocs',
+                },
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['theme'],
+            {
+                'name': 'readthedocs',
+                'custom_dir': BaseMkdocs.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+            }
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_override_theme_old_style(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'theme': 'readthedocs',
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['theme_dir'],
+            BaseMkdocs.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+        )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_dont_override_theme(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'theme': 'not-readthedocs',
+                'theme_dir': 'not-readthedocs',
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=None
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+        self.assertEqual(
+            config['theme_dir'],
+            'not-readthedocs'
+        )

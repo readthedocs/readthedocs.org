@@ -42,14 +42,16 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     if 'HTTP_ORIGIN' not in request.META:
         return False
     host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
+
+    # Don't do domain checking for this API for now
+    if request.path_info.startswith('/api/v2/sustainability'):
+        return True
+
     valid_url = False
     for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
             valid_url = True
-
-        # Don't do domain checking for this API for now
-        if request.path_info.startswith('/api/v2/sustainability'):
-            return True
+            break
 
     if valid_url:
         project_slug = request.GET.get('project', None)

@@ -3,7 +3,6 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-import json
 import logging
 from builtins import object
 
@@ -15,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from tastypie import fields
 from tastypie.authorization import DjangoAuthorization
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
-from tastypie.http import HttpApplicationError, HttpCreated
+from tastypie.http import HttpCreated
 from tastypie.resources import ModelResource
 from tastypie.utils import dict_strip_unicode_keys, trailing_slash
 
@@ -24,12 +23,12 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import ImportedFile, Project
 
-from .utils import PostAuthentication, SearchMixin
+from .utils import PostAuthentication
 
 log = logging.getLogger(__name__)
 
 
-class ProjectResource(ModelResource, SearchMixin):
+class ProjectResource(ModelResource):
 
     """API resource for Project model."""
 
@@ -78,35 +77,6 @@ class ProjectResource(ModelResource, SearchMixin):
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
-    def sync_versions(self, request, **kwargs):
-        """
-        Sync the version data in the repo (on the build server) with what we have in the database.
-
-        Returns the identifiers for the versions that have been deleted.
-        """
-        project = get_object_or_404(Project, pk=kwargs['pk'])
-        try:
-            post_data = self.deserialize(
-                request,
-                request.body,
-                format=request.META.get('CONTENT_TYPE', 'application/json'),
-            )
-            data = json.loads(post_data)
-            self.method_check(request, allowed=['post'])
-            self.is_authenticated(request)
-            self.throttle_check(request)
-            self.log_throttled_access(request)
-            self._sync_versions(project, data['tags'])
-            self._sync_versions(project, data['branches'])
-            deleted_versions = self._delete_versions(project, data)
-        except Exception as e:
-            return self.create_response(
-                request,
-                {'exception': str(e)},
-                response_class=HttpApplicationError,
-            )
-        return self.create_response(request, deleted_versions)
-
     def prepend_urls(self):
         return [
             url(
@@ -116,10 +86,6 @@ class ProjectResource(ModelResource, SearchMixin):
                 r'^(?P<resource_name>%s)/search%s$' %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_search'), name='api_get_search'),
-            url(
-                r'^(?P<resource_name>%s)/(?P<pk>\d+)/sync_versions%s$' %
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('sync_versions'), name='api_sync_versions'),
             url((r'^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$') %
                 self._meta.resource_name, self.wrap_view('dispatch_detail'),
                 name='api_dispatch_detail'),
@@ -173,7 +139,7 @@ class VersionResource(ModelResource):
         ]
 
 
-class FileResource(ModelResource, SearchMixin):
+class FileResource(ModelResource):
 
     """API resource for ImportedFile model."""
 
@@ -186,17 +152,12 @@ class FileResource(ModelResource, SearchMixin):
         include_absolute_url = True
         authentication = PostAuthentication()
         authorization = DjangoAuthorization()
-        search_facets = ['project']
 
     def prepend_urls(self):
         return [
             url(
                 r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
                 self.wrap_view('get_schema'), name='api_get_schema'),
-            url(
-                r'^(?P<resource_name>%s)/search%s$' %
-                (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_search'), name='api_get_search'),
             url(
                 r'^(?P<resource_name>%s)/anchor%s$' %
                 (self._meta.resource_name, trailing_slash()),

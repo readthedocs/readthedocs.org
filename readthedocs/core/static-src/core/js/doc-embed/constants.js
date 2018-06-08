@@ -3,7 +3,8 @@
 var exports = {
     THEME_RTD: 'sphinx_rtd_theme',
     THEME_ALABASTER: 'alabaster',
-    THEME_CELERY: 'sphinx_celery'
+    THEME_CELERY: 'sphinx_celery',
+    THEME_MKDOCS_RTD: 'readthedocs'
 };
 
 exports.PROMO_SUPPORTED_THEMES = [

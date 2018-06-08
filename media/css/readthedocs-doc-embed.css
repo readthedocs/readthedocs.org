@@ -93,7 +93,6 @@ div.ethical-sidebar, div.ethical-footer {
 /* Fixed footer promotions */
 .ethical-fixedfooter {
     box-sizing: border-box;
-    width: 100%;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -105,6 +104,8 @@ div.ethical-sidebar, div.ethical-footer {
     padding: 0.5em 2.5em;
     text-align: center;
     color: #404040;
+    width: 100%;    /* Fallback for Opera Mini */
+    width: 100vw;
 }
 .ethical-fixedfooter a,
 .ethical-fixedfooter a:hover,
@@ -159,4 +160,27 @@ div.ethical-sidebar, div.ethical-footer {
     content: '';
     display: table;
     margin-top: 3em;
+}
+
+/* Ad block nag */
+.keep-us-sustainable {
+    padding: .5em;
+    margin: 1em 0;
+    text-align: center;
+    border: 1px dotted #8ECC4C;
+}
+.keep-us-sustainable a,
+.keep-us-sustainable a:hover,
+.keep-us-sustainable a:visited {
+    text-decoration: none;
+}
+/* Read the Docs theme specific fixes */
+.wy-body-for-nav .keep-us-sustainable {
+    margin: 1em 2em 1em 1em;
+    color: #b3b3b3;
+}
+.wy-body-for-nav .keep-us-sustainable a {
+    color: #efefef;
+    font-size: 14px;
+    line-height: 20px;
 }

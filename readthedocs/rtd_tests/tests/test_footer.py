@@ -36,6 +36,7 @@ class Testmaker(APITestCase):
         self.assertTrue(r.data['version_active'])
         self.assertTrue(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
+        self.assertFalse(r.data['show_version_warning'])
         self.assertEqual(r.context['main_project'], self.pip)
         self.assertEqual(r.status_code, 200)
 
@@ -92,6 +93,12 @@ class Testmaker(APITestCase):
         mid.process_request(home_request)
         self.assertEqual(home_request.session.TEST_COOKIE_NAME, 'testcookie')
 
+    def test_show_version_warning(self):
+        self.pip.show_version_warning = True
+        self.pip.save()
+        response = self.render()
+        self.assertTrue(response.data['show_version_warning'])
+
 
 class TestVersionCompareFooter(TestCase):
     fixtures = ['test_data']
@@ -104,7 +111,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
         }
@@ -116,7 +123,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
         }
@@ -129,7 +136,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
         }
@@ -157,7 +164,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 1.0.0 of Pip ({})'.format(version.pk),
             'url': '/dashboard/pip/version/1.0.0/',
-            'slug': ('1.0.0',),
+            'slug': '1.0.0',
             'version': '1.0.0',
             'is_highest': False,
         }
@@ -171,7 +178,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
         }
@@ -182,7 +189,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
             'url': '/dashboard/pip/version/0.8.1/',
-            'slug': ('0.8.1',),
+            'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
         }
@@ -199,7 +206,7 @@ class TestVersionCompareFooter(TestCase):
         valid_data = {
             'project': 'Version 2.0.0 of Pip ({})'.format(version.pk),
             'url': '/dashboard/pip/version/2.0.0/',
-            'slug': ('2.0.0',),
+            'slug': '2.0.0',
             'version': '2.0.0',
             'is_highest': False,
         }

@@ -144,14 +144,22 @@ class ResolverBase(object):
                 version_slug = project.get_default_version()
             private = self._get_private(project, version_slug)
 
+        domain = self.resolve_domain(project, private=private)
+
+        # Use HTTPS if settings specify
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
+        if use_https and public_domain and public_domain in domain:
+            protocol = 'https'
+
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
-            domain=self.resolve_domain(project, private=private),
+            domain=domain,
             path=self.resolve_path(project, filename=filename, private=private,
                                    **kwargs),
         )
 
-    def _get_canonical_project(self, project):
+    def _get_canonical_project(self, project, projects=None):
         """
         Recursively get canonical project for subproject or translations.
 
@@ -159,13 +167,25 @@ class ResolverBase(object):
         subprojects, and vice versa, are supported.
 
         :type project: Project
+        :type projects: List of projects for iteration
         :rtype: Project
         """
+        # Track what projects have already been traversed to avoid infinite
+        # recursion. We can't determine a root project well here, so you get
+        # what you get if you have configured your project in a strange manner
+        if projects is None:
+            projects = [project]
+        else:
+            projects.append(project)
+        next_project = None
+
         relation = project.superprojects.first()
         if project.main_language_project:
-            return self._get_canonical_project(project.main_language_project)
+            next_project = project.main_language_project
         elif relation:
-            return self._get_canonical_project(relation.parent)
+            next_project = relation.parent
+        if next_project and next_project not in projects:
+            return self._get_canonical_project(next_project, projects)
         return project
 
     def _get_project_subdomain(self, project):

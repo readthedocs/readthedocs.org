@@ -10,4 +10,5 @@ class RedirectAdmin(admin.ModelAdmin):
     list_display = ['project', 'redirect_type', 'from_url', 'to_url']
     raw_id_fields = ('project',)
 
+
 admin.site.register(Redirect, RedirectAdmin)

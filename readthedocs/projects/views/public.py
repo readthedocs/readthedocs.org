@@ -112,7 +112,10 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 @never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project."""
-    badge_path = 'projects/badges/%s.svg'
+    style = request.GET.get('style', 'flat')
+    if style not in ("flat", "plastic", "flat-square", "for-the-badge", "social"):
+        style = "flat"
+    badge_path = 'projects/badges/%s-' + style + '.svg'
     version_slug = request.GET.get('version', LATEST)
     try:
         version = Version.objects.public(request.user).get(
@@ -194,85 +197,6 @@ def project_download_media(request, project_slug, type_, version_slug):
             project_slug, version_slug, path.split('.')[-1])
         response['Content-Disposition'] = 'filename=%s' % filename
         return response
-
-
-def search_autocomplete(request):
-    """Return a json list of project names."""
-    if 'term' in request.GET:
-        term = request.GET['term']
-    else:
-        raise Http404
-    queryset = Project.objects.public(
-        request.user).filter(name__icontains=term)[:20]
-
-    ret_list = []
-    for project in queryset:
-        ret_list.append({
-            'label': project.name,
-            'value': project.slug,
-        })
-
-    json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, content_type='text/javascript')
-
-
-def version_autocomplete(request, project_slug):
-    """Return a json list of version names."""
-    queryset = Project.objects.public(request.user)
-    get_object_or_404(queryset, slug=project_slug)
-    versions = Version.objects.public(request.user)
-    if 'term' in request.GET:
-        term = request.GET['term']
-    else:
-        raise Http404
-    version_queryset = versions.filter(slug__icontains=term)[:20]
-
-    names = version_queryset.values_list('slug', flat=True)
-    json_response = json.dumps(list(names))
-
-    return HttpResponse(json_response, content_type='text/javascript')
-
-
-def version_filter_autocomplete(request, project_slug):
-    queryset = Project.objects.public(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
-    versions = Version.objects.public(request.user)
-    resp_format = request.GET.get('format', 'json')
-
-    if resp_format == 'json':
-        names = versions.values_list('slug', flat=True)
-        json_response = json.dumps(list(names))
-        return HttpResponse(json_response, content_type='text/javascript')
-    elif resp_format == 'html':
-        return render(
-            request,
-            'core/version_list.html',
-            {
-                'project': project,
-                'versions': versions,
-            },
-        )
-    return HttpResponse(status=400)
-
-
-def file_autocomplete(request, project_slug):
-    """Return a json list of file names."""
-    if 'term' in request.GET:
-        term = request.GET['term']
-    else:
-        raise Http404
-    queryset = ImportedFile.objects.filter(
-        project__slug=project_slug, path__icontains=term)[:20]
-
-    ret_list = []
-    for filename in queryset:
-        ret_list.append({
-            'label': filename.path,
-            'value': filename.path,
-        })
-
-    json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, content_type='text/javascript')
 
 
 def elastic_project_search(request, project_slug):

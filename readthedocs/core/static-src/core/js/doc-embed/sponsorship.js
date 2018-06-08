@@ -16,7 +16,10 @@ function create_sidebar_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
 
-    if (rtd.is_rtd_theme()) {
+    if (rtd.is_mkdocs_builder() && rtd.is_rtd_theme()) {
+        selector = 'nav.wy-nav-side';
+        class_name = 'ethical-rtd';
+    } else if (rtd.is_rtd_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
         class_name = 'ethical-rtd';
     } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
@@ -125,8 +128,40 @@ Promo.prototype.post_promo_display = function () {
         // Alabaster only
         $('<hr />').insertBefore('#' + this.div_id + '.ethical-alabaster .ethical-footer');
     }
-
 };
+
+function adblock_admonition() {
+    console.log('---------------------------------------------------------------------------------------');
+    console.log('Read the Docs hosts documentation for tens of thousands of open source projects.');
+    console.log('We fund our development (we are open source) and operations through advertising.');
+
+    console.log('We promise to:');
+    console.log(' - never let advertisers run 3rd party JavaScript');
+    console.log(' - never sell user data to advertisers or other 3rd parties');
+    console.log(' - only show advertisements of interest to developers');
+    console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
+    console.log('Read more about Ads for Open Source: https://ads-for-open-source.readthedocs.io');
+    console.log('Or go ad-free: https://readthedocs.org/sustainability/');
+    console.log('%cPlease whitelist Read the Docs on your adblocker using the following filter:', 'font-size: 2em');
+    console.log('https://ads-for-open-source.readthedocs.io/en/latest/_static/lists/readthedocs-ads.txt');
+    console.log('--------------------------------------------------------------------------------------');
+}
+
+function adblock_nag() {
+    // Place an ad block nag into the sidebar
+    var placement = create_sidebar_placement();
+    var unblock_url = 'https://ads-for-open-source.readthedocs.io/';
+    var ad_free_url = 'https://readthedocs.org/sustainability/';
+    var container = null;
+
+    if (placement && placement.div_id) {
+        container = $('#' + placement.div_id).attr('class', 'keep-us-sustainable');
+
+        $('<p />').text('Support Read the Docs!').appendTo(container);
+        $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
+        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(container);
+    }
+}
 
 function init() {
     var request_data = {format: "jsonp"};
@@ -187,8 +222,13 @@ function init() {
                 promo.display();
             }
         },
-        error: function () {
+        error: function (xhr, textStatus, errorThrown) {
             console.error('Error loading Read the Docs promo');
+
+            if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
+                adblock_admonition();
+                adblock_nag();
+            }
         },
     });
 }

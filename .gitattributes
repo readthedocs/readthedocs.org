@@ -12,3 +12,4 @@
 *.ttf   binary
 *.whl   binary
 *.woff  binary
+*.woff2 binary

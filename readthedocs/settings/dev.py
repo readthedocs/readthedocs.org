@@ -23,24 +23,19 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     DONT_HIT_DB = False
 
+    ACCOUNT_EMAIL_VERIFICATION = 'none'
     SESSION_COOKIE_DOMAIN = None
     CACHE_BACKEND = 'dummy://'
 
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
-    SLUMBER_API_HOST = 'http://localhost:8000'
-    PUBLIC_API_URL = 'http://localhost:8000'
+    SLUMBER_API_HOST = 'http://127.0.0.1:8000'
+    PUBLIC_API_URL = 'http://127.0.0.1:8000'
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
-
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
@@ -56,6 +51,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super(CommunityDevSettings, self).LOGGING
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        # Allow Sphinx and other tools to create loggers
+        logging['disable_existing_loggers'] = False
         return logging
 
 

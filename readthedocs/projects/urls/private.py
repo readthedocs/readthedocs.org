@@ -36,10 +36,6 @@ urlpatterns = [
         private.project_manage,
         name='projects_manage'),
 
-    url(r'^(?P<project_slug>[-\w]+)/comments_moderation/$',
-        private.project_comments_moderation,
-        name='projects_comments_moderation'),
-
     url(r'^(?P<project_slug>[-\w]+)/edit/$',
         ProjectUpdate.as_view(),
         name='projects_edit'),
@@ -75,10 +71,6 @@ urlpatterns = [
     url(r'^(?P<project_slug>[-\w]+)/notifications/$',
         private.project_notifications,
         name='projects_notifications'),
-
-    url(r'^(?P<project_slug>[-\w]+)/comments/$',
-        private.project_comments_settings,
-        name='projects_comments'),
 
     url(r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
         private.project_notifications_delete,

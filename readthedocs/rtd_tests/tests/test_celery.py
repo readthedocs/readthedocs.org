@@ -64,9 +64,9 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     def test_update_docs(self):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
@@ -79,10 +79,10 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
     def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
@@ -97,10 +97,10 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_python_environment', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTask.build_docs')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs')
     def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
@@ -123,3 +123,33 @@ class TestCeleryBuilding(RTDTestCase):
                 args=(version.pk,),
             )
         self.assertTrue(result.successful())
+
+    def test_public_task_exception(self):
+        """
+        Test when a PublicTask rises an Exception.
+
+        The exception should be catched and added to the ``info`` attribute of
+        the result. Besides, the task should be SUCCESS.
+        """
+        from readthedocs.core.utils.tasks import PublicTask
+        from readthedocs.worker import app
+
+        class PublicTaskException(PublicTask):
+            name = 'public_task_exception'
+
+            def run_public(self):
+                raise Exception('Something bad happened')
+
+        app.tasks.register(PublicTaskException)
+        exception_task = PublicTaskException()
+        result = exception_task.delay()
+
+        # although the task risen an exception, it's success since we add the
+        # exception into the ``info`` attributes
+        self.assertEqual(result.status, 'SUCCESS')
+        self.assertEqual(result.info, {
+            'task_name': 'public_task_exception',
+            'context': {},
+            'public_data': {},
+            'error': 'Something bad happened',
+        })

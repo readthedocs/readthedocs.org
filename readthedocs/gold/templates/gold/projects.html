@@ -8,15 +8,6 @@
 Gold Projects
 {% endblock %}
 
-{% block extra_scripts %}
-  <script type="text/javascript" src="{% static 'core/js/autocomplete.js' %}"></script>
-  <script type="text/javascript">
-var attach_project_autocomplete = require('core/autocomplete');
-$(document).ready(function () {
-  attach_project_autocomplete('#id_project', '{% url "search_autocomplete" %}');
-});
-  </script>
-{% endblock %}
 
 {% block edit_content %}
 
