@@ -245,7 +245,7 @@ class Virtualenv(PythonEnvironment):
                     positive='sphinx<2',
                     negative='sphinx==1.7.4',
                 ),
-                'sphinx-rtd-theme<0.4',
+                'sphinx-rtd-theme<0.5',
                 'readthedocs-sphinx-ext<0.6'
             ])
 
