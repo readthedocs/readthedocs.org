@@ -36,8 +36,11 @@ what they stand for.
     This label marks issues that are easy to get started with. The issue
     should be ideal for beginners to dive into the code base.
 
-*High Priority*
+*Priority: high*
     Issues with this label should be resolved as quickly as possible.
+
+*Priority: low*
+    Issues with this label won't have the immediate focus of the core team.
 
 *Improvement*
     An issue with this label is not a Bug nor a Feature. Code cleanup or small
