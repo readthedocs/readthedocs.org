@@ -136,7 +136,7 @@ how to use this well on our :doc:`versions` page.
 
 If you have any more trouble, don't hesitate to reach out to us. The :doc:`support` page has more information on getting in touch.
 
-.. _a screencast: https://www.youtube.com/watch?feature=player_embedded&v=oJsUvBQyHBs
+.. _a screencast: https://youtu.be/oJsUvBQyHBs
 .. _Python: https://www.python.org/
 .. _Sphinx: http://sphinx-doc.org/
 .. _Markdown: http://daringfireball.net/projects/markdown/syntax
