@@ -6,29 +6,31 @@ what they stand for.
 
 .. _GitHub issue tracker: https://github.com/rtfd/readthedocs.org/issues
 
+*Accepted*
+    Issues with this label are issues that the core team has accepted on to the
+    roadmap. The core team focuses on accepted bugs, features, and improvements
+    that are on our immediate roadmap and will give priority to these issues.
+    Pull requests could be delayed or closed if the pull request doesn't align
+    with our current roadmap. An issue or pull request that has not been
+    accepted should either eventually move to an accepted state, or should be
+    closed. As an issue is accepted, we will find room for it on our roadmap,
+    either on an upcoming release (point release milestones), or on a future
+    milestone project (named milestones).
+
 *Bug*
     An issue describing unexpected or malicious behaviour of the readthedocs.org
     software. A Bug issue differs from an Improvement issue in that Bug issues
     are given priority on our roadmap. On release, these issues generally only
     warrant incrementing the patch level version.
 
-*Community Effort*
-    Issues with this label are valid issues that the core team thinks are
-    worth to fix or implement in the future. However the core team's resources
-    are too scarce to address these issues. Issues marked with this label
-    are issues that the core team will **not** work on, but contributions
-    from the community are very welcome.
-
 *Design*
     Issues related to the UI of the readthedocs.org website.
 
 *Feature*
-    Issues that describe new features will be given this label **only** once the
-    feature is an accepted feature on our roadmap. This label does not describe
-    issues that may become features some day. Issues that do not describe
-    new features, such as code cleanup or fixes that are not related to a bug,
-    should probably be given the Improvement label instead. On release, issues
-    with the Feature label warrant at least a minor version increase.
+    Issues that describe new features. Issues that do not describe new features,
+    such as code cleanup or fixes that are not related to a bug, should probably
+    be given the Improvement label instead. On release, issues with the Feature
+    label warrant at least a minor version increase.
 
 *Good First Issue*
     This label marks issues that are easy to get started with. The issue
@@ -55,7 +57,7 @@ what they stand for.
 *Needed: more information*
     This label indicates that a reply with more information is required from the
     bug reporter. If no response is given by the reporter, the issue is
-    considered invalid after 7 days and will be closed. See the documentation
+    considered invalid after 2 weeks and will be closed. See the documentation
     about our :ref:`triage process <triage-not-enough-information>` for more
     information.
 
@@ -88,8 +90,8 @@ what they stand for.
 
 *Status: stale*
     A issue is stale if it there has been no activity on it for 90 days. Once a
-    issue is determined to be stale, it will be closed in 7 days unless there
-    is activity on the issue.
+    issue is determined to be stale, it will be closed after 2 weeks unless
+    there is activity on the issue.
 
 *Support*
     Questions that needs answering but do not require code changes or issues
