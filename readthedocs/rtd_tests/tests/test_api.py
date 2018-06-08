@@ -21,6 +21,7 @@ from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Feature, Project
+from readthedocs.restapi.views.task_views import get_status_data
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -895,3 +896,22 @@ class APIVersionTests(TestCase):
             resp.data,
             version_data,
         )
+
+
+class TaskViewsTests(TestCase):
+
+    def test_get_status_data(self):
+        data = get_status_data(
+            'public_task_exception',
+            'SUCCESS',
+            {'data': 'public'},
+            'Something bad happened',
+        )
+        self.assertEqual(data, {
+            'name': 'public_task_exception',
+            'data': {'data': 'public'},
+            'started': True,
+            'finished': True,
+            'success': False,
+            'error': 'Something bad happened',
+        })
