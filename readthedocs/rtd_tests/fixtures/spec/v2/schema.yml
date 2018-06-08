@@ -1,0 +1,96 @@
+# Read the Docs configuration file
+
+# The version of the spec to be use
+version: enum('2')
+
+# Formats of the documentation to be built
+# Default: []
+formats: any(list(enum('htmlzip', 'pdf', 'epub')), enum('all'), required=False)
+
+# Configuration for Conda support
+conda: include('conda', required=False)
+
+# Configuration for the documentation build process
+build: include('build', required=False)
+
+# Configuration of the Python environment to be used
+python: include('python', required=False)
+
+# Configuration for sphinx documentation
+sphinx: include('sphinx', required=False)
+
+# Configuration for mkdocs documentation
+mkdocs: include('mkdocs', required=False)
+
+# Submodules configuration
+submodules: include('submodules', required=False)
+
+# Redirects for the current version to be built
+# Key/value list, represent redirects of type `type`
+# from url -> to url
+# Default: null
+redirects: map(enum('page'), map(str(), str()), required=False)
+
+---
+
+conda:
+  # The path to the Conda environment file from the root of the project
+  environment: path()
+
+build:
+  # The build docker image to be used
+  # Default: 'latest'
+  image: enum('stable', 'latest', required=False)
+
+python:
+  # The Python version (this depends on the build image)
+  # Default: '3'
+  version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
+
+  # The path to the requirements file from the root of the project
+  # Default: null
+  requirements: path(required=False)
+
+  # Install the project using python setup.py install or pip
+  # Default: null
+  install: enum('pip', 'setup.py', required=False)
+
+  # Extra requirements sections to install in addition to the package dependencies
+  # Default: []
+  extra_requirements: list(str(), required=False)
+
+  # Give the virtual environment access to the global site-packages dir
+  # Default: false
+  system_packages: bool(required=False)
+
+sphinx:
+  # The path to the conf.py file
+  # Default: rtd will try to find it
+  configuration: path(required=False)
+
+  # Add the -W option to sphinx-build
+  # Default: false
+  fail_on_warning: bool(required=False)
+
+mkdocs:
+  # The path to the mkdocs.yml file
+  # Default: rtd will try to find it
+  configuration: path(required=False)
+
+  # Add the --strict optio to mkdocs build
+  # Default: false
+  fail_on_warning: bool(required=False)
+
+
+submodules:
+  # List of submodules to be included
+  # Default: []
+  include: any(list(str()), enum('all'), required=False)
+
+  # List of submodules to be ignored
+  # Default: []
+  exclude: any(list(str()), enum('all'), required=False)
+  
+  # Do a recursive clone?
+  # Default: false
+  recursive: bool(required=False)
