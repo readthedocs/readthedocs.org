@@ -19,7 +19,6 @@ from builtins import object
 import datetime
 
 from elasticsearch import Elasticsearch, exceptions
-from elasticsearch.helpers import bulk_index
 
 from django.conf import settings
 

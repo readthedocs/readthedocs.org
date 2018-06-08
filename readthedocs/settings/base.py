@@ -86,6 +86,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'django_elasticsearch_dsl',
 
             # our apps
             'readthedocs.projects',
@@ -101,6 +102,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
+            'readthedocs.search',
 
 
             # allauth
@@ -315,6 +317,11 @@ class CommunityBaseSettings(Settings):
     ES_HOSTS = ['127.0.0.1:9200']
     ES_DEFAULT_NUM_REPLICAS = 0
     ES_DEFAULT_NUM_SHARDS = 5
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': '127.0.0.1:9200'
+        },
+    }
 
     ALLOWED_HOSTS = ['*']
 
