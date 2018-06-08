@@ -784,7 +784,8 @@ class Project(models.Model):
         return (
             self.versions.filter(identifier=branch) |
             self.versions.filter(identifier='remotes/origin/%s' % branch) |
-            self.versions.filter(identifier='origin/%s' % branch)
+            self.versions.filter(identifier='origin/%s' % branch) |
+            self.versions.filter(verbose_name=branch)
         )
 
     def get_default_version(self):
