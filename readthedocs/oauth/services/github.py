@@ -214,7 +214,7 @@ class GitHubService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitHub webhook creation failed for project: %s',
                 project,
             )
@@ -274,7 +274,7 @@ class GitHubService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitHub webhook update failed for project: %s',
                 project,
             )

@@ -1,9 +1,7 @@
 -r pip.txt
-maxcdn
-# astroid 1.6.2 breaks pylint-django
-# https://github.com/PyCQA/pylint-django/issues/117
-astroid==1.6.1
-pylint
-prospector
-pylint-django
-pyflakes
+astroid==1.6.4
+pylint==1.9.1
+pylint-django==0.11.1
+pylint-celery==0.3
+prospector==0.12.10
+pyflakes==2.0.0

@@ -29,6 +29,7 @@ var sources = {
 
         'font/Lato-Bold.ttf': {src: 'bower_components/lato-googlefont/Lato-Bold.ttf'},
         'font/Lato-Regular.ttf': {src: 'bower_components/lato-googlefont/Lato-Regular.ttf'},
+        'font/Lato-Italic.ttf': {src: 'bower_components/lato-googlefont/Lato-Italic.ttf'},
         'font/Inconsolata-Bold.ttf': {src: 'bower_components/inconsolata-googlefont/Inconsolata-Bold.ttf'},
         'font/Inconsolata-Regular.ttf': {src: 'bower_components/inconsolata-googlefont/Inconsolata-Regular.ttf'},
         'font/RobotoSlab-Bold.ttf': {src: 'bower_components/robotoslab-googlefont/RobotoSlab-Bold.ttf'},
@@ -39,6 +40,7 @@ var sources = {
         'font/fontawesome-webfont.svg': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.svg'},
         'font/fontawesome-webfont.ttf': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.ttf'},
         'font/fontawesome-webfont.woff': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.woff'},
+        'font/fontawesome-webfont.woff2': {src: 'bower_components/font-awesome/fonts/fontawesome-webfont.woff2'},
         'font/FontAwesome.otf': {src: 'bower_components/font-awesome/fonts/FontAwesome.otf'}
     },
     projects: {

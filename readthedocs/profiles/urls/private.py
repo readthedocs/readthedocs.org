@@ -18,5 +18,6 @@ urlpatterns = [
             'template_name': 'profiles/private/edit_profile.html',
         },
         name='profiles_profile_edit'),
-    url(r'^delete/', views.delete_account, name='delete_account')
+    url(r'^delete/', views.delete_account, name='delete_account'),
+    url(r'^advertising/$', views.account_advertising, name='account_advertising'),
 ]

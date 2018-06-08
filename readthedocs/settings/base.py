@@ -59,6 +59,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
     # Application classes
     @property
@@ -99,6 +100,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.payments',
             'readthedocs.notifications',
             'readthedocs.integrations',
+            'readthedocs.analytics',
 
 
             # allauth
@@ -329,6 +331,9 @@ class CommunityBaseSettings(Settings):
     # Stripe
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
+
+    # Do Not Track support
+    DO_NOT_TRACK_ENABLED = False
 
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None

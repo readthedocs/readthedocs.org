@@ -6,6 +6,7 @@ import datetime
 import json
 
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.test import TestCase
 from django_dynamic_fixture import get
 from mock import patch
@@ -257,6 +258,70 @@ class TestProject(TestCase):
         )
         self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
+
+    def test_user_cant_change_lang_to_translation_lang(self):
+        user_a = User.objects.get(username='eric')
+        project_a = Project.objects.get(slug='read-the-docs')
+        project_b = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        # User tries to change the language
+        # to the same of the translation
+        self.client.login(username=user_a.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        self.assertEqual(project_a.language, 'en')
+        self.assertEqual(project_b.language, 'es')
+        data = model_to_dict(project_a)
+        data['language'] = 'es'
+        resp = self.client.post(
+            reverse(
+                'projects_edit',
+                args=[project_a.slug]
+            ),
+            data=data,
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            'There is already a &quot;es&quot; translation '
+            'for the read-the-docs project'
+        )
+
+    def test_user_can_change_project_with_same_lang(self):
+        user_a = User.objects.get(username='eric')
+        project_a = Project.objects.get(slug='read-the-docs')
+        project_b = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
+        )
+
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        # User save the project with no modifications
+        self.client.login(username=user_a.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        self.assertEqual(project_a.language, 'en')
+        self.assertEqual(project_b.language, 'es')
+        data = model_to_dict(project_a)
+        # Same languge
+        data['language'] = 'en'
+        resp = self.client.post(
+            reverse(
+                'projects_edit',
+                args=[project_a.slug]
+            ),
+            data=data,
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, 'There is already a')
 
     def test_token(self):
         r = self.client.get('/api/v2/project/6/token/', {})

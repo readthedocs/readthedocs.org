@@ -44,7 +44,7 @@ class Command(BaseCommand):
             log.info("Reindexing %s", version)
             try:
                 commit = version.project.vcs_repo(version.slug).commit
-            except:  # pylint: disable=bare-except
+            except:  # noqa
                 # An exception can be thrown here in production, but it's not
                 # documented what the exception here is
                 commit = None
@@ -52,5 +52,5 @@ class Command(BaseCommand):
             try:
                 update_search(version.pk, commit,
                               delete_non_commit_files=False)
-            except Exception:
-                log.exception('Reindex failed for %s', version)
+            except Exception as e:
+                log.exception('Reindex failed for %s, %s', version, e)
