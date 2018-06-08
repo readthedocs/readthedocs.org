@@ -83,6 +83,10 @@ what they stand for.
     Pull Requests that are not complete yet. A final review is not possible
     yet, but every Pull Request is open for discussion.
 
+*PR: hotfix*
+    Pull request was applied directly to production after a release. These pull
+    requests still need review to be merged into the next release.
+
 *Sprintable*
     Sprintable are all issues that have the right amount of scope to be
     handled during a sprint. They are very focused and encapsulated.
