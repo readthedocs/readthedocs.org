@@ -783,14 +783,17 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
-    if 'sphinx' in version.project.documentation_type:
-        if search:
+        if 'sphinx' in version.project.documentation_type:
+            # Sync the generated json artifacts for search
             from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_search')
+                version=version.slug, type_='sphinx_search'
+            )
             to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
+                type_='json', version_slug=version.slug, include_file=False
+            )
             Syncer.copy(from_path, to_path, host=hostname)
 
+    if 'sphinx' in version.project.documentation_type:
         if localmedia:
             from_path = version.project.artifact_path(
                 version=version.slug, type_='sphinx_localmedia')
