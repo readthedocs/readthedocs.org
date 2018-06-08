@@ -6,23 +6,23 @@ Security is very important to us at Read the Docs. We are committed to responsib
 Reporting a security issue
 --------------------------
 
-If you believe you've discovered a security issue at Read the Docs, please contact us at **security@readthedocs.org** (optionally using our :ref:`pgp-key`). We request that you please not publicly disclose the issue until it has been addressed by us.
+If you believe you've discovered a security issue at Read the Docs,
+please contact us at **security@readthedocs.org** (optionally using our :ref:`security:PGP key`).
+We request that you please not publicly disclose the issue until it has been addressed by us.
 
 You can expect:
 
 * We will respond acknowledging your email typically within one business day.
 * We will follow up if and when we have confirmed the issue with a timetable for the fix.
 * We will notify you when the issue is fixed.
-* We will add the issue to our :ref:`security issue archive <security-issue-archive>`.
-
-.. _pgp-key:
+* We will add the issue to our :ref:`security issue archive <security:Security issue archive>`.
 
 PGP key
 -------
 
-You may use this `PGP key`_ to securely communicate with us and to verify signed messages you receive from us.
+You may use this `PGP key`__ to securely communicate with us and to verify signed messages you receive from us.
 
-.. _PGP key: https://pgp.mit.edu/pks/lookup?op=vindex&search=0xFEEF9FC2DD21D271
+__ https://pgp.mit.edu/pks/lookup?op=vindex&search=0xFEEF9FC2DD21D271
 
 ::
 
@@ -81,12 +81,8 @@ You may use this `PGP key`_ to securely communicate with us and to verify signed
     =LjIC
     -----END PGP PUBLIC KEY BLOCK-----
 
-.. _security-issue-archive:
-
 Security issue archive
 ----------------------
-
-.. _security-2.3.0:
 
 Release 2.3.0
 ~~~~~~~~~~~~~
