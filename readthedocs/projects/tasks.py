@@ -638,7 +638,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
             outcomes['html'] = self.build_docs_html()
-            outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
@@ -669,12 +668,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             log.exception('move_files task has failed on socket error.')
 
         return success
-
-    def build_docs_search(self):
-        """Build search data with separate build."""
-        if self.build_search and self.project.is_type_sphinx:
-            return self.build_docs_class('sphinx_search')
-        return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -774,8 +767,13 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     :type epub: bool
     """
     version = Version.objects.get(pk=version_pk)
-    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
-                                  msg='Moving files'))
+    log.debug(
+        LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version=version.slug,
+            msg='Moving files'
+        )
+    )
 
     if html:
         from_path = version.project.artifact_path(

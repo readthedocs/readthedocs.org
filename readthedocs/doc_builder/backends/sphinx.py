@@ -233,13 +233,6 @@ class SingleHtmlBuilder(HtmlBuilder):
         self.sphinx_builder = 'readthedocssinglehtml'
 
 
-class SearchBuilder(BaseSphinx):
-    type = 'sphinx_search'
-    sphinx_builder = 'json'
-    sphinx_build_dir = '_build/json'
-    ignore_patterns = ['_static']
-
-
 class LocalMediaBuilder(BaseSphinx):
     type = 'sphinx_localmedia'
     sphinx_builder = 'readthedocssinglehtmllocalmedia'
