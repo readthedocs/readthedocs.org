@@ -3,6 +3,7 @@ import string
 from random import shuffle
 
 import pytest
+from django.core.management import call_command
 from django_dynamic_fixture import G
 
 from readthedocs.projects.models import Project
@@ -17,26 +18,15 @@ def mock_elastic_index(mocker):
 
 
 @pytest.fixture()
-def es_index(mock_elastic_index):
-    # Create the index.
-    index = Index()
-    index_name = index.timestamped_index()
-    index.create_index(index_name)
-    index.update_aliases(index_name)
-    # Update mapping
-    proj = ProjectIndex()
-    proj.put_mapping()
-    page = PageIndex()
-    page.put_mapping()
-    sec = SectionIndex()
-    sec.put_mapping()
+def es_index():
+    call_command('search_index', '--create')
 
-    yield index
-    index.delete_index(index_name=index_name)
+    yield
+    call_command('search_index', '--delete')
 
 
 @pytest.fixture
-def all_projects():
+def all_projects(es_index):
     projects = [G(Project, slug=project_slug, name=project_slug) for project_slug in ALL_PROJECTS]
     shuffle(projects)
     return projects

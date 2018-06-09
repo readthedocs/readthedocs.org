@@ -28,6 +28,8 @@ class TestProjectSearch(object):
         result = page.find('.module-list-wrapper .module-item-title')
         return result, page
 
+
+
     # TODO: Implement a way to generate unique index name in test
     # @pytest.fixture(autouse=True)
     # def mock_project_index(self, mocker):
