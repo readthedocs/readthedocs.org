@@ -16,7 +16,7 @@ def mock_elastic_index(mocker):
     mocker.patch.object(Index, '_index', index_name.lower())
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def es_index(mock_elastic_index):
     # Create the index.
     index = Index()

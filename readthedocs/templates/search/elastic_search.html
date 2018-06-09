@@ -26,8 +26,8 @@
 
       {% if facets.language %}
         <h5> Language </h5>
-          {% for name, count in facets.language.items %}
-            <li class="{% if language == name %}active{% endif %} language-list">
+          {% for name, count, selected in facets.language %}
+            <li class="{% if selected %}active{% endif %} language-list">
               {% if language == name %}
                 <a href="?{% url_replace request 'language' ''  %}">{{ name }}
               {% else %}
@@ -141,14 +141,14 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
               <div class="module-list-wrapper">
 
                 <ul>
-                  {% for result in results.hits.hits %}
+                  {% for result in results %}
                         <li class="module-item">
                           <p class="module-item-title">
-                            {% if result.fields.name %} 
+                            {% if result.name %}
 
                               {# Project #}
-                              <a href="{{ result.fields.url }}">{{ result.fields.name }}</a>
-                              {% for fragment in result.highlight.description|slice:":3" %}
+                              <a href="{{ result.url }}">{{ result.name }}</a>
+                              {% for fragment in result.description|slice:":3" %}
                                 <p>
                                 ...{{ fragment|safe }}...
                                 </p>

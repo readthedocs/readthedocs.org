@@ -12,6 +12,7 @@ from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.search import lib as search_lib
+from readthedocs.search.documents import ProjectDocument
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
@@ -45,14 +46,18 @@ def elastic_search(request):
 
     if user_input.query:
         if user_input.type == 'project':
-            results = search_lib.search_project(
-                request, user_input.query, language=user_input.language)
+            project_search = ProjectDocument.faceted_search(query=user_input.query,
+                                                            language=user_input.language)
+            response = project_search.execute()
+            results = response.hits
+            facets = response.facets
         elif user_input.type == 'file':
             results = search_lib.search_file(
                 request, user_input.query, project_slug=user_input.project,
                 version_slug=user_input.version, taxonomy=user_input.taxonomy)
 
-    if results:
+    # TODO: Temporary until finishing search upgrade for files
+    if results and user_input.type == 'file':
         # pre and post 1.0 compat
         for num, hit in enumerate(results['hits']['hits']):
             for key, val in list(hit['fields'].items()):
