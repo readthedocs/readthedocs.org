@@ -42,3 +42,4 @@ notifications:
 branches:
   only:
   - master
+  - search_upgrade
