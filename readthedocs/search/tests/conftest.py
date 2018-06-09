@@ -19,10 +19,11 @@ def mock_elastic_index(mocker):
 
 @pytest.fixture()
 def es_index():
+    call_command('search_index', '--delete', '-f')
     call_command('search_index', '--create')
 
     yield
-    call_command('search_index', '--delete')
+    call_command('search_index', '--delete', '-f')
 
 
 @pytest.fixture

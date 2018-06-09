@@ -77,7 +77,7 @@ class TestProjectSearch(object):
 
 @pytest.mark.django_db
 @pytest.mark.search
-@pytest.mark.xfail("File search not work still!")
+@pytest.mark.xfail(reason="File search not work still!")
 class TestElasticSearch(object):
     url = reverse('search')
 
