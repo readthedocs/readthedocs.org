@@ -142,7 +142,7 @@ class Index(object):
             docs.append(doc)
 
         # TODO: This doesn't work with the new ES setup.
-        bulk_index(self.es, docs, chunk_size=chunk_size)
+        # bulk_index(self.es, docs, chunk_size=chunk_size)
 
     def index_document(self, data, index=None, parent=None, routing=None):
         doc = self.extract_document(data)

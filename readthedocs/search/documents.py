@@ -15,7 +15,7 @@ project_index.settings(
 @project_index.doc_type
 class ProjectDocument(DocType):
 
-    class Meta:
+    class Meta(object):
         model = Project
         fields = ('name', 'slug', 'description')
 
