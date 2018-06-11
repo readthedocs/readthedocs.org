@@ -38,7 +38,7 @@ def create_load(config=None):
     return inner
 
 
-@mock.patch('readthedocs.doc_builder.config.load_config')
+@mock.patch('readthedocs.doc_builder.config.wrapper.load_config')
 class LoadConfigTests(TestCase):
 
     def setUp(self):
