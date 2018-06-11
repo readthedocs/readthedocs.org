@@ -1,0 +1,7 @@
+{% if reason == 'no_connected_projects' %}
+  Webhook activation failed. There are no connected services for this project.
+{% elif reason == 'no_permissions' %}
+  Webhook activation failed. Make sure you have permissions to set it.
+{% elif reason == 'no_accounts' %}
+  No accounts available to set webhook on. Please connect your {{ provider.name }} account.
+{% endif %}

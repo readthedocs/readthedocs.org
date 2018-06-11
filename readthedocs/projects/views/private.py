@@ -7,6 +7,7 @@ from __future__ import (
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -24,10 +25,11 @@ from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils import broadcast, trigger_build, prepare_build
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
-from readthedocs.oauth.utils import attach_webhook, update_webhook
+from readthedocs.oauth.utils import update_webhook
+from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects import tasks
 from readthedocs.projects.forms import (
     DomainForm, EmailHookForm, IntegrationForm, ProjectAdvancedForm,
@@ -233,8 +235,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
                 setattr(project, field, value)
         project.save()
 
-        # TODO: if we want to make the ``attach_webhook`` async, we need to
-        # consider the message shown to the user when not valid webhook.
+        # TODO: this signal could be removed, or used for sync task
         project_import.send(sender=project, request=self.request)
 
         self.trigger_initial_build(project)
@@ -245,7 +246,13 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         """
         Trigger initial build.
         """
-        return trigger_build(project)
+        update_docs = prepare_build(project)
+        task_promise = chain(
+            attach_webhook.si(project.pk, self.request.user.pk),
+            update_docs,
+        )
+        async_result = task_promise.apply_async()
+        return async_result
 
     def is_advanced(self):
         """Determine if the user selected the `show advanced` field."""
