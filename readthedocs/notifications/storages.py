@@ -93,9 +93,7 @@ class NonPersistentNotification(PersistentStorage):
     level = 100
 
     def _message_queryset(self, include_read=False):
-        """
-        Return a queryset of non persistent messages for the request user.
-        """
+        """Return a queryset of non persistent messages for the request user."""
         expire = timezone.now()
 
         qs = PersistentMessage.objects.\
@@ -120,7 +118,10 @@ class NonPersistentNotification(PersistentStorage):
 
     def _store(self, messages, response, *args, **kwargs):
         # There are alredy saved.
-        return [message for message in messages if not message.level in NON_PERSISTENT_MESSAGE_LEVELS]
+        return [
+            message for message in messages
+            if message.level not in NON_PERSISTENT_MESSAGE_LEVELS
+        ]
 
     def process_message(self, message, *args, **kwargs):
         """
@@ -129,7 +130,7 @@ class NonPersistentNotification(PersistentStorage):
         If its level is into non-persistent levels, convert the message to
         models and save it
         """
-        if not message.level in NON_PERSISTENT_MESSAGE_LEVELS:
+        if message.level not in NON_PERSISTENT_MESSAGE_LEVELS:
             return message
 
         user = kwargs.get("user") or self.get_user()
@@ -139,7 +140,8 @@ class NonPersistentNotification(PersistentStorage):
         except TypeError:
             anonymous = user.is_anonymous
         if anonymous:
-            raise NotImplementedError('Persistent message levels cannot be used for anonymous users.')
+            raise NotImplementedError(
+                'Persistent message levels cannot be used for anonymous users.')
         message_persistent = PersistentMessage()
         message_persistent.level = message.level
         message_persistent.message = message.message
