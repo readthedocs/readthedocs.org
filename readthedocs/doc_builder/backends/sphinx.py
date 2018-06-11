@@ -212,6 +212,7 @@ class BaseSphinx(BaseBuilder):
 class HtmlBuilder(BaseSphinx):
     type = 'sphinx'
     sphinx_build_dir = '_build/html'
+    ignore_patterns = ['_json']
 
     def __init__(self, *args, **kwargs):
         super(HtmlBuilder, self).__init__(*args, **kwargs)
