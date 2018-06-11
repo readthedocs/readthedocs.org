@@ -1,38 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function, unicode_literals
 
-from readthedocs.notifications import Notification
-from readthedocs.notifications.constants import HTML, WARNING, INFO
+from readthedocs.notifications import SiteNotification
 
 
-class AttachWebhookNotification(Notification):
+class AttachWebhookNotification(SiteNotification):
 
-    name = 'attach_webhook'
+    NO_CONNECTED_SERVICES = 'no_connected_services'
+    NO_PERMISSIONS = 'no_permissions'
+    NO_ACCOUNTS = 'no_accounts'
+
     context_object_name = 'provider'
-    subject_success = 'Attach webhook success'
-    subject_fail = 'Attach webhook failed'
-
-    def __init__(self, context_object, request, user, success, reason=None):
-        self.success = success
-        self.reason = reason
-        if self.success:
-            self.level = INFO
-            self.subject = self.subject_success
-        else:
-            self.level = WARNING
-            self.subject = self.subject_fail
-
-        super(AttachWebhookNotification, self).__init__(context_object, request, user)
-
-    def get_context_data(self):
-        context = super(AttachWebhookNotification, self).get_context_data()
-        context.update({'reason': self.reason})
-        return context
-
-    def get_template_names(self, backend_name, source_format=HTML):
-        return 'oauth/notifications/{name}_{status}_{backend}.{source_format}'.format(
-            name=self.name,
-            status='success' if self.success else 'fail',
-            backend=backend_name,
-            source_format=source_format,
-        )
+    success_message = 'Webhook activated successfully.'
+    failure_message = {
+        NO_CONNECTED_SERVICES: 'Webhook activation failed. There are no connected services for this project.',
+        NO_PERMISSIONS: 'Webhook activation failed. Make sure you have permissions to set it.',
+        NO_ACCOUNTS: 'No accounts available to set webhook on. Please connect your {provider.name} account.',
+    }
