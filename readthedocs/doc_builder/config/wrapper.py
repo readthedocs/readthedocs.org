@@ -8,7 +8,7 @@ from builtins import filter, object
 from readthedocs_build.config import load as load_config
 from readthedocs_build.config import BuildConfig, ConfigError, InvalidConfig
 
-from .constants import DOCKER_IMAGE_SETTINGS, DOCKER_IMAGE
+from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS, DOCKER_IMAGE
 
 
 class ConfigWrapper(object):
