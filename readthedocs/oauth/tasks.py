@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 """Tasks for OAuth services"""
 
 from __future__ import absolute_import
 from django.contrib.auth.models import User
-from django.http import HttpRequest
 
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import permission_check
@@ -49,11 +49,9 @@ def attach_webhook(project_pk, user_pk):
             break
     else:
         notification = AttachWebhookNotification(
-            context_object=None,
-            request=HttpRequest(),
             user=user,
             success=False,
-            reason='no_connected_services',
+            message_key=AttachWebhookNotification.NO_CONNECTED_SERVICES,
         )
         notification.send()
         return None
@@ -63,11 +61,8 @@ def attach_webhook(project_pk, user_pk):
         success, __ = account.setup_webhook(project)
         if success:
             notification = AttachWebhookNotification(
-                context_object=None,
-                request=HttpRequest(),
                 user=user,
                 success=True,
-                reason='no_connected_services',
             )
             notification.send()
 
@@ -78,11 +73,9 @@ def attach_webhook(project_pk, user_pk):
     # No valid account found
     if user_accounts:
         notification = AttachWebhookNotification(
-            context_object=None,
-            request=HttpRequest(),
             user=user,
             success=False,
-            reason='no_permissions',
+            message_key=AttachWebhookNotification.NO_PERMISSIONS,
         )
         notification.send()
     else:
@@ -91,10 +84,9 @@ def attach_webhook(project_pk, user_pk):
         provider = allauth_registry.by_id(service.adapter.provider_id)
         notification = AttachWebhookNotification(
             context_object=provider,
-            request=HttpRequest(),
             user=user,
             success=False,
-            reason='no_accounts',
+            message_key=AttachWebhookNotification.NO_ACCOUNTS,
         )
         notification.send()
     return False
