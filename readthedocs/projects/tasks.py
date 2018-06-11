@@ -638,6 +638,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
             outcomes['html'] = self.build_docs_html()
+            outcomes['search'] = False
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
