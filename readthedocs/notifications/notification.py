@@ -156,5 +156,5 @@ class SiteNotification(Notification):
             msg = message
         return msg.format(**{self.context_object_name: self.object})
 
-    def render(self, *args, **kwargs):
+    def render(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return self.get_message(self.success)

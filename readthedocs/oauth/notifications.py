@@ -14,7 +14,7 @@ class AttachWebhookNotification(SiteNotification):
     context_object_name = 'provider'
     success_message = _('Webhook activated successfully.')
     failure_message = {
-        NO_CONNECTED_SERVICES: _('Webhook activation failed. There are no connected services for this project.'),
-        NO_PERMISSIONS: _('Webhook activation failed. Make sure you have permissions to set it.'),
-        NO_ACCOUNTS: _('No accounts available to set webhook on. Please connect your {provider.name} account.'),
+        NO_CONNECTED_SERVICES: _('Webhook activation failed. There are no connected services for ''this project.'),  # noqa
+        NO_PERMISSIONS: _('Webhook activation failed. Make sure you have permissions to set it.'),  # noqa
+        NO_ACCOUNTS: _('No accounts available to set webhook on. Please connect your {provider.name} account.'),  # noqa
     }
