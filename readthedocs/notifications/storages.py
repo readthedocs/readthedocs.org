@@ -21,6 +21,8 @@ class FallbackUniqueStorage(FallbackStorage):
 
     """
     Persistent message fallback storage, but only stores unique notifications.
+
+    This loops through all backends to find messages to store, but will skip
     this step if the message already exists for the user in the database.
 
     Deduplication is important here, as a persistent message may ask a user to
