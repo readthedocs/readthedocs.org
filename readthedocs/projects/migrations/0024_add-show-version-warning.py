@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import readthedocs.core.validators
+import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='project',
             name='repo',
-            field=models.CharField(help_text='Hosted documentation repository URL', max_length=255, validators=[readthedocs.core.validators.RepositoryURLValidator()], verbose_name='Repository URL'),
+            field=models.CharField(help_text='Hosted documentation repository URL', max_length=255, validators=[readthedocs.projects.validators.RepositoryURLValidator()], verbose_name='Repository URL'),
         ),
         migrations.AlterField(
             model_name='project',

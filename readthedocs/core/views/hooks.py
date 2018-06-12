@@ -163,7 +163,7 @@ def github_build(request):  # noqa: D205
     GitHub webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GitHubWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.GitHubWebhookView`
         instead of this view function
 
     This will search for projects matching either a stripped down HTTP or SSH
@@ -218,7 +218,7 @@ def gitlab_build(request):  # noqa: D205
     GitLab webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GitLabWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.GitLabWebhookView`
         instead of this view function
 
     Search project repository URLs using the site URL from GitLab webhook payload.
@@ -253,7 +253,7 @@ def bitbucket_build(request):
     Consume webhooks from multiple versions of Bitbucket's API.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
         instead of this view function
 
     New webhooks are set up with v2, but v1 webhooks will still point to this
@@ -327,7 +327,7 @@ def generic_build(request, project_id_or_slug=None):
 
     .. warning:: **DEPRECATED**
 
-      Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
+      Use :py:class:`readthedocs.restapi.views.integrations.GenericWebhookView`
       instead of this view function
     """
     try:

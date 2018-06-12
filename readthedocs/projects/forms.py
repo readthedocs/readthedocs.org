@@ -173,7 +173,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES,
         initial='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'),
     )
 

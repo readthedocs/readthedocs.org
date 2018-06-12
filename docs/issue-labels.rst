@@ -6,42 +6,51 @@ what they stand for.
 
 .. _GitHub issue tracker: https://github.com/rtfd/readthedocs.org/issues
 
-*Bug*
-    An issue describing unexpected or malicious behaviour of the
-    readthedocs.org software.
+*Accepted*
+    Issues with this label are issues that the core team has accepted on to the
+    roadmap. The core team focuses on accepted bugs, features, and improvements
+    that are on our immediate roadmap and will give priority to these issues.
+    Pull requests could be delayed or closed if the pull request doesn't align
+    with our current roadmap. An issue or pull request that has not been
+    accepted should either eventually move to an accepted state, or should be
+    closed. As an issue is accepted, we will find room for it on our roadmap,
+    either on an upcoming release (point release milestones), or on a future
+    milestone project (named milestones).
 
-*Community Effort*
-    Tickets with this label are valid issues that the core team thinks are
-    worth to fix or implement in the future. However the core team's resources
-    are too scarce to address these issues. Tickets marked with this label
-    are issues that the core team will **not** work on, but contributions
-    from the community are very welcome.
+*Bug*
+    An issue describing unexpected or malicious behaviour of the readthedocs.org
+    software. A Bug issue differs from an Improvement issue in that Bug issues
+    are given priority on our roadmap. On release, these issues generally only
+    warrant incrementing the patch level version.
 
 *Design*
     Issues related to the UI of the readthedocs.org website.
 
-*Enhancement*
-    Feature requests and ideas about how to make readthedocs.org better in
-    general will have this label.
-
-*Feature Overview*
-    Features that are too big to be tackled in one ticket are split up into
-    multiple tickets. A feature overview ticket is then explaining the overarching
-    idea. See the milestone of the feature overview ticket for all related
-    tickets.
+*Feature*
+    Issues that describe new features. Issues that do not describe new features,
+    such as code cleanup or fixes that are not related to a bug, should probably
+    be given the Improvement label instead. On release, issues with the Feature
+    label warrant at least a minor version increase.
 
 *Good First Issue*
-    This label marks tickets that are easy to get started with. The ticket
+    This label marks issues that are easy to get started with. The issue
     should be ideal for beginners to dive into the code base.
 
-*High Priority*
-    Tickets with this label should be resolved as quickly as possible.
+*Priority: high*
+    Issues with this label should be resolved as quickly as possible.
 
-*Mkdocs*
-    Tickets that are related to the Mkdocs builder.
+*Priority: low*
+    Issues with this label won't have the immediate focus of the core team.
+
+*Improvement*
+    An issue with this label is not a Bug nor a Feature. Code cleanup or small
+    changes to existing features would likely have this label. The distinction
+    for this label is that these issues have a lower priority on our roadmap
+    compared to issues labeled Bug, and aren't implementing new features, such
+    as a Feature issue might.
 
 *Needed: design decision*
-    Tickets that need a design decision are blocked for development until a
+    Issues that need a design decision are blocked for development until a
     project leader clarifies the way in which the issue should be approached.
 
 *Needed: documentation*
@@ -49,51 +58,47 @@ what they stand for.
     assigned.
 
 *Needed: more information*
-    This label indicates that the issue has not enough information in order to
-    decide on how to go forward. See the documentation about our :ref:`triage
-    process <triage-not-enough-information>` for more information.
+    This label indicates that a reply with more information is required from the
+    bug reporter. If no response is given by the reporter, the issue is
+    considered invalid after 2 weeks and will be closed. See the documentation
+    about our :ref:`triage process <triage-not-enough-information>` for more
+    information.
 
 *Needed: patch*
     This label indicates that a patch is required in order to resolve the
-    ticket. A fix should be proposed via a pull request on GitHub.
+    issue. A fix should be proposed via a pull request on GitHub.
 
 *Needed: tests*
     This label indicates that a better test coverage is required to resolve
-    the ticket. New tests should be proposed via a pull request on GitHub.
+    the issue. New tests should be proposed via a pull request on GitHub.
 
 *Needed: replication*
     This label indicates that a bug has been reported, but has not been
     successfully replicated by another user or contributor yet.
 
 *Operations*
-    Tickets that require changes in the server infrastructure.
-
-*PR: ready for review*
-    Pull Requests that are considered complete. A review by at least one core
-    developer is required prior to merging it.
+    Issues that require changes in the server infrastructure.
 
 *PR: work in progress*
     Pull Requests that are not complete yet. A final review is not possible
     yet, but every Pull Request is open for discussion.
 
+*PR: hotfix*
+    Pull request was applied directly to production after a release. These pull
+    requests still need review to be merged into the next release.
+
 *Sprintable*
-    Sprintable are all tickets that have the right amount of scope to be
+    Sprintable are all issues that have the right amount of scope to be
     handled during a sprint. They are very focused and encapsulated.
 
 *Status: blocked*
-    The ticket cannot be resolved until some other ticket has been closed.
-    See the ticket's log for which ticket is blocking this ticket.
+    The issue cannot be resolved until some other issue has been closed.
+    See the issue's log for which issue is blocking this issue.
 
-*Status: duplicate*
-    See the ticket's log to find the original ticket that this one is a
-    duplicate of.
-
-*Status: invalid*
-    A ticket is invalid if the reported issue cannot be reproduced.
-
-*Status: rejected*
-    A ticket gets rejected if the proposed enhancement is not in line with the
-    overall goals of readthedocs.org.
+*Status: stale*
+    A issue is stale if it there has been no activity on it for 90 days. Once a
+    issue is determined to be stale, it will be closed after 2 weeks unless
+    there is activity on the issue.
 
 *Support*
     Questions that needs answering but do not require code changes or issues

@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 import json
 import logging
+import re
 
 from builtins import object
 from rest_framework import permissions
@@ -159,10 +160,14 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
             try:
-                branches = [self.data['ref'].replace('refs/heads/', '')]
+                branches = [self._normalize_ref(self.data['ref'])]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+
+    def _normalize_ref(self, ref):
+        pattern = re.compile(r'^refs/(heads|tags)/')
+        return pattern.sub('', ref)
 
 
 class GitLabWebhookView(WebhookMixin, APIView):

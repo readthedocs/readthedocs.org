@@ -17,6 +17,11 @@ environments by running::
 
     tox
 
+In order to run all test including the search tests, include `"'--including-search'"`
+argument::
+
+    tox "'--including-search'"
+
 To target a specific environment::
 
     tox -e py27

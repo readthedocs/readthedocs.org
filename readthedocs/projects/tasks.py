@@ -31,14 +31,13 @@ from slumber.exceptions import HttpClientError
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
-from .signals import before_vcs, after_vcs, before_build, after_build
+from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
-from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
@@ -981,14 +980,13 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project,
                                 version=version
                                 ).exclude(commit=commit).delete()
-    # Purge Cache
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            changed_files = [resolve_path(
-                version.project, filename=fname, version_slug=version.slug,
-            ) for fname in changed_files]
-            purge(cdn_ids[version.project.slug], changed_files)
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @app.task(queue='web')

@@ -102,7 +102,7 @@ Why do we collect this?
 - We limit our use of your User Personal Information to the purposes listed in this Privacy Statement.
   If we need to use your User Personal Information for other purposes, we will ask your permission first.
   You can always see what information we have in your
-  `user account <https://readthedocs.org/accounts/edit/>`_.
+  `user account <https://readthedocs.org/accounts/edit/>`__.
 
 What information Read the Docs does not collect
 -----------------------------------------------
@@ -223,7 +223,6 @@ We do not sell that content; it is yours.
 Our use of cookies and tracking
 -------------------------------
 
-.. _privacy-policy-do-not-track:
 
 Do Not Track
 ~~~~~~~~~~~~
@@ -236,7 +235,7 @@ For Read the Docs, this means:
 
 * We **do not** do behavioral ad targeting regardless of your DNT preference.
 * When DNT is enabled, both logged-in and logged-out users
-  are considered opted-out of :ref:`analytics <privacy-policy-analytics>`.
+  are considered opted-out of :ref:`analytics <privacy-policy:Google Analytics>`.
 * Regardless of DNT preference, our logs that contain IP addresses
   and user agent strings are deleted after 10 days unless a DNT exception applies.
 * Our full DNT policy is `available here`_.
@@ -367,7 +366,7 @@ How you can access and control the information we collect
 
 If you're already a Read the Docs user, you may access, update, alter,
 or delete your basic user profile information by
-`editing your user account <https://readthedocs.org/accounts/edit/>`_.
+`editing your user account <https://readthedocs.org/accounts/edit/>`__.
 
 
 Data retention and deletion
@@ -383,7 +382,7 @@ so unless you choose to delete your account,
 we will retain your account information indefinitely.
 
 If you would like to delete your User Personal Information,
-you may do so in your `user account <https://readthedocs.org/accounts/delete/>`_.
+you may do so in your `user account <https://readthedocs.org/accounts/delete/>`__.
 We will retain and use your information as necessary to comply with
 our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.

@@ -183,3 +183,33 @@ class TestCeleryBuilding(RTDTestCase):
         sync_repository.sync_repo()
 
         api_v2.project().sync_versions.post.assert_called()
+
+    def test_public_task_exception(self):
+        """
+        Test when a PublicTask rises an Exception.
+
+        The exception should be catched and added to the ``info`` attribute of
+        the result. Besides, the task should be SUCCESS.
+        """
+        from readthedocs.core.utils.tasks import PublicTask
+        from readthedocs.worker import app
+
+        class PublicTaskException(PublicTask):
+            name = 'public_task_exception'
+
+            def run_public(self):
+                raise Exception('Something bad happened')
+
+        app.tasks.register(PublicTaskException)
+        exception_task = PublicTaskException()
+        result = exception_task.delay()
+
+        # although the task risen an exception, it's success since we add the
+        # exception into the ``info`` attributes
+        self.assertEqual(result.status, 'SUCCESS')
+        self.assertEqual(result.info, {
+            'task_name': 'public_task_exception',
+            'context': {},
+            'public_data': {},
+            'error': 'Something bad happened',
+        })
