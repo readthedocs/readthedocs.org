@@ -3,6 +3,7 @@
 
 from __future__ import absolute_import
 from builtins import object
+import logging
 from django.conf import settings
 from django.template import Template, Context
 from django.template.loader import render_to_string
@@ -11,6 +12,9 @@ from django.http import HttpRequest
 
 from .backends import send_notification
 from . import constants
+
+
+log = logging.getLogger(__name__)
 
 
 class Notification(object):
@@ -118,7 +122,7 @@ class SiteNotification(Notification):
 
     def __init__(
             self, user, success, reason=None, context_object=None,
-            request=None):
+            request=None, extra_context=None):
         self.object = context_object
 
         self.user = user or request.user
@@ -129,7 +133,13 @@ class SiteNotification(Notification):
 
         self.success = success
         self.reason = reason
+        self.extra_context = extra_context
         super(SiteNotification, self).__init__(context_object, request, user)
+
+    def get_context_data(self):
+        context = super(SiteNotification, self).get_context_data()
+        context.update(self.extra_context)
+        return context
 
     def get_message_level(self):
         if self.success:
@@ -142,19 +152,31 @@ class SiteNotification(Notification):
         else:
             message = self.failure_message
 
-        if isinstance(message, dict) and self.reason:
-            if self.reason in message:
-                msg = message.get(self.reason)
+        msg = ''  # default message in case of error
+        if isinstance(message, dict):
+            if self.reason:
+                if self.reason in message:
+                    msg = message.get(self.reason)
+                else:
+                    # log the error but not crash
+                    log.error(
+                        "Notification {} has no key '{}' for {} messages".format(
+                            self.__class__.__name__,
+                            self.reason,
+                            'success' if self.success else 'failure',
+                        ),
+                    )
             else:
-                raise KeyError(
-                    "Notification has no key '{}' for {} messages".format(
-                        self.reason,
+                log.error(
+                    '{}.{}_message is a dictionary but no reason was provided'.format(
+                        self.__class__.__name__,
                         'success' if self.success else 'failure',
                     ),
                 )
         else:
             msg = message
-        return msg.format(**{self.context_object_name: self.object})
+
+        return Template(msg).render(context=Context(self.get_context_data()))
 
     def render(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return self.get_message(self.success)
