@@ -221,7 +221,3 @@ class SiteNotificationTests(TestCase):
         with mock.patch('readthedocs.notifications.notification.log') as mock_log:
             self.assertEqual(self.n.get_message(False), '')
             mock_log.error.assert_called_once()
-
-
-class NonPersistentStorageTests(TestCase):
-    pass
