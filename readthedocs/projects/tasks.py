@@ -168,6 +168,10 @@ class SyncRepositoryMixin(object):
         counter = Counter(version_names)
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:
+                # Clean the repo to do a clean clone later
+                # (because tags aren't deleted in the fetch step).
+                vcs_repo = self.project.vcs_repo()
+                vcs_repo.make_clean_working_dir()
                 raise RepositoryError(
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS
                 )
