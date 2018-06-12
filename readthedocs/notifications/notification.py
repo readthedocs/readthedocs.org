@@ -133,7 +133,7 @@ class SiteNotification(Notification):
 
         self.success = success
         self.reason = reason
-        self.extra_context = extra_context
+        self.extra_context = extra_context or {}
         super(SiteNotification, self).__init__(context_object, request, user)
 
     def get_context_data(self):
