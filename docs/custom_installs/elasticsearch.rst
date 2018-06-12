@@ -99,19 +99,7 @@ Index the data available at RTD database
 
 You need to create the indexes::
 
-    from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
-
-    index = Index()
-    index_name = index.timestamped_index()
-    index.create_index(index_name)
-    index.update_aliases(index_name)
-    # Update mapping
-    proj = ProjectIndex()
-    proj.put_mapping()
-    page = PageIndex()
-    page.put_mapping()
-    sec = SectionIndex()
-    sec.put_mapping()
+    $ python manage.py provision_elasticsearch
 
 In order to search through the RTD database, you need to index it into the elasticsearch index:: 
 
