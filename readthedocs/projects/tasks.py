@@ -5,7 +5,8 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import datetime
 import hashlib
@@ -14,7 +15,7 @@ import logging
 import os
 import shutil
 import socket
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import requests
 from builtins import str
@@ -31,12 +32,10 @@ from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain
 from .signals import before_vcs, after_vcs, before_build, after_build
-from readthedocs.builds.constants import (LATEST,
-                                          BUILD_STATE_CLONING,
-                                          BUILD_STATE_INSTALLING,
-                                          BUILD_STATE_BUILDING,
-                                          BUILD_STATE_FINISHED)
-from readthedocs.builds.models import Build, Version, APIVersion
+from readthedocs.builds.constants import (
+    BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
+    BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
+from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
 from readthedocs.cdn.purge import purge
@@ -142,6 +141,8 @@ class SyncRepositoryMixin(object):
                      } for v in version_repo.branches
                 ]
 
+            self.validate_duplicate_reserved_versions(version_post_data)
+
             try:
                 # Hit the API ``sync_versions`` which may trigger a new build
                 # for the stable version
@@ -150,6 +151,18 @@ class SyncRepositoryMixin(object):
                 log.exception('Sync Versions Exception')
             except Exception:
                 log.exception('Unknown Sync Versions Exception')
+
+    def validate_duplicate_reserved_versions(self, data):
+        version_names = [
+            version['verbose_name']
+            for version in data.get('tags', []) + data.get('branches', [])
+        ]
+        counter = Counter(version_names)
+        for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
+            if counter[reserved_name] > 1:
+                raise RepositoryError(
+                    RepositoryError.DUPLICACATE_RESERVED_VERSIONS
+                )
 
     # TODO this is duplicated in the classes below, and this should be
     # refactored out anyways, as calling from the method removes the original
