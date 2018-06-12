@@ -39,7 +39,7 @@ class FallbackUniqueStorage(FallbackStorage):
     """
 
     storages_names = (
-        'readthedocs.notifications.storages.NonPersistentNotification',
+        'readthedocs.notifications.storages.NonPersistentStorage',
         'messages_extends.storages.StickyStorage',
         'messages_extends.storages.PersistentStorage',
         'django.contrib.messages.storage.cookie.CookieStorage',
@@ -79,7 +79,7 @@ class FallbackUniqueStorage(FallbackStorage):
                                                *args, **kwargs)
 
 
-class NonPersistentNotification(PersistentStorage):
+class NonPersistentStorage(PersistentStorage):
 
     """
     Save one time (non-pesistent) messages in the database.
