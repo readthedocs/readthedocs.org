@@ -1015,6 +1015,7 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
+    BUILD_JSON_ARTIFACTS_WITH_HTML = 'build_json_artifacts_with_html'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1022,6 +1023,8 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (BUILD_JSON_ARTIFACTS_WITH_HTML, _(
+            'Build the json artifacts with the html build step')),
     )
 
     projects = models.ManyToManyField(
