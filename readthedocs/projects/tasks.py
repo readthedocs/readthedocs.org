@@ -638,7 +638,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
             outcomes['html'] = self.build_docs_html()
-            outcomes['search'] = self.build_docs_search()
+            outcomes['search'] = False
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
@@ -669,12 +669,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             log.exception('move_files task has failed on socket error.')
 
         return success
-
-    def build_docs_search(self):
-        """Build search data with separate build."""
-        if self.build_search and self.project.is_type_sphinx:
-            return self.build_docs_class('sphinx_search')
-        return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -774,8 +768,13 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
     :type epub: bool
     """
     version = Version.objects.get(pk=version_pk)
-    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
-                                  msg='Moving files'))
+    log.debug(
+        LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version=version.slug,
+            msg='Moving files'
+        )
+    )
 
     if html:
         from_path = version.project.artifact_path(
@@ -783,14 +782,17 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
-    if 'sphinx' in version.project.documentation_type:
-        if search:
+        if 'sphinx' in version.project.documentation_type:
+            # Sync the generated json artifacts for search
             from_path = version.project.artifact_path(
-                version=version.slug, type_='sphinx_search')
+                version=version.slug, type_='sphinx_search'
+            )
             to_path = version.project.get_production_media_path(
-                type_='json', version_slug=version.slug, include_file=False)
+                type_='json', version_slug=version.slug, include_file=False
+            )
             Syncer.copy(from_path, to_path, host=hostname)
 
+    if 'sphinx' in version.project.documentation_type:
         if localmedia:
             from_path = version.project.artifact_path(
                 version=version.slug, type_='sphinx_localmedia')
