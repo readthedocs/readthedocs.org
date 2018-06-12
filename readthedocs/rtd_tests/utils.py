@@ -106,6 +106,39 @@ def create_git_tag(directory, tag, annotated=False):
     chdir(path)
 
 
+def delete_git_tag(directory, tag):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    path = getcwd()
+    chdir(directory)
+
+    command = ['git', 'tag', '-delete', tag]
+    check_output(command, env=env)
+    chdir(path)
+
+
+def create_git_branch(directory, branch):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    path = getcwd()
+    chdir(directory)
+
+    command = ['git', 'branch', branch]
+    check_output(command, env=env)
+    chdir(path)
+
+
+def delete_git_branch(directory, branch):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    path = getcwd()
+    chdir(directory)
+
+    command = ['git', 'branch', '-D', branch]
+    check_output(command, env=env)
+    chdir(path)
+
+
 def make_test_hg():
     directory = mkdtemp()
     path = getcwd()

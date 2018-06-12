@@ -1,3 +1,5 @@
+from __future__ import division, print_function, unicode_literals
+
 import os
 import json
 import shutil
@@ -9,13 +11,18 @@ from django_dynamic_fixture import get
 from mock import patch, MagicMock
 
 from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED, LATEST
+from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
 
+from readthedocs.rtd_tests.utils import (
+    create_git_branch, create_git_tag, delete_git_branch, delete_git_tag)
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
+
+from readthedocs.doc_builder.environments import BuildEnvironment
 
 
 class TestCeleryBuilding(RTDTestCase):
@@ -123,3 +130,56 @@ class TestCeleryBuilding(RTDTestCase):
                 args=(version.pk,),
             )
         self.assertTrue(result.successful())
+
+    @patch('readthedocs.projects.tasks.api_v2')
+    def test_check_duplicate_reserved_version_latest(self, api_v2):
+        create_git_branch(self.repo, 'latest')
+        create_git_tag(self.repo, 'latest')
+
+        version = self.project.versions.get(slug=LATEST)
+        sync_repository = tasks.UpdateDocsTaskStep()
+        sync_repository.version = version
+        sync_repository.project = self.project
+        with self.assertRaises(RepositoryError) as e:
+            sync_repository.sync_repo()
+        self.assertEqual(
+            str(e.exception),
+            RepositoryError.DUPLICACATE_RESERVED_VERSIONS
+        )
+
+        delete_git_branch(self.repo, 'latest')
+        sync_repository.sync_repo()
+        api_v2.project().sync_versions.post.assert_called()
+
+    @patch('readthedocs.projects.tasks.api_v2')
+    def test_check_duplicate_reserved_version_stable(self, api_v2):
+        create_git_branch(self.repo, 'stable')
+        create_git_tag(self.repo, 'stable')
+
+        version = self.project.versions.get(slug=LATEST)
+        sync_repository = tasks.UpdateDocsTaskStep()
+        sync_repository.version = version
+        sync_repository.project = self.project
+        with self.assertRaises(RepositoryError) as e:
+            sync_repository.sync_repo()
+        self.assertEqual(
+            str(e.exception),
+            RepositoryError.DUPLICACATE_RESERVED_VERSIONS
+        )
+
+        delete_git_tag(self.repo, 'stable')
+        sync_repository.sync_repo()
+        api_v2.project().sync_versions.post.assert_called()
+
+    @patch('readthedocs.projects.tasks.api_v2')
+    def test_check_duplicate_no_reserved_version(self, api_v2):
+        create_git_branch(self.repo, 'no-reserved')
+        create_git_tag(self.repo, 'no-reserved')
+
+        version = self.project.versions.get(slug=LATEST)
+        sync_repository = tasks.UpdateDocsTaskStep()
+        sync_repository.version = version
+        sync_repository.project = self.project
+        sync_repository.sync_repo()
+
+        api_v2.project().sync_versions.post.assert_called()

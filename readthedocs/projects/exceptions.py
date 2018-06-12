@@ -43,6 +43,10 @@ class RepositoryError(BuildEnvironmentError):
         'One or more submodule URLs are not valid.'
     )
 
+    DUPLICACATE_RESERVED_VERSIONS = _(
+        'You can not have two versions with the name latest or stable.'
+    )
+
     def get_default_message(self):
         if settings.ALLOW_PRIVATE_REPOS:
             return self.PRIVATE_ALLOWED
