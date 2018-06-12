@@ -50,6 +50,7 @@ GitPython==2.1.10
 elasticsearch==1.5.0
 pyelasticsearch==0.7.1
 pyquery==1.4.0
+elasticsearch-dsl<2.0.0
 
 # Utils
 django-gravatar2==1.4.2
