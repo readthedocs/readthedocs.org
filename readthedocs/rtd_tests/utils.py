@@ -114,7 +114,7 @@ def delete_git_tag(directory, tag):
     env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)
 
-    command = ['git', 'tag', '-delete', tag]
+    command = ['git', 'tag', '--delete', tag]
     check_output(command, env=env)
 
 
