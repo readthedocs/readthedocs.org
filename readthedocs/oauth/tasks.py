@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Tasks for OAuth services"""
+"""Tasks for OAuth services."""
 
-from __future__ import absolute_import
-from allauth.socialaccount.providers import registry as allauth_registry
-from django.contrib.auth.models import User
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import logging
 
-from readthedocs.core.utils.tasks import PublicTask
-from readthedocs.core.utils.tasks import permission_check
-from readthedocs.core.utils.tasks import user_id_matches
-from readthedocs.oauth.notifications import AttachWebhookNotification
+from allauth.socialaccount.providers import registry as allauth_registry
+from django.contrib.auth.models import User
+
+from readthedocs.core.utils.tasks import (
+    PublicTask, permission_check, user_id_matches)
+from readthedocs.oauth.notifications import (
+    AttachWebhookNotification, InvalidProjectWebhookNotification)
 from readthedocs.projects.models import Project
 from readthedocs.worker import app
 
 from .services import registry
-
 
 log = logging.getLogger(__name__)
 
@@ -48,12 +50,19 @@ def attach_webhook(project_pk, user_pk):
     """
     project = Project.objects.get(pk=project_pk)
     user = User.objects.get(pk=user_pk)
+    project_notification = InvalidProjectWebhookNotification(
+        context_object=project,
+        user=user,
+        success=False,
+    )
+
     for service_cls in registry:
         if service_cls.is_project_service(project):
             service = service_cls
             break
     else:
         log.warning('There are no registered services in the application.')
+        project_notification.send()
         return None
 
     provider = allauth_registry.by_id(service.adapter.provider_id)
@@ -83,5 +92,6 @@ def attach_webhook(project_pk, user_pk):
         notification.success = False
         notification.reason = AttachWebhookNotification.NO_ACCOUNTS
 
+    project_notification.send()
     notification.send()
     return False
