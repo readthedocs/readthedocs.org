@@ -152,6 +152,15 @@ class SyncRepositoryMixin(object):
                 log.exception('Unknown Sync Versions Exception')
 
     def validate_duplicate_reserved_versions(self, data):
+        """
+        Check if there are duplicated names of reserved versions.
+
+        The user can't have a branch and a tag with the same name of
+        ``latest`` or ``stable``. Raise a RepositoryError exception
+        if there is a duplicated name.
+
+        :param data: Dict containing the versions from tags and branches
+        """
         version_names = [
             version['verbose_name']
             for version in data.get('tags', []) + data.get('branches', [])
