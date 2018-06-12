@@ -3,6 +3,8 @@ from __future__ import division, print_function, unicode_literals
 
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from messages_extends.constants import ERROR_PERSISTENT
+
 from readthedocs.notifications import SiteNotification
 
 
@@ -28,5 +30,25 @@ class AttachWebhookNotification(SiteNotification):
                 args=[project.slug],
             ),
             'url_docs_webhook': 'http://docs.readthedocs.io/en/latest/webhooks.html',  # noqa
+        })
+        return context
+
+
+class InvalidProjectWebhookNotification(SiteNotification):
+
+    context_object_name = 'project'
+    failure_level = ERROR_PERSISTENT
+    failure_message = _(
+        "You project {{ project.name }} doesn't have a valid webhook set up, "
+        "commits won't trigger new builds for this project. "
+        "See <a href='{{ url_integrations }}'>your project integrations</a> for more information.") # noqa
+
+    def get_context_data(self):
+        context = super(InvalidProjectWebhookNotification, self).get_context_data()
+        context.update({
+            'url_integrations': reverse(
+                'projects_integrations',
+                args=[self.object.slug],
+            ),
         })
         return context
