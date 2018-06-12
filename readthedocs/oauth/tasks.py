@@ -2,7 +2,9 @@
 """Tasks for OAuth services"""
 
 from __future__ import absolute_import
+from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
+import logging
 
 from readthedocs.core.utils.tasks import PublicTask
 from readthedocs.core.utils.tasks import permission_check
@@ -12,6 +14,9 @@ from readthedocs.projects.models import Project
 from readthedocs.worker import app
 
 from .services import registry
+
+
+log = logging.getLogger(__name__)
 
 
 @permission_check(user_id_matches)
@@ -48,22 +53,22 @@ def attach_webhook(project_pk, user_pk):
             service = service_cls
             break
     else:
-        notification = AttachWebhookNotification(
-            user=user,
-            success=False,
-            reason=AttachWebhookNotification.NO_CONNECTED_SERVICES,
-        )
-        notification.send()
+        log.warning('There are no registered services in the application.')
         return None
+
+    provider = allauth_registry.by_id(service.adapter.provider_id)
+    notification = AttachWebhookNotification(
+        context_object=provider,
+        extra_context={'project': project},
+        user=user,
+        success=None,
+    )
 
     user_accounts = service.for_user(user)
     for account in user_accounts:
         success, __ = account.setup_webhook(project)
         if success:
-            notification = AttachWebhookNotification(
-                user=user,
-                success=True,
-            )
+            notification.success = True
             notification.send()
 
             project.has_valid_webhook = True
@@ -72,21 +77,11 @@ def attach_webhook(project_pk, user_pk):
 
     # No valid account found
     if user_accounts:
-        notification = AttachWebhookNotification(
-            user=user,
-            success=False,
-            reason=AttachWebhookNotification.NO_PERMISSIONS,
-        )
-        notification.send()
+        notification.success = False
+        notification.reason = AttachWebhookNotification.NO_PERMISSIONS
     else:
-        from allauth.socialaccount.providers import registry as allauth_registry
+        notification.success = False
+        notification.reason = AttachWebhookNotification.NO_ACCOUNTS
 
-        provider = allauth_registry.by_id(service.adapter.provider_id)
-        notification = AttachWebhookNotification(
-            context_object=provider,
-            user=user,
-            success=False,
-            reason=AttachWebhookNotification.NO_ACCOUNTS,
-        )
-        notification.send()
+    notification.send()
     return False
