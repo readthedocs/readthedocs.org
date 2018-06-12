@@ -23,6 +23,7 @@ from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.utils import safe_write
 from readthedocs.restapi.client import api
+from readthedocs.projects.models import Feature
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE, SPHINX_STATIC_DIR, SPHINX_TEMPLATE_DIR
@@ -132,6 +133,11 @@ class BaseSphinx(BaseBuilder):
             'gitlab_version': remote_version,
             'gitlab_version_is_editable': gitlab_version_is_editable,
             'display_gitlab': display_gitlab,
+
+            # Features
+            'generate_json_artifacts': self.project.has_feature(
+                Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
+            ),
         }
 
         finalize_sphinx_context_data.send(
