@@ -160,7 +160,7 @@ class SyncRepositoryMixin(object):
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:
                 raise RepositoryError(
-                    RepositoryError.DUPLICACATE_RESERVED_VERSIONS
+                    RepositoryError.DUPLICATED_RESERVED_VERSIONS
                 )
 
     # TODO this is duplicated in the classes below, and this should be

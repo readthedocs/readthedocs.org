@@ -144,7 +144,7 @@ class TestCeleryBuilding(RTDTestCase):
             sync_repository.sync_repo()
         self.assertEqual(
             str(e.exception),
-            RepositoryError.DUPLICACATE_RESERVED_VERSIONS
+            RepositoryError.DUPLICATED_RESERVED_VERSIONS
         )
 
         delete_git_branch(self.repo, 'latest')
@@ -164,7 +164,7 @@ class TestCeleryBuilding(RTDTestCase):
             sync_repository.sync_repo()
         self.assertEqual(
             str(e.exception),
-            RepositoryError.DUPLICACATE_RESERVED_VERSIONS
+            RepositoryError.DUPLICATED_RESERVED_VERSIONS
         )
 
         delete_git_tag(self.repo, 'stable')

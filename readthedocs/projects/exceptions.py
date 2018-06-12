@@ -43,7 +43,7 @@ class RepositoryError(BuildEnvironmentError):
         'One or more submodule URLs are not valid.'
     )
 
-    DUPLICACATE_RESERVED_VERSIONS = _(
+    DUPLICATED_RESERVED_VERSIONS = _(
         'You can not have two versions with the name latest or stable.'
     )
 
