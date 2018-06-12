@@ -51,7 +51,7 @@ def attach_webhook(project_pk, user_pk):
         notification = AttachWebhookNotification(
             user=user,
             success=False,
-            message_key=AttachWebhookNotification.NO_CONNECTED_SERVICES,
+            reason=AttachWebhookNotification.NO_CONNECTED_SERVICES,
         )
         notification.send()
         return None
@@ -75,7 +75,7 @@ def attach_webhook(project_pk, user_pk):
         notification = AttachWebhookNotification(
             user=user,
             success=False,
-            message_key=AttachWebhookNotification.NO_PERMISSIONS,
+            reason=AttachWebhookNotification.NO_PERMISSIONS,
         )
         notification.send()
     else:
@@ -86,7 +86,7 @@ def attach_webhook(project_pk, user_pk):
             context_object=provider,
             user=user,
             success=False,
-            message_key=AttachWebhookNotification.NO_ACCOUNTS,
+            reason=AttachWebhookNotification.NO_ACCOUNTS,
         )
         notification.send()
     return False

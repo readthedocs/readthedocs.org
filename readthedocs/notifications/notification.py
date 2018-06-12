@@ -96,7 +96,7 @@ class SiteNotification(Notification):
 
     ``success_message`` and ``failure_message`` can be a simple string or a
     dictionary with different messages depending on the reason of the failure /
-    success. The message is selected by using ``message_key`` to get the proper
+    success. The message is selected by using ``reason`` to get the proper
     value.
 
     The notification is tied to the ``user`` and it could be sticky, persistent
@@ -117,7 +117,7 @@ class SiteNotification(Notification):
     failure_level = constants.ERROR_NON_PERSISTENT
 
     def __init__(
-            self, user, success, message_key=None, context_object=None,
+            self, user, success, reason=None, context_object=None,
             request=None):
         self.object = context_object
 
@@ -128,7 +128,7 @@ class SiteNotification(Notification):
         self.request.user = user
 
         self.success = success
-        self.message_key = message_key
+        self.reason = reason
         super(SiteNotification, self).__init__(context_object, request, user)
 
     def get_message_level(self):
@@ -142,13 +142,13 @@ class SiteNotification(Notification):
         else:
             message = self.failure_message
 
-        if isinstance(message, dict) and self.message_key:
-            if self.message_key in message:
-                msg = message.get(self.message_key)
+        if isinstance(message, dict) and self.reason:
+            if self.reason in message:
+                msg = message.get(self.reason)
             else:
                 raise KeyError(
                     "Notification has no key '{}' for {} messages".format(
-                        self.message_key,
+                        self.reason,
                         'success' if self.success else 'failure',
                     ),
                 )
