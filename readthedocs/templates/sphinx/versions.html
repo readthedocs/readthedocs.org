@@ -1,0 +1,12 @@
+{# Template override to avoid adding static version menu into Read the Docs production sites  #}
+{# Add rst-badge after rst-versions for small badge style. #}
+<div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    <span class="fa fa-book"> Read the Docs</span>
+    v: {{ current_version }}
+    <span class="fa fa-caret-down"></span>
+  </span>
+  <div class="rst-other-versions">
+    {# This content is injected by an AJAX call to readthedocs.org/readthedocs.com #}
+  </div>
+</div>

@@ -132,6 +132,15 @@ if 'html_context' in globals():
 else:
     html_context = context
 
+# Add custom RTD templates
+if using_rtd_theme:
+    if 'templates_path' in globals():
+        templates_path.append('{{ template_path }}')
+    else:
+        templates_path = [
+            '{{ template_path }}',
+        ]
+
 # Add custom RTD extension
 if 'extensions' in globals():
     # Insert at the beginning because it can interfere
