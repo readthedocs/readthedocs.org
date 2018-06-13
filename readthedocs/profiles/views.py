@@ -291,7 +291,12 @@ def account_advertising(request):
     except ObjectDoesNotExist:
         return HttpResponseRedirect(reverse('profiles_profile_create'))
 
-    if request.method == 'POST':
+    if request.method == 'POST' and request.POST.get('stay-logged-in') == 'yes':
+        # Set the expiry for 3 months (3 * 31 days)
+        request.session.set_expiry(60 * 60 * 24 * 31 * 3)
+        messages.info(request, _('Successfully extended your login session'))
+        form = UserAdvertisingForm(instance=profile_obj)
+    elif request.method == 'POST':
         form = UserAdvertisingForm(
             data=request.POST,
             instance=profile_obj,
@@ -310,5 +315,6 @@ def account_advertising(request):
             'form': form,
             'profile': profile_obj,
             'user': profile_obj.user,
+            'session_expiry': request.session.get_expiry_date(),
         },
     )
