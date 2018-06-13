@@ -1,9 +1,12 @@
+from __future__ import division, print_function, unicode_literals
+
 import os
 
 import pytest
 import six
 
 from readthedocs.config.find import find_all, find_one
+
 from .utils import apply_fs
 
 
