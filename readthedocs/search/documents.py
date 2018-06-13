@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl import DocType, Index, fields
 
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, HTMLFile
 
 from readthedocs.search.faceted_search import ProjectSearch
 
@@ -43,3 +43,18 @@ class ProjectDocument(DocType):
             kwargs['filters'] = {'language': language}
 
         return ProjectSearch(**kwargs)
+
+
+page_index = Index('page')
+
+page_index.settings(
+    number_of_shards=1,
+    number_of_replicas=0
+)
+
+
+@page_index.doc_type
+class PageDocument(DocType):
+
+    class Meta(object):
+        model = HTMLFile

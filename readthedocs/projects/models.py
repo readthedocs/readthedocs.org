@@ -7,8 +7,8 @@ from __future__ import (
 import fnmatch
 import logging
 import os
-from builtins import object  # pylint: disable=redefined-builtin
 
+from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
@@ -24,6 +24,7 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
@@ -902,12 +903,27 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    is_html = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __str__(self):
         return '%s: %s' % (self.name, self.project)
+
+
+class HTMLFile(ImportedFile):
+
+    """
+    Imported HTML file Proxy model.
+
+    This tracks only the HTML files for indexing to search.
+    """
+
+    class Meta(object):
+        proxy = True
+
+    objects = HTMLFileManager()
 
 
 class Notification(models.Model):
