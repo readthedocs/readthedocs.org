@@ -36,7 +36,7 @@ function create_sidebar_placement() {
 
         // Determine if this element is above the fold
         offset = $('#' + element_id).offset();
-        if (offset && offset.top > $(window).height()) {
+        if (!offset || offset.top > $(window).height()) {
             // If this is off screen, lower the priority
             priority = constants.LOW_PROMO_PRIORITY;
         }
@@ -58,8 +58,10 @@ function create_sidebar_placement() {
 function create_footer_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.FOOTER;
+    var priority = constants.DEFAULT_PROMO_PRIORITY;
     var selector = null;
     var class_name;
+    var offset;
 
     if (rtd.is_rtd_theme()) {
         selector = $('<div />').insertAfter('footer hr');
@@ -73,7 +75,20 @@ function create_footer_placement() {
     if (selector) {
         $('<div />').attr('id', element_id)
             .addClass(class_name).appendTo(selector);
-        return {'div_id': element_id, 'display_type': display_type};
+
+        // Determine if this element is above the fold
+        offset = $('#' + element_id).offset();
+        if (!offset || offset.top < $(window).height()) {
+            // If the screen is short, lower the priority
+            // We don't want the ad to take up too much of the screen
+            priority = constants.LOW_PROMO_PRIORITY;
+        }
+
+        return {
+            'div_id': element_id,
+            'display_type': display_type,
+            'priority': priority,
+        };
     }
 
     return null;
