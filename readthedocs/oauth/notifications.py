@@ -39,9 +39,9 @@ class InvalidProjectWebhookNotification(SiteNotification):
     context_object_name = 'project'
     failure_level = ERROR_PERSISTENT
     failure_message = _(
-        "You project {{ project.name }} doesn't have a valid webhook set up, "
+        "The project {{ project.name }} doesn't have a valid webhook set up, "
         "commits won't trigger new builds for this project. "
-        "See <a href='{{ url_integrations }}'>your project integrations</a> for more information.") # noqa
+        "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.") # noqa
 
     def get_context_data(self):
         context = super(InvalidProjectWebhookNotification, self).get_context_data()
