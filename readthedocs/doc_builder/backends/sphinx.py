@@ -8,6 +8,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import codecs
+import shutil
 import logging
 import os
 import sys
@@ -221,6 +222,30 @@ class HtmlBuilder(BaseSphinx):
     def __init__(self, *args, **kwargs):
         super(HtmlBuilder, self).__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
+
+    def move(self, **__):
+        super(HtmlBuilder, self).move()
+        if self.project.has_feature(Feature.BUILD_JSON_ARTIFACTS_WITH_HTML):
+            # Copy json artifacts to its own directory
+            # to keep compatibility with the older builder.
+            json_path = os.path.abspath(
+                os.path.join(self.old_artifact_path, '..', 'json')
+            )
+            json_path_target = self.project.artifact_path(
+                version=self.version.slug, type_='sphinx_search'
+            )
+            if os.path.exists(json_path):
+                if os.path.exists(json_path_target):
+                    shutil.rmtree(json_path_target)
+                log.info('Copying json on the local filesystem')
+                shutil.copytree(
+                    json_path,
+                    json_path_target
+                )
+            else:
+                log.warning(
+                    'Not moving json because the build dir is unknown.'
+                )
 
 
 class HtmlDirBuilder(HtmlBuilder):
