@@ -29,7 +29,7 @@ from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import ImportedFile, Project, Domain
+from .models import ImportedFile, Project, Domain, Feature
 from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
@@ -671,7 +671,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         return success
 
     def build_docs_search(self):
-        """Build search data with separate build."""
+        """
+        Build search data with separate build.
+
+        Unless the project has the feature to allow
+        building the JSON search artifacts in the html build step.
+        """
+        build_json_in_html_builder = self.project.has_feature(
+            Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
+        )
+        if self.build_search and build_json_in_html_builder:
+            # Already built in the html step
+            return True
         if self.build_search and self.project.is_type_sphinx:
             return self.build_docs_class('sphinx_search')
         return False
