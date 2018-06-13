@@ -81,9 +81,11 @@ def test_find_multiple_files(tmpdir):
 
 
 @pytest.mark.skipif(not six.PY2, reason='Only for python2')
-@pytest.mark.xfail(raises=UnicodeDecodeError)
+@pytest.mark.xfail(raises=UnicodeDecodeError, strict=True)
 def test_find_unicode_path(tmpdir):
-    base_path = os.path.abspath('integration_tests/bad_encode_project')
+    base_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), 'fixtures/bad_encode_project')
+    )
     assert isinstance(base_path, str)
     unicode_base_path = base_path.decode('utf-8')
     assert isinstance(unicode_base_path, unicode)
