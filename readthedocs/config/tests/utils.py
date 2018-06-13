@@ -1,3 +1,6 @@
+from __future__ import division, print_function, unicode_literals
+
+
 def apply_fs(tmpdir, contents):
     """
     Create the directory structure specified in ``contents``. It's a dict of
