@@ -10,7 +10,8 @@ from mock import patch, MagicMock
 
 from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Build
-from readthedocs.projects.models import Project
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects import tasks
 
 from readthedocs.rtd_tests.utils import make_test_git
@@ -153,3 +154,82 @@ class TestCeleryBuilding(RTDTestCase):
             'public_data': {},
             'error': 'Something bad happened',
         })
+
+    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_epub')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_pdf')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_localmedia')
+    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    def test_sphinx_build_html_and_search_artifacts_separated(
+            self, append_conf, html_build, search_build,
+            build_docs_localmedia, build_docs_pdf, build_docs_epub):
+        build_docs_localmedia.return_value = True
+        build_docs_pdf.return_value = True
+        build_docs_epub.return_value = True
+
+        version = self.project.versions.get(slug=LATEST)
+        build_env = LocalBuildEnvironment(self.project, version, record=False)
+
+        update_docs = tasks.UpdateDocsTaskStep()
+        update_docs.version = version
+        update_docs.project = self.project
+        update_docs.build_env = build_env
+
+        outcomes = update_docs.build_docs()
+
+        self.assertFalse(
+            self.project.has_feature(
+                Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
+            )
+        )
+        append_conf.assert_called_once()
+        html_build.assert_called_once()
+        search_build.assert_called_once()
+        self.assertTrue(
+            all(outcomes.values())
+        )
+
+    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_epub')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_pdf')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_localmedia')
+    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    def test_sphinx_build_html_and_search_artifacts_together(
+            self, append_conf, html_build, search_build,
+            build_docs_localmedia, build_docs_pdf, build_docs_epub):
+        build_docs_localmedia.return_value = True
+        build_docs_pdf.return_value = True
+        build_docs_epub.return_value = True
+
+
+        feature = get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.BUILD_JSON_ARTIFACTS_WITH_HTML,
+        )
+
+        version = self.project.versions.get(slug=LATEST)
+        build_env = LocalBuildEnvironment(self.project, version, record=False)
+
+        update_docs = tasks.UpdateDocsTaskStep()
+        update_docs.version = version
+        update_docs.project = self.project
+        update_docs.build_env = build_env
+
+        outcomes = update_docs.build_docs()
+
+        self.assertTrue(
+            self.project.has_feature(
+                Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
+            )
+        )
+        append_conf.assert_called_once()
+        html_build.assert_called_once()
+        search_build.assert_not_called()
+        self.assertTrue(
+            all(outcomes.values())
+        )
