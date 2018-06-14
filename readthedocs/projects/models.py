@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
@@ -24,15 +25,17 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
-from readthedocs.projects.managers import HTMLFileManager
+from readthedocs.projects.managers import HTMLFileManager, ImportedFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.utils import find_file
 from readthedocs.projects.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
+from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -903,7 +906,8 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
-    is_html = models.BooleanField(default=False)
+
+    objects = ImportedFileManager()
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
@@ -924,6 +928,21 @@ class HTMLFile(ImportedFile):
         proxy = True
 
     objects = HTMLFileManager()
+
+    @cached_property
+    def json_file_path(self):
+        basename = os.path.splitext(self.name)[0]
+        full_path = self.project.get_production_media_path(type_='json',
+                                                           version_slug=self.version.slug,
+                                                           include_file=False)
+
+        file_path = find_file(basename=basename, pattern='*.fjson', path=full_path)
+        return file_path
+
+    @cached_property
+    def processed_json(self):
+        file_path = self.json_file_path
+        return process_file(file_path)
 
 
 class Notification(models.Model):

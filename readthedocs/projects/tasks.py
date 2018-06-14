@@ -970,7 +970,7 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
 
-    # Delete the HTMLFile first
+    # Delete the HTMLFile first from previous versions
     HTMLFile.objects.filter(project=version.project,
                             version=version
                             ).exclude(commit=commit).delete()
@@ -1185,7 +1185,6 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
-    # update_search(version_pk, commit=commit)
 
 
 @app.task()

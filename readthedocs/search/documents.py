@@ -1,6 +1,8 @@
+from django.db import models
 from django_elasticsearch_dsl import DocType, Index, fields
 
 from readthedocs.projects.models import Project, HTMLFile
+from .conf import SEARCH_EXCLUDED_FILE
 
 from readthedocs.search.faceted_search import ProjectSearch
 
@@ -19,15 +21,12 @@ class ProjectDocument(DocType):
         model = Project
         fields = ('name', 'slug', 'description')
 
-    url = fields.TextField()
+    url = fields.TextField(attr='get_absolute_url')
     users = fields.NestedField(properties={
         'username': fields.TextField(),
         'id': fields.IntegerField(),
     })
     language = fields.KeywordField()
-
-    def prepare_url(self, instance):
-        return instance.get_absolute_url()
 
     @classmethod
     def faceted_search(cls, query, language=None, using=None, index=None):
@@ -58,3 +57,38 @@ class PageDocument(DocType):
 
     class Meta(object):
         model = HTMLFile
+        fields = ('commit',)
+
+    project = fields.KeywordField(attr='project.slug')
+    version = fields.KeywordField(attr='version.slug')
+
+    title = fields.TextField(attr='processed_json.title')
+    headers = fields.TextField(attr='processed_json.headers')
+    content = fields.TextField(attr='processed_json.content')
+    path = fields.TextField(attr='processed_json.path')
+
+    def get_queryset(self):
+        """Overwrite default queryset to filter certain files to index"""
+        queryset = super(PageDocument, self).get_queryset()
+
+        # Do not index files that belong to non sphinx project
+        # Also do not index certain files
+        queryset = (queryset.filter(project__documentation_type='sphinx')
+                            .exclude(name__in=SEARCH_EXCLUDED_FILE))
+        return queryset
+
+    def update(self, thing, **kwargs):
+        """Overwrite in order to index only certain files"""
+
+        # Object not exist in the provided queryset should not be indexed
+        # TODO: remove this overwrite when the issue has been fixed
+        # See below link for more information
+        # https://github.com/sabricot/django-elasticsearch-dsl/issues/111
+        if isinstance(thing, HTMLFile):
+            # Its a model instance.
+            queryset = self.get_queryset()
+            obj = queryset.filter(pk=thing.pk)
+            if not obj.exists():
+                return None
+
+        return super(PageDocument, self).update(thing=thing, **kwargs)

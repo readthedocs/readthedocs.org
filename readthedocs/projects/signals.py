@@ -26,8 +26,3 @@ def handle_project_import(sender, **kwargs):
     request = kwargs.get('request')
 
     attach_webhook(project=project, request=request)
-
-
-@receiver(pre_save, sender=HTMLFile)
-def pre_save_html_file(sender, instance, *args, **kwargs):
-    instance.is_html = True
