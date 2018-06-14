@@ -140,7 +140,7 @@ We **do** host advertising on Documentation Sites.
 This advertising is first-party advertising hosted by Read the Docs.
 We **do not** run any code from advertisers and all ad images are hosted
 on Read the Docs' servers. For more details, see our document on
-:doc:`advertising-details`.
+:doc:`advertising/advertising-details`.
 
 We may use User Personal Information with your permission,
 so we can perform services you have requested.

@@ -9,10 +9,10 @@ and we're calling it **Ethical Ads**.
 **Ethical Ads respect users while providing value to advertisers.**
 We don't track you, sell your data, or anything else.
 We simply show ads to users, based on the content of the pages you look at.
-We also give 10% of our ad space to :ref:`community projects <ethical-advertising:Community Ads>`,
+We also give 10% of our ad space to :ref:`community projects <advertising/ethical-advertising:Community Ads>`,
 as our way of saying thanks to the open source community.
 
-We talk a bit below about :ref:`our worldview on advertising <ethical-advertising:Our Worldview>`,
+We talk a bit below about :ref:`our worldview on advertising <advertising/ethical-advertising:Our Worldview>`,
 if you want to know more.
 
 .. important::
@@ -28,9 +28,9 @@ and we value your feedback.
 If you ever want to reach out about this effort,
 feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 
-You can :ref:`opt out <ethical-advertising:Opting out>` of having paid ads on your projects,
+You can :ref:`opt out <advertising/ethical-advertising:Opting out>` of having paid ads on your projects,
 or seeing paid ads if you want.
-You will still see :ref:`community ads <ethical-advertising:Community Ads>`,
+You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`,
 which we run for free that promote community projects. 
 
 Our Worldview
@@ -131,13 +131,14 @@ Opting Out
 
 We have added multiple ways to opt out of the advertising on Read the Docs.
 
-Users can go ad-free for as long as they are logged-in
-by becoming a `Gold Member of Read the Docs <https://readthedocs.org/accounts/gold/>`_.
+Users can go ad-free
+by becoming a `Gold Member <https://readthedocs.org/accounts/gold/>`_
+or making a `one-time donation <https://readthedocs.org/sustainability/#donations>`_.
 
 Users can opt out of seeing paid advertisements on documentation pages:
 
 * Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking **Settings** (https://readthedocs.org/accounts/edit/).
-* On the **Details** tab, you can deselect **See paid advertising**.
+* On the **Advertising** tab, you can deselect **See paid advertising**.
 
 Project owners can also disable advertisements for their projects. You can change these options:
 
