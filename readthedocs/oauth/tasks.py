@@ -1,11 +1,14 @@
-"""Tasks for OAuth services"""
+# -*- coding: utf-8 -*-
+"""Tasks for OAuth services."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 from django.contrib.auth.models import User
 
-from readthedocs.core.utils.tasks import PublicTask
-from readthedocs.core.utils.tasks import permission_check
-from readthedocs.core.utils.tasks import user_id_matches
+from readthedocs.core.utils.tasks import (
+    PublicTask, permission_check, user_id_matches)
+
 from .services import registry
 
 

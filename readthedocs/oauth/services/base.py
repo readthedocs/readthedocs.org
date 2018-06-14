@@ -8,6 +8,7 @@ import logging
 from datetime import datetime
 
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers import registry
 from builtins import object
 from django.conf import settings
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
@@ -55,6 +56,10 @@ class Service(object):
     @property
     def provider_id(self):
         return self.get_adapter().provider_id
+
+    @property
+    def provider_name(self):
+        return registry.by_id(self.provider_id).name
 
     def get_session(self):
         if self.session is None:
@@ -131,6 +136,22 @@ class Service(object):
         """
         try:
             resp = self.get_session().get(url, data=kwargs)
+
+            # TODO: this check of the status_code would be better in the
+            # ``create_session`` method since it could be used from outside, but
+            # I didn't find a generic way to make a test request to each
+            # provider.
+            if resp.status_code == 401:
+                # Bad credentials: the token we have in our database is not
+                # valid. Probably the user has revoked the access to our App. He
+                # needs to reconnect his account
+                raise Exception(
+                    'Our access to your {provider} account was revoked. '
+                    'Please, reconnect it from your social account connections.'.format(
+                        provider=self.provider_name,
+                    ),
+                )
+
             next_url = self.get_next_url_to_paginate(resp)
             results = self.get_paginated_results(resp)
             if next_url:
@@ -202,4 +223,5 @@ class Service(object):
         # TODO Replace this check by keying project to remote repos
         return (
             cls.url_pattern is not None and
-            cls.url_pattern.search(project.repo) is not None)
+            cls.url_pattern.search(project.repo) is not None
+        )
