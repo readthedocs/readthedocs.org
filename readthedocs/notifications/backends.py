@@ -32,7 +32,11 @@ def send_notification(request, notification):
     backends = getattr(settings, 'NOTIFICATION_BACKENDS', [])
     for cls_name in backends:
         backend = import_string(cls_name)(request)
-        backend.send(notification)
+        # Do not send email notification if defined explicitly
+        if backend.name == EmailBackend.name and not notification.send_email:
+            pass
+        else:
+            backend.send(notification)
 
 
 class Backend(object):
@@ -96,8 +100,16 @@ class SiteBackend(Backend):
         req = HttpRequest()
         setattr(req, 'session', '')
         storage = cls(req)
+
+        # Use the method defined by the notification or map a simple level to a
+        # persistent one otherwise
+        if hasattr(notification, 'get_message_level'):
+            level = notification.get_message_level()
+        else:
+            level = LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT)
+
         storage.add(
-            level=LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT),
+            level=level,
             message=notification.render(
                 backend_name=self.name,
                 source_format=HTML,
