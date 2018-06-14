@@ -1,3 +1,36 @@
+Version 2.5.1
+-------------
+
+:Date: June 14, 2018
+
+* `@stsewd <http://github.com/stsewd>`_: Add feature to build json with html in the same build (`#4229 <https://github.com/rtfd/readthedocs.org/pull/4229>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Prioritize ads based on content (`#4224 <https://github.com/rtfd/readthedocs.org/pull/4224>`_)
+* `@mostaszewski <http://github.com/mostaszewski>`_: #4170 - Link the version in the footer to the changelog (`#4217 <https://github.com/rtfd/readthedocs.org/pull/4217>`_)
+* `@Jmennius <http://github.com/Jmennius>`_: Add provision_elasticsearch command (`#4216 <https://github.com/rtfd/readthedocs.org/pull/4216>`_)
+* `@SuriyaaKudoIsc <http://github.com/SuriyaaKudoIsc>`_: Use the latest YouTube share URL (`#4209 <https://github.com/rtfd/readthedocs.org/pull/4209>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Allow staff to trigger project builds (`#4207 <https://github.com/rtfd/readthedocs.org/pull/4207>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Use autosectionlabel in the privacy policy (`#4204 <https://github.com/rtfd/readthedocs.org/pull/4204>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: These links weren't correct after #3632 (`#4203 <https://github.com/rtfd/readthedocs.org/pull/4203>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Release 2.5.0 (`#4200 <https://github.com/rtfd/readthedocs.org/pull/4200>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Fix Build: Convert md to rst in docs (`#4199 <https://github.com/rtfd/readthedocs.org/pull/4199>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Updates to #3850 to fix merge conflict (`#4198 <https://github.com/rtfd/readthedocs.org/pull/4198>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Build on top of #3881 and put docs in custom_installs. (`#4196 <https://github.com/rtfd/readthedocs.org/pull/4196>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Increase the max theme version (`#4195 <https://github.com/rtfd/readthedocs.org/pull/4195>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Remove maxcdn reqs (`#4194 <https://github.com/rtfd/readthedocs.org/pull/4194>`_)
+* `@ericholscher <http://github.com/ericholscher>`_: Add missing gitignore item for ES testing (`#4193 <https://github.com/rtfd/readthedocs.org/pull/4193>`_)
+* `@xrmx <http://github.com/xrmx>`_: fabfile: update i18n helpers (`#4189 <https://github.com/rtfd/readthedocs.org/pull/4189>`_)
+* `@xrmx <http://github.com/xrmx>`_: Update italian locale (`#4188 <https://github.com/rtfd/readthedocs.org/pull/4188>`_)
+* `@xrmx <http://github.com/xrmx>`_: locale: update and build the english translation (`#4187 <https://github.com/rtfd/readthedocs.org/pull/4187>`_)
+* `@humitos <http://github.com/humitos>`_: Upgrade celery to avoid AtributeError:async (`#4185 <https://github.com/rtfd/readthedocs.org/pull/4185>`_)
+* `@stsewd <http://github.com/stsewd>`_: Prepare code for custo mkdocs.yaml location (`#4184 <https://github.com/rtfd/readthedocs.org/pull/4184>`_)
+* `@agjohnson <http://github.com/agjohnson>`_: Updates to our triage guidelines (`#4180 <https://github.com/rtfd/readthedocs.org/pull/4180>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Server side analytics (`#4131 <https://github.com/rtfd/readthedocs.org/pull/4131>`_)
+* `@humitos <http://github.com/humitos>`_: Upgrade packages with pur (`#4124 <https://github.com/rtfd/readthedocs.org/pull/4124>`_)
+* `@stsewd <http://github.com/stsewd>`_: Fix resync remote repos (`#4113 <https://github.com/rtfd/readthedocs.org/pull/4113>`_)
+* `@stsewd <http://github.com/stsewd>`_: Add schema for configuration file with yamale (`#4084 <https://github.com/rtfd/readthedocs.org/pull/4084>`_)
+* `@davidfischer <http://github.com/davidfischer>`_: Ad block nag to urge people to whitelist (`#4037 <https://github.com/rtfd/readthedocs.org/pull/4037>`_)
+* `@benjaoming <http://github.com/benjaoming>`_: Add Mexican Spanish as a project language (`#3588 <https://github.com/rtfd/readthedocs.org/pull/3588>`_)
+
 Version 2.5.0
 -------------
 
