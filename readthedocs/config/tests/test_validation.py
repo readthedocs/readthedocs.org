@@ -84,7 +84,7 @@ def describe_validate_list():
 def describe_validate_directory():
 
     def it_uses_validate_path(tmpdir):
-        patcher = patch('readthedocs_build.config.validation.validate_path')
+        patcher = patch('readthedocs.config.validation.validate_path')
         with patcher as validate_path:
             path = text_type(tmpdir.mkdir('a directory'))
             validate_path.return_value = path
@@ -101,7 +101,7 @@ def describe_validate_directory():
 def describe_validate_file():
 
     def it_uses_validate_path(tmpdir):
-        patcher = patch('readthedocs_build.config.validation.validate_path')
+        patcher = patch('readthedocs.config.validation.validate_path')
         with patcher as validate_path:
             path = tmpdir.join('a file')
             path.write('content')
