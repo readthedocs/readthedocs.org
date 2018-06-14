@@ -1,24 +1,31 @@
-.. _contributing-to-read-the-docs:
-
 Contributing to Read the Docs
 =============================
 
 You are here to help on Read the Docs? Awesome, feel welcome and read the
-following sections in order to know what and how to work on something. If you
-get stuck at any point you can create a `ticket on GitHub`_.
+following sections in order to know how to ask questions and how to work on something. 
 
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
 
+Get in touch
+------------
+
+- Ask usage questions ("How do I?") on `StackOverflow`_.
+- Report bugs, suggest features or view the source code `on GitHub`_.
+- Discuss topics on `Gitter`_.
+- On IRC find us at `#readthedocs`_.
+
+.. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
+.. _on GitHub: https://github.com/rtfd/readthedocs.org
+.. _Gitter: https://gitter.im/rtfd/readthedocs.org
 .. _#readthedocs: irc://irc.freenode.net/readthedocs
-.. _ticket on GitHub: https://github.com/rtfd/readthedocs.org/issues
 
 Contributing to development
 ---------------------------
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:ref:`Installation Guide <installing-read-the-docs>`. After that is done we
+:doc:`Installation Guide <install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
@@ -227,7 +234,7 @@ few more at hand to further categorize issues.
 .. _milestone: https://github.com/rtfd/readthedocs.org/milestones
 
 For a full list of available labels and their meanings, see
-:ref:`issue-label-overview`.
+:doc:`issue-labels`.
 
 Helpful links for triaging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

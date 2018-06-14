@@ -29,8 +29,8 @@ from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import ImportedFile, Project, Domain
-from .signals import before_vcs, after_vcs, before_build, after_build
+from .models import ImportedFile, Project, Domain, Feature
+from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (LATEST,
                                           BUILD_STATE_CLONING,
                                           BUILD_STATE_INSTALLING,
@@ -39,7 +39,6 @@ from readthedocs.builds.constants import (LATEST,
 from readthedocs.builds.models import Build, Version, APIVersion
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
-from readthedocs.cdn.purge import purge
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
@@ -672,7 +671,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         return success
 
     def build_docs_search(self):
-        """Build search data with separate build."""
+        """
+        Build search data with separate build.
+
+        Unless the project has the feature to allow
+        building the JSON search artifacts in the html build step.
+        """
+        build_json_in_html_builder = self.project.has_feature(
+            Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
+        )
+        if self.build_search and build_json_in_html_builder:
+            # Already built in the html step
+            return True
         if self.build_search and self.project.is_type_sphinx:
             return self.build_docs_class('sphinx_search')
         return False
@@ -968,14 +978,13 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project,
                                 version=version
                                 ).exclude(commit=commit).delete()
-    # Purge Cache
-    cdn_ids = getattr(settings, 'CDN_IDS', None)
-    if cdn_ids:
-        if version.project.slug in cdn_ids:
-            changed_files = [resolve_path(
-                version.project, filename=fname, version_slug=version.slug,
-            ) for fname in changed_files]
-            purge(cdn_ids[version.project.slug], changed_files)
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @app.task(queue='web')

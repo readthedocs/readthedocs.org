@@ -230,7 +230,7 @@ class BitbucketService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'Bitbucket webhook creation failed for project: %s',
                 project,
             )
@@ -287,7 +287,7 @@ class BitbucketService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'Bitbucket webhook update failed for project: %s',
                 project,
             )

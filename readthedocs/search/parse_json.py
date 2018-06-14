@@ -35,8 +35,7 @@ def process_all_json_files(version, build_dir=True):
             if result:
                 page_list.append(result)
         # we're unsure which exceptions can be raised
-        # pylint: disable=bare-except
-        except:
+        except:  # noqa
             pass
     return page_list
 

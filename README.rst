@@ -28,6 +28,11 @@ the Docs site`_.
 
 .. _the Read the Docs site: https://docs.readthedocs.io/
 
+Get in touch
+------------
+
+You can find information about getting in touch with Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html#get-in-touch>`_.
+
 Contributing
 ------------
 

@@ -134,6 +134,12 @@ else:
 
 # Add custom RTD extension
 if 'extensions' in globals():
-    extensions.append("readthedocs_ext.readthedocs")
+    # Insert at the beginning because it can interfere
+    # with other extensions.
+    # See https://github.com/rtfd/readthedocs.org/pull/4054
+    extensions.insert(0, "readthedocs_ext.readthedocs")
 else:
     extensions = ["readthedocs_ext.readthedocs"]
+
+# Build the json artifacts with the html build step
+rtd_generate_json_artifacts = {{ generate_json_artifacts }}

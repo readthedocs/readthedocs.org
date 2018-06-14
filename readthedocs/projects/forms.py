@@ -173,7 +173,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES,
         initial='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'),
     )
 
@@ -187,6 +187,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'conf_py_file',
             'default_branch',
             'default_version',
+            'show_version_warning',
             'enable_pdf_build',
             'enable_epub_build',
             # Privacy
@@ -276,7 +277,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
-            self.fields['child'].disabled = True
+            self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
         else:
             self.fields['child'].queryset = self.get_subproject_queryset()
 

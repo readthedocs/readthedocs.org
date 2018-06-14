@@ -4,18 +4,20 @@ DMCA Takedown Policy
 These are the guidelines that Read the Docs follows when handling DMCA takedown
 requests and takedown counter requests. If you are a copyright holder wishing to
 submit a takedown request, or an author that has been notified of a takedown
-request, please familiarize yourself with `our process <Takedown Process_>`_.
+request, please familiarize yourself with `our process`__.
 You will be asked to confirm that you have reviewed information if you submit a
 request or counter request.
 
+__ `Takedown Process`_
+
 We aim to keep this entire process as transparent as possible. Our process is
-modeled after `GitHub's DMCA takedown process <github-dmca_>`_, which we
+modeled after `GitHub's DMCA takedown process`__, which we
 appreciate for its focus on transparency and fairness. All requests and counter
 requests will be posted to this page below, in the `Request Archive`_. These
 requests will be redacted to remove all identifying information, except for Read
 the Docs user and project names.
 
-.. _github-dmca: https://help.github.com/articles/dmca-takedown-policy/
+__ https://help.github.com/articles/dmca-takedown-policy/
 
 Takedown Process
 ----------------
@@ -23,12 +25,14 @@ Takedown Process
 Here are the steps the Read the Docs will follow in the takedown request process:
 
 Copyright holder submits a request
-    This request, if valid, will be posted publicly on this page, `down below
-    <Request Archive_>`_. The author affected by the takedown request will be
+    This request, if valid, will be posted publicly on this page, `down below`__.
+    The author affected by the takedown request will be
     notified with a link to the takedown request.
 
     For more information on submitting a takedown request, see: `Submitting a
     Request`_
+
+__ `Request Archive`_
 
 Author is contacted
     The author of the content in question will be asked to make changes to the
@@ -61,12 +65,14 @@ Author submits a counter request
     If the author believes their content was disabled as a result of a mistake,
     a counter request may be submitted. It would be advised that authors seek
     legal council before continuing. If the submitted counter request is
-    sufficiently detailed, this counter will also be added to `this page
-    <Request Archive_>`_. The copyright holder will be notified, with a link to
+    sufficiently detailed, this counter will also be added to `this page`__.
+    The copyright holder will be notified, with a link to
     this counter request.
 
     For more information on submitting a counter request, see: `Submitting a
     Counter`_
+
+__ `Request Archive`_
 
 Copyright holder may file legal action
     At this point, if the copyright holder wishes to keep the offending content
@@ -105,7 +111,7 @@ Include your contact information
 Include your signature
     This can be a physical or electronic signature.
 
-*Requests can be submitted to:* support@readthedocs.com
+Please complete this :download:`takedown request template <../_static/dmca/takedown-template.txt>` and send it to: support@readthedocs.com
 
 Submitting a Counter
 ~~~~~~~~~~~~~~~~~~~~
@@ -126,7 +132,7 @@ Include your contact information
 Include your signature
     This can be a physical or electronic signature.
 
-*Requests can be submitted to:* support@readthedocs.com
+Requests can be submitted to: support@readthedocs.com
 
 Request Archive
 ---------------

@@ -4,7 +4,12 @@ var exports = {
     THEME_RTD: 'sphinx_rtd_theme',
     THEME_ALABASTER: 'alabaster',
     THEME_CELERY: 'sphinx_celery',
-    THEME_MKDOCS_RTD: 'readthedocs'
+    THEME_MKDOCS_RTD: 'readthedocs',
+
+    DEFAULT_PROMO_PRIORITY: 5,
+    MINIMUM_PROMO_PRIORITY: 10,
+    MAXIMUM_PROMO_PRIORITY: 1,
+    LOW_PROMO_PRIORITY: 10,
 };
 
 exports.PROMO_SUPPORTED_THEMES = [

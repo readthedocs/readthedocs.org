@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Common utilty functions."""
 
 from __future__ import absolute_import
@@ -16,7 +17,7 @@ from django.utils.text import slugify as slugify_base
 from future.backports.urllib.parse import urlparse
 from celery import group, chord
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST, BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 
@@ -75,38 +76,47 @@ def cname_to_slug(host):
     return slug
 
 
-def trigger_build(project, version=None, record=True, force=False, basic=False):
+def prepare_build(
+        project, version=None, record=True, force=False, immutable=True):
     """
-    Trigger build for project and version.
+    Prepare a build in a Celery task for project and version.
 
-    If project has a ``build_queue``, execute task on this build queue. Queue
-    will be prefixed with ``build-`` to unify build queue names.
+    If project has a ``build_queue``, execute the task on this build queue. If
+    project has ``skip=True``, the build is not triggered.
+
+    :param project: project's documentation to be built
+    :param version: version of the project to be built. Default: ``latest``
+    :param record: whether or not record the build in a new Build object
+    :param force: build the HTML documentation even if the files haven't changed
+    :param immutable: whether or not create an immutable Celery signature
+    :returns: Celery signature of UpdateDocsTask to be executed
     """
     # Avoid circular import
     from readthedocs.projects.tasks import UpdateDocsTask
     from readthedocs.builds.models import Build
 
     if project.skip:
+        log.info(
+            'Build not triggered because Project.skip=True: project=%s',
+            project.slug,
+        )
         return None
 
     if not version:
         version = project.versions.get(slug=LATEST)
 
-    kwargs = dict(
-        pk=project.pk,
-        version_pk=version.pk,
-        record=record,
-        force=force,
-        basic=basic,
-    )
+    kwargs = {
+        'version_pk': version.pk,
+        'record': record,
+        'force': force,
+    }
 
-    build = None
     if record:
         build = Build.objects.create(
             project=project,
             version=version,
             type='html',
-            state='triggered',
+            state=BUILD_STATE_TRIGGERED,
             success=True,
         )
         kwargs['build_pk'] = build.pk
@@ -121,16 +131,44 @@ def trigger_build(project, version=None, record=True, force=False, basic=False):
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
     except ValueError:
-        pass
+        log.warning('Invalid time_limit for project: %s', project.slug)
+
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    update_docs = UpdateDocsTask()
-    update_docs.apply_async(kwargs=kwargs, **options)
+    update_docs_task = UpdateDocsTask()
 
-    return build
+    # Py 2.7 doesn't support ``**`` expand syntax twice. We create just one big
+    # kwargs (including the options) for this and expand it just once.
+    # return update_docs_task.si(project.pk, **kwargs, **options)
+    kwargs.update(options)
+
+    return update_docs_task.si(project.pk, **kwargs)
+
+
+def trigger_build(project, version=None, record=True, force=False):
+    """
+    Trigger a Build.
+
+    Helper that calls ``prepare_build`` and just effectively trigger the Celery
+    task to be executed by a worker.
+
+    :param project: project's documentation to be built
+    :param version: version of the project to be built. Default: ``latest``
+    :param record: whether or not record the build in a new Build object
+    :param force: build the HTML documentation even if the files haven't changed
+    :returns: Celery AsyncResult promise
+    """
+    update_docs_task = prepare_build(
+        project,
+        version,
+        record,
+        force,
+        immutable=True,
+    )
+    return update_docs_task.apply_async()
 
 
 def send_email(recipient, subject, template, template_html, context=None,

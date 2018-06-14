@@ -26,20 +26,6 @@
 
     <div class="options">
 
-    {% if not project.has_valid_webhook and request.user|is_admin:project %}
-      <p class="build-failure">
-        {% url "projects_integrations" project.slug as integrations_url %}
-        {% blocktrans %}
-          This repository doesn't have a valid webhook set up,
-          commits won't trigger new builds for this project.
-        {% endblocktrans %}
-          <br>
-        {% blocktrans %}
-          See <a href='{{ integrations_url }}'>your project integrations</a> for more information.
-        {% endblocktrans %}
-      </p>
-    {% endif %}
-
     {% if project.skip %}
       <p class="build-failure">
           {% blocktrans %}

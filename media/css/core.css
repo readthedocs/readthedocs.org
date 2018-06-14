@@ -12,8 +12,6 @@ blockquote, q {quotes:"" "";}
 a img {border:none;}
 ol,ul{list-style:none}
 hr { height: 1px; border: 0; border: none; width: 100%; background: #bfbfbf; color: #bfbfbf; margin: 15px 0; padding: 0; }
-*:focus { outline: none; }
-
 
 /* general layout */
 
@@ -53,11 +51,14 @@ pre, code, tt { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberatio
 textarea, input, select { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", Courier, monospace; font-size: 16px; line-height: 20px; }
 
 @font-face {
+    font-family: 'Lato';
     src: url('../fonts/lato/Lato-Bold.eot'); /* IE9 Compat Modes */
     src: url('../fonts/lato/Lato-Bold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
          url('../fonts/lato/Lato-Bold.woff2') format('woff2'), /* Modern Browsers */
          url('../fonts/lato/Lato-Bold.woff') format('woff'), /* Modern Browsers */
          url('../fonts/lato/Lato-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
 }
 @font-face {
     font-family: 'Lato';
@@ -609,7 +610,9 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 /* notification box */
 .notification { padding: 5px 0; color: #a55; }
 .notification-20,
-.notification-25 {
+.notification-25,
+.notification-101,
+.notification-102 {
   color: #5a5;
 }
 
@@ -651,8 +654,9 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer a:hover, #footer a:active { color: white; text-decoration: underline; }
 
 /* Social icons */
-#footer .social { font-family: FontAwesome; margin-left: 25px; }
-#footer .social li { float: left; }
+#footer .social { font-family: FontAwesome; text-align: center; }
+#footer .social:after { clear: both; content: ''; display: table; }
+#footer .social li { width: 50px; display: inline-block; }
 #footer .social a { text-decoration: none; opacity: 0.5; }
 #footer .social a:hover, #footer .social a:visited { opacity: 1; }
 #footer .social .icon { display: inline-block; width: 36px; height: 36px; font-size: 24px;}
@@ -663,6 +667,13 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer .footer-bottom { margin-top: 30px; }
 #footer select { float: left; width: 175px; padding: 2px; height: 24px; font-size: 12px; margin-right: 10px; }
 #footer input[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
+
+/* Other footer forms */
+#footer #email-signup { margin-bottom: 20px; }
+#footer #email-signup:after { clear: both; content:''; display: table; }
+#footer #email-signup p { padding-right: 10px; font-size: 14px; color: #BCC1C3; }
+#footer label { color: #BCC1C3; font-weight: normal; }
+#footer input[type="text"], #footer input[type="email"] { padding: 4px; font-size: 12px; line-height: 16px; margin-bottom: 5px }
 
 
 /* utils */
@@ -1146,6 +1157,43 @@ select.dropdown { display: none; }
     }
 
 
+/* Table lists */
+div.module div.module-title {
+    height: 2.625em;
+    overflow: hidden;
+}
+
+div.module div.module-list ul li.module-item div.module-title .module-name {
+    line-height: 1.5em;
+}
+div.module div.module-list ul li.module-item div.module-title a.module-name {
+    text-decoration: none;
+}
+
+div.module div.module-list ul li.module-item div.module-title .module-info {
+    display: block;
+    font-size: .75em;
+    line-height: 1.5em;
+    color: #999;
+}
+div.module div.module-list ul li.module-item div.module-title a.module-info {
+    text-decoration: none;
+}
+
+div.module div.module-title ul.module-item-menu {
+    top: 10px;
+    right: 10px;
+}
+
+div.module div.module-list ul.module-item-menu a.module-action {
+    display: block;
+    height: 1em;
+    padding: .5em .75em;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+
 /* Domain Pages */
 
 .domain-machine { color: #999; }
@@ -1201,11 +1249,22 @@ div.httpexchange div.highlight pre {
     font-size: .9em;
 }
 
+
 /* Subprojects */
-div.module.project-subprojects div.subproject-meta {
-    font-size: .9em;
-    font-style: italic;
+
+div.module.project-subprojects li.subproject a.subproject-url:before {
+    padding-right: .5em;
+    font-family: FontAwesome;
+    font-size: 1.2em;
+    content: "\f0c1";
 }
+
+div.module.project-subprojects li.subproject a.subproject-edit:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f044";
+}
+
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }

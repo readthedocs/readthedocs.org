@@ -32,9 +32,9 @@ This might include tasks like:
 Members
 ~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)
-* `Manuel Kaufmann <https://github.com/humitos>`_ (Central Time)
+* `Eric Holscher <https://github.com/ericholscher>`__ (Pacific Time)
+* `Anthony Johnson <https://github.com/agjohnson>`__ (Mountain Time)
+* `Manuel Kaufmann <https://github.com/humitos>`__ (Central Time)
 * Your Name Here
 
 Feel free to ask any of us if you have questions or want to join!

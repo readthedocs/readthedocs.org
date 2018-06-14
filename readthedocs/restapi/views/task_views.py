@@ -29,10 +29,12 @@ def get_status_data(task_name, state, data, error=None):
         'data': data,
         'started': state in STARTED_STATES,
         'finished': state in FINISHED_STATES,
-        'success': state in SUCCESS_STATES,
+        # When an exception is raised inside the task, we keep this as SUCCESS
+        # and add the exception messsage into the 'error' key
+        'success': state in SUCCESS_STATES and error is None,
     }
-    if error is not None and isinstance(error, Exception):
-        data['error'] = error.message
+    if error is not None:
+        data['error'] = error
     return data
 
 
