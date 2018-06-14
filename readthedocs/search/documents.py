@@ -4,7 +4,7 @@ from django_elasticsearch_dsl import DocType, Index, fields
 from readthedocs.projects.models import Project, HTMLFile
 from .conf import SEARCH_EXCLUDED_FILE
 
-from readthedocs.search.faceted_search import ProjectSearch
+from readthedocs.search.faceted_search import ProjectSearch, FileSearch
 
 project_index = Index('project')
 
@@ -66,6 +66,26 @@ class PageDocument(DocType):
     headers = fields.TextField(attr='processed_json.headers')
     content = fields.TextField(attr='processed_json.content')
     path = fields.TextField(attr='processed_json.path')
+
+    @classmethod
+    def faceted_search(cls, query, projects=None, versions=None, using=None, index=None):
+        kwargs = {
+            'using': using or cls._doc_type.using,
+            'index': index or cls._doc_type.index,
+            'doc_types': [cls],
+            'model': cls._doc_type.model,
+            'query': query
+        }
+        filters = {}
+
+        if projects:
+            filters['project'] = projects
+        if versions:
+            filters['version'] = versions
+
+        kwargs['filters'] = filters
+
+        return FileSearch(**kwargs)
 
     def get_queryset(self):
         """Overwrite default queryset to filter certain files to index"""
