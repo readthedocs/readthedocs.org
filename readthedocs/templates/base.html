@@ -58,7 +58,6 @@
     require('jquery');
   </script>
 
-  <script src="{{ MEDIA_URL }}javascript/instantsearch.js"></script>
   <script src="{{ MEDIA_URL }}javascript/base.js"></script>
   <script src="{% static 'core/js/site.js' %}"></script>
   <script>
@@ -205,7 +204,7 @@
             </p>
 
             <p>
-              <small>{% trans 'Version' %} {% readthedocs_version %}</small>
+              <small>{% trans 'Version' %} <a href="http://docs.readthedocs.io/en/latest/changelog.html">{% readthedocs_version %}</a></small>
             </p>
           </div>
 

@@ -1,4 +1,5 @@
 *.db
+*.rdb
 *.egg-info
 *.log
 *.pyc
@@ -49,6 +50,7 @@ tags
 .python-version
 *.pyo
 .pytest_cache/
+scripts/travis/elasticsearch*
 
 # Environments
 .env

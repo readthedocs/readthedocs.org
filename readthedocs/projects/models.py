@@ -22,13 +22,13 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
@@ -202,7 +202,7 @@ class Project(models.Model):
         max_length=20,
         choices=constants.PYTHON_CHOICES,
         default='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'))
 
     use_system_packages = models.BooleanField(
@@ -216,13 +216,13 @@ class Project(models.Model):
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Level of privacy that you want on the repository. '
+        help_text=_('Level of privacy that you want on the repository. '
                     'Protected means public but not in listings.'))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default=getattr(
             settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Default level of privacy you want on built '
+        help_text=_('Default level of privacy you want on built '
                     'versions of documentation.'))
 
     # Subprojects
@@ -784,7 +784,8 @@ class Project(models.Model):
         return (
             self.versions.filter(identifier=branch) |
             self.versions.filter(identifier='remotes/origin/%s' % branch) |
-            self.versions.filter(identifier='origin/%s' % branch)
+            self.versions.filter(identifier='origin/%s' % branch) |
+            self.versions.filter(verbose_name=branch)
         )
 
     def get_default_version(self):
@@ -1014,6 +1015,7 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
+    BUILD_JSON_ARTIFACTS_WITH_HTML = 'build_json_artifacts_with_html'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1021,6 +1023,8 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (BUILD_JSON_ARTIFACTS_WITH_HTML, _(
+            'Build the json artifacts with the html build step')),
     )
 
     projects = models.ManyToManyField(

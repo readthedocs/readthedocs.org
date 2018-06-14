@@ -1153,7 +1153,7 @@ class TestPythonEnvironment(TestCase):
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
             'sphinx==1.7.4',
-            'sphinx-rtd-theme<0.4',
+            'sphinx-rtd-theme<0.5',
             'readthedocs-sphinx-ext<0.6',
         ]
         requirements = self.base_requirements + requirements_sphinx
@@ -1171,7 +1171,7 @@ class TestPythonEnvironment(TestCase):
         requirements_mkdocs = [
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
-            'mkdocs==0.15.0',
+            'mkdocs==0.17.3',
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements

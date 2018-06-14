@@ -1,4 +1,4 @@
-"""Validators for core app."""
+"""Validators for projects app."""
 
 # From https://github.com/django/django/pull/3477/files
 from __future__ import absolute_import

@@ -13,8 +13,10 @@ var rtd;
 function create_sidebar_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.LEFTNAV;
+    var priority = constants.DEFAULT_PROMO_PRIORITY;
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
+    var offset;
 
     if (rtd.is_mkdocs_builder() && rtd.is_rtd_theme()) {
         selector = 'nav.wy-nav-side';
@@ -31,7 +33,19 @@ function create_sidebar_placement() {
     if (selector) {
         $('<div />').attr('id', element_id)
             .addClass(class_name).appendTo(selector);
-        return {'div_id': element_id, 'display_type': display_type};
+
+        // Determine if this element is above the fold
+        offset = $('#' + element_id).offset();
+        if (!offset || offset.top > $(window).height()) {
+            // If this is off screen, lower the priority
+            priority = constants.LOW_PROMO_PRIORITY;
+        }
+
+        return {
+            'div_id': element_id,
+            'display_type': display_type,
+            'priority': priority,
+        };
     }
 
     return null;
@@ -44,8 +58,10 @@ function create_sidebar_placement() {
 function create_footer_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.FOOTER;
+    var priority = constants.DEFAULT_PROMO_PRIORITY;
     var selector = null;
     var class_name;
+    var offset;
 
     if (rtd.is_rtd_theme()) {
         selector = $('<div />').insertAfter('footer hr');
@@ -59,7 +75,20 @@ function create_footer_placement() {
     if (selector) {
         $('<div />').attr('id', element_id)
             .addClass(class_name).appendTo(selector);
-        return {'div_id': element_id, 'display_type': display_type};
+
+        // Determine if this element is above the fold
+        offset = $('#' + element_id).offset();
+        if (!offset || offset.top < $(window).height()) {
+            // If the screen is short, lower the priority
+            // We don't want the ad to take up too much of the screen
+            priority = constants.LOW_PROMO_PRIORITY;
+        }
+
+        return {
+            'div_id': element_id,
+            'display_type': display_type,
+            'priority': priority,
+        };
     }
 
     return null;
@@ -76,7 +105,13 @@ function create_fixed_footer_placement() {
     // Only propose the fixed footer ad for mobile
     if (bowser && bowser.mobile) {
         $('<div />').attr('id', element_id).appendTo('body');
-        return {'div_id': element_id, 'display_type': display_type};
+        return {
+            'div_id': element_id,
+            'display_type': display_type,
+
+            // Prioritize mobile ads when on mobile
+            'priority': constants.MAXIMUM_PROMO_PRIORITY,
+        };
     }
 
     return null;
@@ -141,15 +176,33 @@ function adblock_admonition() {
     console.log(' - only show advertisements of interest to developers');
     console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
     console.log('Read more about Ads for Open Source: https://ads-for-open-source.readthedocs.io');
+    console.log('Or go ad-free: https://readthedocs.org/sustainability/');
     console.log('%cPlease whitelist Read the Docs on your adblocker using the following filter:', 'font-size: 2em');
     console.log('https://ads-for-open-source.readthedocs.io/en/latest/_static/lists/readthedocs-ads.txt');
     console.log('--------------------------------------------------------------------------------------');
+}
+
+function adblock_nag() {
+    // Place an ad block nag into the sidebar
+    var placement = create_sidebar_placement();
+    var unblock_url = 'https://ads-for-open-source.readthedocs.io/';
+    var ad_free_url = 'https://readthedocs.org/sustainability/';
+    var container = null;
+
+    if (placement && placement.div_id) {
+        container = $('#' + placement.div_id).attr('class', 'keep-us-sustainable');
+
+        $('<p />').text('Support Read the Docs!').appendTo(container);
+        $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
+        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(container);
+    }
 }
 
 function init() {
     var request_data = {format: "jsonp"};
     var div_ids = [];
     var display_types = [];
+    var priorities = [];
     var placement_funcs = [
         create_footer_placement,
         create_sidebar_placement,
@@ -169,11 +222,13 @@ function init() {
         if (placement) {
             div_ids.push(placement.div_id);
             display_types.push(placement.display_type);
+            priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
         }
     }
 
     request_data.div_ids = div_ids.join('|');
     request_data.display_types = display_types.join('|');
+    request_data.priorities = priorities.join('|');
     request_data.project = rtd.project;
 
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
@@ -210,6 +265,7 @@ function init() {
 
             if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
                 adblock_admonition();
+                adblock_nag();
             }
         },
     });
