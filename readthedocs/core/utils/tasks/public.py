@@ -67,20 +67,28 @@ class PublicTask(Task):
         self.update_progress_data()
 
     def run(self, *args, **kwargs):
+        error = False
+        exception_raised = None
         self.set_permission_context(kwargs)
-        result = self.run_public(*args, **kwargs)
-        if result is not None:
-            self.set_public_data(result)
-        _, info = self.get_task_data()
-        return info
+        try:
+            result = self.run_public(*args, **kwargs)
+        except Exception as e:
+            # With Celery 4 we lost the ability to keep our data dictionary into
+            # ``AsyncResult.info`` when an exception was raised inside the
+            # Task. In this case, ``info`` will contain the exception raised
+            # instead of our data. So, I'm keeping the task as ``SUCCESS`` but
+            # the adding the exception message into an ``error`` key to be used
+            # from outside
+            exception_raised = e
+            error = True
 
-    def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        """Add the error to the task data"""
         _, info = self.get_task_data()
-        if status == states.FAILURE:
-            info['error'] = retval
-        if STATUS_UPDATES_ENABLED:
-            self.update_state(state=status, meta=info)
+        if error and exception_raised:
+            info['error'] = str(exception_raised)
+        elif result is not None:
+            self.set_public_data(result)
+
+        return info
 
 
 def permission_check(check):
