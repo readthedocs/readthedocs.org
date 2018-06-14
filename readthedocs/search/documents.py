@@ -68,7 +68,7 @@ class PageDocument(DocType):
     path = fields.TextField(attr='processed_json.path')
 
     @classmethod
-    def faceted_search(cls, query, projects=None, versions=None, using=None, index=None):
+    def faceted_search(cls, query, projects_list=None, versions_list=None, using=None, index=None):
         kwargs = {
             'using': using or cls._doc_type.using,
             'index': index or cls._doc_type.index,
@@ -78,10 +78,10 @@ class PageDocument(DocType):
         }
         filters = {}
 
-        if projects:
-            filters['project'] = projects
-        if versions:
-            filters['version'] = versions
+        if projects_list:
+            filters['project'] = projects_list
+        if versions_list:
+            filters['version'] = versions_list
 
         kwargs['filters'] = filters
 

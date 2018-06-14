@@ -25,7 +25,7 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
-from readthedocs.projects.managers import HTMLFileManager, ImportedFileManager
+from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
@@ -907,8 +907,6 @@ class ImportedFile(models.Model):
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
 
-    objects = ImportedFileManager()
-
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
@@ -931,12 +929,14 @@ class HTMLFile(ImportedFile):
 
     @cached_property
     def json_file_path(self):
-        basename = os.path.splitext(self.name)[0]
-        full_path = self.project.get_production_media_path(type_='json',
-                                                           version_slug=self.version.slug,
-                                                           include_file=False)
+        basename = os.path.splitext(self.path)[0]
+        file_path = basename + '.fjson'
 
-        file_path = find_file(basename=basename, pattern='*.fjson', path=full_path)
+        full_json_path = self.project.get_production_media_path(type_='json',
+                                                                version_slug=self.version.slug,
+                                                                include_file=False)
+
+        file_path = os.path.join(full_json_path, file_path)
         return file_path
 
     @cached_property
