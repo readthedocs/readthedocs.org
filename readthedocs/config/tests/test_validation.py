@@ -1,24 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import division, print_function, unicode_literals
+
+import os
+
 from mock import patch
 from pytest import raises
-import os
 from six import text_type
 
-from readthedocs.config.validation import validate_bool
-from readthedocs.config.validation import validate_choice
-from readthedocs.config.validation import validate_list
-from readthedocs.config.validation import validate_directory
-from readthedocs.config.validation import validate_file
-from readthedocs.config.validation import validate_path
-from readthedocs.config.validation import validate_string
-from readthedocs.config.validation import ValidationError
-from readthedocs.config.validation import INVALID_BOOL
-from readthedocs.config.validation import INVALID_CHOICE
-from readthedocs.config.validation import INVALID_LIST
-from readthedocs.config.validation import INVALID_DIRECTORY
-from readthedocs.config.validation import INVALID_FILE
-from readthedocs.config.validation import INVALID_PATH
-from readthedocs.config.validation import INVALID_STRING
+from readthedocs.config.validation import (
+    INVALID_BOOL, INVALID_CHOICE, INVALID_DIRECTORY, INVALID_FILE, INVALID_LIST,
+    INVALID_PATH, INVALID_STRING, ValidationError, validate_bool,
+    validate_choice, validate_directory, validate_file, validate_list,
+    validate_path, validate_string)
 
 
 def describe_validate_bool():
@@ -166,4 +159,3 @@ def describe_validate_string():
         with raises(ValidationError) as excinfo:
             validate_string(None)
         assert excinfo.value.code == INVALID_STRING
-
