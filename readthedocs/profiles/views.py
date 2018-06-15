@@ -310,6 +310,5 @@ def account_advertising(request):
             'form': form,
             'profile': profile_obj,
             'user': profile_obj.user,
-            'session_expiry': request.session.get_expiry_date(),
         },
     )
