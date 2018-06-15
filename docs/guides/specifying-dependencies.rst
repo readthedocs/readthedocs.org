@@ -7,6 +7,7 @@ Any dependencies required for building a documentation project can be specified 
 
 Specifying a requirements file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The requirements file option is useful for specifying dependencies required for building the documentation. Additional uses specific to Read the Docs are mentioned at the end of this guide.
 
 For details about the purpose of pip requirements file and how to create one, check out `pip user guide`_  
@@ -17,7 +18,8 @@ To use the requirements file, create and place the requirements file in the root
 
 Using the YAML configuration file
 ---------------------------------
-The recommended approach for specifying a pip requirements file is to use a readthedocs.yml file. 
+
+The recommended approach for specifying a pip requirements file is to use a ``readthedocs.yml`` file. 
 
 The file's path should be relative to documentation root.
 
@@ -38,6 +40,7 @@ Once the requirements file has been created;
 
 Using a conda environment file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 If using conda, the dependencies can be specified in the conda environment file, ``environment.yml`` .
 
 More on Read the Doc's conda support: :doc:`conda`
@@ -50,18 +53,10 @@ This conda environment file can be specified in ``readthedocs.yml`` in the ``con
 
 .. code-block:: yaml
 
-	conda:
-	    file: environment.yml
+    conda:
+        file: environment.yml
 
 As before, the path should be relative to the documentation repository root.
 
-Additional Uses
-~~~~~~~~~~~~~~~
- - Documenting multiple packages
- - setup.py not in root directory
-
-See :ref:`faq_document_package_not_at_root`
-
-
-.. _`pip user guide`: : https://pip.pypa.io/en/stable/user_guide/#requirements-files
-.. _`conda and environment.yml`: : https://conda.io/docs/user-guide/tasks/manage-environments.html
+.. _`pip user guide`: https://pip.pypa.io/en/stable/user_guide/#requirements-files
+.. _`conda and environment.yml`: https://conda.io/docs/user-guide/tasks/manage-environments.html
