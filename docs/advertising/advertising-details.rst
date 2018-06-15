@@ -121,7 +121,7 @@ Analytics
 
 Analytics are a sensitive enough issue that they require their own section.
 In the spirit of full transparency, Read the Docs uses Google Analytics (GA).
-We go into a bit of detail on our use of GA in our :doc:`../privacy-policy`.
+We go into a bit of detail on our use of GA in our :doc:`/privacy-policy`.
 
 GA is a contentious issue inside Read the Docs and in our community.
 Some users are very sensitive and privacy conscious to usage of GA.
@@ -132,7 +132,7 @@ our own goals.
 
 We have taken steps to address some of the privacy concerns surrounding GA.
 These steps apply both to analytics collected by Read the Docs and when
-:doc:`authors enable analytics on their docs <../guides/google-analytics>`.
+:doc:`authors enable analytics on their docs </guides/google-analytics>`.
 
 * Users can opt-out of analytics by using the Do Not Track feature of their browser.
 * Read the Docs instructs Google to anonymize IP addresses sent to them.

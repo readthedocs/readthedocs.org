@@ -6,10 +6,10 @@ It allows us to:
 
 .. Updated: June 2018
 
-- Serve over **35 million pages** of documentation a month
-- Serve over **2 TB** of documentation a month
+- Serve over **35 million pages** of documentation per month
+- Serve over **40 TB** of documentation per month
 - Host over **80,000 open source projects** and support over **100,000 users**
-- Pay a :doc:`small team <../team>` of dedicated full-time staff
+- Pay a :doc:`small team </team>` of dedicated full-time staff
 
 Many advertising models involve tracking users around the internet,
 selling their data, and privacy intrusion in general.
@@ -19,12 +19,10 @@ that respects user privacy.
 We recognize that advertising is not for everyone.
 You may :ref:`opt out of paid advertising <advertising/ethical-advertising:Opting Out>`
 -- you will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>` --
-or you can `go ad-free`_ by donating to Read the Docs
-or `becoming a Gold Member`_.
+or you can go ad-free by `becoming a Gold Member`_ or a `Supporter`_ of Read the Docs.
 
-.. _go ad-free: https://readthedocs.org/sustainability/#donations
 .. _becoming a Gold Member: https://readthedocs.org/accounts/gold/
-
+.. _Supporter: https://readthedocs.org/sustainability/#donations
 
 .. toctree::
     :maxdepth: 2

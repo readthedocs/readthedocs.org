@@ -15,7 +15,7 @@ and don't do creepy behavioral targeting.
 Advertising is the single largest source of funding for Read the Docs.
 To keep our operations sustainable, we ask that you either
 :ref:`allow our Ethical Ads <advertising/ad-blocking:Allowing Ethical Ads>`
-or :ref:`go ad-free <advertising/ad-blocking:Going ad-free>` by donating.
+or :ref:`go ad-free <advertising/ad-blocking:Going ad-free>`.
 
 
 Allowing Ethical Ads
@@ -48,7 +48,7 @@ Going ad-free
 
 Users can go completely ad-free
 by becoming a `Gold Member <https://readthedocs.org/accounts/gold/>`_
-or making a `one-time donation <https://readthedocs.org/sustainability/#donations>`_.
+or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
 Thank you for supporting Read the Docs.
 
 
