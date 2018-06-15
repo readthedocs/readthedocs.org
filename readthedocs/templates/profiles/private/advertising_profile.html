@@ -13,18 +13,10 @@
   {% if request.user.gold.exists or request.user.goldonce.exists %}
     <p>
       {% blocktrans %}
-        Since you are a Gold Member or donor, you <strong>will not</strong> see advertising as long as you are logged-in.
+        Since you are a Gold Member or Supporter, you are <strong>ad-free</strong> for as long as you are logged-in.
         Thank you for supporting Read the Docs.
       {% endblocktrans%}
     </p>
-
-    <p>{% blocktrans with expiry=session_expiry|timeuntil %}Your login session will expire in {{ expiry }}.{% endblocktrans %}</p>
-
-    <form method="POST" action=".">
-      {% csrf_token %}
-      <input type="hidden" name="stay-logged-in" value="yes">
-      <input type="submit" name="submit" value="{% trans "Stay logged in for 3 months" %}" id="submit"/>
-    </form>
   {% else %}
     <p>
       {% blocktrans %}
@@ -45,8 +37,9 @@
 
     <p>
       {% url "gold_detail" as gold_detail %}
+      {% url "donate" as donate_url %}
       {% blocktrans %}
-        You may remove ads completely by becoming a <a href="{{ gold_detail }}">Gold member to Read the Docs</a>.
+        You can <strong>go ad-free</strong> by becoming a <a href="{{ gold_detail }}">Gold Member</a> or <a href="{{ donate_url }}">Supporter</a> of Read the Docs</a>.
       {% endblocktrans %}
     </p>
 
