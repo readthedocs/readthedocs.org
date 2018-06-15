@@ -49,9 +49,8 @@ def elastic_search(request):
         if user_input.type == 'project':
             project_search = ProjectDocument.faceted_search(query=user_input.query,
                                                             language=user_input.language)
-            response = project_search.execute()
-            results = response.hits
-            facets = response.facets
+            results = project_search.execute()
+            facets = results.facets
         elif user_input.type == 'file':
             kwargs = {}
             if user_input.project:
@@ -66,9 +65,8 @@ def elastic_search(request):
                 kwargs['versions_list'] = user_input.version
 
             page_search = PageDocument.faceted_search(query=user_input.query, **kwargs)
-            response = page_search.execute()
-            results = response.hits
-            facets = response.facets
+            results = page_search.execute()
+            facets = results.facets
 
     if settings.DEBUG:
         print(pprint(results))
@@ -91,7 +89,7 @@ def elastic_search(request):
     template_vars = user_input._asdict()
     template_vars.update({
         'results': results,
-        'facets': facets,
+        'facets': facets
     })
     return render(
         request,
