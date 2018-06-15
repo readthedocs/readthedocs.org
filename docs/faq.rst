@@ -185,6 +185,8 @@ are `numpydoc <https://github.com/numpy/numpydoc>`_ and
 output more closely matches the format of standard Sphinx annotations,
 and as a result, it tends to look a bit better with the default theme.
 
+.. _faq_document_package_not_at_root:
+
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
 
