@@ -89,6 +89,7 @@ The file must be on the root directory of the repository, and must be named as:
 - ``readthedocs.yml``
 - ``readthedocs.yaml``
 - ``.readthedocs.yml``
+- ``.readthedocs.yaml``
 
 Conventions
 ~~~~~~~~~~~
