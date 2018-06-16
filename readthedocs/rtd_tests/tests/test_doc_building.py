@@ -1343,6 +1343,67 @@ class TestPythonEnvironment(TestCase):
         python_env.install_user_requirements()
         self.build_env_mock.run.assert_not_called()
 
+    def test_pipenv_install(self):
+        config_data = {
+            'pipenv': {
+                'enabled': True,
+                'options': [],
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(
+                version=self.version_sphinx, yaml_config=yaml_config)
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+            config=config,
+        )
+
+        args = [
+            'python',
+            mock.ANY,  # pipenv path
+            'install',
+            '--system',
+        ]
+
+        python_env.install_from_pipfile()
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
+    def test_pipenv_install_with_options(self):
+        options = [
+            '--dev',
+            '--skip-lock'
+        ]
+        config_data = {
+            'pipenv': {
+                'enabled': True,
+                'options': options,
+            },
+        }
+        yaml_config = create_load(config_data)()[0]
+        config = ConfigWrapper(
+            version=self.version_sphinx, yaml_config=yaml_config)
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+            config=config,
+        )
+
+        args = [
+            'python',
+            mock.ANY,  # pipenv path
+            'install',
+            '--system',
+        ]
+        args.extend(options)
+
+        python_env.install_from_pipfile()
+        self.build_env_mock.run.assert_called_with(
+            *args, cwd=mock.ANY, bin_path=mock.ANY
+        )
+
 
 class AutoWipeEnvironmentBase(object):
     fixtures = ['test_data']
