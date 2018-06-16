@@ -234,6 +234,9 @@ class Virtualenv(PythonEnvironment):
             'recommonmark==0.4.0',
         ]
 
+        if self.config.pipenv_enabled:
+            requirements.append('pipenv==2018.5.18')
+
         if self.project.documentation_type == 'mkdocs':
             requirements.append('mkdocs==0.17.3')
         else:
@@ -298,6 +301,22 @@ class Virtualenv(PythonEnvironment):
                 self.project.pip_cache_path,
                 '-r{0}'.format(requirements_file_path),
             ]
+            self.build_env.run(
+                *args,
+                cwd=self.checkout_path,
+                bin_path=self.venv_bin()
+            )
+
+    def install_from_pipfile(self):
+        if self.config.pipenv_enabled:
+            args = [
+                'python',
+                self.venv_bin(filename='pipenv'),
+                'install',
+                '--system',
+            ]
+            if self.config.pipenv_options:
+                args.extend(self.config.pipenv_options)
             self.build_env.run(
                 *args,
                 cwd=self.checkout_path,

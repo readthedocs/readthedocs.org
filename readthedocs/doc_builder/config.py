@@ -103,6 +103,18 @@ class ConfigWrapper(object):
         return self._project.requirements_file
 
     @property
+    def pipenv_enabled(self):
+        if 'enabled' in self._yaml_config.get('pipenv', {}):
+            return self._yaml_config['pipenv']['enabled']
+        return False
+
+    @property
+    def pipenv_options(self):
+        if 'options' in self._yaml_config.get('pipenv', {}):
+            return self._yaml_config['pipenv']['options']
+        return []
+
+    @property
     def formats(self):
         if 'formats' in self._yaml_config:
             return self._yaml_config['formats']
