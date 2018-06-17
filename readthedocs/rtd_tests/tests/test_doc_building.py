@@ -1179,6 +1179,29 @@ class TestPythonEnvironment(TestCase):
             *args, bin_path=mock.ANY
         )
 
+    @patch.object(ConfigWrapper, 'pipenv_enabled', new_callable=PropertyMock)
+    def test_install_core_requirements_pipenv(self, pipenv_enabled):
+        pipenv_enabled.return_value = True
+        python_env = Virtualenv(
+            version=self.version_sphinx,
+            build_env=self.build_env_mock,
+        )
+        python_env.install_core_requirements()
+
+        requirements_pipenv = [
+            'commonmark==0.5.4',
+            'recommonmark==0.4.0',
+            'pipenv==2018.5.18',
+            'sphinx==1.7.4',
+            'sphinx-rtd-theme<0.5',
+            'readthedocs-sphinx-ext<0.6',
+        ]
+        requirements = self.base_requirements + requirements_pipenv
+        args = self.pip_install_args + requirements
+        self.build_env_mock.run.assert_called_once_with(
+            *args, bin_path=mock.ANY
+        )
+
     def test_install_user_requirements(self):
         """
         If a projects does not specify a requirements file,
@@ -1343,20 +1366,12 @@ class TestPythonEnvironment(TestCase):
         python_env.install_user_requirements()
         self.build_env_mock.run.assert_not_called()
 
-    def test_pipenv_install(self):
-        config_data = {
-            'pipenv': {
-                'enabled': True,
-                'options': [],
-            },
-        }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(
-                version=self.version_sphinx, yaml_config=yaml_config)
+    @patch.object(ConfigWrapper, 'pipenv_enabled', new_callable=PropertyMock)
+    def test_pipenv_install(self, pipenv_enabled):
+        pipenv_enabled.return_value = True
         python_env = Virtualenv(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
-            config=config,
         )
 
         args = [
@@ -1371,24 +1386,18 @@ class TestPythonEnvironment(TestCase):
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
 
-    def test_pipenv_install_with_options(self):
+    @patch.object(ConfigWrapper, "pipenv_options", new_callable=PropertyMock)
+    @patch.object(ConfigWrapper, "pipenv_enabled", new_callable=PropertyMock)
+    def test_pipenv_install_with_options(self, pipenv_enabled, pipenv_options):
         options = [
             '--dev',
-            '--skip-lock'
+            '--skip-lock',
         ]
-        config_data = {
-            'pipenv': {
-                'enabled': True,
-                'options': options,
-            },
-        }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(
-            version=self.version_sphinx, yaml_config=yaml_config)
+        pipenv_enabled.return_value = True
+        pipenv_options.return_value = options
         python_env = Virtualenv(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
-            config=config,
         )
 
         args = [
