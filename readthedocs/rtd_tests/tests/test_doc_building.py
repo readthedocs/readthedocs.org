@@ -1143,6 +1143,16 @@ class TestPythonEnvironment(TestCase):
             mock.ANY,  # cache path
         ]
 
+    def assertArgsStartsWith(self, args, function_mock):
+        """
+        Assert that each element of args of the mock start
+        with each element of args.
+        """
+        args_mock, _ = function_mock.call_args
+        for arg, arg_mock in zip(args, args_mock):
+            if arg is not mock.ANY:
+                self.assertTrue(arg_mock.startswith(arg))
+
     def test_install_core_requirements_sphinx(self):
         python_env = Virtualenv(
             version=self.version_sphinx,
@@ -1158,9 +1168,8 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once_with(
-            *args, bin_path=mock.ANY
-        )
+        self.build_env_mock.run.assert_called_once()
+        self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     def test_install_core_requirements_mkdocs(self):
         python_env = Virtualenv(
@@ -1175,9 +1184,8 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once_with(
-            *args, bin_path=mock.ANY
-        )
+        self.build_env_mock.run.assert_called_once()
+        self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     def test_install_user_requirements(self):
         """
