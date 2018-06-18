@@ -7,6 +7,7 @@ from __future__ import (
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -24,10 +25,11 @@ from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils import broadcast, trigger_build, prepare_build
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
-from readthedocs.oauth.utils import attach_webhook, update_webhook
+from readthedocs.oauth.utils import update_webhook
+from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.projects import tasks
 from readthedocs.projects.forms import (
     DomainForm, EmailHookForm, IntegrationForm, ProjectAdvancedForm,
@@ -231,12 +233,24 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         for field, value in list(form_data.items()):
             if field in extra_fields:
                 setattr(project, field, value)
-        basic_only = True
         project.save()
+
+        # TODO: this signal could be removed, or used for sync task
         project_import.send(sender=project, request=self.request)
-        trigger_build(project, basic=basic_only)
+
+        self.trigger_initial_build(project)
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]))
+
+    def trigger_initial_build(self, project):
+        """Trigger initial build."""
+        update_docs = prepare_build(project)
+        task_promise = chain(
+            attach_webhook.si(project.pk, self.request.user.pk),
+            update_docs,
+        )
+        async_result = task_promise.apply_async()
+        return async_result
 
     def is_advanced(self):
         """Determine if the user selected the `show advanced` field."""
@@ -271,7 +285,7 @@ class ImportDemoView(PrivateViewMixin, View):
             if form.is_valid():
                 project = form.save()
                 project.save()
-                trigger_build(project, basic=True)
+                trigger_build(project)
                 messages.success(
                     request, _('Your demo project is currently being imported'))
             else:
@@ -777,7 +791,10 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
             # This is a brute force form of the webhook sync, if a project has a
             # webhook or a remote repository object, the user should be using
             # the per-integration sync instead.
-            attach_webhook(project=self.get_project(), request=request)
+            attach_webhook(
+                project_pk=self.get_project().pk,
+                user_pk=request.user.pk,
+            )
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

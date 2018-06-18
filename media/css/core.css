@@ -610,7 +610,9 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 /* notification box */
 .notification { padding: 5px 0; color: #a55; }
 .notification-20,
-.notification-25 {
+.notification-25,
+.notification-101,
+.notification-102 {
   color: #5a5;
 }
 

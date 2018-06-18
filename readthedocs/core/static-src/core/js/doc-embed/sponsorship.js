@@ -175,17 +175,15 @@ function adblock_admonition() {
     console.log(' - never sell user data to advertisers or other 3rd parties');
     console.log(' - only show advertisements of interest to developers');
     console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
-    console.log('Read more about Ads for Open Source: https://ads-for-open-source.readthedocs.io');
-    console.log('Or go ad-free: https://readthedocs.org/sustainability/');
-    console.log('%cPlease whitelist Read the Docs on your adblocker using the following filter:', 'font-size: 2em');
-    console.log('https://ads-for-open-source.readthedocs.io/en/latest/_static/lists/readthedocs-ads.txt');
+    console.log('%cPlease allow our Ethical Ads or go ad-free:', 'font-size: 2em');
+    console.log('https://docs.readthedocs.io/en/latest/advertising/ad-blocking.html');
     console.log('--------------------------------------------------------------------------------------');
 }
 
 function adblock_nag() {
     // Place an ad block nag into the sidebar
     var placement = create_sidebar_placement();
-    var unblock_url = 'https://ads-for-open-source.readthedocs.io/';
+    var unblock_url = 'https://docs.readthedocs.io/en/latest/advertising/ad-blocking.html#allowing-ethical-ads';
     var ad_free_url = 'https://readthedocs.org/sustainability/';
     var container = null;
 

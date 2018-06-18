@@ -58,8 +58,7 @@ Information about development is also available:
    gsoc
    code-of-conduct
    privacy-policy
-   ethical-advertising
-   advertising-details
+   advertising/index
    sponsors
    open-source-philosophy
    story
