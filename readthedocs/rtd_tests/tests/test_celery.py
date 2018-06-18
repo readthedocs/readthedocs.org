@@ -167,9 +167,8 @@ class TestCeleryBuilding(RTDTestCase):
             RepositoryError.DUPLICATED_RESERVED_VERSIONS
         )
 
-        delete_git_tag(self.repo, 'stable')
-        sync_repository.sync_repo()
-        api_v2.project().sync_versions.post.assert_called()
+        # TODO: Check that we can build properly after
+        # deleting the tag.
 
     @patch('readthedocs.projects.tasks.api_v2')
     def test_check_duplicate_no_reserved_version(self, api_v2):
