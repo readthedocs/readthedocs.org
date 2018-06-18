@@ -1121,12 +1121,12 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'Pygments==2.2.0',
-            'setuptools<40',
-            'docutils==0.13.1',
-            'mock==1.0.1',
-            'pillow==2.6.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
+            'Pygments',
+            'setuptools',
+            'docutils',
+            'mock',
+            'pillow',
+            'alabaster',
         ]
         self.base_conda_requirements = [
             'mock',
@@ -1160,11 +1160,11 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
-            'sphinx<1.8',
-            'sphinx-rtd-theme<0.5',
-            'readthedocs-sphinx-ext<0.6',
+            'commonmark',
+            'recommonmark',
+            'sphinx',
+            'sphinx-rtd-theme',
+            'readthedocs-sphinx-ext',
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
@@ -1178,9 +1178,9 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_mkdocs = [
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
-            'mkdocs==0.17.3',
+            'commonmark',
+            'recommonmark',
+            'mkdocs',
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
