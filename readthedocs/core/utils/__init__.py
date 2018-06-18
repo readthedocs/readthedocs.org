@@ -168,6 +168,11 @@ def trigger_build(project, version=None, record=True, force=False):
         force,
         immutable=True,
     )
+
+    if update_docs_task is None:
+        # Current project is skipped
+        return None
+
     return update_docs_task.apply_async()
 
 
