@@ -41,7 +41,6 @@ def find_file(basename, pattern, path):
     :param path: the directory to search for the file
     :returns: path of matching file
     """
-
     for root, _, files in os.walk(path):
         for filename in files:
             file_basename = os.path.splitext(filename)[0]

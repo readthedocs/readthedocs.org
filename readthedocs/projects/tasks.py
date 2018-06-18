@@ -954,6 +954,7 @@ def _manage_imported_files(version, path, commit):
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
+                # pylint: disable=unpacking-non-sequence
                 obj, __ = model_class.objects.get_or_create(
                     project=version.project,
                     version=version,

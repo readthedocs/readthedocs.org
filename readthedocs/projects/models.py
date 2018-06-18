@@ -13,7 +13,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
-from django.utils.lru_cache import lru_cache
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -31,7 +30,6 @@ from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import find_file
 from readthedocs.projects.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)

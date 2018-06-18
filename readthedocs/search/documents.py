@@ -90,9 +90,8 @@ class PageDocument(DocType):
                             .exclude(name__in=SEARCH_EXCLUDED_FILE))
         return queryset
 
-    def update(self, thing, **kwargs):
+    def update(self, thing, refresh=None, action='index', **kwargs):
         """Overwrite in order to index only certain files"""
-
         # Object not exist in the provided queryset should not be indexed
         # TODO: remove this overwrite when the issue has been fixed
         # See below link for more information
@@ -104,4 +103,4 @@ class PageDocument(DocType):
             if not obj.exists():
                 return None
 
-        return super(PageDocument, self).update(thing=thing, **kwargs)
+        return super(PageDocument, self).update(thing=thing, refresh=None, action='index', **kwargs)

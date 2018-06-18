@@ -2,6 +2,7 @@ from elasticsearch_dsl import FacetedSearch, TermsFacet
 
 
 class RTDFacetedSearch(FacetedSearch):
+
     """Overwrite the initialization in order too meet our needs"""
 
     # TODO: Remove the overwrite when the elastic/elasticsearch-dsl-py#916
