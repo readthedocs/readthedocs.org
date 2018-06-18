@@ -1,3 +1,17 @@
+Version 2.5.2
+-------------
+
+:Date: June 18, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`_: Add a page detailing ad blocking (`#4244 <https://github.com/rtfd/readthedocs.org/pull/4244>`_)
+* `@xrmx <http://github.com/xrmx>`_: projects: serve badge with same protocol as site (`#4228 <https://github.com/rtfd/readthedocs.org/pull/4228>`_)
+* `@FlorianKuckelkorn <http://github.com/FlorianKuckelkorn>`_: Fixed breaking change in pip 10.0.0b1 (2018-03-31) (`#4206 <https://github.com/rtfd/readthedocs.org/pull/4206>`_)
+* `@StefanoChiodino <http://github.com/StefanoChiodino>`_: Document that readthedocs file can now have yaml extension (`#4129 <https://github.com/rtfd/readthedocs.org/pull/4129>`_)
+* `@humitos <http://github.com/humitos>`_: Downgrade docker to 3.1.3 because of timeouts in EXEC call (`#4241 <https://github.com/rtfd/readthedocs.org/pull/4241>`_)
+* `@stsewd <http://github.com/stsewd>`_: Move parser tests from rtd-build repo (`#4225 <https://github.com/rtfd/readthedocs.org/pull/4225>`_)
+* `@humitos <http://github.com/humitos>`_: Handle revoked oauth permissions by the user (`#4074 <https://github.com/rtfd/readthedocs.org/pull/4074>`_)
+* `@humitos <http://github.com/humitos>`_: Allow to hook the initial build from outside (`#4033 <https://github.com/rtfd/readthedocs.org/pull/4033>`_)
+
 Version 2.5.1
 -------------
 
