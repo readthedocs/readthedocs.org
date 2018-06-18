@@ -1,3 +1,13 @@
+Version 2.5.2
+-------------
+
+:Date: June 14, 2018
+
+* `@humitos <http://github.com/humitos>`_: Downgrade docker to 3.1.3 because of timeouts in EXEC call (`#4241 <https://github.com/rtfd/readthedocs.org/pull/4241>`_)
+* `@stsewd <http://github.com/stsewd>`_: Move parser tests from rtd-build repo (`#4225 <https://github.com/rtfd/readthedocs.org/pull/4225>`_)
+* `@humitos <http://github.com/humitos>`_: Handle revoked oauth permissions by the user (`#4074 <https://github.com/rtfd/readthedocs.org/pull/4074>`_)
+* `@humitos <http://github.com/humitos>`_: Allow to hook the initial build from outside (`#4033 <https://github.com/rtfd/readthedocs.org/pull/4033>`_)
+
 Version 2.5.1
 -------------
 
