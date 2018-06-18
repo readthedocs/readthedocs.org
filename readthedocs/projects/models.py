@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
+from django.utils.lru_cache import lru_cache
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -939,10 +940,13 @@ class HTMLFile(ImportedFile):
         file_path = os.path.join(full_json_path, file_path)
         return file_path
 
-    @cached_property
-    def processed_json(self):
+    def get_processed_json(self):
         file_path = self.json_file_path
         return process_file(file_path)
+
+    @cached_property
+    def processed_json(self):
+        return self.get_processed_json()
 
 
 class Notification(models.Model):

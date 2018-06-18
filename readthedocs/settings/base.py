@@ -315,11 +315,35 @@ class CommunityBaseSettings(Settings):
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
-    ES_DEFAULT_NUM_REPLICAS = 0
-    ES_DEFAULT_NUM_SHARDS = 5
     ELASTICSEARCH_DSL = {
         'default': {
             'hosts': '127.0.0.1:9200'
+        },
+    }
+
+    # ANALYZER = 'analysis': {
+    #     'analyzer': {
+    #         'default_icu': {
+    #             'type': 'custom',
+    #             'tokenizer': 'icu_tokenizer',
+    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
+    #         }
+    #     }
+    # }
+
+    ES_INDEXES = {
+        'project': {
+            'name': 'project_index',
+            'settings': {'number_of_shards': 5,
+                         'number_of_replicas': 0
+                         }
+        },
+        'page': {
+            'name': 'page_index',
+            'settings': {
+                'number_of_shards': 5,
+                'number_of_replicas': 0,
+            }
         },
     }
 

@@ -28,16 +28,6 @@ class TestProjectSearch(object):
         result = page.find('.module-list-wrapper .module-item-title')
         return result, page
 
-
-
-    # TODO: Implement a way to generate unique index name in test
-    # @pytest.fixture(autouse=True)
-    # def mock_project_index(self, mocker):
-    #     mocked_document = mocker.patch('readthedocs.search.documents.get_index')
-    #     index_name = ''.join([random.choice(string.ascii_letters) for _ in range(5)])
-    #
-    #     mocked_document.return_value = Index(index_name)
-
     def test_search_by_project_name(self, client, project):
         result, _ = self._get_search_result(url=self.url, client=client,
                                             search_params={'q': project.name})
@@ -77,13 +67,8 @@ class TestProjectSearch(object):
 
 @pytest.mark.django_db
 @pytest.mark.search
-@pytest.mark.xfail(reason="File search not work still!")
 class TestElasticSearch(object):
     url = reverse('search')
-
-    def _reindex_elasticsearch(self, es_index):
-        call_command('reindex_elasticsearch')
-        es_index.refresh_index()
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
@@ -93,10 +78,6 @@ class TestElasticSearch(object):
         result = page.find('.module-list-wrapper .module-item-title')
         return result, page
 
-    @pytest.fixture()
-    def elastic_index(self, mock_parse_json, all_projects, es_index):
-        self._reindex_elasticsearch(es_index=es_index)
-
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_by_file_content(self, client, project, data_type, page_num):
@@ -105,9 +86,9 @@ class TestElasticSearch(object):
 
         result, _ = self._get_search_result(url=self.url, client=client,
                                             search_params={'q': query, 'type': 'file'})
-        assert len(result) == 1
+        assert len(result) == 1, ("failed"+ query)
 
-    def test_file_search_show_projects(self, client):
+    def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching for files"""
 
         # `Github` word is present both in `kuma` and `pipeline` files
@@ -159,7 +140,6 @@ class TestElasticSearch(object):
         project = all_projects[0]
         # Create some versions of the project
         versions = [G(Version, project=project) for _ in range(3)]
-        self._reindex_elasticsearch(es_index=es_index)
 
         query = get_search_query_from_project_file(project_slug=project.slug)
 
@@ -191,7 +171,6 @@ class TestElasticSearch(object):
         subproject = all_projects[1]
         # Add another project as subproject of the project
         project.add_subproject(subproject)
-        self._reindex_elasticsearch(es_index=es_index)
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)

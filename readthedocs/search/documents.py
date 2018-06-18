@@ -1,4 +1,4 @@
-from django.db import models
+from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
 from readthedocs.projects.models import Project, HTMLFile
@@ -6,12 +6,13 @@ from .conf import SEARCH_EXCLUDED_FILE
 
 from readthedocs.search.faceted_search import ProjectSearch, FileSearch
 
-project_index = Index('project')
+project_conf = settings.ES_INDEXES['project']
+project_index = Index(project_conf['name'])
+project_index.settings(**project_conf['settings'])
 
-project_index.settings(
-    number_of_shards=1,
-    number_of_replicas=0
-)
+page_conf = settings.ES_INDEXES['page']
+page_index = Index(page_conf['name'])
+page_index.settings(**page_conf['settings'])
 
 
 @project_index.doc_type
@@ -42,14 +43,6 @@ class ProjectDocument(DocType):
             kwargs['filters'] = {'language': language}
 
         return ProjectSearch(**kwargs)
-
-
-page_index = Index('page')
-
-page_index.settings(
-    number_of_shards=1,
-    number_of_replicas=0
-)
 
 
 @page_index.doc_type

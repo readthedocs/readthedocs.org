@@ -56,6 +56,7 @@ def elastic_search(request):
             if user_input.project:
                 queryset = Project.objects.api(request.user).only('slug')
                 project = get_object_or_404(queryset, slug=user_input.project)
+
                 subprojects_slug = (queryset.filter(superprojects__parent_id=project.id)
                                             .values_list('slug', flat=True))
 
