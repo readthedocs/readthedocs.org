@@ -111,8 +111,7 @@ label. The reported issue …
     in the past or it was decided that the proposed feature will not be
     implemented because it does not conform with the overall goal of Read the
     Docs. Also if you happen to know that the problem was already reported,
-    label the ticket with **Status: duplicate**, reference the other ticket
-    that is already addressing the problem and close the duplicate.
+    reference the other ticket that is already addressing the problem and close the duplicate.
 
     Examples:
 
@@ -140,18 +139,16 @@ label. The reported issue …
     - *My builds stopped working. Please help!*
       Ask for a link to the build log and for which project is affected.
 
-… is a valid enhancement proposal
-    If the ticket contains an enhancement proposal that aligns with the goals
-    of Read the Docs, then add the label **Enhancement**. If the proposal
+… is a valid feature proposal
+    If the ticket contains a feature that aligns with the goals
+    of Read the Docs, then add the label **Feature**. If the proposal
     seems valid but requires further discussion between core contributors
     because there might be different possibilities on how to implement the
-    enhancement, then also add the label **Needed: design decision**.
+    feature, then also add the label **Needed: design decision**.
 
     Examples:
 
-    - *Improve documentation about MKdocs integration*
     - *Provide better integration with service XYZ*
-    - *Refactor module X for better readability*
     - *Achieve world domination* (also needs the label **Needed: design
       decision**)
 
@@ -208,14 +205,6 @@ few more at hand to further categorize issues.
     If the issue is urgent, assign this label. In the best case also go forward to
     resolve the ticket yourself as soon as possible.
 
-*Community Effort*
-    There are many valuable ideas in the issue tracker for future enhancements
-    of Read the Docs. Unfortunately too many for the core developers to handle
-    all of them. Therefore we assign the *Community Effort* label on all the
-    issues that we see as valid for the project but that we currently do not
-    have the resources to work on. We encourage community members to work
-    on these tickets and to submit a pull request.
-
 *Good First Issue*
     This label marks tickets that are easy to get started with. The ticket
     should be ideal for beginners to dive into the code base. Better is if the
@@ -224,14 +213,6 @@ few more at hand to further categorize issues.
 *Sprintable*
     Sprintable are all tickets that have the right amount of scope to be
     handled during a sprint. They are very focused and encapsulated.
-
-*Feature Overview*
-    If a feature is too big to be tackled in one ticket and should be split
-    up, then we have a feature overview ticket explaining the overarching
-    idea. Those tickets related to one feature should also be grouped by a
-    `milestone`_.
-
-.. _milestone: https://github.com/rtfd/readthedocs.org/milestones
 
 For a full list of available labels and their meanings, see
 :doc:`issue-labels`.
