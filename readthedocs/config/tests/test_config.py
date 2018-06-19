@@ -1,25 +1,18 @@
-from mock import patch
-from mock import DEFAULT
-from pytest import raises
+from __future__ import division, print_function, unicode_literals
+
 import os
 
-from .utils import apply_fs
-from readthedocs.config import ConfigError
-from readthedocs.config import InvalidConfig
-from readthedocs.config import load
-from readthedocs.config import BuildConfig
-from readthedocs.config import ProjectConfig
-from readthedocs.config.config import TYPE_REQUIRED
-from readthedocs.config.config import NAME_REQUIRED
-from readthedocs.config.config import NAME_INVALID
-from readthedocs.config.config import PYTHON_INVALID
-from readthedocs.config.validation import INVALID_BOOL
-from readthedocs.config.validation import INVALID_CHOICE
-from readthedocs.config.validation import INVALID_DIRECTORY
-from readthedocs.config.validation import INVALID_LIST
-from readthedocs.config.validation import INVALID_PATH
-from readthedocs.config.validation import INVALID_STRING
+from mock import DEFAULT, patch
+from pytest import raises
 
+from readthedocs.config import (
+    BuildConfig, ConfigError, InvalidConfig, ProjectConfig, load)
+from readthedocs.config.config import (
+    NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID, TYPE_REQUIRED)
+from readthedocs.config.validation import (
+    INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
+
+from .utils import apply_fs
 
 env_config = {
     'output_base': '/tmp'
@@ -579,4 +572,3 @@ def test_project_set_output_base():
     for build_config in project:
         assert (
             build_config['output_base'] == os.path.join(os.getcwd(), 'random'))
-

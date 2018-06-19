@@ -1,14 +1,14 @@
-from contextlib import contextmanager
-import re
+from __future__ import division, print_function, unicode_literals
+
 import os
+import re
+from contextlib import contextmanager
 
 from .find import find_one
-from .parser import ParseError
-from .parser import parse
-from .validation import (ValidationError, validate_bool, validate_choice,
-                         validate_directory, validate_file, validate_list,
-                         validate_string)
-
+from .parser import ParseError, parse
+from .validation import (
+    ValidationError, validate_bool, validate_choice, validate_directory,
+    validate_file, validate_list, validate_string)
 
 __all__ = (
     'load', 'BuildConfig', 'ConfigError', 'InvalidConfig', 'ProjectConfig')
