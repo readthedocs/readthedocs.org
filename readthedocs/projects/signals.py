@@ -2,10 +2,11 @@
 
 from __future__ import absolute_import
 import django.dispatch
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from readthedocs.oauth.utils import attach_webhook
-
+from .models import HTMLFile
 
 before_vcs = django.dispatch.Signal(providing_args=["version"])
 after_vcs = django.dispatch.Signal(providing_args=["version"])

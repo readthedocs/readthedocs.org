@@ -18,6 +18,14 @@ class CommunityTestSettings(CommunityDevSettings):
     TEMPLATE_DEBUG = False
 
     @property
+    def ES_INDEXES(self):  # noqa - avoid pep8 N802
+        es_indexes = super(CommunityTestSettings, self).ES_INDEXES
+        for index_conf in es_indexes.values():
+            index_conf['name'] = "test_{}".format(index_conf['name'])
+
+        return es_indexes
+
+    @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super(CommunityDevSettings, self).LOGGING
         return logging
