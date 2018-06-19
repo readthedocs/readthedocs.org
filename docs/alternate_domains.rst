@@ -1,12 +1,18 @@
 Alternate Domains
 =================
 
+.. note:: This documentation belongs to our community site.
+          If you want to setup an Alternate Domain under `readthedocs.com`_,
+          please read our :ref:`business documentation <business/alternate_domains:Alternate Domains>`.
+
+.. _readthedocs.com: https://readthedocs.com
+
 Read the Docs supports a number of custom domains for your convenience. Shorter URLs make everyone happy, and we like making people happy!
 
 Subdomain Support
 ------------------
 
-Every project has a subdomain that is available to serve its documentation. If you go to <slug>.readthedocs.io, it should show you the latest version of documentation. A good example is https://pip.readthedocs.io
+Every project has a subdomain that is available to serve its documentation. If you go to ``<slug>.readthedocs.io``, it should show you the latest version of documentation. A good example is https://pip.readthedocs.io
 
 .. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hyphen (-).
           `RFC 1035 <http://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains.

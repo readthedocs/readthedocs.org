@@ -15,6 +15,7 @@ this is our solution.
 
 .. toctree:: 
 
+   alternate_domains
    organizations
    sharing
    analytics
