@@ -1121,12 +1121,12 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'Pygments==2.2.0',
-            'setuptools<40',
-            'docutils==0.13.1',
-            'mock==1.0.1',
-            'pillow==2.6.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
+            'Pygments',
+            'setuptools',
+            'docutils',
+            'mock',
+            'pillow',
+            'alabaster',
         ]
         self.base_conda_requirements = [
             'mock',
@@ -1143,6 +1143,16 @@ class TestPythonEnvironment(TestCase):
             mock.ANY,  # cache path
         ]
 
+    def assertArgsStartsWith(self, args, function_mock):
+        """
+        Assert that each element of args of the mock start
+        with each element of args.
+        """
+        args_mock, _ = function_mock.call_args
+        for arg, arg_mock in zip(args, args_mock):
+            if arg is not mock.ANY:
+                self.assertTrue(arg_mock.startswith(arg))
+
     def test_install_core_requirements_sphinx(self):
         python_env = Virtualenv(
             version=self.version_sphinx,
@@ -1150,17 +1160,16 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
-            'sphinx==1.7.4',
-            'sphinx-rtd-theme<0.5',
-            'readthedocs-sphinx-ext<0.6',
+            'commonmark',
+            'recommonmark',
+            'sphinx',
+            'sphinx-rtd-theme',
+            'readthedocs-sphinx-ext',
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once_with(
-            *args, bin_path=mock.ANY
-        )
+        self.build_env_mock.run.assert_called_once()
+        self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     def test_install_core_requirements_mkdocs(self):
         python_env = Virtualenv(
@@ -1169,15 +1178,14 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_mkdocs = [
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
-            'mkdocs==0.17.3',
+            'commonmark',
+            'recommonmark',
+            'mkdocs',
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once_with(
-            *args, bin_path=mock.ANY
-        )
+        self.build_env_mock.run.assert_called_once()
+        self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     def test_install_user_requirements(self):
         """
