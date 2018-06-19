@@ -1,17 +1,20 @@
 """Utility functions for use in tests."""
 
-from __future__ import absolute_import, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import logging
 import subprocess
 from os import chdir, environ, getcwd, mkdir
-from os.path import abspath, join as pjoin
+from os.path import abspath
+from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
-from django_dynamic_fixture import new
 from django.contrib.auth.models import User
+from django_dynamic_fixture import new
 
+from readthedocs.doc_builder.base import restoring_chdir
 
 log = logging.getLogger(__name__)
 
@@ -92,10 +95,10 @@ def make_test_git():
     return directory
 
 
+@restoring_chdir
 def create_git_tag(directory, tag, annotated=False):
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
-    path = getcwd()
     chdir(directory)
 
     command = ['git', 'tag']
@@ -103,7 +106,36 @@ def create_git_tag(directory, tag, annotated=False):
         command.extend(['-a', '-m', 'Some tag'])
     command.append(tag)
     check_output(command, env=env)
-    chdir(path)
+
+
+@restoring_chdir
+def delete_git_tag(directory, tag):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'tag', '--delete', tag]
+    check_output(command, env=env)
+
+
+@restoring_chdir
+def create_git_branch(directory, branch):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'branch', branch]
+    check_output(command, env=env)
+
+
+@restoring_chdir
+def delete_git_branch(directory, branch):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'branch', '-D', branch]
+    check_output(command, env=env)
 
 
 def make_test_hg():
