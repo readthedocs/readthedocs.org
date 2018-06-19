@@ -1,3 +1,4 @@
+"""Build configuration for rtd."""
 from __future__ import division, print_function, unicode_literals
 
 import os
@@ -49,12 +50,17 @@ DOCKER_IMAGE_SETTINGS = {
 
 class ConfigError(Exception):
 
+    """Base error for the rtd configuration file."""
+
     def __init__(self, message, code):
         self.code = code
         super(ConfigError, self).__init__(message)
 
 
 class InvalidConfig(ConfigError):
+
+    """Error for a specific key validation."""
+
     message_template = 'Invalid "{key}": {error}'
 
     def __init__(self, key, code, error_message, source_file=None,
@@ -73,8 +79,9 @@ class InvalidConfig(ConfigError):
 class BuildConfig(dict):
 
     """
-    Config that handles the build of one particular documentation. Config keys
-    can be accessed with a dictionary lookup::
+    Config that handles the build of one particular documentation.
+
+    Config keys can be accessed with a dictionary lookup::
 
         >>> build_config['type']
         'sphinx'
@@ -102,8 +109,10 @@ class BuildConfig(dict):
         self.raw_config = raw_config
         self.source_file = source_file
         self.source_position = source_position
+        super(BuildConfig, self).__init__()
 
     def error(self, key, message, code):
+        """Raise an error related to ``key``."""
         source = '{file} [{pos}]'.format(
             file=self.source_file,
             pos=self.source_position)
@@ -117,6 +126,7 @@ class BuildConfig(dict):
 
     @contextmanager
     def catch_validation_error(self, key):
+        """Catch a ``ValidationError`` and raises an ``InvalidConfig`` error."""
         try:
             yield
         except ValidationError as error:
@@ -127,19 +137,21 @@ class BuildConfig(dict):
                 source_file=self.source_file,
                 source_position=self.source_position)
 
-    def get_valid_types(self):
+    def get_valid_types(self):  # noqa
         return (
             'sphinx',
         )
 
     def get_valid_python_versions(self):
+        """Get all valid python versions."""
         try:
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             pass
         return self.PYTHON_SUPPORTED_VERSIONS
 
-    def get_valid_formats(self):
+    def get_valid_formats(self):  # noqa
+        """Get all valid documentation formats."""
         return (
             'htmlzip',
             'pdf',
@@ -148,8 +160,7 @@ class BuildConfig(dict):
 
     def validate(self):
         """
-        Validate and process config into ``config`` attribute that contains the
-        ready to use build configuration.
+        Validate and process ``raw_config`` and ``env_config`` attributes.
 
         It makes sure that:
 
@@ -157,7 +168,6 @@ class BuildConfig(dict):
         - ``base`` is a valid directory and defaults to the directory of the
           ``readthedocs.yml`` config file if not set
         """
-
         # Validate env_config.
         self.validate_output_base()
 
@@ -176,6 +186,7 @@ class BuildConfig(dict):
         self.validate_conf_file()
 
     def validate_output_base(self):
+        """Validates that ``output_base`` exists and set its absolute path."""
         assert 'output_base' in self.env_config, (
                '"output_base" required in "env_config"')
         base_path = os.path.dirname(self.source_file)
@@ -186,6 +197,7 @@ class BuildConfig(dict):
         )
 
     def validate_name(self):
+        """Validates that name exists."""
         name = self.raw_config.get('name', None)
         if not name:
             name = self.env_config.get('name', None)
@@ -203,18 +215,20 @@ class BuildConfig(dict):
         self['name'] = name
 
     def validate_type(self):
-        type = self.raw_config.get('type', None)
-        if not type:
-            type = self.env_config.get('type', None)
-        if not type:
+        """Validates that type is a valid choice."""
+        type_ = self.raw_config.get('type', None)
+        if not type_:
+            type_ = self.env_config.get('type', None)
+        if not type_:
             self.error('type', self.TYPE_REQUIRED_MESSAGE, code=TYPE_REQUIRED)
 
         with self.catch_validation_error('type'):
-            validate_choice(type, self.get_valid_types())
+            validate_choice(type_, self.get_valid_types())
 
-        self['type'] = type
+        self['type'] = type_
 
     def validate_base(self):
+        """Validates that path is a valid directory."""
         if 'base' in self.raw_config:
             base = self.raw_config['base']
         else:
@@ -275,6 +289,7 @@ class BuildConfig(dict):
         self['build'] = build
 
     def validate_python(self):
+        """Validates the ``python`` key, set default values it's necessary."""
         python = {
             'use_system_site_packages': False,
             'pip_install': False,
@@ -355,6 +370,7 @@ class BuildConfig(dict):
         self['python'] = python
 
     def validate_conda(self):
+        """Validates the ``conda`` key."""
         conda = {}
 
         if 'conda' in self.raw_config:
@@ -374,6 +390,7 @@ class BuildConfig(dict):
             self['conda'] = conda
 
     def validate_requirements_file(self):
+        """Validates that the requirements file exists."""
         if 'requirements_file' not in self.raw_config:
             return None
 
@@ -386,8 +403,8 @@ class BuildConfig(dict):
         return True
 
     def validate_conf_file(self):
+        """Validates the conf.py file for sphinx."""
         if 'conf_file' not in self.raw_config:
-            # self.error('conf_file', self.CONF_FILE_REQUIRED_MESSAGE, code=CONF_FILE_REQUIRED)
             return None
 
         conf_file = self.raw_config['conf_file']
@@ -399,6 +416,7 @@ class BuildConfig(dict):
         return True
 
     def validate_formats(self):
+        """Validates that formats contains only valid formats."""
         _formats = self.raw_config.get('formats')
         if 'formats' not in self.raw_config or _formats == []:
             return None
@@ -414,27 +432,26 @@ class BuildConfig(dict):
 
 class ProjectConfig(list):
 
-    """
-    Wrapper for multiple build configs.
-    """
+    """Wrapper for multiple build configs."""
 
     def validate(self):
+        """Validates each configuration build."""
         for build in self:
             build.validate()
 
     def set_output_base(self, directory):
+        """Set a common ``output_base`` for each configuration build."""
         for build in self:
             build['output_base'] = os.path.abspath(directory)
 
 
 def load(path, env_config):
     """
-    Load a project configuration and the top-most build config for a
-    given path. That is usually the root of the project, but will look deeper.
+    Load a project configuration and the top-most build config for a given path.
 
+    That is usually the root of the project, but will look deeper.
     The config will be validated.
     """
-
     filename = find_one(path, CONFIG_FILENAMES)
 
     if not filename:
@@ -445,9 +462,9 @@ def load(path, env_config):
         raise ConfigError('No files {} found'.format(files),
                           code=CONFIG_REQUIRED)
     build_configs = []
-    with open(filename, 'r') as file:
+    with open(filename, 'r') as configuration_file:
         try:
-            configs = parse(file.read())
+            configs = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
                 'Parse error in {filename}: {message}'.format(
