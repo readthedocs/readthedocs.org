@@ -208,7 +208,7 @@ def describe_validate_python_extra_requirements():
         assert excinfo.value.key == 'python.extra_requirements'
         assert excinfo.value.code == PYTHON_INVALID
 
-    @patch('readthedocs_build.config.config.validate_string')
+    @patch('readthedocs.config.config.validate_string')
     def it_uses_validate_string(validate_string):
         validate_string.return_value = True
         build = get_build_config(
@@ -231,7 +231,7 @@ def describe_validate_use_system_site_packages():
         excinfo.value.key = 'python.use_system_site_packages'
         excinfo.value.code = INVALID_BOOL
 
-    @patch('readthedocs_build.config.config.validate_bool')
+    @patch('readthedocs.config.config.validate_bool')
     def it_uses_validate_bool(validate_bool):
         validate_bool.return_value = True
         build = get_build_config(
@@ -254,7 +254,7 @@ def describe_validate_setup_py_install():
         assert excinfo.value.key == 'python.setup_py_install'
         assert excinfo.value.code == INVALID_BOOL
 
-    @patch('readthedocs_build.config.config.validate_bool')
+    @patch('readthedocs.config.config.validate_bool')
     def it_uses_validate_bool(validate_bool):
         validate_bool.return_value = True
         build = get_build_config(
@@ -382,7 +382,7 @@ def describe_validate_setup_py_path():
         path = tmpdir.join('setup.py')
         path.write('content')
         path = str(path)
-        patcher = patch('readthedocs_build.config.config.validate_file')
+        patcher = patch('readthedocs.config.config.validate_file')
         with patcher as validate_file:
             validate_file.return_value = path
             build = get_build_config(
@@ -421,7 +421,7 @@ def describe_validate_base():
             build.validate_base()
             assert build['base'] == str(tmpdir.join('docs'))
 
-    @patch('readthedocs_build.config.config.validate_directory')
+    @patch('readthedocs.config.config.validate_directory')
     def it_uses_validate_directory(validate_directory):
         validate_directory.return_value = 'path'
         build = get_build_config({'base': '../my-path'})
