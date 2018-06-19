@@ -1,11 +1,14 @@
-Read the Docs Public API
-=========================
+API v1 (deprecated)
+===================
 
 We have a limited public API that is available for you to get data out of the site. 
 This document covers only part of the API provided. We have plans to create a read/write API, so that you can easily automate interactions with your project.
 
-.. warning:: This API is out of date and not currently maintained.
-             We have a v2 API that is currently supported at http://readthedocs.org/api/v2/.
+.. warning::
+
+    This API is **deprecated** but will be maintained through at least January 2019.
+    Please connect with :doc:`/api/v2`.
+
 
 A basic API client using slumber
 --------------------------------
@@ -17,7 +20,7 @@ You can use `Slumber <http://slumber.readthedocs.io/>`_ to build basic API wrapp
     import json
 
     show_objs = True
-    api = slumber.API(base_url='http://readthedocs.org/api/v1/')
+    api = slumber.API(base_url='https://readthedocs.org/api/v1/')
 
     val = api.project.get(slug='pip')
 
@@ -52,7 +55,7 @@ Feel free to use cURL and python to look at formatted json examples. You can als
 
 ::
 
-    curl http://readthedocs.org/api/v1/project/pip/?format=json | python -m json.tool
+    curl https://readthedocs.org/api/v1/project/pip/?format=json | python -m json.tool
 
 Doc Search
 ----------
@@ -69,7 +72,7 @@ Doc Search
 
     In the future we might change the format of this endpoint to make it more abstact.
 
-    An example URL: http://readthedocs.org/api/v2/docsearch/?project=docs&version=latest&q=subdomains
+    An example URL: https://readthedocs.org/api/v2/docsearch/?project=docs&version=latest&q=subdomains
 
 
     Results:
@@ -486,7 +489,7 @@ File Search
 ~~~~~~~~~~~
 ::
 
-    http://readthedocs.org/api/v1/file/search/?format=json&q=virtualenvwrapper
+    https://readthedocs.org/api/v1/file/search/?format=json&q=virtualenvwrapper
     
 .. http:get::  /api/v1/file/search/?q={search_term}
 
@@ -543,7 +546,7 @@ Anchor Search
 ~~~~~~~~~~~~~
 ::
 
-    http://readthedocs.org/api/v1/file/anchor/?format=json&q=virtualenv
+    https://readthedocs.org/api/v1/file/anchor/?format=json&q=virtualenv
 
 .. http:get::  /api/v1/file/anchor/?q={search_term}
 
