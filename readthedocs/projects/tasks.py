@@ -9,6 +9,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import datetime
+import fnmatch
 import hashlib
 import json
 import logging
@@ -30,7 +31,7 @@ from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import ImportedFile, Project, Domain, Feature
+from .models import ImportedFile, Project, Domain, Feature, HTMLFile
 from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
@@ -987,18 +988,24 @@ def _manage_imported_files(version, path, commit):
     changed_files = set()
     for root, __, filenames in os.walk(path):
         for filename in filenames:
+            if fnmatch.fnmatch(filename, '*.html'):
+                model_class = HTMLFile
+            else:
+                model_class = ImportedFile
+
             dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                    filename.lstrip('/'))
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
-                obj, __ = ImportedFile.objects.get_or_create(
+                # pylint: disable=unpacking-non-sequence
+                obj, __ = model_class.objects.get_or_create(
                     project=version.project,
                     version=version,
                     path=dirpath,
                     name=filename,
                 )
-            except ImportedFile.MultipleObjectsReturned:
+            except model_class.MultipleObjectsReturned:
                 log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
@@ -1007,6 +1014,12 @@ def _manage_imported_files(version, path, commit):
             if obj.commit != commit:
                 obj.commit = commit
             obj.save()
+
+    # Delete the HTMLFile first from previous versions
+    HTMLFile.objects.filter(project=version.project,
+                            version=version
+                            ).exclude(commit=commit).delete()
+
     # Delete ImportedFiles from previous versions
     ImportedFile.objects.filter(project=version.project,
                                 version=version
@@ -1188,7 +1201,6 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
-    update_search(version_pk, commit=commit)
 
 
 @app.task()
