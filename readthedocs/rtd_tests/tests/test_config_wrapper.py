@@ -3,7 +3,7 @@ import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs_build.config import BuildConfig, ProjectConfig, InvalidConfig
+from readthedocs.config import BuildConfig, ProjectConfig, InvalidConfig
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.doc_builder.config import load_yaml_config

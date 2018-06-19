@@ -5,10 +5,11 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 from builtins import filter, object
-from readthedocs_build.config import load as load_config
-from readthedocs_build.config import BuildConfig, ConfigError, InvalidConfig
 
-from .constants import DOCKER_IMAGE_SETTINGS, DOCKER_IMAGE
+from readthedocs.config import BuildConfig, ConfigError, InvalidConfig
+from readthedocs.config import load as load_config
+
+from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
 
 
 class ConfigWrapper(object):
