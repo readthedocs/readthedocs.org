@@ -184,7 +184,7 @@ def index_search_request(
             'lang': project.language,
             'author': [user.username for user in project.users.all()],
             'url': project.get_absolute_url(),
-            'tags': None,
+            'tags': list(project.tags.slugs()) or None,
             'weight': project_scale,
         })
 

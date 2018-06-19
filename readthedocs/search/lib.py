@@ -22,6 +22,7 @@ def search_project(request, query, language=None):
                 "should": [
                     {"match": {"name": {"query": query, "boost": 10}}},
                     {"match": {"description": {"query": query}}},
+                    {"match": {"tags": {"query": query}}},
                 ]
             },
         },
