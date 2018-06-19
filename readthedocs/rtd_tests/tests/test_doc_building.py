@@ -1137,7 +1137,6 @@ class TestPythonEnvironment(TestCase):
             'python',
             mock.ANY,  # pip path
             'install',
-            '--use-wheel',
             '--upgrade',
             '--cache-dir',
             mock.ANY,  # cache path
