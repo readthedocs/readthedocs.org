@@ -4,6 +4,8 @@ import os
 import re
 from contextlib import contextmanager
 
+import six
+
 from .find import find_one
 from .parser import ParseError, parse
 from .validation import (
@@ -337,7 +339,7 @@ class BuildConfig(dict):
                     # Try to convert strings to an int first, to catch '2', then
                     # a float, to catch '2.7'
                     version = raw_python['version']
-                    if isinstance(version, str):
+                    if isinstance(version, six.string_types):
                         try:
                             version = int(version)
                         except ValueError:
