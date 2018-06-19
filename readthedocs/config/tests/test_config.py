@@ -3,22 +3,22 @@ from mock import DEFAULT
 from pytest import raises
 import os
 
-from ..utils import apply_fs
-from .config import ConfigError
-from .config import InvalidConfig
-from .config import load
-from .config import BuildConfig
-from .config import ProjectConfig
-from .config import TYPE_REQUIRED
-from .config import NAME_REQUIRED
-from .config import NAME_INVALID
-from .config import PYTHON_INVALID
-from .validation import INVALID_BOOL
-from .validation import INVALID_CHOICE
-from .validation import INVALID_DIRECTORY
-from .validation import INVALID_LIST
-from .validation import INVALID_PATH
-from .validation import INVALID_STRING
+from .utils import apply_fs
+from readthedocs.config import ConfigError
+from readthedocs.config import InvalidConfig
+from readthedocs.config import load
+from readthedocs.config import BuildConfig
+from readthedocs.config import ProjectConfig
+from readthedocs.config.config import TYPE_REQUIRED
+from readthedocs.config.config import NAME_REQUIRED
+from readthedocs.config.config import NAME_INVALID
+from readthedocs.config.config import PYTHON_INVALID
+from readthedocs.config.validation import INVALID_BOOL
+from readthedocs.config.validation import INVALID_CHOICE
+from readthedocs.config.validation import INVALID_DIRECTORY
+from readthedocs.config.validation import INVALID_LIST
+from readthedocs.config.validation import INVALID_PATH
+from readthedocs.config.validation import INVALID_STRING
 
 
 env_config = {
