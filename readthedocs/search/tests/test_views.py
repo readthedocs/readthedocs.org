@@ -72,7 +72,7 @@ class TestPageSearch(object):
         assert resp.status_code == 200
 
         page = pq(resp.content)
-        result = page.find('.module-list-wrapper .module-item-title')
+        result = page.find('.module-list-wrapper .module-item')
         return result, page
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
