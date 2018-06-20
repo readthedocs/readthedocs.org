@@ -238,7 +238,7 @@ For example, here is `Pip's build screen`_.
 Build detail
 ++++++++++++++
 
-.. http:get::  /api/v2/build/{id}/
+.. http:get::  /api/v2/build/(int:id)/
 
     Retrieve details of a single build.
 
