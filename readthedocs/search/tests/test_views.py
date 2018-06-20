@@ -8,7 +8,7 @@ from pyquery import PyQuery as pq
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, HTMLFile
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
@@ -72,7 +72,7 @@ class TestPageSearch(object):
         assert resp.status_code == 200
 
         page = pq(resp.content)
-        result = page.find('.module-list-wrapper .module-item')
+        result = page.find('.module-list-wrapper .search-result-item')
         return result, page
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
@@ -92,16 +92,26 @@ class TestPageSearch(object):
 
         It tests with uppercase, lowercase and camelcase
         """
-        query = get_search_query_from_project_file(project_slug=project.slug)\
+        query_text = get_search_query_from_project_file(project_slug=project.slug)
 
-        cased_query = getattr(query, case)
+        cased_query = getattr(query_text, case)
+        query = cased_query()
 
         result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': cased_query(), 'type': 'file'})
+                                            search_params={'q': query, 'type': 'file'})
 
         assert len(result) == 1
         # Check the actual text is in the result, not the cased one
-        assert query in result.text()
+        assert query_text in result.text()
+
+    def test_page_search_not_return_removed_page(self, client, project):
+        """Check removed page are not in the search index"""
+        query = get_search_query_from_project_file(project_slug=project.slug)
+        # Delete all the HTML files of the project
+        p = HTMLFile.objects.filter(project=project).delete()
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+        assert len(result) == 0
 
     def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching for files"""
