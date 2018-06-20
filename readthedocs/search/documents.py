@@ -96,11 +96,14 @@ class PageDocument(DocType):
         # TODO: remove this overwrite when the issue has been fixed
         # See below link for more information
         # https://github.com/sabricot/django-elasticsearch-dsl/issues/111
-        if isinstance(thing, HTMLFile):
+        # Moreover, do not need to check if its a delete action
+        # Because while delete action, the object is already remove from database
+        if isinstance(thing, HTMLFile) and action != 'delete':
             # Its a model instance.
             queryset = self.get_queryset()
             obj = queryset.filter(pk=thing.pk)
             if not obj.exists():
                 return None
 
-        return super(PageDocument, self).update(thing=thing, refresh=None, action='index', **kwargs)
+        return super(PageDocument, self).update(thing=thing, refresh=refresh,
+                                                action=action, **kwargs)

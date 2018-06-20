@@ -123,12 +123,13 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
 
                 <ul>
                   {% for result in results %}
-                        <li class="module-item">
+                        <li class="module-item search-result-item">
                           <p class="module-item-title">
                             {% if result.name %}
 
                               {# Project #}
                               <a href="{{ result.url }}">{{ result.name }}</a>
+                          </p>
                                 {{ result.meta.description }}
                               {% for fragment in result.meta.highlight.description|slice:":3" %}
                                 <p>
@@ -150,7 +151,6 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                               {# End File #}
 
                             {% endif %}
-                          </p>
                         </li>
                   {% empty %}
                     <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
