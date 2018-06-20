@@ -64,7 +64,7 @@ class TestProjectSearch(object):
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestElasticSearch(object):
+class TestPageSearch(object):
     url = reverse('search')
 
     def _get_search_result(self, url, client, search_params):
@@ -77,13 +77,31 @@ class TestElasticSearch(object):
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_by_file_content(self, client, project, data_type, page_num):
+    def test_file_search(self, client, project, data_type, page_num):
         query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
                                                    data_type=data_type)
 
         result, _ = self._get_search_result(url=self.url, client=client,
                                             search_params={'q': query, 'type': 'file'})
-        assert len(result) == 1, ("failed"+ query)
+        assert len(result) == 1
+        assert query in result.text()
+
+    @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
+    def test_file_search_case_insensitive(self, client, project, case):
+        """Check File search is case insensitive
+
+        It tests with uppercase, lowercase and camelcase
+        """
+        query = get_search_query_from_project_file(project_slug=project.slug)\
+
+        cased_query = getattr(query, case)
+
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': cased_query(), 'type': 'file'})
+
+        assert len(result) == 1
+        # Check the actual text is in the result, not the cased one
+        assert query in result.text()
 
     def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching for files"""
