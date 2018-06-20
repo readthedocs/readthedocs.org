@@ -10,6 +10,7 @@ and HTTP response status codes are to designate success and failure.
     A newer API v3 is in early development stages.
     Some improvements coming in v3 are:
 
+    * Search API
     * Write access
     * Simpler URLs which use slugs instead of numeric IDs
     * Improved error reporting
@@ -43,44 +44,6 @@ You can always view your Read the Docs projects in your `project dashboard`_.
 .. _Docs project: https://readthedocs.org/projects/docs/
 .. _project dashboard: https://readthedocs.org/dashboard/
 
-Project search
-++++++++++++++
-
-.. tip::
-
-    This API is in need of simplifying for end users.
-    Largely this endpoint should be used only to get the Project ID
-    which is used in other API calls.
-
-.. http:get::  /api/v2/search/project/?q={query}
-
-    Search for projects by name or description.
-    Results are returned in order of the best match.
-
-    .. sourcecode:: js
-
-        {
-            "results": {
-                "hits": {
-                    "hits": [
-                        {
-                            "fields": {
-                                // Returned fields
-                            },
-                            "_id": "13"     // Project ID
-                        },
-                    ],
-                },
-                "facets": {
-                    // Facet Data
-                },
-                "took": 15,
-                "timed_out": false,
-            }
-        }
-
-    :>json array results: An array of matching results
-
 Project list
 ++++++++++++
 
@@ -97,7 +60,6 @@ Project list
             "results": [PROJECTS]
         }
 
-
     :>json string next: URI for next set of Projects.
     :>json string previous: URI for previous set of Projects.
     :>json integer count: Total number of Projects.
@@ -106,7 +68,7 @@ Project list
 Project details
 +++++++++++++++
 
-.. http:get::  /api/v2/project/{id}/
+.. http:get::  /api/v2/project/(int:id)/
 
     Retrieve details of a single project.
 
@@ -143,10 +105,13 @@ Project details
     :>json string canonical_url: The canonical URL of the default docs
     :>json array users: Array of ``User`` IDs who are maintainers of the project.
 
+    :statuscode 200: no error
+    :statuscode 404: There is no ``Project`` with this ID
+
 Project versions
 ++++++++++++++++
 
-.. http:get::  /api/v2/project/{id}/active_versions/
+.. http:get::  /api/v2/project/(int:id)/active_versions/
 
     Retrieve a list of active versions (eg. "latest", "stable", "v1.x") for a single project.
 
@@ -220,7 +185,7 @@ Version list
 Version detail
 ++++++++++++++
 
-.. http:get::  /api/v2/version/{id}/
+.. http:get::  /api/v2/version/(int:id)/
 
     Retrieve details of a single version.
 
@@ -251,6 +216,9 @@ Version detail
     :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
     :>json array downloads: URLs to downloads of this version's documentation
     :>json object project: Details of the ``Project`` for this version.
+
+    :statuscode 200: no error
+    :statuscode 404: There is no ``Version`` with this ID
 
 
 Builds
@@ -323,6 +291,9 @@ Build detail
     :>json string version_slug: The slug for the version of the project being built
     :>json array commands: Array of commands for the build with details including output.
 
+    :statuscode 200: no error
+    :statuscode 404: There is no ``Build`` with this ID
+
     Some fields primarily used for UI elements in Read the Docs are omitted.
 
 Undocumented resources and endpoints
@@ -332,6 +303,7 @@ There are some undocumented endpoints in the API.
 These should not be used and could change at any time.
 These include:
 
+* The search API (``/api/v2/search/``)
 * Endpoints for returning footer and version data to be injected into docs.
   (``/api/v2/footer_html``)
 * Endpoints used for advertising (``/api/v2/sustainability/``)
