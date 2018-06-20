@@ -14,6 +14,7 @@
 #
 
 
+import importlib
 import sys
 import os.path
 from six import string_types
@@ -48,14 +49,14 @@ using_rtd_theme = (
     ) or 'html_theme' not in globals()
 )
 if using_rtd_theme:
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
+    theme = importlib.import_module('{{ html_theme_import }}')
+    html_theme = '{{ html_theme }}'
     html_style = None
     html_theme_options = {}
     if 'html_theme_path' in globals():
-        html_theme_path.append(sphinx_rtd_theme.get_html_theme_path())
+        html_theme_path.append(theme.get_html_theme_path())
     else:
-        html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+        html_theme_path = [theme.get_html_theme_path()]
 
 if globals().get('websupport2_base_url', False):
     websupport2_base_url = '{{ api_host }}/websupport'
