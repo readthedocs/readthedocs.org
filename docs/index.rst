@@ -105,7 +105,6 @@ Information about development is also available:
    i18n
    issue-labels
    security
-   developer-interface/index
 
 .. _business-docs:
 
