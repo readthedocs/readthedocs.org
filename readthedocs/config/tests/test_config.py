@@ -321,10 +321,20 @@ def describe_validate_formats():
         build.validate_formats()
         assert build['formats'] == ['pdf']
 
+    def formats_can_be_null():
+        build = get_build_config({'formats': None})
+        build.validate_formats()
+        assert 'formats' not in build
+
+    def formats_with_previous_none():
+        build = get_build_config({'formats': ['none']})
+        build.validate_formats()
+        assert build['formats'] == []
+
     def formats_can_be_empty():
         build = get_build_config({'formats': []})
         build.validate_formats()
-        assert 'formats' not in build
+        assert build['formats'] == []
 
     def all_valid_formats():
         build = get_build_config({'formats': ['pdf', 'htmlzip', 'epub']})
