@@ -59,7 +59,6 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
-    SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
     SESSION_SAVE_EVERY_REQUEST = True
 
     # CSRF
