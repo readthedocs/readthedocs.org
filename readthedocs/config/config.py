@@ -417,15 +417,18 @@ class BuildConfig(dict):
 
     def validate_formats(self):
         """Validates that formats contains only valid formats."""
-        _formats = self.raw_config.get('formats')
-        if 'formats' not in self.raw_config or _formats == []:
+        formats = self.raw_config.get('formats')
+        if formats is None:
             return None
+        if formats == ['none']:
+            self['formats'] = []
+            return True
 
         with self.catch_validation_error('format'):
-            validate_list(_formats)
-            for _format in _formats:
-                validate_choice(_format, self.get_valid_formats())
-        self['formats'] = _formats
+            validate_list(formats)
+            for format_ in formats:
+                validate_choice(format_, self.get_valid_formats())
+        self['formats'] = formats
 
         return True
 
