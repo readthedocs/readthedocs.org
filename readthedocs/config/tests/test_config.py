@@ -106,11 +106,11 @@ def test_build_config_has_source_position(tmpdir):
     assert second.source_position == 1
 
 
-def test_build_config_has_list_with_single_null_value(tmpdir):
+def test_build_config_has_list_with_single_empty_value(tmpdir):
     base = str(apply_fs(tmpdir, config_with_explicit_empty_list))
     build = load(base, env_config)[0]
     assert isinstance(build, BuildConfig)
-    assert 'formats' not in build
+    assert build['formats'] == []
 
 
 def test_config_requires_name():
@@ -356,7 +356,7 @@ def describe_validate_formats():
         assert excinfo.value.code == INVALID_CHOICE
 
     def only_list_type():
-        build = get_build_config({'formats': None})
+        build = get_build_config({'formats': 'no-list'})
         with raises(InvalidConfig) as excinfo:
             build.validate_formats()
         assert excinfo.value.key == 'format'
