@@ -84,15 +84,19 @@
     <div id="content">
       <div class="wrapper">
 
-        {% if messages %}
-          <ul class="notifications">
-            {% for message in messages %}
-              <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
-                {{ message }}
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+        <!-- BEGIN notify -->
+        {% block notify %}
+          {% if messages %}
+            <ul class="notifications">
+              {% for message in messages %}
+                <li class="notification notification-{{ message.level }}" {% if message.pk %}data-dismiss-url="{% url 'message_mark_read' message.pk %}{% endif %}">
+                  {{ message }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endblock %}
+        <!-- END notify -->
 
         {% block content-header %}
         {% endblock %}
