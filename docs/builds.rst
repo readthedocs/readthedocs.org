@@ -108,7 +108,7 @@ Writing your own builder
 
 The documentation build system in RTD is made pluggable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
 
-The :doc:`api/doc_builder` API explains the higher level parts of the API that you need to implement. A basic run goes something like this::
+The builders in :doc:`/developer-interface/doc_builder` detail the higher level parts of the API that you need to implement. A basic run goes something like this::
 
     backend = get_backend(project.documentation_type)
     if force:
