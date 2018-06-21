@@ -150,7 +150,7 @@ class BaseSphinx(BaseBuilder):
         return data
 
     def append_conf(self, **__):
-        """Modify given ``conf.py`` file from a whitelisted user's project."""
+        """Find or create a ``conf.py`` with a rendered ``doc_builder/conf.py.tmpl`` appended"""
         try:
             self.version.get_conf_py_path()
         except ProjectConfigurationError:
