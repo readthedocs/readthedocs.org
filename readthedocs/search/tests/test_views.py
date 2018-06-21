@@ -8,7 +8,7 @@ from pyquery import PyQuery as pq
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, HTMLFile
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
@@ -64,7 +64,7 @@ class TestProjectSearch(object):
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestElasticSearch(object):
+class TestPageSearch(object):
     url = reverse('search')
 
     def _get_search_result(self, url, client, search_params):
@@ -72,18 +72,52 @@ class TestElasticSearch(object):
         assert resp.status_code == 200
 
         page = pq(resp.content)
-        result = page.find('.module-list-wrapper .module-item-title')
+        result = page.find('.module-list-wrapper .search-result-item')
         return result, page
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_by_file_content(self, client, project, data_type, page_num):
+    def test_file_search(self, client, project, data_type, page_num):
         query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
                                                    data_type=data_type)
 
         result, _ = self._get_search_result(url=self.url, client=client,
                                             search_params={'q': query, 'type': 'file'})
-        assert len(result) == 1, ("failed"+ query)
+        assert len(result) == 1
+        assert query in result.text()
+
+    @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
+    def test_file_search_case_insensitive(self, client, project, case):
+        """Check File search is case insensitive
+
+        It tests with uppercase, lowercase and camelcase
+        """
+        query_text = get_search_query_from_project_file(project_slug=project.slug)
+
+        cased_query = getattr(query_text, case)
+        query = cased_query()
+
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+
+        assert len(result) == 1
+        # Check the actual text is in the result, not the cased one
+        assert query_text in result.text()
+
+    def test_page_search_not_return_removed_page(self, client, project):
+        """Check removed page are not in the search index"""
+        query = get_search_query_from_project_file(project_slug=project.slug)
+        # Make a query to check it returns result
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+        assert len(result) == 1
+
+        # Delete all the HTML files of the project
+        HTMLFile.objects.filter(project=project).delete()
+        # Run the query again and this time there should not be any result
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+        assert len(result) == 0
 
     def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching for files"""
