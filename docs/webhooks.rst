@@ -97,7 +97,7 @@ branches
     Default: **latest**
 
 token
-    The integration token. You'll find this value on the on your project's
+    The integration token. You'll find this value on the project's
     **Integrations** Admin dashboard page.
 
 For example, the cURL command to build the ``dev`` branch, using the token
