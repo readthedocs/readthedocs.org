@@ -51,11 +51,19 @@ Project list
 
     Retrieve a list of all Read the Docs projects.
 
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v2/project/?slug=pip
+
+    **Example response**:
+
     .. sourcecode:: js
 
         {
-            "count": 10000,
-            "next": "http://readthedocs.org/api/v2/project/?page=2",
+            "count": 1,
+            "next": null,
             "previous": null,
             "results": [PROJECTS]
         }
@@ -63,7 +71,9 @@ Project list
     :>json string next: URI for next set of Projects.
     :>json string previous: URI for previous set of Projects.
     :>json integer count: Total number of Projects.
-    :>json array objects: Array of ``Project`` objects.
+    :>json array results: Array of ``Project`` objects.
+
+    :query string slug: Narrow the results by matching the exact project slug
 
 Project details
 +++++++++++++++
@@ -118,37 +128,12 @@ Project versions
     .. sourcecode:: js
 
         {
-            "versions": [
-                {
-                    "id": 1437428,
-                    "slug": "stable",
-                    "verbose_name": "stable",
-                    "built": true,
-                    "active": true,
-                    "type": "tag",
-                    "identifier": "3a6b3995c141c0888af6591a59240ba5db7d9914",
-                    "downloads": {
-                        "pdf": "//readthedocs.org/projects/pip/downloads/pdf/stable/",
-                        "htmlzip": "//readthedocs.org/projects/pip/downloads/htmlzip/stable/",
-                        "epub": "//readthedocs.org/projects/pip/downloads/epub/stable/"
-                    },
-                    "project": {PROJECT},
-                },
-                ...
-            ]
+            "versions": [VERSION, VERSION, ...]
         }
 
+    :>json array versions: Version objects for the given ``Project``
 
-    :>json integer id: The ID of the version
-    :>json string verbose_name: The name of the version.
-    :>json string slug: The version slug.
-    :>json string built: Whether this version has been built
-    :>json string active: Whether this version is still active
-    :>json string type: The type of this version (typically "tag" or "branch")
-    :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
-    :>json array downloads: URLs to downloads of this version's documentation
-    :>json object project: Details of the ``Project`` for this version.
-
+    See the :ref:`Version detail <api-version-detail>` call for the format of the ``Version`` object.
 
 Versions
 ~~~~~~~~
@@ -165,7 +150,7 @@ Version list
 
 .. http:get::  /api/v2/version/
 
-    Retrieve a list of all Versions for all projects (10 at a time).
+    Retrieve a list of all Versions for all projects
 
     .. sourcecode:: js
 
@@ -173,14 +158,18 @@ Version list
             "count": 1000,
             "previous": null,
             "results": [VERSIONS],
-            "next": "http://readthedocs.org/api/v2/version/?limit=10&offset=10"
+            "next": "https://readthedocs.org/api/v2/version/?limit=10&offset=10"
         }
 
 
     :>json string next: URI for next set of Versions.
     :>json string previous: URI for previous set of Versions.
     :>json integer count: Total number of Versions.
-    :>json array objects: Array of ``Version`` objects.
+    :>json array results: Array of ``Version`` objects.
+
+    :query string project__slug: Narrow to the versions for a specific ``Project``
+
+.. _api-version-detail:
 
 Version detail
 ++++++++++++++
@@ -232,11 +221,39 @@ For example, here is `Pip's build screen`_.
 
 .. _Pip's build screen: https://readthedocs.org/projects/pip/builds/
 
-.. The build list API fails with no parameters.
-   As a result, I'm going to leave it undocumented.
+Build list
+++++++++++
+
+.. http:get::  /api/v2/build/
+
+    Retrieve details of builds ordered by most recent first
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v2/build/?project__slug=pip
+
+    **Example response**:
+
+    .. sourcecode:: js
+
+        {
+            "count": 100,
+            "next": null,
+            "previous": null,
+            "results": [BUILDS]
+        }
+
+    :>json string next: URI for next set of Builds.
+    :>json string previous: URI for previous set of Builds.
+    :>json integer count: Total number of Builds.
+    :>json array results: Array of ``Build`` objects.
+
+    :query string project__slug: Narrow to builds for a specific ``Project``
 
 Build detail
-++++++++++++++
+++++++++++++
 
 .. http:get::  /api/v2/build/(int:id)/
 

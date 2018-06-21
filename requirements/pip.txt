@@ -24,6 +24,9 @@ django-extensions==2.0.7
 # djangorestframework 3.7.x drops support for django 1.9.x
 djangorestframework==3.6.4
 
+# Filtering for the REST API
+django-filter==1.1.0
+
 django-vanilla-views==1.0.5
 jsonfield==2.0.2
 
