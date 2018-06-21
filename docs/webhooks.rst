@@ -18,7 +18,7 @@ see the *integration detail page*. This page has additional configuration
 details and a list of HTTP exchanges that have taken place for the integration.
 
 You need this information for the URL, webhook, or Payload URL needed by the
-source control provider such as GitHub, GitLab, or Bitbucket.
+repository provider such as GitHub, GitLab, or Bitbucket.
 
 Webhook Creation
 ----------------
@@ -30,14 +30,11 @@ manually configure a webhook for your project.
 
 To manually set up a webhook, click **Add integration** on your project's
 **Integrations** Admin dashboard page and select the integration type you'd like
-to add. After you have added the integration, you'll see a URL for the
-integration once you go to readthedocs.org/dashboard, log in, and then go to 
-**Admin** > **Integrations** to see or create an integration.
+to add. After you have added the integration, you'll see a link to information about the integration.
 
-As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/<project-name>/<nnnnnn>/*.
+As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
 
-Use this URL when setting up a new webhook with your provider -- these steps vary
-depending on the provider:
+Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
 
 GitHub
 ~~~~~~
@@ -45,17 +42,16 @@ GitHub
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **Payload URL**, use the URL of the integration on Read the Docs, found on
-  the :ref:`integration detail page <webhooks:Webhook Integrations>` page
+  the the project's **Integrations** Admin dashboard page
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
 * Select **Just the push event**
 * Finish by clicking **Add webhook**
-* You can verify if the webhook is working at the bottom of the GitHub page 
-  under **Recent Deliveries**. If you see a Response 200, then the webhook is correctly configured.
-  For a 403 error, it's likely that the Payload URL is incorrect since the **Secret** field is not
-  used by GitHub, even if you enter a token.
 
-.. note:: The webhook **Secret** field is not yet respected.
+You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**. If you see a Response 200, then the webhook is correctly configured.
+For a 403 error, it's likely that the Payload URL is incorrect.
+
+.. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
 Bitbucket
 ~~~~~~~~~
@@ -63,7 +59,7 @@ Bitbucket
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
-  :ref:`integration detail page <webhooks:Webhook Integrations>` page
+  **Dashboard** > **Admin** > **Integrations** page
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
@@ -73,7 +69,7 @@ GitLab
 * Go to the **Settings** page for your project
 * Click **Integrations**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
-  :ref:`integration detail page <webhooks:Webhook Integrations>` page
+  **Dashboard** > **Admin** > **Integrations** page
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
