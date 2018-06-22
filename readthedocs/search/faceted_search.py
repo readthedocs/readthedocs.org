@@ -1,4 +1,5 @@
 from elasticsearch_dsl import FacetedSearch, TermsFacet
+from elasticsearch_dsl.query import SimpleQueryString, Bool
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -29,3 +30,24 @@ class FileSearch(RTDFacetedSearch):
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version')
     }
+
+    def query(self, search, query):
+        """
+        Add query part to ``search``.
+        """
+
+        if query:
+            all_queries = []
+
+            # Need to search for both 'AND' and 'OR' operations
+            # The score of AND should be higher as it comes first
+            for operator in ['AND', 'OR']:
+                query_string = SimpleQueryString(query=query, fields=self.fields,
+                                                 default_operator=operator)
+                all_queries.append(query_string)
+
+            # Run bool query with should, so it returns result where either of the query matches
+            bool_query = Bool(should=all_queries)
+            search = search.query(bool_query)
+
+        return search
