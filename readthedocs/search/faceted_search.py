@@ -32,9 +32,7 @@ class FileSearch(RTDFacetedSearch):
     }
 
     def query(self, search, query):
-        """
-        Add query part to ``search``.
-        """
+        """Add query part to ``search``."""
 
         if query:
             all_queries = []
