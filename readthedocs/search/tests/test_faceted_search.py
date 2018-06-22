@@ -12,7 +12,6 @@ class TestFileSearch(object):
         Making a query with quoted text like ``"foo bar"`` should match
         exactly ``foo bar`` or ``Foo Bar`` etc
         """
-
         # `Github` word is present both in `kuma` and `pipeline` files
         # But the phrase Github can is available only in kuma docs.
         # So search with this phrase to check
@@ -35,7 +34,6 @@ class TestFileSearch(object):
         - Where both `Foo Bar` is present
         - Where `Foo` or `Bar` is present
         """
-
         query = 'Official Support'
         page_search = PageDocument.faceted_search(query=query)
         results = page_search.execute()
