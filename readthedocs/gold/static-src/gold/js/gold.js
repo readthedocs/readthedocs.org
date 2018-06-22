@@ -22,10 +22,4 @@ GoldView.init = function (config, obj) {
     return view;
 };
 
-GoldView.prototype.submit_form = function (card_digits, token) {
-    this.form.find('#id_last_4_digits').val(card_digits);
-    this.form.find('#id_stripe_token').val(token);
-    this.form.submit();
-};
-
 module.exports.GoldView = GoldView;

@@ -123,8 +123,14 @@ function PaymentView (config) {
 }
 
 PaymentView.prototype.submit_form = function (card_digits, token) {
-    this.form.find('#id_card_digits').val(card_digits);
+    this.form.find('#id_last_4_digits').val(card_digits);
     this.form.find('#id_stripe_token').val(token);
+
+    // Delete all user's card information before sending them to our servers
+    this.form.find('#id_cc_number').val(null);
+    this.form.find('#id_cc_expiry').val(null);
+    this.form.find('#id_cc_cvv').val(null);
+
     this.form.submit();
 };
 
