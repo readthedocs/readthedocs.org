@@ -104,8 +104,8 @@ class TestPageSearch(object):
     def test_file_search_exact_match(self, client, project):
         """Check quoted query match exact phrase
 
-        Making a query with quoted text like *"foo bar"* should match
-        exactly *foo bar* phrase.
+        Making a query with quoted text like ``"foo bar"`` should match
+        exactly ``foo bar`` phrase.
         """
 
         # `Github` word is present both in `kuma` and `pipeline` files
