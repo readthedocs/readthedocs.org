@@ -505,6 +505,10 @@ class BuildConfig(BuildConfigBase, dict):
     def formats(self):
         return self['formats']
 
+    @property
+    def python(self):
+        return self['python']
+
 
 class ProjectConfig(list):
 
