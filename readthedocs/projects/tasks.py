@@ -764,10 +764,21 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
     synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
+    version = Version.objects.get(pk=version_pk)
     if not pdf:
-        clear_pdf_artifacts(version_pk)
+        remove_dir(
+            version.project.get_production_media_path(
+                type_='pdf',
+                version_slug=version.slug,
+            ),
+        )
     if not epub:
-        clear_epub_artifacts(version_pk)
+        remove_dir(
+            version.project.get_production_media_path(
+                type_='epub',
+                version_slug=version.slug,
+            ),
+        )
 
     # Sync files to the web servers
     move_files(
@@ -777,7 +788,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
         localmedia=localmedia,
         search=search,
         pdf=pdf,
-        epub=epub
+        epub=epub,
     )
 
     # Symlink project
@@ -1158,44 +1169,15 @@ def remove_dir(path):
 
 
 @app.task()
-def clear_artifacts(version_pk):
-    """Remove artifacts from the web servers."""
-    version = Version.objects.get(pk=version_pk)
-    clear_pdf_artifacts(version)
-    clear_epub_artifacts(version)
-    clear_htmlzip_artifacts(version)
-    clear_html_artifacts(version)
+def clear_artifacts(paths):
+    """
+    Remove artifacts from the web servers.
 
-
-@app.task()
-def clear_pdf_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='pdf', version_slug=version.slug))
-
-
-@app.task()
-def clear_epub_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='epub', version_slug=version.slug))
-
-
-@app.task()
-def clear_htmlzip_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='htmlzip', version_slug=version.slug))
-
-
-@app.task()
-def clear_html_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.rtd_build_path(version=version.slug))
+    :param paths: list containing PATHs where production media is on disk
+        (usually ``Version.get_artifact_paths``)
+    """
+    for path in paths:
+        remove_dir(path)
 
 
 @app.task(queue='web')

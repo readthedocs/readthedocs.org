@@ -157,7 +157,7 @@ def project_version_detail(request, project_slug, version_slug):
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
                 broadcast(
-                    type='app', task=tasks.clear_artifacts, args=[version.pk])
+                    type='app', task=tasks.clear_artifacts, args=[version.get_artifact_paths()])
                 version.built = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
@@ -649,7 +649,7 @@ def project_version_delete_html(request, project_slug, version_slug):
     if not version.active:
         version.built = False
         version.save()
-        broadcast(type='app', task=tasks.clear_artifacts, args=[version.pk])
+        broadcast(type='app', task=tasks.clear_artifacts, args=[version.get_artifact_paths()])
     else:
         return HttpResponseBadRequest(
             "Can't delete HTML for an active version.")
