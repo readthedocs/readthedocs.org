@@ -76,7 +76,7 @@ class InvalidConfig(ConfigError):
         super(InvalidConfig, self).__init__(message, code=code)
 
 
-class BuildConfigBase(dict):
+class BuildConfigBase(object):
 
     def __init__(self, env_config, raw_config, source_file, source_position):
         self.env_config = env_config
@@ -116,6 +116,9 @@ class BuildConfigBase(dict):
                 source_file=self.source_file,
                 source_position=self.source_position
             )
+
+    def validate(self):
+        raise NotImplementedError()
 
     @property
     def version(self):
@@ -170,7 +173,7 @@ class BuildConfigBase(dict):
         raise NotImplementedError()
 
 
-class BuildConfig(BuildConfigBase):
+class BuildConfig(BuildConfigBase, dict):
 
     """
     Config that handles the build of one particular documentation.
@@ -493,6 +496,10 @@ class BuildConfig(BuildConfigBase):
         self['formats'] = formats
 
         return True
+
+    @property
+    def formats(self):
+        return self['formats']
 
 
 class ProjectConfig(list):
