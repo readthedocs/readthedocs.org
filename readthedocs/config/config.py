@@ -76,7 +76,101 @@ class InvalidConfig(ConfigError):
         super(InvalidConfig, self).__init__(message, code=code)
 
 
-class BuildConfig(dict):
+class BuildConfigBase(dict):
+
+    def __init__(self, env_config, raw_config, source_file, source_position):
+        self.env_config = env_config
+        self.raw_config = raw_config
+        self.source_file = source_file
+        self.source_position = source_position
+        super(BuildConfigBase, self).__init__()
+
+    def error(self, key, message, code):
+        """Raise an error related to ``key``."""
+        source = '{file} [{pos}]'.format(
+            file=self.source_file,
+            pos=self.source_position
+        )
+        error_message = '{source}: {message}'.format(
+            source=source,
+            message=message
+        )
+        raise InvalidConfig(
+            key=key,
+            code=code,
+            error_message=error_message,
+            source_file=self.source_file,
+            source_position=self.source_position
+        )
+
+    @contextmanager
+    def catch_validation_error(self, key):
+        """Catch a ``ValidationError`` and raises an ``InvalidConfig`` error."""
+        try:
+            yield
+        except ValidationError as error:
+            raise InvalidConfig(
+                key=key,
+                code=error.code,
+                error_message=str(error),
+                source_file=self.source_file,
+                source_position=self.source_position
+            )
+
+    @property
+    def version(self):
+        raise NotImplementedError()
+
+    @property
+    def pip_install(self):
+        raise NotImplementedError()
+
+    @property
+    def install_project(self):
+        raise NotImplementedError()
+
+    @property
+    def extra_requirements(self):
+        raise NotImplementedError()
+
+    @property
+    def python_interpreter(self):
+        raise NotImplementedError()
+
+    @property
+    def python_version(self):
+        raise NotImplementedError()
+
+    @property
+    def python_full_version(self):
+        raise NotImplementedError()
+
+    @property
+    def use_system_site_packages(self):
+        raise NotImplementedError()
+
+    @property
+    def use_conda(self):
+        raise NotImplementedError()
+
+    @property
+    def conda_file(self):
+        raise NotImplementedError()
+
+    @property
+    def requirements_file(self):
+        raise NotImplementedError()
+
+    @property
+    def formats(self):
+        raise NotImplementedError()
+
+    @property
+    def build_image(self):
+        raise NotImplementedError()
+
+
+class BuildConfig(BuildConfigBase):
 
     """
     Config that handles the build of one particular documentation.
@@ -104,38 +198,6 @@ class BuildConfig(dict):
     PYTHON_SUPPORTED_VERSIONS = [2, 2.7, 3, 3.5]
     DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
 
-    def __init__(self, env_config, raw_config, source_file, source_position):
-        self.env_config = env_config
-        self.raw_config = raw_config
-        self.source_file = source_file
-        self.source_position = source_position
-        super(BuildConfig, self).__init__()
-
-    def error(self, key, message, code):
-        """Raise an error related to ``key``."""
-        source = '{file} [{pos}]'.format(
-            file=self.source_file,
-            pos=self.source_position)
-        raise InvalidConfig(
-            key=key,
-            code=code,
-            error_message='{source}: {message}'.format(source=source,
-                                                       message=message),
-            source_file=self.source_file,
-            source_position=self.source_position)
-
-    @contextmanager
-    def catch_validation_error(self, key):
-        """Catch a ``ValidationError`` and raises an ``InvalidConfig`` error."""
-        try:
-            yield
-        except ValidationError as error:
-            raise InvalidConfig(
-                key=key,
-                code=error.code,
-                error_message=str(error),
-                source_file=self.source_file,
-                source_position=self.source_position)
 
     def get_valid_types(self):  # noqa
         return (
