@@ -177,6 +177,7 @@ def test_use_system_site_packages_defaults_to_false():
     build.validate_python()
     # Default is False.
     assert not build['python']['use_system_site_packages']
+    assert not build.python['use_system_site_packages']
 
 
 def test_python_pip_install_default():
@@ -184,6 +185,7 @@ def test_python_pip_install_default():
     build.validate_python()
     # Default is False.
     assert build['python']['pip_install'] is False
+    assert build.python['pip_install'] is False
 
 
 def describe_validate_python_extra_requirements():
@@ -193,6 +195,7 @@ def describe_validate_python_extra_requirements():
         build.validate_python()
         # Default is an empty list.
         assert build['python']['extra_requirements'] == []
+        assert build.python['extra_requirements'] == []
 
     def it_validates_is_a_list():
         build = get_build_config(
@@ -216,6 +219,7 @@ def describe_validate_use_system_site_packages():
         build = get_build_config({'python': {}})
         build.validate_python()
         assert build['python']['setup_py_install'] is False
+        assert build.python['setup_py_install'] is False
 
     def it_validates_value():
         build = get_build_config(
@@ -240,6 +244,7 @@ def describe_validate_setup_py_install():
         build = get_build_config({'python': {}})
         build.validate_python()
         assert build['python']['setup_py_install'] is False
+        assert build.python['setup_py_install'] is False
 
     def it_validates_value():
         build = get_build_config({'python': {'setup_py_install': 'this-is-string'}})
@@ -263,11 +268,13 @@ def describe_validate_python_version():
         build = get_build_config({'python': {}})
         build.validate_python()
         assert build['python']['version'] is 2
+        assert build.python['version'] is 2
 
     def it_supports_other_versions():
         build = get_build_config({'python': {'version': 3.5}})
         build.validate_python()
         assert build['python']['version'] is 3.5
+        assert build.python['version'] is 3.5
 
     def it_validates_versions_out_of_range():
         build = get_build_config({'python': {'version': 1.0}})
@@ -287,10 +294,12 @@ def describe_validate_python_version():
         build = get_build_config({'python': {'version': '3.5'}})
         build.validate_python()
         assert build['python']['version'] == 3.5
+        assert build.python['version'] == 3.5
 
         build = get_build_config({'python': {'version': '3'}})
         build.validate_python()
         assert build['python']['version'] == 3
+        assert build.python['version'] == 3
 
     def it_validates_env_supported_versions():
         build = get_build_config(
@@ -308,6 +317,7 @@ def describe_validate_python_version():
         )
         build.validate_python()
         assert build['python']['version'] == 3.6
+        assert build.python['version'] == 3.6
 
 
 def describe_validate_formats():
@@ -377,6 +387,7 @@ def describe_validate_setup_py_path():
             build = get_build_config({}, source_file=str(source_file))
             build.validate_python()
             assert build['python']['setup_py_path'] == str(setup_py)
+            assert build.python['setup_py_path'] == str(setup_py)
 
     def it_validates_value(tmpdir):
         with tmpdir.as_cwd():
@@ -410,8 +421,11 @@ def test_valid_build_config():
     assert build['type'] == 'sphinx'
     assert build['base']
     assert build['python']
+    assert build.python
     assert 'setup_py_install' in build['python']
+    assert 'setup_py_install' in build.python
     assert 'use_system_site_packages' in build['python']
+    assert 'use_system_site_packages' in build.python
     assert build['output_base']
 
 
