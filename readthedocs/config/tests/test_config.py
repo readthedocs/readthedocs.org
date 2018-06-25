@@ -111,6 +111,7 @@ def test_build_config_has_list_with_single_empty_value(tmpdir):
     build = load(base, env_config)[0]
     assert isinstance(build, BuildConfig)
     assert build['formats'] == []
+    assert build.formats == []
 
 
 def test_config_requires_name():
@@ -320,6 +321,7 @@ def describe_validate_formats():
         build = get_build_config({'formats': ['pdf']})
         build.validate_formats()
         assert build['formats'] == ['pdf']
+        assert build.formats == ['pdf']
 
     def formats_can_be_null():
         build = get_build_config({'formats': None})
@@ -330,16 +332,19 @@ def describe_validate_formats():
         build = get_build_config({'formats': ['none']})
         build.validate_formats()
         assert build['formats'] == []
+        assert build.formats == []
 
     def formats_can_be_empty():
         build = get_build_config({'formats': []})
         build.validate_formats()
         assert build['formats'] == []
+        assert build.formats == []
 
     def all_valid_formats():
         build = get_build_config({'formats': ['pdf', 'htmlzip', 'epub']})
         build.validate_formats()
         assert build['formats'] == ['pdf', 'htmlzip', 'epub']
+        assert build.formats == ['pdf', 'htmlzip', 'epub']
 
     def cant_have_none_as_format():
         build = get_build_config({'formats': ['htmlzip', None]})
