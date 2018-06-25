@@ -530,6 +530,7 @@ def describe_validate_build():
             source_position=0)
         build.validate_build()
         assert build['build']['image'] == 'readthedocs/build:latest'
+        assert build.build['image'] == 'readthedocs/build:latest'
 
     def default(tmpdir):
         apply_fs(tmpdir, minimal_config)
@@ -540,6 +541,7 @@ def describe_validate_build():
             source_position=0)
         build.validate_build()
         assert build['build']['image'] == 'readthedocs/build:2.0'
+        assert build.build['image'] == 'readthedocs/build:2.0'
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
