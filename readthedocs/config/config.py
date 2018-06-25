@@ -173,10 +173,11 @@ class BuildConfigBase(object):
 
     @property
     def formats(self):
+        """Documentation formats to be built."""
         raise NotImplementedError()
 
     @property
-    def build_image(self):
+    def build(self):
         raise NotImplementedError()
 
 
@@ -508,6 +509,10 @@ class BuildConfig(BuildConfigBase, dict):
     @property
     def python(self):
         return self['python']
+
+    @property
+    def build(self):
+        return self['build']
 
 
 class ProjectConfig(list):
