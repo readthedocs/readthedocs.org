@@ -78,6 +78,13 @@ class InvalidConfig(ConfigError):
 
 class BuildConfigBase(object):
 
+    """
+    Config that handles the build of one particular documentation.
+
+    You need to call ``validate`` before the config is ready to use.
+    Also setting the ``output_base`` is required before using it for a build.
+    """
+
     def __init__(self, env_config, raw_config, source_file, source_position):
         self.env_config = env_config
         self.raw_config = raw_config
@@ -176,15 +183,12 @@ class BuildConfigBase(object):
 class BuildConfig(BuildConfigBase, dict):
 
     """
-    Config that handles the build of one particular documentation.
+    Version 1 of the configuration file.
 
     Config keys can be accessed with a dictionary lookup::
 
         >>> build_config['type']
         'sphinx'
-
-    You need to call ``validate`` before the config is ready to use. Also
-    setting the ``output_base`` is required before using it for a build.
     """
 
     BASE_INVALID_MESSAGE = 'Invalid value for base: {base}'
