@@ -325,7 +325,7 @@ class BuildConfig(BuildConfigBase, dict):
         with self.catch_validation_error('base'):
             base_path = os.path.dirname(self.source_file)
             base = validate_directory(base, base_path)
-        self['base'] = base
+        return base
 
     def validate_build(self):
         """
@@ -531,7 +531,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def base(self):  # noqa
-        return self['base']
+        return self.config['base']
 
     @property
     def output_base(self):  # noqa

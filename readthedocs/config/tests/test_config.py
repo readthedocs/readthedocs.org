@@ -419,7 +419,6 @@ def test_valid_build_config():
     build.validate()
     assert build.name == 'docs'
     assert build.type == 'sphinx'
-    assert build['base']
     assert build.base
     assert build['python']
     assert build.python
@@ -437,19 +436,18 @@ def describe_validate_base():
         with tmpdir.as_cwd():
             source_file = str(tmpdir.join('configs', 'readthedocs.yml'))
             build = BuildConfig(
-                {},
+                get_env_config(),
                 {'base': '../docs'},
                 source_file=source_file,
                 source_position=0)
-            build.validate_base()
-            assert build['base'] == str(tmpdir.join('docs'))
+            build.validate()
             assert build.base == str(tmpdir.join('docs'))
 
     @patch('readthedocs.config.config.validate_directory')
     def it_uses_validate_directory(validate_directory):
         validate_directory.return_value = 'path'
-        build = get_build_config({'base': '../my-path'})
-        build.validate_base()
+        build = get_build_config({'base': '../my-path'}, get_env_config())
+        build.validate()
         # Test for first argument to validate_directory
         args, kwargs = validate_directory.call_args
         assert args[0] == '../my-path'
@@ -458,24 +456,24 @@ def describe_validate_base():
         apply_fs(tmpdir, minimal_config)
         with tmpdir.as_cwd():
             build = BuildConfig(
-                {},
+                get_env_config(),
                 {'base': 1},
                 source_file=str(tmpdir.join('readthedocs.yml')),
                 source_position=0)
             with raises(InvalidConfig) as excinfo:
-                build.validate_base()
+                build.validate()
             assert excinfo.value.key == 'base'
             assert excinfo.value.code == INVALID_STRING
 
     def it_fails_if_base_does_not_exist(tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfig(
-            {},
+            get_env_config(),
             {'base': 'docs'},
             source_file=str(tmpdir.join('readthedocs.yml')),
             source_position=0)
         with raises(InvalidConfig) as excinfo:
-            build.validate_base()
+            build.validate()
         assert excinfo.value.key == 'base'
         assert excinfo.value.code == INVALID_PATH
 
