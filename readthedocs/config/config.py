@@ -551,15 +551,22 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def pip_install(self):  # noqa
-        return self['python']['pip_install']
+        try:
+            return self['python']['pip_install']
+        except KeyError as e:
+            return False
 
     @property
     def install_project(self):  # noqa
-        return None
+        if self.pip_install:
+            return True
+        return self['python']['setup_py_install']
 
     @property
     def extra_requirements(self):  # noqa
-        return self['python']['extra_requirements']
+        if self.pip_install:
+            return self['python']['extra_requirements']
+        return []
 
     @property
     def python_interpreter(self):  # noqa
@@ -568,7 +575,10 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def python_version(self):  # noqa
-        return self['python']['version']
+        version = 2
+        if 'version' in self.get('python', {}):
+            version = self['python']['version']
+        return version
 
     @property
     def python_full_version(self):  # noqa
@@ -593,7 +603,9 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def conda_file(self):  # noqa
-        return self['conda']['file']
+        if 'file' in self.get('conda', {}):
+            return self['conda']['file']
+        return None
 
     @property
     def requirements_file(self):  # noqa
