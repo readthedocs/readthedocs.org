@@ -487,9 +487,7 @@ class BuildConfig(BuildConfigBase, dict):
         base_path = os.path.dirname(self.source_file)
         with self.catch_validation_error('requirements_file'):
             validate_file(requirements_file, base_path)
-        self['requirements_file'] = requirements_file
-
-        return True
+        return requirements_file
 
     def validate_conf_file(self):
         """Validates the conf.py file for sphinx."""
@@ -607,7 +605,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def requirements_file(self):  # noqa
-        return self['requirements_file']
+        return self._config['requirements_file']
 
     @property
     def build_image(self):  # noqa

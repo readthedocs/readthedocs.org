@@ -96,9 +96,11 @@ class ConfigWrapper(object):
     @property
     def requirements_file(self):
         try:
-            return self._yaml_config.requirements_file
+            if self._yaml_config.requirements_file is not None:
+                return self._yaml_config.requirements_file
         except (KeyError, AttributeError) as e:
-            return self._project.requirements_file
+            pass
+        return self._project.requirements_file
 
     @property
     def formats(self):
