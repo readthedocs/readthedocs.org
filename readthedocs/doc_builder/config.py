@@ -58,8 +58,8 @@ class ConfigWrapper(object):
         # version is the default response of `2`, then assume we can use the
         # Python.python_interpreter version to infer this value instead.
         version = 2
-        if 'version' in self._yaml_config.get('python', {}):
-            version = self._yaml_config['python']['version']
+        if 'version' in self._yaml_config.python:
+            version = self._yaml_config.python['version']
         if version == 2 and self._project.python_interpreter == 'python3':
             version = 3
         return version
