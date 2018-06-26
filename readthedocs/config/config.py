@@ -475,7 +475,8 @@ class BuildConfig(BuildConfigBase, dict):
                     conda['file'] = validate_file(
                         raw_conda['file'], base_path)
 
-            self['conda'] = conda
+            return conda
+        return None
 
     def validate_requirements_file(self):
         """Validates that the requirements file exists."""
@@ -596,12 +597,12 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def use_conda(self):  # noqa
-        return 'conda' in self
+        return self._config.get('conda') is not None
 
     @property
     def conda_file(self):  # noqa
-        if 'file' in self.get('conda', {}):
-            return self['conda']['file']
+        if self.use_conda:
+            return self._config['conda'].get('file')
         return None
 
     @property
