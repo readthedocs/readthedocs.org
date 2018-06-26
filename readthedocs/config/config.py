@@ -545,7 +545,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def python(self):  # noqa
-        return self.config['python']
+        return self.config.get('python', {})
 
     @property
     def pip_install(self):  # noqa
