@@ -132,6 +132,7 @@ class BuildConfigBase(object):
         raise NotImplementedError()
 
     def output_base(self):
+        # TODO: this isn't used
         raise NotImplementedError()
 
     @property
@@ -373,7 +374,7 @@ class BuildConfig(BuildConfigBase, dict):
             self.env_config.update(
                 self.env_config['DOCKER_IMAGE_SETTINGS'][build['image']]
             )
-        self['build'] = build
+        return build
 
     def validate_python(self):
         """Validates the ``python`` key, set default values it's necessary."""
@@ -548,10 +549,6 @@ class BuildConfig(BuildConfigBase, dict):
         return self['python']
 
     @property
-    def build(self):  # noqa
-        return self['build']
-
-    @property
     def pip_install(self):  # noqa
         try:
             return self['python']['pip_install']
@@ -615,7 +612,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def build_image(self):  # noqa
-        return self['build']['image']
+        return self._build['image']
 
 
 class ProjectConfig(list):

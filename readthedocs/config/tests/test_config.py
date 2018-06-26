@@ -482,6 +482,16 @@ def describe_validate_base():
         assert excinfo.value.code == INVALID_PATH
 
 
+def get_env_config(extra={}):
+    defaults = {
+        'output_base': '',
+        'name': 'name',
+        'type': 'sphinx',
+    }
+    defaults.update(extra)
+    return defaults
+
+
 def describe_validate_build():
 
     def it_fails_if_build_is_invalid_option(tmpdir):
@@ -528,24 +538,22 @@ def describe_validate_build():
     def it_works(tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfig(
-            {},
+            get_env_config(),
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
             source_position=0)
-        build.validate_build()
-        assert build['build']['image'] == 'readthedocs/build:latest'
-        assert build.build['image'] == 'readthedocs/build:latest'
+        build.validate()
+        assert build.build_image == 'readthedocs/build:latest'
 
     def default(tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfig(
-            {},
+            get_env_config(),
             {},
             source_file=str(tmpdir.join('readthedocs.yml')),
             source_position=0)
-        build.validate_build()
-        assert build['build']['image'] == 'readthedocs/build:2.0'
-        assert build.build['image'] == 'readthedocs/build:2.0'
+        build.validate()
+        assert build.build_image == 'readthedocs/build:2.0'
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
