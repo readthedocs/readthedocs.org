@@ -39,10 +39,7 @@ class ConfigWrapper(object):
 
     @property
     def extra_requirements(self):
-        try:
-            return self._yaml_config.extra_requirements
-        except AttributeError as e:
-            return []
+        return self._yaml_config.extra_requirements
 
     @property
     def python_interpreter(self):
