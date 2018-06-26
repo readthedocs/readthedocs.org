@@ -128,7 +128,22 @@ class BuildConfigBase(object):
         raise NotImplementedError()
 
     @property
+    def base(self):
+        raise NotImplementedError()
+
+    def output_base(self):
+        raise NotImplementedError()
+
+    @property
+    def name(self):
+        raise NotImplementedError()
+
+    @property
     def version(self):
+        raise NotImplementedError()
+
+    @property
+    def type(self):
         raise NotImplementedError()
 
     @property
@@ -501,6 +516,22 @@ class BuildConfig(BuildConfigBase, dict):
         self['formats'] = formats
 
         return True
+
+    @property
+    def name(self):
+        return self['name']
+
+    @property
+    def base(self):
+        return self['base']
+
+    @property
+    def output_base(self):
+        return self['output_base']
+
+    @property
+    def type(self):
+        return self['type']
 
     @property
     def formats(self):
