@@ -20,7 +20,7 @@ def es_index():
 
 
 @pytest.fixture(autouse=True)
-def all_projects(es_index, mock_processed_json):
+def all_projects(es_index, mock_processed_json, db):
     projects_list = []
     for project_slug in ALL_PROJECTS:
         project = G(Project, slug=project_slug, name=project_slug)
