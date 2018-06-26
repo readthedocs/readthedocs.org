@@ -270,6 +270,7 @@ class BuildConfig(BuildConfigBase, dict):
 
         self._config['conda'] = self.validate_conda()
         self._config['requirements_file'] = self.validate_requirements_file()
+        # TODO: this isn't used
         self._config['conf_file'] = self.validate_conf_file()
 
     def validate_output_base(self):
@@ -498,9 +499,7 @@ class BuildConfig(BuildConfigBase, dict):
         base_path = os.path.dirname(self.source_file)
         with self.catch_validation_error('conf_file'):
             validate_file(conf_file, base_path)
-        self['conf_file'] = conf_file
-
-        return True
+        return conf_file
 
     def validate_formats(self):
         """Validates that formats contains only valid formats."""
