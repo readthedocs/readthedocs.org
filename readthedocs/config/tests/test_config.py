@@ -418,8 +418,11 @@ def test_valid_build_config():
                         source_position=0)
     build.validate()
     assert build['name'] == 'docs'
+    assert build.name == 'docs'
     assert build['type'] == 'sphinx'
+    assert build.type == 'sphinx'
     assert build['base']
+    assert build.base
     assert build['python']
     assert build.python
     assert 'setup_py_install' in build['python']
@@ -427,6 +430,7 @@ def test_valid_build_config():
     assert 'use_system_site_packages' in build['python']
     assert 'use_system_site_packages' in build.python
     assert build['output_base']
+    assert build.output_base
 
 
 def describe_validate_base():
@@ -442,6 +446,7 @@ def describe_validate_base():
                 source_position=0)
             build.validate_base()
             assert build['base'] == str(tmpdir.join('docs'))
+            assert build.base == str(tmpdir.join('docs'))
 
     @patch('readthedocs.config.config.validate_directory')
     def it_uses_validate_directory(validate_directory):
