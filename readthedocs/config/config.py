@@ -613,11 +613,6 @@ class ProjectConfig(list):
         for build in self:
             build.validate()
 
-    def set_output_base(self, directory):
-        """Set a common ``output_base`` for each configuration build."""
-        for build in self:
-            build['output_base'] = os.path.abspath(directory)
-
 
 def load(path, env_config):
     """

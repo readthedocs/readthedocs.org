@@ -589,22 +589,3 @@ def test_load_calls_validate(tmpdir):
     with patch.object(BuildConfig, 'validate') as build_validate:
         load(base, env_config)
         assert build_validate.call_count == 1
-
-
-def test_project_set_output_base():
-    project = ProjectConfig([
-        BuildConfig(
-            env_config,
-            minimal_config,
-            source_file='readthedocs.yml',
-            source_position=0),
-        BuildConfig(
-            env_config,
-            minimal_config,
-            source_file='readthedocs.yml',
-            source_position=1),
-    ])
-    project.set_output_base('random')
-    for build_config in project:
-        assert (
-            build_config['output_base'] == os.path.join(os.getcwd(), 'random'))
