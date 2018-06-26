@@ -88,6 +88,7 @@ class BuildConfigBase(object):
     def __init__(self, env_config, raw_config, source_file, source_position):
         self.env_config = env_config
         self.raw_config = raw_config
+        self.config = {}
         self.source_file = source_file
         self.source_position = source_position
         super(BuildConfigBase, self).__init__()
@@ -193,7 +194,7 @@ class BuildConfigBase(object):
         raise NotImplementedError()
 
     @property
-    def build(self):
+    def build_image(self):
         raise NotImplementedError()
 
 
@@ -244,7 +245,7 @@ class BuildConfig(BuildConfigBase, dict):
             'epub',
         )
 
-    def validate(self):
+    def validate(self):  # noqa
         """
         Validate and process ``raw_config`` and ``env_config`` attributes.
 
@@ -255,22 +256,22 @@ class BuildConfig(BuildConfigBase, dict):
           ``readthedocs.yml`` config file if not set
         """
         # Validate env_config.
-        self._output_base = self.validate_output_base()
+        self.config['output_base'] = self.validate_output_base()
 
         # Validate the build environment first
         # Must happen before `validate_python`!
-        self._build = self.validate_build()
+        self.config['build'] = self.validate_build()
 
         # Validate raw_config. Order matters.
-        self._name = self.validate_name()
-        self._type = self.validate_type()
-        self._base = self.validate_base()
-        self._python = self.validate_python()
-        self._formats = self.validate_formats()
+        self.config['name'] = self.validate_name()
+        self.config['type'] = self.validate_type()
+        self.config['base'] = self.validate_base()
+        self.config['python'] = self.validate_python()
+        self.config['formats'] = self.validate_formats()
 
-        self._conda = self.validate_conda()
-        self._requirements_file = self.validate_requirements_file()
-        self._conf_file = self.validate_conf_file()
+        self.config['conda'] = self.validate_conda()
+        self.config['requirements_file'] = self.validate_requirements_file()
+        self.config['conf_file'] = self.validate_conf_file()
 
     def validate_output_base(self):
         """Validates that ``output_base`` exists and set its absolute path."""
@@ -300,7 +301,7 @@ class BuildConfig(BuildConfigBase, dict):
                     name_re=name_re),
                 code=NAME_INVALID)
 
-        self['name'] = name
+        return name
 
     def validate_type(self):
         """Validates that type is a valid choice."""
@@ -526,7 +527,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def name(self):  # noqa
-        return self['name']
+        return self.config['name']
 
     @property
     def base(self):  # noqa
@@ -534,7 +535,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def output_base(self):  # noqa
-        return self._output_base
+        return self.config['output_base']
 
     @property
     def type(self):  # noqa
@@ -612,7 +613,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def build_image(self):  # noqa
-        return self._build['image']
+        return self.config['build']['image']
 
 
 class ProjectConfig(list):
