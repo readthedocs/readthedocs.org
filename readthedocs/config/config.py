@@ -203,9 +203,7 @@ class BuildConfigBase(object):
 
 class BuildConfig(BuildConfigBase, dict):
 
-    """
-    Version 1 of the configuration file.
-    """
+    """Version 1 of the configuration file."""
 
     BASE_INVALID_MESSAGE = 'Invalid value for base: {base}'
     BASE_NOT_A_DIR_MESSAGE = '"base" is not a directory: {base}'
