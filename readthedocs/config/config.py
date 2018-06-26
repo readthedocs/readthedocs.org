@@ -90,6 +90,7 @@ class BuildConfigBase(object):
         self.raw_config = raw_config
         self.source_file = source_file
         self.source_position = source_position
+        self.defaults = self.env_config.get('defaults', {})
 
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
@@ -379,11 +380,12 @@ class BuildConfig(BuildConfigBase, dict):
 
     def validate_python(self):
         """Validates the ``python`` key, set default values it's necessary."""
+        install_project = self.defaults.get('install_project', False)
         python = {
             'use_system_site_packages': False,
             'pip_install': False,
             'extra_requirements': [],
-            'setup_py_install': False,
+            'setup_py_install': install_project,
             'setup_py_path': os.path.join(
                 os.path.dirname(self.source_file),
                 'setup.py'),

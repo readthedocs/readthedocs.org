@@ -57,7 +57,8 @@ class LoadConfigTests(TestCase):
                 'build': {'image': 'readthedocs/build:1.0'},
                 'type': 'sphinx',
                 'output_base': '',
-                'name': mock.ANY
+                'name': mock.ANY,
+                'defaults': mock.ANY,
             }),
         ])
         self.assertEqual(config.python_version, 2)

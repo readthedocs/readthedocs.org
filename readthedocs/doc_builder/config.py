@@ -35,10 +35,7 @@ class ConfigWrapper(object):
 
     @property
     def install_project(self):
-        try:
-            return self._yaml_config.install_project
-        except KeyError as e:
-            return self._project.install_project
+        return self._yaml_config.install_project
 
     @property
     def extra_requirements(self):
@@ -144,6 +141,7 @@ def load_yaml_config(version):
     parsing consistent between projects.
     """
     checkout_path = version.project.checkout_path(version.slug)
+    project = version.project
 
     # Get build image to set up the python version validation. Pass in the
     # build image python limitations to the loaded config so that the versions
@@ -153,6 +151,9 @@ def load_yaml_config(version):
     env_config = {
         'build': {
             'image': img_name,
+        },
+        'defaults': {
+            'install_project': project.install_project,
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
