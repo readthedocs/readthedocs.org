@@ -88,7 +88,6 @@ class BuildConfigBase(object):
     def __init__(self, env_config, raw_config, source_file, source_position):
         self.env_config = env_config
         self.raw_config = raw_config
-        self.config = {}
         self.source_file = source_file
         self.source_position = source_position
 
@@ -219,6 +218,10 @@ class BuildConfig(BuildConfigBase, dict):
     PYTHON_SUPPORTED_VERSIONS = [2, 2.7, 3, 3.5]
     DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
 
+    def __init__(self, *args, **kwargs):
+        self._config = {}
+        super(BuildConfig, self).__init__(*args, **kwargs)
+
 
     def get_valid_types(self):  # noqa
         return (
@@ -252,22 +255,22 @@ class BuildConfig(BuildConfigBase, dict):
           ``readthedocs.yml`` config file if not set
         """
         # Validate env_config.
-        self.config['output_base'] = self.validate_output_base()
+        self._config['output_base'] = self.validate_output_base()
 
         # Validate the build environment first
         # Must happen before `validate_python`!
-        self.config['build'] = self.validate_build()
+        self._config['build'] = self.validate_build()
 
         # Validate raw_config. Order matters.
-        self.config['name'] = self.validate_name()
-        self.config['type'] = self.validate_type()
-        self.config['base'] = self.validate_base()
-        self.config['python'] = self.validate_python()
-        self.config['formats'] = self.validate_formats()
+        self._config['name'] = self.validate_name()
+        self._config['type'] = self.validate_type()
+        self._config['base'] = self.validate_base()
+        self._config['python'] = self.validate_python()
+        self._config['formats'] = self.validate_formats()
 
-        self.config['conda'] = self.validate_conda()
-        self.config['requirements_file'] = self.validate_requirements_file()
-        self.config['conf_file'] = self.validate_conf_file()
+        self._config['conda'] = self.validate_conda()
+        self._config['requirements_file'] = self.validate_requirements_file()
+        self._config['conf_file'] = self.validate_conf_file()
 
     def validate_output_base(self):
         """Validates that ``output_base`` exists and set its absolute path."""
@@ -523,19 +526,19 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def name(self):  # noqa
-        return self.config['name']
+        return self._config['name']
 
     @property
     def base(self):  # noqa
-        return self.config['base']
+        return self._config['base']
 
     @property
     def output_base(self):  # noqa
-        return self.config['output_base']
+        return self._config['output_base']
 
     @property
     def type(self):  # noqa
-        return self.config['type']
+        return self._config['type']
 
     @property
     def formats(self):  # noqa
@@ -543,12 +546,12 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def python(self):  # noqa
-        return self.config.get('python', {})
+        return self._config.get('python', {})
 
     @property
     def pip_install(self):  # noqa
         try:
-            return self.config['python']['pip_install']
+            return self._config['python']['pip_install']
         except KeyError:
             return False
 
@@ -556,12 +559,12 @@ class BuildConfig(BuildConfigBase, dict):
     def install_project(self):  # noqa
         if self.pip_install:
             return True
-        return self.config['python']['setup_py_install']
+        return self._config['python']['setup_py_install']
 
     @property
     def extra_requirements(self):  # noqa
         if self.pip_install:
-            return self.config['python']['extra_requirements']
+            return self._config['python']['extra_requirements']
         return []
 
     @property
@@ -573,7 +576,7 @@ class BuildConfig(BuildConfigBase, dict):
     def python_version(self):  # noqa
         version = 2
         if 'version' in self.get('python', {}):
-            version = self.config['python']['version']
+            version = self._config['python']['version']
         return version
 
     @property
@@ -591,7 +594,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def use_system_site_packages(self):  # noqa
-        return self.config['python']['use_system_site_packages']
+        return self._config['python']['use_system_site_packages']
 
     @property
     def use_conda(self):  # noqa
@@ -609,7 +612,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def build_image(self):  # noqa
-        return self.config['build']['image']
+        return self._config['build']['image']
 
 
 class ProjectConfig(list):
