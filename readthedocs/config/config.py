@@ -518,32 +518,90 @@ class BuildConfig(BuildConfigBase, dict):
         return True
 
     @property
-    def name(self):
+    def version(self):  # noqa
+        return '1'
+
+    @property
+    def name(self):  # noqa
         return self['name']
 
     @property
-    def base(self):
+    def base(self):  # noqa
         return self['base']
 
     @property
-    def output_base(self):
+    def output_base(self):  # noqa
         return self['output_base']
 
     @property
-    def type(self):
+    def type(self):  # noqa
         return self['type']
 
     @property
-    def formats(self):
+    def formats(self):  # noqa
         return self['formats']
 
     @property
-    def python(self):
+    def python(self):  # noqa
         return self['python']
 
     @property
-    def build(self):
+    def build(self):  # noqa
         return self['build']
+
+    @property
+    def pip_install(self):  # noqa
+        return self['python']['pip_install']
+
+    @property
+    def install_project(self):  # noqa
+        return None
+
+    @property
+    def extra_requirements(self):  # noqa
+        return self['python']['extra_requirements']
+
+    @property
+    def python_interpreter(self):  # noqa
+        ver = self.python_full_version
+        return 'python{0}'.format(ver)
+
+    @property
+    def python_version(self):  # noqa
+        return self['python']['version']
+
+    @property
+    def python_full_version(self):  # noqa
+        ver = self.python_version
+        if ver in [2, 3]:
+            # Get the highest version of the major series version if user only
+            # gave us a version of '2', or '3'
+            ver = max(
+                version
+                for version in self.get_valid_python_versions()
+                if version < ver + 1
+            )
+        return ver
+
+    @property
+    def use_system_site_packages(self):  # noqa
+        return self['python']['use_system_site_packages']
+
+    @property
+    def use_conda(self):  # noqa
+        return 'conda' in self
+
+    @property
+    def conda_file(self):  # noqa
+        return self['conda']['file']
+
+    @property
+    def requirements_file(self):  # noqa
+        return self['requirements_file']
+
+    @property
+    def build_image(self):  # noqa
+        return self['build']['image']
 
 
 class ProjectConfig(list):
