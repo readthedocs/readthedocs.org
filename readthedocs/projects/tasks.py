@@ -48,7 +48,7 @@ from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
-from readthedocs.projects.models import APIProject
+from readthedocs.projects.models import APIProject, SSHKey
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
@@ -1247,4 +1247,21 @@ def finish_inactive_builds():
     log.info(
         'Builds marked as "Terminated due inactivity": %s',
         builds_finished,
+    )
+
+@app.task(queue='web')
+def generate_project_ssh_pair_keys(pk):
+    """
+    Generate a SSHKey for the project.
+
+    This task is used in ``trigger_initial_build`` to auto-generate the SSH key
+    for this project.
+
+    :param pk: pk of the Project
+
+    :returns: None
+    """
+    project = Project.objects.get(pk=pk)
+    SSHKey.objects.create(
+        project=project
     )

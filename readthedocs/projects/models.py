@@ -4,10 +4,12 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import base64
 import fnmatch
+import hashlib
 import logging
 import os
-from builtins import object  # pylint: disable=redefined-builtin
+from builtins import object, zip  # pylint: disable=redefined-builtin
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -34,6 +36,9 @@ from readthedocs.projects.version_handling import (
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
+
+from .ssh import generate_ssh_pair_keys
+from .mixins import SSHKeyGenMixin
 
 log = logging.getLogger(__name__)
 
@@ -1082,3 +1087,36 @@ class Feature(models.Model):
         implement this behavior.
         """
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
+
+
+@python_2_unicode_compatible
+class SSHKey(SSHKeyGenMixin, models.Model):
+
+    public_key = models.TextField(
+        _('Public SSH Key'),
+        help_text='Add this to your version control to give us access.',
+        blank=True,
+        null=True,
+    )
+    private_key = models.TextField(
+        _('Private SSH Key'),
+        blank=True,
+        null=True,
+    )
+    project = models.ForeignKey('Project', related_name='sshkeys')
+
+    def __str__(self):
+        return 'SSH Key for {}'.format(self.project)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.generate_keys(commit=kwargs.get('commit', False))
+        super(SSHKey, self).save(*args, **kwargs)
+
+    @property
+    def fingerprint(self):
+        """SSH fingerprint for public key"""
+        key = self.public_key.strip().split()[1].encode('ascii')
+        fingerprint = hashlib.md5(base64.b64decode(key)).hexdigest()
+        return ':'.join(a + b for (a, b) in zip(fingerprint[::2],
+                                                fingerprint[1::2]))
