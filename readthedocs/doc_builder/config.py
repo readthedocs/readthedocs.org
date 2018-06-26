@@ -31,24 +31,21 @@ class ConfigWrapper(object):
 
     @property
     def pip_install(self):
-        if 'pip_install' in self._yaml_config.get('python', {}):
-            return self._yaml_config['python']['pip_install']
-        return False
+        return self._yaml_config.pip_install
 
     @property
     def install_project(self):
-        if self.pip_install:
-            return True
-        if 'setup_py_install' in self._yaml_config.get('python', {}):
-            return self._yaml_config['python']['setup_py_install']
-        return self._project.install_project
+        try:
+            return self._yaml_config.install_project
+        except KeyError as e:
+            return self._project.install_project
 
     @property
     def extra_requirements(self):
-        if self.pip_install and 'extra_requirements' in self._yaml_config.get(
-                'python', {}):
-            return self._yaml_config['python']['extra_requirements']
-        return []
+        try:
+            return self._yaml_config.extra_requirements
+        except AttributeError as e:
+            return []
 
     @property
     def python_interpreter(self):
@@ -83,45 +80,47 @@ class ConfigWrapper(object):
 
     @property
     def use_system_site_packages(self):
-        if 'use_system_site_packages' in self._yaml_config.get('python', {}):
-            return self._yaml_config['python']['use_system_site_packages']
-        return self._project.use_system_packages
+        try:
+            return self._yaml_config.use_system_site_packages
+        except (KeyError, AttributeError) as e:
+            return self._project.use_system_packages
 
     @property
     def use_conda(self):
-        return 'conda' in self._yaml_config
+        return self._yaml_config.use_conda
 
     @property
     def conda_file(self):
-        if 'file' in self._yaml_config.get('conda', {}):
-            return self._yaml_config['conda']['file']
-        return None
+        return self._yaml_config.conda_file
 
     @property
     def requirements_file(self):
-        if 'requirements_file' in self._yaml_config:
-            return self._yaml_config['requirements_file']
-        return self._project.requirements_file
+        try:
+            return self._yaml_config.requirements_file
+        except (KeyError, AttributeError) as e:
+            return self._project.requirements_file
 
     @property
     def formats(self):
-        if 'formats' in self._yaml_config:
-            return self._yaml_config['formats']
-        formats = ['htmlzip']
-        if self._project.enable_epub_build:
-            formats += ['epub']
-        if self._project.enable_pdf_build:
-            formats += ['pdf']
-        return formats
+        try:
+            return self._yaml_config.formats
+        except KeyError as e:
+            formats = ['htmlzip']
+            if self._project.enable_epub_build:
+                formats += ['epub']
+            if self._project.enable_pdf_build:
+                formats += ['pdf']
+            return formats
 
     @property
     def build_image(self):
         if self._project.container_image:
             # Allow us to override per-project still
             return self._project.container_image
-        if 'build' in self._yaml_config:
-            return self._yaml_config['build']['image']
-        return None
+        try:
+            return self._yaml_config.build_image
+        except KeyError as e:
+            return None
 
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.
