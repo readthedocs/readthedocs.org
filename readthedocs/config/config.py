@@ -91,7 +91,6 @@ class BuildConfigBase(object):
         self.config = {}
         self.source_file = source_file
         self.source_position = source_position
-        super(BuildConfigBase, self).__init__()
 
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
@@ -138,6 +137,10 @@ class BuildConfigBase(object):
 
     @property
     def name(self):
+        raise NotImplementedError()
+
+    @property
+    def python(self):
         raise NotImplementedError()
 
     @property
@@ -456,7 +459,7 @@ class BuildConfig(BuildConfigBase, dict):
                         self.get_valid_python_versions(),
                     )
 
-        self['python'] = python
+        return python
 
     def validate_conda(self):
         """Validates the ``conda`` key."""
@@ -547,12 +550,12 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def python(self):  # noqa
-        return self['python']
+        return self.config['python']
 
     @property
     def pip_install(self):  # noqa
         try:
-            return self['python']['pip_install']
+            return self.config['python']['pip_install']
         except KeyError:
             return False
 
@@ -560,12 +563,12 @@ class BuildConfig(BuildConfigBase, dict):
     def install_project(self):  # noqa
         if self.pip_install:
             return True
-        return self['python']['setup_py_install']
+        return self.config['python']['setup_py_install']
 
     @property
     def extra_requirements(self):  # noqa
         if self.pip_install:
-            return self['python']['extra_requirements']
+            return self.config['python']['extra_requirements']
         return []
 
     @property
@@ -577,7 +580,7 @@ class BuildConfig(BuildConfigBase, dict):
     def python_version(self):  # noqa
         version = 2
         if 'version' in self.get('python', {}):
-            version = self['python']['version']
+            version = self.config['python']['version']
         return version
 
     @property
@@ -595,7 +598,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def use_system_site_packages(self):  # noqa
-        return self['python']['use_system_site_packages']
+        return self.config['python']['use_system_site_packages']
 
     @property
     def use_conda(self):  # noqa

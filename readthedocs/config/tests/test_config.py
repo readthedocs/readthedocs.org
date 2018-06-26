@@ -63,6 +63,18 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml',
         source_position=source_position)
 
 
+def get_env_config(extra=None):
+    defaults = {
+        'output_base': '',
+        'name': 'name',
+        'type': 'sphinx',
+    }
+    if extra is None:
+        extra = {}
+    defaults.update(extra)
+    return defaults
+
+
 def test_load_no_config_file(tmpdir):
     base = str(tmpdir)
     with raises(ConfigError):
@@ -159,49 +171,48 @@ def test_build_requires_valid_type():
 
 
 def test_empty_python_section_is_valid():
-    build = get_build_config({'python': {}})
-    build.validate_python()
-    assert 'python' in build
+    build = get_build_config({'python': {}}, get_env_config())
+    build.validate()
+    assert build.python
 
 
 def test_python_section_must_be_dict():
-    build = get_build_config({'python': 123})
+    build = get_build_config({'python': 123}, get_env_config())
     with raises(InvalidConfig) as excinfo:
-        build.validate_python()
+        build.validate()
     assert excinfo.value.key == 'python'
     assert excinfo.value.code == PYTHON_INVALID
 
 
 def test_use_system_site_packages_defaults_to_false():
-    build = get_build_config({'python': {}})
-    build.validate_python()
+    build = get_build_config({'python': {}}, get_env_config())
+    build.validate()
     # Default is False.
-    assert not build['python']['use_system_site_packages']
     assert not build.python['use_system_site_packages']
 
 
 def test_python_pip_install_default():
-    build = get_build_config({'python': {}})
-    build.validate_python()
+    build = get_build_config({'python': {}}, get_env_config())
+    build.validate()
     # Default is False.
-    assert build['python']['pip_install'] is False
     assert build.python['pip_install'] is False
 
 
 def describe_validate_python_extra_requirements():
 
     def it_defaults_to_list():
-        build = get_build_config({'python': {}})
-        build.validate_python()
+        build = get_build_config({'python': {}}, get_env_config())
+        build.validate()
         # Default is an empty list.
-        assert build['python']['extra_requirements'] == []
         assert build.python['extra_requirements'] == []
 
     def it_validates_is_a_list():
         build = get_build_config(
-            {'python': {'extra_requirements': 'invalid'}})
+            {'python': {'extra_requirements': 'invalid'}},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_python()
+            build.validate()
         assert excinfo.value.key == 'python.extra_requirements'
         assert excinfo.value.code == PYTHON_INVALID
 
@@ -209,23 +220,26 @@ def describe_validate_python_extra_requirements():
     def it_uses_validate_string(validate_string):
         validate_string.return_value = True
         build = get_build_config(
-            {'python': {'extra_requirements': ['tests']}})
-        build.validate_python()
+            {'python': {'extra_requirements': ['tests']}},
+            get_env_config()
+        )
+        build.validate()
         validate_string.assert_any_call('tests')
 
 
 def describe_validate_use_system_site_packages():
     def it_defaults_to_false():
-        build = get_build_config({'python': {}})
-        build.validate_python()
-        assert build['python']['setup_py_install'] is False
+        build = get_build_config({'python': {}}, get_env_config())
+        build.validate()
         assert build.python['setup_py_install'] is False
 
     def it_validates_value():
         build = get_build_config(
-            {'python': {'use_system_site_packages': 'invalid'}})
+            {'python': {'use_system_site_packages': 'invalid'}},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_python()
+            build.validate()
         excinfo.value.key = 'python.use_system_site_packages'
         excinfo.value.code = INVALID_BOOL
 
@@ -233,23 +247,27 @@ def describe_validate_use_system_site_packages():
     def it_uses_validate_bool(validate_bool):
         validate_bool.return_value = True
         build = get_build_config(
-            {'python': {'use_system_site_packages': 'to-validate'}})
-        build.validate_python()
+            {'python': {'use_system_site_packages': 'to-validate'}},
+            get_env_config()
+        )
+        build.validate()
         validate_bool.assert_any_call('to-validate')
 
 
 def describe_validate_setup_py_install():
 
     def it_defaults_to_false():
-        build = get_build_config({'python': {}})
-        build.validate_python()
-        assert build['python']['setup_py_install'] is False
+        build = get_build_config({'python': {}}, get_env_config())
+        build.validate()
         assert build.python['setup_py_install'] is False
 
     def it_validates_value():
-        build = get_build_config({'python': {'setup_py_install': 'this-is-string'}})
+        build = get_build_config(
+            {'python': {'setup_py_install': 'this-is-string'}},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_python()
+            build.validate()
         assert excinfo.value.key == 'python.setup_py_install'
         assert excinfo.value.code == INVALID_BOOL
 
@@ -257,66 +275,88 @@ def describe_validate_setup_py_install():
     def it_uses_validate_bool(validate_bool):
         validate_bool.return_value = True
         build = get_build_config(
-            {'python': {'setup_py_install': 'to-validate'}})
-        build.validate_python()
+            {'python': {'setup_py_install': 'to-validate'}},
+            get_env_config()
+        )
+        build.validate()
         validate_bool.assert_any_call('to-validate')
 
 
 def describe_validate_python_version():
 
     def it_defaults_to_a_valid_version():
-        build = get_build_config({'python': {}})
-        build.validate_python()
-        assert build['python']['version'] is 2
+        build = get_build_config({'python': {}}, get_env_config())
+        build.validate()
         assert build.python['version'] is 2
 
     def it_supports_other_versions():
-        build = get_build_config({'python': {'version': 3.5}})
-        build.validate_python()
-        assert build['python']['version'] is 3.5
+        build = get_build_config(
+            {'python': {'version': 3.5}},
+            get_env_config()
+        )
+        build.validate()
         assert build.python['version'] is 3.5
 
     def it_validates_versions_out_of_range():
-        build = get_build_config({'python': {'version': 1.0}})
+        build = get_build_config(
+            {'python': {'version': 1.0}},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_python()
+            build.validate()
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
     def it_validates_wrong_type():
-        build = get_build_config({'python': {'version': 'this-is-string'}})
+        build = get_build_config(
+            {'python': {'version': 'this-is-string'}},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_python()
+            build.validate()
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
     def it_validates_wrong_type_right_value():
-        build = get_build_config({'python': {'version': '3.5'}})
-        build.validate_python()
-        assert build['python']['version'] == 3.5
+        build = get_build_config(
+            {'python': {'version': '3.5'}},
+            get_env_config()
+        )
+        build.validate()
         assert build.python['version'] == 3.5
 
-        build = get_build_config({'python': {'version': '3'}})
-        build.validate_python()
-        assert build['python']['version'] == 3
+        build = get_build_config(
+            {'python': {'version': '3'}},
+            get_env_config()
+        )
+        build.validate()
         assert build.python['version'] == 3
 
     def it_validates_env_supported_versions():
         build = get_build_config(
             {'python': {'version': 3.6}},
-            env_config={'python': {'supported_versions': [3.5]}}
+            env_config=get_env_config(
+                {
+                    'python': {'supported_versions': [3.5]},
+                    'build': {'image': 'custom'},
+                }
+            )
         )
         with raises(InvalidConfig) as excinfo:
-            build.validate_python()
+            build.validate()
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
         build = get_build_config(
             {'python': {'version': 3.6}},
-            env_config={'python': {'supported_versions': [3.5, 3.6]}}
+            env_config=get_env_config(
+                {
+                    'python': {'supported_versions': [3.5, 3.6]},
+                    'build': {'image': 'custom'},
+                }
+            )
         )
-        build.validate_python()
-        assert build['python']['version'] == 3.6
+        build.validate()
         assert build.python['version'] == 3.6
 
 
@@ -381,12 +421,23 @@ def describe_validate_formats():
 def describe_validate_setup_py_path():
 
     def it_defaults_to_source_file_directory(tmpdir):
+        apply_fs(
+            tmpdir,
+            {
+                'subdir': {
+                    'readthedocs.yml': '',
+                    'setup.py': '',
+                },
+            }
+        )
         with tmpdir.as_cwd():
             source_file = tmpdir.join('subdir', 'readthedocs.yml')
             setup_py = tmpdir.join('subdir', 'setup.py')
-            build = get_build_config({}, source_file=str(source_file))
-            build.validate_python()
-            assert build['python']['setup_py_path'] == str(setup_py)
+            build = get_build_config(
+                {},
+                env_config=get_env_config(),
+                source_file=str(source_file))
+            build.validate()
             assert build.python['setup_py_path'] == str(setup_py)
 
     def it_validates_value(tmpdir):
@@ -420,11 +471,8 @@ def test_valid_build_config():
     assert build.name == 'docs'
     assert build.type == 'sphinx'
     assert build.base
-    assert build['python']
     assert build.python
-    assert 'setup_py_install' in build['python']
     assert 'setup_py_install' in build.python
-    assert 'use_system_site_packages' in build['python']
     assert 'use_system_site_packages' in build.python
     assert build.output_base
 
@@ -476,16 +524,6 @@ def describe_validate_base():
             build.validate()
         assert excinfo.value.key == 'base'
         assert excinfo.value.code == INVALID_PATH
-
-
-def get_env_config(extra={}):
-    defaults = {
-        'output_base': '',
-        'name': 'name',
-        'type': 'sphinx',
-    }
-    defaults.update(extra)
-    return defaults
 
 
 def describe_validate_build():
