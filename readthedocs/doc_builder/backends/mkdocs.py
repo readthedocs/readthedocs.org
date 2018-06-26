@@ -221,6 +221,11 @@ class BaseMkdocs(BaseBuilder):
             # Full nested theme config (the new configuration)
             return theme_setting.get('name') or self.READTHEDOCS_THEME_NAME
 
+        # TODO: this is not the same behavior than before. Now, with a theme:
+        # custom_dir: citrix it will return `readthedocs` while previously it
+        # was returning the theme_dir as theme_name:
+        # https://github.com/rtfd/readthedocs.org/commit/538413cf9f31be96c09f7c44e4832561cd00b0d9#diff-ccc6f61d1c02f524ab7362ee8749ba4bL125
+
         if theme_setting:
             # A string which is the name of the theme
             return theme_setting
