@@ -205,11 +205,6 @@ class BuildConfig(BuildConfigBase, dict):
 
     """
     Version 1 of the configuration file.
-
-    Config keys can be accessed with a dictionary lookup::
-
-        >>> build_config['type']
-        'sphinx'
     """
 
     BASE_INVALID_MESSAGE = 'Invalid value for base: {base}'
