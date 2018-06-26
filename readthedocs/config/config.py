@@ -553,7 +553,7 @@ class BuildConfig(BuildConfigBase, dict):
     def pip_install(self):  # noqa
         try:
             return self['python']['pip_install']
-        except KeyError as e:
+        except KeyError:
             return False
 
     @property
