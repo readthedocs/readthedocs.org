@@ -507,7 +507,7 @@ class BuildConfig(BuildConfigBase, dict):
         """Validates that formats contains only valid formats."""
         formats = self.raw_config.get('formats')
         if formats is None:
-            return None
+            return self.defaults.get('formats', [])
         if formats == ['none']:
             return []
 

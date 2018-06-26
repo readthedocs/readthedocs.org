@@ -98,17 +98,7 @@ class ConfigWrapper(object):
 
     @property
     def formats(self):
-        try:
-            if self._yaml_config.formats is not None:
-                return self._yaml_config.formats
-        except KeyError as e:
-            pass
-        formats = ['htmlzip']
-        if self._project.enable_epub_build:
-            formats += ['epub']
-        if self._project.enable_pdf_build:
-            formats += ['pdf']
-        return formats
+        return self._yaml_config.formats
 
     @property
     def build_image(self):
@@ -151,6 +141,7 @@ def load_yaml_config(version):
         },
         'defaults': {
             'install_project': project.install_project,
+            'formats': get_default_formats(project),
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
@@ -180,3 +171,12 @@ def load_yaml_config(version):
             source_position=0,
         )
     return ConfigWrapper(version=version, yaml_config=config)
+
+
+def get_default_formats(project):
+    formats = ['htmlzip']
+    if project.enable_epub_build:
+        formats += ['epub']
+    if project.enable_pdf_build:
+        formats += ['pdf']
+    return formats

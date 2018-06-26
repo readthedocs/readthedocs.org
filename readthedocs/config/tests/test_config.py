@@ -361,10 +361,10 @@ def describe_validate_python_version():
 
 def describe_validate_formats():
 
-    def it_defaults_to_not_being_included():
+    def it_defaults_to_empty():
         build = get_build_config({}, get_env_config())
         build.validate()
-        assert build.formats is None
+        assert build.formats == []
 
     def it_gets_set_correctly():
         build = get_build_config({'formats': ['pdf']}, get_env_config())
@@ -374,7 +374,7 @@ def describe_validate_formats():
     def formats_can_be_null():
         build = get_build_config({'formats': None}, get_env_config())
         build.validate()
-        assert build.formats is None
+        assert build.formats == []
 
     def formats_with_previous_none():
         build = get_build_config({'formats': ['none']}, get_env_config())
