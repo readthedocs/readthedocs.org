@@ -509,16 +509,14 @@ class BuildConfig(BuildConfigBase, dict):
         if formats is None:
             return None
         if formats == ['none']:
-            self['formats'] = []
-            return True
+            return []
 
         with self.catch_validation_error('format'):
             validate_list(formats)
             for format_ in formats:
                 validate_choice(format_, self.get_valid_formats())
-        self['formats'] = formats
 
-        return True
+        return formats
 
     @property
     def version(self):  # noqa
@@ -542,7 +540,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def formats(self):  # noqa
-        return self['formats']
+        return self._config['formats']
 
     @property
     def python(self):  # noqa

@@ -122,7 +122,6 @@ def test_build_config_has_list_with_single_empty_value(tmpdir):
     base = str(apply_fs(tmpdir, config_with_explicit_empty_list))
     build = load(base, env_config)[0]
     assert isinstance(build, BuildConfig)
-    assert build['formats'] == []
     assert build.formats == []
 
 
@@ -363,57 +362,62 @@ def describe_validate_python_version():
 def describe_validate_formats():
 
     def it_defaults_to_not_being_included():
-        build = get_build_config({})
-        build.validate_formats()
-        assert 'formats' not in build
+        build = get_build_config({}, get_env_config())
+        build.validate()
+        assert build.formats is None
 
     def it_gets_set_correctly():
-        build = get_build_config({'formats': ['pdf']})
-        build.validate_formats()
-        assert build['formats'] == ['pdf']
+        build = get_build_config({'formats': ['pdf']}, get_env_config())
+        build.validate()
         assert build.formats == ['pdf']
 
     def formats_can_be_null():
-        build = get_build_config({'formats': None})
-        build.validate_formats()
-        assert 'formats' not in build
+        build = get_build_config({'formats': None}, get_env_config())
+        build.validate()
+        assert build.formats is None
 
     def formats_with_previous_none():
-        build = get_build_config({'formats': ['none']})
-        build.validate_formats()
-        assert build['formats'] == []
+        build = get_build_config({'formats': ['none']}, get_env_config())
+        build.validate()
         assert build.formats == []
 
     def formats_can_be_empty():
-        build = get_build_config({'formats': []})
-        build.validate_formats()
-        assert build['formats'] == []
+        build = get_build_config({'formats': []}, get_env_config())
+        build.validate()
         assert build.formats == []
 
     def all_valid_formats():
-        build = get_build_config({'formats': ['pdf', 'htmlzip', 'epub']})
-        build.validate_formats()
-        assert build['formats'] == ['pdf', 'htmlzip', 'epub']
+        build = get_build_config(
+            {'formats': ['pdf', 'htmlzip', 'epub']},
+            get_env_config()
+        )
+        build.validate()
         assert build.formats == ['pdf', 'htmlzip', 'epub']
 
     def cant_have_none_as_format():
-        build = get_build_config({'formats': ['htmlzip', None]})
+        build = get_build_config(
+            {'formats': ['htmlzip', None]},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_formats()
+            build.validate()
         assert excinfo.value.key == 'format'
         assert excinfo.value.code == INVALID_CHOICE
 
     def formats_have_only_allowed_values():
-        build = get_build_config({'formats': ['htmlzip', 'csv']})
+        build = get_build_config(
+            {'formats': ['htmlzip', 'csv']},
+            get_env_config()
+        )
         with raises(InvalidConfig) as excinfo:
-            build.validate_formats()
+            build.validate()
         assert excinfo.value.key == 'format'
         assert excinfo.value.code == INVALID_CHOICE
 
     def only_list_type():
-        build = get_build_config({'formats': 'no-list'})
+        build = get_build_config({'formats': 'no-list'}, get_env_config())
         with raises(InvalidConfig) as excinfo:
-            build.validate_formats()
+            build.validate()
         assert excinfo.value.key == 'format'
         assert excinfo.value.code == INVALID_LIST
 

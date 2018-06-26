@@ -103,14 +103,16 @@ class ConfigWrapper(object):
     @property
     def formats(self):
         try:
-            return self._yaml_config.formats
+            if self._yaml_config.formats is not None:
+                return self._yaml_config.formats
         except KeyError as e:
-            formats = ['htmlzip']
-            if self._project.enable_epub_build:
-                formats += ['epub']
-            if self._project.enable_pdf_build:
-                formats += ['pdf']
-            return formats
+            pass
+        formats = ['htmlzip']
+        if self._project.enable_epub_build:
+            formats += ['epub']
+        if self._project.enable_pdf_build:
+            formats += ['pdf']
+        return formats
 
     @property
     def build_image(self):
