@@ -429,7 +429,6 @@ def test_valid_build_config():
     assert 'setup_py_install' in build.python
     assert 'use_system_site_packages' in build['python']
     assert 'use_system_site_packages' in build.python
-    assert build['output_base']
     assert build.output_base
 
 

@@ -254,32 +254,34 @@ class BuildConfig(BuildConfigBase, dict):
           ``readthedocs.yml`` config file if not set
         """
         # Validate env_config.
-        self.validate_output_base()
+        self._output_base = self.validate_output_base()
 
         # Validate the build environment first
-        self.validate_build()  # Must happen before `validate_python`!
+        # Must happen before `validate_python`!
+        self._build = self.validate_build()
 
         # Validate raw_config. Order matters.
-        self.validate_name()
-        self.validate_type()
-        self.validate_base()
-        self.validate_python()
-        self.validate_formats()
+        self._name = self.validate_name()
+        self._type = self.validate_type()
+        self._base = self.validate_base()
+        self._python = self.validate_python()
+        self._formats = self.validate_formats()
 
-        self.validate_conda()
-        self.validate_requirements_file()
-        self.validate_conf_file()
+        self._conda = self.validate_conda()
+        self._requirements_file = self.validate_requirements_file()
+        self._conf_file = self.validate_conf_file()
 
     def validate_output_base(self):
         """Validates that ``output_base`` exists and set its absolute path."""
         assert 'output_base' in self.env_config, (
                '"output_base" required in "env_config"')
         base_path = os.path.dirname(self.source_file)
-        self['output_base'] = os.path.abspath(
+        output_base = os.path.abspath(
             os.path.join(
                 self.env_config.get('output_base', base_path),
             )
         )
+        return output_base
 
     def validate_name(self):
         """Validates that name exists."""
@@ -531,7 +533,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def output_base(self):  # noqa
-        return self['output_base']
+        return self._output_base
 
     @property
     def type(self):  # noqa
