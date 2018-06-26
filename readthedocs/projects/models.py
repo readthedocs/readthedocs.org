@@ -38,7 +38,9 @@ from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 from .ssh import generate_ssh_pair_keys
+from .managers import SSHKeyManager
 from .mixins import SSHKeyGenMixin
+
 
 log = logging.getLogger(__name__)
 
@@ -1105,11 +1107,13 @@ class SSHKey(SSHKeyGenMixin, models.Model):
     )
     project = models.ForeignKey('Project', related_name='sshkeys')
 
+    objects = SSHKeyManager()
+
     def __str__(self):
         return 'SSH Key for {}'.format(self.project)
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
+        if self.pk is None and not self.private_key:
             self.generate_keys(commit=kwargs.get('commit', False))
         super(SSHKey, self).save(*args, **kwargs)
 
