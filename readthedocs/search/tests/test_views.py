@@ -101,6 +101,23 @@ class TestPageSearch(object):
         # Check the actual text is in the result, not the cased one
         assert query_text in result.text()
 
+    def test_file_search_exact_match(self, client, project):
+        """Check quoted query match exact phrase
+
+        Making a query with quoted text like ``"foo bar"`` should match
+        exactly ``foo bar`` phrase.
+        """
+
+        # `Github` word is present both in `kuma` and `pipeline` files
+        # But the phrase Github can is available only in kuma docs.
+        # So search with this phrase to check
+        query = r'"GitHub can"'
+
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+
+        assert len(result) == 1
+
     def test_page_search_not_return_removed_page(self, client, project):
         """Check removed page are not in the search index"""
         query = get_search_query_from_project_file(project_slug=project.slug)
