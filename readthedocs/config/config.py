@@ -314,7 +314,7 @@ class BuildConfig(BuildConfigBase, dict):
         with self.catch_validation_error('type'):
             validate_choice(type_, self.get_valid_types())
 
-        self['type'] = type_
+        return type_
 
     def validate_base(self):
         """Validates that path is a valid directory."""
@@ -539,7 +539,7 @@ class BuildConfig(BuildConfigBase, dict):
 
     @property
     def type(self):  # noqa
-        return self['type']
+        return self.config['type']
 
     @property
     def formats(self):  # noqa
