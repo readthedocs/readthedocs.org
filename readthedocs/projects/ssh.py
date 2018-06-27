@@ -25,8 +25,10 @@ def generate_ssh_pair_keys(key_size=2048, comment='support@readthedocs.com'):
     return private_string, public_string
 
 
-def generate_public_from_private_key(private_key, text_format=False, comment='support@readthedocs.com'):
-    # TODO: if the public key is generated from a private key, maybe we don't want to add a default message
+def generate_public_from_private_key(
+        private_key, text_format=False, comment='support@readthedocs.com'):
+    # TODO: if the public key is generated from a private key, maybe we don't
+    # want to add a default message
     if text_format:
         private_key = serialization.load_pem_private_key(
             private_key.encode('utf8'),

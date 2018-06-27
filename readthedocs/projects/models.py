@@ -1108,7 +1108,7 @@ class SSHKey(SSHKeyGenMixin, models.Model):
     def __str__(self):
         return 'SSH Key for {}'.format(self.project)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylitn: disable=arguments-differ
         if self.pk is None and not self.private_key:
             self.generate_keys(commit=kwargs.get('commit', False))
         super(SSHKey, self).save(*args, **kwargs)

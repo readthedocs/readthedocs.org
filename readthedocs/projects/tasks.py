@@ -1249,6 +1249,7 @@ def finish_inactive_builds():
         builds_finished,
     )
 
+
 @app.task(queue='web')
 def generate_project_ssh_pair_keys(pk):
     """
