@@ -201,7 +201,7 @@ class BuildConfigBase(object):
         raise NotImplementedError()
 
 
-class BuildConfig(BuildConfigBase, dict):
+class BuildConfig(BuildConfigBase):
 
     """Version 1 of the configuration file."""
 
