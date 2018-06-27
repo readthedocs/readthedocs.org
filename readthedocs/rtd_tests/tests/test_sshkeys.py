@@ -16,7 +16,6 @@ from readthedocs.projects.ssh import generate_ssh_pair_keys
 class SSHKeyModelTests(TestCase):
 
     def test_fingerprint(self):
-        profile = fixture.get(SSHKey, public_key=None)
         public_key = (
             'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBFPEZe1XSoPsV9LOqzoPRe4pAWL'
             'W6+sPO3EWv+NFGSFEZh7BYA9T8B05boRkLhFqkmMMcDM1GOTqZ5cEB1rmJHWc7yYlZ'
@@ -77,10 +76,10 @@ class SSHKeyGenerationTests(TestCase):
         """Make sure the mixin calls the proper method."""
         mixin = SSHKeyGenMixin()
         mixin.save = mock.MagicMock()
-        mixin.genkey(commit=False)
+        mixin.generate_keys(commit=False)
         mixin.save.assert_not_called()
         self.assertTrue(isinstance(mixin.public_key, six.text_type))
         self.assertTrue(isinstance(mixin.private_key, six.text_type))
 
-        mixin.genkey(commit=True)
+        mixin.generate_keys(commit=True)
         mixin.save.assert_called_once()
