@@ -11,8 +11,10 @@ import logging
 import json
 
 from builtins import next, range
+from django.shortcuts import get_object_or_404
 from pyquery import PyQuery
 
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
@@ -306,3 +308,19 @@ def parse_sections(documentation_type, content):
             return ''
 
     return sections
+
+
+# TODO: Rewrite all the views using this in Class Based View,
+# and move this function to a mixin
+def get_project_slug_list_or_404(project_slug, user):
+    """Return list of subproject's slug including own slug.
+    If the project is not available to user, redirect to 404
+    """
+    queryset = Project.objects.api(user).only('slug')
+    project = get_object_or_404(queryset, slug=project_slug)
+
+    subprojects_slug = (queryset.filter(superprojects__parent_id=project.id)
+                        .values_list('slug', flat=True))
+
+    slug_list = [project.slug] + list(subprojects_slug)
+    return slug_list
