@@ -164,12 +164,19 @@ def load_yaml_config(version):
         # This is a subclass of ConfigError, so has to come first
         raise
     except ConfigError:
+        # TODO: this shouldn't be hardcoded here
+        env_config.update({
+            'output_base': '',
+            'type': 'sphinx',
+            'name': version.slug,
+        })
         config = BuildConfig(
             env_config=env_config,
             raw_config={},
             source_file='empty',
             source_position=0,
         )
+        config.validate()
     return ConfigWrapper(version=version, yaml_config=config)
 
 

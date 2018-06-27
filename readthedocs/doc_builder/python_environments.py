@@ -14,7 +14,7 @@ from builtins import object, open
 import six
 from django.conf import settings
 
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
@@ -35,7 +35,7 @@ class PythonEnvironment(object):
         if config:
             self.config = config
         else:
-            self.config = ConfigWrapper(version=version, yaml_config={})
+            self.config = load_yaml_config(version)
         # Compute here, since it's used a lot
         self.checkout_path = self.project.checkout_path(self.version.slug)
 
