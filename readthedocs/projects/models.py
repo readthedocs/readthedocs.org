@@ -1097,13 +1097,9 @@ class SSHKey(SSHKeyGenMixin, models.Model):
     public_key = models.TextField(
         _('Public SSH Key'),
         help_text='Add this to your version control to give us access.',
-        blank=True,
-        null=True,
     )
     private_key = models.TextField(
         _('Private SSH Key'),
-        blank=True,
-        null=True,
     )
     project = models.ForeignKey('Project', related_name='sshkeys')
 

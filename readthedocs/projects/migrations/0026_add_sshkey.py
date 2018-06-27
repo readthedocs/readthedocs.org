@@ -18,14 +18,14 @@ class Migration(migrations.Migration):
             name='SSHKey',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('public_key', models.TextField(blank=True, help_text='Add this to your version control to give us access.', null=True, verbose_name='Public SSH Key')),
-                ('private_key', models.TextField(blank=True, null=True, verbose_name='Private SSH Key')),
+                ('public_key', models.TextField(help_text='Add this to your version control to give us access.', verbose_name='Public SSH Key')),
+                ('private_key', models.TextField(verbose_name='Private SSH Key')),
             ],
             bases=(readthedocs.projects.mixins.SSHKeyGenMixin, models.Model),
         ),
         migrations.AddField(
             model_name='sshkey',
             name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='projects.Project'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sshkeys', to='projects.Project'),
         ),
     ]
