@@ -17,7 +17,7 @@ class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]
 
     def setUp(self):
-        url_base = '{scheme}://{domain}/docs/pip{{ version }}'.format(
+        url_base = '{scheme}://{domain}/docs/pip{{version}}'.format(
             scheme=pytest.config.option.url_scheme,
             domain=settings.PRODUCTION_DOMAIN,
         )
