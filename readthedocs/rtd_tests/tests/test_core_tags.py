@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import mock
+import pytest
 
 from django.conf import settings
 from django.test import TestCase
@@ -15,23 +16,25 @@ from readthedocs.core.templatetags import core_tags
 class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]
 
-    # Determine if we are under community (http) or corporate site (https)
-    scheme = 'https' if settings.CELERY_APP_NAME == 'readthedocsinc' else 'http'
-
-    pip_latest_url = '{scheme}://readthedocs.org/docs/pip/en/latest/'.format(scheme=scheme)
-    pip_latest_fr_url = '{scheme}://readthedocs.org/docs/pip/fr/latest/'.format(scheme=scheme)
-    pip_abc_url = '{scheme}://readthedocs.org/docs/pip/en/abc/'.format(scheme=scheme)
-    pip_abc_fr_url = '{scheme}://readthedocs.org/docs/pip/fr/abc/'.format(scheme=scheme)
-    pip_abc_xyz_page_url = '{scheme}://readthedocs.org/docs/pip/en/abc/xyz.html'.format(scheme=scheme)
-    pip_abc_xyz_fr_page_url = '{scheme}://readthedocs.org/docs/pip/fr/abc/xyz.html'.format(scheme=scheme)
-    pip_abc_xyz_dir_url = '{scheme}://readthedocs.org/docs/pip/en/abc/xyz/'.format(scheme=scheme)
-    pip_abc_xyz_fr_dir_url = '{scheme}://readthedocs.org/docs/pip/fr/abc/xyz/'.format(scheme=scheme)
-    pip_abc_xyz_document = '{scheme}://readthedocs.org/docs/pip/en/abc/index.html#document-xyz'.format(scheme=scheme)
-    pip_abc_xyz_fr_document = '{scheme}://readthedocs.org/docs/pip/fr/abc/index.html#document-xyz'.format(scheme=scheme)
-    pip_latest_document_url = '{scheme}://readthedocs.org/docs/pip/en/latest/document/'.format(scheme=scheme)
-    pip_latest_document_page_url = '{scheme}://readthedocs.org/docs/pip/en/latest/document.html'.format(scheme=scheme)
-
     def setUp(self):
+        url_base = '{scheme}://{domain}/docs/pip{{ version }}'.format(
+            scheme=pytest.config.option.url_scheme,
+            domain=settings.PRODUCTION_DOMAIN,
+        )
+
+        self.pip_latest_url = url_base.format(version='/en/latest/')
+        self.pip_latest_fr_url = url_base.format(version='/fr/latest/')
+        self.pip_abc_url = url_base.format(version='/en/abc/')
+        self.pip_abc_fr_url = url_base.format(version='/fr/abc/')
+        self.pip_abc_xyz_page_url = url_base.format(version='/en/abc/xyz.html')
+        self.pip_abc_xyz_fr_page_url = url_base.format(version='/fr/abc/xyz.html')
+        self.pip_abc_xyz_dir_url = url_base.format(version='/en/abc/xyz/')
+        self.pip_abc_xyz_fr_dir_url = url_base.format(version='/fr/abc/xyz/')
+        self.pip_abc_xyz_document = url_base.format(version='/en/abc/index.html#document-xyz')
+        self.pip_abc_xyz_fr_document = url_base.format(version='/fr/abc/index.html#document-xyz')
+        self.pip_latest_document_url = url_base.format(version='/en/latest/document/')
+        self.pip_latest_document_page_url = url_base.format(version='/en/latest/document.html')
+
         with mock.patch('readthedocs.projects.models.broadcast'):
             self.client.login(username='eric', password='test')
             self.pip = Project.objects.get(slug='pip')
