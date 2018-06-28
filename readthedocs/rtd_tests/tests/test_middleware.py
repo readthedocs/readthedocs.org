@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import
 
 from django.http import Http404
+from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import get_urlconf, set_urlconf
 from django.test import TestCase
@@ -21,7 +24,7 @@ from readthedocs.rtd_tests.utils import create_user
 @override_settings(USE_SUBDOMAIN=True)
 class MiddlewareTests(TestCase):
 
-    urlconf_subdomain = 'readthedocs.core.urls.subdomain'
+    urlconf_subdomain = settings.SUBDOMAIN_URLCONF
 
     def setUp(self):
         self.factory = RequestFactory()
