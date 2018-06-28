@@ -30,7 +30,12 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     if not config.option.searchtests:
         # Include ``not search``` to parameters so search tests do not perform
-        setattr(config.option, 'markexpr', 'not search')
+        markexpr = getattr(config.option, 'markexpr')
+        if markexpr:
+            markexpr += ' and not search'
+        else:
+            markexpr = 'not search'
+        setattr(config.option, 'markexpr', markexpr.strip())
 
     for option, value in PYTEST_OPTIONS:
         setattr(config.option, option, value)
