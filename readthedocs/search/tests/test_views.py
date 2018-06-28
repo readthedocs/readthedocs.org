@@ -2,7 +2,7 @@
 
 import pytest
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from django_dynamic_fixture import G
 from pyquery import PyQuery as pq
 
@@ -17,8 +17,7 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 @pytest.mark.community
 class TestElasticSearch(object):
 
-    def setUp(self):
-        self.url = reverse('search')
+    url = reverse_lazy('search')
 
     def _reindex_elasticsearch(self, es_index):
         call_command('reindex_elasticsearch')
