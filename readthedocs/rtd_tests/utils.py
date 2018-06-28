@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
 from __future__ import (
@@ -5,7 +6,7 @@ from __future__ import (
 
 import logging
 import subprocess
-from os import chdir, environ, getcwd, mkdir
+from os import chdir, environ, mkdir
 from os.path import abspath
 from os.path import join as pjoin
 from shutil import copytree
@@ -23,11 +24,12 @@ def get_readthedocs_app_path():
     """
     Return the absolute path of the ``readthedocs`` app.
     """
-    path = getcwd()
-    if path.endswith('readthedocsinc'):
-        # readthedocs-corporate
-        path = pjoin(path, '..', '..', 'readthedocs.org', 'readthedocs')
-        return path
+
+    try:
+        import readthedocs
+        path = readthedocs.__path__[0]
+    except (IndexError, ImportError):
+        raise Exception('Unable to find "readthedocs" path module')
 
     return path
 
