@@ -313,7 +313,8 @@ def parse_sections(documentation_type, content):
 # TODO: Rewrite all the views using this in Class Based View,
 # and move this function to a mixin
 def get_project_slug_list_or_404(project_slug, user):
-    """Return list of subproject's slug including own slug.
+    """
+    Return list of subproject's slug including own slug.
     If the project is not available to user, redirect to 404
     """
     queryset = Project.objects.api(user).only('slug')
