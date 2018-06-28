@@ -12,12 +12,13 @@ class PageSearchAPIView(generics.ListAPIView):
     serializer_class = PageSearchSerializer
 
     def get_queryset(self):
-        """Return Elasticsearch DSL Search object instead of Django Queryset.
+        """
+        Return Elasticsearch DSL Search object instead of Django Queryset.
 
         Django Queryset and elasticsearch-dsl ``Search`` object is similar pattern.
         So for searching, its possible to return ``Search`` object instead of queryset.
         The ``filter_backends`` and ``pagination_class`` is compatible with ``Search``
         """
         query = self.request.query_params.get('query', '')
-        queryset = PageDocument.search(query=query)
+        queryset = PageDocument.simple_search(query=query)
         return queryset

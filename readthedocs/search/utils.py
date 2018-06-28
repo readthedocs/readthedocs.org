@@ -315,6 +315,7 @@ def parse_sections(documentation_type, content):
 def get_project_slug_list_or_404(project_slug, user):
     """
     Return list of subproject's slug including own slug.
+
     If the project is not available to user, redirect to 404
     """
     queryset = Project.objects.api(user).only('slug')
