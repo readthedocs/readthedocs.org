@@ -22,7 +22,6 @@ from readthedocs.core.views import (
     do_not_track,
 )
 from readthedocs.search import views as search_views
-from readthedocs.search.api import PageSearchAPIView
 
 v1_api = Api(api_name='v1')
 v1_api.register(UserResource())
@@ -67,7 +66,6 @@ api_urls = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api/search/', PageSearchAPIView.as_view()),
 ]
 
 i18n_urls = [

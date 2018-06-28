@@ -11,6 +11,7 @@ from readthedocs.restapi import views
 from readthedocs.restapi.views import (
     core_views, footer_views, search_views, task_views, integrations
 )
+from readthedocs.search.api import PageSearchAPIView
 
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
@@ -85,19 +86,15 @@ integration_urls = [
         name='api_webhook'),
 ]
 
-urlpatterns += function_urls
-urlpatterns += search_urls
-urlpatterns += task_urls
-urlpatterns += integration_urls
+api_search_urls = [
+    url(r'^docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
+]
 
-try:
-    from readthedocsext.search.docsearch import DocSearch
-    api_search_urls = [
-        url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
-    ]
-    urlpatterns += api_search_urls
-except ImportError:
-    pass
+urlpatterns += function_urls
+urlpatterns += task_urls
+urlpatterns += search_urls
+urlpatterns += integration_urls
+urlpatterns += api_search_urls
 
 try:
     from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls

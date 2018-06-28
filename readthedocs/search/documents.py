@@ -87,12 +87,12 @@ class PageDocument(DocType):
         return FileSearch(**kwargs)
 
     @classmethod
-    def search(cls, using=None, index=None, **kwargs):
-        es_search = super(PageDocument, cls).search(using=using, index=index)
+    def search(cls, *args, **kwargs):
         query = kwargs.pop('query')
+        es_search = super(PageDocument, cls).search(*args, **kwargs)
         es_query = cls.get_es_query(query=query)
 
-        es_search = es_search.query(es_query)
+        es_search = es_search.query(es_query).highlight('content')
         return es_search
 
     @classmethod

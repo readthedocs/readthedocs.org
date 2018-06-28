@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+from rest_framework.test import APIClient
 
 try:
     # TODO: this file is read/executed even when called from ``readthedocsinc``,
@@ -44,3 +45,8 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def settings_modification(settings):
     settings.CELERY_ALWAYS_EAGER = True
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
