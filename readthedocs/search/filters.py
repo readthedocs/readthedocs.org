@@ -7,8 +7,11 @@ class SearchFilterBackend(filters.BaseFilterBackend):
 
     """Filter search result with project"""
 
-    def filter_queryset(self, request, es_search, view):
+    def filter_queryset(self, request, queryset, view):
         """Overwrite the method to compatible with Elasticsearch DSL Search object."""
+        # ``queryset`` is actually a Elasticsearch DSL ``Search`` object.
+        # So change the variable name
+        es_search = queryset
         project_slug = request.query_params.get('project')
         version_slug = request.query_params.get('version')
         project_slug_list = get_project_slug_list_or_404(project_slug=project_slug,
