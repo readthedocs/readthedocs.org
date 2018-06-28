@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-PYTEST_OPTIONS = (
-    # Options to set test environment
-    ('community', True),
-    ('corporate', False),
-    ('environment', 'readthedocs'),
+try:
+    # TODO: this file is read/executed even when called from ``readthedocsinc``,
+    # so it's overriding the options that we are defining in the ``conftest.py``
+    # from the corporate site. We need to find a better way to avoid this.
+    import readthedocsinc
+    PYTEST_OPTIONS = ()
+except ImportError:
+    PYTEST_OPTIONS = (
+        # Options to set test environment
+        ('community', True),
+        ('corporate', False),
+        ('environment', 'readthedocs'),
 
-    ('url_scheme', 'http'),
-)
+        ('url_scheme', 'http'),
+    )
 
 
 def pytest_addoption(parser):
