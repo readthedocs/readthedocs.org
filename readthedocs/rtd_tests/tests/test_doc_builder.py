@@ -10,6 +10,7 @@ import pytest
 import yaml
 import mock
 from django.test import TestCase
+from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from mock import patch
 
@@ -115,6 +116,7 @@ class SphinxSearchBuilderTest(TestCase):
         self.assertTrue(os.path.exists(dest_other))
 
 
+@override_settings(PRODUCTION_DOMAIN='readthedocs.org')
 class MkdocsBuilderTest(TestCase):
 
     def setUp(self):

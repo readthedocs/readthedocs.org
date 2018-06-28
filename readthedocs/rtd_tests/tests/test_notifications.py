@@ -20,6 +20,7 @@ from readthedocs.builds.models import Build
         'readthedocs.notifications.backends.EmailBackend',
         'readthedocs.notifications.backends.SiteBackend',
     ],
+    PRODUCTION_DOMAIN='readthedocs.org',
 )
 @mock.patch('readthedocs.notifications.notification.render_to_string')
 @mock.patch.object(Notification, 'send')
