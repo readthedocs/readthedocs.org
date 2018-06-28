@@ -105,7 +105,7 @@ class FormTests(TestCase):
         self.assertEqual(domain.domain, 'example2.com')
 
 
-@pytest.mark.only_community
+@pytest.mark.community
 class TestAPI(TestCase):
 
     def setUp(self):

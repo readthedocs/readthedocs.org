@@ -127,7 +127,7 @@ class TestProject(ProjectMixin, TestCase):
 
 # Most of these tests don't handle Corporate permissions (Organizations, Teams,
 # etc) in a proper way
-@pytest.mark.only_community
+@pytest.mark.community
 class TestProjectTranslations(TestCase, ProjectMixin):
 
     def test_translations(self):
