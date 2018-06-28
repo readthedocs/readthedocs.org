@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pytest
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -12,8 +14,11 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 @pytest.mark.django_db
 @pytest.mark.search
+@pytest.mark.community
 class TestElasticSearch(object):
-    url = reverse('search')
+
+    def setUp(self):
+        self.url = reverse('search')
 
     def _reindex_elasticsearch(self, es_index):
         call_command('reindex_elasticsearch')
