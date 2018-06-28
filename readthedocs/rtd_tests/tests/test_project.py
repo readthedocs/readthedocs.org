@@ -24,13 +24,14 @@ from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 class ProjectMixin(object):
 
+    fixtures = ['eric', 'test_data']
+
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
 
 
 class TestProject(ProjectMixin, TestCase):
-    fixtures = ['eric', 'test_data']
 
     def test_valid_versions(self):
         r = self.client.get('/api/v2/project/6/valid_versions/', {})
