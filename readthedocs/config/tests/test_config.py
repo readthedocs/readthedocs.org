@@ -6,9 +6,11 @@ from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    BuildConfig, ConfigError, InvalidConfig, ProjectConfig, load)
+    BuildConfig, ConfigError, ConfigNotSupportedError, InvalidConfig,
+    ProjectConfig, load)
 from readthedocs.config.config import (
-    NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID, TYPE_REQUIRED)
+    CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
+    TYPE_REQUIRED)
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
 
@@ -64,6 +66,7 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml',
 
 
 def get_env_config(extra=None):
+    """Get the minimal env_config for the configuration object."""
     defaults = {
         'output_base': '',
         'name': 'name',
@@ -634,3 +637,12 @@ def test_load_calls_validate(tmpdir):
     with patch.object(BuildConfig, 'validate') as build_validate:
         load(base, env_config)
         assert build_validate.call_count == 1
+
+
+def test_raise_config_not_supported():
+    build = get_build_config({}, get_env_config())
+    build.validate()
+    with raises(ConfigNotSupportedError) as excinfo:
+        build.redirects
+    assert excinfo.value.configuration == 'redirects'
+    assert excinfo.value.code == CONFIG_NOT_SUPPORTED
