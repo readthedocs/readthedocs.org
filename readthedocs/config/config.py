@@ -14,12 +14,15 @@ from .validation import (
     validate_file, validate_list, validate_string)
 
 __all__ = (
-    'load', 'BuildConfig', 'ConfigError', 'InvalidConfig', 'ProjectConfig')
+    'load', 'BuildConfig', 'ConfigError', 'ConfigNotSupportedError',
+    'InvalidConfig', 'ProjectConfig'
+)
 
 
 CONFIG_FILENAMES = ('readthedocs.yml', '.readthedocs.yml')
 
 
+CONFIG_NOT_SUPPORTED = 'config-not-supported'
 BASE_INVALID = 'base-invalid'
 BASE_NOT_A_DIR = 'base-not-a-directory'
 CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
@@ -55,6 +58,19 @@ class ConfigError(Exception):
     def __init__(self, message, code):
         self.code = code
         super(ConfigError, self).__init__(message)
+
+
+class ConfigNotSupportedError(ConfigError):
+
+    """Error for unsupported configurations in a version."""
+
+    def __init__(self, configuration):
+        self.configuration = configuration
+        template = 'The "{}" configuration is not supported in this version'
+        super(ConfigNotSupportedError, self).__init__(
+            template.format(self.configuration),
+            CONFIG_NOT_SUPPORTED
+        )
 
 
 class InvalidConfig(ConfigError):
@@ -127,78 +143,8 @@ class BuildConfigBase(object):
     def validate(self):
         raise NotImplementedError()
 
-    @property
-    def base(self):
-        raise NotImplementedError()
-
-    def output_base(self):
-        # TODO: this isn't used
-        raise NotImplementedError()
-
-    @property
-    def name(self):
-        raise NotImplementedError()
-
-    @property
-    def python(self):
-        raise NotImplementedError()
-
-    @property
-    def version(self):
-        raise NotImplementedError()
-
-    @property
-    def type(self):
-        raise NotImplementedError()
-
-    @property
-    def pip_install(self):
-        raise NotImplementedError()
-
-    @property
-    def install_project(self):
-        raise NotImplementedError()
-
-    @property
-    def extra_requirements(self):
-        raise NotImplementedError()
-
-    @property
-    def python_interpreter(self):
-        raise NotImplementedError()
-
-    @property
-    def python_version(self):
-        raise NotImplementedError()
-
-    @property
-    def python_full_version(self):
-        raise NotImplementedError()
-
-    @property
-    def use_system_site_packages(self):
-        raise NotImplementedError()
-
-    @property
-    def use_conda(self):
-        raise NotImplementedError()
-
-    @property
-    def conda_file(self):
-        raise NotImplementedError()
-
-    @property
-    def requirements_file(self):
-        raise NotImplementedError()
-
-    @property
-    def formats(self):
-        """Documentation formats to be built."""
-        raise NotImplementedError()
-
-    @property
-    def build_image(self):
-        raise NotImplementedError()
+    def __getattr__(self, name):
+        raise ConfigNotSupportedError(name)
 
 
 class BuildConfig(BuildConfigBase):
