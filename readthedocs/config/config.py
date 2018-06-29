@@ -146,6 +146,7 @@ class BuildConfigBase(object):
         raise NotImplementedError()
 
     def __getattr__(self, name):
+        """Raise an error for unknown attributes."""
         raise ConfigNotSupportedError(name)
 
 
@@ -173,8 +174,8 @@ class BuildConfig(BuildConfigBase):
         self._config = {}
         super(BuildConfig, self).__init__(*args, **kwargs)
 
-
     def get_valid_types(self):  # noqa
+        """Get all valid types."""
         return (
             'sphinx',
         )
@@ -195,7 +196,7 @@ class BuildConfig(BuildConfigBase):
             'epub',
         )
 
-    def validate(self):  # noqa
+    def validate(self):
         """
         Validate and process ``raw_config`` and ``env_config`` attributes.
 
@@ -469,90 +470,79 @@ class BuildConfig(BuildConfigBase):
         return formats
 
     @property
-    def name(self):  # noqa
+    def name(self):
+        """The project name."""
         return self._config['name']
 
     @property
-    def base(self):  # noqa
+    def base(self):
+        """The base directory."""
         return self._config['base']
 
     @property
-    def output_base(self):  # noqa
+    def output_base(self):
+        """The output base"""
         return self._config['output_base']
 
     @property
-    def type(self):  # noqa
+    def type(self):
+        """The documentation type."""
         return self._config['type']
 
     @property
-    def formats(self):  # noqa
+    def formats(self):
+        """The documentation formats to be built."""
         return self._config['formats']
 
     @property
-    def python(self):  # noqa
+    def python(self):
+        """Python related configuration."""
         return self._config.get('python', {})
 
     @property
-    def pip_install(self):  # noqa
+    def pip_install(self):
+        """True if the project should be installed using pip."""
         return self._config['python']['pip_install']
 
     @property
-    def install_project(self):  # noqa
+    def install_project(self):
+        """True if the project should be installed."""
         if self.pip_install:
             return True
         return self._config['python']['setup_py_install']
 
     @property
-    def extra_requirements(self):  # noqa
+    def extra_requirements(self):
+        """Extra requirements to be installed with pip."""
         if self.pip_install:
             return self._config['python']['extra_requirements']
         return []
 
     @property
-    def python_interpreter(self):  # noqa
-        ver = self.python_full_version
-        return 'python{0}'.format(ver)
-
-    @property
-    def python_version(self):  # noqa
-        version = 2
-        if 'version' in self.get('python', {}):
-            version = self._config['python']['version']
-        return version
-
-    @property
-    def python_full_version(self):  # noqa
-        ver = self.python_version
-        if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                version
-                for version in self.get_valid_python_versions()
-                if version < ver + 1
-            )
-        return ver
-
-    @property
-    def use_system_site_packages(self):  # noqa
+    def use_system_site_packages(self):
+        """True if the project should have access to the system packages."""
         return self._config['python']['use_system_site_packages']
 
     @property
-    def use_conda(self):  # noqa
+    def use_conda(self):
+        """True if the project use Conda."""
         return self._config.get('conda') is not None
 
     @property
-    def conda_file(self):  # noqa
+    def conda_file(self):
+        """The Conda environment file."""
         if self.use_conda:
             return self._config['conda'].get('file')
         return None
 
     @property
-    def requirements_file(self):  # noqa
+    def requirements_file(self):
+        """The project requirements file."""
         return self._config['requirements_file']
 
     @property
-    def build_image(self):  # noqa
+    def build_image(self):
+        """The docker image used by the builders."""
         return self._config['build']['image']
 
 
