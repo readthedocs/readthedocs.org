@@ -608,6 +608,50 @@ def describe_validate_build():
         assert build.build_image == 'readthedocs/build:2.0'
 
 
+def test_use_conda_default_false():
+    build = get_build_config({}, get_env_config())
+    build.validate()
+    assert build.use_conda is False
+
+
+def test_use_conda_respects_config():
+    build = get_build_config(
+        {'conda': {}},
+        get_env_config()
+    )
+    build.validate()
+    assert build.use_conda is True
+
+
+def test_validates_conda_file(tmpdir):
+    apply_fs(tmpdir, {'environment.yml': ''})
+    build = get_build_config(
+        {'conda': {'file': 'environment.yml'}},
+        get_env_config(),
+        source_file=str(tmpdir.join('readthedocs.yml'))
+    )
+    build.validate()
+    assert build.use_conda is True
+    assert build.conda_file == str(tmpdir.join('environment.yml'))
+
+
+def test_requirements_file_empty():
+    build = get_build_config({}, get_env_config())
+    build.validate()
+    assert build.requirements_file is None
+
+
+def test_requirements_file_respects_configuration(tmpdir):
+    apply_fs(tmpdir, {'requirements.txt': ''})
+    build = get_build_config(
+        {'requirements_file': 'requirements.txt'},
+        get_env_config(),
+        source_file=str(tmpdir.join('readthedocs.yml'))
+    )
+    build.validate()
+    assert build.requirements_file == 'requirements.txt'
+
+
 def test_build_validate_calls_all_subvalidators(tmpdir):
     apply_fs(tmpdir, minimal_config)
     build = BuildConfig(
