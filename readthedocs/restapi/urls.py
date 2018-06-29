@@ -49,13 +49,14 @@ search_urls = [
     url(r'index_search/',
         search_views.index_search,
         name='index_search'),
-    url(r'search/$', views.search_views.search, name='api_search'),
+    # url(r'search/$', views.search_views.search, name='api_search'),
     url(r'search/project/$',
         search_views.project_search,
         name='api_project_search'),
     url(r'search/section/$',
         search_views.section_search,
         name='api_section_search'),
+    url(r'^docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
 ]
 
 task_urls = [
@@ -86,15 +87,11 @@ integration_urls = [
         name='api_webhook'),
 ]
 
-api_search_urls = [
-    url(r'^docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
-]
 
 urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += search_urls
 urlpatterns += integration_urls
-urlpatterns += api_search_urls
 
 try:
     from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
