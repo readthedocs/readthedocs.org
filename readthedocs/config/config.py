@@ -494,10 +494,7 @@ class BuildConfig(BuildConfigBase):
 
     @property
     def pip_install(self):  # noqa
-        try:
-            return self._config['python']['pip_install']
-        except KeyError:
-            return False
+        return self._config['python']['pip_install']
 
     @property
     def install_project(self):  # noqa
