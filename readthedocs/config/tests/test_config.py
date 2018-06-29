@@ -178,6 +178,11 @@ def test_build_requires_valid_type():
     assert excinfo.value.code == INVALID_CHOICE
 
 
+def test_version():
+    build = get_build_config({}, get_env_config())
+    assert build.version == 1
+
+
 def test_empty_python_section_is_valid():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()
@@ -196,14 +201,14 @@ def test_use_system_site_packages_defaults_to_false():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()
     # Default is False.
-    assert not build.python['use_system_site_packages']
+    assert not build.use_system_site_packages
 
 
 def test_python_pip_install_default():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()
     # Default is False.
-    assert build.python['pip_install'] is False
+    assert build.pip_install is False
 
 
 def describe_validate_python_extra_requirements():
@@ -212,7 +217,7 @@ def describe_validate_python_extra_requirements():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         # Default is an empty list.
-        assert build.python['extra_requirements'] == []
+        assert build.extra_requirements == []
 
     def it_validates_is_a_list():
         build = get_build_config(
@@ -239,7 +244,7 @@ def describe_validate_use_system_site_packages():
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
-        assert build.python['setup_py_install'] is False
+        assert build.use_system_site_packages is False
 
     def it_validates_value():
         build = get_build_config(
@@ -544,12 +549,12 @@ def describe_validate_build():
     def it_fails_if_build_is_invalid_option(tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfig(
-            {},
+            get_env_config(),
             {'build': {'image': 3.0}},
             source_file=str(tmpdir.join('readthedocs.yml')),
             source_position=0)
         with raises(InvalidConfig) as excinfo:
-            build.validate_build()
+            build.validate()
         assert excinfo.value.key == 'build'
         assert excinfo.value.code == INVALID_CHOICE
 
