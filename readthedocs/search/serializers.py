@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 
 class PageSearchSerializer(serializers.Serializer):
+    project = serializers.CharField()
+    version = serializers.CharField()
     title = serializers.CharField()
     path = serializers.CharField()
     highlight = serializers.SerializerMethodField()
