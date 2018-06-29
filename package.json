@@ -3,6 +3,12 @@
   "version": "0.0.1",
   "description": "Read the Docs build dependencies",
   "author": "Anthony Johnson <anthony@readthedocs.com>",
+  "scripts": {
+    "build": "gulp build",
+    "dev": "gulp dev",
+    "lint": "gulp lint",
+    "vendor": "gulp vendor"
+  },
   "dependencies": {
     "bowser": "^1.9.3",
     "cssfilter": "0.0.8",
@@ -22,12 +28,12 @@
     "gulp-less": "^3.0.3",
     "gulp-rename": "^1.2.2",
     "gulp-run": "^1.6.6",
-    "gulp-uglify": "^1.2.0",
+    "gulp-uglify": "^3.0.0",
     "gulp-util": "^3.0.3",
     "gulp-watch": "^4.3.3",
     "less": "^2.7.3",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
   },
   "resolutions": {
     "natives": "1.1.3"
