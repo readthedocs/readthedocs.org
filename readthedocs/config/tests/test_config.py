@@ -129,45 +129,51 @@ def test_build_config_has_list_with_single_empty_value(tmpdir):
 
 
 def test_config_requires_name():
-    build = BuildConfig({},
-                        {},
-                        source_file=None,
-                        source_position=None)
+    build = BuildConfig(
+        {'output_base': ''}, {},
+        source_file='readthedocs.yml',
+        source_position=0
+    )
     with raises(InvalidConfig) as excinfo:
-        build.validate_name()
+        build.validate()
     assert excinfo.value.key == 'name'
     assert excinfo.value.code == NAME_REQUIRED
 
 
 def test_build_requires_valid_name():
-    build = BuildConfig({},
-                        {'name': 'with/slashes'},
-                        source_file=None,
-                        source_position=None)
+    build = BuildConfig(
+        {'output_base': ''},
+        {'name': 'with/slashes'},
+        source_file='readthedocs.yml',
+        source_position=0
+    )
     with raises(InvalidConfig) as excinfo:
-        build.validate_name()
+        build.validate()
     assert excinfo.value.key == 'name'
     assert excinfo.value.code == NAME_INVALID
 
 
 def test_config_requires_type():
-    build = BuildConfig({},
-                        {'name': 'docs'},
-                        source_file=None,
-                        source_position=None)
+    build = BuildConfig(
+        {'output_base': ''}, {'name': 'docs'},
+        source_file='readthedocs.yml',
+        source_position=0
+    )
     with raises(InvalidConfig) as excinfo:
-        build.validate_type()
+        build.validate()
     assert excinfo.value.key == 'type'
     assert excinfo.value.code == TYPE_REQUIRED
 
 
 def test_build_requires_valid_type():
-    build = BuildConfig({},
-                        {'type': 'unknown'},
-                        source_file=None,
-                        source_position=None)
+    build = BuildConfig(
+        {'output_base': ''},
+        {'name': 'docs', 'type': 'unknown'},
+        source_file='readthedocs.yml',
+        source_position=0
+    )
     with raises(InvalidConfig) as excinfo:
-        build.validate_type()
+        build.validate()
     assert excinfo.value.key == 'type'
     assert excinfo.value.code == INVALID_CHOICE
 
