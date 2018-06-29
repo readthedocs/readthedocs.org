@@ -101,6 +101,8 @@ class BuildConfigBase(object):
     Also setting the ``output_base`` is required before using it for a build.
     """
 
+    version = None
+
     def __init__(self, env_config, raw_config, source_file, source_position):
         self.env_config = env_config
         self.raw_config = raw_config
@@ -164,6 +166,8 @@ class BuildConfig(BuildConfigBase):
 
     PYTHON_SUPPORTED_VERSIONS = [2, 2.7, 3, 3.5]
     DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
+
+    version = 1
 
     def __init__(self, *args, **kwargs):
         self._config = {}
@@ -463,10 +467,6 @@ class BuildConfig(BuildConfigBase):
                 validate_choice(format_, self.get_valid_formats())
 
         return formats
-
-    @property
-    def version(self):  # noqa
-        return '1'
 
     @property
     def name(self):  # noqa
