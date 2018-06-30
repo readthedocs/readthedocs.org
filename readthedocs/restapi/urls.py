@@ -11,7 +11,6 @@ from readthedocs.restapi import views
 from readthedocs.restapi.views import (
     core_views, footer_views, search_views, task_views, integrations
 )
-from readthedocs.search.api import PageSearchAPIView
 
 from .views.model_views import (BuildViewSet, BuildCommandViewSet,
                                 ProjectViewSet, NotificationViewSet,
@@ -56,7 +55,6 @@ search_urls = [
     url(r'search/section/$',
         search_views.section_search,
         name='api_section_search'),
-    url(r'^docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
 ]
 
 task_urls = [

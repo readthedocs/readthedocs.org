@@ -33,7 +33,10 @@ class FileSearch(RTDFacetedSearch):
     }
 
     def query(self, search, query):
-        """Add query part to ``search``"""
+        """Add query part to ``search``
+
+        Overriding because we pass ES Query object instead of string
+        """
         if query:
             search = search.query(query)
 

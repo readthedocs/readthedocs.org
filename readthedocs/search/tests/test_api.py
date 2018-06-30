@@ -69,6 +69,44 @@ class TestDocumentSearch(object):
         assert len(data) == 1
         assert data[0]['project'] == project.slug
 
+    def test_doc_search_pagination(self, api_client, project):
+        """Test Doc search result can be paginated"""
+        latest_version = project.versions.all()[0]
+        html_file = HTMLFile.objects.filter(version=latest_version)[0]
+        title = html_file.processed_json['title']
+        query = title.split()[0]
+
+        # Create 15 more same html file
+        for _ in range(15):
+            # Make primary key to None, so django will create new object
+            html_file.pk = None
+            html_file.save()
+
+        search_params = {'query': query, 'project': project.slug, 'version': latest_version.slug}
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 200
+
+        # Check the count is 16 (1 existing and 15 new created)
+        assert resp.data['count'] == 16
+        # Check there are next url
+        assert resp.data['next'] is not None
+        # There should be only 10 data as the pagination is 10 by default
+        assert len(resp.data['results']) == 10
+
+        # Add `page_size` parameter and check the data is paginated accordingly
+        search_params['page_size'] = 5
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) == 5
+
+    def test_doc_search_without_parameters(self, api_client, project):
+        """Hitting Document Search endpoint without query parameters should return error"""
+        resp = api_client.get(self.url)
+        assert resp.status_code == 400
+        # Check error message is there
+        assert sorted(['query', 'project', 'version']) == sorted(resp.data.keys())
+
     def test_doc_search_subprojects(self, api_client, all_projects):
         """Test Document search return results from subprojects also"""
         project = all_projects[0]

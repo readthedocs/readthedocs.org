@@ -28,13 +28,12 @@ class PageSearchAPIView(generics.ListAPIView):
         return queryset
 
     def validate_query_params(self):
-        required_query_params = set(['query', 'project', 'version'])
+        required_query_params = {'query', 'project', 'version'}  # python `set` literal is `{}`
         request_params = set(self.request.query_params.keys())
         missing_params = required_query_params - request_params
         if missing_params:
-            errors = []
+            errors = {}
             for param in missing_params:
-                e = {param: "This query param is required"}
-                errors.append(e)
+                errors[param] = ["This query param is required"]
 
             raise ValidationError(errors)
