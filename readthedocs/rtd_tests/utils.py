@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
 from __future__ import (
@@ -5,7 +6,7 @@ from __future__ import (
 
 import logging
 import subprocess
-from os import chdir, environ, getcwd, mkdir
+from os import chdir, environ, mkdir
 from os.path import abspath
 from os.path import join as pjoin
 from shutil import copytree
@@ -19,6 +20,20 @@ from readthedocs.doc_builder.base import restoring_chdir
 log = logging.getLogger(__name__)
 
 
+def get_readthedocs_app_path():
+    """
+    Return the absolute path of the ``readthedocs`` app.
+    """
+
+    try:
+        import readthedocs
+        path = readthedocs.__path__[0]
+    except (IndexError, ImportError):
+        raise Exception('Unable to find "readthedocs" path module')
+
+    return path
+
+
 def check_output(command, env=None):
     output = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -28,9 +43,10 @@ def check_output(command, env=None):
     return output
 
 
+@restoring_chdir
 def make_test_git():
     directory = mkdtemp()
-    path = getcwd()
+    path = get_readthedocs_app_path()
     sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
@@ -91,7 +107,6 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
-    chdir(path)
     return directory
 
 
@@ -138,9 +153,10 @@ def delete_git_branch(directory, branch):
     check_output(command, env=env)
 
 
+@restoring_chdir
 def make_test_hg():
     directory = mkdtemp()
-    path = getcwd()
+    path = get_readthedocs_app_path()
     sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
@@ -149,7 +165,6 @@ def make_test_hg():
     log.info(check_output(['hg', 'init'] + [directory]))
     log.info(check_output(['hg', 'add', '.']))
     log.info(check_output(['hg', 'commit', '-u', hguser, '-m"init"']))
-    chdir(path)
     return directory
 
 

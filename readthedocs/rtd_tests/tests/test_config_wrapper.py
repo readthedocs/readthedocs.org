@@ -163,7 +163,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.extra_requirements, [])
 
     def test_conda(self, load_config):
-        to_find = 'urls.py'
+        to_find = '__init__.py'
         load_config.side_effect = create_load({
             'conda': {
                 'file': to_find
@@ -179,7 +179,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.conda_file, None)
 
     def test_requirements_file(self, load_config):
-        requirements_file = 'wsgi.py'
+        requirements_file = '__init__.py'
         load_config.side_effect = create_load({
             'requirements_file': requirements_file
         })
