@@ -906,6 +906,7 @@ class APIVersionTests(TestCase):
             'id': 18,
             'active': True,
             'project': {
+                'ad_free': False,
                 'analytics_code': None,
                 'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
                 'cdn_enabled': False,
