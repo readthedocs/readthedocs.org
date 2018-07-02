@@ -126,7 +126,7 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
