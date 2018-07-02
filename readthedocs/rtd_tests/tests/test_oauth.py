@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-import pytest
 
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
@@ -57,7 +56,6 @@ class GitHubOAuthTests(TestCase):
             repo.ssh_url, 'ssh://git@github.com:testuser/testrepo.git')
         self.assertEqual(repo.html_url, 'https://github.com/testuser/testrepo')
 
-    @pytest.mark.community
     def test_make_project_fail(self):
         repo_json = {
             'name': '',
@@ -284,7 +282,6 @@ class BitbucketOAuthTests(TestCase):
             repo.html_url,
             'https://bitbucket.org/tutorials/tutorials.bitbucket.org')
 
-    @pytest.mark.community
     def test_make_project_fail(self):
         data = self.repo_response_data.copy()
         data['is_private'] = True
@@ -453,7 +450,6 @@ class GitLabOAuthTests(TestCase):
         self.assertTrue(repo.admin)
         self.assertFalse(repo.private)
 
-    @pytest.mark.community
     def test_make_private_project_fail(self):
         repo = self.service.create_repository(
             self.get_private_repo_data(), organization=self.org,

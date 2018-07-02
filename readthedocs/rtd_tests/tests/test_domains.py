@@ -9,7 +9,6 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
 from django_dynamic_fixture import get
-import pytest
 
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Project, Domain
@@ -105,7 +104,6 @@ class FormTests(TestCase):
         self.assertEqual(domain.domain, 'example2.com')
 
 
-@pytest.mark.community
 class TestAPI(TestCase):
 
     def setUp(self):

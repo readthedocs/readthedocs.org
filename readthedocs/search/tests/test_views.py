@@ -14,7 +14,6 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 @pytest.mark.django_db
 @pytest.mark.search
-@pytest.mark.community
 class TestElasticSearch(object):
 
     url = reverse_lazy('search')

@@ -4,7 +4,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import mock
-import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -95,7 +94,6 @@ class TestProjectForms(TestCase):
                 self.assertEqual(form.is_valid(), valid, msg=url)
 
 
-@pytest.mark.community
 class TestTranslationForms(TestCase):
 
     def setUp(self):

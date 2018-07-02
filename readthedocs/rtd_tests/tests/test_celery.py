@@ -4,7 +4,6 @@ from __future__ import division, print_function, unicode_literals
 import os
 import shutil
 from os.path import exists
-import pytest
 from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
@@ -130,7 +129,6 @@ class TestCeleryBuilding(RTDTestCase):
             )
         self.assertTrue(result.successful())
 
-    @pytest.mark.community
     @patch('readthedocs.projects.tasks.api_v2')
     def test_check_duplicate_reserved_version_latest(self, api_v2):
         create_git_branch(self.repo, 'latest')
@@ -151,7 +149,6 @@ class TestCeleryBuilding(RTDTestCase):
         sync_repository.sync_repo()
         api_v2.project().sync_versions.post.assert_called()
 
-    @pytest.mark.community
     @patch('readthedocs.projects.tasks.api_v2')
     def test_check_duplicate_reserved_version_stable(self, api_v2):
         create_git_branch(self.repo, 'stable')
@@ -171,7 +168,6 @@ class TestCeleryBuilding(RTDTestCase):
         # TODO: Check that we can build properly after
         # deleting the tag.
 
-    @pytest.mark.community
     @patch('readthedocs.projects.tasks.api_v2')
     def test_check_duplicate_no_reserved_version(self, api_v2):
         create_git_branch(self.repo, 'no-reserved')

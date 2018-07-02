@@ -4,7 +4,6 @@ from __future__ import (
 
 import datetime
 import json
-import pytest
 
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
@@ -126,9 +125,6 @@ class TestProject(ProjectMixin, TestCase):
             self.pip.conf_file()
 
 
-# Most of these tests don't handle Corporate permissions (Organizations, Teams,
-# etc) in a proper way
-@pytest.mark.community
 class TestProjectTranslations(ProjectMixin, TestCase):
 
     def test_translations(self):
