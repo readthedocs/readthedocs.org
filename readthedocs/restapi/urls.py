@@ -48,7 +48,7 @@ search_urls = [
     url(r'index_search/',
         search_views.index_search,
         name='index_search'),
-    # url(r'search/$', views.search_views.search, name='api_search'),
+    url(r'^search/$', views.search_views.search, name='api_search'),
     url(r'search/project/$',
         search_views.project_search,
         name='api_project_search'),
