@@ -38,8 +38,7 @@ from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
-from .ssh import generate_ssh_pair_keys
-from .queryset import SSHKeyQuerySet
+from .querysets import SSHKeyQuerySet
 from .mixins import SSHKeyGenMixin
 
 
