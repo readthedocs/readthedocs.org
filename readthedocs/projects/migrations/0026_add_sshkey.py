@@ -28,4 +28,14 @@ class Migration(migrations.Migration):
             name='project',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sshkeys', to='projects.Project'),
         ),
-    ]
+        migrations.AddField(
+            model_name='sshkey',
+            name='pub_date',
+            field=models.DateTimeField(auto_now_add=True, verbose_name='Publication date'),
+        ),
+        migrations.AddField(
+            model_name='sshkey',
+            name='json',
+            field=models.TextField(blank=True, null=True, verbose_name='Serialized API response'),
+        ),
+     ]

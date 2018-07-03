@@ -6,6 +6,7 @@ from __future__ import (
 
 import base64
 import fnmatch
+import json
 import hashlib
 import logging
 import os
@@ -38,7 +39,7 @@ from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 from .ssh import generate_ssh_pair_keys
-from .managers import SSHKeyManager
+from .queryset import SSHKeyQuerySet
 from .mixins import SSHKeyGenMixin
 
 
@@ -1094,6 +1095,8 @@ class Feature(models.Model):
 @python_2_unicode_compatible
 class SSHKey(SSHKeyGenMixin, models.Model):
 
+    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
+
     public_key = models.TextField(
         _('Public SSH Key'),
         help_text='Add this to your version control to give us access.',
@@ -1102,11 +1105,24 @@ class SSHKey(SSHKeyGenMixin, models.Model):
         _('Private SSH Key'),
     )
     project = models.ForeignKey('Project', related_name='sshkeys')
+    json = models.TextField(_('Serialized API response'), blank=True, null=True)
 
-    objects = SSHKeyManager()
+    objects = SSHKeyQuerySet()
 
     def __str__(self):
         return 'SSH Key for {}'.format(self.project)
+
+    @property
+    def service_id(self):
+        if not self.json:
+            return None
+
+        data = json.loads(self.json)
+        service_id = (
+            data.get('id') or  # github / gitlab
+            data.get('pk')  # bitbucket
+        )
+        return service_id
 
     def save(self, *args, **kwargs):  # pylitn: disable=arguments-differ
         if self.pk is None and not self.private_key:
