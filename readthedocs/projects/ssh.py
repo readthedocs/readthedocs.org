@@ -27,7 +27,11 @@ def generate_ssh_pair_keys(key_size=2048, comment=None):
     )
     private_string = private_bytes.decode('utf8')
 
-    public_string = generate_public_from_private_key(private_key, comment)
+    public_string = generate_public_from_private_key(
+        private_key,
+        text_format=False,
+        comment=comment,
+    )
     return private_string, public_string
 
 
