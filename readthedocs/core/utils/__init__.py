@@ -227,3 +227,17 @@ def safe_makedirs(directory_name):
         if e.errno == errno.EEXIST:
             pass
         raise
+
+
+def get_support_email():
+    """
+    Return the support email.
+
+    Use ``SUPPORT_EMAIL`` setting and if it's not found returns
+    support@``PRODUCTION_DOMAIN``.
+    """
+    support_email = getattr(settings, 'SUPPORT_EMAIL', None)
+    if not support_email:
+        support_email = 'support@{domain}'.format(
+            domain=getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+    return support_email

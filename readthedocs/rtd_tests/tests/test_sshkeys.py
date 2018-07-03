@@ -23,7 +23,7 @@ class SSHKeyModelTests(TestCase):
             'i6uBEF5HwalxazujW4eBHU8HRgACemjhaYScOeYJDfkjES4FyhW+En4w6ApO4RbRbP'
             'vnsoVDpf8I1oHHKx2INnixi4HsmGC4iTvemA4lZhthqHkbVAURx9qXnAqlfFSz2OHH'
             'GM/mxUeoUSEtUgq2B/2DXriFnwj/463gELCToPObNV0zi+ZozP '
-            'support@readthedocs.com'
+            'support@readthedocs.org'
         )
         profile = fixture.get(SSHKey, public_key=public_key)
         self.assertEqual(
@@ -68,7 +68,7 @@ class SSHKeyGenerationTests(TestCase):
         )
         public_string = '{key} {comment}'.format(
             key=public_bytes.decode('utf8'),
-            comment='support@readthedocs.com',
+            comment='support@readthedocs.org',
         )
         self.assertEqual(public_string, public_str)
 

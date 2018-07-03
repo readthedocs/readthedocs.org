@@ -11,16 +11,13 @@ from past.utils import old_div
 import os
 import logging
 
-from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
-from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
-from readthedocs.core.utils import broadcast
-from readthedocs.projects import constants
+from readthedocs.core.utils import broadcast, get_support_email
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.projects.tasks import remove_dir
 from readthedocs.redirects.utils import get_redirect_response
@@ -49,12 +46,7 @@ class SupportView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SupportView, self).get_context_data(**kwargs)
-        support_email = getattr(settings, 'SUPPORT_EMAIL', None)
-        if not support_email:
-            support_email = 'support@{domain}'.format(
-                domain=getattr(
-                    settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
-
+        support_email = get_support_email()
         context['support_email'] = support_email
         return context
 
