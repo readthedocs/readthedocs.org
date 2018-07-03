@@ -17,17 +17,21 @@ class Command(BaseCommand):
 
     help = __doc__
 
-    option_list = BaseCommand.option_list + (
-        make_option('--days',
-                    dest='days',
-                    type='int',
-                    default=365,
-                    help='Find builds older than DAYS days, default: 365'),
-        make_option('--dryrun',
-                    action='store_true',
-                    dest='dryrun',
-                    help='Perform dry run on build cleanup'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--days',
+            dest='days',
+            type='int',
+            default=365,
+            help='Find builds older than DAYS days, default: 365'
+        )
+
+        parser.add_argument(
+            '--dryrun',
+            action='store_true',
+            dest='dryrun',
+            help='Perform dry run on build cleanup'
+        )
 
     def handle(self, *args, **options):
         """Find stale builds and remove build paths"""

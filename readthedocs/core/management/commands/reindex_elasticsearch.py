@@ -18,12 +18,14 @@ log = logging.getLogger(__name__)
 class Command(BaseCommand):
 
     help = __doc__
-    option_list = BaseCommand.option_list + (
-        make_option('-p',
-                    dest='project',
-                    default='',
-                    help='Project to index'),
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-p',
+            dest='project',
+            default='',
+            help='Project to index'
+        )
 
     def handle(self, *args, **options):
         """Build/index all versions or a single project's version"""
