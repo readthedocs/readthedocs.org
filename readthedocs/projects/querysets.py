@@ -86,7 +86,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         if user.is_authenticated():
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
-            pks = [p.pk for p in project_qs]
+            pks = project_qs.values_list('pk', flat=True)
             kwargs = {'%s__pk__in' % self.project_field: pks}
             queryset = self.filter(**kwargs) | queryset
         return queryset.distinct()
