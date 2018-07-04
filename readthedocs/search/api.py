@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework.exceptions import ValidationError
 
+from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.filters import SearchFilterBackend
 from readthedocs.search.pagination import SearchPagination
@@ -37,3 +38,30 @@ class PageSearchAPIView(generics.ListAPIView):
                 errors[param] = ["This query param is required"]
 
             raise ValidationError(errors)
+
+    def get_serializer_context(self):
+        context = super(PageSearchAPIView, self).get_serializer_context()
+        context['projects_info'] = self.get_projects_info()
+        return context
+
+    def _get_all_projects(self):
+        """Return list of project and its subprojects."""
+        project_slug = self.request.query_params.get('project')
+        queryset = Project.objects.api(self.request.user).only('slug')
+
+        project = generics.get_object_or_404(queryset, slug=project_slug)
+        subprojects = queryset.filter(superprojects__parent_id=project.id)
+
+        project_list = list(subprojects) + [project]
+        return project_list
+
+    def get_projects_info(self):
+        version_slug = self.request.query_params.get('version')
+        all_projects = self._get_all_projects()
+        projects_info = {}
+
+        for project in all_projects:
+            data = {'docs_url': project.get_docs_url(version_slug=version_slug)}
+            projects_info[project.slug] = data
+
+        return projects_info
