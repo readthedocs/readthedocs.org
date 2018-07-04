@@ -124,3 +124,6 @@ class TestDocumentSearch(object):
         data = resp.data['results']
         assert len(data) == 1
         assert data[0]['project'] == subproject.slug
+        # Check the link is the subproject document link
+        document_link = subproject.get_docs_url(version_slug=version.slug)
+        assert document_link in data[0]['link']
