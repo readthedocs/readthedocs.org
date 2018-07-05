@@ -261,7 +261,7 @@ function init() {
         error: function (xhr, textStatus, errorThrown) {
             console.error('Error loading Read the Docs promo');
 
-            if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
+            if (!rtddata.ad_free && xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
                 adblock_admonition();
                 adblock_nag();
             }

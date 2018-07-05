@@ -54,7 +54,8 @@ function get() {
     var config = Object.create(configMethods);
 
     var defaults = {
-        api_host: 'https://readthedocs.org'
+        api_host: 'https://readthedocs.org',
+        ad_free: false,
     };
 
     $.extend(config, defaults, window.READTHEDOCS_DATA);
