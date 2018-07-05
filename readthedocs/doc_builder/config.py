@@ -99,13 +99,7 @@ class ConfigWrapper(object):
 
     @property
     def build_image(self):
-        if self._project.container_image:
-            # Allow us to override per-project still
-            return self._project.container_image
-        try:
-            return self._yaml_config.build_image
-        except KeyError as e:
-            return None
+        return self._yaml_config.build_image
 
     # Not implemented until we figure out how to keep in sync with the webs.
     # Probably needs to be version-specific as well, not project.

@@ -295,7 +295,7 @@ class BuildConfig(BuildConfigBase):
         """
         # Defaults
         if 'build' in self.env_config:
-            build = self.env_config['build']
+            build = self.env_config['build'].copy()
         else:
             build = {'image': DOCKER_IMAGE}
 
@@ -325,6 +325,11 @@ class BuildConfig(BuildConfigBase):
             self.env_config.update(
                 self.env_config['DOCKER_IMAGE_SETTINGS'][build['image']]
             )
+
+        # Allow to override specific project
+        env_config_image = self.env_config.get('build', {}).get('image')
+        if env_config_image:
+            build['image'] = env_config_image
         return build
 
     def validate_python(self):

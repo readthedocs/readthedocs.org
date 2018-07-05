@@ -25,7 +25,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import ConfigWrapper, load_yaml_config
 from readthedocs.doc_builder.environments import (
     BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
@@ -1472,7 +1472,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_project_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_project_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1481,12 +1482,13 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:latest'
         self.pip.save()
+
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,

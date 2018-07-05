@@ -618,6 +618,22 @@ def describe_validate_build():
         build.validate()
         assert build.build_image == 'readthedocs/build:2.0'
 
+    @pytest.mark.parametrize(
+        'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
+    def it_priorities_image_from_env_config(tmpdir, image):
+        apply_fs(tmpdir, minimal_config)
+        env_config_build = {
+            'build': {'image': image}
+        }
+        build = BuildConfig(
+            get_env_config(env_config_build),
+            {'build': {'image': 'latest'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_position=0
+        )
+        build.validate()
+        assert build.build_image == image
+
 
 def test_use_conda_default_false():
     build = get_build_config({}, get_env_config())
