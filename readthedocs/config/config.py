@@ -439,9 +439,11 @@ class BuildConfig(BuildConfigBase):
     def validate_requirements_file(self):
         """Validates that the requirements file exists."""
         if 'requirements_file' not in self.raw_config:
+            requirements_file = self.defaults.get('requirements_file')
+        else:
+            requirements_file = self.raw_config['requirements_file']
+        if not requirements_file:
             return None
-
-        requirements_file = self.raw_config['requirements_file']
         base_path = os.path.dirname(self.source_file)
         with self.catch_validation_error('requirements_file'):
             validate_file(requirements_file, base_path)

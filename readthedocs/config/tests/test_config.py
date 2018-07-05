@@ -668,6 +668,20 @@ def test_requirements_file_empty():
     assert build.requirements_file is None
 
 
+def test_requirements_file_repects_default_value(tmpdir):
+    apply_fs(tmpdir, {'myrequirements.txt': ''})
+    defaults = {
+        'requirements_file': 'myrequirements.txt'
+    }
+    build = get_build_config(
+        {},
+        get_env_config({'defaults': defaults}),
+        source_file=str(tmpdir.join('readthedocs.yml'))
+    )
+    build.validate()
+    assert build.requirements_file == 'myrequirements.txt'
+
+
 def test_requirements_file_respects_configuration(tmpdir):
     apply_fs(tmpdir, {'requirements.txt': ''})
     build = get_build_config(
@@ -677,6 +691,7 @@ def test_requirements_file_respects_configuration(tmpdir):
     )
     build.validate()
     assert build.requirements_file == 'requirements.txt'
+
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):

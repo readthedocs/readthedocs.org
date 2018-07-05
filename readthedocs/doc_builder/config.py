@@ -86,12 +86,7 @@ class ConfigWrapper(object):
 
     @property
     def requirements_file(self):
-        try:
-            if self._yaml_config.requirements_file is not None:
-                return self._yaml_config.requirements_file
-        except (KeyError, AttributeError) as e:
-            pass
-        return self._project.requirements_file
+        return self._yaml_config.requirements_file
 
     @property
     def formats(self):
@@ -134,6 +129,7 @@ def load_yaml_config(version):
             'install_project': project.install_project,
             'formats': get_default_formats(project),
             'use_system_packages': project.use_system_packages,
+            'requirements_file': project.requirements_file,
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
