@@ -336,6 +336,7 @@ class BuildConfig(BuildConfigBase):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
         use_system_packages = self.defaults.get('use_system_packages', False)
+        version = self.defaults.get('python_version', 2)
         python = {
             'use_system_site_packages': use_system_packages,
             'pip_install': False,
@@ -344,7 +345,7 @@ class BuildConfig(BuildConfigBase):
             'setup_py_path': os.path.join(
                 os.path.dirname(self.source_file),
                 'setup.py'),
-            'version': 2,
+            'version': version,
         }
 
         if 'python' in self.raw_config:
@@ -504,6 +505,11 @@ class BuildConfig(BuildConfigBase):
     def python(self):
         """Python related configuration."""
         return self._config.get('python', {})
+
+    @property
+    def python_version(self):
+        """Python version."""
+        return self._config['python']['version']
 
     @property
     def pip_install(self):

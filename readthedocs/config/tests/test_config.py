@@ -311,7 +311,7 @@ def describe_validate_python_version():
     def it_defaults_to_a_valid_version():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
-        assert build.python['version'] is 2
+        assert build.python_version == 2
 
     def it_supports_other_versions():
         build = get_build_config(
@@ -319,7 +319,7 @@ def describe_validate_python_version():
             get_env_config()
         )
         build.validate()
-        assert build.python['version'] is 3.5
+        assert build.python_version == 3.5
 
     def it_validates_versions_out_of_range():
         build = get_build_config(
@@ -347,14 +347,14 @@ def describe_validate_python_version():
             get_env_config()
         )
         build.validate()
-        assert build.python['version'] == 3.5
+        assert build.python_version == 3.5
 
         build = get_build_config(
             {'python': {'version': '3'}},
             get_env_config()
         )
         build.validate()
-        assert build.python['version'] == 3
+        assert build.python_version == 3
 
     def it_validates_env_supported_versions():
         build = get_build_config(
@@ -381,7 +381,19 @@ def describe_validate_python_version():
             )
         )
         build.validate()
-        assert build.python['version'] == 3.6
+        assert build.python_version == 3.6
+
+    @pytest.mark.parametrize('value', [2, 3])
+    def it_respects_default_value(value):
+        defaults = {
+            'python_version': value
+        }
+        build = get_build_config(
+            {},
+            get_env_config({'defaults': defaults})
+        )
+        build.validate()
+        assert build.python_version == value
 
 
 def describe_validate_formats():

@@ -48,15 +48,7 @@ class ConfigWrapper(object):
 
     @property
     def python_version(self):
-        # There should always be a version in the YAML config. If the config
-        # version is the default response of `2`, then assume we can use the
-        # Python.python_interpreter version to infer this value instead.
-        version = 2
-        if 'version' in self._yaml_config.python:
-            version = self._yaml_config.python['version']
-        if version == 2 and self._project.python_interpreter == 'python3':
-            version = 3
-        return version
+        return self._yaml_config.python_version
 
     @property
     def python_full_version(self):
@@ -121,6 +113,7 @@ def load_yaml_config(version):
     # can be rejected at validation
 
     img_name = version.project.container_image or DOCKER_IMAGE
+    python_version = 3 if project.python_interpreter == 'python3' else 2
     env_config = {
         'build': {
             'image': img_name,
@@ -130,6 +123,7 @@ def load_yaml_config(version):
             'formats': get_default_formats(project),
             'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
+            'python_version': python_version,
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
