@@ -206,7 +206,7 @@ def test_use_system_site_packages_defaults_to_false():
 
 
 @pytest.mark.parametrize('value', [True, False])
-def test_use_system_site_packages_repect_defualt_value(value):
+def test_use_system_site_packages_repects_default_value(value):
     defaults = {
         'use_system_packages': value,
     }
