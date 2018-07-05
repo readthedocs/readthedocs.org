@@ -1,3 +1,32 @@
+Version 2.5.3
+-------------
+
+:Date: July 05, 2018
+
+* `@xrmx <http://github.com/xrmx>`__: Do less work in querysets (`#4322 <https://github.com/rtfd/readthedocs.org/pull/4322>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix deprecations in management commands (`#4321 <https://github.com/rtfd/readthedocs.org/pull/4321>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add a flag for marking a project ad-free (`#4313 <https://github.com/rtfd/readthedocs.org/pull/4313>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Use "npm run lint" from tox (`#4312 <https://github.com/rtfd/readthedocs.org/pull/4312>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix issues building static assets (`#4311 <https://github.com/rtfd/readthedocs.org/pull/4311>`__)
+* `@humitos <http://github.com/humitos>`__: Use PATHs to call clear_artifacts (`#4296 <https://github.com/rtfd/readthedocs.org/pull/4296>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #2457] Implement exact match search (`#4292 <https://github.com/rtfd/readthedocs.org/pull/4292>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: API filtering improvements (`#4285 <https://github.com/rtfd/readthedocs.org/pull/4285>`__)
+* `@annegentle <http://github.com/annegentle>`__: Remove self-referencing links for webhooks docs (`#4283 <https://github.com/rtfd/readthedocs.org/pull/4283>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #2328 #2013] Refresh search index and test for case insensitive search (`#4277 <https://github.com/rtfd/readthedocs.org/pull/4277>`__)
+* `@xrmx <http://github.com/xrmx>`__: doc_builder: clarify sphinx backend append_conf docstring (`#4276 <https://github.com/rtfd/readthedocs.org/pull/4276>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add documentation for APIv2 (`#4274 <https://github.com/rtfd/readthedocs.org/pull/4274>`__)
+* `@humitos <http://github.com/humitos>`__: Wrap notifications HTML code into a block (`#4273 <https://github.com/rtfd/readthedocs.org/pull/4273>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move config.py from rtd build (`#4272 <https://github.com/rtfd/readthedocs.org/pull/4272>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix our use of `--use-wheel` in pip. (`#4269 <https://github.com/rtfd/readthedocs.org/pull/4269>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Revert "Merge pull request #4206 from FlorianKuckelkorn/fix/pip-breaking-change" (`#4261 <https://github.com/rtfd/readthedocs.org/pull/4261>`__)
+* `@humitos <http://github.com/humitos>`__: Fix triggering a build for a skipped project (`#4255 <https://github.com/rtfd/readthedocs.org/pull/4255>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update default sphinx version (`#4250 <https://github.com/rtfd/readthedocs.org/pull/4250>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move config module from rtd-build repo (`#4242 <https://github.com/rtfd/readthedocs.org/pull/4242>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow staying logged in for longer (`#4236 <https://github.com/rtfd/readthedocs.org/pull/4236>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: Upgrade Elasticsearch to version 6.x (`#4211 <https://github.com/rtfd/readthedocs.org/pull/4211>`__)
+* `@humitos <http://github.com/humitos>`__: Make tests extensible from corporate site (`#4095 <https://github.com/rtfd/readthedocs.org/pull/4095>`__)
+* `@stsewd <http://github.com/stsewd>`__: `stable` version stuck on a specific commit (`#3913 <https://github.com/rtfd/readthedocs.org/pull/3913>`__)
+
 Version 2.5.2
 -------------
 

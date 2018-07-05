@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import
 
 from django.http import Http404
+from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import get_urlconf, set_urlconf
 from django.test import TestCase
@@ -21,6 +24,8 @@ from readthedocs.rtd_tests.utils import create_user
 @override_settings(USE_SUBDOMAIN=True)
 class MiddlewareTests(TestCase):
 
+    urlconf_subdomain = settings.SUBDOMAIN_URLCONF
+
     def setUp(self):
         self.factory = RequestFactory()
         self.middleware = SubdomainMiddleware()
@@ -38,8 +43,8 @@ class MiddlewareTests(TestCase):
     def test_proper_subdomain(self):
         request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
         self.assertEqual(request.subdomain, True)
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.slug, 'pip')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -69,7 +74,7 @@ class MiddlewareTests(TestCase):
     def test_subdomain_different_length(self):
         request = self.factory.get(self.url, HTTP_HOST='pip.prod.readthedocs.org')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.slug, 'pip')
 
@@ -78,7 +83,7 @@ class MiddlewareTests(TestCase):
 
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.domain_object, True)
         self.assertEqual(request.slug, 'pip')
 
@@ -92,14 +97,14 @@ class MiddlewareTests(TestCase):
         cache.get = lambda x: 'my_slug'
         request = self.factory.get(self.url, HTTP_HOST='my.valid.homename')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.slug, 'my_slug')
 
     def test_request_header(self):
         request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')
@@ -109,14 +114,14 @@ class MiddlewareTests(TestCase):
         cache.get = lambda x: x.split('.')[0]
         request = self.factory.get(self.url, HTTP_HOST='PIP.RANDOM.COM')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.slug, 'pip')
 
     def test_request_header_uppercase(self):
         request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, 'readthedocs.core.urls.subdomain')
+        self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')

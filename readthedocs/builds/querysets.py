@@ -86,7 +86,7 @@ class BuildQuerySetBase(models.QuerySet):
             return self.all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'builds.view_version')
-            pks = [p.pk for p in user_queryset]
+            pks = user_queryset.values_list('pk', flat=True)
             queryset = self.filter(version__pk__in=pks) | queryset
         return queryset.distinct()
 
@@ -118,7 +118,7 @@ class RelatedBuildQuerySetBase(models.QuerySet):
             return self.all().distinct()
         if user.is_authenticated():
             user_queryset = get_objects_for_user(user, 'builds.view_version')
-            pks = [p.pk for p in user_queryset]
+            pks = user_queryset.values_list('pk', flat=True)
             queryset = self.filter(
                 build__version__pk__in=pks) | queryset
         return queryset.distinct()

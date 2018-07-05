@@ -5,7 +5,7 @@ from os import path
 import pytest
 import six
 import yamale
-from readthedocs_build.testing import utils
+from readthedocs.config.tests import utils
 from yamale.validators import DefaultValidators, Validator
 
 V2_SCHEMA = path.join(

@@ -44,7 +44,7 @@ Information about development is also available:
    faq
    yaml-config
    guides/index
-   api
+   api/index
    embed
 
 .. _about-docs:
@@ -105,7 +105,6 @@ Information about development is also available:
    i18n
    issue-labels
    security
-   api/index
 
 .. _business-docs:
 

@@ -9,7 +9,9 @@ import logging
 
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.builds.constants import NON_REPOSITORY_VERSIONS
+from readthedocs.builds.constants import (LATEST, LATEST_VERBOSE_NAME,
+                                          NON_REPOSITORY_VERSIONS, STABLE,
+                                          STABLE_VERBOSE_NAME)
 from readthedocs.builds.models import Version
 from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
 
@@ -18,18 +20,41 @@ log = logging.getLogger(__name__)
 
 def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
-    old_versions = {}
-    old_version_values = project.versions.filter(type=type).values(
-        'identifier', 'verbose_name')
-    for version in old_version_values:
-        old_versions[version['verbose_name']] = version['identifier']
+    old_version_values = project.versions.filter(type=type).values_list(
+        'verbose_name', 'identifier'
+    )
+    old_versions = dict(old_version_values)
 
-    added = set()
     # Add new versions
+    added = set()
+    has_user_stable = False
+    has_user_latest = False
     for version in versions:
         version_id = version['identifier']
         version_name = version['verbose_name']
-        if version_name in old_versions:
+        if version_name == STABLE_VERBOSE_NAME:
+            has_user_stable = True
+            created_version, created = set_or_create_version(
+                project=project,
+                slug=STABLE,
+                version_id=version_id,
+                verbose_name=version_name,
+                type_=type
+            )
+            if created:
+                added.add(created_version.slug)
+        elif version_name == LATEST_VERBOSE_NAME:
+            has_user_latest = True
+            created_version, created = set_or_create_version(
+                project=project,
+                slug=LATEST,
+                version_id=version_id,
+                verbose_name=version_name,
+                type_=type
+            )
+            if created:
+                added.add(created_version.slug)
+        elif version_name in old_versions:
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue
@@ -44,21 +69,66 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
 
                 log.info(
                     '(Sync Versions) Updated Version: [%s=%s] ',
-                    version['verbose_name'],
-                    version['identifier'],
+                    version_name,
+                    version_id,
                 )
         else:
             # New Version
             created_version = Version.objects.create(
                 project=project,
                 type=type,
-                identifier=version['identifier'],
-                verbose_name=version['verbose_name'],
+                identifier=version_id,
+                verbose_name=version_name,
             )
             added.add(created_version.slug)
+    if not has_user_stable:
+        stable_version = (
+            project.versions
+            .filter(slug=STABLE, type=type)
+            .first()
+        )
+        if stable_version:
+            # Put back the RTD's stable version
+            stable_version.machine = True
+            stable_version.save()
+    if not has_user_latest:
+        latest_version = (
+            project.versions
+            .filter(slug=LATEST, type=type)
+            .first()
+        )
+        if latest_version:
+            # Put back the RTD's latest version
+            latest_version.machine = True
+            latest_version.identifier = project.get_default_branch()
+            latest_version.verbose_name = LATEST_VERBOSE_NAME
+            latest_version.save()
     if added:
         log.info('(Sync Versions) Added Versions: [%s] ', ' '.join(added))
     return added
+
+
+def set_or_create_version(project, slug, version_id, verbose_name, type_):
+    """Search or create a version and set its machine atribute to false."""
+    version = (
+        project.versions
+        .filter(slug=slug)
+        .first()
+    )
+    if version:
+        version.identifier = version_id
+        version.machine = False
+        version.type = type_
+        version.save()
+    else:
+        created_version = Version.objects.create(
+            project=project,
+            type=type_,
+            identifier=version_id,
+            verbose_name=verbose_name,
+        )
+        return created_version, True
+    return version, False
 
 
 def delete_versions(project, version_data):

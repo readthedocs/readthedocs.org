@@ -91,6 +91,7 @@ class ProjectViewSet(UserSelectViewSet):
     admin_serializer_class = ProjectAdminSerializer
     model = Project
     pagination_class = api_utils.ProjectPagination
+    filter_fields = ('slug',)
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
@@ -232,6 +233,7 @@ class VersionViewSet(UserSelectViewSet):
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
     model = Version
+    filter_fields = ('project__slug',)
 
 
 class BuildViewSetBase(UserSelectViewSet):
@@ -240,6 +242,7 @@ class BuildViewSetBase(UserSelectViewSet):
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build
+    filter_fields = ('project__slug',)
 
 
 class BuildViewSet(SettingsOverrideObject):
