@@ -330,8 +330,9 @@ class BuildConfig(BuildConfigBase):
     def validate_python(self):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
+        use_system_packages = self.defaults.get('use_system_packages', False)
         python = {
-            'use_system_site_packages': False,
+            'use_system_site_packages': use_system_packages,
             'pip_install': False,
             'extra_requirements': [],
             'setup_py_install': install_project,

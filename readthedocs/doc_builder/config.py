@@ -74,10 +74,7 @@ class ConfigWrapper(object):
 
     @property
     def use_system_site_packages(self):
-        try:
-            return self._yaml_config.use_system_site_packages
-        except (KeyError, AttributeError) as e:
-            return self._project.use_system_packages
+        return self._yaml_config.use_system_site_packages
 
     @property
     def use_conda(self):
@@ -142,6 +139,7 @@ def load_yaml_config(version):
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
+            'use_system_packages': project.use_system_packages,
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)

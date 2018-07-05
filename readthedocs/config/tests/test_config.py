@@ -2,6 +2,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 
+import pytest
 from mock import DEFAULT, patch
 from pytest import raises
 
@@ -202,6 +203,16 @@ def test_use_system_site_packages_defaults_to_false():
     build.validate()
     # Default is False.
     assert not build.use_system_site_packages
+
+
+@pytest.mark.parametrize('value', [True, False])
+def test_use_system_site_packages_repect_defualt_value(value):
+    defaults = {
+        'use_system_packages': value,
+    }
+    build = get_build_config({}, get_env_config({'defaults': defaults}))
+    build.validate()
+    assert build.use_system_site_packages is value
 
 
 def test_python_pip_install_default():
