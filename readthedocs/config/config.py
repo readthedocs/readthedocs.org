@@ -147,6 +147,24 @@ class BuildConfigBase(object):
     def validate(self):
         raise NotImplementedError()
 
+    @property
+    def python_interpreter(self):
+        ver = self.python_full_version
+        return 'python{0}'.format(ver)
+
+    @property
+    def python_full_version(self):
+        ver = self.python_version
+        if ver in [2, 3]:
+            # Get the highest version of the major series version if user only
+            # gave us a version of '2', or '3'
+            ver = max(
+                v
+                for v in self.get_valid_python_versions()
+                if v < ver + 1
+            )
+        return ver
+
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
         raise ConfigNotSupportedError(name)

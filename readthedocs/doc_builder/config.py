@@ -4,7 +4,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-from builtins import filter, object
+from builtins import object
 
 from readthedocs.config import BuildConfig, ConfigError, InvalidConfig
 from readthedocs.config import load as load_config
@@ -43,8 +43,7 @@ class ConfigWrapper(object):
 
     @property
     def python_interpreter(self):
-        ver = self.python_full_version
-        return 'python{0}'.format(ver)
+        return self._yaml_config.python_interpreter
 
     @property
     def python_version(self):
@@ -52,17 +51,7 @@ class ConfigWrapper(object):
 
     @property
     def python_full_version(self):
-        ver = self.python_version
-        if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                list(
-                    filter(
-                        lambda x: x < ver + 1,
-                        self._yaml_config.get_valid_python_versions(),
-                    )))
-        return ver
+        return self._yaml_config.python_full_version
 
     @property
     def use_system_site_packages(self):
