@@ -12,10 +12,9 @@ class PageSearchSerializer(serializers.Serializer):
     highlight = serializers.SerializerMethodField()
 
     def get_link(self, obj):
-        projects_info = self.context.get('projects_info')
-        if projects_info:
-            project_data = projects_info[obj.project]
-            docs_url = project_data['docs_url']
+        projects_url = self.context.get('projects_url')
+        if projects_url:
+            docs_url = projects_url[obj.project]
             return docs_url + obj.path
 
     def get_highlight(self, obj):

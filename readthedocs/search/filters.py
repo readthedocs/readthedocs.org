@@ -11,8 +11,8 @@ class SearchFilterBackend(filters.BaseFilterBackend):
         # So change the variable name
         es_search = queryset
         version_slug = request.query_params.get('version')
-        projects_info = view.get_projects_info()
-        project_slug_list = projects_info.keys()
+        projects_info = view.get_all_projects_url()
+        project_slug_list = list(projects_info.keys())
         # Elasticsearch ``terms`` query can take multiple values as list,
         # while ``term`` query takes single value.
         filtered_es_search = (es_search.filter('terms', project=project_slug_list)

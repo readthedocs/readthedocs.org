@@ -7,6 +7,7 @@ from readthedocs.search.documents import PageDocument
 from readthedocs.search.filters import SearchFilterBackend
 from readthedocs.search.pagination import SearchPagination
 from readthedocs.search.serializers import PageSearchSerializer
+from readthedocs.search.utils import get_project_list_or_404
 
 
 class PageSearchAPIView(generics.ListAPIView):
@@ -41,27 +42,16 @@ class PageSearchAPIView(generics.ListAPIView):
 
     def get_serializer_context(self):
         context = super(PageSearchAPIView, self).get_serializer_context()
-        context['projects_info'] = self.get_projects_info()
+        context['projects_url'] = self.get_all_projects_url()
         return context
 
-    def _get_all_projects(self):
-        """Return list of project and its subprojects."""
-        project_slug = self.request.query_params.get('project')
-        queryset = Project.objects.api(self.request.user).only('slug')
-
-        project = generics.get_object_or_404(queryset, slug=project_slug)
-        subprojects = queryset.filter(superprojects__parent_id=project.id)
-
-        project_list = list(subprojects) + [project]
-        return project_list
-
-    def get_projects_info(self):
+    def get_all_projects_url(self):
         version_slug = self.request.query_params.get('version')
-        all_projects = self._get_all_projects()
-        projects_info = {}
+        project_slug = self.request.query_params.get('project')
+        all_projects = get_project_list_or_404(project_slug=project_slug, user=self.request.user)
+        projects_url = {}
 
         for project in all_projects:
-            data = {'docs_url': project.get_docs_url(version_slug=version_slug)}
-            projects_info[project.slug] = data
+            projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
 
-        return projects_info
+        return projects_url
