@@ -180,7 +180,7 @@ def test_build_requires_valid_type():
 
 def test_version():
     build = get_build_config({}, get_env_config())
-    assert build.version == 1
+    assert build.version == '1'
 
 
 def test_empty_python_section_is_valid():

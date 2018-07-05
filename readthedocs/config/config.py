@@ -110,6 +110,8 @@ class BuildConfigBase(object):
         self.source_position = source_position
         self.defaults = self.env_config.get('defaults', {})
 
+        self._config = {}
+
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
         source = '{file} [{pos}]'.format(
@@ -168,11 +170,7 @@ class BuildConfig(BuildConfigBase):
     PYTHON_SUPPORTED_VERSIONS = [2, 2.7, 3, 3.5]
     DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
 
-    version = 1
-
-    def __init__(self, *args, **kwargs):
-        self._config = {}
-        super(BuildConfig, self).__init__(*args, **kwargs)
+    version = '1'
 
     def get_valid_types(self):  # noqa
         """Get all valid types."""
