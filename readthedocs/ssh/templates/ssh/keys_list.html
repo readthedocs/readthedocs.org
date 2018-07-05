@@ -1,0 +1,45 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "SSH Keys" %}{% endblock %}
+
+{% block project-keys-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "SSH Keys" %}{% endblock %}
+
+{% block project_edit_content %}
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="{% url 'projects_keys_generate' project.slug %}">
+          {% trans "Generate" %}
+        </a>
+      </li>
+      <li>
+        <a class="button"
+           href="{% url 'projects_keys_upload' project.slug %}">
+          {% trans "Upload" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="module project-keys-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for key in sshkey_list %}
+          <li class="module-item project-keys-key">
+            <a href="{% url 'projects_keys_detail' project.slug key.pk %}">
+              <span class="project-key-fingerprint">{{ key.fingerprint|slice:"23" }}</span>
+            </a>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <span class="quiet">There are no SSH keys configured for this project</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

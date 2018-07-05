@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Project model QuerySet classes"""
 
-from __future__ import absolute_import
+"""Project model QuerySet classes."""
+
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 from django.db import models
 from django.db.models import Q
@@ -10,7 +12,6 @@ from guardian.shortcuts import get_objects_for_user
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 from . import constants
-from .ssh import generate_public_from_private_key
 
 
 class ProjectQuerySetBase(models.QuerySet):
@@ -162,23 +163,3 @@ class FeatureQuerySet(models.QuerySet):
             Q(projects=project) |
             Q(default_true=True, add_date__gt=project.pub_date)
         ).distinct()
-
-
-class SSHKeyQuerySet(models.QuerySet):
-
-    def create_from_string(self, private_key, project):
-        """
-        Create a SSHKey instance from a private key.
-
-        :param private_key: private key string
-        :param project: project to attach the SSH key
-        """
-        key = self.create(
-            private_key=private_key,
-            public_key=generate_public_from_private_key(
-                private_key,
-                text_format=True,
-            ),
-            project=project,
-        )
-        return key

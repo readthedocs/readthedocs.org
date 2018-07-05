@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function, unicode_literals
 
+from django.contrib.auth.models import User
 import mock
 import six
 from cryptography.hazmat.backends import openssl
@@ -8,9 +9,57 @@ from cryptography.hazmat.primitives import serialization
 from django.test import TestCase
 import django_dynamic_fixture as fixture
 
-from readthedocs.projects.mixins import SSHKeyGenMixin
-from readthedocs.projects.models import SSHKey
-from readthedocs.projects.ssh import generate_ssh_pair_keys
+
+from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.base import MockBuildTestCase, RequestFactoryTestMixin
+
+from .keys import generate_ssh_pair_keys
+from .mixins import SSHKeyGenMixin
+from .models import SSHKey
+from .views import DetailKeysView, ListKeysView
+
+
+class TestProjectKeyView(RequestFactoryTestMixin, MockBuildTestCase):
+
+    def setUp(self):
+        self.user = fixture.get(User)
+        self.project = fixture.get(
+            Project,
+            slug='foobar',
+            users=[self.user],
+        )
+        self.key = fixture.get(
+            SSHKey,
+            project=self.project,
+        )
+
+    def test_list_view(self):
+        req = self.request(
+            '/dashboard/foobar/keys/',
+            user=self.user,
+        )
+        resp = ListKeysView.as_view()(req, project_slug=self.project.slug)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['project'], self.project)
+        self.assertEqual(
+            list(self.project.sshkeys.values_list('pk', flat=True)),
+            [s.pk for s in resp.context_data['sshkey_list']],
+        )
+        self.assertEqual(len(resp.context_data['sshkey_list']), 1)
+
+    def test_detail_view(self):
+        key_pk = self.project.sshkeys.first().pk
+        req = self.request(
+            '/dashboard/foobar/keys/{0}'.format(key_pk),
+            user=self.user,
+        )
+        resp = DetailKeysView.as_view()(req,
+                                        key_pk=key_pk,
+                                        project_slug=self.project.slug)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data['project'], self.project)
+        self.assertEqual(resp.context_data['sshkey'],
+                         self.project.sshkeys.get(pk=key_pk))
 
 
 class SSHKeyModelTests(TestCase):

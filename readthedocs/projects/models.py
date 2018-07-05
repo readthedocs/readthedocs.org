@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
+
 """Project models."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import, division, print_function, unicode_literals
+)
 
-import base64
 import fnmatch
-import json
-import hashlib
 import logging
 import os
-from builtins import object, zip  # pylint: disable=redefined-builtin
 
+from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
@@ -31,16 +30,13 @@ from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.validators import validate_domain_name, validate_repository_url
+from readthedocs.projects.validators import (
+    validate_domain_name, validate_repository_url)
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
-
-from .querysets import SSHKeyQuerySet
-from .mixins import SSHKeyGenMixin
-
 
 log = logging.getLogger(__name__)
 
@@ -268,28 +264,30 @@ class Project(models.Model):
         default=2,
         null=True,
         blank=True,
-        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X')
+        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X'),
     )
     num_minor = models.IntegerField(
         _('Number of Minor versions'),
         default=2,
         null=True,
         blank=True,
-        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X')
+        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X'),
     )
     num_point = models.IntegerField(
         _('Number of Point versions'),
         default=2,
         null=True,
         blank=True,
-        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0')
+        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0'),
     )
 
     has_valid_webhook = models.BooleanField(
-        default=False, help_text=_('This project has been built with a webhook')
+        default=False,
+        help_text=_('This project has been built with a webhook'),
     )
     has_valid_clone = models.BooleanField(
-        default=False, help_text=_('This project has been successfully cloned')
+        default=False,
+        help_text=_('This project has been successfully cloned'),
     )
 
     tags = TaggableManager(blank=True)
@@ -369,7 +367,10 @@ class Project(models.Model):
         try:
             if not first_save:
                 broadcast(
-                    type='app', task=tasks.update_static_metadata, args=[self.pk],)
+                    type='app',
+                    task=tasks.update_static_metadata,
+                    args=[self.pk],
+                )
         except Exception:
             log.exception('failed to update static metadata')
         try:
@@ -388,12 +389,20 @@ class Project(models.Model):
 
         Always use http for now, to avoid content warnings.
         """
-        return resolve(project=self, version_slug=version_slug, language=lang_slug, private=private)
+        return resolve(
+            project=self,
+            version_slug=version_slug,
+            language=lang_slug,
+            private=private,
+        )
 
     def get_builds_url(self):
-        return reverse('builds_project_list', kwargs={
-            'project_slug': self.slug,
-        })
+        return reverse(
+            'builds_project_list',
+            kwargs={
+                'project_slug': self.slug,
+            },
+        )
 
     def get_canonical_url(self):
         if getattr(settings, 'DONT_HIT_DB', True):
@@ -561,7 +570,9 @@ class Project(models.Model):
         """Find a ``conf.py`` file in the project checkout."""
         if self.conf_py_file:
             conf_path = os.path.join(
-                self.checkout_path(version), self.conf_py_file,)
+                self.checkout_path(version),
+                self.conf_py_file,
+            )
             if os.path.exists(conf_path):
                 log.info('Inserting conf.py file path from model')
                 return conf_path
@@ -582,12 +593,10 @@ class Project(models.Model):
         # the `doc` word in the path, we raise an error informing this to the user
         if len(files) > 1:
             raise ProjectConfigurationError(
-                ProjectConfigurationError.MULTIPLE_CONF_FILES
+                ProjectConfigurationError.MULTIPLE_CONF_FILES,
             )
 
-        raise ProjectConfigurationError(
-            ProjectConfigurationError.NOT_FOUND
-        )
+        raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
     def conf_dir(self, version=LATEST):
         conf_file = self.conf_file(version)
@@ -623,18 +632,30 @@ class Project(models.Model):
     def has_pdf(self, version_slug=LATEST):
         if not self.enable_pdf_build:
             return False
-        return os.path.exists(self.get_production_media_path(
-            type_='pdf', version_slug=version_slug))
+        return os.path.exists(
+            self.get_production_media_path(
+                type_='pdf',
+                version_slug=version_slug,
+            )
+        )
 
     def has_epub(self, version_slug=LATEST):
         if not self.enable_epub_build:
             return False
-        return os.path.exists(self.get_production_media_path(
-            type_='epub', version_slug=version_slug))
+        return os.path.exists(
+            self.get_production_media_path(
+                type_='epub',
+                version_slug=version_slug,
+            )
+        )
 
     def has_htmlzip(self, version_slug=LATEST):
-        return os.path.exists(self.get_production_media_path(
-            type_='htmlzip', version_slug=version_slug))
+        return os.path.exists(
+            self.get_production_media_path(
+                type_='htmlzip',
+                version_slug=version_slug,
+            )
+        )
 
     @property
     def sponsored(self):
@@ -661,7 +682,11 @@ class Project(models.Model):
         return repo
 
     def repo_nonblockinglock(self, version, max_lock_age=5):
-        return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
+        return NonBlockingLock(
+            project=self,
+            version=version,
+            max_lock_age=max_lock_age
+        )
 
     def repo_lock(self, version, timeout=5, polling_interval=5):
         return Lock(self, version, timeout, polling_interval)
@@ -749,7 +774,9 @@ class Project(models.Model):
         if not self.num_major or not self.num_minor or not self.num_point:
             return []
         version_identifiers = self.versions.values_list(
-            'verbose_name', flat=True,)
+            'verbose_name',
+            flat=True,
+        )
         return version_windows(
             version_identifiers,
             major=self.num_major,
@@ -773,12 +800,15 @@ class Project(models.Model):
             current_stable = self.get_stable_version()
             if current_stable:
                 identifier_updated = (
-                    new_stable.identifier != current_stable.identifier)
+                    new_stable.identifier != current_stable.identifier
+                )
                 if identifier_updated and current_stable.active and current_stable.machine:
                     log.info(
                         'Update stable version: {project}:{version}'.format(
                             project=self.slug,
-                            version=new_stable.identifier))
+                            version=new_stable.identifier,
+                        ),
+                    )
                     current_stable.identifier = new_stable.identifier
                     current_stable.save()
                     return new_stable
@@ -786,10 +816,13 @@ class Project(models.Model):
                 log.info(
                     'Creating new stable version: {project}:{version}'.format(
                         project=self.slug,
-                        version=new_stable.identifier))
+                        version=new_stable.identifier,
+                    ),
+                )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
-                    identifier=new_stable.identifier)
+                    identifier=new_stable.identifier,
+                )
                 return new_stable
 
     def versions_from_branch_name(self, branch):
@@ -812,7 +845,8 @@ class Project(models.Model):
             return self.default_version
         # check if the default_version exists
         version_qs = self.versions.filter(
-            slug=self.default_version, active=True
+            slug=self.default_version,
+            active=True,
         )
         if version_qs.exists():
             return self.default_version
@@ -893,8 +927,14 @@ class APIProject(Project):
         self.features = kwargs.pop('features', [])
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
-        for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
-                    'main_language_project', 'related_projects']:
+        for key in [
+                'users',
+                'resource_uri',
+                'absolute_url',
+                'downloads',
+                'main_language_project',
+                'related_projects',
+        ]:
             try:
                 del kwargs[key]
             except KeyError:
@@ -995,7 +1035,10 @@ class Domain(models.Model):
         ordering = ('-canonical', '-machine', 'domain')
 
     def __str__(self):
-        return '{domain} pointed at {project}'.format(domain=self.domain, project=self.project.name)
+        return '{domain} pointed at {project}'.format(
+            domain=self.domain,
+            project=self.project.name
+        )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
@@ -1005,13 +1048,22 @@ class Domain(models.Model):
         else:
             self.domain = parsed.path
         super(Domain, self).save(*args, **kwargs)
-        broadcast(type='app', task=tasks.symlink_domain,
-                  args=[self.project.pk, self.pk],)
+        broadcast(
+            type='app',
+            task=tasks.symlink_domain,
+            args=[self.project.pk,
+                  self.pk],
+        )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
-        broadcast(type='app', task=tasks.symlink_domain,
-                  args=[self.project.pk, self.pk, True],)
+        broadcast(
+            type='app',
+            task=tasks.symlink_domain,
+            args=[self.project.pk,
+                  self.pk,
+                  True],
+        )
         super(Domain, self).delete(*args, **kwargs)
 
 
@@ -1077,9 +1129,7 @@ class Feature(models.Model):
     objects = FeatureQuerySet.as_manager()
 
     def __str__(self):
-        return '{0} feature'.format(
-            self.get_feature_display(),
-        )
+        return '{0} feature'.format(self.get_feature_display())
 
     def get_feature_display(self):
         """
@@ -1089,49 +1139,3 @@ class Feature(models.Model):
         implement this behavior.
         """
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
-
-
-@python_2_unicode_compatible
-class SSHKey(SSHKeyGenMixin, models.Model):
-
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-
-    public_key = models.TextField(
-        _('Public SSH Key'),
-        help_text='Add this to your version control to give us access.',
-    )
-    private_key = models.TextField(
-        _('Private SSH Key'),
-    )
-    project = models.ForeignKey('Project', related_name='sshkeys')
-    json = models.TextField(_('Serialized API response'), blank=True, null=True)
-
-    objects = SSHKeyQuerySet()
-
-    def __str__(self):
-        return 'SSH Key for {}'.format(self.project)
-
-    @property
-    def service_id(self):
-        if not self.json:
-            return None
-
-        data = json.loads(self.json)
-        service_id = (
-            data.get('id') or  # github / gitlab
-            data.get('pk')  # bitbucket
-        )
-        return service_id
-
-    def save(self, *args, **kwargs):  # pylitn: disable=arguments-differ
-        if self.pk is None and not self.private_key:
-            self.generate_keys(commit=kwargs.get('commit', False))
-        super(SSHKey, self).save(*args, **kwargs)
-
-    @property
-    def fingerprint(self):
-        """SSH fingerprint for public key"""
-        key = self.public_key.strip().split()[1].encode('ascii')
-        fingerprint = hashlib.md5(base64.b64decode(key)).hexdigest()
-        return ':'.join(a + b for (a, b) in zip(fingerprint[::2],
-                                                fingerprint[1::2]))

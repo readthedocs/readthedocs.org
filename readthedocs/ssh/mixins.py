@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from .ssh import generate_ssh_pair_keys
+from __future__ import division, print_function, unicode_literals
+
+from .keys import generate_ssh_pair_keys
 
 
 class SSHKeyGenMixin(object):

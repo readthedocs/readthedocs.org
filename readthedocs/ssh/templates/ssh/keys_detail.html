@@ -1,0 +1,29 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Key Details" %}{% endblock %}
+
+{% block project-keys-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Key Details" %}{% endblock %}
+
+{% block project_edit_content %}
+  <dl class="project-key-detail">
+    <dt>{% trans "Fingerprint" %}</dt>
+    <dd class="project-key-fingerprint">
+      <pre>{{ sshkey.fingerprint }}</pre>
+    </dd>
+
+    <dt>{% trans "Public key" %}</dt>
+    <dd class="project-key-public">
+      <pre>{{ sshkey.public_key }}</pre>
+    </dd>
+  </dl>
+
+  <form method="post" action="{% url 'projects_keys_delete' sshkey.project.slug sshkey.pk %}">
+    {% csrf_token %}
+    <p>
+      <input style="display: inline;" type="submit" value="{% trans "Delete" %}">
+    </p>
+  </form>
+{% endblock %}

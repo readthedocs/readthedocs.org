@@ -36,7 +36,10 @@ def generate_ssh_pair_keys(key_size=2048, comment=None):
 
 
 def generate_public_from_private_key(
-        private_key, text_format=False, comment=None):
+        private_key,
+        text_format=False,
+        comment=None,
+):
     if text_format:
         private_key = serialization.load_pem_private_key(
             private_key.encode('utf8'),

@@ -22,6 +22,17 @@ class CommunityTestSettings(CommunityDevSettings):
         logging = super(CommunityDevSettings, self).LOGGING
         return logging
 
+    @property
+    def INSTALLED_APPS(self):
+        apps = super(CommunityTestSettings, self).INSTALLED_APPS
+
+        # Install the ``readthedocs.ssh`` app when running tests because it's
+        # not installed by default. Otherwise, tests for this app won't run
+        if 'readthedocs.ssh' not in apps:
+            apps.append('readthedocs.ssh')
+
+        return apps
+
 
 CommunityTestSettings.load_settings(__name__)
 
@@ -29,7 +40,7 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'PREFIX': 'docs',
-    }
+    },
 }
 
 if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):

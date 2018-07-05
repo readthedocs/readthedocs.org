@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Tasks related to projects.
 
@@ -25,29 +26,25 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from readthedocs.config import ConfigError
 from slumber.exceptions import HttpClientError
 
-from .constants import LOG_TEMPLATE
-from .exceptions import RepositoryError
-from .models import ImportedFile, Project, Domain, Feature
-from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
+from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.core.utils import broadcast, send_email
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
-                                                  DockerBuildEnvironment)
+from readthedocs.doc_builder.environments import (
+    DockerBuildEnvironment, LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
-from readthedocs.doc_builder.python_environments import Virtualenv, Conda
+from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject, SSHKey
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
@@ -55,6 +52,11 @@ from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
+from .constants import LOG_TEMPLATE
+from .exceptions import RepositoryError
+from .models import Domain, Feature, ImportedFile, Project
+from .signals import (
+    after_build, after_vcs, before_build, before_vcs, files_changed)
 
 log = logging.getLogger(__name__)
 
@@ -358,7 +360,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.setup_env.failure = BuildEnvironmentError(
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                     build_id=build_pk,
-                )
+                ),
             )
             self.setup_env.update_build(BUILD_STATE_FINISHED)
             return False
@@ -382,7 +384,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.build_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=build_pk,
-                    )
+                    ),
                 )
                 self.build_env.update_build(BUILD_STATE_FINISHED)
                 return False
@@ -484,7 +486,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.task.retry(exc=e, throw=False)
                 raise BuildEnvironmentError(
                     'Version locked, retrying in 5 minutes.',
-                    status_code=423
+                    status_code=423,
                 )
             except SoftTimeLimitExceeded:
                 raise BuildEnvironmentError(_('Build exited due to time out'))
@@ -757,7 +759,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         only raise a warning exception here. A hard error will halt the build
         process.
         """
-        builder = get_builder_class(builder_class)(self.build_env, python_env=self.python_env)
+        builder = get_builder_class(builder_class)(
+            self.build_env,
+            python_env=self.python_env
+        )
         success = builder.build()
         builder.move()
         return success
@@ -885,13 +890,18 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     if version.project.is_type_sphinx:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.debug('Unknown documentation type: %s',
-                  version.project.documentation_type)
+        log.debug(
+            'Unknown documentation type: %s',
+            version.project.documentation_type,
+        )
         return
 
     log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Search Index) Sending Data: %s [%s]", version.project.slug,
-             log_msg)
+    log.info(
+        '(Search Index) Sending Data: %s [%s]',
+        version.project.slug,
+        log_msg,
+    )
     index_search_request(
         version=version,
         page_list=page_list,
@@ -972,22 +982,36 @@ def fileify(version_pk, commit):
     project = version.project
 
     if not commit:
-        log.info(LOG_TEMPLATE
-                 .format(project=project.slug, version=version.slug,
-                         msg=('Imported File not being built because no commit '
-                              'information')))
+        log.info(
+            LOG_TEMPLATE.format(
+                project=project.slug,
+                version=version.slug,
+                msg=(
+                    'Imported File not being built because no commit '
+                    'information'
+                ),
+            )
+        )
         return
 
     path = project.rtd_build_path(version.slug)
     if path:
-        log.info(LOG_TEMPLATE
-                 .format(project=version.project.slug, version=version.slug,
-                         msg='Creating ImportedFiles'))
+        log.info(
+            LOG_TEMPLATE.format(
+                project=version.project.slug,
+                version=version.slug,
+                msg='Creating ImportedFiles',
+            )
+        )
         _manage_imported_files(version, path, commit)
     else:
-        log.info(LOG_TEMPLATE
-                 .format(project=project.slug, version=version.slug,
-                         msg='No ImportedFile files'))
+        log.info(
+            LOG_TEMPLATE.format(
+                project=project.slug,
+                version=version.slug,
+                msg='No ImportedFile files',
+            )
+        )
 
 
 def _manage_imported_files(version, path, commit):
@@ -1053,8 +1077,13 @@ def email_notification(version, build, email):
     :param build: :py:class:`Build` instance that failed
     :param email: Email recipient address
     """
-    log.debug(LOG_TEMPLATE.format(project=version.project.slug, version=version.slug,
-                                  msg='sending email to: %s' % email))
+    log.debug(
+        LOG_TEMPLATE.format(
+            project=version.project.slug,
+            version=version.slug,
+            msg='sending email to: %s' % email,
+        )
+    )
 
     # We send only what we need from the Django model objects here to avoid
     # serialization problems in the ``readthedocs.core.tasks.send_email_task``
@@ -1110,11 +1139,15 @@ def webhook_notification(version, build, hook_url):
             'id': build.id,
             'success': build.success,
             'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
-        }
+        },
     })
-    log.debug(LOG_TEMPLATE
-              .format(project=project.slug, version='',
-                      msg='sending notification to: %s' % hook_url))
+    log.debug(
+        LOG_TEMPLATE.format(
+            project=project.slug,
+            version='',
+            msg='sending notification to: %s' % hook_url,
+        )
+    )
     try:
         requests.post(hook_url, data=data)
     except Exception:
@@ -1141,11 +1174,13 @@ def update_static_metadata(project_pk, path=None):
     if not path:
         path = project.static_metadata_path()
 
-    log.info(LOG_TEMPLATE.format(
-        project=project.slug,
-        version='',
-        msg='Updating static metadata',
-    ))
+    log.info(
+        LOG_TEMPLATE.format(
+            project=project.slug,
+            version='',
+            msg='Updating static metadata',
+        )
+    )
     translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
     # Convert to JSON safe types
@@ -1162,11 +1197,13 @@ def update_static_metadata(project_pk, path=None):
         json.dump(metadata, fh)
         fh.close()
     except (AttributeError, IOError) as e:
-        log.debug(LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='Cannot write to metadata.json: {0}'.format(e)
-        ))
+        log.debug(
+            LOG_TEMPLATE.format(
+                project=project.slug,
+                version='',
+                msg='Cannot write to metadata.json: {0}'.format(e),
+            )
+        )
 
 
 # Random Tasks
@@ -1178,7 +1215,7 @@ def remove_dir(path):
     This is mainly a wrapper around shutil.rmtree so that app servers can kill
     things on the build server.
     """
-    log.info("Removing %s", path)
+    log.info('Removing %s', path)
     shutil.rmtree(path, ignore_errors=True)
 
 
@@ -1219,8 +1256,10 @@ def finish_inactive_builds():
     """
     time_limit = int(DOCKER_LIMITS['time'] * 1.2)
     delta = datetime.timedelta(seconds=time_limit)
-    query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=datetime.datetime.now() - delta))
+    query = (
+        ~Q(state=BUILD_STATE_FINISHED) &
+        Q(date__lte=datetime.datetime.now() - delta)
+    )
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
@@ -1228,7 +1267,8 @@ def finish_inactive_builds():
 
         if build.project.container_time_limit:
             custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit))
+                seconds=int(build.project.container_time_limit),
+            )
             if build.date + custom_delta > datetime.datetime.now():
                 # Do not mark as FINISHED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
@@ -1239,7 +1279,7 @@ def finish_inactive_builds():
         build.error = _(
             'This build was terminated due to inactivity. If you '
             'continue to encounter this error, file a support '
-            'request with and reference this build id ({0}).'.format(build.pk)
+            'request with and reference this build id ({0}).'.format(build.pk),
         )
         build.save()
         builds_finished += 1
@@ -1247,22 +1287,4 @@ def finish_inactive_builds():
     log.info(
         'Builds marked as "Terminated due inactivity": %s',
         builds_finished,
-    )
-
-
-@app.task(queue='web')
-def generate_project_ssh_pair_keys(pk):
-    """
-    Generate a SSHKey for the project.
-
-    This task is used in ``trigger_initial_build`` to auto-generate the SSH key
-    for this project.
-
-    :param pk: pk of the Project
-
-    :returns: None
-    """
-    project = Project.objects.get(pk=pk)
-    SSHKey.objects.create(
-        project=project
     )
