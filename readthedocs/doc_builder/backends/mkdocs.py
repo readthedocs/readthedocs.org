@@ -172,10 +172,10 @@ class BaseMkdocs(BaseBuilder):
             'docroot': docs_dir,
             'source_suffix': ".md",
             'api_host': getattr(settings, 'PUBLIC_API_URL', 'https://readthedocs.org'),
+            'ad_free': self.project.ad_free or self.project.gold_owners.exists(),
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
             'global_analytics_code': getattr(settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'),
             'user_analytics_code': analytics_code,
-            'ad_free': self.version.project.ad_free,
         }
         data_json = json.dumps(readthedocs_data, indent=4)
         data_ctx = {
