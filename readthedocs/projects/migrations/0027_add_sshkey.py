@@ -10,7 +10,7 @@ import readthedocs.projects.mixins
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0025_show-version-warning-existing-projects'),
+        ('projects', '0026_add-free-option'),
     ]
 
     operations = [
