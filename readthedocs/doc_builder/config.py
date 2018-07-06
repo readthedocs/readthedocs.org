@@ -101,7 +101,7 @@ def load_yaml_config(version):
     # build image python limitations to the loaded config so that the versions
     # can be rejected at validation
 
-    img_name = version.project.container_image or DOCKER_IMAGE
+    img_name = project.container_image or DOCKER_IMAGE
     python_version = 3 if project.python_interpreter == 'python3' else 2
     env_config = {
         'build': {
@@ -113,6 +113,7 @@ def load_yaml_config(version):
             'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
             'python_version': python_version,
+            'build_image': project.container_image
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)

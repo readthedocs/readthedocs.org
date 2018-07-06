@@ -644,11 +644,11 @@ def describe_validate_build():
         'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
     def it_priorities_image_from_env_config(tmpdir, image):
         apply_fs(tmpdir, minimal_config)
-        env_config_build = {
-            'build': {'image': image}
+        defaults = {
+            'build_image': image,
         }
         build = BuildConfig(
-            get_env_config(env_config_build),
+            get_env_config({'defaults': defaults}),
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
             source_position=0

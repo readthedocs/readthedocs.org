@@ -345,9 +345,9 @@ class BuildConfig(BuildConfigBase):
             )
 
         # Allow to override specific project
-        env_config_image = self.env_config.get('build', {}).get('image')
-        if env_config_image:
-            build['image'] = env_config_image
+        config_image = self.defaults.get('build_image')
+        if config_image:
+            build['image'] = config_image
         return build
 
     def validate_python(self):
