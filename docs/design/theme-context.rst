@@ -7,6 +7,13 @@ This extra context can be used to build some awesome features in your own theme.
 
 .. _html_context Sphinx setting: http://www.sphinx-doc.org/en/stable/config.html#confval-html_context
 
+.. warning::
+
+    This design document details future features that are **not yet implemented**.
+    To discuss this document, please get in touch in the `issue tracker`_.
+
+.. _issue tracker: https://github.com/rtfd/readthedocs.org/issues
+
 .. note::
 
    The `Read the Docs Sphinx Theme`_ uses this context to add additional features to the built documentation.
