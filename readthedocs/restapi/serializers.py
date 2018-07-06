@@ -62,6 +62,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'features',
             'has_valid_clone',
             'has_valid_webhook',
+            'ad_free',
         )
 
 

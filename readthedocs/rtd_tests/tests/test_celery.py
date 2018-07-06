@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
 from __future__ import division, print_function, unicode_literals
 
 import os
-import json
 import shutil
 from os.path import exists
 from tempfile import mkdtemp
@@ -10,19 +10,17 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from mock import patch, MagicMock
 
-from readthedocs.builds.constants import BUILD_STATE_INSTALLING, BUILD_STATE_FINISHED, LATEST
+from readthedocs.builds.constants import LATEST
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
 
 from readthedocs.rtd_tests.utils import (
-    create_git_branch, create_git_tag, delete_git_branch, delete_git_tag)
+    create_git_branch, create_git_tag, delete_git_branch)
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
-
-from readthedocs.doc_builder.environments import BuildEnvironment
 
 
 class TestCeleryBuilding(RTDTestCase):
