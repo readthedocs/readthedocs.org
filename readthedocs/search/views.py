@@ -14,6 +14,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.search import lib as search_lib
 from readthedocs.search.documents import ProjectDocument, PageDocument
+from readthedocs.search.utils import get_project_list_or_404
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
@@ -54,14 +55,10 @@ def elastic_search(request):
         elif user_input.type == 'file':
             kwargs = {}
             if user_input.project:
-                queryset = Project.objects.api(request.user).only('slug')
-                project = get_object_or_404(queryset, slug=user_input.project)
-
-                subprojects_slug = (queryset.filter(superprojects__parent_id=project.id)
-                                            .values_list('slug', flat=True))
-
-                projects_list = [project.slug] + list(subprojects_slug)
-                kwargs['projects_list'] = projects_list
+                projects_list = get_project_list_or_404(project_slug=user_input.project,
+                                                        user=request.user)
+                project_slug_list = [project.slug for project in projects_list]
+                kwargs['projects_list'] = project_slug_list
             if user_input.version:
                 kwargs['versions_list'] = user_input.version
 
