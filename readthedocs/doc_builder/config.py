@@ -36,7 +36,7 @@ def load_yaml_config(version):
             'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
             'python_version': python_version,
-            'build_image': project.container_image
+            'build_image': project.container_image,
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
