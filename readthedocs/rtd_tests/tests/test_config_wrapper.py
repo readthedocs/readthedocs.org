@@ -68,7 +68,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:1.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+        self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.4])
 
     def test_python_supported_versions_image_2_0(self, load_config):
@@ -76,7 +76,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+        self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.5])
 
     def test_python_supported_versions_image_latest(self, load_config):
@@ -84,7 +84,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:latest'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+        self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
 
     def test_python_default_version(self, load_config):
