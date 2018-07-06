@@ -13,7 +13,7 @@ from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTaskStep
-from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
 

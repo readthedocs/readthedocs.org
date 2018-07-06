@@ -34,7 +34,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
-from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
