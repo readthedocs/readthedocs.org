@@ -223,6 +223,7 @@ class BuildConfig(BuildConfigBase):
           ``readthedocs.yml`` config file if not set
         """
         # Validate env_config.
+        # TODO: this isn't used
         self._config['output_base'] = self.validate_output_base()
 
         # Validate the build environment first
@@ -230,8 +231,11 @@ class BuildConfig(BuildConfigBase):
         self._config['build'] = self.validate_build()
 
         # Validate raw_config. Order matters.
+        # TODO: this isn't used
         self._config['name'] = self.validate_name()
+        # TODO: this isn't used
         self._config['type'] = self.validate_type()
+        # TODO: this isn't used
         self._config['base'] = self.validate_base()
         self._config['python'] = self.validate_python()
         self._config['formats'] = self.validate_formats()
