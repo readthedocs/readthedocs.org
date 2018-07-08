@@ -23,48 +23,48 @@ function attach_elastic_search_query(data) {
 
         search_url.href = api_host;
         search_url.pathname = '/api/v2/docsearch/';
-        search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
-            '&version=' + version + '&language=' + language;
+        search_url.search = '?query=' + $.urlencode(query) + '&project=' + project +
+                            '&version=' + version + '&language=' + language;
 
         search_def
-            .then(function (results) {
-                var hits = results.hits || {};
-                var hit_list = hits.hits || [];
+            .then(function (data) {
+                var hit_list = data.results || [];
+                var total_count = data.count || 0;
 
                 if (hit_list.length) {
-                    for (var n in hit_list) {
-                        var hit = hit_list[n];
-                        var fields = hit.fields || {};
-                        var list_item = $('<li style="display: none;"></li>');
-                        var item_url = document.createElement('a');
-                        var highlight = hit.highlight;
+                    for (var i = 0; i < hit_list.length; i++) {
+                        var document = hit_list[i];
+                        var highlight = document.highlight;
+                        var $list_item = $('<li style="display: none;"></li>');
 
-                        item_url.href += fields.link +
-                            DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        item_url.search = '?highlight=' + $.urlencode(query);
+                        // Creating the result from elements
+                        var link = document.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
+                                   '?highlight=' + $.urlencode(query);
 
-                        // Result list elements
-                        list_item.append(
-                            $('<a />')
-                            .attr('href', item_url)
-                            .html(fields.title)
-                        );
-                        // fields.project is returned as an array
-                        if (fields.project.indexOf(project) === -1) {
-                            list_item.append(
-                                $('<span>')
-                                .text(" (from project " + fields.project + ")")
-                            );
-                        }
-                        if (highlight.content.length) {
-                            var content = $('<div class="context">')
-                                .html(xss(highlight.content[0]));
-                            content.find('em').addClass('highlighted');
-                            list_item.append(content);
+                        var $item = $('<a>', {'href': link});
+                        $item.html(document.title);
+                        $list_item.append($item);
+
+                        // If the document is from subproject, add extra information
+                        if (document.project !== project) {
+                            var text = " (from project " + document.project + ")";
+                            var $extra = $('<span>', {'text': text});
+
+                            $list_item.append($extra);
                         }
 
-                        Search.output.append(list_item);
-                        list_item.slideDown(5);
+                        // Show highlighted texts
+                        if (highlight.content) {
+                            var content_text = xss(highlight.content[0]);
+                            var $contents = $('<div class="context">');
+
+                            $contents.html(content_text);
+                            $contents.find('em').addClass('highlighted');
+                            $list_item.append($contents);
+                        }
+
+                        Search.output.append($list_item);
+                        $list_item.slideDown(5);
                     }
                 }
 
@@ -74,7 +74,7 @@ function attach_elastic_search_query(data) {
                 }
                 else {
                     Search.status.text(
-                        _('Search finished, found %s page(s) matching the search query.').replace('%s', hit_list.length)
+                        _('Search finished, found %s page(s) matching the search query.').replace('%s', total_count)
                     );
                 }
             })
@@ -96,11 +96,11 @@ function attach_elastic_search_query(data) {
                 withCredentials: true,
             },
             complete: function (resp, status_code) {
-                if (typeof (resp.responseJSON) === 'undefined' ||
-                        typeof (resp.responseJSON.results) === 'undefined') {
+                console.log(status_code);
+                if (status_code !== 'success' || resp.responseJSON.count === 0) {
                     return search_def.reject();
                 }
-                return search_def.resolve(resp.responseJSON.results);
+                return search_def.resolve(resp.responseJSON);
             }
         })
         .error(function (resp, status_code, error) {
