@@ -32,7 +32,7 @@ function attach_elastic_search_query(data) {
                 var total_count = data.count || 0;
 
                 if (hit_list.length) {
-                    for (var i = 0; i < hit_list.length; i++) {
+                    for (var i = 0; i < hit_list.length; i += 1) {
                         var document = hit_list[i];
                         var highlight = document.highlight;
                         var $list_item = $('<li style="display: none;"></li>');
