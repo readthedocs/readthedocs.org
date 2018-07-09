@@ -139,6 +139,9 @@ class BaseSphinx(BaseBuilder):
             'generate_json_artifacts': self.project.has_feature(
                 Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
             ),
+            'dont_overwrite_sphinx_context': self.project.has_feature(
+                Feature.DONT_OVERWRITE_SPINX_CONTEXT
+            ),
         }
 
         finalize_sphinx_context_data.send(

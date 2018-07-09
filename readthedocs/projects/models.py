@@ -1021,6 +1021,7 @@ class Feature(models.Model):
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
     BUILD_JSON_ARTIFACTS_WITH_HTML = 'build_json_artifacts_with_html'
+    DONT_OVERWRITE_SPINX_CONTEXT = 'dont_overwrite_sphinx_context'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1030,6 +1031,8 @@ class Feature(models.Model):
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (BUILD_JSON_ARTIFACTS_WITH_HTML, _(
             'Build the json artifacts with the html build step')),
+        (DONT_OVERWRITE_SPINX_CONTEXT, _(
+            'Do not overwrite context vars in conf.py with Read the Docs context',)),
     )
 
     projects = models.ManyToManyField(

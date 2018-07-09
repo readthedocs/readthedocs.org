@@ -128,7 +128,13 @@ context = {
 {% block extra_context %}{% endblock %}
 
 if 'html_context' in globals():
+    {% if dont_overwrite_sphinx_context %}
+    for key in context:
+        if key not in html_context:
+            html_context[key] = context[key]
+    {% else %}
     html_context.update(context)
+    {% endif %}
 else:
     html_context = context
 
