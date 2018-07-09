@@ -35,36 +35,36 @@ function attach_elastic_search_query(data) {
                     for (var i = 0; i < hit_list.length; i += 1) {
                         var doc = hit_list[i];
                         var highlight = doc.highlight;
-                        var $list_item = $('<li style="display: none;"></li>');
+                        var list_item = $('<li style="display: none;"></li>');
 
                         // Creating the result from elements
                         var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
                                    '?highlight=' + $.urlencode(query);
 
-                        var $item = $('<a>', {'href': link});
-                        $item.html(doc.title);
-                        $list_item.append($item);
+                        var item = $('<a>', {'href': link});
+                        item.html(doc.title);
+                        list_item.append(item);
 
                         // If the document is from subproject, add extra information
                         if (doc.project !== project) {
                             var text = " (from project " + doc.project + ")";
-                            var $extra = $('<span>', {'text': text});
+                            var extra = $('<span>', {'text': text});
 
-                            $list_item.append($extra);
+                            list_item.append(extra);
                         }
 
                         // Show highlighted texts
                         if (highlight.content) {
                             var content_text = xss(highlight.content[0]);
-                            var $contents = $('<div class="context">');
+                            var contents = $('<div class="context">');
 
-                            $contents.html(content_text);
-                            $contents.find('em').addClass('highlighted');
-                            $list_item.append($contents);
+                            contents.html(content_text);
+                            contents.find('em').addClass('highlighted');
+                            list_item.append(contents);
                         }
 
-                        Search.output.append($list_item);
-                        $list_item.slideDown(5);
+                        Search.output.append(list_item);
+                        list_item.slideDown(5);
                     }
                 }
 
@@ -96,7 +96,6 @@ function attach_elastic_search_query(data) {
                 withCredentials: true,
             },
             complete: function (resp, status_code) {
-                console.log(status_code);
                 if (status_code !== 'success' || resp.responseJSON.count === 0) {
                     return search_def.reject();
                 }
