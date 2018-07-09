@@ -7,7 +7,7 @@ from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    BuildConfig, ConfigError, ConfigNotSupportedError, InvalidConfig,
+    BuildConfig, ConfigError, ConfigOptionNotSupportedError, InvalidConfig,
     ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
@@ -761,7 +761,7 @@ def test_load_calls_validate(tmpdir):
 def test_raise_config_not_supported():
     build = get_build_config({}, get_env_config())
     build.validate()
-    with raises(ConfigNotSupportedError) as excinfo:
+    with raises(ConfigOptionNotSupportedError) as excinfo:
         build.redirects
     assert excinfo.value.configuration == 'redirects'
     assert excinfo.value.code == CONFIG_NOT_SUPPORTED

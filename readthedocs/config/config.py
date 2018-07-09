@@ -14,7 +14,7 @@ from .validation import (
     validate_file, validate_list, validate_string)
 
 __all__ = (
-    'load', 'BuildConfig', 'ConfigError', 'ConfigNotSupportedError',
+    'load', 'BuildConfig', 'ConfigError', 'ConfigOptionNotSupportedError',
     'InvalidConfig', 'ProjectConfig'
 )
 
@@ -60,14 +60,14 @@ class ConfigError(Exception):
         super(ConfigError, self).__init__(message)
 
 
-class ConfigNotSupportedError(ConfigError):
+class ConfigOptionNotSupportedError(ConfigError):
 
     """Error for unsupported configurations in a version."""
 
     def __init__(self, configuration):
         self.configuration = configuration
         template = 'The "{}" configuration is not supported in this version'
-        super(ConfigNotSupportedError, self).__init__(
+        super(ConfigOptionNotSupportedError, self).__init__(
             template.format(self.configuration),
             CONFIG_NOT_SUPPORTED
         )
@@ -167,7 +167,7 @@ class BuildConfigBase(object):
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
-        raise ConfigNotSupportedError(name)
+        raise ConfigOptionNotSupportedError(name)
 
 
 class BuildConfig(BuildConfigBase):
