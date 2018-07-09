@@ -62,11 +62,13 @@ class ConfigError(Exception):
 
 class ConfigOptionNotSupportedError(ConfigError):
 
-    """Error for unsupported configurations in a version."""
+    """Error for unsupported configuration options in a version."""
 
     def __init__(self, configuration):
         self.configuration = configuration
-        template = 'The "{}" configuration is not supported in this version'
+        template = (
+            'The "{}" configuration option is not supported in this version'
+        )
         super(ConfigOptionNotSupportedError, self).__init__(
             template.format(self.configuration),
             CONFIG_NOT_SUPPORTED
