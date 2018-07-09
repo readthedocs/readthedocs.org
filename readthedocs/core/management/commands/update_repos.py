@@ -28,6 +28,8 @@ class Command(BaseCommand):
     help = __doc__
 
     def add_arguments(self, parser):
+        parser.add_argument('slugs', nargs='+', type=str)
+
         parser.add_argument(
             '-r',
             action='store_true',
@@ -56,7 +58,7 @@ class Command(BaseCommand):
         force = options['force']
         version = options['version']
         if args:
-            for slug in args:
+            for slug in options['slugs']:
                 if version and version != "all":
                     log.info("Updating version %s for %s", version, slug)
                     for version in Version.objects.filter(project__slug=slug, slug=version):
