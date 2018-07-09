@@ -33,21 +33,21 @@ function attach_elastic_search_query(data) {
 
                 if (hit_list.length) {
                     for (var i = 0; i < hit_list.length; i += 1) {
-                        var document = hit_list[i];
-                        var highlight = document.highlight;
+                        var doc = hit_list[i];
+                        var highlight = doc.highlight;
                         var $list_item = $('<li style="display: none;"></li>');
 
                         // Creating the result from elements
-                        var link = document.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
                                    '?highlight=' + $.urlencode(query);
 
                         var $item = $('<a>', {'href': link});
-                        $item.html(document.title);
+                        $item.html(doc.title);
                         $list_item.append($item);
 
                         // If the document is from subproject, add extra information
-                        if (document.project !== project) {
-                            var text = " (from project " + document.project + ")";
+                        if (doc.project !== project) {
+                            var text = " (from project " + doc.project + ")";
                             var $extra = $('<span>', {'text': text});
 
                             $list_item.append($extra);
