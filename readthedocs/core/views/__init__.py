@@ -46,8 +46,7 @@ class SupportView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SupportView, self).get_context_data(**kwargs)
-        support_email = get_support_email()
-        context['support_email'] = support_email
+        context['support_email'] = get_support_email()
         return context
 
 

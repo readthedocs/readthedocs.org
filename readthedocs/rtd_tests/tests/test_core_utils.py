@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Test core util functions"""
 
 from __future__ import absolute_import
@@ -5,10 +6,11 @@ import mock
 
 from django_dynamic_fixture import get
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from readthedocs.projects.models import Project
 from readthedocs.builds.models import Version
-from readthedocs.core.utils import trigger_build, slugify
+from readthedocs.core.utils import trigger_build, slugify, get_support_email
 
 
 class CoreUtilTests(TestCase):
@@ -86,3 +88,13 @@ class CoreUtilTests(TestCase):
                          'a-title-with-separated-parts')
         self.assertEqual(slugify('A title_-_with separated parts', dns_safe=False),
                          'a-title_-_with-separated-parts')
+
+    def test_support_email(self):
+        with override_settings(SUPPORT_EMAIL='support@custom.org'):
+            self.assertEqual(get_support_email(), 'support@custom.org')
+
+        with override_settings(SUPPORT_EMAIL=None, PRODUCTION_DOMAIN='domain.org'):
+            self.assertEqual(get_support_email(), 'support@domain.org')
+
+        with override_settings(SUPPORT_EMAIL=None):
+            self.assertEqual(get_support_email(), 'support@readthedocs.org')
