@@ -802,7 +802,7 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'formats'
 
-    def test_formats_default_value(self, value):
+    def test_formats_default_value(self):
         build = self.get_build_config({})
         with raises(InvalidConfig) as excinfo:
             build.validate()
