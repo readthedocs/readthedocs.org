@@ -35,7 +35,7 @@ class SSHKey(SSHKeyGenMixin, models.Model):
     single project could contain more than one SSH key.
     """
 
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
+    create_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
 
     public_key = models.TextField(
         _('Public SSH Key'),
