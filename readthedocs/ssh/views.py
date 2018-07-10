@@ -20,18 +20,18 @@ class KeysMixin(ProjectRelationMixin):
     lookup_url_kwarg = 'key_pk'
 
 
-class ListKeysView(KeysMixin, ListView, CreateView):
+class ListKeysView(KeysMixin, ListView, CreateView):  # pylint: disable=too-many-ancestors
     template_name = 'ssh/keys_list.html'
 
 
-class DeleteKeysView(SuccessMessageMixin, KeysMixin, DeleteView):
+class DeleteKeysView(SuccessMessageMixin, KeysMixin, DeleteView):  # noqa
     template_name = 'ssh/keys_list.html'
     success_message = 'SSH key was deleted succesfully'
 
     def get_success_url(self):
         return reverse('projects_keys', args=[self.object.project.slug])
 
-    def post(self, *args, **kwargs):
+    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
         # Remove SSH key from service (GitHub/GitLab/Bitbucket) before delete it
         # from the database
         key = self.get_object()
@@ -56,7 +56,7 @@ class GenerateKeysView(KeysMixin, TemplateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class UploadKeysView(SuccessMessageMixin, KeysMixin, FormView):
+class UploadKeysView(SuccessMessageMixin, KeysMixin, FormView):  # noqa
 
     template_name = 'ssh/keys_upload.html'
     form_class = SSHKeyFileUploadForm

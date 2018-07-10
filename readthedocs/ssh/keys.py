@@ -39,7 +39,7 @@ def generate_public_from_private_key(
         private_key,
         text_format=False,
         comment=None,
-):
+):  # pylint: disable=invalid-name
     if text_format:
         private_key = serialization.load_pem_private_key(
             private_key.encode('utf8'),

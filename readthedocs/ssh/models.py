@@ -6,7 +6,7 @@ import base64
 import hashlib
 import json
 
-from builtins import zip
+from builtins import zip  # pylint: disable=redefined-builtin
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -47,7 +47,7 @@ class SSHKey(SSHKeyGenMixin, models.Model):
         )
         return service_id
 
-    def save(self, *args, **kwargs):  # pylitn: disable=arguments-differ
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if self.pk is None and not self.private_key:
             self.generate_keys(commit=kwargs.get('commit', False))
         super(SSHKey, self).save(*args, **kwargs)

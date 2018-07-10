@@ -13,18 +13,18 @@ from .notifications import DeployKeyAddedNotification, DeployKeyDeletedNotificat
 
 
 @app.task(queue='web')
-def generate_project_ssh_pair_keys(pk):
+def generate_project_ssh_pair_keys(project_pk):
     """
     Generate a SSHKey for the project.
 
     This task is used in ``trigger_initial_build`` to auto-generate the SSH key
     for this project.
 
-    :param pk: pk of the Project
+    :param project_pk: pk of the Project
 
     :returns: None
     """
-    project = Project.objects.get(pk=pk)
+    project = Project.objects.get(pk=project_pk)
     SSHKey.objects.create(project=project)
 
 
