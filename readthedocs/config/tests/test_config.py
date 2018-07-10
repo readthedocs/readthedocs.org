@@ -861,7 +861,7 @@ class TestBuildConfigV2(object):
     def test_build_check_valid(self, value):
         build = self.get_build_config({'build': {'image': value}})
         build.validate()
-        assert build.build_image == 'readthedocs/build:{}'.format(value)
+        assert build.build.image == 'readthedocs/build:{}'.format(value)
 
     @pytest.mark.parametrize('value', ['readthedocs/build:latest', 'one'])
     def test_build_check_invalid(self, value):
@@ -873,7 +873,7 @@ class TestBuildConfigV2(object):
     def test_build_default_value(self):
         build = self.get_build_config({})
         build.validate()
-        assert build.build_image == 'readthedocs/build:latest'
+        assert build.build.image == 'readthedocs/build:latest'
 
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
     def test_build_check_invalid_type(self, value):
