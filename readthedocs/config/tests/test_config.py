@@ -888,3 +888,229 @@ class TestBuildConfigV2(object):
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'build.image'
+
+    @pytest.mark.parametrize('value', [3, [], 'invalid'])
+    def test_python_check_invalid_types(self, value):
+        build = self.get_build_config({'python': value})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python'
+
+    @pytest.mark.parametrize('image,versions',
+                             [('latest', ['2', '2.7', '3', '3.5', '3.6'])])
+    def test_python_version(self, image, versions):
+        for version in versions:
+            build = self.get_build_config({
+                'buil': {
+                    'image': image,
+                },
+                'python': {
+                    'version': version
+                },
+            })
+            build.validate()
+            assert build.python.version == version
+
+    @pytest.mark.parametrize('image,versions',
+                             [('latest', ['1', '2.8', '4', '3.8'])])
+    def test_python_version_invalid(self, image, versions):
+        for version in versions:
+            build = self.get_build_config({
+                'buil': {
+                    'image': image,
+                },
+                'python': {
+                    'version': version
+                },
+            })
+            with raises(InvalidConfig) as excinfo:
+                build.validate()
+            assert excinfo.value.key == 'python.version'
+
+    def test_python_version_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.python.version == 3
+
+    @pytest.mark.parametrize('value', [3, [], {}])
+    def test_python_version_check_invalid_types(self, value):
+        build = self.get_build_config({'python': {'version': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.version'
+
+    def test_python_requirements_check_valid(self, tmpdir):
+        apply_fs(tmpdir, {'requirements.txt': ''})
+        build = self.get_build_config(
+            {'python': {'requirements': 'requirements.txt'}}
+        )
+        build.validate()
+        assert build.python.requirements == str(tmpdir.join('requirements.txt'))
+
+    def test_python_requirements_check_invalid(self, tmpdir):
+        apply_fs(tmpdir, {'requirements.txt': ''})
+        build = self.get_build_config(
+            {'python': {'requirements': 'invalid'}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.requirements'
+
+    def test_python_requirements_default_value(self, tmpdir):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.python.requirements is None
+
+    def test_python_requirements_allow_null(self):
+        build = self.get_build_config(
+            {'python': {'requirements': None}}
+        )
+        build.validate()
+        assert build.python.requirements is None
+
+    def test_python_requirements_allow_empty_string(self):
+        build = self.get_build_config(
+            {'python': {'requirements': ''}}
+        )
+        build.validate()
+        assert build.python.requirements == ''
+
+    @pytest.mark.parametrize('value', [3, [], {}])
+    def test_python_requirements_check_invalid_types(self, value):
+        build = self.get_build_config(
+            {'python': {'requirements': value}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.requirements'
+
+    def test_python_install_pip_check_valid(self):
+        build = self.get_build_config(
+            {'python': {'install': 'pip'}}
+        )
+        build.validate()
+        assert build.python.install_with_pip is True
+
+    def test_python_install_setuppy_check_valid(self):
+        build = self.get_build_config(
+            {'python': {'install': 'setup.py'}}
+        )
+        build.validate()
+        assert build.python.install_with_setup is True
+
+    @pytest.mark.parametrize('value', ['invalid', 'apt'])
+    def test_python_install_check_invalid(self, value):
+        build = self.get_build_config(
+            {'python': {'install': value}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install'
+
+    def test_python_install_allow_null(self):
+        build = self.get_build_config(
+            {'python': {'install': None}}
+        )
+        build.validate()
+        assert build.python.install_with_pip is False
+        assert build.python.install_with_setup is False
+
+    def test_python_install_default(self):
+        build = self.get_build_config({'python': {}})
+        build.validate()
+        assert build.python.install_with_pip is False
+        assert build.python.install_with_setup is False
+
+    @pytest.mark.parametrize('value', [2, [], {}])
+    def test_python_install_check_invalid_type(self, value):
+        build = self.get_build_config(
+            {'python': {'install': value}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install'
+
+    def test_python_extra_requirements_and_pip(self):
+        build = self.get_build_config({
+            'python': {
+                'install': 'pip',
+                'extra_requirements': ['docs', 'tests'],
+            }
+        })
+        build.validate()
+        assert build.python.extra_requirements == ['docs', 'tests']
+
+    def test_python_extra_requirements_not_install(self):
+        build = self.get_build_config({
+            'python': {
+                'extra_requirements': ['docs', 'tests'],
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.extra_requirements'
+
+    def test_python_extra_requirements_and_setup(self):
+        build = self.get_build_config({
+            'python': {
+                'install': 'setup.py',
+                'extra_requirements': ['docs', 'tests'],
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.extra_requirements'
+
+    @pytest.mark.parametrize('value', [2, 'invalid', {}])
+    def test_python_extra_requirements_check_type(self, value):
+        build = self.get_build_config({
+            'python': {
+                'install': 'pip',
+                'extra_requirements': value,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.extra_requirements'
+
+    @pytest.mark.parametrize('value', [None, []])
+    def test_python_extra_requirements_allow_empty(self, value):
+        build = self.get_build_config({
+            'python': {
+                'install': 'pip',
+                'extra_requirements': value,
+            }
+        })
+        build.validate()
+        assert build.python.extra_requirements == []
+
+    def test_python_extra_requirements_check_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.python.extra_requirements == []
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_python_system_packages_check_valid(self, value):
+        build = self.get_build_config({
+            'python': {
+                'system_packages': value,
+            }
+        })
+        build.validate()
+        assert build.python.use_system_site_packages is value
+
+    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    def test_python_system_packages_check_invalid(self, value):
+        build = self.get_build_config({
+            'python': {
+                'system_packages': value,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.system_packages'
+
+    def test_python_system_packages_check_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.python.use_system_site_packages is False
