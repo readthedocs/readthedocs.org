@@ -783,35 +783,37 @@ class TestBuildConfigV2(object):
         assert build.version == '2'
 
     def test_formats_check_valid(self):
-        build = get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
+        build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
         build.validate()
         assert build.formats == ['htmlzip', 'pdf', 'epub']
 
     @pytest.mark.parametrize('value', [3, 'invalid', {'other': 'value'}])
     def test_formats_check_invalid_value(self, value):
-        build = get_build_config({'formats': value})
+        build = self.get_build_config({'formats': value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'formats'
 
     def test_formats_check_invalid_type(self):
-        build = get_build_config({'formats': ['htmlzip', 'invalid', 'epub']})
+        build = self.get_build_config(
+            {'formats': ['htmlzip', 'invalid', 'epub']}
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'formats'
 
     def test_formats_default_value(self, value):
-        build = get_build_config({})
+        build = self.get_build_config({})
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'formats'
 
     def test_formats_allow_empty(self):
-        build = get_build_config({'formats': []})
+        build = self.get_build_config({'formats': []})
         build.validate()
         assert build.formats == []
 
     def test_formats_allow_all_keyword(self):
-        build = get_build_config({'formats': []})
+        build = self.get_build_config({'formats': []})
         build.validate()
         assert build.formats == ['htmlzip', 'pdf', 'epub']
