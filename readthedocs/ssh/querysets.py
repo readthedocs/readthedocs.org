@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Helper QuerySets used for ``readthedocs.ssh`` models."""
 from __future__ import division, print_function, unicode_literals
 
 from django.db import models
@@ -7,6 +8,14 @@ from .keys import generate_public_from_private_key
 
 
 class SSHKeyQuerySet(models.QuerySet):
+
+    """
+    SSHKey QuerySet helpers.
+
+    .. note::
+
+        Used as objects manager in ``readthedocs.ssh.models.SSHKey``
+    """
 
     def create_from_string(self, private_key, project):
         """

@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Views to handle SSH key management under Project Admin's Dashboard.
+
+.. note::
+
+    This functionality is not enabled by default. Views and models from this
+    application are not exposed to the user.
+"""
 from __future__ import division, print_function, unicode_literals
 
 from django.contrib import messages
@@ -21,10 +29,21 @@ class KeysMixin(ProjectRelationMixin):
 
 
 class ListKeysView(KeysMixin, ListView, CreateView):  # pylint: disable=too-many-ancestors
+
+    """List all keys for project under Project Admin's dashboard."""
+
     template_name = 'ssh/keys_list.html'
 
 
 class DeleteKeysView(SuccessMessageMixin, KeysMixin, DeleteView):  # noqa
+
+    """
+    Delete a key for project under Project Admin's dashboard.
+
+    It also deletes the key from the VCS service if this key was added as SSH
+    deploy key by us in the VCS service.
+    """
+
     template_name = 'ssh/keys_list.html'
     success_message = 'SSH key was deleted succesfully'
 
@@ -44,6 +63,8 @@ class DeleteKeysView(SuccessMessageMixin, KeysMixin, DeleteView):  # noqa
 
 class GenerateKeysView(KeysMixin, TemplateView):
 
+    """Generate a random private/public key on demand."""
+
     template_name = 'ssh/keys_generate.html'
     success_message = 'SSH key was generated automatically'
 
@@ -57,6 +78,13 @@ class GenerateKeysView(KeysMixin, TemplateView):
 
 
 class UploadKeysView(SuccessMessageMixin, KeysMixin, FormView):  # noqa
+
+    """
+    Upload a private key from the user's computer.
+
+    Once the key is upload successfully a public key automatically generated
+    from this private key and saved as a ``SSHKey`` model instance.
+    """
 
     template_name = 'ssh/keys_upload.html'
     form_class = SSHKeyFileUploadForm
@@ -75,4 +103,7 @@ class UploadKeysView(SuccessMessageMixin, KeysMixin, FormView):  # noqa
 
 
 class DetailKeysView(KeysMixin, DetailView):
+
+    """Detailed ``SSHKey`` model instance under Project Admin's dashboard."""
+
     template_name = 'ssh/keys_detail.html'

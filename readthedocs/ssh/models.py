@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+SSH models to save private/public keys for projects.
+
+.. note::
+
+    This functionality is not enabled by default. Views and models from this
+    application are not exposed to the user.
+"""
 
 from __future__ import division, print_function, unicode_literals
 
@@ -20,6 +28,13 @@ from .querysets import SSHKeyQuerySet
 @python_2_unicode_compatible
 class SSHKey(SSHKeyGenMixin, models.Model):
 
+    """
+    SSH model used to store private/public keys.
+
+    These keys are used while cloning repositories or installing packages. A
+    single project could contain more than one SSH key.
+    """
+
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
 
     public_key = models.TextField(
@@ -37,6 +52,12 @@ class SSHKey(SSHKeyGenMixin, models.Model):
 
     @property
     def service_id(self):
+        """
+        Return the ``id`` of this ssh deploy key the external service.
+
+        SSH keys generated when a ``Project`` is created are uploaded to the VCS
+        service. This property returns the id of this key in the VCS service.
+        """
         if not self.json:
             return None
 
@@ -54,7 +75,7 @@ class SSHKey(SSHKeyGenMixin, models.Model):
 
     @property
     def fingerprint(self):
-        """SSH fingerprint for public key"""
+        """SSH fingerprint for public key."""
         key = self.public_key.strip().split()[1].encode('ascii')
         fingerprint = hashlib.md5(base64.b64decode(key)).hexdigest()
         return ':'.join(a + b for (a, b) in zip(fingerprint[::2],

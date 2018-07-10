@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Notifications for SSH key Project Admin tab."""
 from __future__ import division, print_function, unicode_literals
 
 from readthedocs.notifications import SiteNotification

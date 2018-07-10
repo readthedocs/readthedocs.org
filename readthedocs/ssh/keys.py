@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+Keys manipulation.
+
+Utilities to create, generate and validate keys.
+"""
 from __future__ import division, print_function, unicode_literals
 
 from cryptography.hazmat.backends import openssl
@@ -9,7 +14,17 @@ from readthedocs.core.utils import get_support_email
 
 
 def generate_ssh_pair_keys(key_size=2048, comment=None):
-    """Generate SSH Public/Private key."""
+    """
+    Generate SSH Public/Private key.
+
+    :param key_size: size used to generated the key
+    :param comment: optional comment to append to public key (by default the
+        value returned by ``get_support_email`` is appended)
+
+    :returns: tuple of private and public keys as strings
+
+    :rtype: tuple(str, str)
+    """
     # TODO: if the public key is generated from a private key, maybe we don't
     # want to add a default message
     comment = comment or get_support_email()
@@ -40,6 +55,23 @@ def generate_public_from_private_key(
         text_format=False,
         comment=None,
 ):  # pylint: disable=invalid-name
+    """
+    Generate a public key given a private key.
+
+    :param private_key: private key to generate public key from
+    :type private_key: str or
+        cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey
+
+    :param text_format: whether or not the ``private_key`` param is in text
+        format
+    :type text_format: bool
+
+    :param comment: optional comment to append to the public key (by default the
+        value returned by ``get_support_email`` is appended)
+
+    :returns: valid public key generated from the private key
+    :rtype: str
+    """
     if text_format:
         private_key = serialization.load_pem_private_key(
             private_key.encode('utf8'),
@@ -63,6 +95,14 @@ def generate_public_from_private_key(
 
 
 def is_valid_private_key(key_text):
+    """
+    Validate a private key.
+
+    :param key_text: SSH key to validate as text
+    :type key_text: str
+    :returns: whether or not the private key is valid
+    :rtype: bool
+    """
     try:
         serialization.load_pem_private_key(
             key_text.encode('utf8'),

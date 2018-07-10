@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+URLs for SSH key management under Project Admin tab.
 
+.. note::
+
+    This URLs should be included by prepending the ``project_slug`` regex
+    otherwise they won't work since they depend on a project.
+"""
 from __future__ import division, print_function, unicode_literals
 
 from django.conf.urls import url
