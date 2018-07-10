@@ -10,7 +10,7 @@ from .keys import is_valid_private_key
 class SSHKeyFileUploadForm(forms.Form):
 
     private_key = forms.FileField(
-        help_text=_('Choose the private key file from your computer that want to upload and use to clone this project'),  # noqa
+        help_text=_('Upload an additional private key file to use while cloning or installing dependencies'),  # noqa
     )
 
     def clean_private_key(self):
