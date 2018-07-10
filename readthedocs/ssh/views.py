@@ -61,7 +61,7 @@ class DeleteKeysView(SuccessMessageMixin, KeysMixin, DeleteView):  # noqa
         return response
 
 
-class GenerateKeysView(KeysMixin, TemplateView):
+class GenerateKeysView(KeysMixin, TemplateView):  # pylint: disable=too-many-ancestors
 
     """Generate a random private/public key on demand."""
 
@@ -102,7 +102,7 @@ class UploadKeysView(SuccessMessageMixin, KeysMixin, FormView):  # noqa
         return response
 
 
-class DetailKeysView(KeysMixin, DetailView):
+class DetailKeysView(KeysMixin, DetailView):  # pylint: disable=too-many-ancestors
 
     """Detailed ``SSHKey`` model instance under Project Admin's dashboard."""
 
