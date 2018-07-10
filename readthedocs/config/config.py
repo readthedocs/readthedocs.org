@@ -14,8 +14,8 @@ from .validation import (
     validate_file, validate_list, validate_string)
 
 __all__ = (
-    'load', 'BuildConfig', 'ConfigError', 'ConfigOptionNotSupportedError',
-    'InvalidConfig', 'ProjectConfig'
+    'load', 'BuildConfig', 'BuildConfigV2', 'ConfigError',
+    'ConfigOptionNotSupportedError', 'InvalidConfig', 'ProjectConfig'
 )
 
 
@@ -580,6 +580,16 @@ class BuildConfig(BuildConfigBase):
     def build_image(self):
         """The docker image used by the builders."""
         return self._config['build']['image']
+
+
+class BuildConfigV2(BuildConfigBase):
+
+    """Version 1 of the configuration file."""
+
+    version = '2'
+
+    def validate(self):
+        pass
 
 
 class ProjectConfig(list):

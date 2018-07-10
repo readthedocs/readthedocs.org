@@ -7,8 +7,8 @@ from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    BuildConfig, ConfigError, ConfigOptionNotSupportedError, InvalidConfig,
-    ProjectConfig, load)
+    BuildConfig, BuildConfigV2, ConfigError, ConfigOptionNotSupportedError,
+    InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
     TYPE_REQUIRED)
@@ -765,3 +765,53 @@ def test_raise_config_not_supported():
         build.redirects
     assert excinfo.value.configuration == 'redirects'
     assert excinfo.value.code == CONFIG_NOT_SUPPORTED
+
+
+class TestBuildConfigV2(object):
+
+    def get_build_config(self, config, env_config=None,
+                         source_file='readthedocs.yml', source_position=0):
+        return BuildConfigV2(
+            env_config or {},
+            config,
+            source_file=source_file,
+            source_position=source_position
+        )
+
+    def test_version(self):
+        build = self.get_build_config({})
+        assert build.version == '2'
+
+    def test_formats_check_valid(self):
+        build = get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
+        build.validate()
+        assert build.formats == ['htmlzip', 'pdf', 'epub']
+
+    @pytest.mark.parametrize('value', [3, 'invalid', {'other': 'value'}])
+    def test_formats_check_invalid_value(self, value):
+        build = get_build_config({'formats': value})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'formats'
+
+    def test_formats_check_invalid_type(self):
+        build = get_build_config({'formats': ['htmlzip', 'invalid', 'epub']})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'formats'
+
+    def test_formats_default_value(self, value):
+        build = get_build_config({})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'formats'
+
+    def test_formats_allow_empty(self):
+        build = get_build_config({'formats': []})
+        build.validate()
+        assert build.formats == []
+
+    def test_formats_allow_all_keyword(self):
+        build = get_build_config({'formats': []})
+        build.validate()
+        assert build.formats == ['htmlzip', 'pdf', 'epub']
