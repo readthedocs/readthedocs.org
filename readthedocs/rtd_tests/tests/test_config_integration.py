@@ -1,12 +1,14 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.config import BuildConfig, ProjectConfig, InvalidConfig
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.config import BuildConfig, InvalidConfig, ProjectConfig
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.projects.models import Project
 
 
 def create_load(config=None):
@@ -49,6 +51,8 @@ class LoadConfigTests(TestCase):
     def test_python_supported_versions_default_image_1_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:1.0'
+        self.project.enable_epub_build = True
+        self.project.enable_pdf_build = True
         self.project.save()
         config = load_yaml_config(self.version)
         self.assertEqual(load_config.call_count, 1)
@@ -57,7 +61,15 @@ class LoadConfigTests(TestCase):
                 'build': {'image': 'readthedocs/build:1.0'},
                 'type': 'sphinx',
                 'output_base': '',
-                'name': mock.ANY
+                'name': mock.ANY,
+                'defaults': {
+                    'install_project': self.project.install_project,
+                    'formats': ['htmlzip', 'epub', 'pdf'],
+                    'use_system_packages': self.project.use_system_packages,
+                    'requirements_file': self.project.requirements_file,
+                    'python_version': 2,
+                    'build_image': 'readthedocs/build:1.0',
+                },
             }),
         ])
         self.assertEqual(config.python_version, 2)
@@ -67,7 +79,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:1.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+        self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.4])
 
     def test_python_supported_versions_image_2_0(self, load_config):
@@ -75,7 +87,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+        self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.5])
 
     def test_python_supported_versions_image_latest(self, load_config):
@@ -83,7 +95,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:latest'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config._yaml_config.get_valid_python_versions(),
+        self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
 
     def test_python_default_version(self, load_config):
@@ -186,6 +198,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.requirements_file, requirements_file)
 
+        # Respects the requirements file from the project settings
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
         self.assertEqual(config.requirements_file, 'urls.py')
