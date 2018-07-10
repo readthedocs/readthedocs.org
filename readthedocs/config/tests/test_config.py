@@ -825,7 +825,7 @@ class TestBuildConfigV2(object):
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.conda == ['htmlzip', 'pdf', 'epub']
+        assert build.conda.file == str(tmpdir.join('environment.yml'))
 
     def test_conda_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'environment.yml': ''})
