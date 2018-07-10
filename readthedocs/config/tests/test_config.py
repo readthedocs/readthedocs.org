@@ -817,3 +817,42 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({'formats': []})
         build.validate()
         assert build.formats == ['htmlzip', 'pdf', 'epub']
+
+    def test_conda_check_valid(self, tmpdir):
+        apply_fs(tmpdir, {'environment.yml': ''})
+        build = self.get_build_config(
+            {'conda': {'environment': 'environment.yml'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        assert build.conda == ['htmlzip', 'pdf', 'epub']
+
+    def test_conda_check_invalid(self, tmpdir):
+        apply_fs(tmpdir, {'environment.yml': ''})
+        build = self.get_build_config(
+            {'conda': {'environment': 'no_existing_environment.yml'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'conda.file'
+
+    @pytest.mark.parametrize('value', [3, [], 'invalid'])
+    def test_conda_check_invalid_value(self, value):
+        build = self.get_build_config({'conda': value})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'conda'
+
+    @pytest.mark.parametrize('value', [3, [], {}])
+    def test_conda_check_invalid_file_value(self, value):
+        build = self.get_build_config({'conda': {'file': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'conda.file'
+
+    def test_conda_check_file_required(self):
+        build = self.get_build_config({'conda': {'no-file': 'other'}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'conda.file'
