@@ -939,11 +939,11 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'python'
 
     @pytest.mark.parametrize('image,versions',
-                             [('latest', ['2', '2.7', '3', '3.5', '3.6'])])
+                             [('latest', [2, 2.7, 3, 3.5, 3.6])])
     def test_python_version(self, image, versions):
         for version in versions:
             build = self.get_build_config({
-                'buil': {
+                'build': {
                     'image': image,
                 },
                 'python': {
@@ -953,16 +953,28 @@ class TestBuildConfigV2(object):
             build.validate()
             assert build.python.version == version
 
+    def test_python_version_accepts_string(self):
+        build = self.get_build_config({
+            'build': {
+                'image': 'latest',
+            },
+            'python': {
+                'version': '3.6',
+            },
+        })
+        build.validate()
+        assert build.python.version == 3.6
+
     @pytest.mark.parametrize('image,versions',
-                             [('latest', ['1', '2.8', '4', '3.8'])])
+                             [('latest', [1, 2.8, 4, 3.8])])
     def test_python_version_invalid(self, image, versions):
         for version in versions:
             build = self.get_build_config({
-                'buil': {
+                'build': {
                     'image': image,
                 },
                 'python': {
-                    'version': version
+                    'version': version,
                 },
             })
             with raises(InvalidConfig) as excinfo:
@@ -992,7 +1004,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.version == value
 
-    @pytest.mark.parametrize('value', [3, [], {}])
+    @pytest.mark.parametrize('value', [[], {}])
     def test_python_version_check_invalid_types(self, value):
         build = self.get_build_config({'python': {'version': value}})
         with raises(InvalidConfig) as excinfo:
