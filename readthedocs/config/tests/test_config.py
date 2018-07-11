@@ -804,9 +804,8 @@ class TestBuildConfigV2(object):
 
     def test_formats_default_value(self):
         build = self.get_build_config({})
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'formats'
+        build.validate()
+        assert build.formats == []
 
     def test_formats_allow_empty(self):
         build = self.get_build_config({'formats': []})
@@ -814,7 +813,7 @@ class TestBuildConfigV2(object):
         assert build.formats == []
 
     def test_formats_allow_all_keyword(self):
-        build = self.get_build_config({'formats': []})
+        build = self.get_build_config({'formats': 'all'})
         build.validate()
         assert build.formats == ['htmlzip', 'pdf', 'epub']
 
