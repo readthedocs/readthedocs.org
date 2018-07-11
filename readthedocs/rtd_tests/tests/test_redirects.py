@@ -1,6 +1,7 @@
 import logging
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import fixture, get
@@ -45,8 +46,25 @@ class RedirectTests(TestCase):
         r = self.client.get('/docs/pip/')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/',
-        )
+            r['Location'], 'http://readthedocs.org/docs/pip/en/latest/')
+
+    def test_owner_with_multiple_projects_can_serve_the_requested_version(self):
+        # GH #4350
+        eric = User.objects.get(username='eric')
+        notpip = eric.projects.exclude(slug='pip').first()
+        notpip.versions.create_latest()
+
+        self.client.login(username='eric', password='test')
+        with patch('readthedocs.core.views.serve._serve_symlink_docs') as _serve_docs:
+            _serve_docs.return_value = HttpResponse()
+            self.client.get('/docs/pip/en/latest/')
+        self.assertTrue(_serve_docs.called)
+
+    def test_inactive_docs_should_return_404_if_the_user_is_not_the_project_admin(self):
+        pip = Project.objects.get(slug='pip')
+        pip.versions.filter(slug='latest').update(active=False)
+        response = self.client.get('/docs/pip/en/latest/')
+        self.assertEqual(response.status_code, 404)
 
     # Specific Page Redirects
     def test_proper_page_on_main_site(self):
