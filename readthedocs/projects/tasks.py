@@ -5,7 +5,8 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import datetime
 import hashlib
@@ -14,7 +15,7 @@ import logging
 import os
 import shutil
 import socket
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import requests
 from builtins import str
@@ -24,19 +25,17 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from readthedocs_build.config import ConfigError
+from readthedocs.config import ConfigError
 from slumber.exceptions import HttpClientError
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain, Feature
 from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
-from readthedocs.builds.constants import (LATEST,
-                                          BUILD_STATE_CLONING,
-                                          BUILD_STATE_INSTALLING,
-                                          BUILD_STATE_BUILDING,
-                                          BUILD_STATE_FINISHED)
-from readthedocs.builds.models import Build, Version, APIVersion
+from readthedocs.builds.constants import (
+    BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
+    BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
+from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
 from readthedocs.core.resolver import resolve_path
@@ -141,6 +140,8 @@ class SyncRepositoryMixin(object):
                      } for v in version_repo.branches
                 ]
 
+            self.validate_duplicate_reserved_versions(version_post_data)
+
             try:
                 # Hit the API ``sync_versions`` which may trigger a new build
                 # for the stable version
@@ -149,6 +150,27 @@ class SyncRepositoryMixin(object):
                 log.exception('Sync Versions Exception')
             except Exception:
                 log.exception('Unknown Sync Versions Exception')
+
+    def validate_duplicate_reserved_versions(self, data):
+        """
+        Check if there are duplicated names of reserved versions.
+
+        The user can't have a branch and a tag with the same name of
+        ``latest`` or ``stable``. Raise a RepositoryError exception
+        if there is a duplicated name.
+
+        :param data: Dict containing the versions from tags and branches
+        """
+        version_names = [
+            version['verbose_name']
+            for version in data.get('tags', []) + data.get('branches', [])
+        ]
+        counter = Counter(version_names)
+        for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
+            if counter[reserved_name] > 1:
+                raise RepositoryError(
+                    RepositoryError.DUPLICATED_RESERVED_VERSIONS
+                )
 
     # TODO this is duplicated in the classes below, and this should be
     # refactored out anyways, as calling from the method removes the original
@@ -742,10 +764,21 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
     synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
+    version = Version.objects.get(pk=version_pk)
     if not pdf:
-        clear_pdf_artifacts(version_pk)
+        remove_dir(
+            version.project.get_production_media_path(
+                type_='pdf',
+                version_slug=version.slug,
+            ),
+        )
     if not epub:
-        clear_epub_artifacts(version_pk)
+        remove_dir(
+            version.project.get_production_media_path(
+                type_='epub',
+                version_slug=version.slug,
+            ),
+        )
 
     # Sync files to the web servers
     move_files(
@@ -755,7 +788,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
         localmedia=localmedia,
         search=search,
         pdf=pdf,
-        epub=epub
+        epub=epub,
     )
 
     # Symlink project
@@ -1136,44 +1169,15 @@ def remove_dir(path):
 
 
 @app.task()
-def clear_artifacts(version_pk):
-    """Remove artifacts from the web servers."""
-    version = Version.objects.get(pk=version_pk)
-    clear_pdf_artifacts(version)
-    clear_epub_artifacts(version)
-    clear_htmlzip_artifacts(version)
-    clear_html_artifacts(version)
+def clear_artifacts(paths):
+    """
+    Remove artifacts from the web servers.
 
-
-@app.task()
-def clear_pdf_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='pdf', version_slug=version.slug))
-
-
-@app.task()
-def clear_epub_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='epub', version_slug=version.slug))
-
-
-@app.task()
-def clear_htmlzip_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.get_production_media_path(
-        type_='htmlzip', version_slug=version.slug))
-
-
-@app.task()
-def clear_html_artifacts(version):
-    if isinstance(version, int):
-        version = Version.objects.get(pk=version)
-    remove_dir(version.project.rtd_build_path(version=version.slug))
+    :param paths: list containing PATHs where production media is on disk
+        (usually ``Version.get_artifact_paths``)
+    """
+    for path in paths:
+        remove_dir(path)
 
 
 @app.task(queue='web')

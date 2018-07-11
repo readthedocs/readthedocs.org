@@ -160,6 +160,11 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    ad_free = models.BooleanField(
+        _('Ad-free'),
+        default=False,
+        help_text='If checked, do not show advertising for this project',
+    )
     show_version_warning = models.BooleanField(
         _('Show version warning'), default=False,
         help_text=_('Show warning banner in non-stable nor latest versions.')

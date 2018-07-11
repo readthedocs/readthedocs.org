@@ -9,43 +9,44 @@
 {% block edit_content_header %} {% trans "Set advertising preferences" %} {% endblock %}
 
 {% block edit_content %}
-  <p>
-    {% blocktrans %}
-      Read the Docs is an open source project.
-      In order to maintain service, we rely on both the
-      support of our users, and from sponsor support.
-    {% endblocktrans %}
-  </p>
-
-  <p>
-    {% blocktrans %}
-      For more details on advertising on Read the Docs
-      including the privacy protections we have in place for users
-      and community advertising we run on behalf of the open source community,
-      see <a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">our documentation</a>.
-    {% endblocktrans %}
-  </p>
 
   {% if request.user.gold.exists or request.user.goldonce.exists %}
     <p>
       {% blocktrans %}
-        <strong>Note:</strong>
-        Since you are a Gold Member or donor, you <strong>will not</strong> see advertising as long as you are logged-in.
+        Since you are a Gold Member or Supporter, you are <strong>ad-free</strong> for as long as you are logged-in.
         Thank you for supporting Read the Docs.
       {% endblocktrans%}
     </p>
   {% else %}
     <p>
-      {% url "gold_detail" as gold_detail %}
       {% blocktrans %}
-        You may remove ads completely by becoming a <a href="{{ gold_detail }}">Gold member to Read the Docs</a>.
+        Read the Docs is an open source project.
+        In order to maintain service, we rely on both the
+        support of our users, and from sponsor support.
       {% endblocktrans %}
     </p>
-  {% endif %}
 
-  <form method="POST" action=".">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" name="submit" value="{% trans "Update advertisement preference" %}" id="submit"/>
-  </form>
+    <p>
+      {% blocktrans %}
+        For more details on advertising on Read the Docs
+        including the privacy protections we have in place for users
+        and community advertising we run on behalf of the open source community,
+        see <a href="https://docs.readthedocs.io/en/latest/ethical-advertising.html">our documentation</a>.
+      {% endblocktrans %}
+    </p>
+
+    <p>
+      {% url "gold_detail" as gold_detail %}
+      {% url "donate" as donate_url %}
+      {% blocktrans %}
+        You can <strong>go ad-free</strong> by becoming a <a href="{{ gold_detail }}">Gold Member</a> or <a href="{{ donate_url }}">Supporter</a> of Read the Docs</a>.
+      {% endblocktrans %}
+    </p>
+
+    <form method="POST" action=".">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" name="submit" value="{% trans "Update advertisement preference" %}" id="submit"/>
+    </form>
+  {% endif %}
 {% endblock %}

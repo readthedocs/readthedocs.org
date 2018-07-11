@@ -20,6 +20,7 @@ from readthedocs.builds.models import Build
         'readthedocs.notifications.backends.EmailBackend',
         'readthedocs.notifications.backends.SiteBackend',
     ],
+    PRODUCTION_DOMAIN='readthedocs.org',
 )
 @mock.patch('readthedocs.notifications.notification.render_to_string')
 @mock.patch.object(Notification, 'send')
@@ -154,12 +155,12 @@ class NotificationBackendTests(TestCase):
         self.assertEqual(PersistentMessage.objects.filter(read=False).count(), 1)
 
         self.client.force_login(user)
-        response = self.client.get('/')
+        response = self.client.get('/dashboard/')
         self.assertContains(response, 'Test success message')
         self.assertEqual(PersistentMessage.objects.count(), 1)
         self.assertEqual(PersistentMessage.objects.filter(read=True).count(), 1)
 
-        response = self.client.get('/')
+        response = self.client.get('/dashboard/')
         self.assertNotContains(response, 'Test success message')
 
 

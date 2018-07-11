@@ -17,6 +17,9 @@ dashboard, under **Integrations**. You can select any of these integrations to
 see the *integration detail page*. This page has additional configuration
 details and a list of HTTP exchanges that have taken place for the integration.
 
+You need this information for the URL, webhook, or Payload URL needed by the
+repository provider such as GitHub, GitLab, or Bitbucket.
+
 Webhook Creation
 ----------------
 
@@ -26,11 +29,12 @@ project was not imported through a connected account, you may need to
 manually configure a webhook for your project.
 
 To manually set up a webhook, click **Add integration** on your project's
-**Integrations** admin dashboard page and select the integration type you'd like
-to add. After you have added the integration, you'll see a URL for the
-integration on the :ref:`integration detail page <webhooks:Webhook Integrations>`. Use this
-URL when setting up a new webhook with your provider -- these steps vary
-depending on the provider:
+**Integrations** Admin dashboard page and select the integration type you'd like
+to add. After you have added the integration, you'll see a link to information about the integration.
+
+As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
+
+Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
 
 GitHub
 ~~~~~~
@@ -38,13 +42,16 @@ GitHub
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **Payload URL**, use the URL of the integration on Read the Docs, found on
-  the :ref:`integration detail page <webhooks:Webhook Integrations>` page
+  the the project's **Integrations** Admin dashboard page
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
 * Select **Just the push event**
 * Finish by clicking **Add webhook**
 
-.. note:: The webhook secret is not yet respected
+You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**. If you see a Response 200, then the webhook is correctly configured.
+For a 403 error, it's likely that the Payload URL is incorrect.
+
+.. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
 Bitbucket
 ~~~~~~~~~
@@ -52,7 +59,7 @@ Bitbucket
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
-  :ref:`integration detail page <webhooks:Webhook Integrations>` page
+  **Dashboard** > **Admin** > **Integrations** page
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
@@ -62,7 +69,7 @@ GitLab
 * Go to the **Settings** page for your project
 * Click **Integrations**
 * For **URL**, use the URL of the integration on Read the Docs, found on the
-  :ref:`integration detail page <webhooks:Webhook Integrations>` page
+  **Dashboard** > **Admin** > **Integrations** page
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
@@ -71,8 +78,8 @@ Using the generic API integration
 
 For repositories that are not hosted with a supported provider, we also offer a
 generic API endpoint for triggering project builds. Similar to webhook
-integrations, this integration has a specific URL, found on the
-:ref:`integration detail page <webhooks:Webhook Integrations>`.
+integrations, this integration has a specific URL, found on the project's
+**Integrations** Admin dashboard page on readthedocs.org.
 
 Token authentication is required to use the generic endpoint, you will find this
 token on the integration details page. The token should be passed in as a
@@ -90,8 +97,8 @@ branches
     Default: **latest**
 
 token
-    The integration token. You'll find this value on the
-    :ref:`integration detail page <webhooks:Webhook Integrations>` page.
+    The integration token. You'll find this value on the project's
+    **Integrations** Admin dashboard page.
 
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::

@@ -1,19 +1,37 @@
+# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
-from __future__ import absolute_import, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
 
 import logging
 import subprocess
-from os import chdir, environ, getcwd, mkdir
-from os.path import abspath, join as pjoin
+from os import chdir, environ, mkdir
+from os.path import abspath
+from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
-from django_dynamic_fixture import new
 from django.contrib.auth.models import User
+from django_dynamic_fixture import new
 
+from readthedocs.doc_builder.base import restoring_chdir
 
 log = logging.getLogger(__name__)
+
+
+def get_readthedocs_app_path():
+    """
+    Return the absolute path of the ``readthedocs`` app.
+    """
+
+    try:
+        import readthedocs
+        path = readthedocs.__path__[0]
+    except (IndexError, ImportError):
+        raise Exception('Unable to find "readthedocs" path module')
+
+    return path
 
 
 def check_output(command, env=None):
@@ -25,9 +43,10 @@ def check_output(command, env=None):
     return output
 
 
+@restoring_chdir
 def make_test_git():
     directory = mkdtemp()
-    path = getcwd()
+    path = get_readthedocs_app_path()
     sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
@@ -88,14 +107,13 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
-    chdir(path)
     return directory
 
 
+@restoring_chdir
 def create_git_tag(directory, tag, annotated=False):
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
-    path = getcwd()
     chdir(directory)
 
     command = ['git', 'tag']
@@ -103,12 +121,42 @@ def create_git_tag(directory, tag, annotated=False):
         command.extend(['-a', '-m', 'Some tag'])
     command.append(tag)
     check_output(command, env=env)
-    chdir(path)
 
 
+@restoring_chdir
+def delete_git_tag(directory, tag):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'tag', '--delete', tag]
+    check_output(command, env=env)
+
+
+@restoring_chdir
+def create_git_branch(directory, branch):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'branch', branch]
+    check_output(command, env=env)
+
+
+@restoring_chdir
+def delete_git_branch(directory, branch):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'branch', '-D', branch]
+    check_output(command, env=env)
+
+
+@restoring_chdir
 def make_test_hg():
     directory = mkdtemp()
-    path = getcwd()
+    path = get_readthedocs_app_path()
     sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
     directory = pjoin(directory, 'sample_repo')
     copytree(sample, directory)
@@ -117,7 +165,6 @@ def make_test_hg():
     log.info(check_output(['hg', 'init'] + [directory]))
     log.info(check_output(['hg', 'add', '.']))
     log.info(check_output(['hg', 'commit', '-u', hguser, '-m"init"']))
-    chdir(path)
     return directory
 
 

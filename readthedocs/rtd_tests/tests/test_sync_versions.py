@@ -6,6 +6,8 @@ from __future__ import (
 import json
 
 from django.test import TestCase
+from django.core.urlresolvers import reverse
+import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
@@ -151,6 +153,503 @@ class TestSyncVersions(TestCase):
         # Version 0.8.3 is still inactive
         version_8 = Version.objects.get(slug='0.8.3')
         self.assertFalse(version_8.active)
+
+    def test_delete_version(self):
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=False,
+        )
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+        }
+
+        self.assertTrue(
+            Version.objects.filter(slug='0.8.3').exists()
+        )
+
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+
+        # There isn't a v0.8.3
+        self.assertFalse(
+            Version.objects.filter(slug='0.8.3').exists()
+        )
+
+    def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
+        """
+        The user creates a tag named ``stable`` on an existing repo,
+        when syncing the versions, the RTD's ``stable`` is lost
+        (set to machine=False) and doesn't update automatically anymore,
+        when the tag is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
+        """
+        version8 = Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            type=TAG,
+            active=False,
+            machine=False,
+        )
+        self.pip.update_stable_version()
+        current_stable = self.pip.get_stable_version()
+
+        # 0.8.3 is the current stable
+        self.assertEqual(
+            version8.identifier,
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # User new stable
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            '1abc2def3',
+            current_stable.identifier
+        )
+
+        # Deleting the tag should return the RTD's stable
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous commit
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            '0.8.3',
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+    def test_machine_attr_when_user_define_stable_tag_and_delete_it_new_project(self):
+        """
+        The user imports a new project with a tag named ``stable``,
+        when syncing the versions, the RTD's ``stable`` is lost
+        (set to machine=False) and doesn't update automatically anymore,
+        when the tag is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
+        """
+        # There isn't a stable version yet
+        self.pip.versions.exclude(slug='master').delete()
+        current_stable = self.pip.get_stable_version()
+        self.assertIsNone(current_stable)
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # User stable
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            '1abc2def3',
+            current_stable.identifier
+        )
+
+        # User activates the stable version
+        current_stable.active = True
+        current_stable.save()
+
+        # Deleting the tag should return the RTD's stable
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous commit
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            '0.8.3',
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+    def test_machine_attr_when_user_define_stable_branch_and_delete_it(self):
+        """
+        The user creates a branch named ``stable`` on an existing repo,
+        when syncing the versions, the RTD's ``stable`` is lost
+        (set to machine=False) and doesn't update automatically anymore,
+        when the branch is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
+        """
+        # Project with just branches
+        self.pip.versions.filter(type=TAG).delete()
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            type=BRANCH,
+            active=False,
+            machine=False,
+        )
+        self.pip.update_stable_version()
+        current_stable = self.pip.get_stable_version()
+
+        # 0.8.3 is the current stable
+        self.assertEqual(
+            '0.8.3',
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # User new stable
+                {
+                    'identifier': 'origin/stable',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': 'origin/0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            'origin/stable',
+            current_stable.identifier
+        )
+
+        # Deleting the branch should return the RTD's stable
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                {
+                    'identifier': 'origin/0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous branch
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            'origin/0.8.3',
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+    def test_machine_attr_when_user_define_stable_branch_and_delete_it_new_project(self):
+        """
+        The user imports a new project with a branch named ``stable``,
+        when syncing the versions, the RTD's ``stable`` is lost
+        (set to machine=False) and doesn't update automatically anymore,
+        when the branch is deleted on the user repository, the RTD's ``stable``
+        is back (set to machine=True).
+        """
+        # There isn't a stable version yet
+        self.pip.versions.exclude(slug='master').delete()
+        current_stable = self.pip.get_stable_version()
+        self.assertIsNone(current_stable)
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # User stable
+                {
+                    'identifier': 'origin/stable',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': 'origin/0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            'origin/stable',
+            current_stable.identifier
+        )
+
+        # User activates the stable version
+        current_stable.active = True
+        current_stable.save()
+
+        # Deleting the branch should return the RTD's stable
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                {
+                    'identifier': 'origin/0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The version 8 should be the new stable.
+        # The stable isn't stuck with the previous commit
+        current_stable = self.pip.get_stable_version()
+        self.assertEqual(
+            'origin/0.8.3',
+            current_stable.identifier
+        )
+        self.assertTrue(current_stable.machine)
+
+    def test_machine_attr_when_user_define_latest_tag_and_delete_it(self):
+        """
+        The user creates a tag named ``latest`` on an existing repo,
+        when syncing the versions, the RTD's ``latest`` is lost
+        (set to machine=False) and doesn't update automatically anymore,
+        when the tag is deleted on the user repository, the RTD's ``latest``
+        is back (set to machine=True).
+        """
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # User new stable
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The tag is the new latest
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            '1abc2def3',
+            version_latest.identifier
+        )
+
+        # Deleting the tag should return the RTD's latest
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': []
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The latest isn't stuck with the previous commit
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            'master',
+            version_latest.identifier
+        )
+        self.assertTrue(version_latest.machine)
+
+    def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
+        """
+        The user creates a branch named ``latest`` on an existing repo,
+        when syncing the versions, the RTD's ``latest`` is lost
+        (set to machine=False) and doesn't update automatically anymore,
+        when the branch is deleted on the user repository, the RTD's ``latest``
+        is back (set to machine=True).
+        """
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # User new latest
+                {
+                    'identifier': 'origin/latest',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The branch is the new latest
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            'origin/latest',
+            version_latest.identifier
+        )
+
+        # Deleting the branch should return the RTD's latest
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The latest isn't stuck with the previous branch
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertEqual(
+            'master',
+            version_latest.identifier,
+        )
+        self.assertTrue(version_latest.machine)
 
 
 class TestStableVersion(TestCase):
@@ -469,8 +968,95 @@ class TestStableVersion(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-    def test_user_defined_stable_version_with_tags(self):
+    def test_user_defined_stable_version_tag_with_tags(self):
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=True,
+        )
 
+        # A pre-existing active stable tag that was machine created
+        Version.objects.create(
+            project=self.pip,
+            identifier='foo',
+            type=TAG,
+            verbose_name='stable',
+            active=True,
+            machine=True,
+        )
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # A new user-defined stable tag
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'stable',
+                },
+                {
+                    'identifier': '0.9',
+                    'verbose_name': '0.9',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Didn't update to newest tag
+        version_9 = self.pip.versions.get(slug='0.9')
+        self.assertFalse(version_9.active)
+
+        # Did update to user-defined stable version
+        version_stable = self.pip.versions.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(
+            '1abc2def3',
+            self.pip.get_stable_version().identifier
+        )
+
+        # There arent others stable slugs like stable_a
+        other_stable = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_stable.exists())
+
+        # Check that posting again doesn't change anything from current state.
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        version_stable = self.pip.versions.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(
+            '1abc2def3',
+            self.pip.get_stable_version().identifier
+        )
+        other_stable = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_stable.exists())
+
+    def test_user_defined_stable_version_branch_with_tags(self):
         Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
@@ -482,7 +1068,7 @@ class TestStableVersion(TestCase):
         Version.objects.create(
             project=self.pip,
             identifier='foo',
-            type='branch',
+            type=BRANCH,
             verbose_name='stable',
             active=True,
             machine=True,
@@ -512,27 +1098,185 @@ class TestStableVersion(TestCase):
             ],
         }
 
-        self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
+        self.assertEqual(resp.status_code, 200)
 
         # Didn't update to newest tag
-        version_9 = Version.objects.get(slug='0.9')
+        version_9 = self.pip.versions.get(slug='0.9')
         self.assertFalse(version_9.active)
 
         # Did update to user-defined stable version
-        version_stable = Version.objects.get(slug='stable')
+        version_stable = self.pip.versions.get(slug='stable')
         self.assertFalse(version_stable.machine)
         self.assertTrue(version_stable.active)
-        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+        self.assertEqual(
+            'origin/stable',
+            self.pip.get_stable_version().identifier
+        )
+        # There arent others stable slugs like stable_a
+        other_stable = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_stable.exists())
 
         # Check that posting again doesn't change anything from current state.
-        self.client.post(
-            '/api/v2/project/{}/sync_versions/'.format(self.pip.pk),
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
+        self.assertEqual(resp.status_code, 200)
 
-        self.assertEqual('origin/stable', self.pip.get_stable_version().identifier)
+        version_stable = self.pip.versions.get(slug='stable')
+        self.assertFalse(version_stable.machine)
+        self.assertTrue(version_stable.active)
+        self.assertEqual(
+            'origin/stable',
+            self.pip.get_stable_version().identifier
+        )
+        other_stable = self.pip.versions.filter(
+            slug__startswith='stable_'
+        )
+        self.assertFalse(other_stable.exists())
+
+
+class TestLatestVersion(TestCase):
+    fixtures = ['eric', 'test_data']
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        Version.objects.create(
+            project=self.pip,
+            identifier='origin/master',
+            verbose_name='master',
+            active=True,
+            machine=True,
+            type=BRANCH,
+        )
+        # When the project is saved, the RTD's ``latest`` version
+        # is created.
+        self.pip.save()
+
+    def test_user_defined_latest_version_tag(self):
+        # TODO: the ``latest`` versions are created
+        # as a BRANCH, then here we will have a
+        # ``latest_a`` version.
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                # A new user-defined latest tag
+                {
+                    'identifier': '1abc2def3',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Did update to user-defined latest version
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            '1abc2def3',
+            version_latest.identifier
+        )
+
+        # There arent others latest slugs like latest_a
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
+
+        # Check that posting again doesn't change anything from current state.
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            '1abc2def3',
+            version_latest.identifier
+        )
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
+
+    def test_user_defined_latest_version_branch(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                # A new user-defined latest branch
+                {
+                    'identifier': 'origin/latest',
+                    'verbose_name': 'latest',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # Did update to user-defined latest version
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            'origin/latest',
+            version_latest.identifier
+        )
+
+        # There arent others latest slugs like latest_a
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())
+
+        # Check that posting again doesn't change anything from current state.
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        version_latest = self.pip.versions.get(slug='latest')
+        self.assertFalse(version_latest.machine)
+        self.assertTrue(version_latest.active)
+        self.assertEqual(
+            'origin/latest',
+            version_latest.identifier
+        )
+        other_latest = self.pip.versions.filter(
+            slug__startswith='latest_'
+        )
+        self.assertFalse(other_latest.exists())

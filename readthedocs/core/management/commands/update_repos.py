@@ -26,22 +26,30 @@ class Command(BaseCommand):
     """Management command for rebuilding documentation on projects"""
 
     help = __doc__
-    option_list = BaseCommand.option_list + (
-        make_option('-r',
-                    action='store_true',
-                    dest='record',
-                    default=False,
-                    help='Make a Build'),
-        make_option('-f',
-                    action='store_true',
-                    dest='force',
-                    default=False,
-                    help='Force a build in sphinx'),
-        make_option('-V',
-                    dest='version',
-                    default=None,
-                    help='Build a version, or all versions')
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-r',
+            action='store_true',
+            dest='record',
+            default=False,
+            help='Make a Build'
+        )
+
+        parser.add_argument(
+            '-f',
+            action='store_true',
+            dest='force',
+            default=False,
+            help='Force a build in sphinx'
+        )
+
+        parser.add_argument(
+            '-V',
+            dest='version',
+            default=None,
+            help='Build a version, or all versions'
+        )
 
     def handle(self, *args, **options):
         record = options['record']
