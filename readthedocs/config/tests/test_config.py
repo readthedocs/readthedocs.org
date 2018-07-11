@@ -997,6 +997,24 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.requirements == ''
 
+    def test_python_requirements_respects_default(self, tmpdir):
+        build = self.get_build_config(
+            {},
+            {'defaults': {'requirements_file': 'requirements.txt'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        assert build.python.requirements == str(tmpdir.join('requirements.txt'))
+
+    def test_python_requirements_priority_over_default(self, tmpdir):
+        build = self.get_build_config(
+            {'python': {'requirements': 'requirements.txt'}},
+            {'defaults': {'requirements_file': 'requirements-default.txt'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        assert build.python.requirements == str(tmpdir.join('requirements.txt'))
+
     @pytest.mark.parametrize('value', [3, [], {}])
     def test_python_requirements_check_invalid_types(self, value):
         build = self.get_build_config(
