@@ -954,6 +954,24 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.version == 3
 
+    @pytest.mark.parametrize('value', [1, 2, 3])
+    def test_python_version_dont_respects_default(self, value):
+        build = self.get_build_config(
+            {},
+            {'defaults': {'python_version': value}}
+        )
+        build.validate()
+        assert build.python.version == 3
+
+    @pytest.mark.parametrize('value', [2, 3, 3.6])
+    def test_python_version_priority_over_default(self, value):
+        build = self.get_build_config(
+            {'python': {'version': value}},
+            {'defaults': {'python_version': 3}}
+        )
+        build.validate()
+        assert build.python.version == value
+
     @pytest.mark.parametrize('value', [3, [], {}])
     def test_python_version_check_invalid_types(self, value):
         build = self.get_build_config({'python': {'version': value}})
@@ -964,7 +982,8 @@ class TestBuildConfigV2(object):
     def test_python_requirements_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
         build = self.get_build_config(
-            {'python': {'requirements': 'requirements.txt'}}
+            {'python': {'requirements': 'requirements.txt'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
         assert build.python.requirements == str(tmpdir.join('requirements.txt'))
@@ -972,13 +991,14 @@ class TestBuildConfigV2(object):
     def test_python_requirements_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
         build = self.get_build_config(
-            {'python': {'requirements': 'invalid'}}
+            {'python': {'requirements': 'invalid'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.requirements'
 
-    def test_python_requirements_default_value(self, tmpdir):
+    def test_python_requirements_default_value(self):
         build = self.get_build_config({})
         build.validate()
         assert build.python.requirements is None
