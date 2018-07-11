@@ -880,19 +880,39 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'conda.file'
 
     @pytest.mark.parametrize('value', ['latest'])
-    def test_build_check_valid(self, value):
+    def test_build_image_check_valid(self, value):
         build = self.get_build_config({'build': {'image': value}})
         build.validate()
         assert build.build.image == 'readthedocs/build:{}'.format(value)
 
     @pytest.mark.parametrize('value', ['readthedocs/build:latest', 'one'])
-    def test_build_check_invalid(self, value):
+    def test_build_image_check_invalid(self, value):
         build = self.get_build_config({'build': {'image': value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'build.image'
 
-    def test_build_default_value(self):
+    @pytest.mark.parametrize(
+        'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
+    def test_build_image_priorities_default(self, image):
+        build = self.get_build_config(
+            {'build': {'image': 'latest'}},
+            {'defaults': {'build_image': image}}
+        )
+        build.validate()
+        assert build.build.image == image
+
+    @pytest.mark.parametrize(
+        'image', ['', None])
+    def test_build_image_over_empty_default(self, image):
+        build = self.get_build_config(
+            {'build': {'image': 'latest'}},
+            {'defaults': {'build_image': image}}
+        )
+        build.validate()
+        assert build.build.image == 'readthedocs/build:latest'
+
+    def test_build_image_default_value(self):
         build = self.get_build_config({})
         build.validate()
         assert build.build.image == 'readthedocs/build:latest'
@@ -905,7 +925,7 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'build'
 
     @pytest.mark.parametrize('value', [3, [], {}])
-    def test_build_check_invalid_type_image(self, value):
+    def test_build_image_check_invalid_type(self, value):
         build = self.get_build_config({'build': {'image': value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
