@@ -1114,3 +1114,66 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({})
         build.validate()
         assert build.python.use_system_site_packages is False
+
+    @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
+    def test_sphinx_validate_type(self, value):
+        build = self.get_build_config({'sphinx': value})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx'
+
+    def test_sphinx_configuration_check_valid(self, tmpdir):
+        apply_fs(tmpdir, {'conf.py': ''})
+        build = self.get_build_config(
+            {'sphinx': {'configuration': 'conf.py'}}
+        )
+        build.validate()
+        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+
+    def test_sphinx_configuration_check_invalid(self, tmpdir):
+        apply_fs(tmpdir, {'conf.py': ''})
+        build = self.get_build_config(
+            {'sphinx': {'configuration': 'invalid.py'}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx.configuration'
+
+    def test_sphinx_configuration_allow_null(self):
+        build = self.get_build_config(
+            {'sphinx': {'configuration': None}}
+        )
+        build.validate()
+        assert build.sphinx.configuration is None
+
+    def test_sphinx_configuration_check_default(self):
+        build = self.get_build_config()
+        build.validate()
+        assert build.sphinx.configuration is None
+
+    @pytest.mark.parametrize('value', [[], True, 0, {}])
+    def test_sphinx_configuration_validate_type(self, value):
+        build = self.get_build_config(
+            {'sphinx': {'configuration': value}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx.configuration'
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_sphinx_fail_on_warning_check_valid(self, value):
+        build = self.get_build_config({'sphinx': {'fail_on_warning': value}})
+        build.validate()
+        assert build.sphinx.fail_on_warning is value
+
+    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    def test_sphinx_fail_on_warning_check_invalid(self, value):
+        build = self.get_build_config({'sphinx': {'fail_on_warning': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx.fail_on_warning'
+
+    def test_sphinx_fail_on_warning_check_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.sphinx.fail_on_warning is False
