@@ -3,6 +3,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import re
+from collections import namedtuple
 from contextlib import contextmanager
 
 import six
@@ -10,8 +11,9 @@ import six
 from .find import find_one
 from .parser import ParseError, parse
 from .validation import (
-    ValidationError, validate_bool, validate_choice, validate_directory,
-    validate_file, validate_list, validate_string)
+    ValidationError, validate_bool, validate_choice, validate_dict,
+    validate_directory, validate_file, validate_list, validate_string,
+    validate_value_exists)
 
 __all__ = (
     'ALL', 'load', 'BuildConfig', 'BuildConfigV2', 'ConfigError',
@@ -111,6 +113,7 @@ class BuildConfigBase(object):
         self.raw_config = raw_config
         self.source_file = source_file
         self.source_position = source_position
+        self.base_path = os.path.dirname(self.source_file)
         self.defaults = self.env_config.get('defaults', {})
 
         self._config = {}
@@ -588,9 +591,48 @@ class BuildConfigV2(BuildConfigBase):
     """Version 1 of the configuration file."""
 
     version = '2'
+    valid_formats = ['htmlzip', 'pdf', 'epub']
 
     def validate(self):
-        pass
+        self._config['formats'] = self.validate_formats()
+        self._config['conda'] = self.validate_conda()
+
+    def validate_formats(self):
+        formats = self.raw_config.get('formats', [])
+        if formats == ALL:
+            return self.valid_formats
+        with self.catch_validation_error('formats'):
+            validate_list(formats)
+            for format_ in formats:
+                validate_choice(format_, self.valid_formats)
+        return formats
+
+    def validate_conda(self):
+        raw_conda = self.raw_config.get('conda')
+        if raw_conda is None:
+            return None
+
+        with self.catch_validation_error('conda'):
+            validate_dict(raw_conda)
+
+        conda = {}
+        with self.catch_validation_error('conda.environment'):
+            environment = validate_value_exists('environment', raw_conda)
+            conda['environment'] = validate_file(environment, self.base_path)
+        return conda
+
+    @property
+    def formats(self):
+        return self._config['formats']
+
+    @property
+    def conda(self):
+        Conda = namedtuple('Conda', ['environment'])
+        if self._config['conda']:
+            return Conda(
+                self._config['conda']['environment']
+            )
+        return None
 
 
 class ProjectConfig(list):
