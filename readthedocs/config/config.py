@@ -592,10 +592,12 @@ class BuildConfigV2(BuildConfigBase):
 
     version = '2'
     valid_formats = ['htmlzip', 'pdf', 'epub']
+    docker_versions = ['1.0', '2.0', '3.0', 'stable', 'latest']
 
     def validate(self):
         self._config['formats'] = self.validate_formats()
         self._config['conda'] = self.validate_conda()
+        self._config['build'] = self.validate_build()
 
     def validate_formats(self):
         formats = self.raw_config.get('formats', [])
@@ -621,6 +623,28 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_file(environment, self.base_path)
         return conda
 
+    def validate_build(self):
+        raw_build = self.raw_config.get('build', {})
+        with self.catch_validation_error('build'):
+            validate_dict(raw_build)
+        build = {}
+        with self.catch_validation_error('build.image'):
+            image = raw_build.get('image', 'latest')
+            build['image'] = validate_choice(
+                image,
+                self.docker_versions
+            )
+            build['image'] = '{}:{}'.format(
+                DOCKER_DEFAULT_IMAGE,
+                build['image']
+            )
+
+        # Allow to override specific project
+        config_image = self.defaults.get('build_image')
+        if config_image:
+            build['image'] = config_image
+        return build
+
     @property
     def formats(self):
         return self._config['formats']
@@ -629,10 +653,13 @@ class BuildConfigV2(BuildConfigBase):
     def conda(self):
         Conda = namedtuple('Conda', ['environment'])
         if self._config['conda']:
-            return Conda(
-                self._config['conda']['environment']
-            )
+            return Conda(**self._config['conda'])
         return None
+
+    @property
+    def build(self):
+        Build = namedtuple('Build', ['image'])
+        return Build(**self._config['build'])
 
 
 class ProjectConfig(list):
