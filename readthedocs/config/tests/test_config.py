@@ -1166,6 +1166,29 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.use_system_site_packages is False
 
+    def test_python_system_packages_respects_default(self):
+        build = self.get_build_config(
+            {},
+            {'defaults': {'use_system_site_packages': True}}
+        )
+        build.validate()
+        assert build.python.use_system_site_packages is True
+
+    def test_python_system_packages_priority_over_default(self):
+        build = self.get_build_config(
+            {'python': {'system_packages': False}},
+            {'defaults': {'use_system_site_packages': True}}
+        )
+        build.validate()
+        assert build.python.use_system_site_packages is False
+
+        build = self.get_build_config(
+            {'python': {'system_packages': True}},
+            {'defaults': {'use_system_site_packages': False}}
+        )
+        build.validate()
+        assert build.python.use_system_site_packages is True
+
     @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
     def test_sphinx_validate_type(self, value):
         build = self.get_build_config({'sphinx': value})
