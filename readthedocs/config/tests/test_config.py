@@ -1177,3 +1177,66 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({})
         build.validate()
         assert build.sphinx.fail_on_warning is False
+
+    @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
+    def test_mkdocs_validate_type(self, value):
+        build = self.get_build_config({'mkdocs': value})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'mkdocs'
+
+    def test_mkdocs_configuration_check_valid(self, tmpdir):
+        apply_fs(tmpdir, {'mkdocs.yml': ''})
+        build = self.get_build_config(
+            {'mkdocs': {'configuration': 'mkdocs.yml'}}
+        )
+        build.validate()
+        assert build.mkdocs.configuration == str(tmpdir.join('mkdocs.yml'))
+
+    def test_mkdocs_configuration_check_invalid(self, tmpdir):
+        apply_fs(tmpdir, {'mkdocs.yml': ''})
+        build = self.get_build_config(
+            {'mkdocs': {'configuration': 'invalid.yml'}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'mkdocs.configuration'
+
+    def test_mkdocs_configuration_allow_null(self):
+        build = self.get_build_config(
+            {'mkdocs': {'configuration': None}}
+        )
+        build.validate()
+        assert build.mkdocs.configuration is None
+
+    def test_mkdocs_configuration_check_default(self):
+        build = self.get_build_config()
+        build.validate()
+        assert build.mkdocs.configuration is None
+
+    @pytest.mark.parametrize('value', [[], True, 0, {}])
+    def test_mkdocs_configuration_validate_type(self, value):
+        build = self.get_build_config(
+            {'mkdocs': {'configuration': value}}
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'mkdocs.configuration'
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_mkdocs_fail_on_warning_check_valid(self, value):
+        build = self.get_build_config({'mkdocs': {'fail_on_warning': value}})
+        build.validate()
+        assert build.mkdocs.fail_on_warning is value
+
+    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    def test_mkdocs_fail_on_warning_check_invalid(self, value):
+        build = self.get_build_config({'mkdocs': {'fail_on_warning': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'mkdocs.fail_on_warning'
+
+    def test_mkdocs_fail_on_warning_check_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.mkdocs.fail_on_warning is False
