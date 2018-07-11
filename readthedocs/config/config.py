@@ -14,11 +14,12 @@ from .validation import (
     validate_file, validate_list, validate_string)
 
 __all__ = (
-    'load', 'BuildConfig', 'BuildConfigV2', 'ConfigError',
+    'ALL', 'load', 'BuildConfig', 'BuildConfigV2', 'ConfigError',
     'ConfigOptionNotSupportedError', 'InvalidConfig', 'ProjectConfig'
 )
 
 
+ALL = 'all'
 CONFIG_FILENAMES = ('readthedocs.yml', '.readthedocs.yml')
 
 

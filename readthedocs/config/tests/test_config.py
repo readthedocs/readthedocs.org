@@ -7,7 +7,7 @@ from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    BuildConfig, BuildConfigV2, ConfigError, ConfigOptionNotSupportedError,
+    ALL, BuildConfig, BuildConfigV2, ConfigError, ConfigOptionNotSupportedError,
     InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
@@ -1240,3 +1240,167 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({})
         build.validate()
         assert build.mkdocs.fail_on_warning is False
+
+    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    def test_submodules_check_invalid_type(self, value):
+        build = self.get_build_config({'submodules': value})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules'
+
+    def test_submodules_include_check_valid(self):
+        build = self.get_build_config({
+            'submodules': {
+                'include': ['one', 'two']
+            }
+        })
+        build.validate()
+        assert build.submodules.include == ['one', 'two']
+        assert build.submodules.exclude == []
+        assert build.submodules.recursive is False
+
+    @pytest.mark.parametrize('value', ['invalid', True, 0, {}])
+    def test_submodules_include_check_invalid(self, value):
+        build = self.get_build_config({
+            'submodules': {
+                'include': value,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules.include'
+
+    def test_submodules_include_allows_all_keyword(self):
+        build = self.get_build_config({
+            'submodules': {
+                'include': 'all',
+            }
+        })
+        build.validate()
+        assert build.submodules.include == ALL
+        assert build.submodules.exclude == []
+        assert build.submodules.recursive is False
+
+    def test_submodules_exclude_check_valid(self):
+        build = self.get_build_config({
+            'submodules': {
+                'exclude': ['one', 'two']
+            }
+        })
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == ['one', 'two']
+        assert build.submodules.recursive is False
+
+    @pytest.mark.parametrize('value', ['invalid', True, 0, {}])
+    def test_submodules_exclude_check_invalid(self, value):
+        build = self.get_build_config({
+            'submodules': {
+                'exclude': value,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules.exclude'
+
+    def test_submodules_exclude_allows_all_keyword(self):
+        build = self.get_build_config({
+            'submodules': {
+                'exlude': 'all',
+            }
+        })
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == ALL
+        assert build.submodules.recursive is False
+
+    def test_submodules_cant_exclude_and_include(self):
+        build = self.get_build_config({
+            'submodules': {
+                'include': ['two'],
+                'exlude': ['one'],
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules'
+
+    def test_submodules_can_exclude_include_be_empty(self):
+        build = self.get_build_config({
+            'submodules': {
+                'exlude': 'all',
+                'include': [],
+            }
+        })
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == ALL
+        assert build.submodules.recursive is False
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_submodules_recursive_check_valid(self, value):
+        build = self.get_build_config({
+            'submodules': {
+                'include': ['one', 'two'],
+                'recursive': value,
+            }
+        })
+        build.validate()
+        assert build.submodules.include == ['one', 'two']
+        assert build.submodules.exclude == []
+        assert build.submodules.recursive is value
+
+    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    def test_submodules_recursive_check_invalid(self, value):
+        build = self.get_build_config({
+            'submodules': {
+                'include': ['one', 'two'],
+                'recursive': value,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules.recursive'
+
+    def test_submodules_recursive_needs_include(self):
+        build = self.get_build_config({
+            'submodules': {
+                'recursive': True,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules.recursive'
+
+        build = self.get_build_config({
+            'submodules': {
+                'include': [],
+                'recursive': True,
+            }
+        })
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'submodules.recursive'
+
+    def test_submodules_recursive_explict_default(self):
+        build = self.get_build_config({
+            'submodules': {
+                'include': [],
+                'recursive': False,
+            }
+        })
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == []
+        assert build.submodules.recursive is False
+
+        build = self.get_build_config({
+            'submodules': {
+                'exclude': [],
+                'recursive': False,
+            }
+        })
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == []
+        assert build.submodules.recursive is False
