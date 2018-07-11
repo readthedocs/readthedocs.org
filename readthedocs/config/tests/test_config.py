@@ -989,6 +989,16 @@ class TestBuildConfigV2(object):
         )
         build.validate()
         assert build.python.install_with_pip is True
+        assert build.python.install_with_setup is False
+
+    def test_python_install_pip_priority_over_default(self):
+        build = self.get_build_config(
+            {'python': {'install': 'pip'}},
+            {'defaults': {'install_project': True}}
+        )
+        build.validate()
+        assert build.python.install_with_pip is True
+        assert build.python.install_with_setup is False
 
     def test_python_install_setuppy_check_valid(self):
         build = self.get_build_config(
@@ -996,6 +1006,25 @@ class TestBuildConfigV2(object):
         )
         build.validate()
         assert build.python.install_with_setup is True
+        assert build.python.install_with_pip is False
+
+    def test_python_install_setuppy_respects_default(self):
+        build = self.get_build_config(
+            {},
+            {'defaults': {'install_project': True}}
+        )
+        build.validate()
+        assert build.python.install_with_pip is False
+        assert build.python.install_with_setup is True
+
+    def test_python_install_setuppy_priority_over_default(self):
+        build = self.get_build_config(
+            {'python': {'install': 'setup.py'}},
+            {'defaults': {'install_project': False}}
+        )
+        build.validate()
+        assert build.python.install_with_pip is True
+        assert build.python.install_with_setup is False
 
     @pytest.mark.parametrize('value', ['invalid', 'apt'])
     def test_python_install_check_invalid(self, value):
