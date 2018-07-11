@@ -807,6 +807,29 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.formats == []
 
+    def test_formats_respect_default_values(self):
+        build = self.get_build_config(
+            {},
+            {'defaults': {'formats': ['htmlzip']}}
+        )
+        build.validate()
+        assert build.formats == ['htmlzip']
+
+    def test_formats_priority_over_defaults(self):
+        build = self.get_build_config(
+            {'formats': []},
+            {'defaults': {'formats': ['htmlzip']}}
+        )
+        build.validate()
+        assert build.formats == []
+
+        build = self.get_build_config(
+            {'formats': ['pdf']},
+            {'defaults': {'formats': ['htmlzip']}}
+        )
+        build.validate()
+        assert build.formats == ['pdf']
+
     def test_formats_allow_empty(self):
         build = self.get_build_config({'formats': []})
         build.validate()
