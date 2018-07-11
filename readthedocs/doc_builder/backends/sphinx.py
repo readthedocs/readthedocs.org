@@ -140,7 +140,7 @@ class BaseSphinx(BaseBuilder):
                 Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
             ),
             'dont_overwrite_sphinx_context': self.project.has_feature(
-                Feature.DONT_OVERWRITE_SPINX_CONTEXT
+                Feature.DONT_OVERWRITE_SPHINX_CONTEXT
             ),
         }
 
