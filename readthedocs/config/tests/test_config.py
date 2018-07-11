@@ -954,14 +954,14 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.version == 3
 
-    @pytest.mark.parametrize('value', [1, 2, 3])
-    def test_python_version_dont_respects_default(self, value):
+    @pytest.mark.parametrize('value', [2, 3])
+    def test_python_version_respects_default(self, value):
         build = self.get_build_config(
             {},
             {'defaults': {'python_version': value}}
         )
         build.validate()
-        assert build.python.version == 3
+        assert build.python.version == value
 
     @pytest.mark.parametrize('value', [2, 3, 3.6])
     def test_python_version_priority_over_default(self, value):
