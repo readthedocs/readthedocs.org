@@ -65,6 +65,11 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
+    # Encryption
+    FIELD_ENCRYPTION_KEY = [
+        'P98DEYWoSuLmgXdRGzJkbo1JWeiHf4ghpFI8QvV3hRI=',  # replace this please
+    ]
+
     # Application classes
     @property
     def INSTALLED_APPS(self):  # noqa
@@ -90,6 +95,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'encrypted_model_fields',
 
             # our apps
             'readthedocs.projects',
