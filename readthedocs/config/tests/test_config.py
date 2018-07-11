@@ -879,7 +879,7 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'conda.file'
 
-    @pytest.mark.parametrize('value', ['latest'])
+    @pytest.mark.parametrize('value', ['stable', 'latest'])
     def test_build_image_check_valid(self, value):
         build = self.get_build_config({'build': {'image': value}})
         build.validate()
@@ -902,8 +902,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.build.image == image
 
-    @pytest.mark.parametrize(
-        'image', ['', None])
+    @pytest.mark.parametrize('image', ['', None])
     def test_build_image_over_empty_default(self, image):
         build = self.get_build_config(
             {'build': {'image': 'latest'}},
@@ -939,7 +938,8 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'python'
 
     @pytest.mark.parametrize('image,versions',
-                             [('latest', [2, 2.7, 3, 3.5, 3.6])])
+                             [('latest', [2, 2.7, 3, 3.5, 3.6]),
+                              ('stable', [2, 2.7, 3, 3.5, 3.6])])
     def test_python_version(self, image, versions):
         for version in versions:
             build = self.get_build_config({
@@ -966,7 +966,8 @@ class TestBuildConfigV2(object):
         assert build.python.version == 3.6
 
     @pytest.mark.parametrize('image,versions',
-                             [('latest', [1, 2.8, 4, 3.8])])
+                             [('latest', [1, 2.8, 4, 3.8]),
+                              ('stable', [1, 2.8, 4, 3.8])])
     def test_python_version_invalid(self, image, versions):
         for version in versions:
             build = self.get_build_config({
