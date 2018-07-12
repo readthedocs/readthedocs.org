@@ -593,11 +593,14 @@ class BuildConfigV2(BuildConfigBase):
     version = '2'
     valid_formats = ['htmlzip', 'pdf', 'epub']
     docker_versions = ['1.0', '2.0', '3.0', 'stable', 'latest']
+    python_versions = [2, 2.7, 3, 3.5, 3.6]
+    install_options = ['pip', 'setup.py']
 
     def validate(self):
         self._config['formats'] = self.validate_formats()
         self._config['conda'] = self.validate_conda()
         self._config['build'] = self.validate_build()
+        self._config['python'] = self.validate_python()
 
     def validate_formats(self):
         formats = self.raw_config.get('formats', [])
@@ -645,6 +648,79 @@ class BuildConfigV2(BuildConfigBase):
             build['image'] = config_image
         return build
 
+    def validate_python(self):
+
+        raw_python = self.raw_config.get('python', {})
+        with self.catch_validation_error('python'):
+            validate_dict(raw_python)
+
+        python = {}
+        with self.catch_validation_error('python.version'):
+            version = self.defaults.get('python_version', 3)
+            version = raw_python.get('version', version)
+            if isinstance(version, six.string_types):
+                try:
+                    version = int(version)
+                except ValueError:
+                    try:
+                        version = float(version)
+                    except ValueError:
+                        pass
+            python['version'] = validate_choice(
+                version,
+                self.get_valid_python_versions(),
+            )
+
+        with self.catch_validation_error('python.requirements'):
+            requirements = self.defaults.get('requirements_file')
+            requirements = raw_python.get('requirements', requirements)
+            if requirements != '' and requirements is not None:
+                requirements = validate_file(requirements, self.base_path)
+            python['requirements'] = requirements
+
+        with self.catch_validation_error('python.install'):
+            install = (
+                'setup.py' if self.defaults.get('install_project') else None
+            )
+            install = raw_python.get('install', install)
+            if install is not None:
+                validate_choice(install, self.install_options)
+            python['install_with_setup'] = install == 'setup.py'
+            python['install_with_pip'] = install == 'pip'
+
+        with self.catch_validation_error('python.extra_requirements'):
+            extra_requirements = raw_python.get('extra_requirements', [])
+            extra_requirements = validate_list(extra_requirements)
+            if extra_requirements and not python['install_with_pip']:
+                self.error(
+                    'python.extra_requirements',
+                    'You need to install your project with pip '
+                    'to use extra_requirements',
+                    PYTHON_INVALID
+                )
+            python['extra_requirements'] = [
+                validate_string(extra)
+                for extra in extra_requirements
+            ]
+
+        with self.catch_validation_error('python.system_packages'):
+            system_packages = self.defaults.get(
+                'use_system_packages', False
+            )
+            system_packages = raw_python.get(
+                'system_packages', system_packages
+            )
+            python['use_system_site_packages'] = validate_bool(system_packages)
+
+        return python
+
+    def get_valid_python_versions(self):
+        python_settings = DOCKER_IMAGE_SETTINGS.get(self.build.image, {})
+        return python_settings.get(
+            'supported_versions',
+            self.python_versions
+        )
+
     @property
     def formats(self):
         return self._config['formats']
@@ -660,6 +736,18 @@ class BuildConfigV2(BuildConfigBase):
     def build(self):
         Build = namedtuple('Build', ['image'])
         return Build(**self._config['build'])
+
+    @property
+    def python(self):
+        Python = namedtuple(
+            'Python',
+            [
+                'version', 'requirements',
+                'install_with_pip', 'install_with_setup',
+                'extra_requirements', 'use_system_site_packages',
+            ]
+        )
+        return Python(**self._config['python'])
 
 
 class ProjectConfig(list):
