@@ -599,6 +599,7 @@ class BuildConfigV2(BuildConfigBase):
     install_options = ['pip', 'setup.py']
 
     def validate(self):
+        """Validates and process ``raw_config`` and ``env_config``."""
         self._config['formats'] = self.validate_formats()
         self._config['conda'] = self.validate_conda()
         # This should be called before validate_python
@@ -611,6 +612,12 @@ class BuildConfigV2(BuildConfigBase):
         self._config['submodules'] = self.validate_submodules()
 
     def validate_formats(self):
+        """
+        Validates that formats contains only valid formats.
+
+        The ``ALL`` keyword can be used to indicate that all formats
+        are used.
+        """
         formats = self.raw_config.get('formats', [])
         if formats == ALL:
             return self.valid_formats
@@ -621,6 +628,7 @@ class BuildConfigV2(BuildConfigBase):
         return formats
 
     def validate_conda(self):
+        """Validates the conda key."""
         raw_conda = self.raw_config.get('conda')
         if raw_conda is None:
             return None
@@ -635,6 +643,11 @@ class BuildConfigV2(BuildConfigBase):
         return conda
 
     def validate_build(self):
+        """
+        Validates the build object.
+
+        It prioritizes the value from the default image if exists.
+        """
         raw_build = self.raw_config.get('build', {})
         with self.catch_validation_error('build'):
             validate_dict(raw_build)
@@ -657,6 +670,23 @@ class BuildConfigV2(BuildConfigBase):
         return build
 
     def validate_python(self):
+        """
+        Validates the python key.
+
+        validate_build should be called before this, since it initialize the
+        build.image attribute.
+
+        Fall back to the defaults of:
+        - ``version``
+        - ``requirements``
+        - ``install`` (only for setup.py method)
+        - ``system_packages``
+
+
+        .. note::
+           - ``version`` can be a string or number type.
+           - ``extra_requirements`` needs to be used with ``install: 'pip'``.
+        """
         raw_python = self.raw_config.get('python', {})
         with self.catch_validation_error('python'):
             validate_dict(raw_python)
@@ -722,6 +752,11 @@ class BuildConfigV2(BuildConfigBase):
         return python
 
     def get_valid_python_versions(self):
+        """
+        Get the valid python versions for the current docker image.
+
+        This should be called after ``validate_build()``.
+        """
         python_settings = DOCKER_IMAGE_SETTINGS.get(self.build.image, {})
         return python_settings.get(
             'supported_versions',
@@ -745,6 +780,11 @@ class BuildConfigV2(BuildConfigBase):
                 )
 
     def validate_sphinx(self):
+        """
+        Validates the sphinx key.
+
+        It makes sure we are using an existing configuration file.
+        """
         raw_sphinx = self.raw_config.get('sphinx', {})
         if raw_sphinx is None:
             return None
@@ -766,6 +806,11 @@ class BuildConfigV2(BuildConfigBase):
         return sphinx
 
     def validate_mkdocs(self):
+        """
+        Validates the mkdocs key.
+
+        It makes sure we are using an existing configuration file.
+        """
         raw_mkdocs = self.raw_config.get('mkdocs', {})
         if raw_mkdocs is None:
             return None
@@ -787,6 +832,12 @@ class BuildConfigV2(BuildConfigBase):
         return mkdocs
 
     def validate_submodules(self):
+        """
+        Validates the submodules key.
+
+        - We can use the ``ALL`` keyword in include or exlude.
+        - We can't exlude and include submodules at the same time.
+        """
         raw_submodules = self.raw_config.get('submodules', {})
         with self.catch_validation_error('submodules'):
             validate_dict(raw_submodules)
