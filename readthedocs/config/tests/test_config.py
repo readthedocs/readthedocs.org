@@ -1335,7 +1335,8 @@ class TestBuildConfigV2(object):
     def test_mkdocs_configuration_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'mkdocs.yml': ''})
         build = self.get_build_config(
-            {'mkdocs': {'configuration': 'mkdocs.yml'}}
+            {'mkdocs': {'configuration': 'mkdocs.yml'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
         assert build.mkdocs.configuration == str(tmpdir.join('mkdocs.yml'))
@@ -1343,7 +1344,8 @@ class TestBuildConfigV2(object):
     def test_mkdocs_configuration_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'mkdocs.yml': ''})
         build = self.get_build_config(
-            {'mkdocs': {'configuration': 'invalid.yml'}}
+            {'mkdocs': {'configuration': 'invalid.yml'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -1357,7 +1359,7 @@ class TestBuildConfigV2(object):
         assert build.mkdocs.configuration is None
 
     def test_mkdocs_configuration_check_default(self):
-        build = self.get_build_config()
+        build = self.get_build_config({})
         build.validate()
         assert build.mkdocs.configuration is None
 
@@ -1376,7 +1378,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.mkdocs.fail_on_warning is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    @pytest.mark.parametrize('value', [[], 'invalid', 5])
     def test_mkdocs_fail_on_warning_check_invalid(self, value):
         build = self.get_build_config({'mkdocs': {'fail_on_warning': value}})
         with raises(InvalidConfig) as excinfo:
