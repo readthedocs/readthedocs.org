@@ -1455,7 +1455,7 @@ class TestBuildConfigV2(object):
     def test_submodules_exclude_allows_all_keyword(self):
         build = self.get_build_config({
             'submodules': {
-                'exlude': 'all',
+                'exclude': 'all',
             }
         })
         build.validate()
@@ -1467,7 +1467,7 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({
             'submodules': {
                 'include': ['two'],
-                'exlude': ['one'],
+                'exclude': ['one'],
             }
         })
         with raises(InvalidConfig) as excinfo:
@@ -1477,7 +1477,7 @@ class TestBuildConfigV2(object):
     def test_submodules_can_exclude_include_be_empty(self):
         build = self.get_build_config({
             'submodules': {
-                'exlude': 'all',
+                'exclude': 'all',
                 'include': [],
             }
         })
@@ -1499,32 +1499,12 @@ class TestBuildConfigV2(object):
         assert build.submodules.exclude == []
         assert build.submodules.recursive is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    @pytest.mark.parametrize('value', [[], 'invalid', 5])
     def test_submodules_recursive_check_invalid(self, value):
         build = self.get_build_config({
             'submodules': {
                 'include': ['one', 'two'],
                 'recursive': value,
-            }
-        })
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'submodules.recursive'
-
-    def test_submodules_recursive_needs_include(self):
-        build = self.get_build_config({
-            'submodules': {
-                'recursive': True,
-            }
-        })
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'submodules.recursive'
-
-        build = self.get_build_config({
-            'submodules': {
-                'include': [],
-                'recursive': True,
             }
         })
         with raises(InvalidConfig) as excinfo:
