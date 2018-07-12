@@ -1280,11 +1280,25 @@ class TestBuildConfigV2(object):
     def test_sphinx_configuration_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
         build = self.get_build_config(
-            {'sphinx': {'configuration': 'invalid.py'}}
+            {'sphinx': {'configuration': 'invalid.py'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'sphinx.configuration'
+
+    def test_sphinx_cant_be_used_with_mkdocs(self, tmpdir):
+        apply_fs(tmpdir, {'conf.py': ''})
+        build = self.get_build_config(
+            {
+                'sphinx': {'configuration': 'conf.py'},
+                'mkdocs': {},
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == '.'
 
     def test_sphinx_configuration_allow_null(self):
         build = self.get_build_config(

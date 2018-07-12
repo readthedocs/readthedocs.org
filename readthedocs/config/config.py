@@ -36,6 +36,7 @@ CONF_FILE_REQUIRED = 'conf-file-required'
 TYPE_REQUIRED = 'type-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
+INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 
 DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
@@ -603,6 +604,8 @@ class BuildConfigV2(BuildConfigBase):
         # This should be called before validate_python
         self._config['build'] = self.validate_build()
         self._config['python'] = self.validate_python()
+        # Call this before validate sphinx and mkdocs
+        self.validate_doc_types()
         self._config['sphinx'] = self.validate_sphinx()
         self._config['mkdocs'] = self.validate_mkdocs()
         self._config['submodules'] = self.validate_submodules()
@@ -724,6 +727,22 @@ class BuildConfigV2(BuildConfigBase):
             'supported_versions',
             self.python_versions
         )
+
+    def validate_doc_types(self):
+        """
+        Validates that the user only have one type of documentation.
+
+        This should be called before validating ``sphinx`` or ``mkdocs``
+        to avoid innecessary validations.
+        """
+        with self.catch_validation_error('.'):
+            if 'sphinx' in self.raw_config and 'mkdocs' in self.raw_config:
+                self.error(
+                    '.',
+                    'You can not have the ``sphinx`` and ``mkdocs`` '
+                    'keys at the same time',
+                    code=INVALID_KEYS_COMBINATION
+                )
 
     def validate_sphinx(self):
         raw_sphinx = self.raw_config.get('sphinx', {})
