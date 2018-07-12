@@ -588,7 +588,7 @@ class BuildConfig(BuildConfigBase):
 
 class BuildConfigV2(BuildConfigBase):
 
-    """Version 1 of the configuration file."""
+    """Version 2 of the configuration file."""
 
     version = '2'
     valid_formats = ['htmlzip', 'pdf', 'epub']
@@ -599,8 +599,10 @@ class BuildConfigV2(BuildConfigBase):
     def validate(self):
         self._config['formats'] = self.validate_formats()
         self._config['conda'] = self.validate_conda()
+        # This should be called before validate_python
         self._config['build'] = self.validate_build()
         self._config['python'] = self.validate_python()
+        self._config['sphinx'] = self.validate_sphinx()
 
     def validate_formats(self):
         formats = self.raw_config.get('formats', [])
@@ -649,7 +651,6 @@ class BuildConfigV2(BuildConfigBase):
         return build
 
     def validate_python(self):
-
         raw_python = self.raw_config.get('python', {})
         with self.catch_validation_error('python'):
             validate_dict(raw_python)
@@ -721,6 +722,33 @@ class BuildConfigV2(BuildConfigBase):
             self.python_versions
         )
 
+    def validate_sphinx(self):
+        raw_sphinx = self.raw_config.get('sphinx', {})
+        if raw_sphinx is None:
+            return None
+
+        with self.catch_validation_error('sphinx'):
+            validate_dict(raw_sphinx)
+
+        sphinx = {}
+        with self.catch_validation_error('sphinx.configuration'):
+            configuration = raw_sphinx.get('configuration')
+            if configuration is not None:
+                configuration = validate_file(configuration, self.base_path)
+            sphinx['configuration'] = configuration
+
+        with self.catch_validation_error('sphinx.fail_on_warning'):
+            fail_on_warning = raw_sphinx.get('fail_on_warning', False)
+            sphinx['fail_on_warning'] = validate_bool(fail_on_warning)
+
+        return sphinx
+
+    def validate_mkdocs(self):
+        pass
+
+    def validate_submodules(self):
+        pass
+
     @property
     def formats(self):
         return self._config['formats']
@@ -748,6 +776,13 @@ class BuildConfigV2(BuildConfigBase):
             ]
         )
         return Python(**self._config['python'])
+
+    @property
+    def sphinx(self):
+        Sphinx = namedtuple('Sphinx', ['configuration', 'fail_on_warning'])
+        if self._config['sphinx']:
+            return Sphinx(**self._config['sphinx'])
+        return None
 
 
 class ProjectConfig(list):
