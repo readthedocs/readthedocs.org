@@ -807,6 +807,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.formats == []
 
+    @pytest.mark.skip('Needs a decision')
     def test_formats_respect_default_values(self):
         build = self.get_build_config(
             {},
