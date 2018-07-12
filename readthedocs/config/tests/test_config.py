@@ -1271,7 +1271,8 @@ class TestBuildConfigV2(object):
     def test_sphinx_configuration_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
         build = self.get_build_config(
-            {'sphinx': {'configuration': 'conf.py'}}
+            {'sphinx': {'configuration': 'conf.py'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
         assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
@@ -1293,7 +1294,7 @@ class TestBuildConfigV2(object):
         assert build.sphinx.configuration is None
 
     def test_sphinx_configuration_check_default(self):
-        build = self.get_build_config()
+        build = self.get_build_config({})
         build.validate()
         assert build.sphinx.configuration is None
 
@@ -1312,7 +1313,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.sphinx.fail_on_warning is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    @pytest.mark.parametrize('value', [[], 'invalid', 5])
     def test_sphinx_fail_on_warning_check_invalid(self, value):
         build = self.get_build_config({'sphinx': {'fail_on_warning': value}})
         with raises(InvalidConfig) as excinfo:
