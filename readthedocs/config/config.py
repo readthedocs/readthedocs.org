@@ -890,19 +890,19 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def conda(self):
-        Conda = namedtuple('Conda', ['environment'])
+        Conda = namedtuple('Conda', ['environment'])  # noqa
         if self._config['conda']:
             return Conda(**self._config['conda'])
         return None
 
     @property
     def build(self):
-        Build = namedtuple('Build', ['image'])
+        Build = namedtuple('Build', ['image'])  # noqa
         return Build(**self._config['build'])
 
     @property
     def python(self):
-        Python = namedtuple(
+        Python = namedtuple(  # noqa
             'Python',
             [
                 'version', 'requirements',
@@ -914,21 +914,25 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def sphinx(self):
-        Sphinx = namedtuple('Sphinx', ['configuration', 'fail_on_warning'])
+        Sphinx = namedtuple(  # noqa
+            'Sphinx', ['configuration', 'fail_on_warning']
+        )
         if self._config['sphinx']:
             return Sphinx(**self._config['sphinx'])
         return None
 
     @property
     def mkdocs(self):
-        Mkdocs = namedtuple('Mkdocs', ['configuration', 'fail_on_warning'])
+        Mkdocs = namedtuple(  # noqa
+            'Mkdocs', ['configuration', 'fail_on_warning']
+        )
         if self._config['mkdocs']:
             return Mkdocs(**self._config['mkdocs'])
         return None
 
     @property
     def submodules(self):
-        Submodules = namedtuple(
+        Submodules = namedtuple(  # noqa
             'Submodules', ['include', 'exclude', 'recursive']
         )
         return Submodules(**self._config['submodules'])
