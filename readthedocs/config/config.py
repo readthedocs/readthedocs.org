@@ -35,6 +35,7 @@ NAME_INVALID = 'name-invalid'
 CONF_FILE_REQUIRED = 'conf-file-required'
 TYPE_REQUIRED = 'type-required'
 PYTHON_INVALID = 'python-invalid'
+SUBMODULES_INVALID = 'submodules-invalid'
 
 DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
@@ -604,6 +605,7 @@ class BuildConfigV2(BuildConfigBase):
         self._config['python'] = self.validate_python()
         self._config['sphinx'] = self.validate_sphinx()
         self._config['mkdocs'] = self.validate_mkdocs()
+        self._config['submodules'] = self.validate_submodules()
 
     def validate_formats(self):
         formats = self.raw_config.get('formats', [])
@@ -698,7 +700,7 @@ class BuildConfigV2(BuildConfigBase):
                     'python.extra_requirements',
                     'You need to install your project with pip '
                     'to use extra_requirements',
-                    PYTHON_INVALID
+                    code=PYTHON_INVALID
                 )
             python['extra_requirements'] = [
                 validate_string(extra)
@@ -766,7 +768,45 @@ class BuildConfigV2(BuildConfigBase):
         return mkdocs
 
     def validate_submodules(self):
-        pass
+        raw_submodules = self.raw_config.get('submodules', {})
+        with self.catch_validation_error('submodules'):
+            validate_dict(raw_submodules)
+
+        submodules = {}
+        with self.catch_validation_error('submodules.include'):
+            include = raw_submodules.get('include', [])
+            if include != ALL:
+                include = validate_list(include)
+                include = [
+                    validate_string(submodule)
+                    for submodule in include
+                ]
+            submodules['include'] = include
+
+        with self.catch_validation_error('submodules.exclude'):
+            exclude = raw_submodules.get('exclude', [])
+            if exclude != ALL:
+                exclude = validate_list(exclude)
+                exclude = [
+                    validate_string(submodule)
+                    for submodule in exclude
+                ]
+            submodules['exclude'] = exclude
+
+        with self.catch_validation_error('submodules'):
+            if submodules['exclude'] and submodules['include']:
+                self.error(
+                    'submodules',
+                    'You can not exclude and include submodules '
+                    'at the same time',
+                    code=SUBMODULES_INVALID
+                )
+
+        with self.catch_validation_error('submodules.recursive'):
+            recursive = raw_submodules.get('recursive', False)
+            submodules['recursive'] = validate_bool(recursive)
+
+        return submodules
 
     @property
     def formats(self):
@@ -809,6 +849,13 @@ class BuildConfigV2(BuildConfigBase):
         if self._config['mkdocs']:
             return Mkdocs(**self._config['mkdocs'])
         return None
+
+    @property
+    def submodules(self):
+        Submodules = namedtuple(
+            'Submodules', ['include', 'exclude', 'recursive']
+        )
+        return Submodules(**self._config['submodules'])
 
 
 class ProjectConfig(list):
