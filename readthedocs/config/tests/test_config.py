@@ -1051,6 +1051,7 @@ class TestBuildConfigV2(object):
         assert build.python.requirements == ''
 
     def test_python_requirements_respects_default(self, tmpdir):
+        apply_fs(tmpdir, {'requirements.txt': ''})
         build = self.get_build_config(
             {},
             {'defaults': {'requirements_file': 'requirements.txt'}},
@@ -1060,6 +1061,7 @@ class TestBuildConfigV2(object):
         assert build.python.requirements == str(tmpdir.join('requirements.txt'))
 
     def test_python_requirements_priority_over_default(self, tmpdir):
+        apply_fs(tmpdir, {'requirements.txt': ''})
         build = self.get_build_config(
             {'python': {'requirements': 'requirements.txt'}},
             {'defaults': {'requirements_file': 'requirements-default.txt'}},
@@ -1117,8 +1119,8 @@ class TestBuildConfigV2(object):
             {'defaults': {'install_project': False}}
         )
         build.validate()
-        assert build.python.install_with_pip is True
-        assert build.python.install_with_setup is False
+        assert build.python.install_with_pip is False
+        assert build.python.install_with_setup is True
 
     @pytest.mark.parametrize('value', ['invalid', 'apt'])
     def test_python_install_check_invalid(self, value):
@@ -1195,12 +1197,11 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'python.extra_requirements'
 
-    @pytest.mark.parametrize('value', [None, []])
-    def test_python_extra_requirements_allow_empty(self, value):
+    def test_python_extra_requirements_allow_empty(self):
         build = self.get_build_config({
             'python': {
                 'install': 'pip',
-                'extra_requirements': value,
+                'extra_requirements': [],
             }
         })
         build.validate()
@@ -1221,7 +1222,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.use_system_site_packages is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    @pytest.mark.parametrize('value', [[], 'invalid', 5])
     def test_python_system_packages_check_invalid(self, value):
         build = self.get_build_config({
             'python': {
@@ -1240,7 +1241,7 @@ class TestBuildConfigV2(object):
     def test_python_system_packages_respects_default(self):
         build = self.get_build_config(
             {},
-            {'defaults': {'use_system_site_packages': True}}
+            {'defaults': {'use_system_packages': True}}
         )
         build.validate()
         assert build.python.use_system_site_packages is True
@@ -1248,14 +1249,14 @@ class TestBuildConfigV2(object):
     def test_python_system_packages_priority_over_default(self):
         build = self.get_build_config(
             {'python': {'system_packages': False}},
-            {'defaults': {'use_system_site_packages': True}}
+            {'defaults': {'use_system_packages': True}}
         )
         build.validate()
         assert build.python.use_system_site_packages is False
 
         build = self.get_build_config(
             {'python': {'system_packages': True}},
-            {'defaults': {'use_system_site_packages': False}}
+            {'defaults': {'use_system_packages': False}}
         )
         build.validate()
         assert build.python.use_system_site_packages is True
