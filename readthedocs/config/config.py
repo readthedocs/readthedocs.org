@@ -603,6 +603,7 @@ class BuildConfigV2(BuildConfigBase):
         self._config['build'] = self.validate_build()
         self._config['python'] = self.validate_python()
         self._config['sphinx'] = self.validate_sphinx()
+        self._config['mkdocs'] = self.validate_mkdocs()
 
     def validate_formats(self):
         formats = self.raw_config.get('formats', [])
@@ -744,7 +745,25 @@ class BuildConfigV2(BuildConfigBase):
         return sphinx
 
     def validate_mkdocs(self):
-        pass
+        raw_mkdocs = self.raw_config.get('mkdocs', {})
+        if raw_mkdocs is None:
+            return None
+
+        with self.catch_validation_error('mkdocs'):
+            validate_dict(raw_mkdocs)
+
+        mkdocs = {}
+        with self.catch_validation_error('mkdocs.configuration'):
+            configuration = raw_mkdocs.get('configuration')
+            if configuration is not None:
+                configuration = validate_file(configuration, self.base_path)
+            mkdocs['configuration'] = configuration
+
+        with self.catch_validation_error('mkdocs.fail_on_warning'):
+            fail_on_warning = raw_mkdocs.get('fail_on_warning', False)
+            mkdocs['fail_on_warning'] = validate_bool(fail_on_warning)
+
+        return mkdocs
 
     def validate_submodules(self):
         pass
@@ -782,6 +801,13 @@ class BuildConfigV2(BuildConfigBase):
         Sphinx = namedtuple('Sphinx', ['configuration', 'fail_on_warning'])
         if self._config['sphinx']:
             return Sphinx(**self._config['sphinx'])
+        return None
+
+    @property
+    def mkdocs(self):
+        Mkdocs = namedtuple('Mkdocs', ['configuration', 'fail_on_warning'])
+        if self._config['mkdocs']:
+            return Mkdocs(**self._config['mkdocs'])
         return None
 
 
