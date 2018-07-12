@@ -7,8 +7,8 @@ from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    ALL, BuildConfig, BuildConfigV2, ConfigError, ConfigOptionNotSupportedError,
-    InvalidConfig, ProjectConfig, load)
+    ALL, BuildConfigV1, BuildConfigV2, ConfigError,
+    ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
     TYPE_REQUIRED)
@@ -59,7 +59,7 @@ type: sphinx
 
 def get_build_config(config, env_config=None, source_file='readthedocs.yml',
                      source_position=0):
-    return BuildConfig(
+    return BuildConfigV1(
         env_config or {},
         config,
         source_file=source_file,
@@ -101,7 +101,7 @@ def test_minimal_config(tmpdir):
     assert isinstance(config, ProjectConfig)
     assert len(config) == 1
     build = config[0]
-    assert isinstance(build, BuildConfig)
+    assert isinstance(build, BuildConfigV1)
 
 
 def test_build_config_has_source_file(tmpdir):
@@ -125,12 +125,12 @@ def test_build_config_has_source_position(tmpdir):
 def test_build_config_has_list_with_single_empty_value(tmpdir):
     base = str(apply_fs(tmpdir, config_with_explicit_empty_list))
     build = load(base, env_config)[0]
-    assert isinstance(build, BuildConfig)
+    assert isinstance(build, BuildConfigV1)
     assert build.formats == []
 
 
 def test_config_requires_name():
-    build = BuildConfig(
+    build = BuildConfigV1(
         {'output_base': ''}, {},
         source_file='readthedocs.yml',
         source_position=0
@@ -142,7 +142,7 @@ def test_config_requires_name():
 
 
 def test_build_requires_valid_name():
-    build = BuildConfig(
+    build = BuildConfigV1(
         {'output_base': ''},
         {'name': 'with/slashes'},
         source_file='readthedocs.yml',
@@ -155,7 +155,7 @@ def test_build_requires_valid_name():
 
 
 def test_config_requires_type():
-    build = BuildConfig(
+    build = BuildConfigV1(
         {'output_base': ''}, {'name': 'docs'},
         source_file='readthedocs.yml',
         source_position=0
@@ -167,7 +167,7 @@ def test_config_requires_type():
 
 
 def test_build_requires_valid_type():
-    build = BuildConfig(
+    build = BuildConfigV1(
         {'output_base': ''},
         {'name': 'docs', 'type': 'unknown'},
         source_file='readthedocs.yml',
@@ -514,7 +514,7 @@ def describe_validate_setup_py_path():
 
 
 def test_valid_build_config():
-    build = BuildConfig(env_config,
+    build = BuildConfigV1(env_config,
                         minimal_config,
                         source_file='readthedocs.yml',
                         source_position=0)
@@ -534,7 +534,7 @@ def describe_validate_base():
         apply_fs(tmpdir, {'configs': minimal_config, 'docs': {}})
         with tmpdir.as_cwd():
             source_file = str(tmpdir.join('configs', 'readthedocs.yml'))
-            build = BuildConfig(
+            build = BuildConfigV1(
                 get_env_config(),
                 {'base': '../docs'},
                 source_file=source_file,
@@ -554,7 +554,7 @@ def describe_validate_base():
     def it_fails_if_base_is_not_a_string(tmpdir):
         apply_fs(tmpdir, minimal_config)
         with tmpdir.as_cwd():
-            build = BuildConfig(
+            build = BuildConfigV1(
                 get_env_config(),
                 {'base': 1},
                 source_file=str(tmpdir.join('readthedocs.yml')),
@@ -566,7 +566,7 @@ def describe_validate_base():
 
     def it_fails_if_base_does_not_exist(tmpdir):
         apply_fs(tmpdir, minimal_config)
-        build = BuildConfig(
+        build = BuildConfigV1(
             get_env_config(),
             {'base': 'docs'},
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -581,7 +581,7 @@ def describe_validate_build():
 
     def it_fails_if_build_is_invalid_option(tmpdir):
         apply_fs(tmpdir, minimal_config)
-        build = BuildConfig(
+        build = BuildConfigV1(
             get_env_config(),
             {'build': {'image': 3.0}},
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -593,7 +593,7 @@ def describe_validate_build():
 
     def it_fails_on_python_validation(tmpdir):
         apply_fs(tmpdir, minimal_config)
-        build = BuildConfig(
+        build = BuildConfigV1(
             {},
             {
                 'build': {'image': 1.0},
@@ -609,7 +609,7 @@ def describe_validate_build():
 
     def it_works_on_python_validation(tmpdir):
         apply_fs(tmpdir, minimal_config)
-        build = BuildConfig(
+        build = BuildConfigV1(
             {},
             {
                 'build': {'image': 'latest'},
@@ -622,7 +622,7 @@ def describe_validate_build():
 
     def it_works(tmpdir):
         apply_fs(tmpdir, minimal_config)
-        build = BuildConfig(
+        build = BuildConfigV1(
             get_env_config(),
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -632,7 +632,7 @@ def describe_validate_build():
 
     def default(tmpdir):
         apply_fs(tmpdir, minimal_config)
-        build = BuildConfig(
+        build = BuildConfigV1(
             get_env_config(),
             {},
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -647,7 +647,7 @@ def describe_validate_build():
         defaults = {
             'build_image': image,
         }
-        build = BuildConfig(
+        build = BuildConfigV1(
             get_env_config({'defaults': defaults}),
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -718,29 +718,29 @@ def test_requirements_file_respects_configuration(tmpdir):
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
     apply_fs(tmpdir, minimal_config)
-    build = BuildConfig(
+    build = BuildConfigV1(
         {},
         {},
         source_file=str(tmpdir.join('readthedocs.yml')),
         source_position=0)
-    with patch.multiple(BuildConfig,
+    with patch.multiple(BuildConfigV1,
                         validate_base=DEFAULT,
                         validate_name=DEFAULT,
                         validate_type=DEFAULT,
                         validate_python=DEFAULT,
                         validate_output_base=DEFAULT):
         build.validate()
-        BuildConfig.validate_base.assert_called_with()
-        BuildConfig.validate_name.assert_called_with()
-        BuildConfig.validate_type.assert_called_with()
-        BuildConfig.validate_python.assert_called_with()
-        BuildConfig.validate_output_base.assert_called_with()
+        BuildConfigV1.validate_base.assert_called_with()
+        BuildConfigV1.validate_name.assert_called_with()
+        BuildConfigV1.validate_type.assert_called_with()
+        BuildConfigV1.validate_python.assert_called_with()
+        BuildConfigV1.validate_output_base.assert_called_with()
 
 
 def test_validate_project_config():
-    with patch.object(BuildConfig, 'validate') as build_validate:
+    with patch.object(BuildConfigV1, 'validate') as build_validate:
         project = ProjectConfig([
-            BuildConfig(
+            BuildConfigV1(
                 env_config,
                 minimal_config,
                 source_file='readthedocs.yml',
@@ -753,7 +753,7 @@ def test_validate_project_config():
 def test_load_calls_validate(tmpdir):
     apply_fs(tmpdir, minimal_config_dir)
     base = str(tmpdir)
-    with patch.object(BuildConfig, 'validate') as build_validate:
+    with patch.object(BuildConfigV1, 'validate') as build_validate:
         load(base, env_config)
         assert build_validate.call_count == 1
 

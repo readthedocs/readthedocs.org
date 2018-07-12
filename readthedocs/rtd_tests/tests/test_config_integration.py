@@ -6,7 +6,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.config import BuildConfig, InvalidConfig, ProjectConfig
+from readthedocs.config import BuildConfigV1, InvalidConfig, ProjectConfig
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.projects.models import Project
 
@@ -14,7 +14,7 @@ from readthedocs.projects.models import Project
 def create_load(config=None):
     """Mock out the function of the build load function
 
-    This will create a ProjectConfig list of BuildConfig objects and validate
+    This will create a ProjectConfig list of BuildConfigV1 objects and validate
     them. The default load function iterates over files and builds up a list of
     objects. Instead of mocking all of this, just mock the end result.
     """
@@ -30,10 +30,10 @@ def create_load(config=None):
         if env_config is not None:
             env_config_defaults.update(env_config)
         yaml_config = ProjectConfig([
-            BuildConfig(env_config_defaults,
-                        config,
-                        source_file='readthedocs.yml',
-                        source_position=0)
+            BuildConfigV1(env_config_defaults,
+                          config,
+                          source_file='readthedocs.yml',
+                          source_position=0)
         ])
         yaml_config.validate()
         return yaml_config

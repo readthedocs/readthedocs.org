@@ -16,7 +16,7 @@ from .validation import (
     validate_value_exists)
 
 __all__ = (
-    'ALL', 'load', 'BuildConfig', 'BuildConfigV2', 'ConfigError',
+    'ALL', 'load', 'BuildConfigV1', 'BuildConfigV2', 'ConfigError',
     'ConfigOptionNotSupportedError', 'InvalidConfig', 'ProjectConfig'
 )
 
@@ -184,7 +184,7 @@ class BuildConfigBase(object):
         raise ConfigOptionNotSupportedError(name)
 
 
-class BuildConfig(BuildConfigBase):
+class BuildConfigV1(BuildConfigBase):
 
     """Version 1 of the configuration file."""
 
@@ -975,7 +975,7 @@ def load(path, env_config):
                     message=str(error)),
                 code=CONFIG_SYNTAX_INVALID)
         for i, config in enumerate(configs):
-            build_config = BuildConfig(
+            build_config = BuildConfigV1(
                 env_config,
                 config,
                 source_file=filename,

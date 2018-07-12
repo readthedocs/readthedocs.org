@@ -4,7 +4,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-from readthedocs.config import BuildConfig, ConfigError, InvalidConfig
+from readthedocs.config import BuildConfigV1, ConfigError, InvalidConfig
 from readthedocs.config import load as load_config
 
 from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
@@ -65,7 +65,7 @@ def load_yaml_config(version):
             'type': 'sphinx',
             'name': version.slug,
         })
-        config = BuildConfig(
+        config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
             source_file='empty',
