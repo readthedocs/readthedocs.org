@@ -769,7 +769,8 @@ class BuildConfigV2(BuildConfigBase):
             build_image = '{}:{}'.format(
                 DOCKER_DEFAULT_IMAGE, self.default_build_image
             )
-        return DOCKER_IMAGE_SETTINGS[build_image]['supported_versions']
+        python = DOCKER_IMAGE_SETTINGS[build_image]['python']
+        return python['supported_versions']
 
     def validate_doc_types(self):
         """
