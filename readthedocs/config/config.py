@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """Build configuration for rtd."""
 from __future__ import division, print_function, unicode_literals
 
@@ -16,14 +18,18 @@ from .validation import (
     validate_value_exists)
 
 __all__ = (
-    'ALL', 'load', 'BuildConfigV1', 'BuildConfigV2', 'ConfigError',
-    'ConfigOptionNotSupportedError', 'InvalidConfig', 'ProjectConfig'
+    'ALL',
+    'load',
+    'BuildConfigV1',
+    'BuildConfigV2',
+    'ConfigError',
+    'ConfigOptionNotSupportedError',
+    'InvalidConfig',
+    'ProjectConfig',
 )
-
 
 ALL = 'all'
 CONFIG_FILENAMES = ('readthedocs.yml', '.readthedocs.yml')
-
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
@@ -102,7 +108,8 @@ class InvalidConfig(ConfigError):
         message = self.message_template.format(
             key=key,
             code=code,
-            error=error_message)
+            error=error_message,
+        )
         super(InvalidConfig, self).__init__(message, code=code)
 
 
@@ -111,8 +118,8 @@ class BuildConfigBase(object):
     """
     Config that handles the build of one particular documentation.
 
-    You need to call ``validate`` before the config is ready to use.
-    Also setting the ``output_base`` is required before using it for a build.
+    You need to call ``validate`` before the config is ready to use. Also
+    setting the ``output_base`` is required before using it for a build.
     """
 
     version = None
@@ -131,18 +138,18 @@ class BuildConfigBase(object):
         """Raise an error related to ``key``."""
         source = '{file} [{pos}]'.format(
             file=self.source_file,
-            pos=self.source_position
+            pos=self.source_position,
         )
         error_message = '{source}: {message}'.format(
             source=source,
-            message=message
+            message=message,
         )
         raise InvalidConfig(
             key=key,
             code=code,
             error_message=error_message,
             source_file=self.source_file,
-            source_position=self.source_position
+            source_position=self.source_position,
         )
 
     @contextmanager
@@ -156,7 +163,7 @@ class BuildConfigBase(object):
                 code=error.code,
                 error_message=str(error),
                 source_file=self.source_file,
-                source_position=self.source_position
+                source_position=self.source_position,
             )
 
     def validate(self):
@@ -193,12 +200,14 @@ class BuildConfigV1(BuildConfigBase):
     BASE_NOT_A_DIR_MESSAGE = '"base" is not a directory: {base}'
     NAME_REQUIRED_MESSAGE = 'Missing key "name"'
     NAME_INVALID_MESSAGE = (
-        'Invalid name "{name}". Valid values must match {name_re}')
+        'Invalid name "{name}". Valid values must match {name_re}'
+    )
     TYPE_REQUIRED_MESSAGE = 'Missing key "type"'
     CONF_FILE_REQUIRED_MESSAGE = 'Missing key "conf_file"'
     PYTHON_INVALID_MESSAGE = '"python" section must be a mapping.'
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
-        '"python.extra_requirements" section must be a list.')
+        '"python.extra_requirements" section must be a list.'
+    )
 
     PYTHON_SUPPORTED_VERSIONS = [2, 2.7, 3, 3.5]
     DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
@@ -207,9 +216,7 @@ class BuildConfigV1(BuildConfigBase):
 
     def get_valid_types(self):  # noqa
         """Get all valid types."""
-        return (
-            'sphinx',
-        )
+        return ('sphinx',)
 
     def get_valid_python_versions(self):
         """Get all valid python versions."""
@@ -525,7 +532,7 @@ class BuildConfigV1(BuildConfigBase):
 
     @property
     def output_base(self):
-        """The output base"""
+        """The output base."""
         return self._config['output_base']
 
     @property
@@ -622,8 +629,7 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates that formats contains only valid formats.
 
-        The ``ALL`` keyword can be used to indicate that all formats
-        are used.
+        The ``ALL`` keyword can be used to indicate that all formats are used.
         """
         formats = self.raw_config.get('formats', [])
         if formats == ALL:
@@ -663,7 +669,10 @@ class BuildConfigV2(BuildConfigBase):
             image = raw_build.get('image', self.default_build_image)
             build['image'] = '{}:{}'.format(
                 DOCKER_DEFAULT_IMAGE,
-                validate_choice(image, self.valid_build_images)
+                validate_choice(
+                    image,
+                    self.valid_build_images,
+                ),
             )
 
         # Allow to override specific project
@@ -735,19 +744,20 @@ class BuildConfigV2(BuildConfigBase):
                     'python.extra_requirements',
                     'You need to install your project with pip '
                     'to use extra_requirements',
-                    code=PYTHON_INVALID
+                    code=PYTHON_INVALID,
                 )
             python['extra_requirements'] = [
-                validate_string(extra)
-                for extra in extra_requirements
+                validate_string(extra) for extra in extra_requirements
             ]
 
         with self.catch_validation_error('python.system_packages'):
             system_packages = self.defaults.get(
-                'use_system_packages', False
+                'use_system_packages',
+                False,
             )
             system_packages = raw_python.get(
-                'system_packages', system_packages
+                'system_packages',
+                system_packages,
             )
             python['use_system_site_packages'] = validate_bool(system_packages)
 
@@ -762,7 +772,8 @@ class BuildConfigV2(BuildConfigBase):
         build_image = self.build.image
         if build_image not in DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE, self.default_build_image
+                DOCKER_DEFAULT_IMAGE,
+                self.default_build_image,
             )
         python = DOCKER_IMAGE_SETTINGS[build_image]['python']
         return python['supported_versions']
@@ -771,8 +782,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates that the user only have one type of documentation.
 
-        This should be called before validating ``sphinx`` or ``mkdocs``
-        to avoid innecessary validations.
+        This should be called before validating ``sphinx`` or ``mkdocs`` to
+        avoid innecessary validations.
         """
         with self.catch_validation_error('.'):
             if 'sphinx' in self.raw_config and 'mkdocs' in self.raw_config:
@@ -780,7 +791,7 @@ class BuildConfigV2(BuildConfigBase):
                     '.',
                     'You can not have the ``sphinx`` and ``mkdocs`` '
                     'keys at the same time',
-                    code=INVALID_KEYS_COMBINATION
+                    code=INVALID_KEYS_COMBINATION,
                 )
 
     def validate_sphinx(self):
@@ -854,20 +865,18 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('submodules.include'):
             include = raw_submodules.get('include', [])
             if include != ALL:
-                include = validate_list(include)
                 include = [
                     validate_string(submodule)
-                    for submodule in include
+                    for submodule in validate_list(include)
                 ]
             submodules['include'] = include
 
         with self.catch_validation_error('submodules.exclude'):
             exclude = raw_submodules.get('exclude', [])
             if exclude != ALL:
-                exclude = validate_list(exclude)
                 exclude = [
                     validate_string(submodule)
-                    for submodule in exclude
+                    for submodule in validate_list(exclude)
                 ]
             submodules['exclude'] = exclude
 
@@ -877,7 +886,7 @@ class BuildConfigV2(BuildConfigBase):
                     'submodules',
                     'You can not exclude and include submodules '
                     'at the same time',
-                    code=SUBMODULES_INVALID
+                    code=SUBMODULES_INVALID,
                 )
 
         with self.catch_validation_error('submodules.recursive'):
@@ -913,14 +922,14 @@ class BuildConfigV2(BuildConfigBase):
                 'install_with_setup',
                 'extra_requirements',
                 'use_system_site_packages',
-            ]
+            ],
         )
         return Python(**self._config['python'])
 
     @property
     def sphinx(self):
         Sphinx = namedtuple(  # noqa
-            'Sphinx', ['configuration', 'fail_on_warning']
+            'Sphinx', ['configuration', 'fail_on_warning'],
         )
         if self._config['sphinx']:
             return Sphinx(**self._config['sphinx'])
@@ -929,7 +938,7 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def mkdocs(self):
         Mkdocs = namedtuple(  # noqa
-            'Mkdocs', ['configuration', 'fail_on_warning']
+            'Mkdocs', ['configuration', 'fail_on_warning'],
         )
         if self._config['mkdocs']:
             return Mkdocs(**self._config['mkdocs'])
@@ -938,7 +947,7 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def submodules(self):
         Submodules = namedtuple(  # noqa
-            'Submodules', ['include', 'exclude', 'recursive']
+            'Submodules', ['include', 'exclude', 'recursive'],
         )
         return Submodules(**self._config['submodules'])
 
@@ -957,9 +966,9 @@ def load(path, env_config):
     """
     Load a project configuration and the top-most build config for a given path.
 
-    That is usually the root of the project, but will look deeper.
-    According to the version of the configuration a build object would be load
-    and validated, ``BuildConfigV1`` is the default.
+    That is usually the root of the project, but will look deeper. According to
+    the version of the configuration a build object would be load and validated,
+    ``BuildConfigV1`` is the default.
     """
     filename = find_one(path, CONFIG_FILENAMES)
 
@@ -968,8 +977,10 @@ def load(path, env_config):
         if files:
             files += ' or '
         files += '{!r}'.format(CONFIG_FILENAMES[-1])
-        raise ConfigError('No files {} found'.format(files),
-                          code=CONFIG_REQUIRED)
+        raise ConfigError(
+            'No files {} found'.format(files),
+            code=CONFIG_REQUIRED,
+        )
     build_configs = []
     with open(filename, 'r') as configuration_file:
         try:
@@ -978,15 +989,17 @@ def load(path, env_config):
             raise ConfigError(
                 'Parse error in {filename}: {message}'.format(
                     filename=filename,
-                    message=str(error)),
-                code=CONFIG_SYNTAX_INVALID)
+                    message=str(error),
+                ),
+                code=CONFIG_SYNTAX_INVALID,
+            )
         for i, config in enumerate(configs):
             version = config.get('version', 1)
             build_config = get_configuration_class(version)(
                 env_config,
                 config,
                 source_file=filename,
-                source_position=i
+                source_position=i,
             )
             build_configs.append(build_config)
 
@@ -1003,7 +1016,7 @@ def get_configuration_class(version):
     """
     configurations_class = {
         1: BuildConfigV1,
-        2: BuildConfigV2
+        2: BuildConfigV2,
     }
     try:
         version = int(version)
@@ -1011,5 +1024,5 @@ def get_configuration_class(version):
     except (KeyError, ValueError):
         raise ConfigError(
             'Invalid version of the configuration file',
-            code=VERSION_INVALID
+            code=VERSION_INVALID,
         )
