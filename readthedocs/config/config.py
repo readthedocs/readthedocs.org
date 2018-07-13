@@ -685,7 +685,6 @@ class BuildConfigV2(BuildConfigBase):
         - ``install`` (only for setup.py method)
         - ``system_packages``
 
-
         .. note::
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
@@ -908,9 +907,12 @@ class BuildConfigV2(BuildConfigBase):
         Python = namedtuple(  # noqa
             'Python',
             [
-                'version', 'requirements',
-                'install_with_pip', 'install_with_setup',
-                'extra_requirements', 'use_system_site_packages',
+                'version',
+                'requirements',
+                'install_with_pip',
+                'install_with_setup',
+                'extra_requirements',
+                'use_system_site_packages',
             ]
         )
         return Python(**self._config['python'])
