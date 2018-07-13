@@ -72,7 +72,6 @@ def index_missing_objects_task(app_label, model_name, document_class, indexed_in
     and they will not be in the tasks.
     This task will index all the objects excluding the ones which have got indexed already
     """
-
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
     queryset = document().get_queryset().exclude(id__in=indexed_instance_ids)

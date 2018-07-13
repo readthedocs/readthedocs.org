@@ -48,7 +48,8 @@ class Command(BaseCommand):
                                                          new_index_name=new_index_name)
 
             indexing_tasks = self._get_indexing_tasks(app_label=app_label, model_name=model_name,
-                                                      instance_ids=instance_ids, document_class=str(doc),
+                                                      instance_ids=instance_ids,
+                                                      document_class=str(doc),
                                                       index_name=new_index_name)
 
             post_index_task = switch_es_index_task.si(app_label=app_label, model_name=model_name,

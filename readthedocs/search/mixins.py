@@ -3,12 +3,11 @@ from django.core.paginator import Paginator
 
 
 class RTDDocTypeMixin(object):
-    """Override some methods of DocType of DED
-
+    """
+    Override some methods of DocType of DED
     Changelog as following:
     - Do not index object that not exist in the provided queryset
     - Take additional argument in update method `index_name` to update specific index
-
     Issues:
     - https://github.com/sabricot/django-elasticsearch-dsl/issues/111
     """
@@ -37,9 +36,7 @@ class RTDDocTypeMixin(object):
                 yield self._prepare_action(object_instance, action, index_name)
 
     def update(self, thing, refresh=None, action='index', index_name=None, **kwargs):
-        """
-        Update each document in ES for a model, iterable of models or queryset
-        """
+        """Update each document in ES for a model, iterable of models or queryset"""
         if refresh is True or (
             refresh is None and self._doc_type.auto_refresh
         ):
