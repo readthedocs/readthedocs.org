@@ -602,7 +602,7 @@ class BuildConfigV2(BuildConfigBase):
     version = '2'
     valid_formats = ['htmlzip', 'pdf', 'epub']
     valid_build_images = ['1.0', '2.0', '3.0', 'stable', 'latest']
-    python_versions = [2, 2.7, 3, 3.5, 3.6]
+    default_build_image = 'latest'
     valid_install_options = ['pip', 'setup.py']
 
     def validate(self):
@@ -660,7 +660,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
-            image = raw_build.get('image', 'latest')
+            image = raw_build.get('image', self.default_build_image)
             build['image'] = validate_choice(
                 image,
                 self.valid_build_images
@@ -764,11 +764,12 @@ class BuildConfigV2(BuildConfigBase):
 
         This should be called after ``validate_build()``.
         """
-        python_settings = DOCKER_IMAGE_SETTINGS.get(self.build.image, {})
-        return python_settings.get(
-            'supported_versions',
-            self.python_versions
-        )
+        build_image = self.build.image
+        if build_image not in DOCKER_IMAGE_SETTINGS:
+            build_image = '{}:{}'.format(
+                DOCKER_DEFAULT_IMAGE, self.default_build_image
+            )
+        return DOCKER_IMAGE_SETTINGS[build_image]['supported_versions']
 
     def validate_doc_types(self):
         """
