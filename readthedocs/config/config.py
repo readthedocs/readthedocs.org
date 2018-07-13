@@ -52,10 +52,10 @@ DOCKER_IMAGE_SETTINGS = {
         'python': {'supported_versions': [2, 2.7, 3, 3.5]},
     },
     'readthedocs/build:3.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6]},
+        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
     },
     'readthedocs/build:stable': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6]},
+        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
     },
     'readthedocs/build:latest': {
         'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
