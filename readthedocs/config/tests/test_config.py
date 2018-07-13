@@ -1,6 +1,7 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
+import textwrap
 
 import pytest
 from mock import DEFAULT, patch
@@ -11,7 +12,7 @@ from readthedocs.config import (
     ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
-    TYPE_REQUIRED)
+    TYPE_REQUIRED, VERSION_INVALID)
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
 
@@ -102,6 +103,46 @@ def test_minimal_config(tmpdir):
     assert len(config) == 1
     build = config[0]
     assert isinstance(build, BuildConfigV1)
+
+
+def test_load_version1(tmpdir):
+    apply_fs(tmpdir, {
+        'readthedocs.yml': textwrap.dedent('''
+            version: 1
+        ''')
+    })
+    base = str(tmpdir)
+    config = load(base, get_env_config())
+    assert isinstance(config, ProjectConfig)
+    assert len(config) == 1
+    build = config[0]
+    assert isinstance(build, BuildConfigV1)
+
+
+def test_load_version2(tmpdir):
+    apply_fs(tmpdir, {
+        'readthedocs.yml': textwrap.dedent('''
+            version: 2
+        ''')
+    })
+    base = str(tmpdir)
+    config = load(base, get_env_config())
+    assert isinstance(config, ProjectConfig)
+    assert len(config) == 1
+    build = config[0]
+    assert isinstance(build, BuildConfigV2)
+
+
+def test_load_unknow_version(tmpdir):
+    apply_fs(tmpdir, {
+        'readthedocs.yml': textwrap.dedent('''
+            version: 9
+        ''')
+    })
+    base = str(tmpdir)
+    with raises(ConfigError) as excinfo:
+        load(base, get_env_config())
+    assert excinfo.value.code == VERSION_INVALID
 
 
 def test_build_config_has_source_file(tmpdir):
@@ -515,9 +556,9 @@ def describe_validate_setup_py_path():
 
 def test_valid_build_config():
     build = BuildConfigV1(env_config,
-                        minimal_config,
-                        source_file='readthedocs.yml',
-                        source_position=0)
+                          minimal_config,
+                          source_file='readthedocs.yml',
+                          source_position=0)
     build.validate()
     assert build.name == 'docs'
     assert build.type == 'sphinx'

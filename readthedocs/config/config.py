@@ -26,6 +26,7 @@ CONFIG_FILENAMES = ('readthedocs.yml', '.readthedocs.yml')
 
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
+VERSION_INVALID = 'version-invalid'
 BASE_INVALID = 'base-invalid'
 BASE_NOT_A_DIR = 'base-not-a-directory'
 CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
@@ -953,7 +954,8 @@ def load(path, env_config):
     Load a project configuration and the top-most build config for a given path.
 
     That is usually the root of the project, but will look deeper.
-    The config will be validated.
+    According to the version of the configuration a build object would be load
+    and validated, ``BuildConfigV1`` is the default.
     """
     filename = find_one(path, CONFIG_FILENAMES)
 
@@ -975,13 +977,35 @@ def load(path, env_config):
                     message=str(error)),
                 code=CONFIG_SYNTAX_INVALID)
         for i, config in enumerate(configs):
-            build_config = BuildConfigV1(
+            version = config.get('version', 1)
+            build_config = get_configuration_class(version)(
                 env_config,
                 config,
                 source_file=filename,
-                source_position=i)
+                source_position=i
+            )
             build_configs.append(build_config)
 
     project_config = ProjectConfig(build_configs)
     project_config.validate()
     return project_config
+
+
+def get_configuration_class(version):
+    """
+    Get the appropriate config class for ``version``.
+
+    :type version: str or int
+    """
+    configurations_class = {
+        1: BuildConfigV1,
+        2: BuildConfigV2
+    }
+    try:
+        version = int(version)
+        return configurations_class[version]
+    except (KeyError, ValueError):
+        raise ConfigError(
+            'Invalid version of the configuration file',
+            code=VERSION_INVALID
+        )
