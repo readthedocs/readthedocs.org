@@ -1354,6 +1354,36 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.sphinx.configuration is None
 
+    def test_sphinx_configuration_respects_default(self, tmpdir):
+        apply_fs(tmpdir, {'conf.py': ''})
+        build = self.get_build_config(
+            {},
+            {'defaults': {'sphinx_configuration': 'conf.py'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+
+    def test_sphinx_configuration_defautl_can_be_empty(self, tmpdir):
+        apply_fs(tmpdir, {'conf.py': ''})
+        build = self.get_build_config(
+            {},
+            {'defaults': {'sphinx_configuration': ''}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        assert build.sphinx.configuration is None
+
+    def test_sphinx_configuration_priorities_over_default(self, tmpdir):
+        apply_fs(tmpdir, {'conf.py': '', 'conf-default.py': ''})
+        build = self.get_build_config(
+            {'sphinx': {'configuration': 'conf.py'}},
+            {'defaults': {'sphinx_configuration': 'conf-defaul.py'}},
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+
     @pytest.mark.parametrize('value', [[], True, 0, {}])
     def test_sphinx_configuration_validate_type(self, value):
         build = self.get_build_config(

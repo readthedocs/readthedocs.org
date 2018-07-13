@@ -801,7 +801,11 @@ class BuildConfigV2(BuildConfigBase):
 
         sphinx = {}
         with self.catch_validation_error('sphinx.configuration'):
-            configuration = raw_sphinx.get('configuration')
+            configuration = self.defaults.get('sphinx_configuration')
+            # The default value can be empty
+            if not configuration:
+                configuration = None
+            configuration = raw_sphinx.get('configuration', configuration)
             if configuration is not None:
                 configuration = validate_file(configuration, self.base_path)
             sphinx['configuration'] = configuration

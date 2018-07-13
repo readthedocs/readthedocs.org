@@ -36,6 +36,7 @@ def load_yaml_config(version):
             'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
             'python_version': python_version,
+            'sphinx_configuration': version.get_conf_py_path(),
             'build_image': project.container_image,
         }
     }
