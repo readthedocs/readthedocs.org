@@ -661,13 +661,9 @@ class BuildConfigV2(BuildConfigBase):
         build = {}
         with self.catch_validation_error('build.image'):
             image = raw_build.get('image', self.default_build_image)
-            build['image'] = validate_choice(
-                image,
-                self.valid_build_images
-            )
             build['image'] = '{}:{}'.format(
                 DOCKER_DEFAULT_IMAGE,
-                build['image']
+                validate_choice(image, self.valid_build_images)
             )
 
         # Allow to override specific project
