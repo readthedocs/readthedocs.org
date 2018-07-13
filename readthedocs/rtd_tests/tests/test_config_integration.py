@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
@@ -12,7 +13,8 @@ from readthedocs.projects.models import Project
 
 
 def create_load(config=None):
-    """Mock out the function of the build load function
+    """
+    Mock out the function of the build load function.
 
     This will create a ProjectConfig list of BuildConfigV1 objects and validate
     them. The default load function iterates over files and builds up a list of
@@ -30,13 +32,16 @@ def create_load(config=None):
         if env_config is not None:
             env_config_defaults.update(env_config)
         yaml_config = ProjectConfig([
-            BuildConfigV1(env_config_defaults,
-                          config,
-                          source_file='readthedocs.yml',
-                          source_position=0)
+            BuildConfigV1(
+                env_config_defaults,
+                config,
+                source_file='readthedocs.yml',
+                source_position=0,
+            ),
         ])
         yaml_config.validate()
         return yaml_config
+
     return inner
 
 
@@ -44,8 +49,12 @@ def create_load(config=None):
 class LoadConfigTests(TestCase):
 
     def setUp(self):
-        self.project = get(Project, main_language_project=None,
-                           install_project=False, requirements_file='urls.py')
+        self.project = get(
+            Project,
+            main_language_project=None,
+            install_project=False,
+            requirements_file='urls.py',
+        )
         self.version = get(Version, project=self.project)
 
     def test_python_supported_versions_default_image_1_0(self, load_config):
@@ -57,21 +66,26 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(load_config.call_count, 1)
         load_config.assert_has_calls([
-            mock.call(path=mock.ANY, env_config={
-                'build': {'image': 'readthedocs/build:1.0'},
-                'type': 'sphinx',
-                'output_base': '',
-                'name': mock.ANY,
-                'defaults': {
-                    'install_project': self.project.install_project,
-                    'formats': ['htmlzip', 'epub', 'pdf'],
-                    'use_system_packages': self.project.use_system_packages,
-                    'requirements_file': self.project.requirements_file,
-                    'python_version': 2,
-                    'sphinx_configuration': mock.ANY,
-                    'build_image': 'readthedocs/build:1.0',
+            mock.call(
+                path=mock.ANY,
+                env_config={
+                    'build': {'image': 'readthedocs/build:1.0'},
+                    'type': 'sphinx',
+                    'output_base': '',
+                    'name': mock.ANY,
+                    'defaults': {
+                        'install_project': self.project.install_project,
+                        'formats': ['htmlzip',
+                                    'epub',
+                                    'pdf'],
+                        'use_system_packages': self.project.use_system_packages,
+                        'requirements_file': self.project.requirements_file,
+                        'python_version': 2,
+                        'sphinx_configuration': mock.ANY,
+                        'build_image': 'readthedocs/build:1.0',
+                    },
                 },
-            }),
+            ),
         ])
         self.assertEqual(config.python_version, 2)
 
@@ -116,7 +130,7 @@ class LoadConfigTests(TestCase):
 
     def test_python_set_python_version_in_config(self, load_config):
         load_config.side_effect = create_load({
-            'python': {'version': 3.5}
+            'python': {'version': 3.5},
         })
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
