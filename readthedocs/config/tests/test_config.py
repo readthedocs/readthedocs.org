@@ -1364,11 +1364,11 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
 
-    def test_sphinx_configuration_defautl_can_be_empty(self, tmpdir):
+    def test_sphinx_configuration_defautl_can_be_none(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
         build = self.get_build_config(
             {},
-            {'defaults': {'sphinx_configuration': ''}},
+            {'defaults': {'sphinx_configuration': None}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()

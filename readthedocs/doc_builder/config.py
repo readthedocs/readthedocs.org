@@ -6,6 +6,7 @@ from __future__ import (
 
 from readthedocs.config import BuildConfigV1, ConfigError, InvalidConfig
 from readthedocs.config import load as load_config
+from readthedocs.projects.models import ProjectConfigurationError
 
 from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
 
@@ -26,6 +27,11 @@ def load_yaml_config(version):
 
     img_name = project.container_image or DOCKER_IMAGE
     python_version = 3 if project.python_interpreter == 'python3' else 2
+    try:
+        sphinx_configuration = version.get_conf_py_path()
+    except ProjectConfigurationError:
+        sphinx_configuration = None
+
     env_config = {
         'build': {
             'image': img_name,
@@ -36,7 +42,7 @@ def load_yaml_config(version):
             'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
             'python_version': python_version,
-            'sphinx_configuration': version.get_conf_py_path(),
+            'sphinx_configuration': sphinx_configuration,
             'build_image': project.container_image,
         }
     }
