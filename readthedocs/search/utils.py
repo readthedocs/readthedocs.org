@@ -321,3 +321,11 @@ def get_project_list_or_404(project_slug, user):
 
     project_list = list(subprojects) + [project]
     return project_list
+
+
+def chunks(elements, chunk_size):
+    """Yield successive n-sized chunks from l."""
+    # Taken from https://stackoverflow.com/a/312464
+    # licensed under cc by-sa 3.0
+    for i in range(0, len(elements), chunk_size):
+        yield elements[i:i + chunk_size]

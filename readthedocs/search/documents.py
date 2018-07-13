@@ -3,9 +3,9 @@ from django_elasticsearch_dsl import DocType, Index, fields
 from elasticsearch_dsl.query import SimpleQueryString, Bool
 
 from readthedocs.projects.models import Project, HTMLFile
-from .conf import SEARCH_EXCLUDED_FILE
-
 from readthedocs.search.faceted_search import ProjectSearch, FileSearch
+from .conf import SEARCH_EXCLUDED_FILE
+from .mixins import RTDDocTypeMixin
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -17,7 +17,7 @@ page_index.settings(**page_conf['settings'])
 
 
 @project_index.doc_type
-class ProjectDocument(DocType):
+class ProjectDocument(RTDDocTypeMixin, DocType):
 
     class Meta(object):
         model = Project
@@ -47,7 +47,7 @@ class ProjectDocument(DocType):
 
 
 @page_index.doc_type
-class PageDocument(DocType):
+class PageDocument(RTDDocTypeMixin, DocType):
 
     class Meta(object):
         model = HTMLFile
@@ -121,21 +121,3 @@ class PageDocument(DocType):
         queryset = (queryset.filter(project__documentation_type='sphinx')
                             .exclude(name__in=SEARCH_EXCLUDED_FILE))
         return queryset
-
-    def update(self, thing, refresh=None, action='index', **kwargs):
-        """Overwrite in order to index only certain files"""
-        # Object not exist in the provided queryset should not be indexed
-        # TODO: remove this overwrite when the issue has been fixed
-        # See below link for more information
-        # https://github.com/sabricot/django-elasticsearch-dsl/issues/111
-        # Moreover, do not need to check if its a delete action
-        # Because while delete action, the object is already remove from database
-        if isinstance(thing, HTMLFile) and action != 'delete':
-            # Its a model instance.
-            queryset = self.get_queryset()
-            obj = queryset.filter(pk=thing.pk)
-            if not obj.exists():
-                return None
-
-        return super(PageDocument, self).update(thing=thing, refresh=refresh,
-                                                action=action, **kwargs)
