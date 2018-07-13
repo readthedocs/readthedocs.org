@@ -601,9 +601,9 @@ class BuildConfigV2(BuildConfigBase):
 
     version = '2'
     valid_formats = ['htmlzip', 'pdf', 'epub']
-    docker_versions = ['1.0', '2.0', '3.0', 'stable', 'latest']
+    valid_build_images = ['1.0', '2.0', '3.0', 'stable', 'latest']
     python_versions = [2, 2.7, 3, 3.5, 3.6]
-    install_options = ['pip', 'setup.py']
+    valid_install_options = ['pip', 'setup.py']
 
     def validate(self):
         """Validates and process ``raw_config`` and ``env_config``."""
@@ -663,7 +663,7 @@ class BuildConfigV2(BuildConfigBase):
             image = raw_build.get('image', 'latest')
             build['image'] = validate_choice(
                 image,
-                self.docker_versions
+                self.valid_build_images
             )
             build['image'] = '{}:{}'.format(
                 DOCKER_DEFAULT_IMAGE,
@@ -728,7 +728,7 @@ class BuildConfigV2(BuildConfigBase):
             )
             install = raw_python.get('install', install)
             if install is not None:
-                validate_choice(install, self.install_options)
+                validate_choice(install, self.valid_install_options)
             python['install_with_setup'] = install == 'setup.py'
             python['install_with_pip'] = install == 'pip'
 
