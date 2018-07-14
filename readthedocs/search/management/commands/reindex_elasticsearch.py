@@ -38,13 +38,13 @@ class Command(BaseCommand):
             app_label = qs.model._meta.app_label
             model_name = qs.model.__name__
 
-            old_index_name = doc._doc_type.index
+            index_name = doc._doc_type.index
             timestamp_prefix = 'temp-{}-'.format(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
-            new_index_name = timestamp_prefix + old_index_name
+            new_index_name = timestamp_prefix + index_name
 
             pre_index_task = create_new_es_index_task.si(app_label=app_label,
                                                          model_name=model_name,
-                                                         old_index_name=old_index_name,
+                                                         index_name=index_name,
                                                          new_index_name=new_index_name)
 
             indexing_tasks = self._get_indexing_tasks(app_label=app_label, model_name=model_name,
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                                                       index_name=new_index_name)
 
             post_index_task = switch_es_index_task.si(app_label=app_label, model_name=model_name,
-                                                      old_index_name=old_index_name,
+                                                      index_name=index_name,
                                                       new_index_name=new_index_name)
 
             # Task to run in order to add the objects

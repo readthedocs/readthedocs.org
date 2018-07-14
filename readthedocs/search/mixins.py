@@ -3,8 +3,10 @@ from django.core.paginator import Paginator
 
 
 class RTDDocTypeMixin(object):
+
     """
     Override some methods of DocType of DED
+
     Changelog as following:
     - Do not index object that not exist in the provided queryset
     - Take additional argument in update method `index_name` to update specific index
@@ -44,14 +46,16 @@ class RTDDocTypeMixin(object):
 
         # TODO: remove this overwrite when the issue has been fixed
         # https://github.com/sabricot/django-elasticsearch-dsl/issues/111
-        # Moreover, do not need to check if its a delete action
-        # Because while delete action, the object is already remove from database
-        if isinstance(thing, models.Model) and action != 'delete':
+        if isinstance(thing, models.Model):
             # Its a model instance.
-            queryset = self.get_queryset()
-            obj = queryset.filter(pk=thing.pk)
-            if not obj.exists():
-                return None
+
+            # Do not need to check if its a delete action
+            # Because while delete action, the object is already remove from database
+            if action != 'delete':
+                queryset = self.get_queryset()
+                obj = queryset.filter(pk=thing.pk)
+                if not obj.exists():
+                    return None
 
             object_list = [thing]
         else:

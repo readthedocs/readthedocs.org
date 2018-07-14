@@ -23,21 +23,21 @@ def _get_document(model, document_class):
 
 
 @app.task(queue='web')
-def create_new_es_index_task(app_label, model_name, old_index_name, new_index_name):
+def create_new_es_index_task(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
-    old_index = _get_index(indices=indices, index_name=old_index_name)
+    old_index = _get_index(indices=indices, index_name=index_name)
     new_index = old_index.clone(name=new_index_name)
     new_index.create()
 
 
 @app.task(queue='web')
-def switch_es_index_task(app_label, model_name, old_index_name, new_index_name):
+def switch_es_index_task(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
-    old_index = _get_index(indices=indices, index_name=old_index_name)
-
+    old_index = _get_index(indices=indices, index_name=index_name)
     new_index = old_index.clone(name=new_index_name)
+    old_index_actual_name = None
 
     if old_index.exists():
         # Alias can not be used to delete an index.
@@ -45,10 +45,12 @@ def switch_es_index_task(app_label, model_name, old_index_name, new_index_name):
         # So get the index actual name to delete it
         old_index_info = old_index.get()
         # The info is a dictionary and the key is the actual name of the index
-        old_index_name = old_index_info.keys()[0]
-        old_index.connection.indices.delete(index=old_index_name)
+        old_index_actual_name = old_index_info.keys()[0]
 
-    new_index.put_alias(name=old_index_name)
+    # Put alias into the new index name and delete the old index if its exist
+    new_index.put_alias(name=index_name)
+    if old_index_actual_name:
+        old_index.connection.indices.delete(index=old_index_actual_name)
 
 
 @app.task(queue='web')
