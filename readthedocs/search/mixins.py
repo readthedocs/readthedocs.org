@@ -15,6 +15,7 @@ class RTDDocTypeMixin(object):
     """
 
     def _prepare_action(self, object_instance, action, index_name=None):
+        """Overwrite to take `index_name` from parameters for setting index dynamically"""
         return {
             '_op_type': action,
             '_index': index_name or str(self._doc_type.index),
@@ -26,6 +27,7 @@ class RTDDocTypeMixin(object):
         }
 
     def _get_actions(self, object_list, action, index_name=None):
+        """Overwrite to take `index_name` from parameters for setting index dynamically"""
         if self._doc_type.queryset_pagination is not None:
             paginator = Paginator(
                 object_list, self._doc_type.queryset_pagination
