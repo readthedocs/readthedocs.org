@@ -1,3 +1,23 @@
+Version 2.6.0
+-------------
+
+:Date: July 16, 2018
+
+* Adds initial support for HTTPS on custom domains
+* `@stsewd <http://github.com/stsewd>`__: Revert "projects: serve badge with same protocol as site" (`#4353 <https://github.com/rtfd/readthedocs.org/pull/4353>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Do not overwrite sphinx context variables feature (`#4349 <https://github.com/rtfd/readthedocs.org/pull/4349>`__)
+* `@stsewd <http://github.com/stsewd>`__: Calrify docs about how rtd select the stable version (`#4348 <https://github.com/rtfd/readthedocs.org/pull/4348>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Remove the UID from the GA measurement protocol (`#4347 <https://github.com/rtfd/readthedocs.org/pull/4347>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix error in command (`#4345 <https://github.com/rtfd/readthedocs.org/pull/4345>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Improvements for the build/version admin (`#4344 <https://github.com/rtfd/readthedocs.org/pull/4344>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4265] Porting frontend docsearch to work with new API (`#4340 <https://github.com/rtfd/readthedocs.org/pull/4340>`__)
+* `@ktdreyer <http://github.com/ktdreyer>`__: fix spelling of "demonstrating" (`#4336 <https://github.com/rtfd/readthedocs.org/pull/4336>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Warning about theme context implementation status (`#4335 <https://github.com/rtfd/readthedocs.org/pull/4335>`__)
+* `@Blendify <http://github.com/Blendify>`__: Docs: Let Theme Choose Pygments Theme (`#4331 <https://github.com/rtfd/readthedocs.org/pull/4331>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Disable the ad block nag for ad-free projects (`#4329 <https://github.com/rtfd/readthedocs.org/pull/4329>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [fix #4265] Port Document search API for Elasticsearch 6.x (`#4309 <https://github.com/rtfd/readthedocs.org/pull/4309>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor configuration object to class based (`#4298 <https://github.com/rtfd/readthedocs.org/pull/4298>`__)
+
 Version 2.5.3
 -------------
 
