@@ -403,7 +403,8 @@ class BuildConfigV1(BuildConfigBase):
                     with self.catch_validation_error(
                             'python.extra_requirements'):
                         python['extra_requirements'].append(
-                            validate_string(extra_name))
+                            validate_string(extra_name)
+                        )
 
             # Validate setup_py_install.
             if 'setup_py_install' in raw_python:
@@ -968,7 +969,11 @@ def load(path, env_config):
                 code=CONFIG_SYNTAX_INVALID,
             )
         for i, config in enumerate(configs):
-            version = config.get('version', 1)
+            allow_v2 = env_config.get('allow_v2')
+            if allow_v2:
+                version = config.get('version', 1)
+            else:
+                version = 1
             build_config = get_configuration_class(version)(
                 env_config,
                 config,

@@ -104,7 +104,7 @@ def test_load_version1(tmpdir):
         ''')
     })
     base = str(tmpdir)
-    config = load(base, get_env_config())
+    config = load(base, get_env_config({'allow_v2': True}))
     assert isinstance(config, ProjectConfig)
     assert len(config) == 1
     build = config[0]
@@ -118,7 +118,7 @@ def test_load_version2(tmpdir):
         ''')
     })
     base = str(tmpdir)
-    config = load(base, get_env_config())
+    config = load(base, get_env_config({'allow_v2': True}))
     assert isinstance(config, ProjectConfig)
     assert len(config) == 1
     build = config[0]
@@ -133,7 +133,7 @@ def test_load_unknow_version(tmpdir):
     })
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, get_env_config())
+        load(base, get_env_config({'allow_v2': True}))
     assert excinfo.value.code == VERSION_INVALID
 
 
