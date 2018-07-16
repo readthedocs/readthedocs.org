@@ -115,13 +115,10 @@ context = {
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
     'source_suffix': SUFFIX,
+    'ad_free': {% if project.gold_owners.exists or project.ad_free %}True{% else %}False{% endif %},
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
     'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
-    {% if project.repo_type == 'git' %}
-    'commit': '{{ commit|slice:"8" }}',
-    {% else %}
-    'commit': '{{ commit }}',
-    {% endif %}
+    'commit': {% if project.repo_type == 'git' %}'{{ commit|slice:"8" }}'{% else %}'{{ commit }}'{% endif %},
 }
 
 {# Provide block for extending context data from child template #}
