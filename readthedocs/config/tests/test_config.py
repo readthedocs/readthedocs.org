@@ -866,14 +866,13 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.formats == []
 
-    @pytest.mark.skip('Needs a decision')
-    def test_formats_respect_default_values(self):
+    def test_formats_overrides_default_values(self):
         build = self.get_build_config(
             {},
             {'defaults': {'formats': ['htmlzip']}},
         )
         build.validate()
-        assert build.formats == ['htmlzip']
+        assert build.formats == []
 
     def test_formats_priority_over_defaults(self):
         build = self.get_build_config(
@@ -1048,13 +1047,13 @@ class TestBuildConfigV2(object):
         assert build.python.version == 3
 
     @pytest.mark.parametrize('value', [2, 3])
-    def test_python_version_respects_default(self, value):
+    def test_python_version_overrides_default(self, value):
         build = self.get_build_config(
             {},
             {'defaults': {'python_version': value}},
         )
         build.validate()
-        assert build.python.version == value
+        assert build.python.version == 3
 
     @pytest.mark.parametrize('value', [2, 3, 3.6])
     def test_python_version_priority_over_default(self, value):
@@ -1312,6 +1311,12 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'sphinx'
 
+    def test_sphinx_is_default_doc_type(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.sphinx is not None
+        assert build.mkdocs is None
+
     def test_sphinx_configuration_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
         build = self.get_build_config(
@@ -1364,7 +1369,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
 
-    def test_sphinx_configuration_defautl_can_be_none(self, tmpdir):
+    def test_sphinx_configuration_default_can_be_none(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
         build = self.get_build_config(
             {},
@@ -1378,7 +1383,7 @@ class TestBuildConfigV2(object):
         apply_fs(tmpdir, {'conf.py': '', 'conf-default.py': ''})
         build = self.get_build_config(
             {'sphinx': {'configuration': 'conf.py'}},
-            {'defaults': {'sphinx_configuration': 'conf-defaul.py'}},
+            {'defaults': {'sphinx_configuration': 'conf-default.py'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
@@ -1416,6 +1421,11 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'mkdocs'
 
+    def test_mkdocs_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.mkdocs is None
+
     def test_mkdocs_configuration_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'mkdocs.yml': ''})
         build = self.get_build_config(
@@ -1424,6 +1434,7 @@ class TestBuildConfigV2(object):
         )
         build.validate()
         assert build.mkdocs.configuration == str(tmpdir.join('mkdocs.yml'))
+        assert build.sphinx is None
 
     def test_mkdocs_configuration_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'mkdocs.yml': ''})
@@ -1441,7 +1452,7 @@ class TestBuildConfigV2(object):
         assert build.mkdocs.configuration is None
 
     def test_mkdocs_configuration_check_default(self):
-        build = self.get_build_config({})
+        build = self.get_build_config({'mkdocs': {}})
         build.validate()
         assert build.mkdocs.configuration is None
 
@@ -1466,7 +1477,7 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'mkdocs.fail_on_warning'
 
     def test_mkdocs_fail_on_warning_check_default(self):
-        build = self.get_build_config({})
+        build = self.get_build_config({'mkdocs': {}})
         build.validate()
         assert build.mkdocs.fail_on_warning is False
 
@@ -1481,7 +1492,7 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({
             'submodules': {
                 'include': ['one', 'two']
-            }
+            },
         })
         build.validate()
         assert build.submodules.include == ['one', 'two']
