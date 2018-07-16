@@ -13,7 +13,7 @@ from readthedocs.config import (
     ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
-    TYPE_REQUIRED, VERSION_INVALID)
+    VERSION_INVALID)
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
 
@@ -25,13 +25,11 @@ env_config = {
 
 minimal_config = {
     'name': 'docs',
-    'type': 'sphinx',
 }
 
 config_with_explicit_empty_list = {
     'readthedocs.yml': '''
 name: docs
-type: sphinx
 formats: []
 ''',
 }
@@ -39,17 +37,14 @@ formats: []
 minimal_config_dir = {
     'readthedocs.yml': '''\
 name: docs
-type: sphinx
 ''',
 }
 
 multiple_config_dir = {
     'readthedocs.yml': '''
 name: first
-type: sphinx
 ---
 name: second
-type: sphinx
     ''',
     'nested': minimal_config_dir,
 }
@@ -70,7 +65,6 @@ def get_env_config(extra=None):
     defaults = {
         'output_base': '',
         'name': 'name',
-        'type': 'sphinx',
     }
     if extra is None:
         extra = {}
@@ -193,33 +187,6 @@ def test_build_requires_valid_name():
         build.validate()
     assert excinfo.value.key == 'name'
     assert excinfo.value.code == NAME_INVALID
-
-
-def test_config_requires_type():
-    build = BuildConfigV1(
-        {'output_base': ''},
-        {'name': 'docs'},
-        source_file='readthedocs.yml',
-        source_position=0,
-    )
-    with raises(InvalidConfig) as excinfo:
-        build.validate()
-    assert excinfo.value.key == 'type'
-    assert excinfo.value.code == TYPE_REQUIRED
-
-
-def test_build_requires_valid_type():
-    build = BuildConfigV1(
-        {'output_base': ''},
-        {'name': 'docs',
-         'type': 'unknown'},
-        source_file='readthedocs.yml',
-        source_position=0,
-    )
-    with raises(InvalidConfig) as excinfo:
-        build.validate()
-    assert excinfo.value.key == 'type'
-    assert excinfo.value.code == INVALID_CHOICE
 
 
 def test_version():
@@ -568,7 +535,6 @@ def test_valid_build_config():
     )
     build.validate()
     assert build.name == 'docs'
-    assert build.type == 'sphinx'
     assert build.base
     assert build.python
     assert 'setup_py_install' in build.python
@@ -783,14 +749,12 @@ def test_build_validate_calls_all_subvalidators(tmpdir):
             BuildConfigV1,
             validate_base=DEFAULT,
             validate_name=DEFAULT,
-            validate_type=DEFAULT,
             validate_python=DEFAULT,
             validate_output_base=DEFAULT,
     ):
         build.validate()
         BuildConfigV1.validate_base.assert_called_with()
         BuildConfigV1.validate_name.assert_called_with()
-        BuildConfigV1.validate_type.assert_called_with()
         BuildConfigV1.validate_python.assert_called_with()
         BuildConfigV1.validate_output_base.assert_called_with()
 

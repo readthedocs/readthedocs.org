@@ -36,6 +36,8 @@ def load_yaml_config(version):
         'build': {
             'image': img_name,
         },
+        'output_base': '',
+        'name': version.slug,
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
@@ -52,26 +54,14 @@ def load_yaml_config(version):
         env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
     try:
-        sphinx_env_config = env_config.copy()
-        sphinx_env_config.update({
-            'output_base': '',
-            'type': 'sphinx',
-            'name': version.slug,
-        })
         config = load_config(
             path=checkout_path,
-            env_config=sphinx_env_config,
+            env_config=env_config,
         )[0]
     except InvalidConfig:
         # This is a subclass of ConfigError, so has to come first
         raise
     except ConfigError:
-        # TODO: this shouldn't be hardcoded here
-        env_config.update({
-            'output_base': '',
-            'type': 'sphinx',
-            'name': version.slug,
-        })
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},

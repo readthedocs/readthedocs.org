@@ -42,7 +42,6 @@ CONFIG_REQUIRED = 'config-required'
 NAME_REQUIRED = 'name-required'
 NAME_INVALID = 'name-invalid'
 CONF_FILE_REQUIRED = 'conf-file-required'
-TYPE_REQUIRED = 'type-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
@@ -204,7 +203,6 @@ class BuildConfigV1(BuildConfigBase):
     NAME_INVALID_MESSAGE = (
         'Invalid name "{name}". Valid values must match {name_re}'
     )
-    TYPE_REQUIRED_MESSAGE = 'Missing key "type"'
     CONF_FILE_REQUIRED_MESSAGE = 'Missing key "conf_file"'
     PYTHON_INVALID_MESSAGE = '"python" section must be a mapping.'
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
@@ -215,10 +213,6 @@ class BuildConfigV1(BuildConfigBase):
     DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
 
     version = '1'
-
-    def get_valid_types(self):  # noqa
-        """Get all valid types."""
-        return ('sphinx',)
 
     def get_valid_python_versions(self):
         """Get all valid python versions."""
@@ -242,7 +236,6 @@ class BuildConfigV1(BuildConfigBase):
 
         It makes sure that:
 
-        - ``type`` is set and is a valid builder
         - ``base`` is a valid directory and defaults to the directory of the
           ``readthedocs.yml`` config file if not set
         """
@@ -258,16 +251,12 @@ class BuildConfigV1(BuildConfigBase):
         # TODO: this isn't used
         self._config['name'] = self.validate_name()
         # TODO: this isn't used
-        self._config['type'] = self.validate_type()
-        # TODO: this isn't used
         self._config['base'] = self.validate_base()
         self._config['python'] = self.validate_python()
         self._config['formats'] = self.validate_formats()
 
         self._config['conda'] = self.validate_conda()
         self._config['requirements_file'] = self.validate_requirements_file()
-        # TODO: this isn't used
-        self._config['conf_file'] = self.validate_conf_file()
 
     def validate_output_base(self):
         """Validates that ``output_base`` exists and set its absolute path."""
@@ -298,19 +287,6 @@ class BuildConfigV1(BuildConfigBase):
                 code=NAME_INVALID)
 
         return name
-
-    def validate_type(self):
-        """Validates that type is a valid choice."""
-        type_ = self.raw_config.get('type', None)
-        if not type_:
-            type_ = self.env_config.get('type', None)
-        if not type_:
-            self.error('type', self.TYPE_REQUIRED_MESSAGE, code=TYPE_REQUIRED)
-
-        with self.catch_validation_error('type'):
-            validate_choice(type_, self.get_valid_types())
-
-        return type_
 
     def validate_base(self):
         """Validates that path is a valid directory."""
@@ -496,17 +472,6 @@ class BuildConfigV1(BuildConfigBase):
             validate_file(requirements_file, base_path)
         return requirements_file
 
-    def validate_conf_file(self):
-        """Validates the conf.py file for sphinx."""
-        if 'conf_file' not in self.raw_config:
-            return None
-
-        conf_file = self.raw_config['conf_file']
-        base_path = os.path.dirname(self.source_file)
-        with self.catch_validation_error('conf_file'):
-            validate_file(conf_file, base_path)
-        return conf_file
-
     def validate_formats(self):
         """Validates that formats contains only valid formats."""
         formats = self.raw_config.get('formats')
@@ -536,11 +501,6 @@ class BuildConfigV1(BuildConfigBase):
     def output_base(self):
         """The output base."""
         return self._config['output_base']
-
-    @property
-    def type(self):
-        """The documentation type."""
-        return self._config['type']
 
     @property
     def formats(self):

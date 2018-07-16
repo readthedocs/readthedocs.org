@@ -27,7 +27,6 @@ def create_load(config=None):
         env_config_defaults = {
             'output_base': '',
             'name': '1',
-            'type': 'sphinx',
         }
         if env_config is not None:
             env_config_defaults.update(env_config)
@@ -70,14 +69,15 @@ class LoadConfigTests(TestCase):
                 path=mock.ANY,
                 env_config={
                     'build': {'image': 'readthedocs/build:1.0'},
-                    'type': 'sphinx',
                     'output_base': '',
                     'name': mock.ANY,
                     'defaults': {
                         'install_project': self.project.install_project,
-                        'formats': ['htmlzip',
-                                    'epub',
-                                    'pdf'],
+                        'formats': [
+                            'htmlzip',
+                            'epub',
+                            'pdf'
+                        ],
                         'use_system_packages': self.project.use_system_packages,
                         'requirements_file': self.project.requirements_file,
                         'python_version': 2,
