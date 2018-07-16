@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# pylint: disable=too-many-lines
+
 """Build configuration for rtd."""
 from __future__ import division, print_function, unicode_literals
 
