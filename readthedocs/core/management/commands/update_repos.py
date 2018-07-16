@@ -8,7 +8,6 @@ Invoked via ``./manage.py update_repos``.
 from __future__ import absolute_import
 
 import logging
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
@@ -57,7 +56,8 @@ class Command(BaseCommand):
         record = options['record']
         force = options['force']
         version = options['version']
-        if args:
+
+        if options.get('slug', []):
             for slug in options['slugs']:
                 if version and version != "all":
                     log.info("Updating version %s for %s", version, slug)
