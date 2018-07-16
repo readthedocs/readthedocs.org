@@ -57,9 +57,6 @@ def anonymize_user_agent(user_agent):
 
 def send_to_analytics(data):
     """Sends data to Google Analytics"""
-    if data.get('uip') and data.get('ua'):
-        data['uid'] = generate_client_id(data['uip'], data['ua'])
-
     if 'uip' in data:
         # Anonymize IP address if applicable
         data['uip'] = anonymize_ip_address(data['uip'])

@@ -115,20 +115,23 @@ context = {
     'using_theme': (html_theme == "default"),
     'new_theme': (html_theme == "sphinx_rtd_theme"),
     'source_suffix': SUFFIX,
+    'ad_free': {% if project.gold_owners.exists or project.ad_free %}True{% else %}False{% endif %},
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
     'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
-    {% if project.repo_type == 'git' %}
-    'commit': '{{ commit|slice:"8" }}',
-    {% else %}
-    'commit': '{{ commit }}',
-    {% endif %}
+    'commit': {% if project.repo_type == 'git' %}'{{ commit|slice:"8" }}'{% else %}'{{ commit }}'{% endif %},
 }
 
 {# Provide block for extending context data from child template #}
 {% block extra_context %}{% endblock %}
 
 if 'html_context' in globals():
+    {% if dont_overwrite_sphinx_context %}
+    for key in context:
+        if key not in html_context:
+            html_context[key] = context[key]
+    {% else %}
     html_context.update(context)
+    {% endif %}
 else:
     html_context = context
 

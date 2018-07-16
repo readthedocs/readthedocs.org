@@ -8,32 +8,33 @@ Things to know:
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-import os.path
 import json
+import os
 import re
 import tempfile
 import uuid
-from builtins import str
 
 import mock
 import pytest
+from builtins import str
 from django.test import TestCase
+from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from mock import Mock, PropertyMock, mock_open, patch
-from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
-    BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
+    BuildCommand, DockerBuildCommand, DockerBuildEnvironment,
+    LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
-from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
@@ -1364,7 +1365,8 @@ class AutoWipeEnvironmentBase(object):
             build={'id': DUMMY_BUILD_ID},
         )
 
-    def test_save_environment_json(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_save_environment_json(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1373,8 +1375,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1400,9 +1402,10 @@ class AutoWipeEnvironmentBase(object):
         }
         self.assertDictEqual(json_data, expected_data)
 
-    def test_is_obsolete_without_env_json_file(self):
-        yaml_config = create_load()()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_without_env_json_file(self, load_config):
+        load_config.side_effect = create_load()
+        config = load_yaml_config(self.version)
 
         with patch('os.path.exists') as exists:
             exists.return_value = False
@@ -1414,9 +1417,10 @@ class AutoWipeEnvironmentBase(object):
 
         self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_invalid_env_json_file(self):
-        yaml_config = create_load()()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_invalid_env_json_file(self, load_config):
+        load_config.side_effect = create_load()
+        config = load_yaml_config(self.version)
 
         with patch('os.path.exists') as exists:
             exists.return_value = True
@@ -1428,7 +1432,8 @@ class AutoWipeEnvironmentBase(object):
 
         self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_python_version(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_python_version(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1437,8 +1442,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1450,7 +1455,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': 'latest',
@@ -1459,8 +1465,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1470,9 +1476,11 @@ class AutoWipeEnvironmentBase(object):
         env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 2.7}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
-            self.assertTrue(python_env.is_obsolete)
+            obsolete = python_env.is_obsolete
+            self.assertTrue(obsolete)
 
-    def test_is_obsolete_with_project_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_project_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1481,12 +1489,13 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:latest'
         self.pip.save()
+
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1498,7 +1507,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_same_data_as_version(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_same_data_as_version(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1507,8 +1517,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 3.5,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1520,7 +1530,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_build_hash(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_build_hash(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1529,8 +1540,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:2.0'
@@ -1546,7 +1557,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_missing_build_hash(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_missing_build_hash(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1556,8 +1568,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:2.0'
