@@ -72,11 +72,6 @@ class Command(BaseCommand):
                        .format(app_label, model_name, len(instance_ids)))
             log.info(message)
 
-    @staticmethod
-    def _get_models(args):
-        for model_name in args:
-            yield apps.get_model(model_name)
-
     def add_arguments(self, parser):
         parser.add_argument(
             '--models',
@@ -88,8 +83,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        Index models into Elasticsearch index asynchronously using celery.
+
+        You can specify model to get indexed by passing
+        `--model <app_label>.<model_name>` parameter.
+        Otherwise, it will reindex all the models
+        """
         models = None
         if options['models']:
-            models = self._get_models(options['models'])
+            models = [apps.get_model(model_name) for model_name in options['models']]
 
         self._run_reindex_tasks(models=models)
