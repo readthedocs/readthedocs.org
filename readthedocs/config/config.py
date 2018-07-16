@@ -615,7 +615,13 @@ class BuildConfigV2(BuildConfigBase):
     valid_install_options = ['pip', 'setup.py']
 
     def validate(self):
-        """Validates and process ``raw_config`` and ``env_config``."""
+        """
+        Validates and process ``raw_config`` and ``env_config``.
+
+        Sphinx is the default doc type to be built. We don't merge some values
+        from the database (like formats or python.version) to allow us set
+        default values.
+        """
         self._config['formats'] = self.validate_formats()
         self._config['conda'] = self.validate_conda()
         # This should be called before validate_python
@@ -623,8 +629,8 @@ class BuildConfigV2(BuildConfigBase):
         self._config['python'] = self.validate_python()
         # Call this before validate sphinx and mkdocs
         self.validate_doc_types()
-        self._config['sphinx'] = self.validate_sphinx()
         self._config['mkdocs'] = self.validate_mkdocs()
+        self._config['sphinx'] = self.validate_sphinx()
         self._config['submodules'] = self.validate_submodules()
 
     def validate_formats(self):
@@ -632,6 +638,7 @@ class BuildConfigV2(BuildConfigBase):
         Validates that formats contains only valid formats.
 
         The ``ALL`` keyword can be used to indicate that all formats are used.
+        We ignore the default values here.
         """
         formats = self.raw_config.get('formats', [])
         if formats == ALL:
@@ -691,7 +698,6 @@ class BuildConfigV2(BuildConfigBase):
         build.image attribute.
 
         Fall back to the defaults of:
-        - ``version``
         - ``requirements``
         - ``install`` (only for setup.py method)
         - ``system_packages``
@@ -706,8 +712,7 @@ class BuildConfigV2(BuildConfigBase):
 
         python = {}
         with self.catch_validation_error('python.version'):
-            version = self.defaults.get('python_version', 3)
-            version = raw_python.get('version', version)
+            version = raw_python.get('version', 3)
             if isinstance(version, six.string_types):
                 try:
                     version = int(version)
@@ -796,15 +801,48 @@ class BuildConfigV2(BuildConfigBase):
                     code=INVALID_KEYS_COMBINATION,
                 )
 
+    def validate_mkdocs(self):
+        """
+        Validates the mkdocs key.
+
+        It makes sure we are using an existing configuration file.
+        """
+        raw_mkdocs = self.raw_config.get('mkdocs')
+        if raw_mkdocs is None:
+            return None
+
+        with self.catch_validation_error('mkdocs'):
+            validate_dict(raw_mkdocs)
+
+        mkdocs = {}
+        with self.catch_validation_error('mkdocs.configuration'):
+            configuration = raw_mkdocs.get('configuration')
+            if configuration is not None:
+                configuration = validate_file(configuration, self.base_path)
+            mkdocs['configuration'] = configuration
+
+        with self.catch_validation_error('mkdocs.fail_on_warning'):
+            fail_on_warning = raw_mkdocs.get('fail_on_warning', False)
+            mkdocs['fail_on_warning'] = validate_bool(fail_on_warning)
+
+        return mkdocs
+
     def validate_sphinx(self):
         """
         Validates the sphinx key.
 
         It makes sure we are using an existing configuration file.
+
+        .. note::
+           It should be called after ``validate_mkdocs``. That way
+           we can default to sphinx if ``mkdocs`` is not given.
         """
-        raw_sphinx = self.raw_config.get('sphinx', {})
+        raw_sphinx = self.raw_config.get('sphinx')
         if raw_sphinx is None:
-            return None
+            if self.mkdocs is None:
+                raw_sphinx = {}
+            else:
+                return None
 
         with self.catch_validation_error('sphinx'):
             validate_dict(raw_sphinx)
@@ -825,32 +863,6 @@ class BuildConfigV2(BuildConfigBase):
             sphinx['fail_on_warning'] = validate_bool(fail_on_warning)
 
         return sphinx
-
-    def validate_mkdocs(self):
-        """
-        Validates the mkdocs key.
-
-        It makes sure we are using an existing configuration file.
-        """
-        raw_mkdocs = self.raw_config.get('mkdocs', {})
-        if raw_mkdocs is None:
-            return None
-
-        with self.catch_validation_error('mkdocs'):
-            validate_dict(raw_mkdocs)
-
-        mkdocs = {}
-        with self.catch_validation_error('mkdocs.configuration'):
-            configuration = raw_mkdocs.get('configuration')
-            if configuration is not None:
-                configuration = validate_file(configuration, self.base_path)
-            mkdocs['configuration'] = configuration
-
-        with self.catch_validation_error('mkdocs.fail_on_warning'):
-            fail_on_warning = raw_mkdocs.get('fail_on_warning', False)
-            mkdocs['fail_on_warning'] = validate_bool(fail_on_warning)
-
-        return mkdocs
 
     def validate_submodules(self):
         """
