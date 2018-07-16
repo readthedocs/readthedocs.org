@@ -39,8 +39,8 @@ class Command(BaseCommand):
             model_name = qs.model.__name__
 
             index_name = doc._doc_type.index
-            timestamp_prefix = 'temp-{}-'.format(datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
-            new_index_name = timestamp_prefix + index_name
+            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            new_index_name = "{}_{}".format(index_name, timestamp)
 
             pre_index_task = create_new_es_index_task.si(app_label=app_label,
                                                          model_name=model_name,
