@@ -68,7 +68,8 @@ class Command(BaseCommand):
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chain
             chain(pre_index_task, chord_tasks, missed_index_task).apply_async()
 
-            message = "Successfully issued tasks for {}.{}".format(app_label, model_name)
+            message = ("Successfully issued tasks for {}.{}, total {} items"
+                       .format(app_label, model_name, len(instance_ids)))
             log.info(message)
 
     @staticmethod
