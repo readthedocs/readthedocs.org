@@ -10,7 +10,7 @@ function GoldView(config) {
 
     self.constructor.call(self, config);
 
-    self.last_4_digits = ko.observable(null);
+    self.last_4_card_digits = ko.observable(null);
 }
 
 GoldView.prototype = new payment.PaymentView();
