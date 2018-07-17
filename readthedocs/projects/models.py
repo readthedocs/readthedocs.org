@@ -884,6 +884,7 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        self.ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -899,6 +900,11 @@ class APIProject(Project):
 
     def has_feature(self, feature_id):
         return feature_id in self.features
+
+    @property
+    def show_advertising(self):
+        """Whether this project is ad-free (don't access the database)"""
+        return not self.ad_free
 
 
 @python_2_unicode_compatible
