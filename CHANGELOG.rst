@@ -1,3 +1,13 @@
+Version 2.6.1
+-------------
+
+:Date: July 17, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`__: Do not access database from builds to check ad-free (`#4387 <https://github.com/rtfd/readthedocs.org/pull/4387>`__)
+* `@humitos <http://github.com/humitos>`__: Adapt YAML config integration tests (`#4385 <https://github.com/rtfd/readthedocs.org/pull/4385>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set full `source_file` path for default configuration (`#4379 <https://github.com/rtfd/readthedocs.org/pull/4379>`__)
+* `@humitos <http://github.com/humitos>`__: More tags when logging errors to Sentry (`#4375 <https://github.com/rtfd/readthedocs.org/pull/4375>`__)
+
 Version 2.6.0
 -------------
 
