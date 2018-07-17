@@ -346,7 +346,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         except Exception as e:  # noqa
             log.exception(
                 'An unhandled exception was raised during build setup',
-                extra={'tags': {'build': build_pk}}
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'build': build_pk,
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
             )
             self.setup_env.failure = BuildEnvironmentError(
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
@@ -363,7 +370,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             except Exception as e:  # noqa
                 log.exception(
                     'An unhandled exception was raised during project build',
-                    extra={'tags': {'build': build_pk}}
+                    extra={
+                        'stack': True,
+                        'tags': {
+                            'build': build_pk,
+                            'project': self.project.slug,
+                            'version': self.version.slug,
+                        },
+                    },
                 )
                 self.build_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
