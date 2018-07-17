@@ -45,7 +45,7 @@ class LoadConfigTests(TestCase):
 
     def setUp(self):
         self.project = get(Project, main_language_project=None,
-                           install_project=False, requirements_file='urls.py')
+                           install_project=False, requirements_file='__init__.py')
         self.version = get(Version, project=self.project)
 
     def test_python_supported_versions_default_image_1_0(self, load_config):
@@ -201,4 +201,4 @@ class LoadConfigTests(TestCase):
         # Respects the requirements file from the project settings
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.requirements_file, 'urls.py')
+        self.assertEqual(config.requirements_file, '__init__.py')
