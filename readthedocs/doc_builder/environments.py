@@ -450,7 +450,15 @@ class BuildEnvironment(BaseEnvironment):
                           .format(project=self.project.slug,
                                   version=self.version.slug,
                                   msg=exc_value),
-                          exc_info=True)
+                          exc_info=True,
+                          extra={
+                              'stack': True,
+                              'tags': {
+                                  'build': self.build.get('id'),
+                                  'project': self.project.slug,
+                                  'version': self.version.slug,
+                              },
+                          })
                 self.failure = exc_value
             return True
 
@@ -546,8 +554,12 @@ class BuildEnvironment(BaseEnvironment):
                     str(self.failure),
                     extra={
                         'stack': True,
-                        'tags': {'build': self.build['id']},
-                    }
+                        'tags': {
+                            'build': self.build.get('id'),
+                            'project': self.project.slug,
+                            'version': self.version.slug,
+                        },
+                    },
                 )
                 self.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
