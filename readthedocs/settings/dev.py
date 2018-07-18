@@ -48,6 +48,11 @@ class CommunityDevSettings(CommunityBaseSettings):
         'test:8000',
     )
 
+    # Encryption
+    FIELD_ENCRYPTION_KEY = [
+        'P98DEYWoSuLmgXdRGzJkbo1JWeiHf4ghpFI8QvV3hRI=',  # only for development
+    ]
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super(CommunityDevSettings, self).LOGGING
