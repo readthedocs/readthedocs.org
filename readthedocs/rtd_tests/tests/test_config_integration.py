@@ -84,6 +84,7 @@ class LoadConfigTests(TestCase):
                         'python_version': 2,
                         'sphinx_configuration': mock.ANY,
                         'build_image': 'readthedocs/build:1.0',
+                        'doctype': self.project.documentation_type,
                     },
                 },
             ),
