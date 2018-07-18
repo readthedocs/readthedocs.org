@@ -49,7 +49,7 @@ class ProjectIndex(ListView):
 
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
-            queryset = queryset.filter(tags__name__in=[self.tag.slug])
+            queryset = queryset.filter(tags__slug__in=[self.tag.slug])
         else:
             self.tag = None
 

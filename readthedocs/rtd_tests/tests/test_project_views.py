@@ -426,7 +426,7 @@ class TestBadges(TestCase):
 
     # To set `flat` as default style as done in code.
     def get_badge_path(self, version, style='flat'):
-            return static(self.BADGE_PATH % (version, style))
+        return static(self.BADGE_PATH % (version, style))
 
     def setUp(self):
         self.BADGE_PATH = 'projects/badges/%s-%s.svg'
@@ -462,3 +462,11 @@ class TestBadges(TestCase):
         res = self.client.get(self.badge_url, {'version': self.version.slug , 'style': 'social'})
         static_badge = self.get_badge_path('passing', 'social')
         self.assertEquals(res.url, static_badge)
+
+
+class TestTags(TestCase):
+    def test_project_filtering_work_with_tags_with_space_in_name(self):
+        pip = get(Project, slug='pip')
+        pip.tags.add('tag with space')
+        response = self.client.get('/projects/tags/tag-with-space/')
+        self.assertContains(response, '"/projects/pip/"')
