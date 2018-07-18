@@ -50,6 +50,7 @@ def load_yaml_config(version):
             'python_version': python_version,
             'sphinx_configuration': sphinx_configuration,
             'build_image': project.container_image,
+            'doctype': project.documentation_type,
         }
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
