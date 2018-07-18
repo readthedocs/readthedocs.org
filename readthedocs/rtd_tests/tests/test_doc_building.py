@@ -1153,7 +1153,10 @@ class TestPythonEnvironment(TestCase):
             if arg is not mock.ANY:
                 self.assertTrue(arg_mock.startswith(arg))
 
-    def test_install_core_requirements_sphinx(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Virtualenv(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1171,7 +1174,10 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock.run.assert_called_once()
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
-    def test_install_core_requirements_mkdocs(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_mkdocs(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Virtualenv(
             version=self.version_mkdocs,
             build_env=self.build_env_mock
@@ -1187,7 +1193,8 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock.run.assert_called_once()
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
-    def test_install_user_requirements(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_user_requirements(self, checkout_path):
         """
         If a projects does not specify a requirements file,
         RTD will choose one automatically.
@@ -1198,6 +1205,8 @@ class TestPythonEnvironment(TestCase):
         - ``pip_requirements.txt``
         - ``requirements.txt``
         """
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         self.build_env_mock.project = self.project_sphinx
         self.build_env_mock.version = self.version_sphinx
         python_env = Virtualenv(
@@ -1267,7 +1276,10 @@ class TestPythonEnvironment(TestCase):
             python_env.install_user_requirements()
         self.build_env_mock.run.assert_not_called()
 
-    def test_install_core_requirements_sphinx_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1307,7 +1319,10 @@ class TestPythonEnvironment(TestCase):
             mock.call(*args_pip, bin_path=mock.ANY)
         ])
 
-    def test_install_core_requirements_mkdocs_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_mkdocs_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_mkdocs,
             build_env=self.build_env_mock,
@@ -1343,7 +1358,10 @@ class TestPythonEnvironment(TestCase):
             mock.call(*args_pip, bin_path=mock.ANY)
         ])
 
-    def test_install_user_requirements_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_user_requirements_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_sphinx,
             build_env=self.build_env_mock,

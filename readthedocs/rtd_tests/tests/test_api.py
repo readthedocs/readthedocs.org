@@ -906,7 +906,6 @@ class APIVersionTests(TestCase):
             'id': 18,
             'active': True,
             'project': {
-                'ad_free': False,
                 'analytics_code': None,
                 'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
                 'cdn_enabled': False,
@@ -932,6 +931,7 @@ class APIVersionTests(TestCase):
                 'repo': 'https://github.com/pypa/pip',
                 'repo_type': 'git',
                 'requirements_file': None,
+                'show_advertising': True,
                 'skip': False,
                 'slug': 'pip',
                 'suffix': '.rst',

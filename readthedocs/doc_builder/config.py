@@ -4,6 +4,8 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+from os import path
+
 from readthedocs.config import BuildConfigV1, ConfigError, InvalidConfig
 from readthedocs.config import load as load_config
 from readthedocs.projects.models import Feature, ProjectConfigurationError
@@ -67,7 +69,7 @@ def load_yaml_config(version):
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
-            source_file='empty',
+            source_file=path.join(checkout_path, 'empty'),
             source_position=0,
         )
         config.validate()

@@ -849,6 +849,18 @@ class Project(models.Model):
         """
         return positive if self.has_feature(feature) else negative
 
+    @property
+    def show_advertising(self):
+        """
+        Whether this project is ad-free
+
+        :return: ``True`` if advertising should be shown and ``False`` otherwise
+        """
+        if self.ad_free or self.gold_owners.exists():
+            return False
+
+        return True
+
 
 class APIProject(Project):
 
