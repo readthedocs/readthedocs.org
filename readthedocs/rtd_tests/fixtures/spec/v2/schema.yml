@@ -21,6 +21,7 @@ build: include('build', required=False)
 python: include('python', required=False)
 
 # Configuration for sphinx documentation
+# Default documentation type
 sphinx: include('sphinx', required=False)
 
 # Configuration for mkdocs documentation

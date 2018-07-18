@@ -1280,6 +1280,37 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.sphinx is not None
         assert build.mkdocs is None
+        assert build.doctype == 'sphinx'
+
+    @pytest.mark.parametrize('value,expected',
+                             [('sphinx', 'sphinx'),
+                              ('htmldir', 'sphinx_htmldir'),
+                              ('singlehtml', 'sphinx_singlehtml')])
+    def test_sphinx_builder_check_valid(self, value, expected):
+        build = self.get_build_config({'sphinx': {'builer': value}})
+        build.validate()
+        assert build.sphinx.builder == expected
+        assert build.doctype == expected
+
+    @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
+    def test_sphinx_builder_check_invalid(self, value):
+        build = self.get_build_config({'sphinx': {'builer': value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx.builder'
+
+    def test_sphinx_builder_default(self):
+        build = self.get_build_config({})
+        build.validate()
+        build.sphinx.builder == 'sphinx'
+
+    def test_sphinx_builder_ignores_default(self):
+        build = self.get_build_config(
+            {},
+            {'defaults': {'doctype': 'sphinx_singlehtml'}},
+        )
+        build.validate()
+        build.sphinx.builder == 'sphinx'
 
     def test_sphinx_configuration_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
@@ -1398,6 +1429,7 @@ class TestBuildConfigV2(object):
         )
         build.validate()
         assert build.mkdocs.configuration == str(tmpdir.join('mkdocs.yml'))
+        assert build.doctype == 'mkdocs'
         assert build.sphinx is None
 
     def test_mkdocs_configuration_check_invalid(self, tmpdir):
