@@ -574,13 +574,15 @@ class APITests(TestCase):
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.slug, 'test-project')
         self.assertEquals(api_project.features, [])
-        self.assertEqual(api_project.ad_free, False)
+        self.assertFalse(api_project.ad_free)
+        self.assertTrue(api_project.show_advertising)
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
         api_project = APIProject(**project_data)
         self.assertEquals(api_project.features, ['test-feature'])
-        self.assertEqual(api_project.ad_free, True)
+        self.assertTrue(api_project.ad_free)
+        self.assertFalse(api_project.show_advertising)
 
 
 class APIImportTests(TestCase):
