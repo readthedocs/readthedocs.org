@@ -574,6 +574,11 @@ class BuildConfigV2(BuildConfigBase):
     valid_build_images = ['1.0', '2.0', '3.0', 'stable', 'latest']
     default_build_image = 'latest'
     valid_install_options = ['pip', 'setup.py']
+    valid_sphinx_builders = {
+        'sphinx': 'sphinx',
+        'htmldir': 'sphinx_htmldir',
+        'singlehtml': 'sphinx_singlehtml',
+    }
 
     def validate(self):
         """
@@ -809,6 +814,13 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_sphinx)
 
         sphinx = {}
+        with self.catch_validation_error('sphinx.builder'):
+            builder = validate_choice(
+                raw_sphinx.get('builder', 'sphinx'),
+                self.valid_sphinx_builders.keys(),
+            )
+            sphinx['builder'] = self.valid_sphinx_builders[builder]
+
         with self.catch_validation_error('sphinx.configuration'):
             configuration = self.defaults.get('sphinx_configuration')
             # The default value can be empty
@@ -904,7 +916,8 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def sphinx(self):
         Sphinx = namedtuple(  # noqa
-            'Sphinx', ['configuration', 'fail_on_warning'],
+            'Sphinx',
+            ['builder', 'configuration', 'fail_on_warning'],
         )
         if self._config['sphinx']:
             return Sphinx(**self._config['sphinx'])
@@ -913,16 +926,24 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def mkdocs(self):
         Mkdocs = namedtuple(  # noqa
-            'Mkdocs', ['configuration', 'fail_on_warning'],
+            'Mkdocs',
+            ['configuration', 'fail_on_warning'],
         )
         if self._config['mkdocs']:
             return Mkdocs(**self._config['mkdocs'])
         return None
 
     @property
+    def doctype(self):
+        if self.mkdocs:
+            return 'mkdocs'
+        return self.sphinx.builder
+
+    @property
     def submodules(self):
         Submodules = namedtuple(  # noqa
-            'Submodules', ['include', 'exclude', 'recursive'],
+            'Submodules',
+            ['include', 'exclude', 'recursive'],
         )
         return Submodules(**self._config['submodules'])
 
