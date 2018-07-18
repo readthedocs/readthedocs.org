@@ -20,7 +20,7 @@ from rest_framework.test import APIClient
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature, Project, APIProject
 from readthedocs.restapi.views.integrations import GitHubWebhookView
 from readthedocs.restapi.views.task_views import get_status_data
 
@@ -563,6 +563,26 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data['results']), 25)  # page_size
         self.assertIn('?page=2', resp.data['next'])
+
+    def test_init_api_project(self):
+        project_data = {
+            'name': 'Test Project',
+            'slug': 'test-project',
+            'show_advertising': True,
+        }
+
+        api_project = APIProject(**project_data)
+        self.assertEqual(api_project.slug, 'test-project')
+        self.assertEqual(api_project.features, [])
+        self.assertFalse(api_project.ad_free)
+        self.assertTrue(api_project.show_advertising)
+
+        project_data['features'] = ['test-feature']
+        project_data['show_advertising'] = False
+        api_project = APIProject(**project_data)
+        self.assertEqual(api_project.features, ['test-feature'])
+        self.assertTrue(api_project.ad_free)
+        self.assertFalse(api_project.show_advertising)
 
 
 class APIImportTests(TestCase):
