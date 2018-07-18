@@ -1287,14 +1287,14 @@ class TestBuildConfigV2(object):
                               ('htmldir', 'sphinx_htmldir'),
                               ('singlehtml', 'sphinx_singlehtml')])
     def test_sphinx_builder_check_valid(self, value, expected):
-        build = self.get_build_config({'sphinx': {'builer': value}})
+        build = self.get_build_config({'sphinx': {'builder': value}})
         build.validate()
         assert build.sphinx.builder == expected
         assert build.doctype == expected
 
     @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
     def test_sphinx_builder_check_invalid(self, value):
-        build = self.get_build_config({'sphinx': {'builer': value}})
+        build = self.get_build_config({'sphinx': {'builder': value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'sphinx.builder'
