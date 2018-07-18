@@ -52,6 +52,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     class Meta(object):
         model = HTMLFile
         fields = ('commit',)
+        ignore_signals = True
 
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')

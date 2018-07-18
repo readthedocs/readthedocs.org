@@ -32,7 +32,8 @@ from slumber.exceptions import HttpClientError
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import ImportedFile, Project, Domain, Feature, HTMLFile
-from .signals import before_vcs, after_vcs, before_build, after_build, files_changed
+from .signals import before_vcs, after_vcs, before_build, after_build, files_changed, \
+    bulk_post_create, bulk_post_delete
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
@@ -986,6 +987,7 @@ def _manage_imported_files(version, path, commit):
     :param commit: Commit that updated path
     """
     changed_files = set()
+    created_html_files = []
     for root, __, filenames in os.walk(path):
         for filename in filenames:
             if fnmatch.fnmatch(filename, '*.html'):
@@ -1015,15 +1017,27 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
 
-    # Delete the HTMLFile first from previous versions
-    HTMLFile.objects.filter(project=version.project,
-                            version=version
-                            ).exclude(commit=commit).delete()
+            if isinstance(obj, HTMLFile):
+                # the `obj` is HTMLFile, so add it to the list
+                created_html_files.append(obj)
+
+    # Send bulk_post_create signal for bulk indexing to Elasticsearch
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
+
+    # Delete the HTMLFile first from previous commit and
+    # send bulk_post_delete signal for bulk removing from Elasticsearch
+    delete_queryset = (HTMLFile.objects.filter(project=version.project, version=version)
+                                       .exclude(commit=commit))
+    # Keep the objects into memory to send it to signal
+    instance_list = list(delete_queryset)
+    # Safely delete from database
+    delete_queryset.delete()
+    # Always pass the list of instance, not queryset.
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
-    ImportedFile.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
+    (ImportedFile.objects.filter(project=version.project, version=version)
+                         .exclude(commit=commit).delete())
     changed_files = [
         resolve_path(
             version.project, filename=file, version_slug=version.slug,
