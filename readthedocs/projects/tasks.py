@@ -45,7 +45,7 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import APIProject, SSHKey
+from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
