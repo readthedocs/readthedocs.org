@@ -24,7 +24,7 @@ def index_html_file(instance_list, **_):
         'objects_id': [obj.id for obj in instance_list],
     }
 
-    index_objects_to_es_task.delay(**kwargs)
+    index_objects_to_es_task(**kwargs)
 
 
 @receiver(bulk_post_delete, sender=HTMLFile)

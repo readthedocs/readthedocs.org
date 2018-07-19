@@ -1017,7 +1017,7 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
 
-            if isinstance(obj, HTMLFile):
+            if model_class == HTMLFile:
                 # the `obj` is HTMLFile, so add it to the list
                 created_html_files.append(obj)
 

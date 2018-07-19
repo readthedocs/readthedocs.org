@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+from django.conf import settings
 from rest_framework.test import APIClient
 
 try:
@@ -45,7 +46,6 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def settings_modification(settings):
     settings.CELERY_ALWAYS_EAGER = True
-
 
 @pytest.fixture
 def api_client():
