@@ -4,6 +4,7 @@ from __future__ import division, print_function, unicode_literals
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 import mock
 import django_dynamic_fixture as fixture
 from io import StringIO
@@ -35,7 +36,7 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
 
     def test_list_view(self):
         req = self.request(
-            '/dashboard/foobar/keys/',
+            reverse('projects_keys', args=(self.project.slug,)),
             user=self.user,
         )
         resp = ListKeysView.as_view()(req, project_slug=self.project.slug)
@@ -50,7 +51,7 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
     def test_detail_view(self):
         key_pk = self.project.sshkeys.first().pk
         req = self.request(
-            '/dashboard/foobar/keys/{0}'.format(key_pk),
+            reverse('projects_keys_detail', args=(self.project.slug, key_pk,)),
             user=self.user,
         )
         resp = DetailKeysView.as_view()(req,
@@ -64,7 +65,7 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
     def test_generate_view(self):
         self.assertEqual(self.project.sshkeys.count(), 1)
         req = self.request(
-            '/dashboard/foobar/keys/generate',
+            reverse('projects_keys_generate', args=(self.project.slug,)),
             method='post',
             user=self.user,
         )
@@ -73,7 +74,7 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
             project_slug=self.project.slug,
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, '/dashboard/foobar/keys/')
+        self.assertEqual(resp.url, reverse('projects_keys', args=(self.project.slug,)))
         self.assertEqual(self.project.sshkeys.count(), 2)
         key = self.project.sshkeys.last()
         self.assertIsNotNone(key.private_key)
@@ -83,7 +84,7 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(self.project.sshkeys.count(), 1)
         private_key_file = StringIO(PRIVATE_KEY_STRING)
         req = self.request(
-            '/dashboard/foobar/keys/upload',
+            reverse('projects_keys_upload', args=(self.project.slug,)),
             method='post',
             user=self.user,
             data={'private_key': private_key_file},
@@ -93,16 +94,15 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
             project_slug=self.project.slug,
         )
 
-
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, '/dashboard/foobar/keys/')
+        self.assertEqual(resp.url, reverse('projects_keys', args=(self.project.slug,)))
         self.assertEqual(self.project.sshkeys.count(), 2)
         key = self.project.sshkeys.last()
         self.assertEqual(key.private_key, PRIVATE_KEY_STRING)
         self.assertIsNotNone(key.public_key)
 
         req = self.request(
-            '/dashboard/foobar/keys/upload',
+            reverse('projects_keys_upload', args=(self.project.slug,)),
             method='post',
             user=self.user,
             data={'private_key': 'invalid private key'},
@@ -122,7 +122,7 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
         key_pk = self.project.sshkeys.first().pk
         self.assertEqual(self.project.sshkeys.count(), 1)
         req = self.request(
-            '/dashboard/foobar/keys/{0}/delete'.format(key_pk),
+            reverse('projects_keys_delete', args=(self.project.slug, key_pk)),
             method='post',
             user=self.user,
         )
@@ -133,5 +133,5 @@ class SSHKeyProjectAdminViewTests(RequestFactoryTestMixin, TestCase):
         )
 
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp.url, '/dashboard/foobar/keys/')
+        self.assertEqual(resp.url, reverse('projects_keys', args=(self.project.slug,)))
         self.assertEqual(self.project.sshkeys.count(), 0)
