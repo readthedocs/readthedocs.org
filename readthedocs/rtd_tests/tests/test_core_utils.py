@@ -95,6 +95,3 @@ class CoreUtilTests(TestCase):
 
         with override_settings(SUPPORT_EMAIL=None, PRODUCTION_DOMAIN='domain.org'):
             self.assertEqual(get_support_email(), 'support@domain.org')
-
-        with override_settings(SUPPORT_EMAIL=None):
-            self.assertEqual(get_support_email(), 'support@readthedocs.org')
