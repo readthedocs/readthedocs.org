@@ -7,6 +7,8 @@ from cryptography.hazmat.backends import openssl
 from cryptography.hazmat.primitives import serialization
 from django.test import TestCase
 
+from readthedocs.core.utils import get_support_email
+
 from ..keys import generate_ssh_pair_keys
 from ..mixins import SSHKeyGenMixin
 
@@ -47,7 +49,7 @@ class SSHKeyGenerationTests(TestCase):
         )
         public_string = '{key} {comment}'.format(
             key=public_bytes.decode('utf8'),
-            comment='support@readthedocs.org',
+            comment=get_support_email(),
         )
         self.assertEqual(public_string, public_str)
 

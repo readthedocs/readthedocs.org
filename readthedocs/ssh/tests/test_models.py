@@ -4,6 +4,7 @@ from __future__ import division, print_function, unicode_literals
 from django.test import TestCase
 import django_dynamic_fixture as fixture
 
+from readthedocs.core.utils import get_support_email
 from readthedocs.projects.models import Project
 
 from .utils import PRIVATE_KEY_STRING
@@ -21,7 +22,7 @@ class SSHKeyModelTests(TestCase):
             'i6uBEF5HwalxazujW4eBHU8HRgACemjhaYScOeYJDfkjES4FyhW+En4w6ApO4RbRbP'
             'vnsoVDpf8I1oHHKx2INnixi4HsmGC4iTvemA4lZhthqHkbVAURx9qXnAqlfFSz2OHH'
             'GM/mxUeoUSEtUgq2B/2DXriFnwj/463gELCToPObNV0zi+ZozP '
-            'support@readthedocs.org'
+            '{}'.format(get_support_email())
         )
         profile = fixture.get(SSHKey, public_key=public_key)
         self.assertEqual(
