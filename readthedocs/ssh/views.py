@@ -17,13 +17,14 @@ from vanilla import (
     CreateView, DeleteView, DetailView, FormView, ListView, TemplateView)
 
 from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects.views.private import PrivateViewMixin
 
 from .forms import SSHKeyFileUploadForm
 from .models import SSHKey
 from .tasks import disconnect_oauth_from_project
 
 
-class KeysMixin(ProjectRelationMixin):
+class KeysMixin(ProjectRelationMixin, PrivateViewMixin):
     model = SSHKey
     lookup_url_kwarg = 'key_pk'
 
