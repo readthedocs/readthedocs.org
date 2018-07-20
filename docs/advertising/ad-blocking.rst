@@ -31,6 +31,10 @@ but would consider allowing `ads that benefit open source`_,
 please consider subscribing to either the wider **Open Source Ads list**
 or simply the **Read the Docs Ads list**.
 
+* `Setup for AdBlock`_
+* `Setup for AdBlockPlus`_
+* `Setup for uBlock Origin`_
+
 .. note::
 
     Because of the way Read the Docs is structured
@@ -41,7 +45,9 @@ or simply the **Read the Docs Ads list**.
 .. _acceptable ads: https://adblockplus.org/en/acceptable-ads
 .. _privacy-friendly acceptable ads: https://adblockplus.org/en/acceptable-ads#privacy-friendly-acceptable-ads
 .. _ads that benefit open source: https://ads-for-open-source.readthedocs.io/en/latest/
-
+.. _Setup for AdBlock: https://ads-for-open-source.readthedocs.io/en/latest/installation.html#installing-on-adblock
+.. _Setup for AdBlockPlus: https://ads-for-open-source.readthedocs.io/en/latest/installation.html#installing-on-adblockplus
+.. _Setup for uBlock Origin: https://ads-for-open-source.readthedocs.io/en/latest/installation.html#installing-on-ublock-origin
 
 Going ad-free
 -------------
