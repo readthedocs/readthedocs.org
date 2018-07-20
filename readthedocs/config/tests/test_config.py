@@ -1283,7 +1283,7 @@ class TestBuildConfigV2(object):
         assert build.doctype == 'sphinx'
 
     @pytest.mark.parametrize('value,expected',
-                             [('sphinx', 'sphinx'),
+                             [('html', 'sphinx'),
                               ('htmldir', 'sphinx_htmldir'),
                               ('singlehtml', 'sphinx_singlehtml')])
     def test_sphinx_builder_check_valid(self, value, expected):

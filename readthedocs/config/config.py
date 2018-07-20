@@ -575,7 +575,7 @@ class BuildConfigV2(BuildConfigBase):
     default_build_image = 'latest'
     valid_install_options = ['pip', 'setup.py']
     valid_sphinx_builders = {
-        'sphinx': 'sphinx',
+        'html': 'sphinx',
         'htmldir': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
@@ -816,7 +816,7 @@ class BuildConfigV2(BuildConfigBase):
         sphinx = {}
         with self.catch_validation_error('sphinx.builder'):
             builder = validate_choice(
-                raw_sphinx.get('builder', 'sphinx'),
+                raw_sphinx.get('builder', 'html'),
                 self.valid_sphinx_builders.keys(),
             )
             sphinx['builder'] = self.valid_sphinx_builders[builder]
