@@ -412,6 +412,10 @@ User
    :>json string resource_uri: URI for this user.
    :>json string username: User name.
 
+.. important::
+
+   This API was changed after the initial release to remove private fields.
+
 
 Versions
 --------
