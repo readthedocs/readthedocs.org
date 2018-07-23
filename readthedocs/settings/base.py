@@ -90,6 +90,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'encrypted_model_fields',
 
             # our apps
             'readthedocs.projects',

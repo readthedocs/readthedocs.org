@@ -15,6 +15,7 @@ import hashlib
 import json
 
 from builtins import zip  # pylint: disable=redefined-builtin
+from encrypted_model_fields.fields import EncryptedTextField
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -41,7 +42,7 @@ class SSHKey(SSHKeyGenMixin, models.Model):
         _('Public SSH Key'),
         help_text='Add this to your version control to give us access.',
     )
-    private_key = models.TextField(_('Private SSH Key'))
+    private_key = EncryptedTextField(_('Private SSH Key'))
     project = models.ForeignKey(Project, related_name='sshkeys')
     json = models.TextField(_('Serialized API response'), blank=True, null=True)
 
