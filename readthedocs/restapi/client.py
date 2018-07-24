@@ -37,10 +37,13 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
 def setup_api():
     session = requests.Session()
-    session.mount('https://', host_header_ssl.HostHeaderSSLAdapter())
+    session.mount(
+        API_HOST,
+        host_header_ssl.HostHeaderSSLAdapter(
+            max_retries=3,
+        ),
+    )
     session.headers.update({'Host': PRODUCTION_DOMAIN})
-    retry_adapter = requests.adapters.HTTPAdapter(max_retries=3)
-    session.mount(API_HOST, retry_adapter)
     api_config = {
         'base_url': '%s/api/v2/' % API_HOST,
         'serializer': serialize.Serializer(

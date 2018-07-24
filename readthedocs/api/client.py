@@ -21,7 +21,7 @@ API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org')
 
 def setup_api():
     session = Session()
-    session.mount('https://', host_header_ssl.HostHeaderSSLAdapter())
+    session.mount(API_HOST, host_header_ssl.HostHeaderSSLAdapter())
     session.headers.update({'Host': PRODUCTION_DOMAIN})
     api_config = {
         'base_url': '%s/api/v1/' % API_HOST,
