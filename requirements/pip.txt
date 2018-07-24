@@ -30,6 +30,7 @@ django-vanilla-views==1.0.5
 jsonfield==2.0.2
 
 requests==2.18.4
+requests-toolbelt==0.8.0
 slumber==0.7.1
 lxml==4.2.1
 defusedxml==0.5.0
