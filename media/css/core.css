@@ -652,6 +652,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer li { margin-bottom: 5px; }
 #footer a, #footer a:visited { color: #e3e3e3; text-decoration: none; }
 #footer a:hover, #footer a:active { color: white; text-decoration: underline; }
+#footer .sponsor { height: 16px; margin: 8px 0; float: right; }
 
 /* Social icons */
 #footer .social { font-family: FontAwesome; text-align: center; }
