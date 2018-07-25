@@ -10,6 +10,7 @@ class BuildAzureStorage(AzureStorage):
 
 
 class MediaAzureStorage(HashedFilesMixin, AzureStorage):
+
     """
     A combination media & azure storage:
 
