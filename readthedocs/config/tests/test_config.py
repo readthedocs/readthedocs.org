@@ -274,15 +274,15 @@ def test_python_pip_install_default():
     assert build.python.install_with_pip is False
 
 
-def describe_validate_python_extra_requirements():
+class PythonExtraRequirements:
 
-    def it_defaults_to_list():
+    def it_defaults_to_list(self):
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         # Default is an empty list.
         assert build.python.extra_requirements == []
 
-    def it_validates_is_a_list():
+    def it_validates_is_a_list(self):
         build = get_build_config(
             {'python': {'extra_requirements': 'invalid'}},
             get_env_config(),
@@ -293,7 +293,7 @@ def describe_validate_python_extra_requirements():
         assert excinfo.value.code == PYTHON_INVALID
 
     @patch('readthedocs.config.config.validate_string')
-    def it_uses_validate_string(validate_string):
+    def it_uses_validate_string(self, validate_string):
         validate_string.return_value = True
         build = get_build_config(
             {
@@ -308,14 +308,14 @@ def describe_validate_python_extra_requirements():
         validate_string.assert_any_call('tests')
 
 
-def describe_validate_use_system_site_packages():
+class ValidateUseSystemSitePackages:
 
-    def it_defaults_to_false():
+    def it_defaults_to_false(self):
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         assert build.python.use_system_site_packages is False
 
-    def it_validates_value():
+    def it_validates_value(self):
         build = get_build_config(
             {'python': {'use_system_site_packages': 'invalid'}},
             get_env_config(),
@@ -326,7 +326,7 @@ def describe_validate_use_system_site_packages():
         excinfo.value.code = INVALID_BOOL
 
     @patch('readthedocs.config.config.validate_bool')
-    def it_uses_validate_bool(validate_bool):
+    def it_uses_validate_bool(self, validate_bool):
         validate_bool.return_value = True
         build = get_build_config(
             {'python': {'use_system_site_packages': 'to-validate'}},
@@ -336,14 +336,14 @@ def describe_validate_use_system_site_packages():
         validate_bool.assert_any_call('to-validate')
 
 
-def describe_validate_setup_py_install():
+class ValidateSetupPyInstall:
 
-    def it_defaults_to_false():
+    def it_defaults_to_false(self):
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         assert build.python.install_with_setup is False
 
-    def it_validates_value():
+    def it_validates_value(self):
         build = get_build_config(
             {'python': {'setup_py_install': 'this-is-string'}},
             get_env_config(),
@@ -354,7 +354,7 @@ def describe_validate_setup_py_install():
         assert excinfo.value.code == INVALID_BOOL
 
     @patch('readthedocs.config.config.validate_bool')
-    def it_uses_validate_bool(validate_bool):
+    def it_uses_validate_bool(self, validate_bool):
         validate_bool.return_value = True
         build = get_build_config(
             {'python': {'setup_py_install': 'to-validate'}},
@@ -364,16 +364,16 @@ def describe_validate_setup_py_install():
         validate_bool.assert_any_call('to-validate')
 
 
-def describe_validate_python_version():
+class ValidateVersion:
 
-    def it_defaults_to_a_valid_version():
+    def it_defaults_to_a_valid_version(self):
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         assert build.python.version == 2
         assert build.python_interpreter == 'python2.7'
         assert build.python_full_version == 2.7
 
-    def it_supports_other_versions():
+    def it_supports_other_versions(self):
         build = get_build_config(
             {'python': {'version': 3.5}},
             get_env_config(),
@@ -383,7 +383,7 @@ def describe_validate_python_version():
         assert build.python_interpreter == 'python3.5'
         assert build.python_full_version == 3.5
 
-    def it_validates_versions_out_of_range():
+    def it_validates_versions_out_of_range(self):
         build = get_build_config(
             {'python': {'version': 1.0}},
             get_env_config(),
@@ -393,7 +393,7 @@ def describe_validate_python_version():
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def it_validates_wrong_type():
+    def it_validates_wrong_type(self):
         build = get_build_config(
             {'python': {'version': 'this-is-string'}},
             get_env_config(),
@@ -403,7 +403,7 @@ def describe_validate_python_version():
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def it_validates_wrong_type_right_value():
+    def it_validates_wrong_type_right_value(self):
         build = get_build_config(
             {'python': {'version': '3.5'}},
             get_env_config(),
@@ -422,7 +422,7 @@ def describe_validate_python_version():
         assert build.python_interpreter == 'python3.5'
         assert build.python_full_version == 3.5
 
-    def it_validates_env_supported_versions():
+    def it_validates_env_supported_versions(self):
         build = get_build_config(
             {'python': {'version': 3.6}},
             env_config=get_env_config(
@@ -452,7 +452,7 @@ def describe_validate_python_version():
         assert build.python_full_version == 3.6
 
     @pytest.mark.parametrize('value', [2, 3])
-    def it_respects_default_value(value):
+    def it_respects_default_value(self, value):
         defaults = {
             'python_version': value,
         }
@@ -464,34 +464,34 @@ def describe_validate_python_version():
         assert build.python.version == value
 
 
-def describe_validate_formats():
+class ValidateFormats:
 
-    def it_defaults_to_empty():
+    def it_defaults_to_empty(self):
         build = get_build_config({}, get_env_config())
         build.validate()
         assert build.formats == []
 
-    def it_gets_set_correctly():
+    def it_gets_set_correctly(self):
         build = get_build_config({'formats': ['pdf']}, get_env_config())
         build.validate()
         assert build.formats == ['pdf']
 
-    def formats_can_be_null():
+    def formats_can_be_null(self):
         build = get_build_config({'formats': None}, get_env_config())
         build.validate()
         assert build.formats == []
 
-    def formats_with_previous_none():
+    def formats_with_previous_none(self):
         build = get_build_config({'formats': ['none']}, get_env_config())
         build.validate()
         assert build.formats == []
 
-    def formats_can_be_empty():
+    def formats_can_be_empty(self):
         build = get_build_config({'formats': []}, get_env_config())
         build.validate()
         assert build.formats == []
 
-    def all_valid_formats():
+    def all_valid_formats(self):
         build = get_build_config(
             {'formats': ['pdf', 'htmlzip', 'epub']},
             get_env_config()
@@ -499,7 +499,7 @@ def describe_validate_formats():
         build.validate()
         assert build.formats == ['pdf', 'htmlzip', 'epub']
 
-    def cant_have_none_as_format():
+    def cant_have_none_as_format(self):
         build = get_build_config(
             {'formats': ['htmlzip', None]},
             get_env_config()
@@ -509,7 +509,7 @@ def describe_validate_formats():
         assert excinfo.value.key == 'format'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def formats_have_only_allowed_values():
+    def formats_have_only_allowed_values(self):
         build = get_build_config(
             {'formats': ['htmlzip', 'csv']},
             get_env_config()
@@ -519,7 +519,7 @@ def describe_validate_formats():
         assert excinfo.value.key == 'format'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def only_list_type():
+    def only_list_type(self):
         build = get_build_config({'formats': 'no-list'}, get_env_config())
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -544,9 +544,9 @@ def test_valid_build_config():
     assert build.output_base
 
 
-def describe_validate_base():
+class ValidateBase:
 
-    def it_validates_to_abspath(tmpdir):
+    def it_validates_to_abspath(self, tmpdir):
         apply_fs(tmpdir, {'configs': minimal_config, 'docs': {}})
         with tmpdir.as_cwd():
             source_file = str(tmpdir.join('configs', 'readthedocs.yml'))
@@ -560,7 +560,7 @@ def describe_validate_base():
             assert build.base == str(tmpdir.join('docs'))
 
     @patch('readthedocs.config.config.validate_directory')
-    def it_uses_validate_directory(validate_directory):
+    def it_uses_validate_directory(self, validate_directory):
         validate_directory.return_value = 'path'
         build = get_build_config({'base': '../my-path'}, get_env_config())
         build.validate()
@@ -568,7 +568,7 @@ def describe_validate_base():
         args, kwargs = validate_directory.call_args
         assert args[0] == '../my-path'
 
-    def it_fails_if_base_is_not_a_string(tmpdir):
+    def it_fails_if_base_is_not_a_string(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         with tmpdir.as_cwd():
             build = BuildConfigV1(
@@ -582,7 +582,7 @@ def describe_validate_base():
             assert excinfo.value.key == 'base'
             assert excinfo.value.code == INVALID_STRING
 
-    def it_fails_if_base_does_not_exist(tmpdir):
+    def it_fails_if_base_does_not_exist(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
             get_env_config(),
@@ -596,9 +596,9 @@ def describe_validate_base():
         assert excinfo.value.code == INVALID_PATH
 
 
-def describe_validate_build():
+class ValidateBuild:
 
-    def it_fails_if_build_is_invalid_option(tmpdir):
+    def it_fails_if_build_is_invalid_option(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
             get_env_config(),
@@ -611,7 +611,7 @@ def describe_validate_build():
         assert excinfo.value.key == 'build'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def it_fails_on_python_validation(tmpdir):
+    def it_fails_on_python_validation(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
             {},
@@ -628,7 +628,7 @@ def describe_validate_build():
         assert excinfo.value.key == 'python.version'
         assert excinfo.value.code == INVALID_CHOICE
 
-    def it_works_on_python_validation(tmpdir):
+    def it_works_on_python_validation(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
             {},
@@ -642,7 +642,7 @@ def describe_validate_build():
         build.validate_build()
         build.validate_python()
 
-    def it_works(tmpdir):
+    def it_works(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
             get_env_config(),
@@ -653,7 +653,7 @@ def describe_validate_build():
         build.validate()
         assert build.build.image == 'readthedocs/build:latest'
 
-    def default(tmpdir):
+    def default(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
             get_env_config(),
@@ -666,7 +666,7 @@ def describe_validate_build():
 
     @pytest.mark.parametrize(
         'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
-    def it_priorities_image_from_env_config(tmpdir, image):
+    def it_priorities_image_from_env_config(self, tmpdir, image):
         apply_fs(tmpdir, minimal_config)
         defaults = {
             'build_image': image,
