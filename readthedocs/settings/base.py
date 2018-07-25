@@ -173,7 +173,6 @@ class CommunityBaseSettings(Settings):
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
     STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
-    STATICFILES_STORAGE = 'readthedocs.core.storage.MediaAzureStorage'
 
     TEMPLATES = [
         {
