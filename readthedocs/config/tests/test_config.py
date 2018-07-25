@@ -274,7 +274,7 @@ def test_python_pip_install_default():
     assert build.python.install_with_pip is False
 
 
-class PythonExtraRequirements:
+class ValidatePythonExtraRequirements:
 
     def it_defaults_to_list(self):
         build = get_build_config({'python': {}}, get_env_config())
