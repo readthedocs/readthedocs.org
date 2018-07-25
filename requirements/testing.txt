@@ -4,9 +4,8 @@ django-dynamic-fixture==2.0.0
 
 # 3.6.1 and >3.2.5 is incompatible
 # with pytest-describe 0.11.0
-pytest==3.2.5
+pytest==3.6.3
 pytest-django==3.1.2
-pytest-describe==0.11.0
 pytest-xdist==1.22.0
 apipkg==1.4
 execnet==1.5.0
