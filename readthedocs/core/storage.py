@@ -17,4 +17,4 @@ class MediaAzureStorage(HashedFilesMixin, AzureStorage):
     * Uploads them to our Azure container
     """
 
-    azure_container = getattr(settings, 'AZURE_BUILD_STORAGE_CONTAINER', None) or 'media'
+    azure_container = getattr(settings, 'AZURE_MEDIA_STORAGE_CONTAINER', None) or 'media'
