@@ -77,18 +77,19 @@ def index_objects_to_es(app_label, model_name, document_class, index_name, objec
 
 
 @app.task(queue='web')
-def index_missing_objects(app_label, model_name, document_class, indexed_instance_ids):
+def index_missing_objects(app_label, model_name, document_class, latest_indexed):
     """
     Task to insure that none of the object is missed from indexing.
 
-    The object ids are sent to task for indexing.
-    But in the meantime, new objects can be created/deleted in database
-    and they will not be in the tasks.
-    This task will index all the objects excluding the ones which have got indexed already
+    The object ids are sent to `index_objects_to_es` task for indexing.
+    While the task is running, new objects can be created/deleted in database
+    and they will not be in the tasks for indexing into ES.
+    This task will index all the objects that got into DB after the `latest_indexed` timestamp
+    to ensure that everything is in ES index.
     """
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
-    queryset = document().get_queryset().exclude(id__in=indexed_instance_ids)
+    queryset = document().get_queryset().exclude(modified_date__lte=latest_indexed)
     document().update(queryset.iterator())
 
     log.info("Indexed {} missing objects from model: {}'".format(queryset.count(), model.__name__))

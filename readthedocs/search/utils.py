@@ -323,9 +323,10 @@ def get_project_list_or_404(project_slug, user):
     return project_list
 
 
-def chunks(elements, chunk_size):
-    """Yield successive `chunk_size` chunks from elements."""
-    # Taken from https://stackoverflow.com/a/312464
+def chunk_queryset(queryset, chunk_size):
+    """Yield successive `chunk_size` chunks of queryset."""
+    # Based on https://stackoverflow.com/a/312464
     # licensed under cc by-sa 3.0
-    for i in range(0, len(elements), chunk_size):
-        yield elements[i:i + chunk_size]
+    total = queryset.count()
+    for i in range(0, total, chunk_size):
+        yield queryset[i:i + chunk_size]
