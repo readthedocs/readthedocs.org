@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 def _get_index(indices, index_name):
     """
     Get Index from all the indices
+
     :param indices: DED indices list
     :param index_name: Name of the index
     :return: DED Index
@@ -23,6 +24,7 @@ def _get_index(indices, index_name):
 def _get_document(model, document_class):
     """
     Get DED document class object from the model and name of document class
+
     :param model: The model class to find the document
     :param document_class: the name of the document class.
     :return: DED DocType object
