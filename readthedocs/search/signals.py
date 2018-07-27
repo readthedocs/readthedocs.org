@@ -8,7 +8,7 @@ from django_elasticsearch_dsl.registries import registry
 from readthedocs.projects.models import HTMLFile
 from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.tasks import index_objects_to_es_task
+from readthedocs.search.tasks import index_objects_to_es
 
 before_project_search = django.dispatch.Signal(providing_args=["body"])
 before_file_search = django.dispatch.Signal(providing_args=["body"])
@@ -27,7 +27,7 @@ def index_html_file(instance_list, **_):
 
     # Do not index if autosync is disabled globally
     if DEDConfig.autosync_enabled():
-        index_objects_to_es_task(**kwargs)
+        index_objects_to_es(**kwargs)
 
 
 @receiver(bulk_post_delete, sender=HTMLFile)

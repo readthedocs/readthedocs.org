@@ -7,8 +7,8 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from django_elasticsearch_dsl.registries import registry
 
-from ...tasks import (index_objects_to_es_task, switch_es_index_task, create_new_es_index_task,
-                      index_missing_objects_task)
+from ...tasks import (index_objects_to_es, switch_es_index, create_new_es_index,
+                      index_missing_objects)
 from ...utils import chunks
 
 log = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 'index_name': index_name,
                 'objects_id': chunk
             }
-            yield index_objects_to_es_task.si(**data)
+            yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models):
         for doc in registry.get_documents(models):
@@ -42,26 +42,26 @@ class Command(BaseCommand):
             timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
             new_index_name = "{}_{}".format(index_name, timestamp)
 
-            pre_index_task = create_new_es_index_task.si(app_label=app_label,
-                                                         model_name=model_name,
-                                                         index_name=index_name,
-                                                         new_index_name=new_index_name)
+            pre_index_task = create_new_es_index.si(app_label=app_label,
+                                                    model_name=model_name,
+                                                    index_name=index_name,
+                                                    new_index_name=new_index_name)
 
             indexing_tasks = self._get_indexing_tasks(app_label=app_label, model_name=model_name,
                                                       instance_ids=instance_ids,
                                                       document_class=str(doc),
                                                       index_name=new_index_name)
 
-            post_index_task = switch_es_index_task.si(app_label=app_label, model_name=model_name,
-                                                      index_name=index_name,
-                                                      new_index_name=new_index_name)
+            post_index_task = switch_es_index.si(app_label=app_label, model_name=model_name,
+                                                 index_name=index_name,
+                                                 new_index_name=new_index_name)
 
             # Task to run in order to add the objects
             # that has been inserted into database while indexing_tasks was running
-            missed_index_task = index_missing_objects_task.si(app_label=app_label,
-                                                              model_name=model_name,
-                                                              document_class=str(doc),
-                                                              indexed_instance_ids=instance_ids)
+            missed_index_task = index_missing_objects.si(app_label=app_label,
+                                                         model_name=model_name,
+                                                         document_class=str(doc),
+                                                         indexed_instance_ids=instance_ids)
 
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chords
             chord_tasks = chord(header=indexing_tasks, body=post_index_task)

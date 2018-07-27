@@ -9,12 +9,24 @@ log = logging.getLogger(__name__)
 
 
 def _get_index(indices, index_name):
+    """
+    Get Index from all the indices
+    :param indices: DED indices list
+    :param index_name: Name of the index
+    :return: DED Index
+    """
     for index in indices:
         if str(index) == index_name:
             return index
 
 
 def _get_document(model, document_class):
+    """
+    Get DED document class object from the model and name of document class
+    :param model: The model class to find the document
+    :param document_class: the name of the document class.
+    :return: DED DocType object
+    """
     documents = registry.get_documents(models=[model])
 
     for document in documents:
@@ -23,7 +35,7 @@ def _get_document(model, document_class):
 
 
 @app.task(queue='web')
-def create_new_es_index_task(app_label, model_name, index_name, new_index_name):
+def create_new_es_index(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
     old_index = _get_index(indices=indices, index_name=index_name)
@@ -32,7 +44,7 @@ def create_new_es_index_task(app_label, model_name, index_name, new_index_name):
 
 
 @app.task(queue='web')
-def switch_es_index_task(app_label, model_name, index_name, new_index_name):
+def switch_es_index(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
     old_index = _get_index(indices=indices, index_name=index_name)
@@ -54,7 +66,7 @@ def switch_es_index_task(app_label, model_name, index_name, new_index_name):
 
 
 @app.task(queue='web')
-def index_objects_to_es_task(app_label, model_name, document_class, index_name, objects_id):
+def index_objects_to_es(app_label, model_name, document_class, index_name, objects_id):
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
 
@@ -65,7 +77,7 @@ def index_objects_to_es_task(app_label, model_name, document_class, index_name, 
 
 
 @app.task(queue='web')
-def index_missing_objects_task(app_label, model_name, document_class, indexed_instance_ids):
+def index_missing_objects(app_label, model_name, document_class, indexed_instance_ids):
     """
     Task to insure that none of the object is missed from indexing.
 
