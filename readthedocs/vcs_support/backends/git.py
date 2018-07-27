@@ -133,7 +133,7 @@ class Backend(BaseVCS):
                 # blob object - use the `.object` property instead to access it
                 # This is not a real tag for us, so we skip it
                 # https://github.com/rtfd/readthedocs.org/issues/4440
-                log.warning('[Git tag skipped] %s', e)
+                log.warning('Git tag skipped: %s', tag, exc_info=True)
                 continue
         return versions
 
