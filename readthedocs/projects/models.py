@@ -137,10 +137,6 @@ class Project(models.Model):
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
-    # TODO: remove this?
-    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(
-        _('Comment Moderation'), default=False,)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
