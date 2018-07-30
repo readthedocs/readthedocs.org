@@ -1,12 +1,13 @@
-Read the Docs YAML Config
-=========================
+Configuration File V1
+=====================
 
 Read the Docs now has support for configuring builds with a YAML file.
 The file, ``readthedocs.yml``, must be in the root directory of your project.
 
-.. warning:: This feature is in a beta state.
-             Please file an `issue`_ if you find anything wrong.
+.. note::
 
+   The version 2 of the configuration file is now avaliable.
+   See the :doc:`new features and how to migrate from v1 <v2>`.
 
 Here is an example of what this file looks like:
 
@@ -24,6 +25,15 @@ Here is an example of what this file looks like:
 
 Supported settings
 ------------------
+
+version
+~~~~~~~
+
+* Default: 1
+
+.. code-block:: yaml
+   
+   version: 1
 
 .. _yaml__formats:
 

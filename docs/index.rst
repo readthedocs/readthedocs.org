@@ -61,7 +61,7 @@ to help you create fantastic documentation for your project.
    connected-accounts
    support
    faq
-   yaml-config
+   config-file/index
    guides/index
    api/index
    embed
