@@ -79,7 +79,7 @@ def index_objects_to_es(app_label, model_name, document_class, index_name, objec
 
 
 @app.task(queue='web')
-def index_missing_objects(app_label, model_name, document_class, latest_indexed):
+def index_missing_objects(app_label, model_name, document_class, index_generation_time):
     """
     Task to insure that none of the object is missed from indexing.
 
@@ -91,7 +91,7 @@ def index_missing_objects(app_label, model_name, document_class, latest_indexed)
     """
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
-    queryset = document().get_queryset().exclude(modified_date__lte=latest_indexed)
+    queryset = document().get_queryset().exclude(modified_date__lte=index_generation_time)
     document().update(queryset.iterator())
 
     log.info("Indexed {} missing objects from model: {}'".format(queryset.count(), model.__name__))

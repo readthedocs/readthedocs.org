@@ -5,6 +5,7 @@ from celery import chord, chain
 from django.apps import apps
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
 from ...tasks import (index_objects_to_es, switch_es_index, create_new_es_index,
@@ -35,8 +36,7 @@ class Command(BaseCommand):
         for doc in registry.get_documents(models):
             queryset = doc().get_queryset()
             # Get latest object from the queryset
-            latest_object = queryset.latest('modified_date')
-            latest_object_time = latest_object.modified_date
+            index_time = timezone.now()
 
             app_label = queryset.model._meta.app_label
             model_name = queryset.model.__name__
@@ -65,7 +65,7 @@ class Command(BaseCommand):
             missed_index_task = index_missing_objects.si(app_label=app_label,
                                                          model_name=model_name,
                                                          document_class=str(doc),
-                                                         latest_indexed=latest_object_time)
+                                                         index_generation_time=index_time)
 
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chords
             chord_tasks = chord(header=indexing_tasks, body=post_index_task)
