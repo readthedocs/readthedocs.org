@@ -194,6 +194,12 @@ Configuration for Sphinx documentation
 sphinx.builder
 ``````````````
 
+The builder type for the Sphinx documentation.
+
+* Type: ``string``
+* Options: ``html``, ``htmldir``, ``singlehtml``
+* Default: ``html``
+
 sphinx.configuration
 ````````````````````
 
