@@ -2,7 +2,7 @@ Configuration File V1
 =====================
 
 Read the Docs now has support for configuring builds with a YAML file.
-The file, ``readthedocs.yml``, must be in the root directory of your project.
+The file, ``.readthedocs.yml``, must be in the root directory of your project.
 
 .. note::
 
