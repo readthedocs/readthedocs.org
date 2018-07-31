@@ -341,7 +341,7 @@ Changes
 .. warning::
 
    Some values from the web interface are no longer respected,
-   please see :ref:`config-file/v2:Migrating from web interface` if you have settings there.
+   please see :ref:`config-file/v2:Migrating from the web interface` if you have settings there.
 
 New
 ~~~
