@@ -2,14 +2,23 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+from os import path
+
 import mock
+import pytest
+import yaml
 from django.test import TestCase
 from django_dynamic_fixture import get
+from mock import MagicMock, PropertyMock, patch
 
 from readthedocs.builds.models import Version
 from readthedocs.config import BuildConfigV1, InvalidConfig, ProjectConfig
+from readthedocs.config.tests.utils import apply_fs
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.projects.models import Project
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
+from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.projects import tasks
+from readthedocs.projects.models import Feature, Project
 
 
 def create_load(config=None):
@@ -219,3 +228,261 @@ class LoadConfigTests(TestCase):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
         self.assertEqual(config.requirements_file, '__init__.py')
+
+
+@pytest.mark.django_db
+@mock.patch('readthedocs.projects.models.Project.checkout_path')
+class TestLoadConfigV2(object):
+
+    @pytest.fixture(autouse=True)
+    def create_project(self):
+        self.project = get(
+            Project,
+            main_language_project=None,
+            install_project=False,
+            container_image=None,
+        )
+        self.version = get(Version, project=self.project)
+        # TODO: Remove later
+        get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.ALLOW_V2_CONFIG_FILE,
+        )
+
+    def create_config_file(self, tmpdir, config):
+        base_path = apply_fs(tmpdir, {
+            'readthedocs.yml': '',
+        })
+        config.setdefault('version', 2)
+        config_file = path.join(str(base_path), 'readthedocs.yml')
+        yaml.safe_dump(config, open(config_file, 'w'))
+        return base_path
+
+    def get_update_docs_task(self):
+        build_env = LocalBuildEnvironment(
+            self.project, self.version, record=False
+        )
+
+        update_docs = tasks.UpdateDocsTaskStep(
+            build_env=build_env,
+            config=load_yaml_config(self.version),
+            project=self.project,
+            version=self.version,
+        )
+        return update_docs
+
+    def test_using_v2(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {})
+        update_docs = self.get_update_docs_task()
+        assert update_docs.config.version == '2'
+
+    @pytest.mark.parametrize('config', [{}, {'formats': []}])
+    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    def test_build_formats_default_empty(
+            self, append_conf, html_build, search_build,
+            checkout_path, config, tmpdir):
+        """
+        The default value for formats is [], which means no extra
+        formats are build.
+        """
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, config)
+
+        update_docs = self.get_update_docs_task()
+        outcomes = update_docs.build_docs()
+
+        # No extra formats were triggered
+        assert outcomes['html']
+        assert outcomes['search']
+        assert not outcomes['localmedia']
+        assert not outcomes['pdf']
+        assert not outcomes['epub']
+
+    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
+    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    def test_build_formats_only_pdf(
+            self, append_conf, html_build, search_build, build_docs_class,
+            checkout_path, tmpdir):
+        """
+        Only the pdf format is build.
+        """
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {'formats': ['pdf']})
+
+        update_docs = self.get_update_docs_task()
+        outcomes = update_docs.build_docs()
+
+        # Only pdf extra format was triggered
+        assert outcomes['html']
+        assert outcomes['search']
+        build_docs_class.assert_called_with('sphinx_pdf')
+        assert outcomes['pdf']
+        assert not outcomes['localmedia']
+        assert not outcomes['epub']
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.update_documentation_type', new=MagicMock())
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock())
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock())
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.failed', new_callable=PropertyMock)
+    def test_conda_environment(self, build_failed, checkout_path, tmpdir):
+        build_failed.return_value = False
+        checkout_path.return_value = str(tmpdir)
+        conda_file = 'environmemt.yml'
+        apply_fs(tmpdir, {conda_file: ''})
+        base_path = self.create_config_file(
+            tmpdir,
+            {
+                'conda': {'environment': conda_file}
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        update_docs.run_build(docker=False, record=False)
+
+        conda_file = path.join(str(base_path), conda_file)
+        assert update_docs.config.conda.environment == conda_file
+        assert isinstance(update_docs.python_env, Conda)
+
+    def test_default_build_image(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        build_image = 'readthedocs/build:latest'
+        self.create_config_file(tmpdir, {})
+        update_docs = self.get_update_docs_task()
+        assert update_docs.config.build.image == build_image
+
+    def test_build_image(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        build_image = 'readthedocs/build:stable'
+        self.create_config_file(
+            tmpdir,
+            {'build': {'image': 'stable'}},
+        )
+        update_docs = self.get_update_docs_task()
+        assert update_docs.config.build.image == build_image
+
+    def test_custom_build_image(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+
+        build_image = 'readthedocs/build:3.0'
+        self.project.container_image = build_image
+        self.project.save()
+
+        self.create_config_file(tmpdir, {})
+        update_docs = self.get_update_docs_task()
+        assert update_docs.config.build.image == build_image
+
+    def test_python_version(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {})
+        # The default version is always 3
+        self.project.python_interpreter = 'python2'
+        self.project.save()
+
+        config = self.get_update_docs_task().config
+        assert config.python.version == 3
+        assert config.python_full_version == 3.6
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_requirements(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        requirements_file = 'requirements.txt'
+        apply_fs(tmpdir, {requirements_file: ''})
+        base_path = self.create_config_file(
+            tmpdir,
+            {
+                'python': {'requirements': requirements_file}
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_user_requirements()
+
+        args, kwargs = run.call_args
+        requirements_file = path.join(str(base_path), requirements_file)
+
+        assert config.python.requirements == requirements_file
+        assert requirements_file in args
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_install_setup(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {'install': 'setup.py'}
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_package()
+
+        args, kwargs = run.call_args
+
+        assert 'setup.py' in args
+        assert 'install' in args
+        assert config.python.install_with_setup
+        assert not config.python.install_with_pip
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_install_pip(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {'install': 'pip'}
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_package()
+
+        args, kwargs = run.call_args
+
+        assert 'setup.py' not in args
+        assert 'install' in args
+        assert config.python.install_with_pip
+        assert not config.python.install_with_setup
+
+    def test_python_install_project(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {})
+
+        self.project.install_project = True
+        self.project.save()
+
+        config = self.get_update_docs_task().config
+
+        assert config.python.install_with_setup
+        assert not config.python.install_with_pip
