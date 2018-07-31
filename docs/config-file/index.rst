@@ -3,6 +3,13 @@ Configuration File
 
 Additionally to the admin panel of your project,
 you can use a configuration file in the root of your project.
+The configuration file can be named as:
+
+- ``readthedocs.yml``
+- ``readthedocs.yaml``
+- ``.readthedocs.yml``
+- ``.readthedocs.yaml``
+
 The main advantages of using a configuration file over the web interface are:
 
 - Some settings are only available using a configuration file
