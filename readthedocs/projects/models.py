@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -911,6 +912,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)

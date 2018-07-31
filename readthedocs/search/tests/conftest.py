@@ -58,9 +58,5 @@ def get_dummy_processed_json(instance):
 
 @pytest.fixture(autouse=True)
 def mock_processed_json(mocker):
-
-    # patch the function from `projects.tasks` because it has been point to there
-    # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
     mocked_function = mocker.patch.object(HTMLFile, 'get_processed_json', autospec=True)
     mocked_function.side_effect = get_dummy_processed_json
-
