@@ -7,7 +7,6 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import re
-from collections import namedtuple
 from contextlib import contextmanager
 
 import six
