@@ -118,13 +118,30 @@ We hope that others will join us in this mission:
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
+
 Community Ads
 -------------
 
-There are a large number of projects that we care about in the software ecosystem. A large number of them operate like we have for the past 6 years, with almost no income. Our new Community Ads program will highlight some of these projects each month.
+There are a large number of projects, conferences, and initiatives
+that we care about in the software and open source ecosystems.
+A large number of them operate like we did in the past, with almost no income.
+Our new Community Ads program will highlight some of these projects each month.
 
-We'll show 10% of our ad inventory each month to support an open source project that we care about.
+There are a few qualifications for our Community Ads program:
+
+- Your organization and the linked site should not be trying to entice
+  visitors to buy a product or service.
+  We make an exception for conferences around open source projects
+  if they are run not for profit and soliciting donations for open source projects.
+- A software project should have an `OSI approved license`_.
+- We will not run a community ad for an organization tied
+  to one of our paid advertisers.
+
+We'll show 10% of our ad inventory each month to support initiatives that we care about.
 `Send us an email <mailto:rev@readthedocs.org>`_ to be considered for our Community Ads program.
+
+.. _OSI approved license: https://opensource.org/licenses
+
 
 Opting Out
 ----------
