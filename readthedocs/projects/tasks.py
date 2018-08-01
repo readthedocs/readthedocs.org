@@ -456,8 +456,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
-        self.build_env = env_cls(project=self.project, version=self.version, config=self.config,
-                                 build=self.build, record=record, environment=env_vars)
+        self.build_env = env_cls(
+            project=self.project,
+            version=self.version,
+            config=self.config,
+            build=self.build,
+            record=record,
+            environment=env_vars
+        )
 
         # Environment used for building code, usually with Docker
         with self.build_env:
@@ -469,9 +475,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if self.config.conda:
                 self._log('Using conda')
                 python_env_cls = Conda
-            self.python_env = python_env_cls(version=self.version,
-                                             build_env=self.build_env,
-                                             config=self.config)
+            self.python_env = python_env_cls(
+                version=self.version,
+                build_env=self.build_env,
+                config=self.config
+            )
 
             try:
                 self.setup_python_environment()

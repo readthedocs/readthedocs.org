@@ -272,7 +272,7 @@ class Virtualenv(PythonEnvironment):
 
     def install_user_requirements(self):
         requirements_file_path = self.config.python.requirements
-        if not requirements_file_path:
+        if not requirements_file_path and requirements_file_path != '':
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
@@ -332,7 +332,7 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
             '--file',
-            self.config.conda_file,
+            self.config.conda.environment,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
         )
 
