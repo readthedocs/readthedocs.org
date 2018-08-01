@@ -678,3 +678,78 @@ class TestLoadConfigV2(object):
         assert '-W' in args
         append_conf.assert_called_once()
         move.assert_called_once()
+
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move')
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
+    def test_mkdocs_configuration(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        apply_fs(tmpdir, {
+            'mkdocs.yml': '',
+            'docx': {
+                'mkdocs.yml': '',
+            },
+        })
+        self.create_config_file(
+            tmpdir,
+            {
+                'mkdocs': {
+                    'configuration': 'docx/mkdocs.yml',
+                },
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert '--config-file' in args
+        assert path.join(str(tmpdir), 'docx/mkdocs.yml') in args
+        append_conf.assert_called_once()
+        move.assert_called_once()
+
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move')
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
+    def test_mkdocs_fail_on_warning(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        apply_fs(tmpdir, {
+            'docx': {
+                'mkdocs.yml': '',
+            },
+        })
+        self.create_config_file(
+            tmpdir,
+            {
+                'mkdocs': {
+                    'configuration': 'docx/mkdocs.yml',
+                    'fail_on_warning': True,
+                },
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert '--strict' in args
+        append_conf.assert_called_once()
+        move.assert_called_once()
