@@ -4,6 +4,9 @@ from __future__ import division, print_function, unicode_literals
 
 from collections import namedtuple
 
+
+Build = namedtuple('Build', ['image'])  # noqa
+
 Python = namedtuple(  # noqa
     'Python',
     [

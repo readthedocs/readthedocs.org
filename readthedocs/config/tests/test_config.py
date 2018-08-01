@@ -197,7 +197,13 @@ def test_version():
 def test_doc_type():
     build = get_build_config(
         {},
-        get_env_config({'doctype': 'sphinx'})
+        get_env_config(
+            {
+                'defaults': {
+                    'doctype': 'sphinx'
+                }
+            }
+        )
     )
     build.validate()
     assert build.doctype == 'sphinx'
@@ -617,7 +623,7 @@ def describe_validate_build():
             source_position=0,
         )
         build.validate()
-        assert build.build_image == 'readthedocs/build:latest'
+        assert build.build.image == 'readthedocs/build:latest'
 
     def default(tmpdir):
         apply_fs(tmpdir, minimal_config)
@@ -628,7 +634,7 @@ def describe_validate_build():
             source_position=0,
         )
         build.validate()
-        assert build.build_image == 'readthedocs/build:2.0'
+        assert build.build.image == 'readthedocs/build:2.0'
 
     @pytest.mark.parametrize(
         'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
@@ -644,7 +650,7 @@ def describe_validate_build():
             source_position=0,
         )
         build.validate()
-        assert build.build_image == image
+        assert build.build.image == image
 
 
 def test_use_conda_default_false():

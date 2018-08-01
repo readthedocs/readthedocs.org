@@ -13,7 +13,7 @@ from contextlib import contextmanager
 import six
 
 from .find import find_one
-from .models import Conda, Mkdocs, Python, Sphinx, Submodules
+from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
     ValidationError, validate_bool, validate_choice, validate_dict,
@@ -519,9 +519,9 @@ class BuildConfigV1(BuildConfigBase):
         return None
 
     @property
-    def build_image(self):
+    def build(self):
         """The docker image used by the builders."""
-        return self._config['build']['image']
+        return Build(**self._config['build'])
 
     @property
     def doctype(self):
@@ -857,7 +857,6 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def build(self):
-        Build = namedtuple('Build', ['image'])  # noqa
         return Build(**self._config['build'])
 
     @property
