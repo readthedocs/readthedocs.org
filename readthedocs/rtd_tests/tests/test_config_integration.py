@@ -233,6 +233,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.requirements, '__init__.py')
 
 
+@pytest.mark.skip('No implemented yet')
 @pytest.mark.django_db
 @mock.patch('readthedocs.projects.models.Project.checkout_path')
 class TestLoadConfigV2(object):
