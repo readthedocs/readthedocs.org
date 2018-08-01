@@ -151,7 +151,7 @@ class PythonEnvironment(object):
         env_build_hash = env_build.get('hash', None)
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build_image or DOCKER_IMAGE
+            build_image = self.config.build.image or DOCKER_IMAGE
             image_hash = self.build_env.image_hash
         else:
             # e.g. LocalBuildEnvironment
@@ -177,7 +177,7 @@ class PythonEnvironment(object):
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build_image or DOCKER_IMAGE
+            build_image = self.config.build.image or DOCKER_IMAGE
             data.update({
                 'build': {
                     'image': build_image,
