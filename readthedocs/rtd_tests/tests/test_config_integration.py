@@ -422,6 +422,30 @@ class TestLoadConfigV2(object):
         assert requirements_file in args
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_requirements_empty(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {'requirements': ''}
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_user_requirements()
+
+        assert config.python.requirements == ''
+        assert not run.called
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_setup(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(
