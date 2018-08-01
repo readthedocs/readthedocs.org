@@ -254,7 +254,12 @@ def describe_validate_python_extra_requirements():
     def it_uses_validate_string(validate_string):
         validate_string.return_value = True
         build = get_build_config(
-            {'python': {'extra_requirements': ['tests']}},
+            {
+                'python': {
+                    'pip_install': True,
+                    'extra_requirements': ['tests']
+                }
+            },
             get_env_config(),
         )
         build.validate()

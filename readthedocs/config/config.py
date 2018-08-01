@@ -397,17 +397,20 @@ class BuildConfigV1(BuildConfigBase):
                         'python.extra_requirements',
                         self.PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE,
                         code=PYTHON_INVALID)
-                for extra_name in raw_extra_requirements:
-                    with self.catch_validation_error(
-                            'python.extra_requirements'):
-                        python['extra_requirements'].append(
-                            validate_string(extra_name)
-                        )
+                if not python['install_with_pip']:
+                    python['extra_requirements'] = []
+                else:
+                    for extra_name in raw_extra_requirements:
+                        with self.catch_validation_error(
+                                'python.extra_requirements'):
+                            python['extra_requirements'].append(
+                                validate_string(extra_name)
+                            )
 
             # Validate setup_py_install.
             if 'setup_py_install' in raw_python:
                 with self.catch_validation_error('python.setup_py_install'):
-                    python['setup_py_install'] = validate_bool(
+                    python['install_with_setup'] = validate_bool(
                         raw_python['setup_py_install'])
 
             if 'version' in raw_python:
