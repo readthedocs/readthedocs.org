@@ -11,6 +11,7 @@ import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.http import QueryDict
 from django.test import TestCase
 from django.utils import six
 from django_dynamic_fixture import get
@@ -967,6 +968,40 @@ class APIVersionTests(TestCase):
             resp.data,
             version_data,
         )
+
+    def test_get_active_versions(self):
+        """
+        Test the full response of ``/api/v2/version/?project__slug=pip&active=true``
+        """
+        pip = Project.objects.get(slug='pip')
+
+        data = QueryDict('', mutable=True)
+        data.update({
+            'project__slug': pip.slug,
+            'active': 'true',
+        })
+        url = '{base_url}?{querystring}'.format(
+            base_url=reverse('version-list'),
+            querystring=data.urlencode()
+        )
+
+        resp = self.client.get(url, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], pip.versions.filter(active=True).count())
+
+        # Do the same thing for inactive versions
+        data.update({
+            'project__slug': pip.slug,
+            'active': 'false',
+        })
+        url = '{base_url}?{querystring}'.format(
+            base_url=reverse('version-list'),
+            querystring=data.urlencode()
+        )
+
+        resp = self.client.get(url, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
 
 
 class TaskViewsTests(TestCase):
