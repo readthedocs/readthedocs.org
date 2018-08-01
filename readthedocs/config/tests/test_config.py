@@ -194,6 +194,15 @@ def test_version():
     assert build.version == '1'
 
 
+def test_doc_type():
+    build = get_build_config(
+        {},
+        get_env_config({'doctype': 'sphinx'})
+    )
+    build.validate()
+    assert build.doctype == 'sphinx'
+
+
 def test_empty_python_section_is_valid():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()

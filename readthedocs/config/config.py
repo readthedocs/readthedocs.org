@@ -13,12 +13,12 @@ from contextlib import contextmanager
 import six
 
 from .find import find_one
+from .models import Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
     ValidationError, validate_bool, validate_choice, validate_dict,
     validate_directory, validate_file, validate_list, validate_string,
     validate_value_exists)
-from .models import Conda, Python
 
 __all__ = (
     'ALL',
@@ -523,6 +523,10 @@ class BuildConfigV1(BuildConfigBase):
         """The docker image used by the builders."""
         return self._config['build']['image']
 
+    @property
+    def doctype(self):
+        return self.defaults['doctype']
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -862,20 +866,12 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def sphinx(self):
-        Sphinx = namedtuple(  # noqa
-            'Sphinx',
-            ['builder', 'configuration', 'fail_on_warning'],
-        )
         if self._config['sphinx']:
             return Sphinx(**self._config['sphinx'])
         return None
 
     @property
     def mkdocs(self):
-        Mkdocs = namedtuple(  # noqa
-            'Mkdocs',
-            ['configuration', 'fail_on_warning'],
-        )
         if self._config['mkdocs']:
             return Mkdocs(**self._config['mkdocs'])
         return None
@@ -888,10 +884,6 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def submodules(self):
-        Submodules = namedtuple(  # noqa
-            'Submodules',
-            ['include', 'exclude', 'recursive'],
-        )
         return Submodules(**self._config['submodules'])
 
 

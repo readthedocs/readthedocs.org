@@ -17,3 +17,18 @@ Python = namedtuple(  # noqa
 )
 
 Conda = namedtuple('Conda', ['environment'])  # noqa
+
+Sphinx = namedtuple(  # noqa
+    'Sphinx',
+    ['builder', 'configuration', 'fail_on_warning'],
+)
+
+Mkdocs = namedtuple(  # noqa
+    'Mkdocs',
+    ['configuration', 'fail_on_warning'],
+)
+
+Submodules = namedtuple(  # noqa
+    'Submodules',
+    ['include', 'exclude', 'recursive'],
+)
