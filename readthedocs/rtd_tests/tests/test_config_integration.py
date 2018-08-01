@@ -572,3 +572,109 @@ class TestLoadConfigV2(object):
 
         assert '--system-site-packages' in args
         assert config.python.use_system_site_packages
+
+    @pytest.mark.parametrize('value,result',
+                             [('html', 'sphinx'),
+                              ('htmldir', 'sphinx_htmldir'),
+                              ('singlehtml', 'sphinx_singlehtml')])
+    @patch('readthedocs.projects.tasks.get_builder_class')
+    def test_sphinx_builder(
+            self, get_builder_class, checkout_path, value, result, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {'sphinx': {'builder': value}})
+
+        self.project.documentation_type = 'mkdocs'
+        self.project.save()
+
+        update_docs = self.get_update_docs_task()
+        update_docs.build_docs_html()
+
+        get_builder_class.assert_called_with(result)
+
+    @patch('readthedocs.projects.tasks.get_builder_class')
+    def test_sphinx_builder_default(
+            self, get_builder_class, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {})
+
+        self.project.documentation_type = 'mkdocs'
+        self.project.save()
+
+        update_docs = self.get_update_docs_task()
+        update_docs.build_docs_html()
+
+        get_builder_class.assert_called_with('sphinx')
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
+    def test_sphinx_configuration(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        apply_fs(tmpdir, {
+            'conf.py': '',
+            'docx': {
+                'conf.py': '',
+            },
+        })
+        self.create_config_file(
+            tmpdir,
+            {
+                'sphinx': {
+                    'configuration': 'docx/conf.py',
+                },
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert kwargs['cwd'] == path.join(str(tmpdir), 'docx')
+        append_conf.assert_called_once()
+        move.assert_called_once()
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
+    def test_sphinx_fail_on_warning(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        apply_fs(tmpdir, {
+            'docx': {
+                'conf.py': '',
+            },
+        })
+        self.create_config_file(
+            tmpdir,
+            {
+                'sphinx': {
+                    'configuration': 'docx/conf.py',
+                    'fail_on_warning': True,
+                },
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert '-W' in args
+        append_conf.assert_called_once()
+        move.assert_called_once()
