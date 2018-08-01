@@ -641,7 +641,7 @@ def describe_validate_build():
 def test_use_conda_default_false():
     build = get_build_config({}, get_env_config())
     build.validate()
-    assert build.use_conda is False
+    assert build.conda is None
 
 
 def test_use_conda_respects_config():
@@ -650,7 +650,7 @@ def test_use_conda_respects_config():
         get_env_config(),
     )
     build.validate()
-    assert build.use_conda is True
+    assert build.conda is not None
 
 
 def test_validates_conda_file(tmpdir):
@@ -661,8 +661,8 @@ def test_validates_conda_file(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.use_conda is True
-    assert build.conda_file == str(tmpdir.join('environment.yml'))
+    assert build.conda is not None
+    assert build.conda.environment == str(tmpdir.join('environment.yml'))
 
 
 def test_requirements_file_empty():

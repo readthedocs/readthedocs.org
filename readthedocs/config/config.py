@@ -18,7 +18,7 @@ from .validation import (
     ValidationError, validate_bool, validate_choice, validate_dict,
     validate_directory, validate_file, validate_list, validate_string,
     validate_value_exists)
-from .models import Python
+from .models import Conda, Python
 
 __all__ = (
     'ALL',
@@ -445,11 +445,14 @@ class BuildConfigV1(BuildConfigBase):
                     self.PYTHON_INVALID_MESSAGE,
                     code=PYTHON_INVALID)
 
+            conda_environment = None
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
                     base_path = os.path.dirname(self.source_file)
-                    conda['file'] = validate_file(
-                        raw_conda['file'], base_path)
+                    conda_environment = validate_file(
+                        raw_conda['file'], base_path
+                    )
+            conda['environment'] = conda_environment
 
             return conda
         return None
@@ -510,15 +513,9 @@ class BuildConfigV1(BuildConfigBase):
         return Python(**self._config['python'])
 
     @property
-    def use_conda(self):
-        """True if the project use Conda."""
-        return self._config.get('conda') is not None
-
-    @property
-    def conda_file(self):
-        """The Conda environment file."""
-        if self.use_conda:
-            return self._config['conda'].get('file')
+    def conda(self):
+        if self._config['conda'] is not None:
+            return Conda(**self._config['conda'])
         return None
 
     @property
@@ -850,7 +847,6 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def conda(self):
-        Conda = namedtuple('Conda', ['environment'])  # noqa
         if self._config['conda']:
             return Conda(**self._config['conda'])
         return None

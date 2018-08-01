@@ -13,3 +13,5 @@ Python = namedtuple(  # noqa
         'use_system_site_packages',
     ],
 )
+
+Conda = namedtuple('Conda', ['environment'])  # noqa
