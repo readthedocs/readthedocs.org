@@ -202,6 +202,8 @@
         <div class="clearfix"></div>
 
         <div class="footer-bottom">
+          <hr>
+
           <div class="column-copyright">
             <p>
               <small>&copy; Copyright {% now "Y" %}, {% trans 'Read the Docs, Inc & contributors' %}</small>
@@ -232,10 +234,44 @@
             </div>
           {% endblock language-select-form %}
 
-          <img src="{% static '/media/images/cloudflare.png' %}" alt="Sponsored by CloudFlare" class="sponsor">
         </div>
 
-        {% endblock %}
+          <div class="clearfix"></div>
+
+          <div class="sponsors">
+            <a class="sponsor" href="https://azure.microsoft.com" rel="noopener" target="_blank">
+              <img src="{% static '/media/images/sponsors/azure.png' %}" alt="Microsoft Azure" class="sponsor-image">
+              <div class="sponsor-name">Microsoft</div>
+              <div class="sponsor-description">Cloud Computing</div>
+            </a>
+            <a class="sponsor" href="https://cloudflare.com" rel="noopener" target="_blank">
+              <img src="{% static '/media/images/sponsors/cloudflare.png' %}" alt="CloudFlare" class="sponsor-image">
+              <div class="sponsor-name">Cloudflare</div>
+              <div class="sponsor-description">DNS &amp; SSL</div>
+            </a>
+            <a class="sponsor" href="https://sentry.io/" rel="noopener" target="_blank">
+              <img src="{% static '/media/images/sponsors/sentry.png' %}" alt="Sentry" class="sponsor-image">
+              <div class="sponsor-name">Sentry</div>
+              <div class="sponsor-description">Monitoring</div>
+            </a>
+            <a class="sponsor" href="https://www.elastic.co/" rel="noopener" target="_blank">
+              <img src="{% static '/media/images/sponsors/elastic.png' %}" alt="Elastic" class="sponsor-image">
+              <div class="sponsor-name">Elastic</div>
+              <div class="sponsor-description">Search</div>
+            </a>
+            <a class="sponsor" href="https://newrelic.com/" rel="noopener" target="_blank">
+              <img src="{% static '/media/images/sponsors/newrelic.png' %}" alt="New Relic" class="sponsor-image">
+              <div class="sponsor-name">New Relic</div>
+              <div class="sponsor-description">Performance</div>
+            </a>
+            <a class="sponsor" href="https://www.elastic.co/" rel="noopener" target="_blank">
+              <img src="{% static '/media/images/sponsors/pagerduty.png' %}" alt="PagerDuty" class="sponsor-image">
+              <div class="sponsor-name">PagerDuty</div>
+              <div class="sponsor-description">Monitoring</div>
+            </a>
+          </div>
+
+        {% endblock footer-content %}
 
       </div>
     </div>
