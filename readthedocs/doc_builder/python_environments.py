@@ -274,8 +274,12 @@ class Virtualenv(PythonEnvironment):
         requirements_file_path = self.config.python.requirements
         if not requirements_file_path and requirements_file_path != '':
             builder_class = get_builder_class(self.project.documentation_type)
-            docs_dir = (builder_class(build_env=self.build_env, python_env=self)
-                        .docs_dir())
+            builder = builder_class(
+                build_env=self.build_env,
+                python_env=self,
+                config=self.config
+            )
+            docs_dir = builder.docs_dir()
             paths = [docs_dir, '']
             req_files = ['pip_requirements.txt', 'requirements.txt']
             for path, req_file in itertools.product(paths, req_files):

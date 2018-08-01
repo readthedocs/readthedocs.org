@@ -6,9 +6,9 @@ import os
 import tempfile
 from collections import namedtuple
 
+import mock
 import pytest
 import yaml
-import mock
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -17,6 +17,7 @@ from mock import patch
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx, SearchBuilder
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 
@@ -35,7 +36,12 @@ class SphinxBuilderTest(TestCase):
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
-        self.base_sphinx = BaseSphinx(build_env=build_env, python_env=None)
+        config = load_yaml_config(self.version)
+        self.base_sphinx = BaseSphinx(
+            build_env=build_env,
+            python_env=None,
+            config=config,
+        )
 
     @patch(
         'readthedocs.doc_builder.backends.sphinx.SPHINX_TEMPLATE_DIR',
@@ -89,7 +95,12 @@ class SphinxSearchBuilderTest(TestCase):
         build_env.project = self.project
         build_env.version = self.version
 
-        self.searchbuilder = SearchBuilder(build_env=build_env, python_env=None)
+        config = load_yaml_config(self.version)
+        self.searchbuilder = SearchBuilder(
+            build_env=build_env,
+            python_env=None,
+            config=config,
+        )
 
     def test_ignore_patterns(self):
         src = tempfile.mkdtemp()
@@ -134,9 +145,11 @@ class MkdocsBuilderTest(TestCase):
         os.mkdir(os.path.join(tmpdir, 'docs'))
         checkout_path.return_value = tmpdir
 
+        config = load_yaml_config(self.version)
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=None,
+            config=config,
         )
         self.searchbuilder.append_conf()
 
@@ -189,9 +202,11 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        config = load_yaml_config(self.version)
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=None,
+            config=config,
         )
         self.searchbuilder.append_conf()
 
@@ -243,9 +258,11 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        config = load_yaml_config(self.version)
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=None,
+            config=config,
         )
         self.searchbuilder.append_conf()
 
@@ -276,9 +293,11 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        config = load_yaml_config(self.version)
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=None,
+            config=config,
         )
         self.searchbuilder.append_conf()
 
@@ -307,9 +326,11 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        config = load_yaml_config(self.version)
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=None,
+            config=config,
         )
         self.searchbuilder.append_conf()
 
