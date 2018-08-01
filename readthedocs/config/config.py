@@ -18,6 +18,7 @@ from .validation import (
     ValidationError, validate_bool, validate_choice, validate_dict,
     validate_directory, validate_file, validate_list, validate_string,
     validate_value_exists)
+from .models import Python
 
 __all__ = (
     'ALL',
@@ -177,7 +178,7 @@ class BuildConfigBase(object):
 
     @property
     def python_full_version(self):
-        ver = self.python_version
+        ver = self.python.version
         if ver in [2, 3]:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
@@ -361,12 +362,9 @@ class BuildConfigV1(BuildConfigBase):
         version = self.defaults.get('python_version', 2)
         python = {
             'use_system_site_packages': use_system_packages,
-            'pip_install': False,
+            'install_with_pip': False,
             'extra_requirements': [],
-            'setup_py_install': install_project,
-            'setup_py_path': os.path.join(
-                os.path.dirname(self.source_file),
-                'setup.py'),
+            'install_with_setup': install_project,
             'version': version,
         }
 
@@ -388,7 +386,7 @@ class BuildConfigV1(BuildConfigBase):
             # Validate pip_install.
             if 'pip_install' in raw_python:
                 with self.catch_validation_error('python.pip_install'):
-                    python['pip_install'] = validate_bool(
+                    python['install_with_pip'] = validate_bool(
                         raw_python['pip_install'])
 
             # Validate extra_requirements.
@@ -411,13 +409,6 @@ class BuildConfigV1(BuildConfigBase):
                 with self.catch_validation_error('python.setup_py_install'):
                     python['setup_py_install'] = validate_bool(
                         raw_python['setup_py_install'])
-
-            # Validate setup_py_path.
-            if 'setup_py_path' in raw_python:
-                with self.catch_validation_error('python.setup_py_path'):
-                    base_path = os.path.dirname(self.source_file)
-                    python['setup_py_path'] = validate_file(
-                        raw_python['setup_py_path'], base_path)
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
@@ -511,36 +502,9 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def python(self):
         """Python related configuration."""
-        return self._config.get('python', {})
-
-    @property
-    def python_version(self):
-        """Python version."""
-        return self._config['python']['version']
-
-    @property
-    def pip_install(self):
-        """True if the project should be installed using pip."""
-        return self._config['python']['pip_install']
-
-    @property
-    def install_project(self):
-        """True if the project should be installed."""
-        if self.pip_install:
-            return True
-        return self._config['python']['setup_py_install']
-
-    @property
-    def extra_requirements(self):
-        """Extra requirements to be installed with pip."""
-        if self.pip_install:
-            return self._config['python']['extra_requirements']
-        return []
-
-    @property
-    def use_system_site_packages(self):
-        """True if the project should have access to the system packages."""
-        return self._config['python']['use_system_site_packages']
+        requirements = self._config['requirements_file']
+        self._config['python']['requirements'] = requirements
+        return Python(**self._config['python'])
 
     @property
     def use_conda(self):
@@ -553,11 +517,6 @@ class BuildConfigV1(BuildConfigBase):
         if self.use_conda:
             return self._config['conda'].get('file')
         return None
-
-    @property
-    def requirements_file(self):
-        """The project requirements file."""
-        return self._config['requirements_file']
 
     @property
     def build_image(self):
@@ -900,17 +859,6 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def python(self):
-        Python = namedtuple(  # noqa
-            'Python',
-            [
-                'version',
-                'requirements',
-                'install_with_pip',
-                'install_with_setup',
-                'extra_requirements',
-                'use_system_site_packages',
-            ],
-        )
         return Python(**self._config['python'])
 
     @property
