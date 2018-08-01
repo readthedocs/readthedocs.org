@@ -98,7 +98,7 @@ class LoadConfigTests(TestCase):
                 },
             ),
         ])
-        self.assertEqual(config.python_version, 2)
+        self.assertEqual(config.python.version, 2)
 
     def test_python_supported_versions_image_1_0(self, load_config):
         load_config.side_effect = create_load()
@@ -127,7 +127,7 @@ class LoadConfigTests(TestCase):
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python_version, 2)
+        self.assertEqual(config.python.version, 2)
         self.assertEqual(config.python_interpreter, 'python2.7')
 
     def test_python_set_python_version_on_project(self, load_config):
@@ -136,7 +136,7 @@ class LoadConfigTests(TestCase):
         self.project.python_interpreter = 'python3'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python_version, 3)
+        self.assertEqual(config.python.version, 3)
         self.assertEqual(config.python_interpreter, 'python3.5')
 
     def test_python_set_python_version_in_config(self, load_config):
@@ -146,7 +146,7 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python_version, 3.5)
+        self.assertEqual(config.python.version, 3.5)
         self.assertEqual(config.python_interpreter, 'python3.5')
 
     def test_python_invalid_version_in_config(self, load_config):
@@ -161,13 +161,16 @@ class LoadConfigTests(TestCase):
     def test_install_project(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.install_project, False)
+        self.assertEqual(
+            config.python.install_with_pip and config.python.install_with_setup,
+            False
+        )
 
         load_config.side_effect = create_load({
             'python': {'setup_py_install': True}
         })
         config = load_yaml_config(self.version)
-        self.assertEqual(config.install_project, True)
+        self.assertEqual(config.python.install_with_setup, True)
 
     def test_extra_requirements(self, load_config):
         load_config.side_effect = create_load({
@@ -177,7 +180,7 @@ class LoadConfigTests(TestCase):
             }
         })
         config = load_yaml_config(self.version)
-        self.assertEqual(config.extra_requirements, ['tests', 'docs'])
+        self.assertEqual(config.python.extra_requirements, ['tests', 'docs'])
 
         load_config.side_effect = create_load({
             'python': {
@@ -185,11 +188,11 @@ class LoadConfigTests(TestCase):
             }
         })
         config = load_yaml_config(self.version)
-        self.assertEqual(config.extra_requirements, [])
+        self.assertEqual(config.python.extra_requirements, [])
 
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.extra_requirements, [])
+        self.assertEqual(config.python.extra_requirements, [])
 
         load_config.side_effect = create_load({
             'python': {
@@ -198,7 +201,7 @@ class LoadConfigTests(TestCase):
             }
         })
         config = load_yaml_config(self.version)
-        self.assertEqual(config.extra_requirements, [])
+        self.assertEqual(config.python.extra_requirements, [])
 
     def test_conda(self, load_config):
         to_find = '__init__.py'
@@ -222,12 +225,12 @@ class LoadConfigTests(TestCase):
             'requirements_file': requirements_file
         })
         config = load_yaml_config(self.version)
-        self.assertEqual(config.requirements_file, requirements_file)
+        self.assertEqual(config.python.requirements, requirements_file)
 
         # Respects the requirements file from the project settings
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.requirements_file, '__init__.py')
+        self.assertEqual(config.python.requirements, '__init__.py')
 
 
 @pytest.mark.django_db
