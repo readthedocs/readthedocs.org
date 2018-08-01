@@ -203,7 +203,7 @@ class Virtualenv(PythonEnvironment):
 
     def setup_base(self):
         site_packages = '--no-site-packages'
-        if self.config.use_system_site_packages:
+        if self.config.python.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path()
         self.build_env.run(
@@ -257,7 +257,7 @@ class Virtualenv(PythonEnvironment):
             '--cache-dir',
             self.project.pip_cache_path,
         ]
-        if self.config.use_system_site_packages:
+        if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
             # even if it is already installed system-wide (and
@@ -270,7 +270,7 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_user_requirements(self):
-        requirements_file_path = self.config.requirements_file
+        requirements_file_path = self.config.python.requirements
         if not requirements_file_path:
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
@@ -295,7 +295,8 @@ class Virtualenv(PythonEnvironment):
                 '--exists-action=w',
                 '--cache-dir',
                 self.project.pip_cache_path,
-                '-r{0}'.format(requirements_file_path),
+                '-r',
+                requirements_file_path,
             ]
             self.build_env.run(
                 *args,
