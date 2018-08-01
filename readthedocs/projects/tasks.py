@@ -466,7 +466,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.update_documentation_type()
 
             python_env_cls = Virtualenv
-            if self.config.use_conda:
+            if self.config.conda:
                 self._log('Using conda')
                 python_env_cls = Conda
             self.python_env = python_env_cls(version=self.version,
@@ -476,8 +476,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             try:
                 self.setup_python_environment()
 
-                # TODO the build object should have an idea of these states, extend
-                # the model to include an idea of these outcomes
+                # TODO the build object should have an idea of these states,
+                # extend the model to include an idea of these outcomes
                 outcomes = self.build_docs()
                 build_id = self.build.get('id')
             except vcs_support_utils.LockTimeout as e:
@@ -550,15 +550,25 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             'READTHEDOCS_PROJECT': self.project.slug
         }
 
-        if self.config.use_conda:
+        if self.config.conda:
             env.update({
                 'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
                 'CONDA_DEFAULT_ENV': self.version.slug,
-                'BIN_PATH': os.path.join(self.project.doc_path, 'conda', self.version.slug, 'bin')
+                'BIN_PATH': os.path.join(
+                    self.project.doc_path,
+                    'conda',
+                    self.version.slug,
+                    'bin'
+                ),
             })
         else:
             env.update({
-                'BIN_PATH': os.path.join(self.project.doc_path, 'envs', self.version.slug, 'bin')
+                'BIN_PATH': os.path.join(
+                    self.project.doc_path,
+                    'envs',
+                    self.version.slug,
+                    'bin'
+                ),
             })
 
         return env

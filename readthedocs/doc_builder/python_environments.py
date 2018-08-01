@@ -62,32 +62,33 @@ class PythonEnvironment(object):
             shutil.rmtree(venv_dir)
 
     def install_package(self):
-        if self.config.install_project:
-            if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
-                extra_req_param = ''
-                if self.config.extra_requirements:
-                    extra_req_param = '[{0}]'.format(
-                        ','.join(self.config.extra_requirements))
-                self.build_env.run(
-                    'python',
-                    self.venv_bin(filename='pip'),
-                    'install',
-                    '--ignore-installed',
-                    '--cache-dir',
-                    self.project.pip_cache_path,
-                    '.{0}'.format(extra_req_param),
-                    cwd=self.checkout_path,
-                    bin_path=self.venv_bin()
+        if (self.config.python.install_with_pip or
+                getattr(settings, 'USE_PIP_INSTALL', False)):
+            extra_req_param = ''
+            if self.config.python.extra_requirements:
+                extra_req_param = '[{0}]'.format(
+                    ','.join(self.config.python.extra_requirements)
                 )
-            else:
-                self.build_env.run(
-                    'python',
-                    'setup.py',
-                    'install',
-                    '--force',
-                    cwd=self.checkout_path,
-                    bin_path=self.venv_bin()
-                )
+            self.build_env.run(
+                'python',
+                self.venv_bin(filename='pip'),
+                'install',
+                '--ignore-installed',
+                '--cache-dir',
+                self.project.pip_cache_path,
+                '.{0}'.format(extra_req_param),
+                cwd=self.checkout_path,
+                bin_path=self.venv_bin()
+            )
+        elif self.config.python.install_with_setup:
+            self.build_env.run(
+                'python',
+                'setup.py',
+                'install',
+                '--force',
+                cwd=self.checkout_path,
+                bin_path=self.venv_bin()
+            )
 
     def venv_bin(self, filename=None):
         """
