@@ -211,13 +211,12 @@ class LoadConfigTests(TestCase):
             }
         })
         config = load_yaml_config(self.version)
-        self.assertEqual(config.use_conda, True)
-        self.assertTrue(config.conda_file[-len(to_find):] == to_find)
+        self.assertTrue(config.conda is not None)
+        self.assertTrue(config.conda.environment[-len(to_find):] == to_find)
 
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.use_conda, False)
-        self.assertEqual(config.conda_file, None)
+        self.assertIsNone(config.conda)
 
     def test_requirements_file(self, load_config):
         requirements_file = '__init__.py'
