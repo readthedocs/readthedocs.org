@@ -486,3 +486,63 @@ class TestLoadConfigV2(object):
 
         assert config.python.install_with_setup
         assert not config.python.install_with_pip
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_extra_requirements(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {
+                    'install': 'pip',
+                    'extra_requirements': ['docs'],
+                }
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_package()
+
+        args, kwargs = run.call_args
+
+        assert 'setup.py' not in args
+        assert 'install' in args
+        assert '.[docs]' in args
+        assert config.python.install_with_pip
+        assert not config.python.install_with_setup
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_system_packages(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {
+                    'system_packages': True,
+                }
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.setup_base()
+
+        args, kwargs = run.call_args
+
+        assert '--system-site-packages' in args
+        assert config.python.use_system_site_packages
