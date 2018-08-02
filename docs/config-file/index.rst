@@ -1,7 +1,7 @@
 Configuration File
 ==================
 
-Additionally to the admin panel of your project,
+In addition to using the admin panel of your project to configure your project,
 you can use a configuration file in the root of your project.
 The configuration file can be named as:
 
