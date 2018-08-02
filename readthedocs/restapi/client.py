@@ -1,14 +1,18 @@
+# -*- coding: utf-8 -*-
+
 """Simple client to access our API with Slumber credentials."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import logging
 
-from slumber import API, serialize
 import requests
 from django.conf import settings
-from rest_framework.renderers import JSONRenderer
+from requests_toolbelt.adapters import host_header_ssl
 from rest_framework.parsers import JSONParser
-
+from rest_framework.renderers import JSONRenderer
+from slumber import API, serialize
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +24,7 @@ PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
 
 class DrfJsonSerializer(serialize.JsonSerializer):
 
-    """Additional serialization help from the DRF parser/renderer"""
+    """Additional serialization help from the DRF parser/renderer."""
 
     key = 'json-drf'
 
@@ -33,9 +37,13 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
 def setup_api():
     session = requests.Session()
+    session.mount(
+        API_HOST,
+        host_header_ssl.HostHeaderSSLAdapter(
+            max_retries=3,
+        ),
+    )
     session.headers.update({'Host': PRODUCTION_DOMAIN})
-    retry_adapter = requests.adapters.HTTPAdapter(max_retries=3)
-    session.mount(API_HOST, retry_adapter)
     api_config = {
         'base_url': '%s/api/v2/' % API_HOST,
         'serializer': serialize.Serializer(
@@ -43,15 +51,19 @@ def setup_api():
             serializers=[
                 serialize.JsonSerializer(),
                 DrfJsonSerializer(),
-            ]
+            ],
         ),
         'session': session,
     }
     if USER and PASS:
-        log.debug("Using slumber v2 with user %s, pointed at %s", USER, API_HOST)
+        log.debug(
+            'Using slumber v2 with user %s, pointed at %s',
+            USER,
+            API_HOST,
+        )
         session.auth = (USER, PASS)
     else:
-        log.warning("SLUMBER_USERNAME/PASSWORD settings are not set")
+        log.warning('SLUMBER_USERNAME/PASSWORD settings are not set')
     return API(**api_config)
 
 
