@@ -200,8 +200,8 @@ def test_doc_type():
         get_env_config(
             {
                 'defaults': {
-                    'doctype': 'sphinx'
-                }
+                    'doctype': 'sphinx',
+                },
             }
         )
     )
@@ -272,8 +272,8 @@ def describe_validate_python_extra_requirements():
             {
                 'python': {
                     'pip_install': True,
-                    'extra_requirements': ['tests']
-                }
+                    'extra_requirements': ['tests'],
+                },
             },
             get_env_config(),
         )

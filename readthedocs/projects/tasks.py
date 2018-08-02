@@ -462,7 +462,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             config=self.config,
             build=self.build,
             record=record,
-            environment=env_vars
+            environment=env_vars,
         )
 
         # Environment used for building code, usually with Docker
@@ -478,7 +478,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.python_env = python_env_cls(
                 version=self.version,
                 build_env=self.build_env,
-                config=self.config
+                config=self.config,
             )
 
             try:
