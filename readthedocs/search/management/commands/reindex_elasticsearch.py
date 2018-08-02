@@ -1,5 +1,6 @@
 import datetime
 import logging
+import socket
 
 from celery import chord, chain
 from django.apps import apps
@@ -32,7 +33,13 @@ class Command(BaseCommand):
             }
             yield index_objects_to_es.si(**data)
 
-    def _run_reindex_tasks(self, models):
+    def _run_reindex_tasks(self, models, host_queue):
+        apply_async_kwargs = {'priority': 0}
+        if host_queue:
+            queue_name = socket.gethostname()
+            log.info('Adding indexing tasks to queue {0}'.format(queue_name))
+            apply_async_kwargs['queue'] = queue_name
+
         for doc in registry.get_documents(models):
             queryset = doc().get_queryset()
             # Get latest object from the queryset
@@ -70,13 +77,20 @@ class Command(BaseCommand):
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chords
             chord_tasks = chord(header=indexing_tasks, body=post_index_task)
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chain
-            chain(pre_index_task, chord_tasks, missed_index_task).apply_async()
+            chain(pre_index_task, chord_tasks, missed_index_task).apply_async(**apply_async_kwargs)
 
             message = ("Successfully issued tasks for {}.{}, total {} items"
                        .format(app_label, model_name, queryset.count()))
             log.info(message)
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            '--host-queue',
+            dest='host_queue',
+            action='store_true',
+            default=False,
+            help="Queue the celery tasks in the queue for the server hostname (eg. web01)"
+        )
         parser.add_argument(
             '--models',
             dest='models',
@@ -98,4 +112,4 @@ class Command(BaseCommand):
         if options['models']:
             models = [apps.get_model(model_name) for model_name in options['models']]
 
-        self._run_reindex_tasks(models=models)
+        self._run_reindex_tasks(models=models, host_queue=options['host_queue'])
