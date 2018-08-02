@@ -162,7 +162,7 @@ class LoadConfigTests(TestCase):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
         self.assertEqual(
-            config.python.install_with_pip and config.python.install_with_setup,
+            config.python.install_with_pip or config.python.install_with_setup,
             False
         )
 
