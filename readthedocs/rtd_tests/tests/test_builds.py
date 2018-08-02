@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import mock
+import six
 
 from django.test import TestCase
 from django_dynamic_fixture import get
@@ -10,6 +11,7 @@ from readthedocs.projects.models import Project
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
+from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 

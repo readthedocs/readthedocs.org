@@ -702,10 +702,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_html(self):
         """Build HTML docs."""
-        html_builder = get_builder_class(self.config.doctype)(
+        html_builder = get_builder_class(self.project.documentation_type)(
             build_env=self.build_env,
             python_env=self.python_env,
-            config=self.config,
         )
         if self.build_force:
             html_builder.force()
@@ -776,11 +775,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         only raise a warning exception here. A hard error will halt the build
         process.
         """
-        builder = get_builder_class(builder_class)(
-            self.build_env,
-            python_env=self.python_env,
-            config=self.config,
-        )
+        builder = get_builder_class(builder_class)(self.build_env, python_env=self.python_env)
         success = builder.build()
         builder.move()
         return success

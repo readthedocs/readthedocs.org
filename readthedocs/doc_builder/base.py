@@ -41,12 +41,11 @@ class BaseBuilder(object):
 
     # old_artifact_path = ..
 
-    def __init__(self, build_env, python_env, config, force=False):
+    def __init__(self, build_env, python_env, force=False):
         self.build_env = build_env
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
-        self.config = config
         self._force = force
         self.target = self.project.artifact_path(
             version=self.version.slug, type_=self.type)
