@@ -361,5 +361,5 @@ advanced settings and find their respective setting :ref:`here <config-file/v2:S
 
 .. note::
 
-   Not all settings in the web interface are per version, but per project.
+   Not all settings in the web interface are per version, but are per project.
    Those settings aren't supported via the configuration file (like ``Default branch``).
