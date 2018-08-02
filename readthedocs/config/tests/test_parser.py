@@ -48,7 +48,7 @@ def test_parse_empty_value():
 def test_parse_empty_string_value():
     buf = StringIO(u'base: ""')
     config = parse(buf)
-    assert config[0]['base'] is ''
+    assert config[0]['base'] == ''
 
 
 def test_parse_empty_list():
