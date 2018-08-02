@@ -59,7 +59,6 @@ pytz==2018.4
 beautifulsoup4==4.6.0
 Unipath==1.1
 django-kombu==0.9.4
-python-mimeparse==1.6.0
 mock==2.0.0
 
 # stripe 1.20.2 is the latest compatible with our code base (otherwise
