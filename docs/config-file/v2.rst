@@ -22,7 +22,7 @@ Supported settings
 version
 ~~~~~~~
 
-* Required
+:Required: ``true``
 
 .. code-block:: yaml
    
@@ -37,9 +37,9 @@ formats
 
 Formats of the documentation to be built.
 
-* Type: ``list``
-* Options: ``htmlzip``, ``pdf``, ``epub``
-* Default: ``[]``
+:Type: ``list``
+:Options: ``htmlzip``, ``pdf``, ``epub``
+:Default: ``[]``
 
 .. code-block:: yaml
 
@@ -82,16 +82,16 @@ python.version
 
 The Python version (this depends on :ref:`config-file/v2:build.image`).
 
-* Type: ``number``
-* Default: ``3``
+:Type: ``number``
+:Default: ``3``
 
 python.requirements
 ```````````````````
 
 The path to the requirements file from the root of the project.
 
-* Type: ``path``
-* Default: ``null``
+:Type: ``path``
+:Default: ``null``
 
 If the value is ``null``,
 Read the Docs would try to find a requirements file in your ``docs/`` directory and in the root of your project.
@@ -102,9 +102,11 @@ python.install
 
 Install the project using python ``python setup.py install`` or ``pip install .``.
 
-* Type: ``string``
-* Options: ``pip``, ``setup.py``
-* Default: ``null``
+:Type: ``string``
+:Options: ``pip``, ``setup.py``
+:Default: ``null``
+
+If the value is ``null``, Read the Docs would not install your project.
 
 python.extra_requirements
 `````````````````````````
@@ -112,8 +114,8 @@ python.extra_requirements
 `Extra requirements <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_
 section to install in addition to the `package dependencies <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies>`_.
 
-* Type: ``list``
-* Default: ``[]``
+:Type: ``list``
+:Default: ``[]``
 
 .. warning::
 
@@ -129,8 +131,8 @@ python.system_packages
 
 Give the virtual environment access to the global site-packages directory.
 
-* Type: ``bool``
-* Default: ``false``
+:Type: ``bool``
+:Default: ``false``
 
 conda
 ~~~~~
@@ -147,8 +149,8 @@ conda.environment
 
 The path to the Conda environment file from the root of the project.
 
-* Type: ``path``
-* Required
+:Type: ``path``
+:Required: ``true``
 
 build
 ~~~~~
@@ -169,8 +171,8 @@ build.image
 
 The build Docker image to be used.
 
-* Type: ``string``
-* Options: ``stable``, ``latest``
+:Type: ``string``
+:Options: ``stable``, ``latest``
 
 Each image support different Python versions and has different packages installed,
 as defined here:
@@ -196,17 +198,17 @@ sphinx.builder
 
 The builder type for the Sphinx documentation.
 
-* Type: ``string``
-* Options: ``html``, ``htmldir``, ``singlehtml``
-* Default: ``html``
+:Type: ``string``
+:Options: ``html``, ``htmldir``, ``singlehtml``
+:Default: ``html``
 
 sphinx.configuration
 ````````````````````
 
 The path to the ``conf.py`` file.
 
-* Type: ``path``
-* Default: ``null``
+:Type: ``path``
+:Default: ``null``
 
 If the value is ``null``,
 Read the Docs would try to find a ``conf.py`` file in your project.
@@ -217,8 +219,8 @@ sphinx.fail_on_warning
 Turn warnings into errors.
 This means that the build stops at the first warning and exits with exit status 1.
 
-* Type: ``bool``
-* Default: ``false``
+:Type: ``bool``
+:Default: ``false``
 
 mkdocs
 ~~~~~~
@@ -236,8 +238,8 @@ mkdocs.configuration
 
 The path to the ``mkdocs.yml`` file
 
-* Type: ``path``
-* Default: ``null``
+:Type: ``path``
+:Default: ``null``
 
 If the value is ``null``,
 Read the Docs would try to find a ``mkdocs.yml`` file in your project.
@@ -248,8 +250,8 @@ mkdocs.fail_on_warning
 Turn warnings into errors.
 This means that the build stops at the first warning and exits with exit status 1.
 
-* Type: ``bool``
-* Default: ``false``
+:Type: ``bool``
+:Default: ``false``
 
 submodules
 ~~~~~~~~~~
@@ -271,8 +273,8 @@ submodules.include
 
 List of submodules to be included.
 
-* Type: ``list``
-* Default: ``[]``
+:Type: ``list``
+:Default: ``[]``
 
 .. note::
    
@@ -288,8 +290,8 @@ submodules.exclude
 
 List of submodules to be excluded.
 
-* Type: ``list``
-* Default: ``[]``
+:Type: ``list``
+:Default: ``[]``
 
 .. note::
    
@@ -306,8 +308,8 @@ submodules.recursive
 
 Do a recursive clone of the submodules.
 
-* Type: ``bool``
-* Default: ``false``
+:Type: ``bool``
+:Default: ``false``
 
 Schema
 ------
