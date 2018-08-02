@@ -1042,6 +1042,7 @@ class Feature(models.Model):
     SKIP_SUBMODULES = 'skip_submodules'
     BUILD_JSON_ARTIFACTS_WITH_HTML = 'build_json_artifacts_with_html'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
+    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1053,6 +1054,8 @@ class Feature(models.Model):
             'Build the json artifacts with the html build step')),
         (DONT_OVERWRITE_SPHINX_CONTEXT, _(
             'Do not overwrite context vars in conf.py with Read the Docs context',)),
+        (ALLOW_V2_CONFIG_FILE, _(
+            'Allow to use the v2 of the configuration file')),
     )
 
     projects = models.ManyToManyField(
