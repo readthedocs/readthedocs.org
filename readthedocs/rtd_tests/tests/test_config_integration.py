@@ -281,6 +281,13 @@ class TestLoadConfigV2(object):
         update_docs = self.get_update_docs_task()
         assert update_docs.config.version == '2'
 
+    def test_report_using_invalid_version(self, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {'version': 12})
+        with pytest.raises(InvalidConfig) as exinfo:
+            self.get_update_docs_task()
+        assert exinfo.value.key == 'version'
+
     @pytest.mark.parametrize('config', [{}, {'formats': []}])
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
