@@ -14,6 +14,7 @@ from readthedocs.config import (
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
     VERSION_INVALID)
+from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
 
@@ -513,6 +514,7 @@ def test_valid_build_config():
     assert build.python
     assert build.python.install_with_setup is False
     assert build.python.install_with_pip is False
+    assert build.python.use_system_site_packages is False
     assert build.output_base
 
 
@@ -665,7 +667,7 @@ def test_use_conda_respects_config():
         get_env_config(),
     )
     build.validate()
-    assert build.conda is not None
+    assert isinstance(build.conda, Conda)
 
 
 def test_validates_conda_file(tmpdir):
@@ -676,7 +678,7 @@ def test_validates_conda_file(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.conda is not None
+    assert isinstance(build.conda, Conda)
     assert build.conda.environment == str(tmpdir.join('environment.yml'))
 
 

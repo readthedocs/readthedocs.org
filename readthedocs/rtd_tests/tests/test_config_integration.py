@@ -616,6 +616,35 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
+    def test_sphinx_configuration_default(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        """Should be default to find a conf.py file."""
+        checkout_path.return_value = str(tmpdir)
+
+        apply_fs(tmpdir, {'conf.py': ''})
+        self.create_config_file(tmpdir, {})
+        self.project.conf_py_file = ''
+        self.project.save()
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert kwargs['cwd'] == str(tmpdir)
+        append_conf.assert_called_once()
+        move.assert_called_once()
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     def test_sphinx_configuration(
             self, run, append_conf, move, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
