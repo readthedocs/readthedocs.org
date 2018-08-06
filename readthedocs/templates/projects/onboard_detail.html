@@ -8,7 +8,7 @@
     {% if not onboard.build %}
       <h2>{% trans "Start building your documentation" %}</h2>
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           This project has not been built yet.
           Try building the latest version now,
           or if you would like to build a specific version,
@@ -30,7 +30,7 @@
 
           <form method="get" action="{{ project.get_docs_url }}">
             <p>
-            {% blocktrans %}
+            {% blocktrans trimmed %}
               Your documentation has been built.
               Ensure your documentation is kept up to date with every commit to
               your repository, by
@@ -46,7 +46,7 @@
 
           <form method="get" action="{% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk %}">
             <p>
-            {% blocktrans %}
+            {% blocktrans trimmed %}
               There was a problem building your documentation,
               you can see what went wrong in the build output.
               If you need more help, check out some of the
@@ -62,7 +62,7 @@
         <h2>{% trans "Your documentation is building" %}</h2>
 
         <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           You'll be able to view your documentation in a minute or two,
           once your project is done building.
         {% endblocktrans %}
