@@ -967,7 +967,8 @@ def get_configuration_class(version):
         version = int(version)
         return configurations_class[version]
     except (KeyError, ValueError):
-        raise ConfigError(
-            'Invalid version of the configuration file',
+        raise InvalidConfig(
+            'version',
             code=VERSION_INVALID,
+            error_message='Invalid version of the configuration file',
         )
