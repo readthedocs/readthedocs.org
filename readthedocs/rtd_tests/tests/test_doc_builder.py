@@ -6,9 +6,9 @@ import os
 import tempfile
 from collections import namedtuple
 
+import mock
 import pytest
 import yaml
-import mock
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -17,6 +17,7 @@ from mock import patch
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 
@@ -35,7 +36,16 @@ class SphinxBuilderTest(TestCase):
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
-        self.base_sphinx = BaseSphinx(build_env=build_env, python_env=None)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=build_env,
+            config=None,
+        )
+        self.base_sphinx = BaseSphinx(
+            build_env=build_env,
+            python_env=python_env,
+        )
 
     @patch(
         'readthedocs.doc_builder.backends.sphinx.SPHINX_TEMPLATE_DIR',
@@ -95,9 +105,14 @@ class MkdocsBuilderTest(TestCase):
         os.mkdir(os.path.join(tmpdir, 'docs'))
         checkout_path.return_value = tmpdir
 
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
         self.searchbuilder.append_conf()
 
@@ -150,9 +165,14 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
         self.searchbuilder.append_conf()
 
@@ -204,9 +224,14 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
         self.searchbuilder.append_conf()
 
@@ -237,9 +262,14 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
         self.searchbuilder.append_conf()
 
@@ -268,9 +298,14 @@ class MkdocsBuilderTest(TestCase):
         )
         checkout_path.return_value = tmpdir
 
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
         self.searchbuilder.append_conf()
 
