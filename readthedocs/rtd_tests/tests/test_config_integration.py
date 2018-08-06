@@ -757,6 +757,7 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
+    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
@@ -795,6 +796,7 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
+    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
