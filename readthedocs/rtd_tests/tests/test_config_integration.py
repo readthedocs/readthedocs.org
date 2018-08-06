@@ -303,6 +303,12 @@ class TestLoadConfigV2(object):
         self.create_config_file(tmpdir, config)
 
         update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
         outcomes = update_docs.build_docs()
 
         # No extra formats were triggered
@@ -327,6 +333,13 @@ class TestLoadConfigV2(object):
         self.create_config_file(tmpdir, {'formats': ['pdf']})
 
         update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=update_docs.config
+        )
+        update_docs.python_env = python_env
+
         outcomes = update_docs.build_docs()
 
         # Only pdf extra format was triggered
