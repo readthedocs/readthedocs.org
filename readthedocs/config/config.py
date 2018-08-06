@@ -526,6 +526,14 @@ class BuildConfigV1(BuildConfigBase):
     def doctype(self):
         return self.defaults['doctype']
 
+    @property
+    def sphinx(self):
+        return Sphinx(
+            builder=self.doctype,
+            configuration=self.defaults['sphinx_configuration'],
+            fail_on_warning=False,
+        )
+
 
 class BuildConfigV2(BuildConfigBase):
 
