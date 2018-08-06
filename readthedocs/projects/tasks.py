@@ -701,7 +701,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_html(self):
         """Build HTML docs."""
-        html_builder = get_builder_class(self.project.documentation_type)(
+        html_builder = get_builder_class(self.config.doctype)(
             build_env=self.build_env,
             python_env=self.python_env,
         )
