@@ -209,9 +209,12 @@ class BaseSphinx(BaseBuilder):
             '.',
             self.sphinx_build_dir,
         ])
+        config_file = self.config.sphinx.configuration
         cmd_ret = self.run(
-            *build_command, cwd=project.conf_dir(self.version.slug),
-            bin_path=self.python_env.venv_bin())
+            *build_command,
+            cwd=os.path.dirname(config_file),
+            bin_path=self.python_env.venv_bin()
+        )
         return cmd_ret.successful
 
 
