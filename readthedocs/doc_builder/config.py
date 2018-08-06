@@ -31,7 +31,10 @@ def load_yaml_config(version):
     python_version = 3 if project.python_interpreter == 'python3' else 2
     allow_v2 = project.has_feature(Feature.ALLOW_V2_CONFIG_FILE)
     try:
-        sphinx_configuration = version.get_conf_py_path()
+        sphinx_configuration = path.join(
+            version.get_conf_py_path(),
+            'conf.py'
+        )
     except ProjectConfigurationError:
         sphinx_configuration = None
 
