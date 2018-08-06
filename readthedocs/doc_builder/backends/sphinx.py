@@ -199,6 +199,8 @@ class BaseSphinx(BaseBuilder):
         ]
         if self._force:
             build_command.append('-E')
+        if self.config.sphinx.fail_on_warning:
+            build_command.append('-W')
         build_command.extend([
             '-b',
             self.sphinx_builder,
