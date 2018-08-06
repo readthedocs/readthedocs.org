@@ -147,7 +147,7 @@ filters or accessing object attributes. You can't do that within the ``{%
 blocktrans %}`` block, so you need to bind the expression to a local variable
 first::
 
-    {% blocktrans with revision.created_date|timesince as timesince %}
+    {% blocktrans trimmed with revision.created_date|timesince as timesince %}
     {{ revision }} {{ timesince }} ago
     {% endblocktrans %}
 
@@ -157,11 +157,18 @@ first::
 counter with the name ``count`` and provide a plural translation after the ``{%
 plural %}`` tag::
 
-    {% blocktrans with amount=article.price count years=i.length %}
+    {% blocktrans trimmed with amount=article.price count years=i.length %}
     That will cost $ {{ amount }} per year.
     {% plural %}
     That will cost $ {{ amount }} per {{ years }} years.
     {% endblocktrans %}
+
+
+.. note::
+
+   The previous multi-lines examples also use the ``trimmed`` option.
+   This remove newline characters and replace any whitespace at the beginning and end of a line,
+   helping translators when translating these strings.
 
 
 Strings in Python
