@@ -129,7 +129,7 @@ class ResolverBase(object):
     def resolve_domain(self, project, private=None):
         # pylint: disable=unused-argument
         canonical_project = self._get_canonical_project(project)
-        domain = canonical_project.domains.filter(canonical=True).first()
+        domain = self._get_project_custom_domain(canonical_project)
         if domain:
             return domain.domain
         elif self._use_subdomain():
@@ -144,13 +144,24 @@ class ResolverBase(object):
                 version_slug = project.get_default_version()
             private = self._get_private(project, version_slug)
 
-        domain = self.resolve_domain(project, private=private)
+        canonical_project = self._get_canonical_project(project)
+        custom_domain = self._get_project_custom_domain(canonical_project)
 
-        # Use HTTPS if settings specify
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-        use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
-        if use_https and public_domain and public_domain in domain:
-            protocol = 'https'
+        if custom_domain:
+            domain = custom_domain.domain
+        elif self._use_subdomain():
+            domain = self._get_project_subdomain(canonical_project)
+        else:
+            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+
+        if custom_domain:
+            protocol = 'https' if custom_domain.https else 'http'
+        else:
+            # Use HTTPS if settings specify
+            public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+            use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
+            if use_https and public_domain and public_domain in domain:
+                protocol = 'https'
 
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
@@ -195,6 +206,9 @@ class ResolverBase(object):
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
             return "%s.%s" % (subdomain_slug, public_domain)
+
+    def _get_project_custom_domain(self, project):
+        return project.domains.filter(canonical=True).first()
 
     def _get_private(self, project, version_slug):
         from readthedocs.builds.models import Version

@@ -745,16 +745,16 @@ class TestSubprojectsWithTranslations(TestCase):
         )
 
         url = resolve(self.superproject_en, filename='')
-        self.assertEqual(url, 'http://docs.example.com/en/latest/')
+        self.assertEqual(url, 'https://docs.example.com/en/latest/')
 
         url = resolve(self.superproject_es, filename='')
-        self.assertEqual(url, 'http://docs.example.com/es/latest/')
+        self.assertEqual(url, 'https://docs.example.com/es/latest/')
 
         # yapf: disable
         url = resolve(self.subproject_en, filename='')
         self.assertEqual(
             url,
-            ('http://docs.example.com/projects/'
+            ('https://docs.example.com/projects/'
              '{subproject.slug}/en/latest/').format(
                  subproject=self.subproject_en,
             ),
@@ -763,7 +763,7 @@ class TestSubprojectsWithTranslations(TestCase):
         url = resolve(self.subproject_es, filename='')
         self.assertEqual(
             url,
-            ('http://docs.example.com/projects/'
+            ('https://docs.example.com/projects/'
              '{subproject.slug}/es/latest/').format(
                  subproject=self.subproject_en,
             ),
