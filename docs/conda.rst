@@ -14,14 +14,7 @@ This work was funded by `Clinical Graphics`_ -- many thanks for their support of
 Activating Conda
 ----------------
 
-Conda Support is the first feature enabled with :doc:`yaml-config`.
-You can enable it by creating a `readthedocs.yml` file in the root of your
-repository with the contents:
-
-.. code-block:: yaml
-
-	conda:
-	    file: environment.yml
+Conda support is avalible using a :doc:`config-file/index`.
 
 This Conda environment will also have Sphinx and other build time dependencies installed.
 It will use the same order of operations that we support currently:
