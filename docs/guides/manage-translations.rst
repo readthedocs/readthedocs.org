@@ -35,10 +35,11 @@ To generate these ``.pot`` files it's needed to run this command from your ``doc
 
    $ sphinx-build -b gettext . _build/gettext
 
+
 .. tip::
 
-   We recommend configuring Sphinx to use :ref:`sphinx:std:confval:gettext_uuid` as ``True``
-   and also :ref:`sphinx:std:confval:gettext_compact` as ``False`` to generate ``.pot`` files.
+   We recommend configuring Sphinx to use :ref:`gettext_uuid <sphinx:gettext_uuid>` as ``True``
+   and also :ref:`gettext_compact <sphinx:gettext_compact>` as ``False`` to generate ``.pot`` files.
 
 
 This command will leave the generated files under ``_build/gettext``.
@@ -54,7 +55,7 @@ We recommend using `sphinx-intl`_ tool for this workflow.
 
 .. _sphinx-intl: https://pypi.org/project/sphinx-intl/
 
-First, we need to install it:
+First, you need to install it:
 
 .. code-block:: console
 
@@ -135,9 +136,16 @@ To achieve this, you need to run this command:
 
 .. code-block:: console
 
-   $ tx config mapping-bulk --project $TRANSIFEX_PROJECT --file-extension '.pot' --source-file-dir docs/_build/gettext --source-lang en --type PO --expression 'docs/locale/<lang>/LC_MESSAGES/{filepath}/{filename}.po' --execute
+   $ tx config mapping-bulk \
+       --project $TRANSIFEX_PROJECT \
+       --file-extension '.pot' \
+       --source-file-dir docs/_build/gettext \
+       --source-lang en \
+       --type PO \
+       --expression 'docs/locale/<lang>/LC_MESSAGES/{filepath}/{filename}.po' \
+       --execute
 
-This command will generate a file at ``.tx/config`` with all the information needed by the ``transifext-client`` tool to keep our translation synchronized.
+This command will generate a file at ``.tx/config`` with all the information needed by the ``transifext-client`` tool to keep your translation synchronized.
 
 Finally, you need to upload these files to Transifex platform so translators can start their work.
 To do this, you can run this command:
@@ -148,8 +156,7 @@ To do this, you can run this command:
 
 
 Now, you can go to your Transifex's project and check that there is one resource per ``.rst`` file of your documentation.
-
-After the source files are translated using Transifex, you can download the all translations for all the languages by running:
+After the source files are translated using Transifex, you can download all the translations for all the languages by running:
 
 .. code-block:: console
 
@@ -160,7 +167,7 @@ This command will leave the ``.po`` files needed for building the documentation 
 .. warning::
 
    It's important to use always the same method to translate the documentation and do not mix them.
-   Otherwise, it's very easy to end up with inconsistent translation or loosing already translated text.
+   Otherwise, it's very easy to end up with inconsistent translations or loosing already translated text.
 
 
 Build the documentation in target language
@@ -186,7 +193,7 @@ Summary
 Update sources to be translated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once we have done changes in our documentation, we want to make these additions/modifications available for translators so they can update it:
+Once you have done changes in your documentation, you may want to make these additions/modifications available for translators so they can update it:
 
 #. Create the ``.pot`` files:
 
@@ -210,7 +217,7 @@ Once we have done changes in our documentation, we want to make these additions/
 Build documentation from up to date translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When translators have finished their job, we want to update the documentation by pulling the changes from Transifex:
+When translators have finished their job, you may want to update the documentation by pulling the changes from Transifex:
 
 #. Pull up to date translations from Transifex:
 
@@ -226,4 +233,4 @@ When translators have finished their job, we want to update the documentation by
       $ git commit -m "Update translations"
       $ git push
 
-The last ``git push`` will trigger a build per translation defined as part of our project under Read the Docs and make it immediately available.
+The last ``git push`` will trigger a build per translation defined as part of your project under Read the Docs and make it immediately available.
