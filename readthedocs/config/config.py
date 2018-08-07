@@ -533,6 +533,13 @@ class BuildConfigV1(BuildConfigBase):
             fail_on_warning=False,
         )
 
+    @property
+    def mkdocs(self):
+        return Mkdocs(
+            configuration=None,
+            fail_on_warning=False,
+        )
+
 
 class BuildConfigV2(BuildConfigBase):
 
