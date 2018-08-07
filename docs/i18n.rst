@@ -291,7 +291,7 @@ help pages <http://help.transifex.com/features/client/>`_.
 
 .. note::
 
-   For Read the Docs community site, we use a `fabric script`_ to follow this process:
+   For the Read the Docs community site, we use a `fabric script`_ to follow this process:
 
    .. _fabric script: https://github.com/rtfd/readthedocs.org/blob/master/fabfile.py
 
