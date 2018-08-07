@@ -229,7 +229,7 @@ When translators have finished their job, you may want to update the documentati
 
    .. code-block:: console
 
-      $ git add docs/locale/
+      $ git add locale/
       $ git commit -m "Update translations"
       $ git push
 
