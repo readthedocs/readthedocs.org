@@ -53,6 +53,8 @@ This service is generously provided by Cloudflare.
     they do not yet allow us to acquire SSL certificates for those domains.
     Simply point the CNAME to ``readthedocs.io``.
 
+    If you change the CNAME, the SSL certificate issuance can take about one hour.
+
 .. important::
 
     Due to a limitation, a domain cannot be proxied on Cloudflare
