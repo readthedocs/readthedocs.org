@@ -167,7 +167,7 @@ plural %}`` tag::
 .. note::
 
    The previous multi-lines examples also use the ``trimmed`` option.
-   This remove newline characters and replace any whitespace at the beginning and end of a line,
+   This removes newline characters and replaces any whitespace at the beginning and end of a line,
    helping translators when translating these strings.
 
 
