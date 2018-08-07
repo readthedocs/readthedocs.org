@@ -142,7 +142,7 @@ To achieve this, you need to run this command:
        --source-file-dir docs/_build/gettext \
        --source-lang en \
        --type PO \
-       --expression 'docs/locale/<lang>/LC_MESSAGES/{filepath}/{filename}.po' \
+       --expression 'locale/<lang>/LC_MESSAGES/{filepath}/{filename}.po' \
        --execute
 
 This command will generate a file at ``.tx/config`` with all the information needed by the ``transifext-client`` tool to keep your translation synchronized.
