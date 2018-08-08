@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """Exceptions raised when building documentation."""
+
+from __future__ import division, print_function, unicode_literals
 
 from django.utils.translation import ugettext_noop
 
@@ -19,30 +22,24 @@ class BuildEnvironmentException(Exception):
 class BuildEnvironmentError(BuildEnvironmentException):
 
     GENERIC_WITH_BUILD_ID = ugettext_noop(
-        "There was a problem with Read the Docs while building your documentation. "
-        "Please report this to us with your build id ({build_id})."
+        'There was a problem with Read the Docs while building your documentation. '
+        'Please report this to us with your build id ({build_id}).',
     )
 
 
 class BuildEnvironmentCreationFailed(BuildEnvironmentError):
 
-    message = ugettext_noop(
-        "Build environment creation failed"
-    )
+    message = ugettext_noop('Build environment creation failed')
 
 
 class VersionLockedError(BuildEnvironmentError):
 
-    message = ugettext_noop(
-        'Version locked, retrying in 5 minutes.',
-    )
+    message = ugettext_noop('Version locked, retrying in 5 minutes.')
 
 
 class ProjectBuildsSkippedError(BuildEnvironmentError):
 
-    message = ugettext_noop(
-        'Builds for this project are temporarily disabled',
-    )
+    message = ugettext_noop('Builds for this project are temporarily disabled')
 
 
 class YAMLParseError(BuildEnvironmentError):
@@ -54,9 +51,7 @@ class YAMLParseError(BuildEnvironmentError):
 
 class BuildTimeoutError(BuildEnvironmentError):
 
-    message = ugettext_noop(
-        'Build exited due to time out',
-    )
+    message = ugettext_noop('Build exited due to time out')
 
 
 class BuildEnvironmentWarning(BuildEnvironmentException):
