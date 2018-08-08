@@ -9,9 +9,10 @@ from django.utils.translation import ugettext_noop
 class BuildEnvironmentException(Exception):
 
     message = None
+    status_code = None
 
     def __init__(self, message=None, **kwargs):
-        self.status_code = kwargs.pop('status_code', 1)
+        self.status_code = kwargs.pop('status_code', None) or self.status_code or 1
         message = message or self.get_default_message()
         super(BuildEnvironmentException, self).__init__(message, **kwargs)
 
@@ -35,6 +36,7 @@ class BuildEnvironmentCreationFailed(BuildEnvironmentError):
 class VersionLockedError(BuildEnvironmentError):
 
     message = ugettext_noop('Version locked, retrying in 5 minutes.')
+    status_code = 423
 
 
 class ProjectBuildsSkippedError(BuildEnvironmentError):
