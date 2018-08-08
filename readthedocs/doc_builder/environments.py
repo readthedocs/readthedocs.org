@@ -457,14 +457,18 @@ class BuildEnvironment(BaseEnvironment):
 
     def handle_exception(self, exc_type, exc_value, _):
         """
-        Exception handling for __enter__ and __exit__
+        Exception handling for __enter__ and __exit__.
 
         This reports on the exception we're handling and special cases
-        subclasses of BuildEnvironmentException.  For
+        subclasses of BuildEnvironmentException. For
         :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
-        don't mark the build as a failure.  For all other exception classes,
+        don't mark the build as a failure. For all other exception classes,
         including :py:class:`BuildEnvironmentError`, the build will be marked as
         a failure and the context will be gracefully exited.
+
+        If the exception's type is :py:class:`BuildEnvironmentWarning` or it's
+        an exception marked as ``WARNING_EXCEPTIONS`` we log the problem as a
+        WARNING, otherwise we log it as an ERROR.
         """
         if exc_type is not None:
             log_level_function = None
