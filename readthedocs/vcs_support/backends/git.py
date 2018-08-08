@@ -63,9 +63,7 @@ class Backend(BaseVCS):
         return code == 0
 
     def are_submodules_available(self, config):
-        """
-        Test whether git submodule checkout step should be performed.
-        """
+        """Test whether git submodule checkout step should be performed."""
         # TODO remove this after users migrate to a config file
         from readthedocs.projects.models import Feature
         submodules_in_config = (
