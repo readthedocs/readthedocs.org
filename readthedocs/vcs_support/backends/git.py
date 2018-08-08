@@ -28,6 +28,7 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
+    supports_submodules = True
     fallback_branch = 'master'  # default branch
 
     def __init__(self, *args, **kwargs):
@@ -214,15 +215,14 @@ class Backend(BaseVCS):
 
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')
+        return code, out, err
 
-        # Update submodules, temporarily allow for skipping submodule checkout
-        # step for projects need more submodule configuration.
+    def update_submodules(self, config):
         if self.are_submodules_available():
             if self.are_submodules_valid():
                 self.checkout_submodules()
             else:
                 raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
-        return code, out, err
 
     def checkout_submodules(self):
         """Checkout all repository submodules recursively."""
