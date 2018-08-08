@@ -10,14 +10,15 @@ import os
 import re
 
 import git
+from builtins import str
 from django.core.exceptions import ValidationError
 from git.exc import BadName
 from six import PY2, StringIO
 
+from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
-from builtins import str
 
 log = logging.getLogger(__name__)
 
@@ -54,38 +55,57 @@ class Backend(BaseVCS):
 
     def update(self):
         # Use checkout() to update repo
+        # TODO: See where we call this
         self.checkout()
 
     def repo_exists(self):
         code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
-    def are_submodules_available(self):
+    def are_submodules_available(self, config):
         """
         Test whether git submodule checkout step should be performed.
-
-        .. note::
-
-            Temporarily, we support skipping these steps as submodule step can
-            fail if using private submodules. This will eventually be
-            configureable with our YAML config.
         """
-        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+        # TODO remove this after users migrate to a config file
         from readthedocs.projects.models import Feature
-        if self.project.has_feature(Feature.SKIP_SUBMODULES):
+        submodules_in_config = (
+            config.submodules.exclude != ALL and
+            config.submodules.include
+        )
+        if (self.project.has_feature(Feature.SKIP_SUBMODULES) or
+                not submodules_in_config):
             return False
+
+        # Keep compatibility with previous projects
         code, out, _ = self.run('git', 'submodule', 'status', record=False)
         return code == 0 and bool(out)
 
-    def are_submodules_valid(self):
-        """Test that all submodule URLs are valid."""
+    def validate_submodules(self, config):
+        """Returns the submodules and check that its URLs are valid."""
         repo = git.Repo(self.working_dir)
-        for submodule in repo.submodules:
+        submodules = {
+            sub.path: sub
+            for sub in repo.submodules
+        }
+
+        for sub_path in config.submodules.exclude:
+            path = sub_path.rstrip('/')
+            if path in submodules:
+                del submodules[path]
+
+        if config.submodules.include != ALL and config.submodules.include:
+            submodules_include = {}
+            for sub_path in config.submodules.include:
+                path = sub_path.rstrip('/')
+                submodules_include[path] = submodules[path]
+            submodules = submodules_include
+
+        for path, submodule in submodules.items():
             try:
                 validate_submodule_url(submodule.url)
             except ValidationError:
-                return False
-        return True
+                return False, []
+        return True, submodules.keys()
 
     def fetch(self):
         code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
@@ -115,8 +135,6 @@ class Backend(BaseVCS):
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
         from readthedocs.projects.models import Feature
         cmd = ['git', 'clone']
-        if not self.project.has_feature(Feature.SKIP_SUBMODULES):
-            cmd.append('--recursive')
         cmd.extend([self.repo_url, '.'])
         code, _, _ = self.run(*cmd)
         if code != 0:
@@ -218,23 +236,27 @@ class Backend(BaseVCS):
         return code, out, err
 
     def update_submodules(self, config):
-        if self.are_submodules_available():
-            if self.are_submodules_valid():
-                self.checkout_submodules()
+        if self.are_submodules_available(config):
+            valid, submodules = self.validate_submodules(config)
+            if valid:
+                self.checkout_submodules(submodules, config)
             else:
                 raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
 
-    def checkout_submodules(self):
-        """Checkout all repository submodules recursively."""
+    def checkout_submodules(self, submodules, config):
+        """Checkout all repository submodules."""
         self.run('git', 'submodule', 'sync')
-        self.run(
+        cmd = [
             'git',
             'submodule',
             'update',
             '--init',
-            '--recursive',
             '--force',
-        )
+        ]
+        if config.submodules.recursive:
+            cmd.append('--recursive')
+        cmd += submodules
+        self.run(*cmd)
 
     def find_ref(self, ref):
         # Check if ref starts with 'origin/'
