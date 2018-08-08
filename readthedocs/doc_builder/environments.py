@@ -726,13 +726,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             if not all([exc_type, exc_value, tb]):
                 exc_type, exc_value, tb = sys.exc_info()
 
-        ret = self.handle_exception(exc_type, exc_value, tb)
-        self.update_build(BUILD_STATE_FINISHED)
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg='Build finished'))
-        return ret
+        return super(DockerBuildEnvironment, self).__exit__(exc_type, exc_value, tb)
 
     def get_client(self):
         """Create Docker client connection."""
