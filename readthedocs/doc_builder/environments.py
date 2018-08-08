@@ -590,10 +590,10 @@ class BuildEnvironment(BaseEnvironment):
             # BuildEnvironmentError
             if not isinstance(
                     self.failure,
-                (
-                    BuildEnvironmentException,
-                    BuildEnvironmentWarning,
-                ),
+                    (
+                        BuildEnvironmentException,
+                        BuildEnvironmentWarning,
+                    ),
             ):
                 log.error(
                     'Build failed with unhandled exception: %s',
