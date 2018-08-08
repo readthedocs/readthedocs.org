@@ -3,7 +3,6 @@
 var exports = {
     THEME_RTD: 'sphinx_rtd_theme',
     THEME_ALABASTER: 'alabaster',
-    THEME_CELERY: 'sphinx_celery',
     THEME_MKDOCS_RTD: 'readthedocs',
 
     DEFAULT_PROMO_PRIORITY: 5,
@@ -15,7 +14,6 @@ var exports = {
 exports.PROMO_SUPPORTED_THEMES = [
     exports.THEME_RTD,
     exports.THEME_ALABASTER,
-    exports.THEME_CELERY
 ];
 
 exports.PROMO_TYPES = {

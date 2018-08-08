@@ -11,6 +11,11 @@ var configMethods = {
         return this.get_theme_name() === constants.THEME_RTD;
     },
 
+    is_alabaster_theme: function () {
+        // Returns true for Alabaster-like themes (eg. flask, celery)
+        return this.get_theme_name() === constants.THEME_ALABASTER;
+    },
+
     theme_supports_promo: function () {
         return constants.PROMO_SUPPORTED_THEMES.indexOf(this.get_theme_name()) > -1;
     },
@@ -24,14 +29,15 @@ var configMethods = {
     },
 
     get_theme_name: function () {
-        // Crappy heuristic, but people change the theme name on us.  So we have to
-        // do some duck typing.
-        if (this.theme !== constants.THEME_RTD) {
+        // Crappy heuristic, but people change the theme name on us.
+        // So we have to do some duck typing.
+        if (this.theme !== constants.THEME_RTD && this.theme !== constants.THEME_ALABASTER) {
             if (this.theme === constants.THEME_MKDOCS_RTD) {
                 return constants.THEME_RTD;
-            }
-            if ($('div.rst-other-versions').length === 1) {
+            } else if ($('div.rst-other-versions').length === 1) {
                 return constants.THEME_RTD;
+            } else if ($('div.sphinxsidebar > div.sphinxsidebarwrapper').length === 1) {
+                return constants.THEME_ALABASTER;
             }
         }
         return this.theme;

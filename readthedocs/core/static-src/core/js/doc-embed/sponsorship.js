@@ -24,8 +24,7 @@ function create_sidebar_placement() {
     } else if (rtd.is_rtd_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
-               rtd.get_theme_name() === constants.THEME_CELERY) {
+    } else if (rtd.is_alabaster_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
     }
@@ -66,8 +65,7 @@ function create_footer_placement() {
     if (rtd.is_rtd_theme()) {
         selector = $('<div />').insertAfter('footer hr');
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
-               rtd.get_theme_name() === constants.THEME_CELERY) {
+    } else if (rtd.is_alabaster_theme()) {
         selector = 'div.bodywrapper .body';
         class_name = 'ethical-alabaster';
     }
