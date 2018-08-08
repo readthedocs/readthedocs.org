@@ -472,8 +472,10 @@ class BuildEnvironment(BaseEnvironment):
                 log_level_function = log.warning
             elif exc_type in self.WARNING_EXCEPTIONS:
                 log_level_function = log.warning
+                self.failure = exc_value
             else:
                 log_level_function = log.error
+                self.failure = exc_value
 
             log_level_function(
                 LOG_TEMPLATE.format(
@@ -491,7 +493,6 @@ class BuildEnvironment(BaseEnvironment):
                     },
                 },
             )
-            self.failure = exc_value
             return True
 
     def record_command(self, command):
