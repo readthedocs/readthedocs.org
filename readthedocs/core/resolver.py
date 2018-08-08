@@ -147,6 +147,8 @@ class ResolverBase(object):
         canonical_project = self._get_canonical_project(project)
         custom_domain = self._get_project_custom_domain(canonical_project)
 
+        # This duplication from resolve_domain is for performance purposes
+        # in order to check whether a custom domain should be HTTPS
         if custom_domain:
             domain = custom_domain.domain
         elif self._use_subdomain():
