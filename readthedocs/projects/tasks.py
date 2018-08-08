@@ -45,7 +45,7 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (LocalBuildEnvironment,
                                                   DockerBuildEnvironment)
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError, VersionLockedError, ProjectBuildsSkippedError, YAMLParseError, BuildTimeoutError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Virtualenv, Conda
 from readthedocs.projects.models import APIProject
@@ -409,23 +409,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
             if self.project.skip:
-                raise BuildEnvironmentError(
-                    _('Builds for this project are temporarily disabled'))
+                raise ProjectBuildsSkippedError
             try:
                 self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
-                raise BuildEnvironmentError(
-                    'Version locked, retrying in 5 minutes.',
-                    status_code=423
-                )
-
+                raise VersionLockedError
             try:
                 self.config = load_yaml_config(version=self.version)
             except ConfigError as e:
-                raise BuildEnvironmentError(
-                    'Problem parsing YAML configuration. {0}'.format(str(e))
-                )
+                raise YAMLParseError(
+                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                        exception=str(e),
+                    ))
 
         if self.setup_env.failure or self.config is None:
             self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
@@ -485,12 +481,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 build_id = self.build.get('id')
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
-                raise BuildEnvironmentError(
-                    'Version locked, retrying in 5 minutes.',
-                    status_code=423
-                )
+                raise VersionLockedError
             except SoftTimeLimitExceeded:
-                raise BuildEnvironmentError(_('Build exited due to time out'))
+                raise BuildTimeoutError
 
             # Finalize build and update web servers
             if build_id:

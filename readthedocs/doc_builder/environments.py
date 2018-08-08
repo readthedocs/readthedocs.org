@@ -28,7 +28,7 @@ from readthedocs.restapi.client import api as api_v2
 from requests.exceptions import ConnectionError
 
 from .exceptions import (BuildEnvironmentException, BuildEnvironmentError,
-                         BuildEnvironmentWarning, BuildEnvironmentCreationFailed)
+                         BuildEnvironmentWarning, BuildEnvironmentCreationFailed, VersionLockedError, ProjectBuildsSkippedError, YAMLParseError, BuildTimeoutError)
 from .constants import (DOCKER_SOCKET, DOCKER_VERSION, DOCKER_IMAGE,
                         DOCKER_LIMITS, DOCKER_TIMEOUT_EXIT_CODE,
                         DOCKER_OOM_EXIT_CODE, SPHINX_TEMPLATE_DIR,
@@ -40,9 +40,11 @@ log = logging.getLogger(__name__)
 
 __all__ = (
     'api_v2',
-    'BuildCommand', 'DockerBuildCommand',
+    'BuildCommand',
+    'DockerBuildCommand',
     'LocalEnvironment',
-    'LocalBuildEnvironment', 'DockerBuildEnvironment',
+    'LocalBuildEnvironment',
+    'DockerBuildEnvironment',
 )
 
 
@@ -409,6 +411,16 @@ class BuildEnvironment(BaseEnvironment):
                               successful
     """
 
+    # Exceptions considered ERROR from a Build perspective but as a WARNING for
+    # the application itself. These exception are logged as warning and not sent
+    # to Sentry.
+    WARNING_EXCEPTIONS = (
+        VersionLockedError,
+        ProjectBuildsSkippedError,
+        YAMLParseError,
+        BuildTimeoutError,
+    )
+
     def __init__(self, project=None, version=None, build=None, config=None,
                  record=True, environment=None, update_on_success=True):
         super(BuildEnvironment, self).__init__(project, environment)
@@ -445,21 +457,30 @@ class BuildEnvironment(BaseEnvironment):
         a failure and the context will be gracefully exited.
         """
         if exc_type is not None:
-            if not issubclass(exc_type, BuildEnvironmentWarning):
-                log.error(LOG_TEMPLATE
-                          .format(project=self.project.slug,
-                                  version=self.version.slug,
-                                  msg=exc_value),
-                          exc_info=True,
-                          extra={
-                              'stack': True,
-                              'tags': {
-                                  'build': self.build.get('id'),
-                                  'project': self.project.slug,
-                                  'version': self.version.slug,
-                              },
-                          })
-                self.failure = exc_value
+            log_level_function = None
+            if issubclass(exc_type, BuildEnvironmentWarning):
+                log_level_function = log.warning
+            elif exc_type in self.WARNING_EXCEPTIONS:
+                log_level_function = log.warning
+            else:
+                log_level_function = log.error
+
+            log_level_function(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=exc_value,
+                ),
+                exc_info=True,
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'build': self.build.get('id'),
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                })
+            self.failure = exc_value
             return True
 
     def record_command(self, command):

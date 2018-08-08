@@ -31,5 +31,33 @@ class BuildEnvironmentCreationFailed(BuildEnvironmentError):
     )
 
 
+class VersionLockedError(BuildEnvironmentError):
+
+    message = ugettext_noop(
+        'Version locked, retrying in 5 minutes.',
+    )
+
+
+class ProjectBuildsSkippedError(BuildEnvironmentError):
+
+    message = ugettext_noop(
+        'Builds for this project are temporarily disabled',
+    )
+
+
+class YAMLParseError(BuildEnvironmentError):
+
+    GENERIC_WITH_PARSE_EXCEPTION = ugettext_noop(
+        'Problem parsing YAML configuration. {exception}',
+    )
+
+
+class BuildTimeoutError(BuildEnvironmentError):
+
+    message = ugettext_noop(
+        'Build exited due to time out',
+    )
+
+
 class BuildEnvironmentWarning(BuildEnvironmentException):
     pass
