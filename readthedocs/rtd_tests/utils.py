@@ -47,6 +47,8 @@ def check_output(command, env=None):
 def make_test_git():
     directory = mkdtemp()
     directory = make_git_repo(directory)
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)
 
     # Add fake repo as submodule. We need to fake this here because local path
