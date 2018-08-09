@@ -67,7 +67,7 @@ class Backend(BaseVCS):
         # TODO remove this after users migrate to a config file
         from readthedocs.projects.models import Feature
         submodules_in_config = (
-            config.submodules.exclude != ALL and
+            config.submodules.exclude != ALL or
             config.submodules.include
         )
         if (self.project.has_feature(Feature.SKIP_SUBMODULES) or
