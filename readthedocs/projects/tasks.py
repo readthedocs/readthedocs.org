@@ -421,9 +421,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         exception=str(e),
                     ))
 
-            version_repo = self.get_vcs_repo()
-            if version_repo.supports_submodules:
-                version_repo.update_submodules(self.config)
+            self.additional_vcs_operations()
 
         if self.setup_env.failure or self.config is None:
             self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
@@ -440,6 +438,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.set_valid_clone()
 
         return True
+
+    def additional_vcs_operations(self):
+        # TODO: execute with lock
+        version_repo = self.get_vcs_repo()
+        if version_repo.supports_submodules:
+            version_repo.update_submodules(self.config)
 
     def get_vcs_repo(self):
         version_repo = self.project.vcs_repo(
