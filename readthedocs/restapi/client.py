@@ -39,12 +39,14 @@ def setup_api():
     session = requests.Session()
     if API_HOST.startswith('https'):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
-        session.mount(
-            API_HOST,
-            host_header_ssl.HostHeaderSSLAdapter(
-                max_retries=3,
-            ),
-        )
+        adapter_class = host_header_ssl.HostHeaderSSLAdapter
+    else:
+        adapter_class = requests.adapters.HTTPAdapter
+
+    session.mount(
+        API_HOST,
+        adapter_class(max_retries=3),
+    )
     session.headers.update({'Host': PRODUCTION_DOMAIN})
     api_config = {
         'base_url': '%s/api/v2/' % API_HOST,
