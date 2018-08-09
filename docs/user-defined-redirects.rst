@@ -6,7 +6,7 @@ You can set up redirects for a project in your project dashboard's Redirects pag
 Quick Summary
 -------------
 
-* Log into your Readthedocs.com Admin account.
+* Log into your readthedocs.org account.
 * From your dashboard, select the project on which you wish to add redirects.
 * From the project's top navigation bar, select the Admin tab.
 * From the left navigation menu, select Redirects. 
@@ -18,6 +18,7 @@ Your redirects will be effective immediately.
 
 Redirect Types
 --------------
+
 Prefix Redirects
 ~~~~~~~~~~~~~~~~
 
@@ -44,6 +45,14 @@ Your users query would now redirect in the following manner::
 
 Where ``en`` and ``latest`` are the default language and version values for your project.
 
+
+.. note::
+
+   In other words, a *Prefix Redirect* removes a prefix from the original URL.
+   This prefix is removed from the rest of the URL's ``path`` after ``/$lang/$version``.
+   For example, if the URL is ``/es/1.0/guides/tutorial/install.html`` the "From URL's prefix" will be removed from ``/guides/tutorial/install.html`` part.
+
+
 Page Redirects
 ~~~~~~~~~~~~~~
 
@@ -61,6 +70,7 @@ You would set the following configuration::
 
 Note that the ``/`` at the start doesn't count the ``/en/latest``, 
 but just the user-controlled section of the URL.
+
 
 Exact Redirects
 ~~~~~~~~~~~~~~~
@@ -86,6 +96,22 @@ Your users query would now redirect in the following manner::
 
 Note that you should insert the desired language for "en" and version for "latest" to
 achieve the desired redirect.
+
+*Exact Redirects* could be also useful to redirect a whole sub-path to a different one by using a special ``$rest`` keyword in the "From URL".
+Let's say that you want to redirect your readers of your version ``2.0`` of your documentation under ``/en/2.0/`` because it's deprecated,
+to the newest ``3.0`` version of it at ``/en/3.0/``.
+
+This example would be::
+
+  Type: Exact Redirect
+  From URL: /en/2.0/$rest
+  To URL: /en/3.0/
+
+The readers of your documentation will now be redirected as::
+
+  docs.example.com/en/2.0/dev/install.html ->
+  docs.example.com/en/3.0/dev/install.html
+
 
 Sphinx Redirects
 ~~~~~~~~~~~~~~~~
