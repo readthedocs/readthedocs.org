@@ -533,6 +533,14 @@ class BuildConfigV1(BuildConfigBase):
             fail_on_warning=False,
         )
 
+    @property
+    def submodules(self):
+        return Submodules(
+            include=ALL,
+            exclude=[],
+            recursive=True,
+        )
+
 
 class BuildConfigV2(BuildConfigBase):
 
