@@ -36,10 +36,14 @@ TYPE_CHOICES = (
     # ('advanced', _('Advanced')),
 )
 
+# FIXME: this help_text message should be dynamic since "Absolute path" doesn't
+# make sense for "Prefix Redirects" since the from URL is considered after the
+# ``/$lang/$version/`` part. Also, there is a feature for the "Exact
+# Redirects" that should be mentioned here: the usage of ``$rest``
 from_url_helptext = _('Absolute path, excluding the domain. '
                       'Example: <b>/docs/</b>  or <b>/install.html</b>'
                       )
-to_url_helptext = _('Absolute or relative URL. Examples: '
+to_url_helptext = _('Absolute or relative URL. Example: '
                     '<b>/tutorial/install.html</b>'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
