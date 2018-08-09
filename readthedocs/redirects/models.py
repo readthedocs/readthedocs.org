@@ -154,8 +154,8 @@ class Redirect(models.Model):
         # Handle full sub-level redirects
         if '$rest' in self.from_url:
             match = self.from_url.split('$rest')[0]
-            if path.startswith(match):
-                cut_path = re.sub('^%s' % match, self.to_url, path)
+            if full_path.startswith(match):
+                cut_path = re.sub('^%s' % match, self.to_url, full_path)
                 return cut_path
 
     def redirect_sphinx_html(self, path, language=None, version_slug=None):

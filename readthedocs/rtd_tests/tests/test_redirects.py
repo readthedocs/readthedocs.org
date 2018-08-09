@@ -159,6 +159,33 @@ class RedirectAppTests(TestCase):
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
 
     @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_exact_with_rest(self):
+        """
+        Exact redirects can have a ``$rest`` in the ``from_url``.
+
+        Use case: we want to deprecate version ``2.0`` and replace it by
+        ``3.0``. We write an exact redirect from ``/en/2.0/$rest`` to
+        ``/en/3.0/``.
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='exact',
+            from_url='/en/latest/$rest', to_url='/en/version/', # change version
+        )
+        r = self.client.get('/en/latest/guides/install.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/version/guides/install.html')
+
+        Redirect.objects.create(
+            project=self.pip, redirect_type='exact',
+            from_url='/es/version/$rest', to_url='/en/master/', # change language and version
+        )
+        r = self.client.get('/es/version/guides/install.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/master/guides/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_keeps_version_number(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='page',
