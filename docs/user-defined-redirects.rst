@@ -1,7 +1,7 @@
 User-defined Redirects
 ======================
 
-You can set up redirects for a project in your project dashboard's Redirects page. 
+You can set up redirects for a project in your project dashboard's Redirects page.
 
 Quick Summary
 -------------
@@ -9,7 +9,7 @@ Quick Summary
 * Log into your readthedocs.org account.
 * From your dashboard, select the project on which you wish to add redirects.
 * From the project's top navigation bar, select the Admin tab.
-* From the left navigation menu, select Redirects. 
+* From the left navigation menu, select Redirects.
 * In the form box "Redirect Type" select the type of redirect you want. See below for detail.
 * Depending on the redirect type you select, enter FROM and/or TO URL as needed.
 * When finished, click the SUBMIT Button.
@@ -40,8 +40,8 @@ The example configuration would be::
 
 Your users query would now redirect in the following manner::
 
-	docs.example.com/dev/install.html ->
-	docs.example.com/en/latest/install.html
+        docs.example.com/dev/install.html ->
+        docs.example.com/en/latest/install.html
 
 Where ``en`` and ``latest`` are the default language and version values for your project.
 
@@ -68,7 +68,7 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-Note that the ``/`` at the start doesn't count the ``/en/latest``, 
+Note that the ``/`` at the start doesn't count the ``/en/latest``,
 but just the user-controlled section of the URL.
 
 .. tip::
@@ -95,8 +95,8 @@ The example configuration would be::
 
 Your users query would now redirect in the following manner::
 
-	docs.example.com/dev/install.html ->
-	docs.example.com/en/latest/installing-your-site.html
+        docs.example.com/dev/install.html ->
+        docs.example.com/en/latest/installing-your-site.html
 
 Note that you should insert the desired language for "en" and version for "latest" to
 achieve the desired redirect.
@@ -129,7 +129,7 @@ We also support redirects for changing the type of documentation Sphinx is build
 If you switch between *HTMLDir* and *HTML*, your URL's will change.
 A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
-The built in redirects for this will handle redirecting users appropriately. 
+The built in redirects for this will handle redirecting users appropriately.
 
 Implementation
 --------------
@@ -140,4 +140,3 @@ This means that redirects will only happen in the case of a *404 File Not Found*
 
 In the future we might implement redirect logic in Javascript,
 but this first version is only implemented in the 404 handlers.
-
