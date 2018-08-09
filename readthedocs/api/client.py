@@ -7,7 +7,7 @@ from __future__ import (
 import logging
 
 from django.conf import settings
-from requests import Session
+import requests
 from requests_toolbelt.adapters import host_header_ssl
 from slumber import API
 
@@ -20,8 +20,17 @@ API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org')
 
 
 def setup_api():
-    session = Session()
-    session.mount(API_HOST, host_header_ssl.HostHeaderSSLAdapter())
+    session = requests.Session()
+    if API_HOST.startswith('https'):
+        # Only use the HostHeaderSSLAdapter for HTTPS connections
+        adapter_class = host_header_ssl.HostHeaderSSLAdapter
+    else:
+        adapter_class = requests.adapters.HTTPAdapter
+
+    session.mount(
+        API_HOST,
+        adapter_class(max_retries=3),
+    )
     session.headers.update({'Host': PRODUCTION_DOMAIN})
     api_config = {
         'base_url': '%s/api/v1/' % API_HOST,
