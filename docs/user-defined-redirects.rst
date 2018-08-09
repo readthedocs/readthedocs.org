@@ -71,6 +71,10 @@ You would set the following configuration::
 Note that the ``/`` at the start doesn't count the ``/en/latest``, 
 but just the user-controlled section of the URL.
 
+.. tip::
+
+   *Page Redirects* can redirect URLs **outside** Read the Docs platform.
+
 
 Exact Redirects
 ~~~~~~~~~~~~~~~
@@ -111,6 +115,11 @@ The readers of your documentation will now be redirected as::
 
   docs.example.com/en/2.0/dev/install.html ->
   docs.example.com/en/3.0/dev/install.html
+
+
+.. tip::
+
+   *Exact Redirects* can redirect URLs **outside** Read the Docs platform.
 
 
 Sphinx Redirects
