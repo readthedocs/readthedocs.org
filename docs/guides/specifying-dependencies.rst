@@ -33,22 +33,9 @@ Once the requirements file has been created;
 Using a conda environment file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If using conda, the dependencies can be specified in the conda environment file, ``environment.yml`` .
+If using conda, the dependencies can be specified in the `conda environment file`_: ``environment.yml`` .
 
-More on Read the Doc's conda support: :doc:`/conda`
-
-Working with `conda and environment.yml`_
-
-.. note:: Conda is only supported via the YAML file.
-
-This conda environment file can be specified in ``readthedocs.yml`` in the ``conda`` block. 
-
-.. code-block:: yaml
-
-    conda:
-        file: environment.yml
-
-As before, the path should be relative to the documentation repository root.
+More on Read the Doc's conda support: :doc:`/conda`.
 
 .. _`pip user guide`: https://pip.pypa.io/en/stable/user_guide/#requirements-files
-.. _`conda and environment.yml`: https://conda.io/docs/user-guide/tasks/manage-environments.html
+.. _`conda environment file`: https://conda.io/docs/user-guide/tasks/manage-environments.html
