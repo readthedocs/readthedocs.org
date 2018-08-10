@@ -46,6 +46,10 @@ By default, when you setup a custom domain to host documentation at Read the Doc
 we will attempt to provision a domain validated SSL certificate for the domain.
 This service is generously provided by Cloudflare.
 
+If your domain has configred CAA records, please do not forget to include
+Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
+FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`_.
+
 .. note::
 
     Some older setups configured a CNAME record pointing to ``readthedocs.org``
