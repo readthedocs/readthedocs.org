@@ -16,18 +16,10 @@ To use the requirements file, create and place the requirements file in the root
 
     docs/requirements.txt
 
-Using the YAML configuration file
----------------------------------
+Using a configuration file
+--------------------------
 
-The recommended approach for specifying a pip requirements file is to use a ``readthedocs.yml`` file. 
-
-The file's path should be relative to documentation root.
-
-.. code-block:: yaml
-
-    requirements_file: requirements.txt
-
-See :doc:`/yaml-config` for setting up the .yml file
+The recommended approach for specifying a pip requirements file is to use a :doc:`/config-file/index` file. 
 
 Using the project admin dashboard
 ---------------------------------
