@@ -27,6 +27,9 @@ management command::
 
     ./manage.py reindex_elasticsearch
 
+For performance optimization, we implemented our own version of management command rather than
+the built in management command provided by the `django-elasticsearch-dsl`_ package.
+
 Auto Indexing
 ^^^^^^^^^^^^^
 By default, Auto Indexing is turned off in development mode. To turn it on, change the
@@ -54,13 +57,17 @@ How we index documentations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After any build is successfully finished, `HTMLFile` objects are created for each of the
-`HTML` files and the old version's `HTMLFile` object is deleted. The Signal_
-`bulk_post_create` is dispatched for created and `bulk_post_delete` is dispatched for deleted
-files. Both of the signals are dispatched with the list of the instances of `HTMLFile`
-in `instance_list` parameter.
+`HTML` files and the old version's `HTMLFile` object is deleted. By default,
+`django-elasticsearch-dsl`_ package listens to the `post_create`/`post_delete` signals
+to index/delete documents, but it has performance drawbacks as it send HTTP request whenever
+any `HTMLFile` objects is created or deleted. To optimize the performance, `bulk_post_create`
+and `bulk_post_delete` Signals_ are dispatched with list of `HTMLFIle` objects so its possible
+to bulk index documents in elasticsearch ( `bulk_post_create` signal is dispatched for created
+and `bulk_post_delete` is dispatched for deleted objects). Both of the signals are dispatched
+with the list of the instances of `HTMLFile` in `instance_list` parameter.
 
-We listen to the `bulk_post_create` and `bulk_post_delete` signals in our `Search` application and
-index/delete the documentation content from the `HTMLFile` instances.
+We listen to the `bulk_post_create` and `bulk_post_delete` signals in our `Search` application
+and index/delete the documentation content from the `HTMLFile` instances.
 
 
 How we index projects
@@ -89,6 +96,10 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
     the `readthedocs/search/signals.py` file. Both of the signals are dispatched
     after a successful documentation build.
 
+    The fields and ES Datatypes are specified in the `PageDocument`. The indexable data is taken
+    from `processed_json` property of `HTMLFile`. This property provides python dictionary with
+    document data like `title`, `headers`, `content` etc.
+
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Elasticsearch 6.3: https://www.elastic.co/guide/en/elasticsearch/reference/6.3/index.html
@@ -96,4 +107,4 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 .. _Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
-.. _Signal: https://docs.djangoproject.com/en/2.1/topics/signals/
+.. _Signals: https://docs.djangoproject.com/en/2.1/topics/signals/
