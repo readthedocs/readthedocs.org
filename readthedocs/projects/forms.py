@@ -394,7 +394,9 @@ def build_versions_form(project):
                 version.identifier[:8],
             )
         else:
-            label = version.verbose_name
+            label = version.slug
+            if version.slug not in version.identifier:
+                label += ' ({})'.format(version.identifier)
         attrs[field_name] = forms.BooleanField(
             label=label,
             widget=DualCheckboxWidget(version),

@@ -14,9 +14,16 @@
 {% block content-header %}<h1>{% blocktrans with version.name as version_name %}{{ version_name }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
-    <h2> Editing {{ version.slug }} </h2>
+    <h2>{% blocktrans with version_name=version.verbose_name %}Editing version {{ version_name }}{% endblocktrans %}</h2>
+
     <form method="post" action=".">
       {% csrf_token %}
+
+      <p>
+      <label>Version control identifier:</label>
+      <strong style="color: black">{{ version.identifier }}</strong>
+    </p>
+
       {{ form.as_p }}
       <p>
         <input style="display: inline;" type="submit" value="{% trans "Save" %}">

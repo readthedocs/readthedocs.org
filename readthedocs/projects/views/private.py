@@ -22,6 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
+
+from readthedocs.builds.constants import STABLE, LATEST
 from readthedocs.builds.forms import AliasForm, VersionForm
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
@@ -154,6 +156,15 @@ def project_version_detail(request, project_slug, version_slug):
     if request.method == 'POST' and form.is_valid():
         version = form.save()
         if form.has_changed():
+            if 'slug' in form.changed_data and version.slug not in (STABLE, LATEST):
+                # Rebuild symlinks to the new slug, remove the old slug's symlink
+                # Latest and Stable would appear here because they are disabled on the form
+                log.info('Rebuilding symlinks for %s. A version slug changed', version.project)
+                broadcast(type='app', task=tasks.symlink_project, args=[version.project.pk])
+
+                log.info('Triggering a build of the moved version')
+                trigger_build(version.project, version)
+
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
                 broadcast(

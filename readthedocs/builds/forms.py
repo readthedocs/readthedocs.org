@@ -3,8 +3,12 @@
 from __future__ import absolute_import
 from builtins import object
 from django import forms
+from django.core.validators import RegexValidator
+from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.builds.models import VersionAlias, Version
+from .constants import STABLE, LATEST
+from .models import VersionAlias, Version
+from .version_slug import VERSION_SLUG_REGEX
 from readthedocs.projects.models import Project
 from readthedocs.core.utils import trigger_build
 
@@ -29,9 +33,22 @@ class AliasForm(forms.ModelForm):
 
 class VersionForm(forms.ModelForm):
 
+    slug = forms.CharField(
+        max_length=255,
+        validators=[RegexValidator('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))],
+        help_text=_("Used in this version's URL"),
+    )
+
     class Meta(object):
         model = Version
-        fields = ['active', 'privacy_level', 'tags']
+        fields = ['slug', 'active', 'privacy_level', 'tags']
+
+    def __init__(self, *args, **kwargs):
+        super(VersionForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.slug in (LATEST, STABLE):
+            self.fields['slug'].disabled = True
+            self.fields['slug'].help_text += ' - it is read only for "{}"'.format(
+                self.instance.slug)
 
     def save(self, commit=True):
         obj = super(VersionForm, self).save(commit=commit)
