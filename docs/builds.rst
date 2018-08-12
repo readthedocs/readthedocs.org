@@ -42,7 +42,7 @@ MkDocs
 ~~~~~~
 
 When you choose *Mkdocs* as your *Documentation Type*,
-we will first look for a ``mkdocs.yml`` file in the root of your repository.
+we will first look for a ``mkdocs.yml`` file in the ```doc``` or ```docs``` directory.
 If we don't find one,
 we will generate one for you.
 
