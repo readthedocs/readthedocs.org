@@ -12,7 +12,7 @@ Reduce formats you're building
 
 You can change the formats of docs that you're building with our YAML file's :ref:`yaml-config:Formats` option.
 
-In particular, the `htmlzip` takes up a decent amount of memory and time,
+In particular, the ``htmlzip`` takes up a decent amount of memory and time,
 so disabling that format might solve your problem.
 
 Reduce documentation build dependencies
@@ -27,8 +27,19 @@ as well as reduce your memory footprint.
 Use pip when possible
 ---------------------
 
-In case you are using `conda` to create your environment,
-you could consider using `pip` instead since `conda` could require too much memory to calculate the dependency tree.
+If you don't need ``conda`` to create your *documentation* environment,
+consider using ``pip`` instead since ``conda`` could `require too much memory`_ to calculate the dependency tree
+when using multiple channels.
+
+.. _require too much memory: https://github.com/conda/conda/issues/5003>
+
+
+.. tip::
+
+   Even though your *project* environment is created with ``conda``, it may be not necessary for the *documentation* environment.
+   That is, to build the documentation is probably that you need fewer Python packages than to use your library itself.
+   So, in this case, you could use ``pip`` to install those fewer packages instead of creating a big environment with ``conda``.
+
 
 Use system site-packages for pre-installed libs
 -----------------------------------------------
@@ -37,6 +48,6 @@ There are a few libraries that Read the Docs has already installed (scipy, numpy
 in the Docker image used to build your docs. You can check the updated list of pre-installed libraries in the `Docker image repository`_.
 
 To use these pre-installed libraries and avoid consuming time re-downloading/compiling them,
-you ca use the :ref:`yaml-config:Python-use-system-site-packages` option to have access to them.
+you can use the :ref:`yaml-config:python.use_system_site_packages` option to have access to them.
 
 .. _Docker image repository: https://github.com/rtfd/readthedocs-docker-images
