@@ -46,7 +46,11 @@ By default, when you setup a custom domain to host documentation at Read the Doc
 we will attempt to provision a domain validated SSL certificate for the domain.
 This service is generously provided by Cloudflare.
 
-If your domain has configred CAA records, please do not forget to include
+After configuring your custom domain on Read the Docs,
+you can see the status of the certificate on the domain edit screen
+(**Project Admin > Domains > Edit Domain**).
+
+If your domain has configured CAA records, please do not forget to include
 Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
 FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`_.
 
@@ -55,7 +59,8 @@ FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification
     Some older setups configured a CNAME record pointing to ``readthedocs.org``
     or another variation. While these continue to resolve,
     they do not yet allow us to acquire SSL certificates for those domains.
-    Simply point the CNAME to ``readthedocs.io``.
+    Point the CNAME to ``readthedocs.io`` and re-request a certificate
+    by saving the domain (**Project Admin > Domains > Edit Domain**).
 
     If you change the CNAME, the SSL certificate issuance can take about one hour.
 
