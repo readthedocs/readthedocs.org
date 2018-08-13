@@ -42,11 +42,11 @@ MkDocs
 ~~~~~~
 
 When you choose *Mkdocs* as your *Documentation Type*,
-we will first look for a ``mkdocs.yml`` file in the ```doc``` or ```docs``` directory.
+we will first look for a ``mkdocs.yml`` file in the root of your repository, and if not found, within a ``doc`` or ``docs`` directory.
 If we don't find one,
 we will generate one for you.
 
-Then MkDocs will build any files with a ``.md`` extension.
+Then MkDocs will build any files with a ``.md`` extension within the ``doc`` or ``docs`` directory.
 As MkDocs doesn't support automatic PDF generation, 
 Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
 
