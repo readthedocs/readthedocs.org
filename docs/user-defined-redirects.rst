@@ -73,7 +73,8 @@ but just the user-controlled section of the URL.
 
 .. tip::
 
-   *Page Redirects* can redirect URLs **outside** Read the Docs platform.
+   *Page Redirects* can redirect URLs **outside** Read the Docs platform
+   just by defining the "To URL" as the absolute URL you want to redirect to.
 
 
 Exact Redirects
@@ -119,7 +120,8 @@ The readers of your documentation will now be redirected as::
 
 .. tip::
 
-   *Exact Redirects* can redirect URLs **outside** Read the Docs platform.
+   *Exact Redirects* can redirect URLs **outside** Read the Docs platform
+   just by defining the "To URL" as the absolute URL you want to redirect to.
 
 
 Sphinx Redirects
