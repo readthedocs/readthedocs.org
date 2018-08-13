@@ -156,12 +156,9 @@ def project_version_detail(request, project_slug, version_slug):
     if request.method == 'POST' and form.is_valid():
         version = form.save()
         if form.has_changed():
-            if 'slug' in form.changed_data and version.slug not in (STABLE, LATEST):
-                # Rebuild symlinks to the new slug, remove the old slug's symlink
-                # Latest and Stable would appear here because they are disabled on the form
-                log.info('Rebuilding symlinks for %s. A version slug changed', version.project)
-                broadcast(type='app', task=tasks.symlink_project, args=[version.project.pk])
-
+            if (version.active and 'slug' in form.changed_data and
+                    version.slug not in (STABLE, LATEST)):
+                # Latest and Stable appear "changed" because they are disabled on the form
                 log.info('Triggering a build of the moved version')
                 trigger_build(version.project, version)
 
