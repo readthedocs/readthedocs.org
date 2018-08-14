@@ -153,16 +153,16 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(
             config['extra_css'],
             [
-                'http://readthedocs.org/media/css/badge_only.css',
-                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+                'http://readthedocs.org/static/css/badge_only.css',
+                'http://readthedocs.org/static/css/readthedocs-doc-embed.css'
             ]
         )
         self.assertEqual(
             config['extra_javascript'],
             [
                 'readthedocs-data.js',
-                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
-                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
             ]
         )
         self.assertIsNone(
@@ -205,16 +205,16 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(
             config['extra_css'],
             [
-                'http://readthedocs.org/media/css/badge_only.css',
-                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+                'http://readthedocs.org/static/css/badge_only.css',
+                'http://readthedocs.org/static/css/readthedocs-doc-embed.css'
             ]
         )
         self.assertEqual(
             config['extra_javascript'],
             [
                 'readthedocs-data.js',
-                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
-                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
             ]
         )
         self.assertIsNone(
