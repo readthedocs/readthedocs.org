@@ -167,7 +167,7 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
 
     # Assets and media
-    STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
+    STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
     STATIC_URL = '/static/'
     MEDIA_ROOT = os.path.join(SITE_ROOT, 'media/')
     MEDIA_URL = '/media/'
