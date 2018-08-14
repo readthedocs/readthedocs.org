@@ -18,14 +18,13 @@ function create_sidebar_placement() {
     var class_name;         // Used for theme specific CSS customizations
     var offset;
 
-    if (rtd.is_mkdocs_builder() && rtd.is_rtd_theme()) {
+    if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side';
         class_name = 'ethical-rtd';
-    } else if (rtd.is_rtd_theme()) {
+    } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
-               rtd.get_theme_name() === constants.THEME_CELERY) {
+    } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
     }
@@ -63,11 +62,10 @@ function create_footer_placement() {
     var class_name;
     var offset;
 
-    if (rtd.is_rtd_theme()) {
+    if (rtd.is_rtd_like_theme()) {
         selector = $('<div />').insertAfter('footer hr');
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
-               rtd.get_theme_name() === constants.THEME_CELERY) {
+    } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.bodywrapper .body';
         class_name = 'ethical-alabaster';
     }

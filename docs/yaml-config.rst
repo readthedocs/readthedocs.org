@@ -8,7 +8,7 @@ The file, ``readthedocs.yml``, must be in the root directory of your project.
              Please file an `issue`_ if you find anything wrong.
 
 
-Here is an example of how this file looks like:
+Here is an example of what this file looks like:
 
 .. code:: yaml
 

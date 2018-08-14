@@ -21,6 +21,14 @@
 {% endblock %}
 
 {% block project_edit_content %}
+  {% if domain.domainssl %}
+    {# This references optional code to get the SSL certificate status #}
+    <p>
+      <strong>HTTPS status: </strong>
+      <span>{{ domain.domainssl.status }}</span>
+    </p>
+  {% endif %}
+
   {% if domain %}
     {% url 'projects_domains_edit' project.slug domain.pk as action_url %}
   {% else %}

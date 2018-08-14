@@ -985,7 +985,7 @@ class Domain(models.Model):
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
-        help_text=_('SSL is enabled for this domain')
+        help_text=_('Always use HTTPS for this domain')
     )
     count = models.IntegerField(default=0, help_text=_(
         'Number of times this domain has been hit'),)
