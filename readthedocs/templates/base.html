@@ -10,7 +10,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   {% block extra_metas %}{% endblock extra_metas %}
 
-  <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 
   <!-- title -->
   <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
@@ -47,7 +47,7 @@
   <!-- End Google Analytics -->
 
   <!-- css -->
-  <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
+  <link rel="stylesheet" href="{% static 'css/core.css' %}">
   {% block extra_links %}{% endblock %}
 
   <!-- jquery -->
@@ -58,7 +58,7 @@
     require('jquery');
   </script>
 
-  <script src="{{ MEDIA_URL }}javascript/base.js"></script>
+  <script src="{% static 'javascript/base.js' %}"></script>
   <script src="{% static 'core/js/site.js' %}"></script>
   <script>
     var site = require('core/site');
