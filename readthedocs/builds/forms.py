@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 from builtins import object
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from .constants import STABLE, LATEST
 from .models import VersionAlias, Version
@@ -46,7 +46,7 @@ class VersionForm(forms.ModelForm):
         super(VersionForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.slug in (LATEST, STABLE):
             self.fields['slug'].disabled = True
-            self.fields['slug'].help_text += _(' - read only for special versions')
+            self.fields['slug'].help_text += ugettext(' - read only for special versions')
 
     def clean_slug(self):
         slug = self.cleaned_data['slug']
@@ -54,7 +54,7 @@ class VersionForm(forms.ModelForm):
         version = self.instance
         if version:
             if Version.objects.filter(project=version.project, slug=slug).exclude(
-                    pk=version.pk).count() > 0:
+                    pk=version.pk).exists():
                 raise forms.ValidationError(
                     _('There is already a version for this project with that slug'),
                 )
