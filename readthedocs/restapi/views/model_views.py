@@ -233,7 +233,7 @@ class VersionViewSet(UserSelectViewSet):
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
     model = Version
-    filter_fields = ('project__slug',)
+    filter_fields = ('active', 'project__slug',)
 
 
 class BuildViewSetBase(UserSelectViewSet):

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 from django.conf import settings
 
-from readthedocs import get_version
+import readthedocs
 from readthedocs.worker import app
 
 from .utils import send_to_analytics
@@ -21,7 +21,7 @@ DEFAULT_PARAMETERS = {
 
     # Application info
     'an': 'Read the Docs',
-    'av': get_version(),    # App version
+    'av': readthedocs.__version__,    # App version
 }
 
 

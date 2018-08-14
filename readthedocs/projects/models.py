@@ -884,7 +884,6 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
-        self.ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -894,6 +893,9 @@ class APIProject(Project):
             except KeyError:
                 pass
         super(APIProject, self).__init__(*args, **kwargs)
+
+        # Overwrite the database property with the value from the API
+        self.ad_free = (not kwargs.pop('show_advertising', True))
 
     def save(self, *args, **kwargs):
         return 0
@@ -983,7 +985,7 @@ class Domain(models.Model):
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
-        help_text=_('SSL is enabled for this domain')
+        help_text=_('Always use HTTPS for this domain')
     )
     count = models.IntegerField(default=0, help_text=_(
         'Number of times this domain has been hit'),)
@@ -1040,6 +1042,7 @@ class Feature(models.Model):
     SKIP_SUBMODULES = 'skip_submodules'
     BUILD_JSON_ARTIFACTS_WITH_HTML = 'build_json_artifacts_with_html'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
+    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1051,6 +1054,8 @@ class Feature(models.Model):
             'Build the json artifacts with the html build step')),
         (DONT_OVERWRITE_SPHINX_CONTEXT, _(
             'Do not overwrite context vars in conf.py with Read the Docs context',)),
+        (ALLOW_V2_CONFIG_FILE, _(
+            'Allow to use the v2 of the configuration file')),
     )
 
     projects = models.ManyToManyField(

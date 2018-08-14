@@ -1,3 +1,41 @@
+Version 2.6.2
+-------------
+
+:Date: August 14, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`__: Custom domain clarifications (`#4514 <https://github.com/rtfd/readthedocs.org/pull/4514>`__)
+* `@trein <http://github.com/trein>`__: Use single quote throughout the file (`#4513 <https://github.com/rtfd/readthedocs.org/pull/4513>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Support ads on pallets themes (`#4499 <https://github.com/rtfd/readthedocs.org/pull/4499>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Only use HostHeaderSSLAdapter for SSL/HTTPS connections (`#4498 <https://github.com/rtfd/readthedocs.org/pull/4498>`__)
+* `@keflavich <http://github.com/keflavich>`__: Very minor English correction (`#4497 <https://github.com/rtfd/readthedocs.org/pull/4497>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: All static media is run through "collectstatic" (`#4489 <https://github.com/rtfd/readthedocs.org/pull/4489>`__)
+* `@humitos <http://github.com/humitos>`__: Fix reST structure (`#4488 <https://github.com/rtfd/readthedocs.org/pull/4488>`__)
+* `@nijel <http://github.com/nijel>`__: Document expected delay on CNAME change and need for CAA (`#4487 <https://github.com/rtfd/readthedocs.org/pull/4487>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow enforcing HTTPS for custom domains (`#4483 <https://github.com/rtfd/readthedocs.org/pull/4483>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add some details around community ad qualifications (`#4436 <https://github.com/rtfd/readthedocs.org/pull/4436>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Updates to manifest storage (`#4430 <https://github.com/rtfd/readthedocs.org/pull/4430>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Update alt domains docs with SSL (`#4425 <https://github.com/rtfd/readthedocs.org/pull/4425>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add SNI support for API HTTPS endpoint (`#4423 <https://github.com/rtfd/readthedocs.org/pull/4423>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: API v1 cleanup (`#4415 <https://github.com/rtfd/readthedocs.org/pull/4415>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow filtering versions by active (`#4414 <https://github.com/rtfd/readthedocs.org/pull/4414>`__)
+* `@mlncn <http://github.com/mlncn>`__: Fix broken link (`#4410 <https://github.com/rtfd/readthedocs.org/pull/4410>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4407] Port Project Search for Elasticsearch 6.x (`#4408 <https://github.com/rtfd/readthedocs.org/pull/4408>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add client ID to Google Analytics requests (`#4404 <https://github.com/rtfd/readthedocs.org/pull/4404>`__)
+* `@xrmx <http://github.com/xrmx>`__: projects: fix filtering in projects_tag_detail (`#4398 <https://github.com/rtfd/readthedocs.org/pull/4398>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix a proxy model bug related to ad-free (`#4390 <https://github.com/rtfd/readthedocs.org/pull/4390>`__)
+* `@humitos <http://github.com/humitos>`__: Release 2.6.1 (`#4389 <https://github.com/rtfd/readthedocs.org/pull/4389>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Do not access database from builds to check ad-free (`#4387 <https://github.com/rtfd/readthedocs.org/pull/4387>`__)
+* `@humitos <http://github.com/humitos>`__: Adapt YAML config integration tests (`#4385 <https://github.com/rtfd/readthedocs.org/pull/4385>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set full `source_file` path for default configuration (`#4379 <https://github.com/rtfd/readthedocs.org/pull/4379>`__)
+* `@humitos <http://github.com/humitos>`__: Make `get_version` usable from a specified path (`#4376 <https://github.com/rtfd/readthedocs.org/pull/4376>`__)
+* `@humitos <http://github.com/humitos>`__: More tags when logging errors to Sentry (`#4375 <https://github.com/rtfd/readthedocs.org/pull/4375>`__)
+* `@humitos <http://github.com/humitos>`__: Check for 'options' in update_repos command (`#4373 <https://github.com/rtfd/readthedocs.org/pull/4373>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix  #4333] Implement asynchronous search reindex functionality using celery (`#4368 <https://github.com/rtfd/readthedocs.org/pull/4368>`__)
+* `@stsewd <http://github.com/stsewd>`__: V2 of the configuration file (`#4355 <https://github.com/rtfd/readthedocs.org/pull/4355>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Remove the UID from the GA measurement protocol (`#4347 <https://github.com/rtfd/readthedocs.org/pull/4347>`__)
+* `@humitos <http://github.com/humitos>`__: Mount `pip_cache_path` in Docker container (`#3556 <https://github.com/rtfd/readthedocs.org/pull/3556>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Show subprojects in search results (`#1866 <https://github.com/rtfd/readthedocs.org/pull/1866>`__)
+
 Version 2.6.1
 -------------
 

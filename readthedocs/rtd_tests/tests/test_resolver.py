@@ -472,6 +472,22 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_domain_https(self):
+        self.domain = fixture.get(
+            Domain,
+            domain='docs.foobar.com',
+            project=self.pip,
+            https=True,
+            canonical=True,
+        )
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=self.pip)
+            self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_subproject(self):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.subproject)
@@ -740,7 +756,7 @@ class TestSubprojectsWithTranslations(TestCase):
             domain='docs.example.com',
             canonical=True,
             cname=True,
-            https=True,
+            https=False,
             project=self.superproject_en,
         )
 
