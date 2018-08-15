@@ -11,6 +11,7 @@ Current sponsors
 
 * `Rackspace`_ - They cover all of our hosting expenses every month.  This is a pretty large sum of money, averaging around $3,000/mo, and we are really grateful to have them as a sponsor.
 * `Mozilla`_ - Mozilla has given us a `MOSS grant`_ for building specific features, and have funded Eric Holscher to work on Read the Docs at $1,000/mo for 2016.
+* `Cloudflare`_ - Cloudflare is providing us with an enterprise plan of their SSL for SaaS Providers product that enables us to provide SSL certificates for custom domains.
 * You? (Email us at rev@readthedocs.org for more info)
 
 Past sponsors
@@ -32,6 +33,7 @@ Past sponsors
 .. _Rackspace: http://www.rackspace.com/
 .. _Mozilla: https://www.mozilla.org/en-US/
 .. _Twilio: http://twilio.com/
+.. _Cloudflare: https://www.cloudflare.com/
 
 
 Sponsorship Information
