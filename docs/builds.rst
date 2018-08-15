@@ -123,18 +123,18 @@ but you can change that using a :doc:`configuration file <yaml-config>`.
   * ``m2crypto``
   * ``matplolib``
   * ``numpy``
-  * ``scipy``
   * ``pandas``
   * ``pip``
+  * ``scipy``
 :Other packages:
+  * ``doxygen``
+  * ``graphviz``
+  * ``libevent``
+  * ``libjpeg``
   * ``libxml2-dev``
   * ``libxslt1.1``
-  * ``libevent``
-  * ``textlive-full``
-  * ``graphviz``
   * ``pandoc``
-  * ``doxygen``
-  * ``libjpeg``
+  * ``textlive-full``
 
 `More details <https://github.com/rtfd/readthedocs-docker-images/blob/releases/2.x/Dockerfile>`__
 
@@ -146,23 +146,23 @@ but you can change that using a :doc:`configuration file <yaml-config>`.
 :Python:
   * ``matplolib``
   * ``numpy``,
-  * ``scipy``
   * ``pandas``
   * ``pip``
+  * ``scipy``
 :JavaScript:
+  * ``jsdoc``
   * ``nodejs``
   * ``npm``
-  * ``jsdoc``
 :Other packages:
+  * ``doxygen``
+  * ``libevent-dev``
+  * ``libgraphviz-dev``
+  * ``libjpeg``
   * ``libxml2-dev``
   * ``libxslt1-dev``
-  * ``libevent-dev``
-  * ``textlive-full``
-  * ``libgraphviz-dev``
   * ``pandoc``
-  * ``doxygen``
-  * ``libjpeg``
   * ``plantuml``
+  * ``textlive-full``
 
 `More details <https://github.com/rtfd/readthedocs-docker-images/blob/releases/3.x/Dockerfile>`__
 
