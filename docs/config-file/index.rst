@@ -15,6 +15,7 @@ The main advantages of using a configuration file over the web interface are:
 - Some settings are only available using a configuration file
 - The settings are per version rather than per project.
 - The settings live in your VCS.
+- Reproducible build environments over time.
 
 .. note::
    
