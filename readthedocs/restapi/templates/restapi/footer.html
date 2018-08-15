@@ -1,7 +1,6 @@
 {% load cache %}
 
 {# Vary the cache on the version #}
-{% cache 60 footer-html version.pk %}
 
 <!-- Inserted RTD Footer -->
 <div class="injected">
@@ -16,6 +15,7 @@
     <div class="rst-other-versions">
       {% endif %}
 
+      {% cache 60 footer_html_versions project.pk %}
       {% block versions %}
       {% if translations %}
       <dl>
@@ -62,6 +62,7 @@
       </dl>
       {% endif %}
       {% endblock %}
+      {% endcache %}
 
       {% block readthedocs %}
       <dl>
@@ -142,4 +143,3 @@
 
 </div>
 
-{% endcache %}
