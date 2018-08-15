@@ -472,7 +472,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.update_documentation_type()
 
             python_env_cls = Virtualenv
-            if self.config.conda:
+            if self.config.conda is not None:
                 self._log('Using conda')
                 python_env_cls = Conda
             self.python_env = python_env_cls(
@@ -558,7 +558,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             'READTHEDOCS_PROJECT': self.project.slug
         }
 
-        if self.config.conda:
+        if self.config.conda is not None:
             env.update({
                 'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
                 'CONDA_DEFAULT_ENV': self.version.slug,
