@@ -225,7 +225,7 @@ Read the Docs would try to find a ``conf.py`` file in your project.
 sphinx.fail_on_warning
 ``````````````````````
 
-Turn warnings into errors.
+`Turn warnings into errors <http://www.sphinx-doc.org/en/master/man/sphinx-build.html#id6>`__.
 This means that the build stops at the first warning and exits with exit status 1.
 
 :Type: ``bool``
@@ -257,7 +257,7 @@ Read the Docs would try to find a ``mkdocs.yml`` file in your project.
 mkdocs.fail_on_warning
 ``````````````````````
 
-Turn warnings into errors.
+`Turn warnings into errors <https://www.mkdocs.org/user-guide/configuration/#strict>`__.
 This means that the build stops at the first warning and exits with exit status 1.
 
 :Type: ``bool``
