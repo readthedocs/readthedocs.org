@@ -20,9 +20,9 @@
       {% csrf_token %}
 
       <p>
-      <label>Version control identifier:</label>
-      <strong style="color: black">{{ version.identifier }}</strong>
-    </p>
+      <label>{% trans 'Version control identifier' %}:</label>
+        <strong style="color: black">{{ version.identifier }}</strong>
+      </p>
 
       {{ form.as_p }}
       <p>
