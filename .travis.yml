@@ -20,6 +20,7 @@ cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/nvm.sh
+    - ~/.npm
 install:
   - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis
