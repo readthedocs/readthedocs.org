@@ -104,10 +104,15 @@ but you can change that using a :doc:`configuration file <yaml-config>`.
 
 .. note::
    
-   The build server does have a select number of C libraries installed,
+   The Docker image does have a select number of C libraries installed,
    because they are used across a wide array of python projects.
    We can't install every C library out there,
    but we try and support the major ones
+
+.. tip::
+   
+   If you want to know the specific version of a package that is installed in the image
+   you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
 
 2.0 (stable)
 ~~~~~~~~~~~~
