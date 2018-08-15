@@ -49,7 +49,7 @@ we will generate one for you.
 Then MkDocs will build any files with a ``.md`` extension within the directory specifed as ``docs_dir`` in the ``mkdocs.yml``. 
 
 If no ``mkdocs.yml`` was found in the root of your repository and we generated one for you, 
-MkDocs will attempt to set ``docs_dir`` by sequentially searching for a  ``docs``, ``doc``, ``Doc``, or ``book`` directory. 
+Read the Docs will attempt to set ``docs_dir`` by sequentially searching for a  ``docs``, ``doc``, ``Doc``, or ``book`` directory. 
 The first of these directories that exists and contains files with a ``.md`` extension will be set to ``docs_dir`` within ``mkdocs.yml``,
 and MkDocs will build the ``.md`` files in that directory. 
 As MkDocs doesn't support automatic PDF generation, 
