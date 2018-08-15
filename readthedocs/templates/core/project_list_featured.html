@@ -14,13 +14,10 @@
         <a href="#">&#x25BC;</a>
       </span>
       <ul>
-          {% with project.get_stable_version as version %}
-          {% if version %}
-            <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-          {% else %}
-            <li>No stable version</li>
-          {% endif %}
-          {% endwith %}
+          <li><input type="search" placeholder="{% trans "Search" %}&hellip;" /></li>
+          {% for version in project.ordered_active_versions reversed %}
+              <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+          {% endfor %}
       </ul>
     </span>
     {% else %}

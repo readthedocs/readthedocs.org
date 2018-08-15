@@ -116,6 +116,7 @@
   </section>
 
   {% if featured_list %}
+  {% cache 600 homepage featured_list %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
@@ -128,6 +129,7 @@
       </div>
     </section>
     <!-- END projects list -->
+  {% endcache %}
   {% endif %}
 
   <!-- Funding and Contributing -->
