@@ -332,17 +332,17 @@ You can see the complete schema
 Migrating from v1
 -----------------
 
-- First, make sure to add the :ref:`version setting <config-file/v2:version>`.
+First, make sure to add the :ref:`version setting <config-file/v2:version>`.
 
 Changes
 ~~~~~~~
 
 - The default value of the :ref:`config-file/v2:formats` setting has change to ``[]``
   and it doesn't include the values from the web interface.
-- The top setting ``requirements_file`` was moved to ``python.requirements``.
-  And it accepts the ``''`` (empty string) value to completely ignore finding a requirements file.
+- The top setting ``requirements_file`` was moved to ``python.requirements``
+  and it accepts the ``''`` (empty string) value to completely ignore finding a requirements file.
   See :ref:`config-file/v2:python.requirements`.
-- The setting `conda.file` was renamed to ``conda.environment``.
+- The setting ``conda.file`` was renamed to ``conda.environment``.
   See :ref:`config-file/v2:conda.environment`.
 - The ``build.image`` setting now only has two options: ``latest`` (default) and ``stable``.
   See :ref:`config-file/v2:build.image`.
