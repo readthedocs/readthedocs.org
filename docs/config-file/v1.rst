@@ -4,10 +4,12 @@ Configuration File V1
 Read the Docs now has support for configuring builds with a YAML file.
 :doc:`The Read the Docs file <index>` must be in the root directory of your project.
 
-.. note::
+.. warning::
 
+   Version 1 shouldn't be used.
    The version 2 of the configuration file is now avaliable.
-   See the :doc:`new features and how to migrate from v1 <v2>`.
+   See the :ref:`new features <config-file/v2:New>`
+   and :ref:`how to migrate from v1 <config-file/v2:Migrating from v1>`.
 
 Here is an example of what this file looks like:
 
