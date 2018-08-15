@@ -93,7 +93,7 @@ The Python version (this depends on :ref:`config-file/v2:build.image`).
 python.requirements
 ```````````````````
 
-The path to the requirements file from the root of the project.
+The path to the requirements file, relative to the root of the project.
 
 :Type: ``path``
 :Default: ``null``
@@ -127,7 +127,7 @@ section to install in addition to the `package dependencies <https://setuptools.
    You need to install your project with ``pip`` to use this feature.
    See :ref:`config-file/v2:python.install`.
 
-Behind the scene the following Pip command will be run::
+Behind the scene the following ``pip`` command will be run::
 
    $ pip install -e .[tests,docs]
 
@@ -176,7 +176,7 @@ Example:
 build.image
 ```````````
 
-The build Docker image to be used.
+The Docker image used for building the docs.
 
 :Type: ``string``
 :Options: ``stable``, ``latest``
@@ -213,7 +213,7 @@ The builder type for the Sphinx documentation.
 sphinx.configuration
 ````````````````````
 
-The path to the ``conf.py`` file.
+The path to the ``conf.py`` file, relative to the root of the project.
 
 :Type: ``path``
 :Default: ``null``
