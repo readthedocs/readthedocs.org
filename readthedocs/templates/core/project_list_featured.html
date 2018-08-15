@@ -17,6 +17,8 @@
           {% with project.get_stable_version as version %}
           {% if version %}
             <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
+          {% else %}
+            <li>No stable version</li>
           {% endif %}
           {% endwith %}
       </ul>
