@@ -1,7 +1,7 @@
 {% load cache %}
 
 {# Vary the cache on the version #}
-{% cache 60 footer-html version %}
+{% cache 60 footer-html version.pk %}
 
 <!-- Inserted RTD Footer -->
 <div class="injected">
