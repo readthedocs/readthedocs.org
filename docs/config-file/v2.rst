@@ -371,7 +371,19 @@ This should be pretty straightforward,
 just go to the admin panel of your project,
 advanced settings and find their respective setting :ref:`here <config-file/v2:Supported settings>`.
 
-.. note::
+Not all settings in the web interface are per version, but are per project.
+These settings aren't supported via the configuration file.
 
-   Not all settings in the web interface are per version, but are per project.
-   Those settings aren't supported via the configuration file (like ``Default branch``).
+* ``Name``
+* ``Repository URL``
+* ``Repository type``
+* ``Language``
+* ``Programming language``
+* ``Project homepage``
+* ``Tags``
+* ``Single version``
+* ``Default branch``
+* ``Default version``
+* ``Show versions warning``
+* ``Privacy level``
+* ``Analytics code``
