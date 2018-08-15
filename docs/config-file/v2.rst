@@ -24,6 +24,8 @@ version
 
 :Required: ``true``
 
+Example:
+
 .. code-block:: yaml
    
    version: 2
@@ -40,6 +42,8 @@ Formats of the documentation to be built.
 :Type: ``list``
 :Options: ``htmlzip``, ``pdf``, ``epub``
 :Default: ``[]``
+
+Example:
 
 .. code-block:: yaml
 
@@ -66,6 +70,7 @@ python
 ~~~~~~
 
 Configuration of the Python environment to be used.
+Example:
 
 .. code-block:: yaml
 
@@ -138,6 +143,7 @@ conda
 ~~~~~
 
 Configuration for Conda support.
+Example:
 
 .. code-block:: yaml
 
@@ -156,6 +162,7 @@ build
 ~~~~~
 
 Configuration for the documentation build process.
+Example:
 
 .. code-block:: yaml
 
@@ -185,6 +192,7 @@ sphinx
 
 Configuration for Sphinx documentation
 (this is the default documentation type).
+Example:
 
 .. code-block:: yaml
 
@@ -226,6 +234,7 @@ mkdocs
 ~~~~~~
 
 Configuration for Mkdocs documentation.
+Example:
 
 .. code-block:: yaml
 
@@ -260,7 +269,9 @@ Git submodules configuration.
 
 .. note::
    
-   You can't include and exclude submodules at the same time.
+   You can't use ``include`` and ``exclude`` settings for submodules at the same time.
+
+Example:
 
 .. code-block:: yaml
    
