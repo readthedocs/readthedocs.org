@@ -102,7 +102,12 @@ The build process is executed inside Docker containers,
 by default the image used is ``readthedocs/build:2.0``,
 but you can change that using a :doc:`configuration file <yaml-config>`.
 
-Each image is described below.
+.. note::
+   
+   The build server does have a select number of C libraries installed,
+   because they are used across a wide array of python projects.
+   We can't install every C library out there,
+   but we try and support the major ones
 
 2.0 (stable)
 ~~~~~~~~~~~~
