@@ -7,7 +7,7 @@ djangosetting
     Output an inline literal of the corresponding setting value. Useful for
     keeping documentation up to date without editing on settings changes.
 
-supportedversions
+buildpyversions
     Output a comma separated list of the supported python versions for a
     Read the Docs build image.
 """
@@ -51,7 +51,7 @@ def setup(_):
         django_setting_role
     )
     roles.register_local_role(
-        'supportedversions',
+        'buildpyversions',
         python_supported_versions_role
     )
 

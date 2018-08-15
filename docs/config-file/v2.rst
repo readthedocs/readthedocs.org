@@ -185,8 +185,8 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/2.x>`_: :supportedversions:`2.0`
-* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :supportedversions:`3.0`
+* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/2.x>`_: :buildpyversions:`2.0`
+* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :buildpyversions:`3.0`
 
 sphinx
 ~~~~~~
