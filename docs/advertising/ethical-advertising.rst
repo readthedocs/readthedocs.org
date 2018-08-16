@@ -157,7 +157,8 @@ Users can opt out of seeing paid advertisements on documentation pages:
 * Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking **Settings** (https://readthedocs.org/accounts/edit/).
 * On the **Advertising** tab, you can deselect **See paid advertising**.
 
-Project owners can also disable advertisements for their projects. You can change these options:
+Project owners can also opt out of paid advertisements for their projects.
+You can change these options:
 
 * Click on your **Project** page (`/projects/<slug>/`)
 * Click the  **Admin** dashboard link 
@@ -166,7 +167,8 @@ Project owners can also disable advertisements for their projects. You can chang
 
 Project opt out options include:
 
-* Supporting us `financially <https://readthedocs.org/accounts/gold/subscription/?>`_ with Read the Docs Gold. This will disable all ads from showing on your project's documentation.
+* Supporting us `financially <https://readthedocs.org/accounts/gold/subscription/>`_ by becoming a Gold Member.
+  This will disable all ads from showing on your project's documentation.
 * Supporting us with `your time <http://docs.readthedocs.org/en/latest/contribute.html?>`_ by contributing to the project.
 * Moving to our `paid product <https://readthedocs.com/pricing/?>`_ over at readthedocs.com.
 * Opting out without doing any of the above. This will make us a little sad, but we understand not everyone has the means to contribute back.
