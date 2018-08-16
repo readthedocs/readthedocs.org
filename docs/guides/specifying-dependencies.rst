@@ -19,7 +19,8 @@ To use the requirements file, create and place the requirements file in the root
 Using a configuration file
 --------------------------
 
-The recommended approach for specifying a pip requirements file is to use a :doc:`/config-file/index` file. 
+The recommended approach for specifying a pip requirements file is to use a :doc:`/config-file/index` file, 
+see :ref:`config-file/v2:python.requirements`.
 
 Using the project admin dashboard
 ---------------------------------

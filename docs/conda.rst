@@ -14,7 +14,7 @@ This work was funded by `Clinical Graphics`_ -- many thanks for their support of
 Activating Conda
 ----------------
 
-Conda support is avalible using a :doc:`config-file/index`.
+Conda support is avalible using a :doc:`config-file/index`, see :ref:`config-file/v2:conda`.
 
 This Conda environment will also have Sphinx and other build time dependencies installed.
 It will use the same order of operations that we support currently:
@@ -35,4 +35,3 @@ we can't safely install it as a normal dependency into the normal Python virtual
 
 .. _issue: https://github.com/rtfd/readthedocs.org/issues
 .. _Clinical Graphics: https://www.clinicalgraphics.com/
-

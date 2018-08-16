@@ -10,8 +10,8 @@ there are a couple fixes that you might try.
 Reduce formats you're building
 ------------------------------
 
-You can change the formats of docs that you're building with our :doc:`/config-file/index`
-(search for the `formats` option).
+You can change the formats of docs that you're building with our :doc:`/config-file/index`,
+see :ref:`config-file/v2:formats`.
 
 In particular, the ``htmlzip`` takes up a decent amount of memory and time,
 so disabling that format might solve your problem.
