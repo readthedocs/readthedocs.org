@@ -323,6 +323,10 @@ Do a recursive clone of the submodules.
 :Type: ``bool``
 :Default: ``false``
 
+.. note::
+
+   This is ignored if there aren't submodules to clone.
+
 Schema
 ------
 
