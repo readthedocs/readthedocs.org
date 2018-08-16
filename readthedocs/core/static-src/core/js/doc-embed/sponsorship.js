@@ -163,6 +163,25 @@ Promo.prototype.post_promo_display = function () {
     }
 };
 
+function detect_adblock(xhr) {
+    if (xhr && xhr.status === 404) {
+        // Any other status (eg. 500, 502) implies that ads are down
+        // for a reason other than ad-blocking
+
+        // Check if our ad element is blocked
+        $('<div />')
+            .attr('id','rtd-detection')
+            .attr('class', 'ethical-rtd')
+            .html('&nbsp;')
+            .appendTo('body');
+        if ($('#rtd-detection').height() === 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function adblock_admonition() {
     console.log('---------------------------------------------------------------------------------------');
     console.log('Read the Docs hosts documentation for tens of thousands of open source projects.');
@@ -259,7 +278,7 @@ function init() {
         error: function (xhr, textStatus, errorThrown) {
             console.error('Error loading Read the Docs promo');
 
-            if (!rtddata.ad_free && xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
+            if (!rtddata.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock(xhr)) {
                 adblock_admonition();
                 adblock_nag();
             }
