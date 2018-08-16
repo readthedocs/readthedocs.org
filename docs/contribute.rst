@@ -156,6 +156,17 @@ label. The reported issue …
     - *Achieve world domination* (also needs the label **Needed: design
       decision**)
 
+… is a small change to the source code
+    If the ticket is about code cleanup or small changes to existing features
+    would likely have the **Improvement** label.
+    The distinction for this label is that these issues have a lower priority than a Bug,
+    and aren't implementing new features.
+
+    Examples:
+
+    - *Refactor namedtuples to dataclasess*
+    - *Change font size for the project's title*
+
 … is a valid problem within the code base:
     If it's a valid bug, then add the label **Bug**. Try to reference related
     issues if you come across any.
