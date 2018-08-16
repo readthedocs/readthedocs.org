@@ -170,7 +170,7 @@ function detect_adblock(xhr) {
 
         // Check if our ad element is blocked
         $('<div />')
-            .attr('id','rtd-detection')
+            .attr('id', 'rtd-detection')
             .attr('class', 'ethical-rtd')
             .html('&nbsp;')
             .appendTo('body');
