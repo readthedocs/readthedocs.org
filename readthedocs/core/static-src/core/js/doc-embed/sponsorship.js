@@ -163,23 +163,25 @@ Promo.prototype.post_promo_display = function () {
     }
 };
 
-function detect_adblock(xhr) {
-    if (xhr && xhr.status === 404) {
-        // Any other status (eg. 500, 502) implies that ads are down
-        // for a reason other than ad-blocking
+function detect_adblock() {
+    // Status codes are not correctly reported on JSONP requests
+    // So we resort to different ways to detect adblockers
+    var detected = false;
 
-        // Check if our ad element is blocked
-        $('<div />')
-            .attr('id', 'rtd-detection')
-            .attr('class', 'ethical-rtd')
-            .html('&nbsp;')
-            .appendTo('body');
-        if ($('#rtd-detection').height() === 0) {
-            return true;
-        }
+    // Check if our ad element is blocked
+    $('<div />')
+        .attr('id', 'rtd-detection')
+        .attr('class', 'ethical-rtd')
+        .html('&nbsp;')
+        .appendTo('body');
+    if ($('#rtd-detection').height() === 0) {
+        detected = true;
     }
 
-    return false;
+    // Remove the test element regardless
+    $('#rtd-detection').remove();
+
+    return detected;
 }
 
 function adblock_admonition() {
@@ -275,10 +277,10 @@ function init() {
                 promo.display();
             }
         },
-        error: function (xhr, textStatus, errorThrown) {
+        error: function () {
             console.error('Error loading Read the Docs promo');
 
-            if (!rtddata.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock(xhr)) {
+            if (!rtddata.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
                 adblock_admonition();
                 adblock_nag();
             }
