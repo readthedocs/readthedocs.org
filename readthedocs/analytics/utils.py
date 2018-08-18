@@ -26,7 +26,7 @@ def get_client_ip(request):
     # Get the original IP address (eg. "X-Forwarded-For: client, proxy1, proxy2")
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0]
     if x_forwarded_for:
-        ip_address = x_forwarded_for
+        ip_address = x_forwarded_for.rsplit(':')[0]
 
     return ip_address
 
