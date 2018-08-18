@@ -653,6 +653,33 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer a, #footer a:visited { color: #e3e3e3; text-decoration: none; }
 #footer a:hover, #footer a:active { color: white; text-decoration: underline; }
 
+/* Sponsors */
+#footer .sponsors {
+    margin-top: 30px;
+    text-align: center;
+}
+#footer .sponsors .sponsor {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    padding: 10px;
+}
+#footer .sponsors .sponsor img {
+    width: 90px;
+    height: auto;
+}
+#footer .sponsors .sponsor-name {
+    font-size: 12px;
+}
+#footer .sponsors .sponsor-description {
+    font-size: 10px;
+    color: #BCC1C3;
+}
+#footer .sponsors .sponsor-name, #footer .sponsors .sponsor-description {
+    text-align: center;
+    line-height: 1.4;
+}
+
 /* Social icons */
 #footer .social { font-family: FontAwesome; text-align: center; }
 #footer .social:after { clear: both; content: ''; display: table; }

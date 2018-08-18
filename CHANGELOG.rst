@@ -1,3 +1,13 @@
+Version 2.6.3
+-------------
+
+:Date: August 18, 2018
+
+Release to Azure!
+
+Merged PRs here:
+https://github.com/rtfd/readthedocs.org/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Amerged+closed%3A%3E2018-08-14
+
 Version 2.6.2
 -------------
 

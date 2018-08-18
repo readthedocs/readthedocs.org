@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load pagination_tags %}
+{% load cache %}
 
 {% block extra_metas %}
   <meta name="description" content="{% trans "Read the Docs simplifies technical documentation by automating building, versioning, and hosting for you. Build up-to-date documentation for the web, print, and offline use on every version control push automatically." %}">
@@ -116,6 +117,7 @@
   </section>
 
   {% if featured_list %}
+  {% cache 600 homepage_featured_list %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
@@ -128,6 +130,7 @@
       </div>
     </section>
     <!-- END projects list -->
+  {% endcache %}
   {% endif %}
 
   <!-- Funding and Contributing -->
