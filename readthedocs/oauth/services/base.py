@@ -11,6 +11,7 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from builtins import object
 from django.conf import settings
+from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
@@ -83,7 +84,7 @@ class Service(object):
             'token_type': 'bearer',
         }
         if token.expires_at is not None:
-            token_expires = (token.expires_at - datetime.now()).total_seconds()
+            token_expires = (token.expires_at - timezone.now()).total_seconds()
             token_config.update({
                 'refresh_token': token.token_secret,
                 'expires_in': token_expires,
@@ -119,7 +120,9 @@ class Service(object):
         """
         def _updater(data):
             token.token = data['access_token']
-            token.expires_at = datetime.fromtimestamp(data['expires_at'])
+            token.expires_at = timezone.make_aware(
+                datetime.fromtimestamp(data['expires_at'])
+            )
             token.save()
             log.info('Updated token %s:', token)
 
