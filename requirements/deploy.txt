@@ -4,7 +4,5 @@ gunicorn==19.1.0
 pysolr==2.0.13
 django-redis-cache==1.6.3
 
-hiredis==0.1.2
-
 #For resizing images
 pillow
