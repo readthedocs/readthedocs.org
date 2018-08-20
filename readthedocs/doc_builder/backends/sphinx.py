@@ -97,6 +97,10 @@ class BaseSphinx(BaseBuilder):
             versions = self.project.api_versions()
             downloads = api.version(self.version.pk).get()['downloads']
 
+        # TODO: check for a Project Feature to decide if display VCS links or note
+        # if not self.project.has_feature(Feature.DONT_SHOW_VCS_LINKS):
+        #     display_github = display_gitlab = display_bitbucket = False
+
         data = {
             'current_version': self.version.verbose_name,
             'project': self.project,
