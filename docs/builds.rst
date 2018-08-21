@@ -15,7 +15,8 @@ Our current build limits are:
 We can increase build limits on a per-project basis,
 if you provide a good reason your documentation needs more resources.
 
-You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_. `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
+You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_.
+`Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
 
 Currently in production we're using the ``readthedocs/build:2.0`` docker image as our default image.
 
@@ -53,17 +54,23 @@ Read the Docs cannot create a PDF version of your documentation with the *Mkdocs
 Understanding what's going on
 -----------------------------
 
-Understanding how Read the Docs builds your project will help you with debugging the problems you have with the site. It should also allow you to take advantage of certain things that happen during the build process.
+Understanding how Read the Docs builds your project will help you with debugging the problems you have with the site.
+It should also allow you to take advantage of certain things that happen during the build process.
 
-The first step of the process is that we check out your code from the repository you have given us. If the code is already checked out, we update the copy to the branch that you have specified in your projects configuration.
+The first step of the process is that we check out your code from the repository you have given us.
+If the code is already checked out, we update the copy to the branch that you have specified in your projects configuration.
 
 Then we build the proper backend code for the type of documentation you've selected.
 
-If you have the *Install Project* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment. You can also define additional packages to install with the *Requirements File* option.
+If you have the *Install Project* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment.
+You can also define additional packages to install with the *Requirements File* option.
 
-When we build your documentation, we run `sphinx-build -b html . _build/html`, where `html` would be replaced with the correct backend. We also create man pages and pdf's automatically based on your project.
+When we build your documentation, we run ``sphinx-build -b html . _build/html``,
+where ``html`` would be replaced with the correct backend.
+We also create pdf's and ePub's automatically based on your project.
 
-Then these files are copied across to our application servers from the build server. Once on the application servers, they are served from nginx. 
+Then these files are copied across to our application servers from the build server.
+Once on the application servers, they are served from nginx. 
 
 An example in code:
 
@@ -78,7 +85,7 @@ An example in code:
     copy_files(artifact_dir)
     
 
-Builder Responsibility
+Builder responsibility
 ----------------------
 
 Builders have a very specific job.
@@ -88,18 +95,76 @@ The artifacts should end up in ``self.version.project.artifact_path(version=self
 Where ``type`` is the name of your builder.
 All files that end up in the artifact directory should be in their final form.
 
-Packages installed in the build environment
--------------------------------------------
+The build environment
+---------------------
 
-The build server does have a select number of C libraries installed, because they are used across a wide array of python projects. We can't install every C library out there, but we try and support the major ones. We currently have the following libraries installed:
+The build process is executed inside Docker containers,
+by default the image used is ``readthedocs/build:2.0``,
+but you can change that using a :doc:`configuration file <yaml-config>`.
 
-    * doxygen
-    * LaTeX (texlive-full)
-    * libevent (libevent-dev)
-    * dvipng
-    * graphviz
-    * libxslt1.1
-    * libxml2-dev
+.. note::
+   
+   The Docker images have a select number of C libraries installed,
+   because they are used across a wide array of python projects.
+   We can't install every C library out there,
+   but we try and support the major ones.
+
+.. tip::
+   
+   If you want to know the specific version of a package that is installed in the image
+   you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
+
+2.0 (stable)
+~~~~~~~~~~~~
+
+:O.S: Ubuntu 16.04
+:Conda: Miniconda 4.3.31
+:Python:
+  * ``m2crypto``
+  * ``matplolib``
+  * ``numpy``
+  * ``pandas``
+  * ``pip``
+  * ``scipy``
+:Other packages:
+  * ``doxygen``
+  * ``graphviz``
+  * ``libevent``
+  * ``libjpeg``
+  * ``libxml2-dev``
+  * ``libxslt1.1``
+  * ``pandoc``
+  * ``textlive-full``
+
+`More details <https://github.com/rtfd/readthedocs-docker-images/blob/releases/2.x/Dockerfile>`__
+
+3.0 (latest)
+~~~~~~~~~~~~
+
+:O.S: Ubuntu 16.04
+:Conda: Miniconda 4.4.10
+:Python:
+  * ``matplolib``
+  * ``numpy``,
+  * ``pandas``
+  * ``pip``
+  * ``scipy``
+:JavaScript:
+  * ``jsdoc``
+  * ``nodejs``
+  * ``npm``
+:Other packages:
+  * ``doxygen``
+  * ``libevent-dev``
+  * ``libgraphviz-dev``
+  * ``libjpeg``
+  * ``libxml2-dev``
+  * ``libxslt1-dev``
+  * ``pandoc``
+  * ``plantuml``
+  * ``textlive-full``
+
+`More details <https://github.com/rtfd/readthedocs-docker-images/blob/releases/3.x/Dockerfile>`__
 
 Writing your own builder
 ------------------------
