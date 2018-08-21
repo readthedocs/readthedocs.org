@@ -161,10 +161,16 @@ class BuildCommand(BuildCommandResultMixin):
             (cmd_stdout, cmd_stderr) = cmd_output
             try:
                 self.output = cmd_stdout.decode('utf-8', 'replace')
+                # Replace NULL (\x00) character to avoid PostgreSQL db to fail
+                # https://code.djangoproject.com/ticket/28201
+                self.output = self.output.replace('\x00', '')
             except (TypeError, AttributeError):
                 self.output = None
             try:
                 self.error = cmd_stderr.decode('utf-8', 'replace')
+                # Replace NULL (\x00) character to avoid PostgreSQL db to fail
+                # https://code.djangoproject.com/ticket/28201
+                self.error = self.error.replace('\x00', '')
             except (TypeError, AttributeError):
                 self.error = None
             self.exit_code = proc.returncode
