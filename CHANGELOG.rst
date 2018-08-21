@@ -5,8 +5,17 @@ Version 2.6.3
 
 Release to Azure!
 
-Merged PRs here:
-https://github.com/rtfd/readthedocs.org/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Amerged+closed%3A%3E2018-08-14
+* `@davidfischer <http://github.com/davidfischer>`__: Add Sponsors list to footer (`#4424 <https://github.com/rtfd/readthedocs.org/pull/4424>`__)
+* `@stsewd <http://github.com/stsewd>`__: Cache node_modules to speed up CI (`#4484 <https://github.com/rtfd/readthedocs.org/pull/4484>`__)
+* `@xrmx <http://github.com/xrmx>`__: templates: mark missing string for translation on project edit (`#4518 <https://github.com/rtfd/readthedocs.org/pull/4518>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Performance improvement: cache version listing on the homepage (`#4526 <https://github.com/rtfd/readthedocs.org/pull/4526>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Remove mailgun from our dependencies (`#4531 <https://github.com/rtfd/readthedocs.org/pull/4531>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Improved ad block detection (`#4532 <https://github.com/rtfd/readthedocs.org/pull/4532>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Revert "Remove SelectiveFileSystemFolder finder workaround" (`#4533 <https://github.com/rtfd/readthedocs.org/pull/4533>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Slight clarification on turning off ads for a project (`#4534 <https://github.com/rtfd/readthedocs.org/pull/4534>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix the sponsor image paths (`#4535 <https://github.com/rtfd/readthedocs.org/pull/4535>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Update build assets (`#4537 <https://github.com/rtfd/readthedocs.org/pull/4537>`__)
+
 
 Version 2.6.2
 -------------
