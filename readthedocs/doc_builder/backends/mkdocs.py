@@ -20,19 +20,19 @@ from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 log = logging.getLogger(__name__)
 
 
-def get_absolute_media_url():
+def get_absolute_static_url():
     """
-    Get the fully qualified media URL from settings.
+    Get the fully qualified static URL from settings.
 
-    Mkdocs needs a full domain because it tries to link to local media files.
+    Mkdocs needs a full domain because it tries to link to local files.
     """
-    media_url = settings.MEDIA_URL
+    static_url = settings.STATIC_URL
 
-    if not media_url.startswith('http'):
+    if not static_url.startswith('http'):
         domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        media_url = 'http://{}{}'.format(domain, media_url)
+        static_url = 'http://{}{}'.format(domain, static_url)
 
-    return media_url
+    return static_url
 
 
 class BaseMkdocs(BaseBuilder):
@@ -108,15 +108,15 @@ class BaseMkdocs(BaseBuilder):
         user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
-        media_url = get_absolute_media_url()
+        static_url = get_absolute_static_url()
         user_config.setdefault('extra_javascript', []).extend([
             'readthedocs-data.js',
-            '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
-            '%sjavascript/readthedocs-analytics.js' % media_url,
+            '%score/js/readthedocs-doc-embed.js' % static_url,
+            '%sjavascript/readthedocs-analytics.js' % static_url,
         ])
         user_config.setdefault('extra_css', []).extend([
-            '%scss/badge_only.css' % media_url,
-            '%scss/readthedocs-doc-embed.css' % media_url,
+            '%scss/badge_only.css' % static_url,
+            '%scss/readthedocs-doc-embed.css' % static_url,
         ])
 
         docs_path = os.path.join(self.root_path, docs_dir)
