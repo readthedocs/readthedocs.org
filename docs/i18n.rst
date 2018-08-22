@@ -287,3 +287,22 @@ the `Compiling to MO`_ section).
 
 For more information about the ``tx`` command, read the `Transifex client's
 help pages <http://help.transifex.com/features/client/>`_.
+
+
+.. note::
+
+   For the Read the Docs community site, we use a `fabric script`_ to follow this process:
+
+   .. _fabric script: https://github.com/rtfd/readthedocs.org/blob/master/fabfile.py
+
+   #. Update files and push sources (English) to Transifex:
+
+      .. code-block:: console
+
+         $ fab i18n_push_source
+
+   #. Pull changes (new translations) from Transifex:
+
+      .. code-block:: console
+
+         $ fab i18n_pull
