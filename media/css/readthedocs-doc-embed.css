@@ -7,6 +7,9 @@
     display: block;
 
     bottom: 50px;
+
+    /* Workaround for mkdocs which set a specific height for this element */
+    height: auto;
 }
 
 .rst-other-versions {
