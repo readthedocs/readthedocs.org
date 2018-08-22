@@ -286,6 +286,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if config is not None:
             self.config = config
         self.task = task
+        self.setup_env = None
 
     def _log(self, msg):
         log.info(LOG_TEMPLATE
@@ -355,12 +356,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-            self.setup_env.failure = BuildEnvironmentError(
-                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=build_pk,
+            if self.setup_env is not None:
+                self.setup_env.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=build_pk,
+                    )
                 )
-            )
-            self.setup_env.update_build(BUILD_STATE_FINISHED)
+                self.setup_env.update_build(BUILD_STATE_FINISHED)
             return False
         else:
             # No exceptions in the setup step, catch unhandled errors in the
@@ -379,12 +381,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         },
                     },
                 )
-                self.build_env.failure = BuildEnvironmentError(
-                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                        build_id=build_pk,
+                if self.build_env is not None:
+                    self.build_env.failure = BuildEnvironmentError(
+                        BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                            build_id=build_pk,
+                        )
                     )
-                )
-                self.build_env.update_build(BUILD_STATE_FINISHED)
+                    self.build_env.update_build(BUILD_STATE_FINISHED)
                 return False
 
         return True
