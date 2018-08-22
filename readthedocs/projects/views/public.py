@@ -15,7 +15,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -121,18 +120,18 @@ def project_badge(request, project_slug):
         version = Version.objects.public(request.user).get(
             project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = static(badge_path % 'unknown')
+        url = settings.STATIC_URL + (badge_path % 'unknown')
         return HttpResponseRedirect(url)
     version_builds = version.builds.filter(type='html',
                                            state='finished').order_by('-date')
     if not version_builds.exists():
-        url = static(badge_path % 'unknown')
+        url = settings.STATIC_URL + (badge_path % 'unknown')
         return HttpResponseRedirect(url)
     last_build = version_builds[0]
     if last_build.success:
-        url = static(badge_path % 'passing')
+        url = settings.STATIC_URL + (badge_path % 'passing')
     else:
-        url = static(badge_path % 'failing')
+        url = settings.STATIC_URL + (badge_path % 'failing')
     return HttpResponseRedirect(url)
 
 
