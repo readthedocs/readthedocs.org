@@ -34,6 +34,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
+from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import send_email, broadcast
