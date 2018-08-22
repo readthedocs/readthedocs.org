@@ -8,8 +8,8 @@ from django.contrib.messages import constants as message_const
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
-from django_dynamic_fixture import get
-from django_dynamic_fixture import new
+from django.contrib.staticfiles import finders
+from django_dynamic_fixture import get, new
 
 import six
 
@@ -420,6 +420,15 @@ class TestPrivateMixins(MockBuildTestCase):
         self.assertEqual(view.get_context_data()['project'], self.project)
 
 
+def staticfiles_test_open(fp):
+    local_path = finders.find(fp)
+    if local_path:
+        return open(local_path)
+    else:
+        raise RuntimeError(u'Could not open file {}'.format(fp))
+
+
+@patch('django.contrib.staticfiles.storage.staticfiles_storage.open', staticfiles_test_open)
 class TestBadges(TestCase):
     """Test a static badge asset is served for each build."""
 
