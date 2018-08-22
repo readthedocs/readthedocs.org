@@ -163,6 +163,7 @@ python.use_system_site_packages
 When true, it gives the virtual environment access to the global site-packages directory.
 Depending of the :ref:`yaml-config:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
+See :ref:`builds:The build environment` for more details.
 
 .. code-block:: yaml
 
