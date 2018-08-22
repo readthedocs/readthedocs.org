@@ -682,7 +682,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
             outcomes['html'] = self.build_docs_html()
-            outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
@@ -713,23 +712,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             log.exception('move_files task has failed on socket error.')
 
         return success
-
-    def build_docs_search(self):
-        """
-        Build search data with separate build.
-
-        Unless the project has the feature to allow building the JSON search
-        artifacts in the html build step.
-        """
-        build_json_in_html_builder = self.project.has_feature(
-            Feature.BUILD_JSON_ARTIFACTS_WITH_HTML,
-        )
-        if self.build_search and build_json_in_html_builder:
-            # Already built in the html step
-            return True
-        if self.build_search and self.project.is_type_sphinx:
-            return self.build_docs_class('sphinx_search')
-        return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""

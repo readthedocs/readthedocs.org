@@ -16,7 +16,7 @@ from mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
-from readthedocs.doc_builder.backends.sphinx import BaseSphinx, SearchBuilder
+from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 
@@ -75,45 +75,6 @@ class SphinxBuilderTest(TestCase):
         expected_conf_py = os.path.join(os.path.dirname(__file__), '..', 'files', 'conf.py')
         with open(generated_conf_py) as gf, open(expected_conf_py) as ef:
             self.assertEqual(gf.read(), ef.read())
-
-
-class SphinxSearchBuilderTest(TestCase):
-
-    fixtures = ['test_data']
-
-    def setUp(self):
-        self.project = Project.objects.get(slug='pip')
-        self.version = self.project.versions.first()
-
-        build_env = namedtuple('project', 'version')
-        build_env.project = self.project
-        build_env.version = self.version
-
-        self.searchbuilder = SearchBuilder(build_env=build_env, python_env=None)
-
-    def test_ignore_patterns(self):
-        src = tempfile.mkdtemp()
-        src_static = os.path.join(src, '_static/')
-        src_other = os.path.join(src, 'other/')
-        os.mkdir(src_static)
-        os.mkdir(src_other)
-
-        dest = tempfile.mkdtemp()
-        dest_static = os.path.join(dest, '_static/')
-        dest_other = os.path.join(dest, 'other/')
-
-        self.searchbuilder.old_artifact_path = src
-        self.searchbuilder.target = dest
-
-        # There is a _static/ dir in src/ but not in dest/
-        self.assertTrue(os.path.exists(src_static))
-        self.assertFalse(os.path.exists(dest_static))
-
-        self.searchbuilder.move()
-
-        # There is a dest/other/ but not a dest/_static
-        self.assertFalse(os.path.exists(dest_static))
-        self.assertTrue(os.path.exists(dest_other))
 
 
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
