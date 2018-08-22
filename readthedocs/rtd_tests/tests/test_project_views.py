@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from mock import patch
 from django.test import TestCase
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django.core.urlresolvers import reverse
@@ -423,10 +422,6 @@ class TestPrivateMixins(MockBuildTestCase):
 
 class TestBadges(TestCase):
     """Test a static badge asset is served for each build."""
-
-    # To set `flat` as default style as done in code.
-    def get_badge_path(self, version, style='flat'):
-        return settings.STATIC_URL + (self.BADGE_PATH % (version, style))
 
     def setUp(self):
         self.BADGE_PATH = 'projects/badges/%s-%s.svg'
