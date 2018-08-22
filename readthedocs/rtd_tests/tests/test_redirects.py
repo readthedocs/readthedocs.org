@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-
+from __future__ import absolute_import
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -9,7 +9,6 @@ from django_dynamic_fixture import fixture
 from mock import patch
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.forms import RedirectForm
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -353,82 +352,3 @@ class GetFullPathTests(TestCase):
             self.redirect.get_full_path('faq.html'),
             '/docs/read-the-docs/faq.html'
         )
-
-
-class RedirectFormTests(TestCase):
-
-    def test_sphinx_html_redirect(self):
-        data = {
-            'redirect_type': 'sphinx_html',
-        }
-        form = RedirectForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_sphinx_htmldir_redirect(self):
-        data = {
-            'redirect_type': 'sphinx_htmldir',
-        }
-        form = RedirectForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_prefix_redirect(self):
-        data = {
-            'from_url': '/oldurl/',
-            'redirect_type': 'prefix',
-        }
-        form = RedirectForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_page_redirect(self):
-        data = {
-            'from_url': '/install.html',
-            'to_url': '/tutorial/install.html',
-            'redirect_type': 'page',
-        }
-        form = RedirectForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_exact_redirect(self):
-        data = {
-            'from_url': '/en/2.0/$rest',
-            'to_url': '/en/3.0/',
-            'redirect_type': 'exact',
-        }
-        form = RedirectForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_exact_redirect_leading_slash_from_url(self):
-        data = {
-            'from_url': 'no/leading/slash/$rest',
-            'to_url': '/en/latest/',
-            'redirect_type': 'exact',
-        }
-        form = RedirectForm(data=data)
-        self.assertFalse(form.is_valid())
-
-    def test_exact_redirect_leading_slash_to_url(self):
-        data = {
-            'from_url': '/jp/latest/$rest',
-            'to_url': 'no/leading/slash/',
-            'redirect_type': 'exact',
-        }
-        form = RedirectForm(data=data)
-        self.assertFalse(form.is_valid())
-
-    def test_exact_redirect_trailing_slash_from_url(self):
-        data = {
-            'from_url': '/trailing/slash/$rest/',
-            'to_url': '/en/latest/',
-            'redirect_type': 'exact',
-        }
-        form = RedirectForm(data=data)
-        self.assertFalse(form.is_valid())
-
-    def test_exact_redirect_trailing_slash_to_url(self):
-        data = {
-            'from_url': '/jp/latest/$rest',
-            'to_url': '/no/trailing/slash',
-            'redirect_type': 'exact',
-        }
-        form = RedirectForm(data=data)
-        self.assertFalse(form.is_valid())

@@ -613,29 +613,6 @@ class RedirectForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super(RedirectForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
-        redirect_type = self.cleaned_data['redirect_type']
-        from_url = self.cleaned_data['from_url']
-        to_url = self.cleaned_data['to_url']
-        if redirect_type == 'exact':
-            if '$rest' in from_url:
-                # Leading slash
-                if not from_url.startswith('/') or not to_url.startswith('/'):
-                    raise forms.ValidationError(
-                        _('Exact Redirects require the leading slash (/) in both URLs when using $rest keyword'),  # noqa
-                    )
-                # Trailing slash
-                if from_url.endswith('/'):
-                    raise forms.ValidationError(
-                        _("Exact Redirects doesn't allow trailing slash (/) in From URL when using $rest keyword"),  # noqa
-                    )
-                if not to_url.endswith('/'):
-                    raise forms.ValidationError(
-                        _('Exact Redirects require a trailing slash (/) in To URL when using $rest keyword'),  # noqa
-                    )
-
-        return self.cleaned_data
-
     def save(self, **_):  # pylint: disable=arguments-differ
         # TODO this should respect the unused argument `commit`. It's not clear
         # why this needs to be a call to `create`, instead of relying on the
