@@ -19,6 +19,7 @@ from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
@@ -116,23 +117,30 @@ def project_badge(request, project_slug):
         style = "flat"
     badge_path = 'projects/badges/%s-' + style + '.svg'
     version_slug = request.GET.get('version', LATEST)
+    version = None
+    url = badge_path % 'unknown'
+
     try:
         version = Version.objects.public(request.user).get(
             project__slug=project_slug, slug=version_slug)
     except Version.DoesNotExist:
-        url = settings.STATIC_URL + (badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    version_builds = version.builds.filter(type='html',
-                                           state='finished').order_by('-date')
-    if not version_builds.exists():
-        url = settings.STATIC_URL + (badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    last_build = version_builds[0]
-    if last_build.success:
-        url = settings.STATIC_URL + (badge_path % 'passing')
-    else:
-        url = settings.STATIC_URL + (badge_path % 'failing')
-    return HttpResponseRedirect(url)
+        pass
+
+    if version:
+        version_builds = version.builds.filter(type='html',
+                                               state='finished').order_by('-date')
+        if version_builds.exists():
+            last_build = version_builds[0]
+            if last_build.success:
+                url = badge_path % 'passing'
+            else:
+                url = badge_path % 'failing'
+
+    with staticfiles_storage.open(url) as fd:
+        return HttpResponse(
+            fd.read(),
+            content_type='image/svg+xml',
+        )
 
 
 def project_downloads(request, project_slug):

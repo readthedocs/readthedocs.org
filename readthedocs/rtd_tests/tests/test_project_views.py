@@ -436,32 +436,38 @@ class TestBadges(TestCase):
 
     def test_unknown_badge(self):
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = self.get_badge_path('unknown')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'unknown')
+
+        # Unknown project
+        unknown_project_url = reverse('project_badge', args=['fake-project'])
+        res = self.client.get(unknown_project_url, {'version': 'latest'})
+        self.assertContains(res, 'unknown')
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = self.get_badge_path('passing')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'passing')
 
     def test_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = self.get_badge_path('failing')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'failing')
 
     def test_plastic_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
         res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'plastic'})
-        static_badge = self.get_badge_path('failing', 'plastic')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'failing')
+
+        # The plastic badge has slightly more rounding
+        self.assertContains(res, 'rx="4"')
 
     def test_social_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug , 'style': 'social'})
-        static_badge = self.get_badge_path('passing', 'social')
-        self.assertEquals(res.url, static_badge)
+        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'social'})
+        self.assertContains(res, 'passing')
+
+        # The social badge (but not the other badges) has this element
+        self.assertContains(res, 'rlink')
 
 
 class TestTags(TestCase):
