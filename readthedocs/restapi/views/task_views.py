@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 import logging
-from builtins import str
 
 from django.core.urlresolvers import reverse
 from rest_framework import decorators, permissions
