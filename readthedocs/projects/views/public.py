@@ -115,25 +115,38 @@ def project_badge(request, project_slug):
     style = request.GET.get('style', 'flat')
     if style not in ("flat", "plastic", "flat-square", "for-the-badge", "social"):
         style = "flat"
-    badge_path = 'projects/badges/%s-' + style + '.svg'
+
+    # Get the local path to the badge files
+    badge_path = os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'static',
+        'projects',
+        'badges',
+        '%s-' + style + '.svg',
+    )
+
     version_slug = request.GET.get('version', LATEST)
-    try:
-        version = Version.objects.public(request.user).get(
-            project__slug=project_slug, slug=version_slug)
-    except Version.DoesNotExist:
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    version_builds = version.builds.filter(type='html',
-                                           state='finished').order_by('-date')
-    if not version_builds.exists():
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    last_build = version_builds[0]
-    if last_build.success:
-        url = static(badge_path % 'passing')
-    else:
-        url = static(badge_path % 'failing')
-    return HttpResponseRedirect(url)
+    file_path = badge_path % 'unknown'
+
+    version = Version.objects.public(request.user).filter(
+        project__slug=project_slug, slug=version_slug).first()
+
+    if version:
+        version_builds = version.builds.filter(type='html',
+                                               state='finished').order_by('-date')
+        if version_builds.exists():
+            last_build = version_builds[0]
+            if last_build.success:
+                file_path = static(badge_path % 'passing')
+            else:
+                file_path = static(badge_path % 'failing')
+
+    with open(file_path) as fd:
+        return HttpResponse(
+            fd.read(),
+            content_type='image/svg+xml',
+        )
 
 
 def project_downloads(request, project_slug):
