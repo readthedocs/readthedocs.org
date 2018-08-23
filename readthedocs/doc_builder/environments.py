@@ -170,7 +170,7 @@ class BuildCommand(BuildCommandResultMixin):
             self.end_time = datetime.utcnow()
 
     def sanitize_output(self, output):
-        """
+        r"""
         Sanitize ``output`` to be saved into the DB.
 
             1. Decodes to UTF-8
