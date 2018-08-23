@@ -94,11 +94,11 @@ class SphinxBuilderTest(TestCase):
         An error should be raised to the user if we can't
         guess the correct conf.py file.
         """
-        
+
         tmp_docs_dir = py.path.local(tempfile.mkdtemp())
         tmp_docs_dir.join('conf.py').new()
         tmp_docs_dir.join('test').mkdir().join('conf.py').new()
-        docs_dir.return_value = tmp_docs_dir
+        docs_dir.return_value = str(tmp_docs_dir)
         create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
