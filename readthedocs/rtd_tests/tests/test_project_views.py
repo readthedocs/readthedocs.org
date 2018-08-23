@@ -441,6 +441,7 @@ class TestBadges(TestCase):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
         self.assertContains(res, 'passing')
+        self.assertEqual(res['Content-Type'], 'image/svg+xml')
 
     def test_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
