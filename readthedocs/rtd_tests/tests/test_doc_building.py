@@ -1009,8 +1009,17 @@ class TestBuildCommand(TestCase):
     def test_output(self):
         """Test output command."""
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
-        cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
+
+        # Mock BuildCommand.sanitized_output just to count the amount of calls,
+        # but use the original method to behaves as real
+        original_sanitized_output = cmd.sanitize_output
+        with patch('readthedocs.doc_builder.environments.BuildCommand.sanitize_output') as sanitize_output:  # noqa
+            sanitize_output.side_effect = original_sanitized_output
+            cmd.run()
+            self.assertEqual(cmd.output, 'FOOBAR')
+
+            # Check that we sanitize the output
+            self.assertEqual(sanitize_output.call_count, 2)
 
     def test_error_output(self):
         """Test error output from command."""
@@ -1025,6 +1034,16 @@ class TestBuildCommand(TestCase):
         cmd.run()
         self.assertEqual(cmd.output, '')
         self.assertEqual(cmd.error, 'FOOBAR')
+
+    def test_sanitize_output(self):
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
+        checks = (
+            (b'Hola', 'Hola'),
+            (b'H\x00i', 'Hi'),
+            (b'H\x00i \x00\x00\x00You!\x00', 'Hi You!'),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
 
     @patch('subprocess.Popen')
     def test_unicode_output(self, mock_subprocess):
