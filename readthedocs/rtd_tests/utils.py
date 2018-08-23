@@ -13,6 +13,7 @@ from shutil import copytree
 from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
+from django.contrib.staticfiles import finders
 from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
@@ -173,3 +174,16 @@ def create_user(username, password, **kwargs):
     user.set_password(password)
     user.save()
     return user
+
+
+def staticfiles_test_open(fp):
+    """
+    Open a static file which may not be collected
+
+    Typically used with ``mock.patch``
+    """
+    local_path = finders.find(fp)
+    if local_path:
+        return open(local_path)
+    else:
+        raise RuntimeError(u'Could not open file {}'.format(fp))

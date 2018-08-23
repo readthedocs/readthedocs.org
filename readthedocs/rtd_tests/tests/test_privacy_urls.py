@@ -18,6 +18,8 @@ from readthedocs.projects.models import Project, Domain
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
 
+from ..utils import staticfiles_test_open
+
 
 class URLAccessMixin(object):
 
@@ -167,6 +169,7 @@ class ProjectMixin(URLAccessMixin):
         }
 
 
+@mock.patch('django.contrib.staticfiles.storage.staticfiles_storage.open', staticfiles_test_open)
 class PublicProjectMixin(ProjectMixin):
 
     request_data = {
@@ -177,7 +180,7 @@ class PublicProjectMixin(ProjectMixin):
     response_data = {
         # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
-        '/projects/pip/badge/': {'status_code': 302},
+        '/projects/pip/badge/': {'status_code': 200},
     }
 
     def test_public_urls(self):
@@ -185,6 +188,7 @@ class PublicProjectMixin(ProjectMixin):
         self._test_url(urlpatterns)
 
 
+@mock.patch('django.contrib.staticfiles.storage.staticfiles_storage.open', staticfiles_test_open)
 class PrivateProjectMixin(ProjectMixin):
 
     def test_private_urls(self):
