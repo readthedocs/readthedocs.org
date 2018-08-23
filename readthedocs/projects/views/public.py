@@ -15,7 +15,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -136,11 +135,11 @@ def project_badge(request, project_slug):
         version_builds = version.builds.filter(type='html',
                                                state='finished').order_by('-date')
         if version_builds.exists():
-            last_build = version_builds[0]
+            last_build = version_builds.first()
             if last_build.success:
-                file_path = static(badge_path % 'passing')
+                file_path = badge_path % 'passing'
             else:
-                file_path = static(badge_path % 'failing')
+                file_path = badge_path % 'failing'
 
     with open(file_path) as fd:
         return HttpResponse(
