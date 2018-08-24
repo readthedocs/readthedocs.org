@@ -1643,6 +1643,3 @@ class TestBuildConfigV2(object):
         assert build.submodules.include == []
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
-
-
-
