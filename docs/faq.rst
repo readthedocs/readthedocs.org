@@ -65,27 +65,19 @@ I get import errors on libraries that depend on C modules
 
 This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
 
-    import sys
-    from unittest.mock import MagicMock
+autodoc_mock_imports
 
-    class Mock(MagicMock):
-        @classmethod
-        def __getattr__(cls, name):
-            return MagicMock()
+    This value contains a list of modules to be mocked up. This is useful when some external dependencies are not met at build time and break the building process. You may only specify the root package of the dependencies themselves and omit the sub-modules:
 
-    MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+    autodoc_mock_imports = ["django"]
 
-Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
+    Will mock all imports under the django package.
 
-.. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
-    from PyPI with (ie ``pip install mock``) and replace the above import::
+    New in version 1.3.
 
-        from mock import Mock as MagicMock
+    Changed in version 1.6: This config value only requires to declare the top-level modules that should be mocked.
 
-If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
 `Client Error 401` when building documentation
 ----------------------------------------------
