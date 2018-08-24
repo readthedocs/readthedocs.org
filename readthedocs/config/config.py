@@ -969,8 +969,10 @@ def load(path, env_config):
     filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        raise ConfigError('No configuration file found',
-                          code=CONFIG_REQUIRED)
+        raise ConfigError(
+            'No configuration file found',
+            code=CONFIG_REQUIRED
+        )
     build_configs = []
     with open(filename, 'r') as configuration_file:
         try:

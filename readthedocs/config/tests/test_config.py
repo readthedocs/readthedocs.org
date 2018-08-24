@@ -146,7 +146,7 @@ def test_load_unknow_version(tmpdir):
 
 
 def test_yaml_extension(tmpdir):
-    """ Make sure it's capable of loading the 'readthedocs' file with a 'yaml' extension. """
+    """Make sure it's capable of loading the 'readthedocs' file with a 'yaml' extension."""
     apply_fs(tmpdir, yaml_extension_config_dir)
     base = str(tmpdir)
     config = load(base, env_config)
@@ -806,8 +806,8 @@ def test_raise_config_not_supported():
     assert excinfo.value.code == CONFIG_NOT_SUPPORTED
 
 
-@pytest.mark.parametrize("correct_config_filename",
-                         [prefix + "readthedocs." + extension for prefix in {"", "."}
+@pytest.mark.parametrize('correct_config_filename',
+                         [prefix + 'readthedocs.' + extension for prefix in {"", "."}
                           for extension in {"yml", "yaml"}])
 def test_config_filenames_regex(correct_config_filename):
     assert re.match(CONFIG_FILENAME_REGEX, correct_config_filename)
