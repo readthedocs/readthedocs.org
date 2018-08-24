@@ -70,9 +70,10 @@ Then we build the proper backend code for the type of documentation you've selec
 If you have the *Install Project* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment.
 You can also define additional packages to install with the *Requirements File* option.
 
-When we build your documentation, we run ``sphinx-build -b html . _build/html``,
+When we build your Sphinx documentation, we run ``sphinx-build -b html . _build/html``,
 where ``html`` would be replaced with the correct backend.
 We also create pdf's and ePub's automatically based on your project.
+For MkDocs, we run ``mkdocs build``.
 
 Then these files are copied across to our application servers from the build server.
 Once on the application servers, they are served from nginx. 
@@ -88,7 +89,14 @@ An example in code:
         run('pip install -r %s' % project.requirements_file)
     build_docs(version=version)
     copy_files(artifact_dir)
-    
+
+.. note::
+
+    Regardless of whether you build your docs with Sphinx or MkDocs,
+    we recommend you pin the version of Sphinx or Mkdocs you want us to use.
+    You can do this the same way other
+    :doc:`dependencies are specified <guides/specifying-dependencies>`.
+    Some examples of pinning versions might be ``sphinx<2.0`` or ``mkdocs>=1.0``.
 
 Builder responsibility
 ----------------------
