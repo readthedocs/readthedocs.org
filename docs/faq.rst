@@ -72,11 +72,10 @@ autodoc_mock_imports
 
     autodoc_mock_imports = ["django"]
 
-    Will mock all imports under the django package.
+Will mock all imports under the django package.
+New in version 1.3.
 
-    New in version 1.3.
-
-    Changed in version 1.6: This config value only requires to declare the top-level modules that should be mocked.
+Changed in version 1.6: This config value only requires to declare the top-level modules that should be mocked.
 
 
 `Client Error 401` when building documentation
