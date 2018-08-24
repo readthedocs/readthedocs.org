@@ -75,7 +75,7 @@ This value contains a list of modules to be mocked up. This is useful when some 
 Will mock all imports under the django package.
 New in version 1.3.
 
-Changed in version 1.6: This config value only requires to declare the top-level modules that should be mocked.
+http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
 
 `Client Error 401` when building documentation
