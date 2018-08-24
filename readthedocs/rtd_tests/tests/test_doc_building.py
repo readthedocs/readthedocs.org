@@ -1250,6 +1250,7 @@ class TestPythonEnvironment(TestCase):
             '--exists-action=w',
             '--cache-dir',
             mock.ANY,  # cache path
+            '-r',
             'requirements_file'
         ]
 
@@ -1259,7 +1260,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1270,7 +1271,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(root_requirements)
+        args[-1] = root_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1281,7 +1282,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
