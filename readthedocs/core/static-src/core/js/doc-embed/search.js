@@ -108,7 +108,7 @@ function attach_elastic_search_query(data) {
         });
     };
 
-    if (typeof Search !== 'undefined' && project && version) {
+    if (typeof Search !== 'undefined' && !window.READTHEDOCS_DISABLE_SEARCH && project && version) {
         var query_fallback = Search.query;
         Search.query_fallback = query_fallback;
         Search.query = query_override;
