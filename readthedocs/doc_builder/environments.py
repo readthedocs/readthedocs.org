@@ -164,14 +164,8 @@ class BuildCommand(BuildCommandResultMixin):
                 cmd_input_bytes = cmd_input
             cmd_output = proc.communicate(input=cmd_input_bytes)
             (cmd_stdout, cmd_stderr) = cmd_output
-            try:
-                self.output = cmd_stdout.decode('utf-8', 'replace')
-            except (TypeError, AttributeError):
-                self.output = None
-            try:
-                self.error = cmd_stderr.decode('utf-8', 'replace')
-            except (TypeError, AttributeError):
-                self.error = None
+            self.output = self.sanitize_output(cmd_stdout)
+            self.error = self.sanitize_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
             self.error = traceback.format_exc()
@@ -179,6 +173,30 @@ class BuildCommand(BuildCommandResultMixin):
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
+
+    def sanitize_output(self, output):
+        r"""
+        Sanitize ``output`` to be saved into the DB.
+
+            1. Decodes to UTF-8
+
+            2. Replaces NULL (\x00) characters with ``''`` (empty string) to
+               avoid PostgreSQL db to fail:
+               https://code.djangoproject.com/ticket/28201
+
+        :param output: stdout/stderr to be sanitized
+        :type output: bytes
+
+        :returns: sanitized output as string or ``None`` if it fails
+        """
+        try:
+            sanitized = output.decode('utf-8', 'replace')
+            # Replace NULL (\x00) character to avoid PostgreSQL db to fail
+            # https://code.djangoproject.com/ticket/28201
+            sanitized = sanitized.replace('\x00', '')
+        except (TypeError, AttributeError):
+            sanitized = None
+        return sanitized
 
     def get_command(self):
         """Flatten command."""
