@@ -68,7 +68,7 @@ This happens because our build system doesn't have the dependencies for building
 
 autodoc_mock_imports
 
-    This value contains a list of modules to be mocked up. This is useful when some external dependencies are not met at build time and break the building process. You may only specify the root package of the dependencies themselves and omit the sub-modules:
+This value contains a list of modules to be mocked up. This is useful when some external dependencies are not met at build time and break the building process. You may only specify the root package of the dependencies themselves and omit the sub-modules:
 
     autodoc_mock_imports = ["django"]
 
