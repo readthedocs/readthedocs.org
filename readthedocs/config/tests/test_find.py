@@ -79,7 +79,7 @@ def test_find_unicode_path(tmpdir):
     base_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), 'fixtures/bad_encode_project')
     )
-    path = find_one(base_path, ('readthedocs.yml',))
+    path = find_one(base_path, r'readthedocs\.yml')
     assert path == ''
     unicode_base_path = base_path.decode('utf-8')
     assert isinstance(unicode_base_path, unicode)
