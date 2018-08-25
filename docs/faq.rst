@@ -65,17 +65,7 @@ I get import errors on libraries that depend on C modules
 
 This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-
-autodoc_mock_imports
-
-This value contains a list of modules to be mocked up. This is useful when some external dependencies are not met at build time and break the building process. You may only specify the root package of the dependencies themselves and omit the sub-modules:
-
-    autodoc_mock_imports = ["django"]
-
-Will mock all imports under the django package.
-New in version 1.3.
-
-http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
+You can use this feature included in autodoc to mock http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports.
 
 
 `Client Error 401` when building documentation
