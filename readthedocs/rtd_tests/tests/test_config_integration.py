@@ -289,12 +289,10 @@ class TestLoadConfigV2(object):
 
     @pytest.mark.parametrize('config', [{}, {'formats': []}])
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
-    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_default_empty(
-            self, append_conf, html_build, search_build,
-            checkout_path, config, tmpdir):
+            self, append_conf, html_build, checkout_path, config, tmpdir):
         """
         The default value for formats is [], which means no extra
         formats are build.
@@ -313,18 +311,16 @@ class TestLoadConfigV2(object):
 
         # No extra formats were triggered
         assert outcomes['html']
-        assert outcomes['search']
         assert not outcomes['localmedia']
         assert not outcomes['pdf']
         assert not outcomes['epub']
 
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
-    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_only_pdf(
-            self, append_conf, html_build, search_build, build_docs_class,
+            self, append_conf, html_build, build_docs_class,
             checkout_path, tmpdir):
         """
         Only the pdf format is build.
@@ -344,7 +340,6 @@ class TestLoadConfigV2(object):
 
         # Only pdf extra format was triggered
         assert outcomes['html']
-        assert outcomes['search']
         build_docs_class.assert_called_with('sphinx_pdf')
         assert outcomes['pdf']
         assert not outcomes['localmedia']
