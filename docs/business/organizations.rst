@@ -1,6 +1,9 @@
 Organizations
 -------------
 
+Organizations 2
+-------------
+
 Organizations allow you to segment who has access to what projects in your company.
 Your company will be represented as an Organization,
 let's use ACME Corporation as our example.
@@ -17,7 +20,8 @@ Member Types
 
 The best way to think about this relationship is:
 
-*Owners* will create *Teams* to assign permissions to all *Members*.
+**Owners** will create *Teams* to assign permissions to all *Members*.
+**Teams** will create *members* to assign permissions to all *Members*.
 
 Team Types
 ~~~~~~~~~~
