@@ -13,19 +13,19 @@
 {% block content %}
 
 <h3>
-{% blocktrans with slug=version.slug %}
+{% blocktrans trimmed with slug=version.slug %}
     Remove build environment for <em>{{ slug }}</em> version.
 {% endblocktrans %}
 </h3>
 
 {% if deleted %}
     <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
         Your project environment has been wiped.
     {% endblocktrans %}
     </p>
 {% else %}
-    {% blocktrans %}
+    {% blocktrans trimmed %}
         Having trouble getting your documentation build to complete?  By clicking on the button below you'll clean out your build checkouts and environment, but not your generated documentation.
     {% endblocktrans %}
 
