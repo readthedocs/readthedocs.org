@@ -65,7 +65,7 @@ I get import errors on libraries that depend on C modules
 
 This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-You can use this feature `autodoc_mock_imports`_ to mock your dependencies.
+If you are mocking your dependencies using the mock library, then you can also use this feature `autodoc_mock_imports`_ to mock your dependencies.
 
 .. _autodock_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
