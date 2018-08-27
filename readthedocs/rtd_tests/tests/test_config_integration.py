@@ -304,7 +304,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=update_docs.config
         )
         update_docs.python_env = python_env
         outcomes = update_docs.build_docs()
