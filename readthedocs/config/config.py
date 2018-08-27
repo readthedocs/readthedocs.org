@@ -528,12 +528,12 @@ class BuildConfigV1(BuildConfigBase):
 
     @property
     def sphinx(self):
+        config_file = self.defaults['sphinx_configuration']
+        if config_file is not None:
+            config_file = os.path.join(self.base_path, config_file)
         return Sphinx(
             builder=self.doctype,
-            configuration=os.path.join(
-                self.base_path,
-                self.defaults['sphinx_configuration'],
-            ),
+            configuration=config_file,
             fail_on_warning=False,
         )
 
