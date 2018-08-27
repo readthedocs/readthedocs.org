@@ -132,10 +132,8 @@ def project_badge(request, project_slug):
         project__slug=project_slug, slug=version_slug).first()
 
     if version:
-        version_builds = version.builds.filter(type='html',
-                                               state='finished').order_by('-date')
-        if version_builds.exists():
-            last_build = version_builds.first()
+        last_build = version.builds.filter(type='html', state='finished').order_by('-date').first()
+        if last_build:
             if last_build.success:
                 file_path = badge_path % 'passing'
             else:
