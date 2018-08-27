@@ -530,7 +530,10 @@ class BuildConfigV1(BuildConfigBase):
     def sphinx(self):
         return Sphinx(
             builder=self.doctype,
-            configuration=self.defaults['sphinx_configuration'],
+            configuration=os.path.join(
+                self.base_path,
+                self.defaults['sphinx_configuration'],
+            ),
             fail_on_warning=False,
         )
 
