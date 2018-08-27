@@ -139,11 +139,15 @@ def project_badge(request, project_slug):
             else:
                 file_path = badge_path % 'failing'
 
-    with open(file_path) as fd:
-        return HttpResponse(
-            fd.read(),
-            content_type='image/svg+xml',
-        )
+    try:
+        with open(file_path) as fd:
+            return HttpResponse(
+                fd.read(),
+                content_type='image/svg+xml',
+            )
+    except (IOError, OSError):
+        log.exception('Failed to read local filesystem while serving a docs badge')
+        return HttpResponse(status=503)
 
 
 def project_downloads(request, project_slug):
