@@ -15,7 +15,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -115,25 +114,40 @@ def project_badge(request, project_slug):
     style = request.GET.get('style', 'flat')
     if style not in ("flat", "plastic", "flat-square", "for-the-badge", "social"):
         style = "flat"
-    badge_path = 'projects/badges/%s-' + style + '.svg'
+
+    # Get the local path to the badge files
+    badge_path = os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'static',
+        'projects',
+        'badges',
+        '%s-' + style + '.svg',
+    )
+
     version_slug = request.GET.get('version', LATEST)
+    file_path = badge_path % 'unknown'
+
+    version = Version.objects.public(request.user).filter(
+        project__slug=project_slug, slug=version_slug).first()
+
+    if version:
+        last_build = version.builds.filter(type='html', state='finished').order_by('-date').first()
+        if last_build:
+            if last_build.success:
+                file_path = badge_path % 'passing'
+            else:
+                file_path = badge_path % 'failing'
+
     try:
-        version = Version.objects.public(request.user).get(
-            project__slug=project_slug, slug=version_slug)
-    except Version.DoesNotExist:
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    version_builds = version.builds.filter(type='html',
-                                           state='finished').order_by('-date')
-    if not version_builds.exists():
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    last_build = version_builds[0]
-    if last_build.success:
-        url = static(badge_path % 'passing')
-    else:
-        url = static(badge_path % 'failing')
-    return HttpResponseRedirect(url)
+        with open(file_path) as fd:
+            return HttpResponse(
+                fd.read(),
+                content_type='image/svg+xml',
+            )
+    except (IOError, OSError):
+        log.exception('Failed to read local filesystem while serving a docs badge')
+        return HttpResponse(status=503)
 
 
 def project_downloads(request, project_slug):
