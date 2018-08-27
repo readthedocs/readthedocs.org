@@ -102,8 +102,9 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
-    def test_create_conf_py(
-            self, get_conf_py_path, _, get_config_params,
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_multiple_conf_py(
+            self, checkout_path, get_conf_py_path, _, get_config_params,
             create_index, docs_dir):
         """
         Test for a project with multiple ``conf.py`` files.
@@ -113,14 +114,24 @@ class SphinxBuilderTest(TestCase):
         """
 
         tmp_docs_dir = py.path.local(tempfile.mkdtemp())
-        tmp_docs_dir.join('conf.py').new()
-        tmp_docs_dir.join('test').mkdir().join('conf.py').new()
+        tmp_docs_dir.join('conf.py').write('')
+        tmp_docs_dir.join('test').mkdir().join('conf.py').write('')
         docs_dir.return_value = str(tmp_docs_dir)
+        checkout_path.return_value = str(tmp_docs_dir)
         create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        base_sphinx = BaseSphinx(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
         with pytest.raises(ProjectConfigurationError):
-            self.base_sphinx.append_conf()
+            base_sphinx.append_conf()
 
 
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
