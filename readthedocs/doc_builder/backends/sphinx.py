@@ -42,8 +42,12 @@ class BaseSphinx(BaseBuilder):
     def __init__(self, *args, **kwargs):
         super(BaseSphinx, self).__init__(*args, **kwargs)
         try:
+            config_file = self.config.sphinx.configuration
+            config_dir = os.path.dirname(config_file) if config_file else None
             self.old_artifact_path = os.path.join(
-                self.project.conf_dir(self.version.slug), self.sphinx_build_dir)
+                config_dir or self.project.conf_dir(self.version.slug),
+                self.sphinx_build_dir
+            )
         except ProjectConfigurationError:
             docs_dir = self.docs_dir()
             self.old_artifact_path = os.path.join(
@@ -69,7 +73,7 @@ class BaseSphinx(BaseBuilder):
         # TODO this should be handled better in the theme
         conf_py_path = os.path.join(
             os.path.sep,
-            self.version.get_conf_py_path(),
+            self.config.sphinx.configuration or self.version.get_conf_py_path(),
             '',
         )
         remote_version = self.version.commit_name
@@ -151,14 +155,15 @@ class BaseSphinx(BaseBuilder):
 
     def append_conf(self, **__):
         """Find or create a ``conf.py`` with a rendered ``doc_builder/conf.py.tmpl`` appended"""
-        try:
-            self.version.get_conf_py_path()
-        except ProjectConfigurationError:
+        if self.config.sphinx.configuration is None:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
         try:
-            outfile_path = self.project.conf_file(self.version.slug)
+            outfile_path = (
+                self.config.sphinx.configuration or
+                self.project.conf_file(self.version.slug)
+            )
             outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
         except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
@@ -211,7 +216,10 @@ class BaseSphinx(BaseBuilder):
             '.',
             self.sphinx_build_dir,
         ])
-        config_file = self.config.sphinx.configuration
+        config_file = (
+            self.config.sphinx.configuration or
+            self.project.conf_file(self.version.slug)
+        )
         cmd_ret = self.run(
             *build_command,
             cwd=os.path.dirname(config_file),
@@ -352,7 +360,9 @@ class PdfBuilder(BaseSphinx):
 
     def build(self):
         self.clean()
-        cwd = self.project.conf_dir(self.version.slug)
+        config_file = self.config.sphinx.configuration
+        config_dir = os.path.dirname(config_file) if config_file else None
+        cwd = config_dir or self.project.conf_dir(self.version.slug)
 
         # Default to this so we can return it always.
         self.run(
