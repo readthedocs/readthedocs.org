@@ -3,6 +3,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import textwrap
+import re
 
 import pytest
 from mock import DEFAULT, patch
@@ -13,7 +14,7 @@ from readthedocs.config import (
     ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
-    VERSION_INVALID)
+    VERSION_INVALID, CONFIG_FILENAME_REGEX)
 from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
@@ -48,6 +49,13 @@ name: first
 name: second
     ''',
     'nested': minimal_config_dir,
+}
+
+yaml_extension_config_dir = {
+    'readthedocs.yaml': '''\
+name: docs
+type: sphinx
+'''
 }
 
 
@@ -136,6 +144,14 @@ def test_load_unknow_version(tmpdir):
     with raises(ConfigError) as excinfo:
         load(base, get_env_config({'allow_v2': True}))
     assert excinfo.value.code == VERSION_INVALID
+
+
+def test_yaml_extension(tmpdir):
+    """Make sure it's capable of loading the 'readthedocs' file with a 'yaml' extension."""
+    apply_fs(tmpdir, yaml_extension_config_dir)
+    base = str(tmpdir)
+    config = load(base, env_config)
+    assert len(config) == 1
 
 
 def test_build_config_has_source_file(tmpdir):
@@ -764,6 +780,13 @@ def test_raise_config_not_supported():
         build.redirects
     assert excinfo.value.configuration == 'redirects'
     assert excinfo.value.code == CONFIG_NOT_SUPPORTED
+
+
+@pytest.mark.parametrize('correct_config_filename',
+                         [prefix + 'readthedocs.' + extension for prefix in {"", "."}
+                          for extension in {"yml", "yaml"}])
+def test_config_filenames_regex(correct_config_filename):
+    assert re.match(CONFIG_FILENAME_REGEX, correct_config_filename)
 
 
 class TestBuildConfigV2(object):

@@ -31,7 +31,7 @@ __all__ = (
 )
 
 ALL = 'all'
-CONFIG_FILENAMES = ('readthedocs.yml', '.readthedocs.yml')
+CONFIG_FILENAME_REGEX = r'\.?readthedocs.ya?ml'
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
@@ -48,7 +48,7 @@ INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 
 DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
-# These map to coordisponding settings in the .org,
+# These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
 DOCKER_IMAGE_SETTINGS = {
@@ -903,16 +903,12 @@ def load(path, env_config):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    filename = find_one(path, CONFIG_FILENAMES)
+    filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        files = '{}'.format(', '.join(map(repr, CONFIG_FILENAMES[:-1])))
-        if files:
-            files += ' or '
-        files += '{!r}'.format(CONFIG_FILENAMES[-1])
         raise ConfigError(
-            'No files {} found'.format(files),
-            code=CONFIG_REQUIRED,
+            'No configuration file found',
+            code=CONFIG_REQUIRED
         )
     build_configs = []
     with open(filename, 'r') as configuration_file:
