@@ -163,10 +163,10 @@ class BaseSphinx(BaseBuilder):
         except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
             six.reraise(
+                ProjectConfigurationError,
                 ProjectConfigurationError(
                     ProjectConfigurationError.NOT_FOUND
                 ),
-                None,
                 trace
             )
 
