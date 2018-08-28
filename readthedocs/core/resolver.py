@@ -160,17 +160,18 @@ class ResolverBase(object):
         else:
             domain = getattr(settings, 'PRODUCTION_DOMAIN')
 
-        protocol = 'http'
-        if custom_domain:
-            # Rely on the ``Domain.https`` field or force it if specified
-            if custom_domain.https or require_https_domain:
-                protocol = 'https'
-        else:
-            # Use HTTPS if settings specify
-            public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-            use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
-            if use_https and public_domain and public_domain in domain:
-                protocol = 'https'
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
+
+        use_https_protocol = any([
+            # Rely on the ``Domain.https`` field
+            custom_domain and custom_domain.https,
+            # or force it if specified
+            require_https_domain,
+            # or fallback to settings
+            use_https and public_domain and public_domain in domain,
+        ])
+        protocol = 'https' if use_https_protocol else 'http'
 
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
