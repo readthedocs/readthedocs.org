@@ -736,7 +736,7 @@ def test_requirements_file_is_null(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.requirements_file is None
+    assert build.python.requirements is None
 
 
 def test_requirements_file_is_blank(tmpdir):
@@ -746,7 +746,7 @@ def test_requirements_file_is_blank(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.requirements_file is None
+    assert build.python.requirements is None
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
