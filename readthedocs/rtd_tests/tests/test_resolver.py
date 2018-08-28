@@ -471,8 +471,8 @@ class ResolverTests(ResolverBase):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
 
-            # Do not use the ``Domain.domain`` when ``require_https_domain=True``
-            url = resolve(project=self.pip, require_https_domain=True)
+            # Do not use the ``Domain.domain`` when ``require_https=True``
+            url = resolve(project=self.pip, require_https=True)
             self.assertEqual(url, 'https://pip.readthedocs.org/en/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -491,8 +491,8 @@ class ResolverTests(ResolverBase):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
 
-            # Use the ``Domain.domain`` when ``require_https_domain=True``
-            url = resolve(project=self.pip, require_https_domain=True)
+            # Use the ``Domain.domain`` when ``require_https=True``
+            url = resolve(project=self.pip, require_https=True)
             self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
