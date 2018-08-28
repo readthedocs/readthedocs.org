@@ -471,10 +471,6 @@ class ResolverTests(ResolverBase):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
 
-            # Do not use the ``Domain.domain`` when ``require_https=True``
-            url = resolve(project=self.pip, require_https=True)
-            self.assertEqual(url, 'https://pip.readthedocs.org/en/latest/')
-
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_domain_https(self):
         self.domain = fixture.get(
@@ -489,10 +485,6 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
-            self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
-
-            # Use the ``Domain.domain`` when ``require_https=True``
-            url = resolve(project=self.pip, require_https=True)
             self.assertEqual(url, 'https://docs.foobar.com/en/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
