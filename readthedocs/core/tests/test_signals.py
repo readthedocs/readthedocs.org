@@ -1,7 +1,7 @@
 import pytest
+import django_dynamic_fixture
 
 from django.contrib.auth.models import User
-from django_dynamic_fixture import G
 
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Project
@@ -18,8 +18,8 @@ class TestProjectOrganizationSignal(object):
         deleted.
         """
 
-        obj = G(model_class)
-        user1 = G(User)
+        obj = django_dynamic_fixture.get(model_class)
+        user1 = django_dynamic_fixture.get(User)
         obj.users.add(user1)
 
         obj.refresh_from_db()
@@ -38,9 +38,9 @@ class TestProjectOrganizationSignal(object):
         when any of the user delete his account.
         """
 
-        obj = G(model_class)
-        user1 = G(User)
-        user2 = G(User)
+        obj = django_dynamic_fixture.get(model_class)
+        user1 = django_dynamic_fixture.get(User)
+        user2 = django_dynamic_fixture.get(User)
         obj.users.add(user1, user2)
 
         obj.refresh_from_db()
