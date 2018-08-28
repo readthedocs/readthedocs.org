@@ -136,7 +136,7 @@ class ResolverBase(object):
             return self._get_project_subdomain(canonical_project)
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, protocol='http', filename='', private=None,
+    def resolve(self, project, require_https_domain=False, filename='', private=None,
                 **kwargs):
         if private is None:
             version_slug = kwargs.get('version_slug')
@@ -149,15 +149,22 @@ class ResolverBase(object):
 
         # This duplication from resolve_domain is for performance purposes
         # in order to check whether a custom domain should be HTTPS
-        if custom_domain:
+        use_custom_domain = any([
+            (custom_domain and not require_https_domain),
+            (custom_domain and require_https_domain and custom_domain.https),
+        ])
+        if use_custom_domain:
             domain = custom_domain.domain
         elif self._use_subdomain():
             domain = self._get_project_subdomain(canonical_project)
         else:
             domain = getattr(settings, 'PRODUCTION_DOMAIN')
 
+        protocol = 'http'
         if custom_domain:
-            protocol = 'https' if custom_domain.https else 'http'
+            # Rely on the ``Domain.https`` field or force it if specified
+            if custom_domain.https or require_https_domain:
+                protocol = 'https'
         else:
             # Use HTTPS if settings specify
             public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
