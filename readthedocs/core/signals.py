@@ -81,6 +81,7 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
     # Here we count the owner list from the projects that the user own
     # Then exclude the projects where there are more than one owner
     # Add annotate before filter
+    # https://github.com/rtfd/readthedocs.org/pull/4577
     # https://docs.djangoproject.com/en/2.1/topics/db/aggregation/#order-of-annotate-and-filter-clauses # noqa
     projects = (Project.objects.annotate(num_users=Count('users')).filter(users=instance.id)
                                                                   .exclude(num_users__gt=1))
