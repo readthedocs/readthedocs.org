@@ -147,13 +147,7 @@ class ResolverBase(object):
         canonical_project = self._get_canonical_project(project)
         custom_domain = self._get_project_custom_domain(canonical_project)
 
-        # This duplication from resolve_domain is for performance purposes
-        # in order to check whether a custom domain should be HTTPS
-        use_custom_domain = any([
-            (custom_domain and not require_https),
-            (custom_domain and require_https and custom_domain.https),
-        ])
-        if use_custom_domain:
+        if self._use_custom_domain(custom_domain):
             domain = custom_domain.domain
         elif self._use_subdomain():
             domain = self._get_project_subdomain(canonical_project)
@@ -256,6 +250,17 @@ class ResolverBase(object):
         else:
             path = ""
         return path
+
+    def _use_custom_domain(self, custom_domain):
+        """
+        Make decision about whether to use a custom domain to serve docs.
+
+        Always use the custom domain if it exists.
+
+        :param custom_domain: Domain instance or ``None``
+        :type custom_domain: readthedocs.projects.models.Domain
+        """
+        return True if custom_domain is not None else False
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""
