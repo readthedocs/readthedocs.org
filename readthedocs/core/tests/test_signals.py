@@ -10,14 +10,35 @@ from readthedocs.projects.models import Project
 @pytest.mark.django_db
 class TestProjectOrganizationSignal(object):
 
-    @pytest.mark.parametrize('model', [Project, RemoteOrganization])
-    def test_multiple_users_project_organization_not_delete(self, model):
+    @pytest.mark.parametrize('model_class', [Project, RemoteOrganization])
+    def test_project_organization_get_deleted_upon_user_delete(self, model_class):
+        """
+        If the user has Project or RemoteOrganization where he is the only user,
+        upon deleting his account, the Project or RemoteOrganization should also get
+        deleted.
+        """
+
+        obj = G(model_class)
+        user1 = G(User)
+        obj.users.add(user1)
+
+        obj.refresh_from_db()
+        assert obj.users.all().count() == 1
+
+        # Delete the user
+        user1.delete()
+        # The object should not exist
+        obj = model_class.objects.all().filter(id=obj.id)
+        assert not obj.exists()
+
+    @pytest.mark.parametrize('model_class', [Project, RemoteOrganization])
+    def test_multiple_users_project_organization_not_delete(self, model_class):
         """
         Check Project or RemoteOrganization which have multiple users do not get deleted
         when any of the user delete his account.
         """
 
-        obj = G(model)
+        obj = G(model_class)
         user1 = G(User)
         user2 = G(User)
         obj.users.add(user1, user2)
