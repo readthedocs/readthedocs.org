@@ -1,3 +1,13 @@
+Version 2.6.5
+-------------
+
+:Date: August 29, 2018
+
+* `@stsewd <http://github.com/stsewd>`__: Tests for yaml file regex (`#4587 <https://github.com/rtfd/readthedocs.org/pull/4587>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Respect user language when caching homepage (`#4585 <https://github.com/rtfd/readthedocs.org/pull/4585>`__)
+* `@humitos <http://github.com/humitos>`__: Add start and termination to YAML file regex (`#4584 <https://github.com/rtfd/readthedocs.org/pull/4584>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4576] Do not delete projects which have multiple users (`#4577 <https://github.com/rtfd/readthedocs.org/pull/4577>`__)
+
 Version 2.6.4
 -------------
 
