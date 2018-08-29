@@ -31,7 +31,7 @@ __all__ = (
 )
 
 ALL = 'all'
-CONFIG_FILENAME_REGEX = r'\.?readthedocs.ya?ml'
+CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
