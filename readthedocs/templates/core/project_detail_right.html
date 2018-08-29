@@ -79,7 +79,7 @@
       {% if request.user|is_admin:project %}
 
         {% url 'projects_edit' project.slug as edit_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
           Add some in your <a href="{{ edit_url }}">project settings</a>.
           {% endblocktrans %}
       {% endif %}

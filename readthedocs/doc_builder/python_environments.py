@@ -62,32 +62,33 @@ class PythonEnvironment(object):
             shutil.rmtree(venv_dir)
 
     def install_package(self):
-        if self.config.install_project:
-            if self.config.pip_install or getattr(settings, 'USE_PIP_INSTALL', False):
-                extra_req_param = ''
-                if self.config.extra_requirements:
-                    extra_req_param = '[{0}]'.format(
-                        ','.join(self.config.extra_requirements))
-                self.build_env.run(
-                    'python',
-                    self.venv_bin(filename='pip'),
-                    'install',
-                    '--ignore-installed',
-                    '--cache-dir',
-                    self.project.pip_cache_path,
-                    '.{0}'.format(extra_req_param),
-                    cwd=self.checkout_path,
-                    bin_path=self.venv_bin()
+        if (self.config.python.install_with_pip or
+                getattr(settings, 'USE_PIP_INSTALL', False)):
+            extra_req_param = ''
+            if self.config.python.extra_requirements:
+                extra_req_param = '[{0}]'.format(
+                    ','.join(self.config.python.extra_requirements)
                 )
-            else:
-                self.build_env.run(
-                    'python',
-                    'setup.py',
-                    'install',
-                    '--force',
-                    cwd=self.checkout_path,
-                    bin_path=self.venv_bin()
-                )
+            self.build_env.run(
+                'python',
+                self.venv_bin(filename='pip'),
+                'install',
+                '--ignore-installed',
+                '--cache-dir',
+                self.project.pip_cache_path,
+                '.{0}'.format(extra_req_param),
+                cwd=self.checkout_path,
+                bin_path=self.venv_bin()
+            )
+        elif self.config.python.install_with_setup:
+            self.build_env.run(
+                'python',
+                'setup.py',
+                'install',
+                '--force',
+                cwd=self.checkout_path,
+                bin_path=self.venv_bin()
+            )
 
     def venv_bin(self, filename=None):
         """
@@ -150,7 +151,7 @@ class PythonEnvironment(object):
         env_build_hash = env_build.get('hash', None)
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build_image or DOCKER_IMAGE
+            build_image = self.config.build.image or DOCKER_IMAGE
             image_hash = self.build_env.image_hash
         else:
             # e.g. LocalBuildEnvironment
@@ -176,7 +177,7 @@ class PythonEnvironment(object):
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
-            build_image = self.config.build_image or DOCKER_IMAGE
+            build_image = self.config.build.image or DOCKER_IMAGE
             data.update({
                 'build': {
                     'image': build_image,
@@ -203,7 +204,7 @@ class Virtualenv(PythonEnvironment):
 
     def setup_base(self):
         site_packages = '--no-site-packages'
-        if self.config.use_system_site_packages:
+        if self.config.python.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path()
         self.build_env.run(
@@ -257,7 +258,7 @@ class Virtualenv(PythonEnvironment):
             '--cache-dir',
             self.project.pip_cache_path,
         ]
-        if self.config.use_system_site_packages:
+        if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
             # even if it is already installed system-wide (and
@@ -270,8 +271,8 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_user_requirements(self):
-        requirements_file_path = self.config.requirements_file
-        if not requirements_file_path:
+        requirements_file_path = self.config.python.requirements
+        if not requirements_file_path and requirements_file_path != '':
             builder_class = get_builder_class(self.project.documentation_type)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
@@ -295,7 +296,8 @@ class Virtualenv(PythonEnvironment):
                 '--exists-action=w',
                 '--cache-dir',
                 self.project.pip_cache_path,
-                '-r{0}'.format(requirements_file_path),
+                '-r',
+                requirements_file_path,
             ]
             self.build_env.run(
                 *args,
@@ -330,7 +332,7 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
             '--file',
-            self.config.conda_file,
+            self.config.conda.environment,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
         )
 

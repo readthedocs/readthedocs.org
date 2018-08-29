@@ -67,10 +67,7 @@ else:
 
 if globals().get('websupport2_base_url', False):
     websupport2_base_url = '{{ api_host }}/websupport'
-    if 'http' not in settings.MEDIA_URL:
-        websupport2_static_url = '{{ settings.STATIC_URL }}'
-    else:
-        websupport2_static_url = '{{ settings.MEDIA_URL }}/static'
+    websupport2_static_url = '{{ settings.STATIC_URL }}'
 
 
 #Add project information to the template context.
@@ -80,6 +77,7 @@ context = {
     'current_version': "{{ version.verbose_name }}",
     'version_slug': "{{ version.slug }}",
     'MEDIA_URL': "{{ settings.MEDIA_URL }}",
+    'STATIC_URL': "{{ settings.STATIC_URL }}",
     'PRODUCTION_DOMAIN': "{{ settings.PRODUCTION_DOMAIN }}",
     'versions': [{% for version in versions %}
     ("{{ version.slug }}", "/{{ version.project.language }}/{{ version.slug}}/"),{% endfor %}
@@ -143,6 +141,3 @@ if 'extensions' in globals():
     extensions.insert(0, "readthedocs_ext.readthedocs")
 else:
     extensions = ["readthedocs_ext.readthedocs"]
-
-# Build the json artifacts with the html build step
-rtd_generate_json_artifacts = {{ generate_json_artifacts }}

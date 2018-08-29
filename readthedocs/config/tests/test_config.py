@@ -3,6 +3,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import textwrap
+import re
 
 import pytest
 from mock import DEFAULT, patch
@@ -13,7 +14,8 @@ from readthedocs.config import (
     ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
-    VERSION_INVALID)
+    VERSION_INVALID, CONFIG_FILENAME_REGEX)
+from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
 
@@ -47,6 +49,13 @@ name: first
 name: second
     ''',
     'nested': minimal_config_dir,
+}
+
+yaml_extension_config_dir = {
+    'readthedocs.yaml': '''\
+name: docs
+type: sphinx
+'''
 }
 
 
@@ -137,6 +146,14 @@ def test_load_unknow_version(tmpdir):
     assert excinfo.value.code == VERSION_INVALID
 
 
+def test_yaml_extension(tmpdir):
+    """Make sure it's capable of loading the 'readthedocs' file with a 'yaml' extension."""
+    apply_fs(tmpdir, yaml_extension_config_dir)
+    base = str(tmpdir)
+    config = load(base, env_config)
+    assert len(config) == 1
+
+
 def test_build_config_has_source_file(tmpdir):
     base = str(apply_fs(tmpdir, minimal_config_dir))
     build = load(base, env_config)[0]
@@ -194,6 +211,21 @@ def test_version():
     assert build.version == '1'
 
 
+def test_doc_type():
+    build = get_build_config(
+        {},
+        get_env_config(
+            {
+                'defaults': {
+                    'doctype': 'sphinx',
+                },
+            }
+        )
+    )
+    build.validate()
+    assert build.doctype == 'sphinx'
+
+
 def test_empty_python_section_is_valid():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()
@@ -212,7 +244,7 @@ def test_use_system_site_packages_defaults_to_false():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()
     # Default is False.
-    assert not build.use_system_site_packages
+    assert not build.python.use_system_site_packages
 
 
 @pytest.mark.parametrize('value', [True, False])
@@ -222,14 +254,14 @@ def test_use_system_site_packages_repects_default_value(value):
     }
     build = get_build_config({}, get_env_config({'defaults': defaults}))
     build.validate()
-    assert build.use_system_site_packages is value
+    assert build.python.use_system_site_packages is value
 
 
 def test_python_pip_install_default():
     build = get_build_config({'python': {}}, get_env_config())
     build.validate()
     # Default is False.
-    assert build.pip_install is False
+    assert build.python.install_with_pip is False
 
 
 def describe_validate_python_extra_requirements():
@@ -238,7 +270,7 @@ def describe_validate_python_extra_requirements():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         # Default is an empty list.
-        assert build.extra_requirements == []
+        assert build.python.extra_requirements == []
 
     def it_validates_is_a_list():
         build = get_build_config(
@@ -254,7 +286,12 @@ def describe_validate_python_extra_requirements():
     def it_uses_validate_string(validate_string):
         validate_string.return_value = True
         build = get_build_config(
-            {'python': {'extra_requirements': ['tests']}},
+            {
+                'python': {
+                    'pip_install': True,
+                    'extra_requirements': ['tests'],
+                },
+            },
             get_env_config(),
         )
         build.validate()
@@ -266,7 +303,7 @@ def describe_validate_use_system_site_packages():
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
-        assert build.use_system_site_packages is False
+        assert build.python.use_system_site_packages is False
 
     def it_validates_value():
         build = get_build_config(
@@ -294,7 +331,7 @@ def describe_validate_setup_py_install():
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
-        assert build.python['setup_py_install'] is False
+        assert build.python.install_with_setup is False
 
     def it_validates_value():
         build = get_build_config(
@@ -322,7 +359,7 @@ def describe_validate_python_version():
     def it_defaults_to_a_valid_version():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
-        assert build.python_version == 2
+        assert build.python.version == 2
         assert build.python_interpreter == 'python2.7'
         assert build.python_full_version == 2.7
 
@@ -332,7 +369,7 @@ def describe_validate_python_version():
             get_env_config(),
         )
         build.validate()
-        assert build.python_version == 3.5
+        assert build.python.version == 3.5
         assert build.python_interpreter == 'python3.5'
         assert build.python_full_version == 3.5
 
@@ -362,7 +399,7 @@ def describe_validate_python_version():
             get_env_config(),
         )
         build.validate()
-        assert build.python_version == 3.5
+        assert build.python.version == 3.5
         assert build.python_interpreter == 'python3.5'
         assert build.python_full_version == 3.5
 
@@ -371,7 +408,7 @@ def describe_validate_python_version():
             get_env_config(),
         )
         build.validate()
-        assert build.python_version == 3
+        assert build.python.version == 3
         assert build.python_interpreter == 'python3.5'
         assert build.python_full_version == 3.5
 
@@ -400,7 +437,7 @@ def describe_validate_python_version():
             )
         )
         build.validate()
-        assert build.python_version == 3.6
+        assert build.python.version == 3.6
         assert build.python_interpreter == 'python3.6'
         assert build.python_full_version == 3.6
 
@@ -414,7 +451,7 @@ def describe_validate_python_version():
             get_env_config({'defaults': defaults}),
         )
         build.validate()
-        assert build.python_version == value
+        assert build.python.version == value
 
 
 def describe_validate_formats():
@@ -480,52 +517,6 @@ def describe_validate_formats():
         assert excinfo.value.code == INVALID_LIST
 
 
-def describe_validate_setup_py_path():
-
-    def it_defaults_to_source_file_directory(tmpdir):
-        apply_fs(
-            tmpdir,
-            {
-                'subdir': {
-                    'readthedocs.yml': '',
-                    'setup.py': '',
-                },
-            },
-        )
-        with tmpdir.as_cwd():
-            source_file = tmpdir.join('subdir', 'readthedocs.yml')
-            setup_py = tmpdir.join('subdir', 'setup.py')
-            build = get_build_config(
-                {},
-                env_config=get_env_config(),
-                source_file=str(source_file),
-            )
-            build.validate()
-            assert build.python['setup_py_path'] == str(setup_py)
-
-    def it_validates_value(tmpdir):
-        with tmpdir.as_cwd():
-            build = get_build_config({
-                'python': {'setup_py_path': 'this-is-string'}
-            })
-            with raises(InvalidConfig) as excinfo:
-                build.validate_python()
-            assert excinfo.value.key == 'python.setup_py_path'
-            assert excinfo.value.code == INVALID_PATH
-
-    def it_uses_validate_file(tmpdir):
-        path = tmpdir.join('setup.py')
-        path.write('content')
-        path = str(path)
-        patcher = patch('readthedocs.config.config.validate_file')
-        with patcher as validate_file:
-            validate_file.return_value = path
-            build = get_build_config({'python': {'setup_py_path': 'setup.py'}},)
-            build.validate_python()
-            args, kwargs = validate_file.call_args
-            assert args[0] == 'setup.py'
-
-
 def test_valid_build_config():
     build = BuildConfigV1(
         env_config,
@@ -537,8 +528,9 @@ def test_valid_build_config():
     assert build.name == 'docs'
     assert build.base
     assert build.python
-    assert 'setup_py_install' in build.python
-    assert 'use_system_site_packages' in build.python
+    assert build.python.install_with_setup is False
+    assert build.python.install_with_pip is False
+    assert build.python.use_system_site_packages is False
     assert build.output_base
 
 
@@ -649,7 +641,7 @@ def describe_validate_build():
             source_position=0,
         )
         build.validate()
-        assert build.build_image == 'readthedocs/build:latest'
+        assert build.build.image == 'readthedocs/build:latest'
 
     def default(tmpdir):
         apply_fs(tmpdir, minimal_config)
@@ -660,7 +652,7 @@ def describe_validate_build():
             source_position=0,
         )
         build.validate()
-        assert build.build_image == 'readthedocs/build:2.0'
+        assert build.build.image == 'readthedocs/build:2.0'
 
     @pytest.mark.parametrize(
         'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
@@ -676,13 +668,13 @@ def describe_validate_build():
             source_position=0,
         )
         build.validate()
-        assert build.build_image == image
+        assert build.build.image == image
 
 
 def test_use_conda_default_false():
     build = get_build_config({}, get_env_config())
     build.validate()
-    assert build.use_conda is False
+    assert build.conda is None
 
 
 def test_use_conda_respects_config():
@@ -691,7 +683,7 @@ def test_use_conda_respects_config():
         get_env_config(),
     )
     build.validate()
-    assert build.use_conda is True
+    assert isinstance(build.conda, Conda)
 
 
 def test_validates_conda_file(tmpdir):
@@ -702,14 +694,14 @@ def test_validates_conda_file(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.use_conda is True
-    assert build.conda_file == str(tmpdir.join('environment.yml'))
+    assert isinstance(build.conda, Conda)
+    assert build.conda.environment == str(tmpdir.join('environment.yml'))
 
 
 def test_requirements_file_empty():
     build = get_build_config({}, get_env_config())
     build.validate()
-    assert build.requirements_file is None
+    assert build.python.requirements is None
 
 
 def test_requirements_file_repects_default_value(tmpdir):
@@ -723,7 +715,7 @@ def test_requirements_file_repects_default_value(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.requirements_file == 'myrequirements.txt'
+    assert build.python.requirements == 'myrequirements.txt'
 
 
 def test_requirements_file_respects_configuration(tmpdir):
@@ -734,7 +726,27 @@ def test_requirements_file_respects_configuration(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert build.requirements_file == 'requirements.txt'
+    assert build.python.requirements == 'requirements.txt'
+
+
+def test_requirements_file_is_null(tmpdir):
+    build = get_build_config(
+        {'requirements_file': None},
+        get_env_config(),
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    build.validate()
+    assert build.python.requirements is None
+
+
+def test_requirements_file_is_blank(tmpdir):
+    build = get_build_config(
+        {'requirements_file': ''},
+        get_env_config(),
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    build.validate()
+    assert build.python.requirements is None
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
@@ -788,6 +800,13 @@ def test_raise_config_not_supported():
         build.redirects
     assert excinfo.value.configuration == 'redirects'
     assert excinfo.value.code == CONFIG_NOT_SUPPORTED
+
+
+@pytest.mark.parametrize('correct_config_filename',
+                         [prefix + 'readthedocs.' + extension for prefix in {"", "."}
+                          for extension in {"yml", "yaml"}])
+def test_config_filenames_regex(correct_config_filename):
+    assert re.match(CONFIG_FILENAME_REGEX, correct_config_filename)
 
 
 class TestBuildConfigV2(object):

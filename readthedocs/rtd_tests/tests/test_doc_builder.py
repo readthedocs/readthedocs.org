@@ -6,9 +6,10 @@ import os
 import tempfile
 from collections import namedtuple
 
+import mock
+import py
 import pytest
 import yaml
-import mock
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -16,7 +17,7 @@ from mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
-from readthedocs.doc_builder.backends.sphinx import BaseSphinx, SearchBuilder
+from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 
@@ -76,44 +77,34 @@ class SphinxBuilderTest(TestCase):
         with open(generated_conf_py) as gf, open(expected_conf_py) as ef:
             self.assertEqual(gf.read(), ef.read())
 
+    @patch(
+        'readthedocs.doc_builder.backends.sphinx.SPHINX_TEMPLATE_DIR',
+        '/tmp/sphinx-template-dir',
+    )
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.create_index')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
+    @patch('readthedocs.builds.models.Version.get_conf_py_path')
+    def test_create_conf_py(
+            self, get_conf_py_path, _, get_config_params,
+            create_index, docs_dir):
+        """
+        Test for a project with multiple ``conf.py`` files.
 
-class SphinxSearchBuilderTest(TestCase):
+        An error should be raised to the user if we can't
+        guess the correct conf.py file.
+        """
 
-    fixtures = ['test_data']
-
-    def setUp(self):
-        self.project = Project.objects.get(slug='pip')
-        self.version = self.project.versions.first()
-
-        build_env = namedtuple('project', 'version')
-        build_env.project = self.project
-        build_env.version = self.version
-
-        self.searchbuilder = SearchBuilder(build_env=build_env, python_env=None)
-
-    def test_ignore_patterns(self):
-        src = tempfile.mkdtemp()
-        src_static = os.path.join(src, '_static/')
-        src_other = os.path.join(src, 'other/')
-        os.mkdir(src_static)
-        os.mkdir(src_other)
-
-        dest = tempfile.mkdtemp()
-        dest_static = os.path.join(dest, '_static/')
-        dest_other = os.path.join(dest, 'other/')
-
-        self.searchbuilder.old_artifact_path = src
-        self.searchbuilder.target = dest
-
-        # There is a _static/ dir in src/ but not in dest/
-        self.assertTrue(os.path.exists(src_static))
-        self.assertFalse(os.path.exists(dest_static))
-
-        self.searchbuilder.move()
-
-        # There is a dest/other/ but not a dest/_static
-        self.assertFalse(os.path.exists(dest_static))
-        self.assertTrue(os.path.exists(dest_other))
+        tmp_docs_dir = py.path.local(tempfile.mkdtemp())
+        tmp_docs_dir.join('conf.py').new()
+        tmp_docs_dir.join('test').mkdir().join('conf.py').new()
+        docs_dir.return_value = str(tmp_docs_dir)
+        create_index.return_value = 'README.rst'
+        get_config_params.return_value = {}
+        get_conf_py_path.side_effect = ProjectConfigurationError
+        with pytest.raises(ProjectConfigurationError):
+            self.base_sphinx.append_conf()
 
 
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -153,16 +144,16 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(
             config['extra_css'],
             [
-                'http://readthedocs.org/media/css/badge_only.css',
-                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+                'http://readthedocs.org/static/css/badge_only.css',
+                'http://readthedocs.org/static/css/readthedocs-doc-embed.css'
             ]
         )
         self.assertEqual(
             config['extra_javascript'],
             [
                 'readthedocs-data.js',
-                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
-                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
             ]
         )
         self.assertIsNone(
@@ -205,16 +196,16 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(
             config['extra_css'],
             [
-                'http://readthedocs.org/media/css/badge_only.css',
-                'http://readthedocs.org/media/css/readthedocs-doc-embed.css'
+                'http://readthedocs.org/static/css/badge_only.css',
+                'http://readthedocs.org/static/css/readthedocs-doc-embed.css'
             ]
         )
         self.assertEqual(
             config['extra_javascript'],
             [
                 'readthedocs-data.js',
-                'http://readthedocs.org/media/static/core/js/readthedocs-doc-embed.js',
-                'http://readthedocs.org/media/javascript/readthedocs-analytics.js',
+                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
             ]
         )
         self.assertIsNone(

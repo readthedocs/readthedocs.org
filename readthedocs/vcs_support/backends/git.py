@@ -123,11 +123,18 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
+        versions = []
         repo = git.Repo(self.working_dir)
-        versions = [
-            VCSVersion(self, str(tag.commit), str(tag))
-            for tag in repo.tags
-        ]
+        for tag in repo.tags:
+            try:
+                versions.append(VCSVersion(self, str(tag.commit), str(tag)))
+            except ValueError as e:
+                # ValueError: Cannot resolve commit as tag TAGNAME points to a
+                # blob object - use the `.object` property instead to access it
+                # This is not a real tag for us, so we skip it
+                # https://github.com/rtfd/readthedocs.org/issues/4440
+                log.warning('Git tag skipped: %s', tag, exc_info=True)
+                continue
         return versions
 
     @property

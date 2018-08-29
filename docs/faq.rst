@@ -190,7 +190,7 @@ Can I document a python package that is not at the root of my repository?
 
 Yes. The most convenient way to access a python package for example via
 `Sphinx's autoapi`_ in your documentation is to use the *Install your project
-inside a virtualenv using ``setup.py install``* option in the admin panel of
+inside a virtualenv using setup.py install* option in the admin panel of
 your project. However this assumes that your ``setup.py`` is in the root of
 your repository.
 
