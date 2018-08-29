@@ -117,7 +117,8 @@
   </section>
 
   {% if featured_list %}
-  {% cache 600 homepage_featured_list %}
+  {% get_current_language as language %}
+  {% cache 600 homepage_featured_list language %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
