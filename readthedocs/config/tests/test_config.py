@@ -2,8 +2,8 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
-import textwrap
 import re
+import textwrap
 
 import pytest
 from mock import DEFAULT, patch
@@ -13,8 +13,8 @@ from readthedocs.config import (
     ALL, BuildConfigV1, BuildConfigV2, ConfigError,
     ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
 from readthedocs.config.config import (
-    CONFIG_NOT_SUPPORTED, NAME_INVALID, NAME_REQUIRED, PYTHON_INVALID,
-    VERSION_INVALID, CONFIG_FILENAME_REGEX)
+    CONFIG_FILENAME_REGEX, CONFIG_NOT_SUPPORTED, CONFIG_REQUIRED, NAME_INVALID,
+    NAME_REQUIRED, PYTHON_INVALID, VERSION_INVALID)
 from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
     INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
@@ -81,10 +81,20 @@ def get_env_config(extra=None):
     return defaults
 
 
-def test_load_no_config_file(tmpdir):
+@pytest.mark.parametrize('files', [
+    {},
+    {'readthedocs.ymlmore': ''},
+    {'startreadthedocs.yml': ''},
+    {'noroot': {'readthedocs.ymlmore': ''}},
+    {'noroot': {'startreadthedocs.yml': ''}},
+    {'readthebots.yaml': ''},
+])
+def test_load_no_config_file(tmpdir, files):
+    apply_fs(tmpdir, files)
     base = str(tmpdir)
-    with raises(ConfigError):
+    with raises(ConfigError) as e:
         load(base, env_config)
+    assert e.value.code == CONFIG_REQUIRED
 
 
 def test_load_empty_config_file(tmpdir):
