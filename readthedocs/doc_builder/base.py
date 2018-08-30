@@ -104,9 +104,9 @@ class BaseBuilder(object):
                 docs_dir, 'README.{ext}'.format(ext=extension))
             if os.path.exists(readme_filename):
                 return 'README'
-            else:
-                index_file = open(index_filename, 'w+')
-                index_text = """
+
+            index_file = open(index_filename, 'w+')
+            index_text = """
 
 Welcome to Read the Docs
 ------------------------
@@ -122,8 +122,8 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
-                index_file.close()
+            index_file.write(index_text.format(dir=docs_dir, ext=extension))
+            index_file.close()
         return 'index'
 
     def run(self, *args, **kwargs):
