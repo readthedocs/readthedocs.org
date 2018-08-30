@@ -47,7 +47,10 @@ dnspython==1.15.0
 
 # VCS
 httplib2==0.11.3
-GitPython==2.1.11
+
+# GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
+# of an UnicodeError
+GitPython==2.1.10
 
 # Search
 elasticsearch==1.5.0
