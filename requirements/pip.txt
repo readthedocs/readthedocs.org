@@ -24,6 +24,10 @@ django-extensions==2.1.2
 djangorestframework==3.6.4
 
 # Filtering for the REST API
+# django-filter>2.0 require Django 1.11
+# https://django-filter.readthedocs.io/en/master/guide/migration.html#migrating-to-2-0
+# Besides the guide, check this comment for the migration
+# https://github.com/rtfd/readthedocs.org/pull/4318#discussion_r214163531
 django-filter==1.1.0
 
 django-vanilla-views==1.0.5
