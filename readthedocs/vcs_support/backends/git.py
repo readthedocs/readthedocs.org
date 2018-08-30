@@ -171,7 +171,7 @@ class Backend(BaseVCS):
         delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
         raw_branches = csv.reader(StringIO(data), delimiter=delimiter)
         for branch in raw_branches:
-            branch = [f for f in branch if f != '' and f != '*']
+            branch = [f for f in branch if f not in ('', '*')]
             # Handle empty branches
             if branch:
                 branch = branch[0]
