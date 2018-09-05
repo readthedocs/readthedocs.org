@@ -1,3 +1,10 @@
 [run]
 omit =
   */**/migrations/*
+  */**/management/commands/*
+  */**/settings/*
+  */**/settings.py
+  analytics/vendor/*
+  rtd_tests/*
+  */**/tests/**
+  wsgi.py
