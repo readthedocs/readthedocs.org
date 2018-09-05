@@ -280,7 +280,7 @@ function init() {
         error: function () {
             console.error('Error loading Read the Docs promo');
 
-            if (!rtddata.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+            if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
                 adblock_admonition();
                 adblock_nag();
             }
