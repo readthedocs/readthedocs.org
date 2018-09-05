@@ -872,7 +872,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Return id of container if it is valid."""
         if self.container_name:
             return self.container_name
-        elif self.container:
+
+        if self.container:
             return self.container.get('Id')
 
     def container_state(self):

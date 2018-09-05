@@ -268,7 +268,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
 
     class Meta(object):
         model = ProjectRelationship
-        exclude = []
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
@@ -634,7 +634,7 @@ class DomainForm(forms.ModelForm):
 
     class Meta(object):
         model = Domain
-        exclude = ['machine', 'cname', 'count']
+        exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -674,7 +674,7 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta(object):
         model = Integration
-        exclude = ['provider_data', 'exchanges']
+        exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

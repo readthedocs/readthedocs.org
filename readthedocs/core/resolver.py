@@ -132,8 +132,10 @@ class ResolverBase(object):
         domain = self._get_project_custom_domain(canonical_project)
         if domain:
             return domain.domain
-        elif self._use_subdomain():
+
+        if self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
+
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(self, project, require_https=False, filename='', private=None,

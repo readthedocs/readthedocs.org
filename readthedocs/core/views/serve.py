@@ -125,23 +125,23 @@ def _serve_file(request, filename, basepath):
     if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
         # Serve from Python
         return serve(request, filename, basepath)
-    else:
-        # Serve from Nginx
-        content_type, encoding = mimetypes.guess_type(
-            os.path.join(basepath, filename))
-        content_type = content_type or 'application/octet-stream'
-        response = HttpResponse(content_type=content_type)
-        if encoding:
-            response['Content-Encoding'] = encoding
-        try:
-            response['X-Accel-Redirect'] = os.path.join(
-                basepath[len(settings.SITE_ROOT):],
-                filename,
-            )
-        except UnicodeEncodeError:
-            raise Http404
 
-        return response
+    # Serve from Nginx
+    content_type, encoding = mimetypes.guess_type(
+        os.path.join(basepath, filename))
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(content_type=content_type)
+    if encoding:
+        response['Content-Encoding'] = encoding
+    try:
+        response['X-Accel-Redirect'] = os.path.join(
+            basepath[len(settings.SITE_ROOT):],
+            filename,
+        )
+    except UnicodeEncodeError:
+        raise Http404
+
+    return response
 
 
 @map_project_slug
@@ -200,8 +200,8 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
-        else:
-            files_tried.append(os.path.join(basepath, filename))
+
+        files_tried.append(os.path.join(basepath, filename))
 
     if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
@@ -210,8 +210,8 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
-        else:
-            files_tried.append(os.path.join(basepath, filename))
+
+        files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
         'File not found. Tried these files: %s' % ','.join(files_tried))

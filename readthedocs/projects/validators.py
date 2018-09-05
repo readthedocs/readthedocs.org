@@ -85,9 +85,9 @@ class RepositoryURLValidator(object):
         elif self.re_git_user.search(value) or url.scheme in private_schemes:
             if allow_private_repos:
                 return value
-            else:
-                # Throw a more helpful error message
-                raise ValidationError('Manual cloning via SSH is not supported')
+
+            # Throw a more helpful error message
+            raise ValidationError('Manual cloning via SSH is not supported')
 
         # No more valid URLs without supported URL schemes
         raise ValidationError(_('Invalid scheme for URL'))
