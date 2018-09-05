@@ -1,5 +1,17 @@
+Contrib
+=======
+
+Building development Docker image
+---------------------------------
+
+If you run Linux, you likely need to build a local Docker image that extends our
+default image::
+
+    cd contrib/
+    ./docker_build.sh
+
 Running Read the Docs via Supervisord
-=====================================
+-------------------------------------
 
 This is the easiest way to start all of the commands you'll need for development
 in an environment relatively close to the production evironment. All you need is

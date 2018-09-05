@@ -82,3 +82,23 @@ DOCKER_VERSION
     Version of the API to use for the Docker API client.
 
     Default: :djangosetting:`DOCKER_VERSION`
+
+Local development
+-----------------
+
+On Linux development environments, it's likely that your UID and GID do not
+match the ``docs`` user that is set up as the default user for builds. In this
+case, it's necessary to make a new image that overrides this user::
+
+    cd contrib/
+    ./docker_build.sh
+
+You can also specify a specific image version to use::
+
+    cd contrib/
+    ./docker_build.sh 4.0rc1
+
+This will create a new image, ``readthedocs/build:dev``, which you can specify
+as the default image in local settings overrides::
+
+    DOCKER_IMAGE = 'readthedocs/build:dev'
