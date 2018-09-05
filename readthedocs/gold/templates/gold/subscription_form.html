@@ -103,12 +103,12 @@ $(document).ready(function () {
     {% for field in form.fields_with_cc_group %}
       {% if field.is_cc_group %}
         <p
-            data-bind="visible: card_digits"
+            data-bind="visible: last_4_card_digits"
             style="display: none;"
             class="subscription-card">
           <label>{% trans "Current card" %}:</label>
           <span class="subscription-card-number">
-            ****-<span data-bind="text: card_digits"></span>
+            ****-<span data-bind="text: last_4_card_digits"></span>
           </span>
         </p>
 

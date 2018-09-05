@@ -23,14 +23,14 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     class Meta(object):
         model = GoldUser
-        fields = ['last_4_digits', 'level']
+        fields = ['last_4_card_digits', 'level']
 
-    last_4_digits = forms.CharField(
+    last_4_card_digits = forms.CharField(
         required=True,
         min_length=4,
         max_length=4,
         widget=forms.HiddenInput(attrs={
-            'data-bind': 'valueInit: card_digits, value: card_digits'
+            'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
         })
     )
 
@@ -72,10 +72,6 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
                 source=self.cleaned_data['stripe_token']
             )
             return subscription
-
-    def clear_card_data(self):
-        super(GoldSubscriptionForm, self).clear_card_data()
-        self.data['last_4_digits'] = None
 
 
 class GoldProjectForm(forms.Form):
