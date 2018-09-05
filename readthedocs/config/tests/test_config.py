@@ -1702,3 +1702,29 @@ class TestBuildConfigV2(object):
         assert build.submodules.include == []
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
+
+    @pytest.mark.parametrize('value,key', [
+        ({'typo': 'something'}, 'typo'),
+        (
+            {
+                'pyton': {
+                    'version': 'another typo',
+                }
+            },
+            'pyton.version'
+        ),
+        (
+            {
+                'build': {
+                    'image': 'latest',
+                    'extra': 'key',
+                }
+            },
+            'build.extra'
+        )
+    ])
+    def test_strict_validation(self, value, key):
+        build = self.get_build_config(value)
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == key
