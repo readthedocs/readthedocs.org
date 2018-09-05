@@ -1,10 +1,10 @@
 """Gold subscription forms."""
 
 from __future__ import absolute_import
+
 from builtins import object
 from django import forms
 
-from stripe.error import InvalidRequestError
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 
 from .models import LEVEL_CHOICES, GoldUser
@@ -57,21 +57,25 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     def get_subscription(self):
         customer = self.get_customer()
-        try:
-            # TODO get the first sub more intelligently
-            subscriptions = customer.subscriptions.all(limit=5)
+
+        # TODO get the first subscription more intelligently
+        subscriptions = customer.subscriptions.all(limit=5)
+        if subscriptions.data:
+            # Update an existing subscription - Stripe prorates by default
             subscription = subscriptions.data[0]
             subscription.plan = self.cleaned_data['level']
-            if 'stripe_token' in self.cleaned_data:
+            if 'stripe_token' in self.cleaned_data and self.cleaned_data['stripe_token']:
+                # Optionally update the card
                 subscription.source = self.cleaned_data['stripe_token']
             subscription.save()
-            return subscription
-        except (InvalidRequestError, AttributeError, IndexError):
+        else:
+            # Add a new subscription
             subscription = customer.subscriptions.create(
                 plan=self.cleaned_data['level'],
                 source=self.cleaned_data['stripe_token']
             )
-            return subscription
+
+        return subscription
 
 
 class GoldProjectForm(forms.Form):
