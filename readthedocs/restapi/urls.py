@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+from django.conf import settings
 from django.conf.urls import url, include
 
 from rest_framework import routers
@@ -90,20 +91,16 @@ urlpatterns += search_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
 
-try:
+if 'readthedocsext.search' in settings.INSTALLED_APPS:
     from readthedocsext.search.docsearch import DocSearch
     api_search_urls = [
         url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
     ]
     urlpatterns += api_search_urls
-except ImportError:
-    pass
 
-try:
+if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
 
     urlpatterns += [
         url(r'^sustainability/', include(sustainability_urls)),
     ]
-except ImportError:
-    pass
