@@ -68,16 +68,25 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
 
 
 @app.task(queue='web')
-def index_objects_to_es(app_label, model_name, document_class, index_name, chunk):
-    # Chunk is a tuple with start and end index of queryset
-    start = chunk[0]
-    end = chunk[1]
+def index_objects_to_es(app_label, model_name, document_class, index_name,
+                        chunk=None, objects_id=None):
+
+    assert not chunk and objects_id, "You can not pass both chunk and objects_id"
+
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
 
     # Use queryset from model as the ids are specific
-    queryset = model.objects.all()[start:end]
-    log.info("Indexing model: {}, from:'{}' to '{}'".format(model.__name__, start, end))
+    queryset = model.objects.all()
+    if chunk:
+        # Chunk is a tuple with start and end index of queryset
+        start = chunk[0]
+        end = chunk[1]
+        queryset = queryset[start:end]
+    elif objects_id:
+        queryset = queryset.filter(id__in=objects_id)
+
+    log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
     document().update(queryset.iterator(), index_name=index_name)
 
 
