@@ -71,7 +71,7 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
 def index_objects_to_es(app_label, model_name, document_class, index_name,
                         chunk=None, objects_id=None):
 
-    assert not chunk and objects_id, "You can not pass both chunk and objects_id"
+    assert not (chunk and objects_id), "You can not pass both chunk and objects_id"
 
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
