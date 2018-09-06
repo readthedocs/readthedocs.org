@@ -214,6 +214,7 @@ class Virtualenv(PythonEnvironment):
             '--no-download',
             env_path,
             bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
+            cwd=self.checkout_path,
         )
 
     def install_core_requirements(self):
@@ -267,7 +268,8 @@ class Virtualenv(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
         )
 
     def install_user_requirements(self):
@@ -334,6 +336,7 @@ class Conda(PythonEnvironment):
             '--file',
             self.config.conda.environment,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
+            cwd=self.checkout_path,
         )
 
     def install_core_requirements(self):
@@ -364,7 +367,8 @@ class Conda(PythonEnvironment):
         ]
         cmd.extend(requirements)
         self.build_env.run(
-            *cmd
+            *cmd,
+            cwd=self.checkout_path,
         )
 
         pip_cmd = [
@@ -378,7 +382,8 @@ class Conda(PythonEnvironment):
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
             *pip_cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
         )
 
     def install_user_requirements(self):
