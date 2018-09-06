@@ -59,7 +59,7 @@ from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import Domain, Feature, ImportedFile, Project, HTMLFile
 from .signals import (
-    after_build, after_vcs, before_build, before_vcs, 
+    after_build, after_vcs, before_build, before_vcs,
     files_changed, bulk_post_create, bulk_post_delete)
 
 log = logging.getLogger(__name__)
