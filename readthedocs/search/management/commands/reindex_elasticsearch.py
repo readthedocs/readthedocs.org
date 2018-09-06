@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 'model_name': model_name,
                 'document_class': document_class,
                 'index_name': index_name,
-                'objects_id': chunk
+                'chunk': chunk
             }
             yield index_objects_to_es.si(**data)
 
