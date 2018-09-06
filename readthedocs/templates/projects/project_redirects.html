@@ -14,8 +14,8 @@
             var field_from_url = $('#id_from_url');
                 field_to_url =  $('#id_to_url');
                 option = $('#id_redirect_type').val();
-                redirect_from = ""; 
-                redirect_target = ""; 
+                redirect_from = "";
+                redirect_target = "";
 
             if (option === "prefix") {
                 redirect_from = field_from_url.val() + "faq.html";
@@ -33,7 +33,7 @@
             if (redirect_from && redirect_target) {
                 var result = "Outcome: " + redirect_from + " -> " + redirect_target;
                 $('#dynamic-redirect').text(result).show();
-            } else { 
+            } else {
                 $('#dynamic-redirect').text("").hide();
             }
         };

@@ -11,7 +11,7 @@
            class="socialaccount-provider {{ provider.id }} {{ brand.id }} button"
            href="{% provider_login_url provider.id openid=brand.openid_url process=process next=next %}"
            >
-           {% blocktrans with brand_name=brand.name verbiage=verbiage|default:'Connect to' %}
+           {% blocktrans trimmed with brand_name=brand.name verbiage=verbiage|default:'Connect to' %}
              {{ verbiage }} {{ brand_name }}
            {% endblocktrans %}
         </a>
@@ -24,7 +24,7 @@
          class="socialaccount-provider {{ provider.id }} button"
          href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params next=next %}"
          >
-         {% blocktrans with provider_name=provider.name verbiage=verbiage|default:'Connect to' %}
+         {% blocktrans trimmed with provider_name=provider.name verbiage=verbiage|default:'Connect to' %}
            {{ verbiage }} {{ provider_name }}
          {% endblocktrans %}
       </a>

@@ -67,7 +67,7 @@ class GoldSubscriptionFormTests(TestCase):
         # Create user and subscription
         subscription_form = GoldSubscriptionForm(
             {'level': 'v1-org-5',
-             'last_4_digits': '0000',
+             'last_4_card_digits': '0000',
              'stripe_token': 'GARYBUSEY'},
             customer=self.user
         )
@@ -132,7 +132,7 @@ class GoldSubscriptionFormTests(TestCase):
         golduser = fixture.get(GoldUser, user=self.user, stripe_id='cus_12345')
         subscription_form = GoldSubscriptionForm(
             {'level': 'v1-org-5',
-             'last_4_digits': '0000',
+             'last_4_card_digits': '0000',
              'stripe_token': 'GARYBUSEY'},
             customer=self.user,
             instance=golduser
@@ -198,7 +198,7 @@ class GoldSubscriptionFormTests(TestCase):
         ])
         subscription_form = GoldSubscriptionForm(
             {'level': 'v1-org-5',
-             'last_4_digits': '0000',
+             'last_4_card_digits': '0000',
              'stripe_token': 'GARYBUSEY'},
             customer=self.user
         )

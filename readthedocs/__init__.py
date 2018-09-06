@@ -9,14 +9,15 @@ from future.moves.configparser import RawConfigParser
 from readthedocs.worker import app  # noqa
 
 
-def get_version():
+def get_version(setupcfg_path):
     """Return package version from setup.cfg."""
-    setupcfg_path = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '..', 'setup.cfg'),
-    )
     config = RawConfigParser()
     config.read(setupcfg_path)
     return config.get('metadata', 'version')
 
 
-__version__ = get_version()
+__version__ = get_version(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), '..', 'setup.cfg'),
+    ),
+)

@@ -81,7 +81,7 @@
                 <li class="module-item">
                   {% if has_connected_accounts %}
                     <p>
-                      {% blocktrans with binding='data-bind="click: sync_projects"' trimmed %}
+                      {% blocktrans trimmed with binding='data-bind="click: sync_projects"' %}
                         No remote repositories found,
                         try <a href="#" {{ binding }}>refreshing your accounts</a>.
                       {% endblocktrans %}

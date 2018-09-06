@@ -1,10 +1,10 @@
 """Gold subscription forms."""
 
 from __future__ import absolute_import
+
 from builtins import object
 from django import forms
 
-from stripe.error import InvalidRequestError
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 
 from .models import LEVEL_CHOICES, GoldUser
@@ -23,14 +23,14 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     class Meta(object):
         model = GoldUser
-        fields = ['last_4_digits', 'level']
+        fields = ['last_4_card_digits', 'level']
 
-    last_4_digits = forms.CharField(
+    last_4_card_digits = forms.CharField(
         required=True,
         min_length=4,
         max_length=4,
         widget=forms.HiddenInput(attrs={
-            'data-bind': 'valueInit: card_digits, value: card_digits'
+            'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
         })
     )
 
@@ -57,25 +57,25 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     def get_subscription(self):
         customer = self.get_customer()
-        try:
-            # TODO get the first sub more intelligently
-            subscriptions = customer.subscriptions.all(limit=5)
+
+        # TODO get the first subscription more intelligently
+        subscriptions = customer.subscriptions.all(limit=5)
+        if subscriptions.data:
+            # Update an existing subscription - Stripe prorates by default
             subscription = subscriptions.data[0]
             subscription.plan = self.cleaned_data['level']
-            if 'stripe_token' in self.cleaned_data:
+            if 'stripe_token' in self.cleaned_data and self.cleaned_data['stripe_token']:
+                # Optionally update the card
                 subscription.source = self.cleaned_data['stripe_token']
             subscription.save()
-            return subscription
-        except (InvalidRequestError, AttributeError, IndexError):
+        else:
+            # Add a new subscription
             subscription = customer.subscriptions.create(
                 plan=self.cleaned_data['level'],
                 source=self.cleaned_data['stripe_token']
             )
-            return subscription
 
-    def clear_card_data(self):
-        super(GoldSubscriptionForm, self).clear_card_data()
-        self.data['last_4_digits'] = None
+        return subscription
 
 
 class GoldProjectForm(forms.Form):
@@ -92,5 +92,5 @@ class GoldProjectForm(forms.Form):
         cleaned_data = super(GoldProjectForm, self).clean()
         if self.projects.count() < self.user.num_supported_projects:
             return cleaned_data
-        else:
-            self.add_error(None, 'You already have the max number of supported projects.')
+
+        self.add_error(None, 'You already have the max number of supported projects.')

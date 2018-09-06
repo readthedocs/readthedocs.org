@@ -161,9 +161,8 @@ class GitLabService(Service):
                     fields['name'],
                 )
                 return None
-            else:
-                repo.organization = organization
 
+            repo.organization = organization
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
