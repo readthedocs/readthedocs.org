@@ -175,6 +175,42 @@ class BuildConfigBase(object):
                 source_position=self.source_position,
             )
 
+    def pop(self, name, container, default, raise_ex):
+        """
+        Search and pop a key inside a dict.
+
+        :param name: the key name in a dotted form (key.innerkey)
+        :param container: a dictionary that contains the key
+        :param default: default value to return if the key doesn't exists
+        :param raise_ex: if True, raises an exception when a key is not found
+        """
+        key = name[0]
+        validate_dict(container)
+        if key in container:
+            if len(name) > 1:
+                value = self.pop(name[1:], container[key], default, raise_ex)
+                if not container[key]:
+                    container.pop(key)
+            else:
+                value = container.pop(key)
+            return value
+        if raise_ex:
+            raise ValidationError(key, VALUE_NOT_FOUND)
+        return default
+
+    def pop_config(self, key, *args):
+        """
+        Search and pop a key from `self.raw_config`.
+
+        :param key: the key name in a dotted form (key.innerkey)
+        :param args: Optionally, it can receive a default value
+                     after the key, if no value is passed,
+                     it raises an exception when the key is not found.
+        """
+        raise_ex = not bool(args)
+        default = args[0] if args else None
+        return self.pop(key.split('.'), self.raw_config, default, raise_ex)
+
     def validate(self):
         raise NotImplementedError()
 
@@ -595,27 +631,6 @@ class BuildConfigV2(BuildConfigBase):
         self._config['submodules'] = self.validate_submodules()
         self.validate_keys()
 
-    def pop(self, name, container, default, raise_ex):
-        key = name[0]
-        if not isinstance(container, dict):
-            raise ValidationError(container, INVALID_DICT)
-        if key in container:
-            if len(name) > 1:
-                value = self.pop(name[1:], container[key], default, raise_ex)
-                if not container[key]:
-                    container.pop(key)
-            else:
-                value = container.pop(key)
-            return value
-        if raise_ex:
-            raise ValidationError(key, VALUE_NOT_FOUND)
-        return default
-
-    def pop_config(self, key, *args):
-        raise_ex = not bool(args)
-        default = args[0] if args else None
-        return self.pop(key.split('.'), self.raw_config, default, raise_ex)
-
     def validate_formats(self):
         """
         Validates that formats contains only valid formats.
@@ -933,8 +948,13 @@ class BuildConfigV2(BuildConfigBase):
         return submodules
 
     def validate_keys(self):
+        """
+        Checks that we don't have extra keys.
+
+        This should be called after all the validations are done.
+        """
         self.pop_config('version', None)
-        wrong_key = self.get_key_name(self.raw_config)
+        wrong_key = '.'.join(self._get_extra_key(self.raw_config))
         if wrong_key:
             self.error(
                 wrong_key,
@@ -942,11 +962,11 @@ class BuildConfigV2(BuildConfigBase):
                 code=SUBMODULES_INVALID,
             )
 
-    def get_key_name(self, value):
-        """Get the complete keyname of a dict object.
+    def _get_extra_key(self, value):
+        """
+        Get the extra keyname (list form) of a dict object.
 
-        If there are more the one key,
-        the first one is returned.
+        If there are more the one key, the first one is returned.
 
         Example::
 
@@ -956,17 +976,12 @@ class BuildConfigV2(BuildConfigBase):
             }
         }
 
-        Will return 'key.name'.
+        Will return `['key', 'name']`.
         """
         if isinstance(value, dict) and value:
             key_name = next(iter(value))
-            inner_name = self.get_key_name(value[key_name])
-            if inner_name:
-                full_name = '{}.{}'.format(key_name, inner_name)
-            else:
-                full_name = key_name
-            return full_name
-        return None
+            return [key_name] + self._get_extra_key(value[key_name])
+        return []
 
     @property
     def formats(self):
