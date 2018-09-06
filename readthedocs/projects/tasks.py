@@ -29,11 +29,6 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
-from .constants import LOG_TEMPLATE
-from .exceptions import RepositoryError
-from .models import ImportedFile, Project, Domain, Feature, HTMLFile
-from .signals import before_vcs, after_vcs, before_build, after_build, files_changed, \
-    bulk_post_create, bulk_post_delete
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
@@ -59,12 +54,12 @@ from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
-
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, Feature, ImportedFile, Project
-from .signals import (
-    after_build, after_vcs, before_build, before_vcs, files_changed)
+from .models import Domain, ImportedFile, Project
+from .models import HTMLFile
+from .signals import (after_build, after_vcs, before_build, before_vcs,
+                      bulk_post_create, bulk_post_delete, files_changed)
 
 log = logging.getLogger(__name__)
 
