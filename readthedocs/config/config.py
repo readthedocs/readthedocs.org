@@ -179,6 +179,8 @@ class BuildConfigBase(object):
         """
         Search and pop a key inside a dict.
 
+        This will pop the keys recursively if the container is empty.
+
         :param name: the key name in a dotted form (key.innerkey)
         :param container: a dictionary that contains the key
         :param default: default value to return if the key doesn't exists
@@ -200,7 +202,7 @@ class BuildConfigBase(object):
 
     def pop_config(self, key, *args):
         """
-        Search and pop a key from `self.raw_config`.
+        Search and pop a key (recursively) from `self.raw_config`.
 
         :param key: the key name in a dotted form (key.innerkey)
         :param args: Optionally, it can receive a default value
