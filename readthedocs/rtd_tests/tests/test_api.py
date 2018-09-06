@@ -11,6 +11,7 @@ import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.http import QueryDict
 from django.test import TestCase
 from django.utils import six
 from django_dynamic_fixture import get
@@ -20,7 +21,7 @@ from rest_framework.test import APIClient
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature, Project, APIProject
 from readthedocs.restapi.views.integrations import GitHubWebhookView
 from readthedocs.restapi.views.task_views import get_status_data
 
@@ -564,6 +565,26 @@ class APITests(TestCase):
         self.assertEqual(len(resp.data['results']), 25)  # page_size
         self.assertIn('?page=2', resp.data['next'])
 
+    def test_init_api_project(self):
+        project_data = {
+            'name': 'Test Project',
+            'slug': 'test-project',
+            'show_advertising': True,
+        }
+
+        api_project = APIProject(**project_data)
+        self.assertEqual(api_project.slug, 'test-project')
+        self.assertEqual(api_project.features, [])
+        self.assertFalse(api_project.ad_free)
+        self.assertTrue(api_project.show_advertising)
+
+        project_data['features'] = ['test-feature']
+        project_data['show_advertising'] = False
+        api_project = APIProject(**project_data)
+        self.assertEqual(api_project.features, ['test-feature'])
+        self.assertTrue(api_project.ad_free)
+        self.assertFalse(api_project.show_advertising)
+
 
 class APIImportTests(TestCase):
 
@@ -906,7 +927,6 @@ class APIVersionTests(TestCase):
             'id': 18,
             'active': True,
             'project': {
-                'ad_free': False,
                 'analytics_code': None,
                 'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
                 'cdn_enabled': False,
@@ -932,6 +952,7 @@ class APIVersionTests(TestCase):
                 'repo': 'https://github.com/pypa/pip',
                 'repo_type': 'git',
                 'requirements_file': None,
+                'show_advertising': True,
                 'skip': False,
                 'slug': 'pip',
                 'suffix': '.rst',
@@ -947,6 +968,40 @@ class APIVersionTests(TestCase):
             resp.data,
             version_data,
         )
+
+    def test_get_active_versions(self):
+        """
+        Test the full response of ``/api/v2/version/?project__slug=pip&active=true``
+        """
+        pip = Project.objects.get(slug='pip')
+
+        data = QueryDict('', mutable=True)
+        data.update({
+            'project__slug': pip.slug,
+            'active': 'true',
+        })
+        url = '{base_url}?{querystring}'.format(
+            base_url=reverse('version-list'),
+            querystring=data.urlencode()
+        )
+
+        resp = self.client.get(url, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], pip.versions.filter(active=True).count())
+
+        # Do the same thing for inactive versions
+        data.update({
+            'project__slug': pip.slug,
+            'active': 'false',
+        })
+        url = '{base_url}?{querystring}'.format(
+            base_url=reverse('version-list'),
+            querystring=data.urlencode()
+        )
+
+        resp = self.client.get(url, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
 
 
 class TaskViewsTests(TestCase):

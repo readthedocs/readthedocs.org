@@ -32,6 +32,7 @@ media/json
 media/man
 media/pdf
 media/static
+/static
 node_modules
 package-lock.json
 readthedocs/rtd_tests/builds

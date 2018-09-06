@@ -193,7 +193,7 @@ class UserResource(ModelResource):
     class Meta(object):
         allowed_methods = ['get']
         queryset = User.objects.all()
-        fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
+        fields = ['username', 'id']
         filtering = {
             'username': 'exact',
         }

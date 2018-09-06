@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 from __future__ import absolute_import
 
+import os
 from functools import reduce
 from operator import add
 
@@ -8,7 +9,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from tastypie.api import Api
 
 from readthedocs.api.base import (ProjectResource, UserResource,
@@ -85,13 +86,20 @@ dnt_urls = [
         TemplateView.as_view(template_name='dnt-policy.txt', content_type='text/plain')),
 ]
 
-debug_urls = add(
-    [
-        url('style-catalog/$',
-            TemplateView.as_view(template_name='style_catalog.html')),
-    ],
-    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-)
+debug_urls = []
+for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
+    debug_urls += static(
+        settings.MEDIA_URL + build_format,
+        document_root=os.path.join(settings.MEDIA_ROOT, build_format),
+    )
+debug_urls += [
+    url('style-catalog/$',
+        TemplateView.as_view(template_name='style_catalog.html')),
+
+    # This must come last after the build output files
+    url(r'^media/(?P<remainder>.+)$',
+        RedirectView.as_view(url=settings.STATIC_URL + '%(remainder)s'), name='media-redirect'),
+]
 
 # Export URLs
 groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls, deprecated_urls]

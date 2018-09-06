@@ -849,6 +849,18 @@ class Project(models.Model):
         """
         return positive if self.has_feature(feature) else negative
 
+    @property
+    def show_advertising(self):
+        """
+        Whether this project is ad-free
+
+        :return: ``True`` if advertising should be shown and ``False`` otherwise
+        """
+        if self.ad_free or self.gold_owners.exists():
+            return False
+
+        return True
+
 
 class APIProject(Project):
 
@@ -882,11 +894,19 @@ class APIProject(Project):
                 pass
         super(APIProject, self).__init__(*args, **kwargs)
 
+        # Overwrite the database property with the value from the API
+        self.ad_free = (not kwargs.pop('show_advertising', True))
+
     def save(self, *args, **kwargs):
         return 0
 
     def has_feature(self, feature_id):
         return feature_id in self.features
+
+    @property
+    def show_advertising(self):
+        """Whether this project is ad-free (don't access the database)"""
+        return not self.ad_free
 
 
 @python_2_unicode_compatible
@@ -965,7 +985,7 @@ class Domain(models.Model):
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
-        help_text=_('SSL is enabled for this domain')
+        help_text=_('Always use HTTPS for this domain')
     )
     count = models.IntegerField(default=0, help_text=_(
         'Number of times this domain has been hit'),)
@@ -1020,7 +1040,8 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
-    BUILD_JSON_ARTIFACTS_WITH_HTML = 'build_json_artifacts_with_html'
+    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
+    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1028,8 +1049,10 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
-        (BUILD_JSON_ARTIFACTS_WITH_HTML, _(
-            'Build the json artifacts with the html build step')),
+        (DONT_OVERWRITE_SPHINX_CONTEXT, _(
+            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+        (ALLOW_V2_CONFIG_FILE, _(
+            'Allow to use the v2 of the configuration file')),
     )
 
     projects = models.ManyToManyField(

@@ -11,7 +11,7 @@ We built Read the Docs to support documentation in the Open Source community.
 The code is open for people to contribute to,
 so that they may build features into https://readthedocs.org that they want.
 We also believe sharing the code openly is a valuable learning tool,
-especially for demonsrating how to collaborate and maintain an enormous website.
+especially for demonstrating how to collaborate and maintain an enormous website.
 
 
 Official Support

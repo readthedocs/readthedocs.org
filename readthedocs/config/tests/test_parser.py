@@ -33,6 +33,24 @@ def test_parse_single_config():
     assert config[0]['base'] == 'path'
 
 
+def test_parse_null_value():
+    buf = StringIO(u'base: null')
+    config = parse(buf)
+    assert config[0]['base'] is None
+
+
+def test_parse_empty_value():
+    buf = StringIO(u'base:')
+    config = parse(buf)
+    assert config[0]['base'] is None
+
+
+def test_parse_empty_string_value():
+    buf = StringIO(u'base: ""')
+    config = parse(buf)
+    assert config[0]['base'] == ''
+
+
 def test_parse_empty_list():
     buf = StringIO(u'base: []')
     config = parse(buf)

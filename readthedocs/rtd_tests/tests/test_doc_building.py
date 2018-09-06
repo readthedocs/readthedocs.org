@@ -8,32 +8,33 @@ Things to know:
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-import os.path
 import json
+import os
 import re
 import tempfile
 import uuid
-from builtins import str
 
 import mock
 import pytest
+from builtins import str
 from django.test import TestCase
+from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from mock import Mock, PropertyMock, mock_open, patch
-from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
-    BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
+    BuildCommand, DockerBuildCommand, DockerBuildEnvironment,
+    LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
-from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
@@ -1008,8 +1009,17 @@ class TestBuildCommand(TestCase):
     def test_output(self):
         """Test output command."""
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
-        cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
+
+        # Mock BuildCommand.sanitized_output just to count the amount of calls,
+        # but use the original method to behaves as real
+        original_sanitized_output = cmd.sanitize_output
+        with patch('readthedocs.doc_builder.environments.BuildCommand.sanitize_output') as sanitize_output:  # noqa
+            sanitize_output.side_effect = original_sanitized_output
+            cmd.run()
+            self.assertEqual(cmd.output, 'FOOBAR')
+
+            # Check that we sanitize the output
+            self.assertEqual(sanitize_output.call_count, 2)
 
     def test_error_output(self):
         """Test error output from command."""
@@ -1024,6 +1034,16 @@ class TestBuildCommand(TestCase):
         cmd.run()
         self.assertEqual(cmd.output, '')
         self.assertEqual(cmd.error, 'FOOBAR')
+
+    def test_sanitize_output(self):
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
+        checks = (
+            (b'Hola', 'Hola'),
+            (b'H\x00i', 'Hi'),
+            (b'H\x00i \x00\x00\x00You!\x00', 'Hi You!'),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
 
     @patch('subprocess.Popen')
     def test_unicode_output(self, mock_subprocess):
@@ -1152,7 +1172,10 @@ class TestPythonEnvironment(TestCase):
             if arg is not mock.ANY:
                 self.assertTrue(arg_mock.startswith(arg))
 
-    def test_install_core_requirements_sphinx(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Virtualenv(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1170,7 +1193,10 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock.run.assert_called_once()
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
-    def test_install_core_requirements_mkdocs(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_mkdocs(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Virtualenv(
             version=self.version_mkdocs,
             build_env=self.build_env_mock
@@ -1186,7 +1212,8 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock.run.assert_called_once()
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
-    def test_install_user_requirements(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_user_requirements(self, checkout_path):
         """
         If a projects does not specify a requirements file,
         RTD will choose one automatically.
@@ -1197,6 +1224,8 @@ class TestPythonEnvironment(TestCase):
         - ``pip_requirements.txt``
         - ``requirements.txt``
         """
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         self.build_env_mock.project = self.project_sphinx
         self.build_env_mock.version = self.version_sphinx
         python_env = Virtualenv(
@@ -1221,6 +1250,7 @@ class TestPythonEnvironment(TestCase):
             '--exists-action=w',
             '--cache-dir',
             mock.ANY,  # cache path
+            '-r',
             'requirements_file'
         ]
 
@@ -1230,7 +1260,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1241,7 +1271,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(root_requirements)
+        args[-1] = root_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1252,7 +1282,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1266,7 +1296,10 @@ class TestPythonEnvironment(TestCase):
             python_env.install_user_requirements()
         self.build_env_mock.run.assert_not_called()
 
-    def test_install_core_requirements_sphinx_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1306,7 +1339,10 @@ class TestPythonEnvironment(TestCase):
             mock.call(*args_pip, bin_path=mock.ANY)
         ])
 
-    def test_install_core_requirements_mkdocs_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_mkdocs_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_mkdocs,
             build_env=self.build_env_mock,
@@ -1342,7 +1378,10 @@ class TestPythonEnvironment(TestCase):
             mock.call(*args_pip, bin_path=mock.ANY)
         ])
 
-    def test_install_user_requirements_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_user_requirements_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1364,7 +1403,8 @@ class AutoWipeEnvironmentBase(object):
             build={'id': DUMMY_BUILD_ID},
         )
 
-    def test_save_environment_json(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_save_environment_json(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1373,8 +1413,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1400,9 +1440,10 @@ class AutoWipeEnvironmentBase(object):
         }
         self.assertDictEqual(json_data, expected_data)
 
-    def test_is_obsolete_without_env_json_file(self):
-        yaml_config = create_load()()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_without_env_json_file(self, load_config):
+        load_config.side_effect = create_load()
+        config = load_yaml_config(self.version)
 
         with patch('os.path.exists') as exists:
             exists.return_value = False
@@ -1414,9 +1455,10 @@ class AutoWipeEnvironmentBase(object):
 
         self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_invalid_env_json_file(self):
-        yaml_config = create_load()()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_invalid_env_json_file(self, load_config):
+        load_config.side_effect = create_load()
+        config = load_yaml_config(self.version)
 
         with patch('os.path.exists') as exists:
             exists.return_value = True
@@ -1428,7 +1470,8 @@ class AutoWipeEnvironmentBase(object):
 
         self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_python_version(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_python_version(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1437,8 +1480,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1450,7 +1493,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': 'latest',
@@ -1459,8 +1503,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1470,9 +1514,11 @@ class AutoWipeEnvironmentBase(object):
         env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 2.7}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
-            self.assertTrue(python_env.is_obsolete)
+            obsolete = python_env.is_obsolete
+            self.assertTrue(obsolete)
 
-    def test_is_obsolete_with_project_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_project_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1481,12 +1527,13 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:latest'
         self.pip.save()
+
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1498,7 +1545,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_same_data_as_version(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_same_data_as_version(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1507,8 +1555,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 3.5,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1520,7 +1568,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_build_hash(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_build_hash(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1529,8 +1578,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:2.0'
@@ -1546,7 +1595,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_missing_build_hash(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_missing_build_hash(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1556,8 +1606,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:2.0'

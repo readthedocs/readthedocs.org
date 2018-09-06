@@ -74,7 +74,7 @@
                         {% else %}
                           <span class="right quiet">
                             <span class="build-count">
-                              {% blocktrans count counter=builds %}
+                              {% blocktrans trimmed count counter=builds %}
                                 1 build
                               {% plural %}
                                 {{ builds }} builds
@@ -134,7 +134,7 @@
         <h3>{% trans "Connect your Accounts" %}</h3>
 
         <p>
-          {% blocktrans %}
+          {% blocktrans trimmed %}
             Have a GitHub account? Connect your account and import your existing projects automatically.
           {% endblocktrans %}
         </p>
@@ -152,7 +152,7 @@
     <div class="module info info-docs">
       <h3>{% trans "Learn More" %}</h3>
       <p>
-        {% blocktrans with rtd_docs_url="http://docs.readthedocs.io/en/latest/index.html" %}
+        {% blocktrans trimmed with rtd_docs_url="http://docs.readthedocs.io/en/latest/index.html" %}
           Check out the <a href="{{ rtd_docs_url }}">documentation for Read the Docs</a>.
           It contains lots of information about how to get the most out of RTD.
         {% endblocktrans %}

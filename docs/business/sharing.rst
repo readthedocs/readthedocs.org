@@ -18,8 +18,10 @@ Enabling
 * Under the *Share with someone new* heading, select the way you prefer (secret link or password), add an expiration date and a *Description* so you remember who you're sharing it with.
 * Click *Share!* to create.
 * Get the info needed to share your documentation with other users:
+
   * If you have selected secret link, copy the link that is generated
   * In case of password, copy the link and password
+
 * Give that information to the person who you want to give access.
 
 .. note:: You can always revoke access in the same panel.
