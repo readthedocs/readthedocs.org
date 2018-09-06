@@ -7,9 +7,10 @@ from __future__ import (
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from builtins import str
 from django.shortcuts import get_object_or_404
-from rest_framework import decorators, permissions, status, viewsets
 from django.template.loader import render_to_string
+from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -197,7 +198,7 @@ class ProjectViewSet(UserSelectViewSet):
             log.exception('Sync Versions Error')
             return Response(
                 {
-                    'error': e.message,
+                    'error': str(e),
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
