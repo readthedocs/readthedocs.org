@@ -971,7 +971,17 @@ class HTMLFile(ImportedFile):
 
     def get_processed_json(self):
         file_path = self.json_file_path
-        return process_file(file_path)
+        try:
+            return process_file(file_path)
+        except Exception:
+            log.warning('Unhandled exception during search processing file: %s' % file_path)
+        return {
+            'headers': [],
+            'content': '',
+            'path': file_path,
+            'title': '',
+            'sections': []
+        }
 
     @cached_property
     def processed_json(self):
