@@ -78,7 +78,7 @@ class PythonEnvironment(object):
                 self.project.pip_cache_path,
                 '.{0}'.format(extra_req_param),
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin(),
             )
         elif self.config.python.install_with_setup:
             self.build_env.run(
@@ -87,7 +87,7 @@ class PythonEnvironment(object):
                 'install',
                 '--force',
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin(),
             )
 
     def venv_bin(self, filename=None):
@@ -214,6 +214,7 @@ class Virtualenv(PythonEnvironment):
             '--no-download',
             env_path,
             bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
+            cwd=self.checkout_path,
         )
 
     def install_core_requirements(self):
@@ -267,7 +268,8 @@ class Virtualenv(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
     def install_user_requirements(self):
@@ -302,7 +304,7 @@ class Virtualenv(PythonEnvironment):
             self.build_env.run(
                 *args,
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin()  # noqa - no comma here in py27 :/
             )
 
 
@@ -334,6 +336,7 @@ class Conda(PythonEnvironment):
             '--file',
             self.config.conda.environment,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
+            cwd=self.checkout_path,
         )
 
     def install_core_requirements(self):
@@ -364,7 +367,8 @@ class Conda(PythonEnvironment):
         ]
         cmd.extend(requirements)
         self.build_env.run(
-            *cmd
+            *cmd,
+            cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
         pip_cmd = [
@@ -378,7 +382,8 @@ class Conda(PythonEnvironment):
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
             *pip_cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
     def install_user_requirements(self):

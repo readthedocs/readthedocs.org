@@ -310,7 +310,13 @@ class EpubBuilder(BaseSphinx):
                 self.target,
                 '{}.epub'.format(self.project.slug),
             )
-            self.run('mv', '-f', from_file, to_file)
+            self.run(
+                'mv',
+                '-f',
+                from_file,
+                to_file,
+                cwd=self.project.checkout_path(self.version.slug),
+            )
 
 
 class LatexBuildCommand(BuildCommand):
@@ -429,4 +435,10 @@ class PdfBuilder(BaseSphinx):
         if from_file:
             to_file = os.path.join(
                 self.target, '{}.pdf'.format(self.project.slug))
-            self.run('mv', '-f', from_file, to_file)
+            self.run(
+                'mv',
+                '-f',
+                from_file,
+                to_file,
+                cwd=self.project.checkout_path(self.version.slug),
+            )
