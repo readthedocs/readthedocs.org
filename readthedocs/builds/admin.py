@@ -13,14 +13,22 @@ class BuildCommandResultInline(admin.TabularInline):
 
 class BuildAdmin(admin.ModelAdmin):
     fields = ('project', 'version', 'type', 'state', 'error', 'success', 'length', 'cold_storage')
-    list_display = ('project', 'success', 'type', 'state', 'date')
+    list_display = ('id', 'project', 'version_name', 'success', 'type', 'state', 'date')
+    list_filter = ('type', 'state', 'success')
+    list_select_related = ('project', 'version')
     raw_id_fields = ('project', 'version')
     inlines = (BuildCommandResultInline,)
+    search_fields = ('project__name', 'version__slug')
+
+    def version_name(self, obj):
+        return obj.version.verbose_name
 
 
 class VersionAdmin(GuardedModelAdmin):
     search_fields = ('slug', 'project__name')
-    list_filter = ('project', 'privacy_level')
+    list_display = ('slug', 'type', 'project', 'privacy_level', 'active', 'built')
+    list_filter = ('type', 'privacy_level', 'active', 'built')
+    raw_id_fields = ('project',)
 
 
 admin.site.register(Build, BuildAdmin)

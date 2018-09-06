@@ -18,14 +18,13 @@ function create_sidebar_placement() {
     var class_name;         // Used for theme specific CSS customizations
     var offset;
 
-    if (rtd.is_mkdocs_builder() && rtd.is_rtd_theme()) {
+    if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side';
-        class_name = 'ethical-rtd';
-    } else if (rtd.is_rtd_theme()) {
+        class_name = 'ethical-rtd ethical-dark-theme';
+    } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
-        class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
-               rtd.get_theme_name() === constants.THEME_CELERY) {
+        class_name = 'ethical-rtd ethical-dark-theme';
+    } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
     }
@@ -63,11 +62,10 @@ function create_footer_placement() {
     var class_name;
     var offset;
 
-    if (rtd.is_rtd_theme()) {
+    if (rtd.is_rtd_like_theme()) {
         selector = $('<div />').insertAfter('footer hr');
         class_name = 'ethical-rtd';
-    } else if (rtd.get_theme_name() === constants.THEME_ALABASTER ||
-               rtd.get_theme_name() === constants.THEME_CELERY) {
+    } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.bodywrapper .body';
         class_name = 'ethical-alabaster';
     }
@@ -165,6 +163,27 @@ Promo.prototype.post_promo_display = function () {
     }
 };
 
+function detect_adblock() {
+    // Status codes are not correctly reported on JSONP requests
+    // So we resort to different ways to detect adblockers
+    var detected = false;
+
+    // Check if our ad element is blocked
+    $('<div />')
+        .attr('id', 'rtd-detection')
+        .attr('class', 'ethical-rtd')
+        .html('&nbsp;')
+        .appendTo('body');
+    if ($('#rtd-detection').height() === 0) {
+        detected = true;
+    }
+
+    // Remove the test element regardless
+    $('#rtd-detection').remove();
+
+    return detected;
+}
+
 function adblock_admonition() {
     console.log('---------------------------------------------------------------------------------------');
     console.log('Read the Docs hosts documentation for tens of thousands of open source projects.');
@@ -258,10 +277,10 @@ function init() {
                 promo.display();
             }
         },
-        error: function (xhr, textStatus, errorThrown) {
+        error: function () {
             console.error('Error loading Read the Docs promo');
 
-            if (xhr && xhr.status === 404 && rtd.api_host === 'https://readthedocs.org') {
+            if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
                 adblock_admonition();
                 adblock_nag();
             }

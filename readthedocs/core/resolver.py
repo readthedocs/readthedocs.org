@@ -129,14 +129,16 @@ class ResolverBase(object):
     def resolve_domain(self, project, private=None):
         # pylint: disable=unused-argument
         canonical_project = self._get_canonical_project(project)
-        domain = canonical_project.domains.filter(canonical=True).first()
+        domain = self._get_project_custom_domain(canonical_project)
         if domain:
             return domain.domain
-        elif self._use_subdomain():
+
+        if self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
+
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, protocol='http', filename='', private=None,
+    def resolve(self, project, require_https=False, filename='', private=None,
                 **kwargs):
         if private is None:
             version_slug = kwargs.get('version_slug')
@@ -144,13 +146,29 @@ class ResolverBase(object):
                 version_slug = project.get_default_version()
             private = self._get_private(project, version_slug)
 
-        domain = self.resolve_domain(project, private=private)
+        canonical_project = self._get_canonical_project(project)
+        custom_domain = self._get_project_custom_domain(canonical_project)
+        use_custom_domain = self._use_custom_domain(custom_domain)
 
-        # Use HTTPS if settings specify
+        if use_custom_domain:
+            domain = custom_domain.domain
+        elif self._use_subdomain():
+            domain = self._get_project_subdomain(canonical_project)
+        else:
+            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+
         public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
         use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
-        if use_https and public_domain and public_domain in domain:
-            protocol = 'https'
+
+        use_https_protocol = any([
+            # Rely on the ``Domain.https`` field
+            use_custom_domain and custom_domain.https,
+            # or force it if specified
+            require_https,
+            # or fallback to settings
+            use_https and public_domain and public_domain in domain,
+        ])
+        protocol = 'https' if use_https_protocol else 'http'
 
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
@@ -196,6 +214,9 @@ class ResolverBase(object):
             subdomain_slug = project.slug.replace('_', '-')
             return "%s.%s" % (subdomain_slug, public_domain)
 
+    def _get_project_custom_domain(self, project):
+        return project.domains.filter(canonical=True).first()
+
     def _get_private(self, project, version_slug):
         from readthedocs.builds.models import Version
         try:
@@ -232,6 +253,17 @@ class ResolverBase(object):
         else:
             path = ""
         return path
+
+    def _use_custom_domain(self, custom_domain):
+        """
+        Make decision about whether to use a custom domain to serve docs.
+
+        Always use the custom domain if it exists.
+
+        :param custom_domain: Domain instance or ``None``
+        :type custom_domain: readthedocs.projects.models.Domain
+        """
+        return True if custom_domain is not None else False
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""

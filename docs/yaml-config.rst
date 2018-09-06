@@ -8,7 +8,7 @@ The file, ``readthedocs.yml``, must be in the root directory of your project.
              Please file an `issue`_ if you find anything wrong.
 
 
-Here is an example of how this file looks like:
+Here is an example of what this file looks like:
 
 .. code:: yaml
 
@@ -153,6 +153,22 @@ the highest supported minor version will be selected.
 
     python:
        version: 3.5
+
+python.use_system_site_packages
+```````````````````````````````
+
+* Default: ``false``
+* Type: Boolean
+
+When true, it gives the virtual environment access to the global site-packages directory.
+Depending on the :ref:`yaml-config:build.image`,
+Read the Docs includes some libraries like scipy, numpy, etc.
+See :ref:`builds:The build environment` for more details.
+
+.. code-block:: yaml
+
+    python:
+       use_system_site_packages: true
 
 .. _yaml__python__setup_py_install:
 

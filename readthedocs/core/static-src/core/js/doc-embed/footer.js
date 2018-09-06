@@ -7,7 +7,8 @@ function injectFooter(data) {
 
     // If the theme looks like ours, update the existing badge
     // otherwise throw a a full one into the page.
-    if (config.is_rtd_theme()) {
+    // Do not inject for mkdocs even for the RTD theme
+    if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
         $("div.rst-other-versions").html(data['html']);
     } else {
         $("body").append(data['html']);

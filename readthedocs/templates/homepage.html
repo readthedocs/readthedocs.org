@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load pagination_tags %}
+{% load cache %}
 
 {% block extra_metas %}
   <meta name="description" content="{% trans "Read the Docs simplifies technical documentation by automating building, versioning, and hosting for you. Build up-to-date documentation for the web, print, and offline use on every version control push automatically." %}">
@@ -44,7 +45,7 @@
   <section>
     <h2>{% trans "Technical documentation lives here" %}</h2>
     <p class="lead">
-      {% blocktrans %}
+      {% blocktrans trimmed %}
       Read the Docs simplifies software documentation by automating building,
       versioning, and hosting of your docs for you.
       {% endblocktrans %}
@@ -57,7 +58,7 @@
       <h3>Free docs hosting</h3>
       <p>
         {% with projects_count_intcomma=projects_count|intcomma %}
-        {% blocktrans %}
+        {% blocktrans trimmed %}
         We will host your documentation for free forever.
         There are no tricks. We help {{ projects_count_intcomma }} open source projects
         share their docs.
@@ -68,7 +69,7 @@
     <div class="feature">
       <h3>Webhooks</h3>
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
         Whenever you push code to your favorite version control system,
         whether that is Git, Mercurial, Bazaar, or Subversion, we will
         automatically build your docs so your code and documentation are
@@ -83,7 +84,7 @@
     <div class="feature">
       <h3>Multiple formats</h3>
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
         Of course we build and host your docs for the web, but they are
         also vieweable as PDFs, as single page HTML, and for eReaders.
         No additional configuration is required.
@@ -93,7 +94,7 @@
     <div class="feature">
       <h3>Multiple versions</h3>
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
         We can host and build multiple versions of your docs so having a
         1.0 version of your docs and a 2.0 version of your docs is as easy
         as having a separate branch or tag in your version control system.
@@ -116,6 +117,8 @@
   </section>
 
   {% if featured_list %}
+  {% get_current_language as language %}
+  {% cache 600 homepage_featured_list language %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
@@ -128,6 +131,7 @@
       </div>
     </section>
     <!-- END projects list -->
+  {% endcache %}
   {% endif %}
 
   <!-- Funding and Contributing -->
@@ -139,7 +143,7 @@
     {% url "donate" as sponsors_url %}
     {% url "gold_detail" as gold_detail %}
 
-    {% blocktrans %}
+    {% blocktrans trimmed %}
     Read the Docs is a huge resource that millions of developers rely on
     for software documentation. It would not be possible without the
     support of our
@@ -150,7 +154,7 @@
     </p>
 
     <p>
-      {% blocktrans %}
+      {% blocktrans trimmed %}
       Read the Docs is <strong>community supported</strong>.
       It depends on users like you to contribute to development, support, and operations.
       You can learn more about how to <a href="https://docs.readthedocs.io/en/latest/contribute.html">contribute</a> in our docs.
@@ -160,8 +164,8 @@
     </p>
 
     <p>
-      {% blocktrans %}
-      Hosting for the project is graciously provided by <a href="http://www.rackspace.com/cloud/">Rackspace</a>.
+      {% blocktrans trimmed %}
+      Hosting for the project is graciously provided by <a href="https://azure.microsoft.com/">Microsoft Azure</a>.
       {% endblocktrans %}
     </p>
   </section>

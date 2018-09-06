@@ -48,7 +48,13 @@ It also gets included in the Read the Docs flyout:
 
 .. image:: /img/translation_bar.png
 
-.. note:: The default language of any CNAME will be the language of the project the Domain object was set on. See :doc:`alternate_domains` for more information.
+.. note::
+    The default language of a custom domain is determined by the language of the
+    parent project that the domain was configured on. See
+    :doc:`alternate_domains` for more information.
 
 .. note:: You can include multiple translations in the same repository,
+          with same ``conf.py`` and ``.rst`` files,
           but each project must specify the language to build for those docs.
+
+.. note:: You can read :doc:`guides/manage-translations` to understand the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.

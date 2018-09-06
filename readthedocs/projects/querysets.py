@@ -31,7 +31,7 @@ class ProjectQuerySetBase(models.QuerySet):
         queryset = queryset.filter(users__in=[user])
         return queryset
 
-    def for_admin_user(self, user=None):
+    def for_admin_user(self, user):
         if user.is_authenticated():
             return self.filter(users__in=[user])
         return self.none()

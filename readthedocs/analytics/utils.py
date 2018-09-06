@@ -26,7 +26,7 @@ def get_client_ip(request):
     # Get the original IP address (eg. "X-Forwarded-For: client, proxy1, proxy2")
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0]
     if x_forwarded_for:
-        ip_address = x_forwarded_for
+        ip_address = x_forwarded_for.rsplit(':')[0]
 
     return ip_address
 
@@ -57,6 +57,9 @@ def anonymize_user_agent(user_agent):
 
 def send_to_analytics(data):
     """Sends data to Google Analytics"""
+    if data.get('uip') and data.get('ua'):
+        data['cid'] = generate_client_id(data['uip'], data['ua'])
+
     if 'uip' in data:
         # Anonymize IP address if applicable
         data['uip'] = anonymize_ip_address(data['uip'])

@@ -7,7 +7,7 @@
   {% with getting_started_url="http://docs.readthedocs.io/en/latest/getting_started.html" %}
     <form method="get" action="{% url "projects_import" %}">
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           You don't have any projects yet, but you can start building documentation by importing one.
           Not sure how to start documenting your project?
           Check out the <a href="{{ getting_started_url }}">Getting Started Guide</a> to learn how.
@@ -16,7 +16,7 @@
 
       <p>
         {% url "projects_import_demo" as import_demo_url %}
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           Want to try a demo? <a href="{{ import_demo_url }}">Import our own demo project</a>.
         {% endblocktrans %}
       </p>

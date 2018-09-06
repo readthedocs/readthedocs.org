@@ -403,22 +403,20 @@ User
    .. sourcecode:: js
    
       {
-          "first_name": "", 
-          "id": "1", 
-          "last_login": "2010-10-28T13:38:13.022687", 
-          "last_name": "", 
-          "resource_uri": "/api/v1/user/1/", 
+          "id": "1",
+          "resource_uri": "/api/v1/user/1/",
           "username": "testuser"
       }
       
-   :>json string first_name: First name.
    :>json string id: User id.
-   :>json string last_login: Timestamp of last login.
-   :>json string last_name: Last name.
    :>json string resource_uri: URI for this user.
    :>json string username: User name.
-   
- 
+
+.. important::
+
+   This API was changed after the initial release to remove private fields.
+
+
 Versions
 --------
 .. http:get::  /api/v1/version/
