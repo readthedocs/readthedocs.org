@@ -68,14 +68,17 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
 
 
 @app.task(queue='web')
-def index_objects_to_es(app_label, model_name, document_class, index_name, objects_id):
+def index_objects_to_es(app_label, model_name, document_class, index_name, chunk):
+    # Chunk is a tuple with start and end index of queryset
+    start = chunk[0]
+    end = chunk[1]
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
 
     # Use queryset from model as the ids are specific
-    queryset = model.objects.all().filter(id__in=objects_id).iterator()
-    log.info("Indexing model: {}, id:'{}'".format(model.__name__, objects_id))
-    document().update(queryset, index_name=index_name)
+    queryset = model.objects.all()[start:end]
+    log.info("Indexing model: {}, from:'{}' to '{}'".format(model.__name__, start, end))
+    document().update(queryset.iterator(), index_name=index_name)
 
 
 @app.task(queue='web')

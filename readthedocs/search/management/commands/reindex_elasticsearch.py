@@ -10,7 +10,7 @@ from django_elasticsearch_dsl.registries import registry
 
 from ...tasks import (index_objects_to_es, switch_es_index, create_new_es_index,
                       index_missing_objects)
-from ...utils import chunk_queryset
+from ...utils import get_chunk
 
 log = logging.getLogger(__name__)
 
@@ -19,16 +19,16 @@ class Command(BaseCommand):
 
     @staticmethod
     def _get_indexing_tasks(app_label, model_name, queryset, document_class, index_name):
-        queryset = queryset.values_list('id', flat=True)
-        chunked_queryset = chunk_queryset(queryset, settings.ES_TASK_CHUNK_SIZE)
+        total = queryset.count()
+        chunks = get_chunk(total, settings.ES_TASK_CHUNK_SIZE)
 
-        for chunk in chunked_queryset:
+        for chunk in chunks:
             data = {
                 'app_label': app_label,
                 'model_name': model_name,
                 'document_class': document_class,
                 'index_name': index_name,
-                'objects_id': list(chunk)
+                'objects_id': chunk
             }
             yield index_objects_to_es.si(**data)
 
