@@ -438,12 +438,8 @@ class BuildConfigV1(BuildConfigBase):
 
         if 'conda' in self.raw_config:
             raw_conda = self.raw_config['conda']
-            if not isinstance(raw_conda, dict):
-                self.error(
-                    'conda',
-                    self.PYTHON_INVALID_MESSAGE,
-                    code=PYTHON_INVALID)
-
+            with self.catch_validation_error('conda'):
+                validate_dict(raw_conda)
             conda_environment = None
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
