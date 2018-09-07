@@ -526,6 +526,17 @@ class BuildConfigV1(BuildConfigBase):
     def doctype(self):
         return self.defaults['doctype']
 
+    @property
+    def sphinx(self):
+        config_file = self.defaults['sphinx_configuration']
+        if config_file is not None:
+            config_file = os.path.join(self.base_path, config_file)
+        return Sphinx(
+            builder=self.doctype,
+            configuration=config_file,
+            fail_on_warning=False,
+        )
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -955,7 +966,8 @@ def get_configuration_class(version):
         version = int(version)
         return configurations_class[version]
     except (KeyError, ValueError):
-        raise ConfigError(
-            'Invalid version of the configuration file',
+        raise InvalidConfig(
+            'version',
             code=VERSION_INVALID,
+            error_message='Invalid version of the configuration file',
         )
