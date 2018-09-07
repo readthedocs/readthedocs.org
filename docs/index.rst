@@ -95,6 +95,7 @@ Information about development is also available:
 
    changelog
    install
+   development/search
    architecture
    tests
    docs
