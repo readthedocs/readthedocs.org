@@ -10,14 +10,33 @@ from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    ALL, BuildConfigV1, BuildConfigV2, ConfigError,
-    ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
+    ALL,
+    BuildConfigV1,
+    BuildConfigV2,
+    ConfigError,
+    ConfigOptionNotSupportedError,
+    InvalidConfig,
+    ProjectConfig,
+    load,
+)
 from readthedocs.config.config import (
-    CONFIG_FILENAME_REGEX, CONFIG_NOT_SUPPORTED, CONFIG_REQUIRED, NAME_INVALID,
-    NAME_REQUIRED, PYTHON_INVALID, VERSION_INVALID)
+    CONFIG_FILENAME_REGEX,
+    CONFIG_NOT_SUPPORTED,
+    CONFIG_REQUIRED,
+    INVALID_KEY,
+    NAME_INVALID,
+    NAME_REQUIRED,
+    PYTHON_INVALID,
+    VERSION_INVALID,
+)
 from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
-    INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
+    INVALID_BOOL,
+    INVALID_CHOICE,
+    INVALID_LIST,
+    INVALID_PATH,
+    INVALID_STRING,
+)
 
 from .utils import apply_fs
 
@@ -1728,3 +1747,4 @@ class TestBuildConfigV2(object):
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == key
+        assert excinfo.value.code == INVALID_KEY

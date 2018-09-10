@@ -53,6 +53,7 @@ CONF_FILE_REQUIRED = 'conf-file-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
+INVALID_KEY = 'invalid-key'
 
 DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
@@ -181,7 +182,7 @@ class BuildConfigBase(object):
 
         This will pop the keys recursively if the container is empty.
 
-        :param name: the key name in a dotted form (key.innerkey)
+        :param name: the key name in a list form (``['key', 'inner']``)
         :param container: a dictionary that contains the key
         :param default: default value to return if the key doesn't exists
         :param raise_ex: if True, raises an exception when a key is not found
@@ -200,17 +201,14 @@ class BuildConfigBase(object):
             raise ValidationError(key, VALUE_NOT_FOUND)
         return default
 
-    def pop_config(self, key, *args):
+    def pop_config(self, key, default=None, raise_ex=False):
         """
         Search and pop a key (recursively) from `self.raw_config`.
 
-        :param key: the key name in a dotted form (key.innerkey)
-        :param args: Optionally, it can receive a default value
-                     after the key, if no value is passed,
-                     it raises an exception when the key is not found.
+        :param key: the key name in a dotted form (``key.innerkey``)
+        :param default: Optionally, it can receive a default value
+        :param raise_ex: If True, raises an exception when the key is not found
         """
-        raise_ex = not bool(args)
-        default = args[0] if args else None
         return self.pop(key.split('.'), self.raw_config, default, raise_ex)
 
     def validate(self):
@@ -660,7 +658,7 @@ class BuildConfigV2(BuildConfigBase):
 
         conda = {}
         with self.catch_validation_error('conda.environment'):
-            environment = self.pop_config('conda.environment')
+            environment = self.pop_config('conda.environment', raise_ex=True)
             conda['environment'] = validate_file(environment, self.base_path)
         return conda
 
@@ -955,13 +953,17 @@ class BuildConfigV2(BuildConfigBase):
 
         This should be called after all the validations are done.
         """
+        msg = (
+            'Unsupported configuration option: {}. '
+            'Make sure the key name is correct.'
+        )
         self.pop_config('version', None)
         wrong_key = '.'.join(self._get_extra_key(self.raw_config))
         if wrong_key:
             self.error(
                 wrong_key,
-                'Unsuported configuration: {}. Maybe a typo?'.format(wrong_key),
-                code=SUBMODULES_INVALID,
+                msg.format(wrong_key),
+                code=INVALID_KEY,
             )
 
     def _get_extra_key(self, value):
