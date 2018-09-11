@@ -1,7 +1,7 @@
 How we use symlinks
 ===================
 
-Read the Docs stays highly available by serving all documentation pages out of Nginx.
+Read the Docs stays highly available by serving all documentation pages out of nginx.
 This means that they never hit our Python layer,
 meaning that they never hit our database.
 This reduces the total number of servers to serve a request to 1,
@@ -50,7 +50,7 @@ Custom domains
 --------------
 
 Custom domains add a bit of difficulty,
-because at the Nginx layer we don't know what documentation to serve.
+because at the nginx layer we don't know what documentation to serve.
 When someone requests ``http://docs.fabfile.org/en/latest/``,
 we can't look at the URL to know to serve the ``fabric`` docs.
 
