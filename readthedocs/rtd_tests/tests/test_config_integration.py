@@ -345,7 +345,6 @@ class TestLoadConfigV2(object):
         assert not outcomes['localmedia']
         assert not outcomes['epub']
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.update_documentation_type', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock())
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.failed', new_callable=PropertyMock)
