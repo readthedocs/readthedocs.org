@@ -470,10 +470,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for building code, usually with Docker
         with self.build_env:
-
-            if self.project.documentation_type == 'auto':
-                self.update_documentation_type()
-
             python_env_cls = Virtualenv
             if self.config.conda is not None:
                 self._log('Using conda')
@@ -588,21 +584,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
-
-    def update_documentation_type(self):
-        """
-        Force Sphinx for 'auto' documentation type.
-
-        This used to determine the type and automatically set the documentation
-        type to Sphinx for rST and Mkdocs for markdown. It now just forces
-        Sphinx, due to markdown support.
-        """
-        ret = 'sphinx'
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['documentation_type'] = ret
-        api_v2.project(self.project.pk).put(project_data)
-        self.project.documentation_type = ret
-        self.version.project.documentation_type = ret
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
