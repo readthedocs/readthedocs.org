@@ -46,7 +46,7 @@ class BaseBuilder(object):
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
-        self.config = python_env.config
+        self.config = python_env.config if python_env else None
         self._force = force
         self.target = self.project.artifact_path(
             version=self.version.slug, type_=self.type)
