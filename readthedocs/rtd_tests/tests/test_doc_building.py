@@ -1009,8 +1009,17 @@ class TestBuildCommand(TestCase):
     def test_output(self):
         """Test output command."""
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
-        cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
+
+        # Mock BuildCommand.sanitized_output just to count the amount of calls,
+        # but use the original method to behaves as real
+        original_sanitized_output = cmd.sanitize_output
+        with patch('readthedocs.doc_builder.environments.BuildCommand.sanitize_output') as sanitize_output:  # noqa
+            sanitize_output.side_effect = original_sanitized_output
+            cmd.run()
+            self.assertEqual(cmd.output, 'FOOBAR')
+
+            # Check that we sanitize the output
+            self.assertEqual(sanitize_output.call_count, 2)
 
     def test_error_output(self):
         """Test error output from command."""
@@ -1025,6 +1034,16 @@ class TestBuildCommand(TestCase):
         cmd.run()
         self.assertEqual(cmd.output, '')
         self.assertEqual(cmd.error, 'FOOBAR')
+
+    def test_sanitize_output(self):
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
+        checks = (
+            (b'Hola', 'Hola'),
+            (b'H\x00i', 'Hi'),
+            (b'H\x00i \x00\x00\x00You!\x00', 'Hi You!'),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
 
     @patch('subprocess.Popen')
     def test_unicode_output(self, mock_subprocess):
@@ -1231,6 +1250,7 @@ class TestPythonEnvironment(TestCase):
             '--exists-action=w',
             '--cache-dir',
             mock.ANY,  # cache path
+            '-r',
             'requirements_file'
         ]
 
@@ -1240,7 +1260,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1251,7 +1271,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(root_requirements)
+        args[-1] = root_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1262,7 +1282,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1315,8 +1335,8 @@ class TestPythonEnvironment(TestCase):
         args_conda.extend(conda_requirements)
 
         self.build_env_mock.run.assert_has_calls([
-            mock.call(*args_conda),
-            mock.call(*args_pip, bin_path=mock.ANY)
+            mock.call(*args_conda, cwd=mock.ANY),
+            mock.call(*args_pip, bin_path=mock.ANY, cwd=mock.ANY)
         ])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1354,8 +1374,8 @@ class TestPythonEnvironment(TestCase):
         args_conda.extend(conda_requirements)
 
         self.build_env_mock.run.assert_has_calls([
-            mock.call(*args_conda),
-            mock.call(*args_pip, bin_path=mock.ANY)
+            mock.call(*args_conda, cwd=mock.ANY),
+            mock.call(*args_pip, bin_path=mock.ANY, cwd=mock.ANY)
         ])
 
     @patch('readthedocs.projects.models.Project.checkout_path')

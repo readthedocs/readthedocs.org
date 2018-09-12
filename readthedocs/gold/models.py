@@ -39,7 +39,7 @@ class GoldUser(models.Model):
     projects = models.ManyToManyField(Project, verbose_name=_('Projects'),
                                       related_name='gold_owners')
 
-    last_4_digits = models.CharField(max_length=4)
+    last_4_card_digits = models.CharField(max_length=4)
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
 

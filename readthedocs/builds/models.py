@@ -286,11 +286,11 @@ class Version(models.Model):
 
         if not docroot:
             return ''
-        else:
-            if docroot[0] != '/':
-                docroot = '/{}'.format(docroot)
-            if docroot[-1] != '/':
-                docroot = '{}/'.format(docroot)
+
+        if docroot[0] != '/':
+            docroot = '/{}'.format(docroot)
+        if docroot[-1] != '/':
+            docroot = '{}/'.format(docroot)
 
         if action == 'view':
             action_string = 'blob'
@@ -320,11 +320,11 @@ class Version(models.Model):
 
         if not docroot:
             return ''
-        else:
-            if docroot[0] != '/':
-                docroot = '/{}'.format(docroot)
-            if docroot[-1] != '/':
-                docroot = '{}/'.format(docroot)
+
+        if docroot[0] != '/':
+            docroot = '/{}'.format(docroot)
+        if docroot[-1] != '/':
+            docroot = '{}/'.format(docroot)
 
         if action == 'view':
             action_string = 'blob'

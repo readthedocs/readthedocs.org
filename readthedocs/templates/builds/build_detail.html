@@ -72,7 +72,7 @@ $(document).ready(function () {
     </ul>
 
     <div class="build-id">
-      {% blocktrans with build_id=build.pk %}
+      {% blocktrans trimmed with build_id=build.pk %}
         Build #{{ build_id }}
       {% endblocktrans %}
     </div>
@@ -118,7 +118,7 @@ $(document).ready(function () {
         <div class="build-ideas">
           <p>
             {% url 'wipe_version' build.version.project.slug build.version.slug as wipe_url %}
-            {% blocktrans %}
+            {% blocktrans trimmed %}
               Having trouble with your build environment?
               Try <a href="{{ wipe_url }}">resetting it</a>.
             {% endblocktrans %}
@@ -128,7 +128,7 @@ $(document).ready(function () {
         <div class="build-ideas">
           <p>
             {% url 'projects_advanced' build.version.project.slug as advanced_url %}
-            {% blocktrans %}
+            {% blocktrans trimmed %}
               Don't want <em>setup.py install</em> called?
               Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
             {% endblocktrans %}

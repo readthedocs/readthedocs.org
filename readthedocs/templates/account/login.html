@@ -11,7 +11,7 @@
 
 <h1>{% trans "Sign In" %}</h1>
 
-<p><small>{% blocktrans %}If you have not created an account yet, then please
+<p><small>{% blocktrans trimmed %}If you have not created an account yet, then please
 <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</small></p>
 
 <form class="login" method="POST" action="{% url "account_login" %}">
@@ -24,7 +24,7 @@
 
   {% url 'account_reset_password' as password_reset_url %}
   <p>
-    <small>{% blocktrans %}If you forgot your password, <a href="{{ password_reset_url }}">reset it.</a>{% endblocktrans %}</small>
+    <small>{% blocktrans trimmed %}If you forgot your password, <a href="{{ password_reset_url }}">reset it.</a>{% endblocktrans %}</small>
   </p>
 </form>
 

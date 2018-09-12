@@ -7,12 +7,12 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import re
-from collections import namedtuple
 from contextlib import contextmanager
 
 import six
 
 from .find import find_one
+from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
     ValidationError, validate_bool, validate_choice, validate_dict,
@@ -31,7 +31,7 @@ __all__ = (
 )
 
 ALL = 'all'
-CONFIG_FILENAMES = ('readthedocs.yml', '.readthedocs.yml')
+CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
@@ -48,7 +48,7 @@ INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 
 DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
-# These map to coordisponding settings in the .org,
+# These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
 DOCKER_IMAGE_SETTINGS = {
@@ -177,7 +177,7 @@ class BuildConfigBase(object):
 
     @property
     def python_full_version(self):
-        ver = self.python_version
+        ver = self.python.version
         if ver in [2, 3]:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
@@ -361,12 +361,9 @@ class BuildConfigV1(BuildConfigBase):
         version = self.defaults.get('python_version', 2)
         python = {
             'use_system_site_packages': use_system_packages,
-            'pip_install': False,
+            'install_with_pip': False,
             'extra_requirements': [],
-            'setup_py_install': install_project,
-            'setup_py_path': os.path.join(
-                os.path.dirname(self.source_file),
-                'setup.py'),
+            'install_with_setup': install_project,
             'version': version,
         }
 
@@ -388,7 +385,7 @@ class BuildConfigV1(BuildConfigBase):
             # Validate pip_install.
             if 'pip_install' in raw_python:
                 with self.catch_validation_error('python.pip_install'):
-                    python['pip_install'] = validate_bool(
+                    python['install_with_pip'] = validate_bool(
                         raw_python['pip_install'])
 
             # Validate extra_requirements.
@@ -399,25 +396,21 @@ class BuildConfigV1(BuildConfigBase):
                         'python.extra_requirements',
                         self.PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE,
                         code=PYTHON_INVALID)
-                for extra_name in raw_extra_requirements:
-                    with self.catch_validation_error(
-                            'python.extra_requirements'):
-                        python['extra_requirements'].append(
-                            validate_string(extra_name)
-                        )
+                if not python['install_with_pip']:
+                    python['extra_requirements'] = []
+                else:
+                    for extra_name in raw_extra_requirements:
+                        with self.catch_validation_error(
+                                'python.extra_requirements'):
+                            python['extra_requirements'].append(
+                                validate_string(extra_name)
+                            )
 
             # Validate setup_py_install.
             if 'setup_py_install' in raw_python:
                 with self.catch_validation_error('python.setup_py_install'):
-                    python['setup_py_install'] = validate_bool(
+                    python['install_with_setup'] = validate_bool(
                         raw_python['setup_py_install'])
-
-            # Validate setup_py_path.
-            if 'setup_py_path' in raw_python:
-                with self.catch_validation_error('python.setup_py_path'):
-                    base_path = os.path.dirname(self.source_file)
-                    python['setup_py_path'] = validate_file(
-                        raw_python['setup_py_path'], base_path)
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
@@ -445,17 +438,16 @@ class BuildConfigV1(BuildConfigBase):
 
         if 'conda' in self.raw_config:
             raw_conda = self.raw_config['conda']
-            if not isinstance(raw_conda, dict):
-                self.error(
-                    'conda',
-                    self.PYTHON_INVALID_MESSAGE,
-                    code=PYTHON_INVALID)
-
+            with self.catch_validation_error('conda'):
+                validate_dict(raw_conda)
+            conda_environment = None
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
                     base_path = os.path.dirname(self.source_file)
-                    conda['file'] = validate_file(
-                        raw_conda['file'], base_path)
+                    conda_environment = validate_file(
+                        raw_conda['file'], base_path
+                    )
+            conda['environment'] = conda_environment
 
             return conda
         return None
@@ -511,58 +503,35 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def python(self):
         """Python related configuration."""
-        return self._config.get('python', {})
+        requirements = self._config['requirements_file']
+        self._config['python']['requirements'] = requirements
+        return Python(**self._config['python'])
 
     @property
-    def python_version(self):
-        """Python version."""
-        return self._config['python']['version']
-
-    @property
-    def pip_install(self):
-        """True if the project should be installed using pip."""
-        return self._config['python']['pip_install']
-
-    @property
-    def install_project(self):
-        """True if the project should be installed."""
-        if self.pip_install:
-            return True
-        return self._config['python']['setup_py_install']
-
-    @property
-    def extra_requirements(self):
-        """Extra requirements to be installed with pip."""
-        if self.pip_install:
-            return self._config['python']['extra_requirements']
-        return []
-
-    @property
-    def use_system_site_packages(self):
-        """True if the project should have access to the system packages."""
-        return self._config['python']['use_system_site_packages']
-
-    @property
-    def use_conda(self):
-        """True if the project use Conda."""
-        return self._config.get('conda') is not None
-
-    @property
-    def conda_file(self):
-        """The Conda environment file."""
-        if self.use_conda:
-            return self._config['conda'].get('file')
+    def conda(self):
+        if self._config['conda'] is not None:
+            return Conda(**self._config['conda'])
         return None
 
     @property
-    def requirements_file(self):
-        """The project requirements file."""
-        return self._config['requirements_file']
+    def build(self):
+        """The docker image used by the builders."""
+        return Build(**self._config['build'])
 
     @property
-    def build_image(self):
-        """The docker image used by the builders."""
-        return self._config['build']['image']
+    def doctype(self):
+        return self.defaults['doctype']
+
+    @property
+    def sphinx(self):
+        config_file = self.defaults['sphinx_configuration']
+        if config_file is not None:
+            config_file = os.path.join(self.base_path, config_file)
+        return Sphinx(
+            builder=self.doctype,
+            configuration=config_file,
+            fail_on_warning=False,
+        )
 
 
 class BuildConfigV2(BuildConfigBase):
@@ -888,47 +857,26 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def conda(self):
-        Conda = namedtuple('Conda', ['environment'])  # noqa
         if self._config['conda']:
             return Conda(**self._config['conda'])
         return None
 
     @property
     def build(self):
-        Build = namedtuple('Build', ['image'])  # noqa
         return Build(**self._config['build'])
 
     @property
     def python(self):
-        Python = namedtuple(  # noqa
-            'Python',
-            [
-                'version',
-                'requirements',
-                'install_with_pip',
-                'install_with_setup',
-                'extra_requirements',
-                'use_system_site_packages',
-            ],
-        )
         return Python(**self._config['python'])
 
     @property
     def sphinx(self):
-        Sphinx = namedtuple(  # noqa
-            'Sphinx',
-            ['builder', 'configuration', 'fail_on_warning'],
-        )
         if self._config['sphinx']:
             return Sphinx(**self._config['sphinx'])
         return None
 
     @property
     def mkdocs(self):
-        Mkdocs = namedtuple(  # noqa
-            'Mkdocs',
-            ['configuration', 'fail_on_warning'],
-        )
         if self._config['mkdocs']:
             return Mkdocs(**self._config['mkdocs'])
         return None
@@ -941,10 +889,6 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def submodules(self):
-        Submodules = namedtuple(  # noqa
-            'Submodules',
-            ['include', 'exclude', 'recursive'],
-        )
         return Submodules(**self._config['submodules'])
 
 
@@ -966,16 +910,12 @@ def load(path, env_config):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    filename = find_one(path, CONFIG_FILENAMES)
+    filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        files = '{}'.format(', '.join(map(repr, CONFIG_FILENAMES[:-1])))
-        if files:
-            files += ' or '
-        files += '{!r}'.format(CONFIG_FILENAMES[-1])
         raise ConfigError(
-            'No files {} found'.format(files),
-            code=CONFIG_REQUIRED,
+            'No configuration file found',
+            code=CONFIG_REQUIRED
         )
     build_configs = []
     with open(filename, 'r') as configuration_file:
@@ -1022,7 +962,8 @@ def get_configuration_class(version):
         version = int(version)
         return configurations_class[version]
     except (KeyError, ValueError):
-        raise ConfigError(
-            'Invalid version of the configuration file',
+        raise InvalidConfig(
+            'version',
             code=VERSION_INVALID,
+            error_message='Invalid version of the configuration file',
         )
