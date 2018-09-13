@@ -65,4 +65,5 @@ We provide full-text search across all of the pages of documentation hosted on o
 Alternate Domains
 -----------------
 
-We provide support for CNAMEs, subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
+We provide support for custom domains, subdomains, and a shorturl for your
+project as well. This is outlined in the :doc:`alternate_domains` section.

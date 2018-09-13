@@ -112,12 +112,12 @@ Deleting a stale or broken build environment
 
 See :doc:`guides/wipe-environment`.
 
-How do I host multiple projects on one CNAME?
----------------------------------------------
+How do I host multiple projects on one custom domain?
+-----------------------------------------------------
 
-We support the concept of Subprojects.
-If you add a subproject to a project,
-that documentation will also be served under the parent project's subdomain.
+We support the concept of subprojects, which allows multiple projects to share a
+single domain. If you add a subproject to a project, that documentation will
+be served under the parent project's subdomain or custom domain.
 
 For example,
 Kombu is a subproject of Celery,
@@ -125,11 +125,11 @@ so you can access it on the `celery.readthedocs.io` domain:
 
 http://celery.readthedocs.io/projects/kombu/en/latest/
 
-This also works the same for CNAMEs:
+This also works the same for custom domains:
 
 http://docs.celeryproject.org/projects/kombu/en/latest/
 
-You can add subprojects in the Admin section for your project.
+You can add subprojects in the project admin dashboard.
 
 Where do I need to put my docs for RTD to find it?
 --------------------------------------------------

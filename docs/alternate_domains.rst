@@ -11,17 +11,19 @@ Every project has a subdomain that is available to serve its documentation. If y
 .. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hyphen (-).
           `RFC 1035 <http://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains.
 
-CNAME Support
--------------
+Custom Domain Support
+---------------------
 
-If you have your own domain, you can still host with us.
-This requires two steps:
+You can also host your documentation from your own domain by adding a domain to
+your project:
 
-* Add a CNAME record in your DNS that point to our servers `readthedocs.io`
-* Add a Domain object in the **Project Admin > Domains** page for your project.
+* Add a CNAME record in your DNS that points the domain to: ``readthedocs.io``
+* Add a project domain in the :guilabel:`Domains` project admin page for your project.
 
-.. note:: The ``Domain`` that should be used is the actual subdomain that you want your docs served on.
-          Generally it will be `docs.projectname.org`.
+.. note::
+    We don't currently support pointing subdomains or naked domains to a project
+    using ``A`` records. It's best to point a subdomain, ``docs.example.com``
+    for example, using a CNAME record.
 
 Using pip as an example, https://pip.pypa.io resolves, but is hosted on our infrastructure.
 
@@ -32,23 +34,16 @@ As another example, fabric's dig record looks like this::
     ;; ANSWER SECTION:
     docs.fabfile.org.   7200    IN  CNAME   readthedocs.io.
 
-.. note::
-
-    We used to map your projects documentation from the subdomain that you pointed your CNAME to.
-    This wasn't workable at scale,
-    and now we require you to set the domain you want to resolve on your project.
-
-
-CNAME SSL
----------
+Custom Domain SSL
+-----------------
 
 By default, when you setup a custom domain to host documentation at Read the Docs,
 we will attempt to provision a domain validated SSL certificate for the domain.
 This service is generously provided by Cloudflare.
 
 After configuring your custom domain on Read the Docs,
-you can see the status of the certificate on the domain edit screen
-(**Project Admin > Domains > Edit Domain**).
+you can see the status of the certificate on the domain page in your project
+admin dashboard (:guilabel:`Domains` > :guilabel:`Edit Domain`).
 
 If your domain has configured CAA records, please do not forget to include
 Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
@@ -60,9 +55,11 @@ FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification
     or another variation. While these continue to resolve,
     they do not yet allow us to acquire SSL certificates for those domains.
     Point the CNAME to ``readthedocs.io`` and re-request a certificate
-    by saving the domain (**Project Admin > Domains > Edit Domain**).
+    by saving the domain in the project admin (:guilabel:`Domains` >
+    :guilabel:`Edit Domain`).
 
-    If you change the CNAME, the SSL certificate issuance can take about one hour.
+    If you change the CNAME record, the SSL certificate issuance can take about
+    one hour.
 
 .. important::
 
