@@ -419,7 +419,7 @@ class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
     def test_cant_make_project(self):
-        """Test that a can't use the API to create projects."""
+        """Test that a user can't use the API to create projects."""
         post_data = {
             'name': 'awesome-project',
             'repo': 'https://github.com/ericholscher/django-kong.git',
