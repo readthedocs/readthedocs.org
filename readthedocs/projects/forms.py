@@ -530,11 +530,9 @@ class EmailHookForm(forms.Form):
         return self.project
 
 
-class WebHookForm(forms.Form):
+class WebHookForm(forms.ModelForm):
 
     """Project webhook form."""
-
-    url = forms.URLField()
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -545,9 +543,13 @@ class WebHookForm(forms.Form):
             url=self.cleaned_data['url'], project=self.project)[0]
         return self.webhook
 
-    def save(self):
+    def save(self, commit=True):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
+
+    class Meta:
+        model = WebHook
+        fields = ['url']
 
 
 class TranslationBaseForm(forms.Form):

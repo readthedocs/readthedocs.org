@@ -971,7 +971,7 @@ class EmailHook(Notification):
 
 @python_2_unicode_compatible
 class WebHook(Notification):
-    url = models.URLField(blank=True,
+    url = models.URLField(max_length=600, blank=True,
                           help_text=_('URL to send the webhook to'))
 
     def __str__(self):
