@@ -79,7 +79,7 @@ search_urls = [
     url(r'search/project/$',
         search_views.project_search,
         name='api_project_search',
-    ),
+        ),
     url(
         r'search/section/$',
         search_views.section_search,
