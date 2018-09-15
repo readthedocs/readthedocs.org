@@ -50,8 +50,6 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
-from readthedocs.restapi.utils import index_search_request
-from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 from .constants import LOG_TEMPLATE
@@ -900,40 +898,6 @@ def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
                 include_file=False,
             )
             Syncer.copy(from_path, to_path, host=hostname)
-
-
-@app.task(queue='web')
-def update_search(version_pk, commit, delete_non_commit_files=True):
-    """
-    Task to update search indexes.
-
-    :param version_pk: Version id to update
-    :param commit: Commit that updated index
-    :param delete_non_commit_files: Delete files not in commit from index
-    """
-    version = Version.objects.get(pk=version_pk)
-
-    if version.project.is_type_sphinx:
-        page_list = process_all_json_files(version, build_dir=False)
-    else:
-        log.debug('Unknown documentation type: %s',
-                  version.project.documentation_type)
-        return
-
-    log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Search Index) Sending Data: %s [%s]", version.project.slug,
-             log_msg)
-    index_search_request(
-        version=version,
-        page_list=page_list,
-        commit=commit,
-        project_scale=0,
-        page_scale=0,
-        # Don't index sections to speed up indexing.
-        # They aren't currently exposed anywhere.
-        section=False,
-        delete=delete_non_commit_files,
-    )
 
 
 @app.task(queue='web')
