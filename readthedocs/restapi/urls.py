@@ -75,9 +75,8 @@ search_urls = [
         search_views.index_search,
         name='index_search',
     ),
-    url(r'search/$', views.search_views.search, name='api_search'),
-    url(
-        r'search/project/$',
+    url(r'^search/$', views.search_views.search, name='api_search'),
+    url(r'search/project/$',
         search_views.project_search,
         name='api_project_search',
     ),
@@ -136,18 +135,12 @@ integration_urls = [
     ),
 ]
 
+
 urlpatterns += function_urls
-urlpatterns += search_urls
 urlpatterns += task_urls
+urlpatterns += search_urls
 urlpatterns += integration_urls
 
-if 'readthedocsext.search' in settings.INSTALLED_APPS:
-    # pylint: disable=import-error
-    from readthedocsext.search.docsearch import DocSearch
-    api_search_urls = [
-        url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
-    ]
-    urlpatterns += api_search_urls
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # pylint: disable=import-error
