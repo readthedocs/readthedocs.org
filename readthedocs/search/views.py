@@ -8,11 +8,9 @@ import logging
 from pprint import pprint
 
 from django.conf import settings
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.models import Project
-from readthedocs.search import lib as search_lib
 from readthedocs.search.documents import ProjectDocument, PageDocument
 from readthedocs.search.utils import get_project_list_or_404
 

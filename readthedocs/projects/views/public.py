@@ -28,7 +28,6 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.indexes import PageIndex
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
