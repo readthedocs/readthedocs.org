@@ -150,10 +150,18 @@ class MkdocsBuilderTest(TestCase):
         self.build_env.project = self.project
         self.build_env.version = self.version
 
-    def test_get_theme_name(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_get_theme_name(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         builder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
 
         # The default theme is mkdocs but in mkdocs>=1.0, theme is required
