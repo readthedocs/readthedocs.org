@@ -26,7 +26,7 @@ How do I change the version slug of my project?
 
 We don't support allowing folks to change the slug for their versions.
 But you can rename the branch/tag to achieve this.
-If that isn't enough, you can ask to team to do this `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
+If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
