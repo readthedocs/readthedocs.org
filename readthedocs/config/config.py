@@ -573,6 +573,8 @@ class BuildConfigV2(BuildConfigBase):
         self.validate_doc_types()
         self._config['mkdocs'] = self.validate_mkdocs()
         self._config['sphinx'] = self.validate_sphinx()
+        # TODO: remove later
+        self.validate_final_doc_type()
         self._config['submodules'] = self.validate_submodules()
 
     def validate_formats(self):
@@ -812,6 +814,23 @@ class BuildConfigV2(BuildConfigBase):
             sphinx['fail_on_warning'] = validate_bool(fail_on_warning)
 
         return sphinx
+
+    def validate_final_doc_type(self):
+        """
+        Validates that the doctype is the same as the admin panel.
+
+        This a temporal validation, as the configuration file
+        should support per version doctype, but we need to
+        adapt the rtd code for that.
+        """
+        if self.doctype != self.defaults.get('doctype', 'sphinx'):
+            key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx'
+            self.error(
+                key,
+                'Your documentation type should match '
+                'the one from the admin panel of your project.',
+                code=INVALID_KEYS_COMBINATION,
+            )
 
     def validate_submodules(self):
         """

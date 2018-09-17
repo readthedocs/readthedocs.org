@@ -16,7 +16,7 @@ from django_dynamic_fixture import get
 from mock import patch
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
