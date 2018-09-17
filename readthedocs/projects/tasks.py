@@ -614,7 +614,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             args=[
                 self.project.pk,
                 self.version.pk,
-                self.config,
             ],
             kwargs=dict(
                 hostname=socket.gethostname(),
@@ -624,7 +623,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 pdf=pdf,
                 epub=epub,
             ),
-            callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
+            callback=sync_callback.s(
+                version_pk=self.version.pk,
+                commit=self.build['commit'],
+            ),
         )
 
     def setup_python_environment(self):
@@ -699,7 +701,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             broadcast(
                 type='app',
                 task=move_files,
-                args=[self.version.pk, socket.gethostname(), self.config],
+                args=[self.version.pk, socket.gethostname()],
                 kwargs=dict(html=True)
             )
         except socket.error:
@@ -760,15 +762,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
 # Web tasks
 @app.task(queue='web')
-def sync_files(project_pk, version_pk, config, hostname=None, html=False,
+def sync_files(project_pk, version_pk, hostname=None, html=False,
                localmedia=False, search=False, pdf=False, epub=False):
     """
     Sync build artifacts to application instances.
 
     This task broadcasts from a build instance on build completion and performs
     synchronization of build artifacts on each application instance.
-
-    :param config: A `readthedocs.config.BuildConfigBase` object
     """
     # Clean up unused artifacts
     version = Version.objects.get(pk=version_pk)
@@ -791,7 +791,6 @@ def sync_files(project_pk, version_pk, config, hostname=None, html=False,
     move_files(
         version_pk,
         hostname,
-        config,
         html=html,
         localmedia=localmedia,
         search=search,
@@ -807,14 +806,13 @@ def sync_files(project_pk, version_pk, config, hostname=None, html=False,
 
 
 @app.task(queue='web')
-def move_files(version_pk, hostname, config, html=False, localmedia=False,
+def move_files(version_pk, hostname, html=False, localmedia=False,
                search=False, pdf=False, epub=False):
     """
     Task to move built documentation to web servers.
 
     :param version_pk: Version id to sync files for
     :param hostname: Hostname to sync to
-    :param config: A `readthedocs.config.BuildConfigBase` object
     :param html: Sync HTML
     :type html: bool
     :param localmedia: Sync local media files
@@ -838,12 +836,12 @@ def move_files(version_pk, hostname, config, html=False, localmedia=False,
     if html:
         from_path = version.project.artifact_path(
             version=version.slug,
-            type_=config.doctype,
+            type_=version.project.documentation_type,
         )
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
-    if 'sphinx' in config.doctype:
+    if 'sphinx' in version.project.documentation_type:
         if search:
             from_path = version.project.artifact_path(
                 version=version.slug,
@@ -894,21 +892,23 @@ def move_files(version_pk, hostname, config, html=False, localmedia=False,
 
 
 @app.task(queue='web')
-def update_search(version_pk, commit, config, delete_non_commit_files=True):
+def update_search(version_pk, commit, delete_non_commit_files=True):
     """
     Task to update search indexes.
 
     :param version_pk: Version id to update
     :param commit: Commit that updated index
-    :param config: A `readthedocs.config.BuildConfigBase` object
     :param delete_non_commit_files: Delete files not in commit from index
     """
     version = Version.objects.get(pk=version_pk)
 
-    if 'sphinx' in config.doctype:
+    if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.debug('Unknown documentation type: %s', config.doctype)
+        log.debug(
+            'Unknown documentation type: %s',
+            version.project.documentation_type
+        )
         return
 
     log_msg = ' '.join([page['path'] for page in page_list])
