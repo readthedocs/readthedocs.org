@@ -41,7 +41,9 @@ defusedxml==0.5.0
 
 # Basic tools
 redis==2.10.6
-celery==4.2.1
+# Celery 4.2 is incompatible with our code
+# when ALWAYS_EAGER = True
+celery==4.1.1
 
 # django-allauth 0.33.0 dropped support for Django 1.9
 # https://django-allauth.readthedocs.io/en/latest/release-notes.html#backwards-incompatible-changes
