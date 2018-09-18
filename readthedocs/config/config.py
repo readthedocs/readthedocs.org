@@ -138,7 +138,7 @@ class BuildConfigBase(object):
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
         source = '{file} [{pos}]'.format(
-            file=self.source_file,
+            file=os.path.relpath(self.source_file, self.base_path),
             pos=self.source_position,
         )
         error_message = '{source}: {message}'.format(
