@@ -7,6 +7,35 @@ var bowser = require('bowser');
 
 var rtd;
 
+var EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
+
+
+/*
+ * Create an explicit placement if the
+ */
+function create_explicit_placement() {
+    var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
+    var display_type = constants.PROMO_TYPES.LEFTNAV;
+    var class_name;         // Used for theme specific CSS customizations
+
+    if(rtd.is_rtd_like_theme()) {
+        class_name = 'ethical-rtd ethical-dark-theme';
+    } else {
+        class_name = 'ethical-alabaster';
+    }
+
+    if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        $('<div />').attr('id', element_id)
+            .addClass(class_name).appendTo(EXPLICIT_PLACEMENT_SELECTOR);
+
+        return {
+            'div_id': element_id,
+            'display_type': display_type,
+        };
+    }
+    return null;
+}
+
 /*
  *  Creates a sidebar div where an ad could go
  */
@@ -230,16 +259,26 @@ function init() {
 
     rtd = rtddata.get();
 
-    if (!rtd.show_promo()) {
-        return;
-    }
+    // Check if these docs have specified an explicit ad placement for us
+    placement = create_explicit_placement();
 
-    for (var i = 0; i < placement_funcs.length; i += 1) {
-        placement = placement_funcs[i]();
-        if (placement) {
-            div_ids.push(placement.div_id);
-            display_types.push(placement.display_type);
-            priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
+    if (placement) {
+        div_ids.push(placement.div_id);
+        display_types.push(placement.display_type);
+        priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
+    } else {
+        // Standard placements
+        if (!rtd.show_promo()) {
+            return;
+        }
+
+        for (var i = 0; i < placement_funcs.length; i += 1) {
+            placement = placement_funcs[i]();
+            if (placement) {
+                div_ids.push(placement.div_id);
+                display_types.push(placement.display_type);
+                priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
+            }
         }
     }
 
