@@ -117,7 +117,7 @@ class NonPersistentStorage(PersistentStorage):
     # and replaced PERSISTENT_MESSAGE_LEVELS by NON_PERSISTENT_MESSAGE_LEVELS
 
     def _store(self, messages, response, *args, **kwargs):
-        # There are alredy saved.
+        # There are already saved.
         return [
             message for message in messages
             if message.level not in NON_PERSISTENT_MESSAGE_LEVELS

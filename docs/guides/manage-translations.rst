@@ -167,7 +167,7 @@ This command will leave the ``.po`` files needed for building the documentation 
 .. warning::
 
    It's important to use always the same method to translate the documentation and do not mix them.
-   Otherwise, it's very easy to end up with inconsistent translations or loosing already translated text.
+   Otherwise, it's very easy to end up with inconsistent translations or losing already translated text.
 
 
 Build the documentation in target language
