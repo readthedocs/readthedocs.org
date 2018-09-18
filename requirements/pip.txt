@@ -90,7 +90,8 @@ django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==0.23.0
+# django-taggit 0.23.0 drops support for django < 1.11
+django-taggit==0.22.0
 dj-pagination==2.3.2
 
 # Docs
