@@ -1,3 +1,48 @@
+Version 2.6.5
+-------------
+
+:Date: August 29, 2018
+
+* `@stsewd <http://github.com/stsewd>`__: Tests for yaml file regex (`#4587 <https://github.com/rtfd/readthedocs.org/pull/4587>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Respect user language when caching homepage (`#4585 <https://github.com/rtfd/readthedocs.org/pull/4585>`__)
+* `@humitos <http://github.com/humitos>`__: Add start and termination to YAML file regex (`#4584 <https://github.com/rtfd/readthedocs.org/pull/4584>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4576] Do not delete projects which have multiple users (`#4577 <https://github.com/rtfd/readthedocs.org/pull/4577>`__)
+
+Version 2.6.4
+-------------
+
+:Date: August 29, 2018
+
+* `@stsewd <http://github.com/stsewd>`__: Update tests failing on master (`#4575 <https://github.com/rtfd/readthedocs.org/pull/4575>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add a flag to disable docsearch (`#4570 <https://github.com/rtfd/readthedocs.org/pull/4570>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix nested syntax in docs (`#4567 <https://github.com/rtfd/readthedocs.org/pull/4567>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix incorrect reraise (`#4566 <https://github.com/rtfd/readthedocs.org/pull/4566>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add a note about specifying the version of build tools (`#4562 <https://github.com/rtfd/readthedocs.org/pull/4562>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Serve badges directly from local filesystem (`#4561 <https://github.com/rtfd/readthedocs.org/pull/4561>`__)
+* `@humitos <http://github.com/humitos>`__: Build JSON artifacts in HTML builder (`#4554 <https://github.com/rtfd/readthedocs.org/pull/4554>`__)
+* `@humitos <http://github.com/humitos>`__: Route task to proper queue (`#4553 <https://github.com/rtfd/readthedocs.org/pull/4553>`__)
+* `@humitos <http://github.com/humitos>`__: Sanitize BuildCommand.output by removing NULL characters (`#4552 <https://github.com/rtfd/readthedocs.org/pull/4552>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix changelog for 2.6.3 (`#4548 <https://github.com/rtfd/readthedocs.org/pull/4548>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove hiredis (`#4542 <https://github.com/rtfd/readthedocs.org/pull/4542>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Use the STATIC_URL for static files to avoid redirection (`#4522 <https://github.com/rtfd/readthedocs.org/pull/4522>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs about build process (`#4515 <https://github.com/rtfd/readthedocs.org/pull/4515>`__)
+* `@StefanoChiodino <http://github.com/StefanoChiodino>`__: Allow for period as a prefix and yaml extension for config file (`#4512 <https://github.com/rtfd/readthedocs.org/pull/4512>`__)
+* `@AumitLeon <http://github.com/AumitLeon>`__: Update information on mkdocs build process (`#4508 <https://github.com/rtfd/readthedocs.org/pull/4508>`__)
+* `@humitos <http://github.com/humitos>`__: Fix Exact Redirect to work properly when using $rest keyword (`#4501 <https://github.com/rtfd/readthedocs.org/pull/4501>`__)
+* `@humitos <http://github.com/humitos>`__: Mark some BuildEnvironmentError exceptions as Warning and do not log them (`#4495 <https://github.com/rtfd/readthedocs.org/pull/4495>`__)
+* `@xrmx <http://github.com/xrmx>`__: projects: don't explode trying to update UpdateDocsTaskStep state (`#4485 <https://github.com/rtfd/readthedocs.org/pull/4485>`__)
+* `@humitos <http://github.com/humitos>`__: Note with the developer flow to update our app translations (`#4481 <https://github.com/rtfd/readthedocs.org/pull/4481>`__)
+* `@humitos <http://github.com/humitos>`__: Add `trimmed` to all multilines `blocktrans` tags (`#4480 <https://github.com/rtfd/readthedocs.org/pull/4480>`__)
+* `@humitos <http://github.com/humitos>`__: Example and note with usage of trimmed option in blocktrans (`#4479 <https://github.com/rtfd/readthedocs.org/pull/4479>`__)
+* `@humitos <http://github.com/humitos>`__: Update Transifex resources for our documentation (`#4478 <https://github.com/rtfd/readthedocs.org/pull/4478>`__)
+* `@humitos <http://github.com/humitos>`__: Documentation for Manage Translations (`#4470 <https://github.com/rtfd/readthedocs.org/pull/4470>`__)
+* `@stsewd <http://github.com/stsewd>`__: Port https://github.com/rtfd/readthedocs-build/pull/38/ (`#4461 <https://github.com/rtfd/readthedocs.org/pull/4461>`__)
+* `@stsewd <http://github.com/stsewd>`__: Match v1 config interface to new one (`#4456 <https://github.com/rtfd/readthedocs.org/pull/4456>`__)
+* `@humitos <http://github.com/humitos>`__: Skip tags that point to blob objects instead of commits (`#4442 <https://github.com/rtfd/readthedocs.org/pull/4442>`__)
+* `@stsewd <http://github.com/stsewd>`__: Document python.use_system_site_packages option (`#4422 <https://github.com/rtfd/readthedocs.org/pull/4422>`__)
+* `@humitos <http://github.com/humitos>`__: More tips about how to reduce resources usage (`#4419 <https://github.com/rtfd/readthedocs.org/pull/4419>`__)
+* `@xrmx <http://github.com/xrmx>`__: projects: user in ProjectQuerySetBase.for_admin_user is mandatory (`#4417 <https://github.com/rtfd/readthedocs.org/pull/4417>`__)
+
 Version 2.6.3
 -------------
 
@@ -5,8 +50,17 @@ Version 2.6.3
 
 Release to Azure!
 
-Merged PRs here:
-https://github.com/rtfd/readthedocs.org/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Amerged+closed%3A%3E2018-08-14
+* `@davidfischer <http://github.com/davidfischer>`__: Add Sponsors list to footer (`#4424 <https://github.com/rtfd/readthedocs.org/pull/4424>`__)
+* `@stsewd <http://github.com/stsewd>`__: Cache node_modules to speed up CI (`#4484 <https://github.com/rtfd/readthedocs.org/pull/4484>`__)
+* `@xrmx <http://github.com/xrmx>`__: templates: mark missing string for translation on project edit (`#4518 <https://github.com/rtfd/readthedocs.org/pull/4518>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Performance improvement: cache version listing on the homepage (`#4526 <https://github.com/rtfd/readthedocs.org/pull/4526>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Remove mailgun from our dependencies (`#4531 <https://github.com/rtfd/readthedocs.org/pull/4531>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Improved ad block detection (`#4532 <https://github.com/rtfd/readthedocs.org/pull/4532>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Revert "Remove SelectiveFileSystemFolder finder workaround" (`#4533 <https://github.com/rtfd/readthedocs.org/pull/4533>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Slight clarification on turning off ads for a project (`#4534 <https://github.com/rtfd/readthedocs.org/pull/4534>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix the sponsor image paths (`#4535 <https://github.com/rtfd/readthedocs.org/pull/4535>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Update build assets (`#4537 <https://github.com/rtfd/readthedocs.org/pull/4537>`__)
+
 
 Version 2.6.2
 -------------

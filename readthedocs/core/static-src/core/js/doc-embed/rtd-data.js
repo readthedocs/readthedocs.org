@@ -8,6 +8,7 @@ var constants = require('./constants');
 
 var configMethods = {
     is_rtd_like_theme: function () {
+        // Returns true for the Read the Docs theme on both sphinx and mkdocs
         if ($('div.rst-other-versions').length === 1) {
             // Crappy heuristic, but people change the theme name
             // So we have to do some duck typing.
@@ -30,7 +31,7 @@ var configMethods = {
     },
 
     is_mkdocs_builder: function () {
-        return (!('builder' in this) || this.builder === 'mkdocs');
+        return ('builder' in this && this.builder === 'mkdocs');
     },
 
     get_theme_name: function () {

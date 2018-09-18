@@ -20,10 +20,10 @@ function create_sidebar_placement() {
 
     if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side';
-        class_name = 'ethical-rtd';
+        class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
-        class_name = 'ethical-rtd';
+        class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
         class_name = 'ethical-alabaster';
@@ -280,7 +280,7 @@ function init() {
         error: function () {
             console.error('Error loading Read the Docs promo');
 
-            if (!rtddata.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+            if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
                 adblock_admonition();
                 adblock_nag();
             }

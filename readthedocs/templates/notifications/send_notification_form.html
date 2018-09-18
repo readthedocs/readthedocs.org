@@ -6,7 +6,7 @@
   <h3>{% trans 'Send Email' %}</h3>
 
   <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       An email message will be sent to the following email addresses:
     {% endblocktrans %}
   </p>
@@ -18,7 +18,7 @@
     {% with extra_recipients=recipients|slice:"20:" %}
       {% if extra_recipients|length > 0 %}
         <li>
-          {% blocktrans count counter=extra_recipients|length %}
+          {% blocktrans trimmed count counter=extra_recipients|length %}
             And 1 other recipient.
           {% plural %}
             And {{ counter }} other recipients...
@@ -29,7 +29,7 @@
   </ul>
 
   <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       Specify the email content you wish to send:
     {% endblocktrans %}
   </p>

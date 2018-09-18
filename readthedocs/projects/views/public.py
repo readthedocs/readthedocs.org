@@ -15,7 +15,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -115,25 +114,40 @@ def project_badge(request, project_slug):
     style = request.GET.get('style', 'flat')
     if style not in ("flat", "plastic", "flat-square", "for-the-badge", "social"):
         style = "flat"
-    badge_path = 'projects/badges/%s-' + style + '.svg'
+
+    # Get the local path to the badge files
+    badge_path = os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'static',
+        'projects',
+        'badges',
+        '%s-' + style + '.svg',
+    )
+
     version_slug = request.GET.get('version', LATEST)
+    file_path = badge_path % 'unknown'
+
+    version = Version.objects.public(request.user).filter(
+        project__slug=project_slug, slug=version_slug).first()
+
+    if version:
+        last_build = version.builds.filter(type='html', state='finished').order_by('-date').first()
+        if last_build:
+            if last_build.success:
+                file_path = badge_path % 'passing'
+            else:
+                file_path = badge_path % 'failing'
+
     try:
-        version = Version.objects.public(request.user).get(
-            project__slug=project_slug, slug=version_slug)
-    except Version.DoesNotExist:
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    version_builds = version.builds.filter(type='html',
-                                           state='finished').order_by('-date')
-    if not version_builds.exists():
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    last_build = version_builds[0]
-    if last_build.success:
-        url = static(badge_path % 'passing')
-    else:
-        url = static(badge_path % 'failing')
-    return HttpResponseRedirect(url)
+        with open(file_path) as fd:
+            return HttpResponse(
+                fd.read(),
+                content_type='image/svg+xml',
+            )
+    except (IOError, OSError):
+        log.exception('Failed to read local filesystem while serving a docs badge')
+        return HttpResponse(status=503)
 
 
 def project_downloads(request, project_slug):
@@ -180,23 +194,23 @@ def project_download_media(request, project_slug, type_, version_slug):
             settings.MEDIA_URL, type_, project_slug, version_slug,
             '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
-    else:
-        # Get relative media path
-        path = (
-            version.project.get_production_media_path(
-                type_=type_, version_slug=version_slug)
-            .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))
-        content_type, encoding = mimetypes.guess_type(path)
-        content_type = content_type or 'application/octet-stream'
-        response = HttpResponse(content_type=content_type)
-        if encoding:
-            response['Content-Encoding'] = encoding
-        response['X-Accel-Redirect'] = path
-        # Include version in filename; this fixes a long-standing bug
-        filename = '%s-%s.%s' % (
-            project_slug, version_slug, path.split('.')[-1])
-        response['Content-Disposition'] = 'filename=%s' % filename
-        return response
+
+    # Get relative media path
+    path = (
+        version.project.get_production_media_path(
+            type_=type_, version_slug=version_slug)
+        .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))
+    content_type, encoding = mimetypes.guess_type(path)
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(content_type=content_type)
+    if encoding:
+        response['Content-Encoding'] = encoding
+    response['X-Accel-Redirect'] = path
+    # Include version in filename; this fixes a long-standing bug
+    filename = '%s-%s.%s' % (
+        project_slug, version_slug, path.split('.')[-1])
+    response['Content-Disposition'] = 'filename=%s' % filename
+    return response
 
 
 def elastic_project_search(request, project_slug):

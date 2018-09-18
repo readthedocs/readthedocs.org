@@ -37,20 +37,20 @@ $(document).ready(function () {
   <h2>Read the Docs Gold</h2>
 
   <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       Supporting Read the Docs lets us work more on features that people love.
       Your money will go directly to maintenance and development of the
       product.
     {% endblocktrans %}
   </p>
     <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       If you are an individual,
       feel free to give whatever feels right for the value you get out of Read the Docs.
     {% endblocktrans %}
     </p>
     <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       If you are a company using Read the Docs,
       please consider getting a <a href="https://readthedocs.com/services/#open-source-support">commercial support contract</a>.
       This will help us cover our costs,
@@ -63,7 +63,7 @@ $(document).ready(function () {
   <p>{% trans 'Becoming a Gold Member also makes Read the Docs ad-free for as long as you are logged-in.' %}</p>
 
   <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       You can also make one-time donations on our <a href="https://readthedocs.org/sustainability/">sustainability</a> page.
     {% endblocktrans %}
   </p>
@@ -71,7 +71,7 @@ $(document).ready(function () {
   {% if domains.count %}
   <h3>Domains</h2>
   <p>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
     We ask that folks who use custom Domains give Read the Docs $5 per domain they are using.
     This is optional, but it really does help us maintain the site going forward.
     {% endblocktrans %}
@@ -103,12 +103,12 @@ $(document).ready(function () {
     {% for field in form.fields_with_cc_group %}
       {% if field.is_cc_group %}
         <p
-            data-bind="visible: card_digits"
+            data-bind="visible: last_4_card_digits"
             style="display: none;"
             class="subscription-card">
           <label>{% trans "Current card" %}:</label>
           <span class="subscription-card-number">
-            ****-<span data-bind="text: card_digits"></span>
+            ****-<span data-bind="text: last_4_card_digits"></span>
           </span>
         </p>
 

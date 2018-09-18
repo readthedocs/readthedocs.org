@@ -17,7 +17,7 @@ Gold Projects
 
   <h3> {% trans "Existing Projects" %} </h3>
   <p>
-    {% blocktrans count projects=gold_user.num_supported_projects %}
+    {% blocktrans trimmed count projects=gold_user.num_supported_projects %}
       You can adopt one project with your subscription.
     {% plural %}
       You can adopt {{ projects }} projects with your subscription.
