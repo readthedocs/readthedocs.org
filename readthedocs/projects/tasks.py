@@ -27,7 +27,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
-from readthedocs.config import ConfigError
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import (
