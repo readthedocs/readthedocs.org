@@ -823,12 +823,16 @@ class BuildConfigV2(BuildConfigBase):
         should support per version doctype, but we need to
         adapt the rtd code for that.
         """
-        if self.doctype != self.defaults.get('doctype', 'sphinx'):
+        dashboard_doctype = self.defaults.get('doctype', 'sphinx')
+        if self.doctype != dashboard_doctype:
             key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx'
             self.error(
                 key,
-                'Your documentation type should match '
-                'the one from the admin panel of your project.',
+                'Your project is configured as "{doctype}" in your admin '
+                'dashboard, but there was a "{key}" key specified.'.format(
+                    doctype=dashboard_doctype,
+                    key=key,
+                ),
                 code=INVALID_KEYS_COMBINATION,
             )
 
