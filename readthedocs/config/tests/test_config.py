@@ -1336,7 +1336,8 @@ class TestBuildConfigV2(object):
         build.validate()
         build.sphinx.builder == 'sphinx'
 
-    @pytest.mark.skip
+    @pytest.mark.skip(
+        'This test is not compatible with the new validation around doctype.')
     def test_sphinx_builder_ignores_default(self):
         build = self.get_build_config(
             {},
