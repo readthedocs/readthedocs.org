@@ -67,7 +67,7 @@ class Backend(BaseVCS):
 
             Temporarily, we support skipping these steps as submodule step can
             fail if using private submodules. This will eventually be
-            configureable with our YAML config.
+            configurable with our YAML config.
         """
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
         from readthedocs.projects.models import Feature
@@ -108,7 +108,7 @@ class Backend(BaseVCS):
         .. note::
 
             Temporarily, we support skipping submodule recursive clone via a
-            feature flag. This will eventually be configureable with our YAML
+            feature flag. This will eventually be configurable with our YAML
             config.
         """
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
