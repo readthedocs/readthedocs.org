@@ -11,7 +11,7 @@ var EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
 
 
 /*
- * Create an explicit placement if the
+ * Create an explicit placement if the project has specified one
  */
 function create_explicit_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
