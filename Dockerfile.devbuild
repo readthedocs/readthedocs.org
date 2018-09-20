@@ -1,0 +1,16 @@
+# Read the Docs - Environment base
+# docker build -f Dockerfile.devbuild -t readthedocs/build:dev --build-arg UID=1000 --build-arg GID=100 --build-arg GROUPNAME=users .
+
+FROM readthedocs/build:2.0
+
+ARG UID=1000
+ARG GID=100
+ARG GROUPNAME=users
+
+# https://github.com/rtfd/readthedocs.org/pull/3152#issuecomment-339573168
+USER root
+# RUN groupadd --gid ${GID} ${GROUPNAME}
+RUN usermod --uid ${UID} --gid ${GID} docs
+USER docs
+
+CMD ["/bin/bash"]

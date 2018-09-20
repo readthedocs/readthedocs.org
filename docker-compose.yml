@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+
+  readthedocs:
+    image: readthedocs/build:docker-compose
+    command: "./docker/run.sh"
+    ports:
+      - "8000:8000"
+      - "8088:8088"
+    links:
+      - redis
+    volumes:
+      # mount docker unix socket to be able to run containers in the host from inside this container
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/home/docs/readthedocs.org
+    environment:
+      DJANGO_SETTINGS_MODULE: readthedocs.settings.docker
+      DJANGO_SETTINGS_SKIP_LOCAL: 1
+
+
+  # DEPENDENCIES
+
+  redis:
+    image: redis
+
+  # TODO: run celery workers
