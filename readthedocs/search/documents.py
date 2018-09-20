@@ -4,7 +4,6 @@ from elasticsearch_dsl.query import SimpleQueryString, Bool
 
 from readthedocs.projects.models import Project, HTMLFile
 from readthedocs.search.faceted_search import ProjectSearch, FileSearch
-from .conf import SEARCH_EXCLUDED_FILE
 from .mixins import RTDDocTypeMixin
 
 project_conf = settings.ES_INDEXES['project']
@@ -64,6 +63,8 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     # Fields to perform search with weight
     search_fields = ['title^10', 'headers^5', 'content']
+    # Exclude some files to not index
+    excluded_files = ['search.html', 'genindex.html', 'py-modindex.html']
 
     @classmethod
     def faceted_search(cls, query, projects_list=None, versions_list=None, using=None, index=None):
@@ -120,5 +121,5 @@ class PageDocument(RTDDocTypeMixin, DocType):
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
         queryset = (queryset.filter(project__documentation_type='sphinx')
-                            .exclude(name__in=SEARCH_EXCLUDED_FILE))
+                            .exclude(name__in=self.excluded_files))
         return queryset
