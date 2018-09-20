@@ -826,12 +826,15 @@ class BuildConfigV2(BuildConfigBase):
         dashboard_doctype = self.defaults.get('doctype', 'sphinx')
         if self.doctype != dashboard_doctype:
             key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx'
+            needed_doctype = (
+                'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
+            )
             self.error(
                 key,
                 'Your project is configured as "{doctype}" in your admin '
-                'dashboard, but there was a "{key}" key specified.'.format(
+                'dashboard, but there is no "{key}" key specified.'.format(
                     doctype=dashboard_doctype,
-                    key=key,
+                    key=needed_doctype,
                 ),
                 code=INVALID_KEYS_COMBINATION,
             )
