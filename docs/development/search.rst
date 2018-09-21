@@ -1,9 +1,9 @@
 Search
-============
+======
 
 Read The Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
 results. Documents are indexed in the Elasticsearch index and the search is made through the API.
-All the Search Code is open source and lives in the `Github Repository`_.
+All the Search Code is open source and lives in the `GitHub Repository`_.
 Currently we are using the `Elasticsearch 6.3`_ version.
 
 Local Development Configuration
@@ -22,7 +22,7 @@ Otherwise, you can also start an Elasticsearch Docker container by running the f
 
 Indexing into Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-For using search, you need to index data to the Elasticsearch Index. Run `reindex_elasticsearch`
+For using search, you need to index data to the Elasticsearch Index. Run ``reindex_elasticsearch``
 management command::
 
     ./manage.py reindex_elasticsearch
@@ -33,7 +33,7 @@ the built in management command provided by the `django-elasticsearch-dsl`_ pack
 Auto Indexing
 ^^^^^^^^^^^^^
 By default, Auto Indexing is turned off in development mode. To turn it on, change the
-`ELASTICSEARCH_DSL_AUTOSYNC` settings to `True` in the `readthedocs/settings/dev.py` file.
+``ELASTICSEARCH_DSL_AUTOSYNC`` settings to `True` in the `readthedocs/settings/dev.py` file.
 After that, whenever a documentation successfully builds, or project gets added,
 the search index will update automatically.
 
@@ -57,7 +57,7 @@ How we index documentations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After any build is successfully finished, `HTMLFile` objects are created for each of the
-`HTML` files and the old version's `HTMLFile` object is deleted. By default,
+``HTML`` files and the old version's `HTMLFile` object is deleted. By default,
 `django-elasticsearch-dsl`_ package listens to the `post_create`/`post_delete` signals
 to index/delete documents, but it has performance drawbacks as it send HTTP request whenever
 any `HTMLFile` objects is created or deleted. To optimize the performance, `bulk_post_create`
@@ -103,7 +103,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Elasticsearch 6.3: https://www.elastic.co/guide/en/elasticsearch/reference/6.3/index.html
-.. _Github Repository: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/search
+.. _GitHub Repository: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/search
 .. _Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
