@@ -1,12 +1,16 @@
 """Celery tasks with publicly viewable status"""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 from celery import Task, states
 from django.conf import settings
 
-from .retrieve import TaskNotFound
-from .retrieve import get_task_data
-
+from .retrieve import TaskNotFound, get_task_data
 
 __all__ = (
     'PublicTask', 'TaskNoPermission', 'permission_check',
@@ -24,17 +28,9 @@ class PublicTask(Task):
     Subclasses need to define a ``run_public`` method.
     """
 
-    public_name = 'unknown'
-
-    @classmethod
-    def check_permission(cls, request, state, context):
-        """Override this method to define who can monitor this task."""
-        # pylint: disable=unused-argument
-        return False
-
     def get_task_data(self):
         """Return tuple with state to be set next and results task."""
-        state = 'STARTED'
+        state = states.STARTED
         info = {
             'task_name': self.name,
             'context': self.request.get('permission_context', {}),
@@ -66,12 +62,12 @@ class PublicTask(Task):
         self.request.update(public_data=data)
         self.update_progress_data()
 
-    def run(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         error = False
         exception_raised = None
         self.set_permission_context(kwargs)
         try:
-            result = self.run_public(*args, **kwargs)
+            result = self.run(*args, **kwargs)
         except Exception as e:
             # With Celery 4 we lost the ability to keep our data dictionary into
             # ``AsyncResult.info`` when an exception was raised inside the
@@ -102,9 +98,9 @@ def permission_check(check):
             def run_public(self, user_id):
                 pass
     """
-    def decorator(cls):
-        cls.check_permission = staticmethod(check)
-        return cls
+    def decorator(func):
+        func.check_permission = check
+        return func
     return decorator
 
 
@@ -139,5 +135,9 @@ def get_public_task_data(request, task_id):
     context = info.get('context', {})
     if not task.check_permission(request, state, context):
         raise TaskNoPermission(task_id)
-    public_name = task.public_name
-    return public_name, state, info.get('public_data', {}), info.get('error', None)
+    return (
+        task.name,
+        state,
+        info.get('public_data', {}),
+        info.get('error', None),
+    )
