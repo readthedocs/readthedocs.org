@@ -30,7 +30,7 @@ def get_status_data(task_name, state, data, error=None):
         'started': state in STARTED_STATES,
         'finished': state in FINISHED_STATES,
         # When an exception is raised inside the task, we keep this as SUCCESS
-        # and add the exception messsage into the 'error' key
+        # and add the exception message into the 'error' key
         'success': state in SUCCESS_STATES and error is None,
     }
     if error is not None:

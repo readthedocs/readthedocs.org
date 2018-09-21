@@ -41,7 +41,9 @@ defusedxml==0.5.0
 
 # Basic tools
 redis==2.10.6
-celery==4.2.1
+# Celery 4.2 is incompatible with our code
+# when ALWAYS_EAGER = True
+celery==4.1.1
 
 # django-allauth 0.33.0 dropped support for Django 1.9
 # https://django-allauth.readthedocs.io/en/latest/release-notes.html#backwards-incompatible-changes
@@ -91,7 +93,8 @@ django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==0.23.0
+# django-taggit 0.23.0 drops support for django < 1.11
+django-taggit==0.22.0
 dj-pagination==2.3.2
 
 # Docs

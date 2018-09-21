@@ -176,7 +176,7 @@ class Symlink(object):
         subprojects = set()
         rels = self.get_subprojects()
         if rels.count():
-            # Don't creat the `projects/` directory unless subprojects exist.
+            # Don't create the `projects/` directory unless subprojects exist.
             if not os.path.exists(self.subproject_root):
                 safe_makedirs(self.subproject_root)
         for rel in rels:

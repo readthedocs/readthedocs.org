@@ -9,8 +9,8 @@ First, you should check out the Builds tab of your project. That records all of 
 If you are still seeing errors because of C library dependencies,
 please see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
-How do I change my slug (the URL your docs are served at)?
-----------------------------------------------------------
+How do I change my project slug (the URL your docs are served at)?
+------------------------------------------------------------------
 
 We don't support allowing folks to change the slug for their project.
 You can update the name which is shown on the site,
@@ -20,6 +20,13 @@ The main reason for this is that all existing URLs to the content will break.
 You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
+
+How do I change the version slug of my project?
+-----------------------------------------------
+
+We don't support allowing folks to change the slug for their versions.
+But you can rename the branch/tag to achieve this.
+If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
