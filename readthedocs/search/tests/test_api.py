@@ -91,7 +91,7 @@ class TestDocumentSearch(object):
         # Check there are next url
         assert resp.data['next'] is not None
         # There should be only 25 data as the pagination is 25 by default
-        assert len(resp.data['results']) == 10
+        assert len(resp.data['results']) == 25
 
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params['page_size'] = 5
