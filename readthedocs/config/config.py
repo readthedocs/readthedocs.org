@@ -555,6 +555,12 @@ class BuildConfigV2(BuildConfigBase):
         'htmldir': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
+    builders_display = {
+        'mkdocs': 'MkDocs',
+        'sphinx': 'Sphinx Html',
+        'sphinx_htmldir': 'Sphinx HtmlDir',
+        'sphinx_singlehtml': 'Sphinx Single Page HTML',
+    }
 
     def validate(self):
         """
@@ -825,19 +831,19 @@ class BuildConfigV2(BuildConfigBase):
         """
         dashboard_doctype = self.defaults.get('doctype', 'sphinx')
         if self.doctype != dashboard_doctype:
-            key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx'
-            needed_doctype = (
-                'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
-            )
-            self.error(
-                key,
-                'Your project is configured as "{doctype}" in your admin '
-                'dashboard, but there is no "{key}" key specified.'.format(
-                    doctype=dashboard_doctype,
-                    key=needed_doctype,
-                ),
-                code=INVALID_KEYS_COMBINATION,
-            )
+            error_msg = (
+                'Your project is configured as "{}" in your admin dashboard.'
+            ).format(self.builders_display[dashboard_doctype])
+
+            if dashboard_doctype == 'mkdocs' or not self.sphinx:
+                error_msg += ' But there is no "{}" key specified.'.format(
+                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
+                )
+            else:
+                error_msg += ' But your "sphinx.builder" key does not match.'
+
+            key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx.builder'
+            self.error(key, error_msg, code=INVALID_KEYS_COMBINATION)
 
     def validate_submodules(self):
         """

@@ -1530,7 +1530,7 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.mkdocs.fail_on_warning is False
 
-    def test_validates_different_filetype(self):
+    def test_validates_different_filetype_mkdocs(self):
         build = self.get_build_config(
             {'mkdocs': {}},
             {'defaults': {'doctype': 'sphinx'}},
@@ -1538,6 +1538,19 @@ class TestBuildConfigV2(object):
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'mkdocs'
+        assert 'configured as "Sphinx Html"' in str(excinfo.value)
+        assert 'there is no "sphinx" key' in str(excinfo.value)
+
+    def test_validates_different_filetype_sphinx(self):
+        build = self.get_build_config(
+            {'sphinx': {}},
+            {'defaults': {'doctype': 'sphinx_htmldir'}},
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx.builder'
+        assert 'configured as "Sphinx HtmlDir"' in str(excinfo.value)
+        assert 'your "sphinx.builder" key does not match' in str(excinfo.value)
 
     @pytest.mark.parametrize('value', [[], 'invalid', 0])
     def test_submodules_check_invalid_type(self, value):
