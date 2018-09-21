@@ -13,8 +13,8 @@ from django.conf import settings
 from .retrieve import TaskNotFound, get_task_data
 
 __all__ = (
-    'PublicTask', 'TaskNoPermission', 'permission_check',
-    'get_public_task_data')
+    'PublicTask', 'TaskNoPermission', 'get_public_task_data'
+)
 
 
 STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
@@ -23,9 +23,15 @@ STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
 class PublicTask(Task):
 
     """
-    See oauth.tasks for usage example.
+    Encapsulates common behaviour to expose a task publicly.
 
-    Subclasses need to define a ``run_public`` method.
+    Tasks should use this class as ``base``. And define a ``check_permission``
+    property or use the ``permission_check`` decorator.
+
+    The check_permission should be a function like:
+    function(request, state, context), and needs to return a boolean value.
+
+    See oauth.tasks for usage example.
     """
 
     def get_task_data(self):
@@ -63,6 +69,7 @@ class PublicTask(Task):
         self.update_progress_data()
 
     def __call__(self, *args, **kwargs):
+        # We override __call__ to let tasks use the run method.
         error = False
         exception_raised = None
         self.set_permission_context(kwargs)
@@ -86,22 +93,26 @@ class PublicTask(Task):
 
         return info
 
+    @staticmethod
+    def permission_check(check):
+        """
+        Decorator for tasks that have PublicTask as base.
 
-def permission_check(check):
-    """
-    Class decorator for subclasses of PublicTask to sprinkle in re-usable
+        .. note::
 
-    permission checks::
+           The decorator should be on top of the task decorator.
 
-        @permission_check(user_id_matches)
-        class MyTask(PublicTask):
-            def run_public(self, user_id):
+        permission checks::
+
+            @PublicTask.permission_check(user_id_matches)
+            @celery.task(base=PublicTask)
+            def my_public_task(user_id):
                 pass
-    """
-    def decorator(func):
-        func.check_permission = check
-        return func
-    return decorator
+        """
+        def decorator(func):
+            func.check_permission = check
+            return func
+        return decorator
 
 
 class TaskNoPermission(Exception):

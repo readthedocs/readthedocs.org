@@ -13,11 +13,7 @@ import logging
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.contrib.auth.models import User
 
-from readthedocs.core.utils.tasks import (
-    PublicTask,
-    permission_check,
-    user_id_matches,
-)
+from readthedocs.core.utils.tasks import PublicTask, user_id_matches
 from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
     InvalidProjectWebhookNotification,
@@ -30,7 +26,7 @@ from .services import registry
 log = logging.getLogger(__name__)
 
 
-@permission_check(user_id_matches)
+@PublicTask.permission_check(user_id_matches)
 @app.task(queue='web', base=PublicTask)
 def sync_remote_repositories(user_id):
     user = User.objects.get(pk=user_id)
