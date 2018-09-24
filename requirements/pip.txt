@@ -9,6 +9,9 @@ sphinx_rtd_theme==0.4.1
 Pygments==2.2.0
 
 mkdocs==0.17.3
+# mkdocs requires markdown
+# Markdown 3.0 breaks with older Django Rest Framework
+Markdown<3.0
 
 django==1.9.13
 six==1.11.0
