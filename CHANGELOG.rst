@@ -1,3 +1,43 @@
+Version 2.6.6
+-------------
+
+:Date: September 25, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`__: Fix a markdown test error (`#4663 <https://github.com/rtfd/readthedocs.org/pull/4663>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Ad customization docs (`#4659 <https://github.com/rtfd/readthedocs.org/pull/4659>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix a typo in the privacy policy (`#4658 <https://github.com/rtfd/readthedocs.org/pull/4658>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Put search step back into project build task (`#4655 <https://github.com/rtfd/readthedocs.org/pull/4655>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Create an explicit ad placement (`#4647 <https://github.com/rtfd/readthedocs.org/pull/4647>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix some typos in docs and code (`#4646 <https://github.com/rtfd/readthedocs.org/pull/4646>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade celery (`#4644 <https://github.com/rtfd/readthedocs.org/pull/4644>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade django-taggit (`#4639 <https://github.com/rtfd/readthedocs.org/pull/4639>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4247] deleting old search code (`#4635 <https://github.com/rtfd/readthedocs.org/pull/4635>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add change versions slug to faq (`#4633 <https://github.com/rtfd/readthedocs.org/pull/4633>`__)
+* `@stsewd <http://github.com/stsewd>`__: Pin sphinx to a compatible version (`#4631 <https://github.com/rtfd/readthedocs.org/pull/4631>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Make ads more obvious that they are ads (`#4628 <https://github.com/rtfd/readthedocs.org/pull/4628>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Change mentions of "CNAME" -> custom domain (`#4627 <https://github.com/rtfd/readthedocs.org/pull/4627>`__)
+* `@invinciblycool <http://github.com/invinciblycool>`__: Use validate_dict for more accurate error messages (`#4617 <https://github.com/rtfd/readthedocs.org/pull/4617>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: fixing the indexing (`#4615 <https://github.com/rtfd/readthedocs.org/pull/4615>`__)
+* `@humitos <http://github.com/humitos>`__: Update our sponsors to mention Azure (`#4614 <https://github.com/rtfd/readthedocs.org/pull/4614>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add cwd to subprocess calls (`#4611 <https://github.com/rtfd/readthedocs.org/pull/4611>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Make restapi URL additions conditional (`#4609 <https://github.com/rtfd/readthedocs.org/pull/4609>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Ability to use supervisor from python 2.7 and still run Python 3 (`#4606 <https://github.com/rtfd/readthedocs.org/pull/4606>`__)
+* `@humitos <http://github.com/humitos>`__: Return 404 for inactive versions and allow redirects on them (`#4599 <https://github.com/rtfd/readthedocs.org/pull/4599>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fixes an issue with duplicate gold subscriptions (`#4597 <https://github.com/rtfd/readthedocs.org/pull/4597>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix ad block nag project issue (`#4596 <https://github.com/rtfd/readthedocs.org/pull/4596>`__)
+* `@humitos <http://github.com/humitos>`__: Run all our tests with Python 3.6 on Travis (`#4592 <https://github.com/rtfd/readthedocs.org/pull/4592>`__)
+* `@humitos <http://github.com/humitos>`__: Sanitize command output when running under DockerBuildEnvironment (`#4591 <https://github.com/rtfd/readthedocs.org/pull/4591>`__)
+* `@humitos <http://github.com/humitos>`__: Force resolver to use PUBLIC_DOMAIN over HTTPS if not Domain.https (`#4579 <https://github.com/rtfd/readthedocs.org/pull/4579>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Updates and simplification for mkdocs (`#4556 <https://github.com/rtfd/readthedocs.org/pull/4556>`__)
+* `@humitos <http://github.com/humitos>`__: Docs for hidding "On ..." section from versions menu (`#4547 <https://github.com/rtfd/readthedocs.org/pull/4547>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement sphinx key from v2 config (`#4482 <https://github.com/rtfd/readthedocs.org/pull/4482>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4268] Adding Documentation for upgraded Search (`#4467 <https://github.com/rtfd/readthedocs.org/pull/4467>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade all packages using pur (`#4318 <https://github.com/rtfd/readthedocs.org/pull/4318>`__)
+* `@humitos <http://github.com/humitos>`__: Clean CC sensible data on Gold subscriptions (`#4291 <https://github.com/rtfd/readthedocs.org/pull/4291>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs to match the new triague guidelines (`#4260 <https://github.com/rtfd/readthedocs.org/pull/4260>`__)
+* `@xrmx <http://github.com/xrmx>`__: Make the STABLE and LATEST constants overridable (`#4099 <https://github.com/rtfd/readthedocs.org/pull/4099>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use str to get the exception message (`#3912 <https://github.com/rtfd/readthedocs.org/pull/3912>`__)
+
 Version 2.6.5
 -------------
 
