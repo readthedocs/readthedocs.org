@@ -30,13 +30,15 @@ suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
 
-If you are up to more challenging tasks with a bigger scope, then there are a
-set of tickets with a `Feature Overview`_ tag. These tickets have a general
-overview and description of the work required to finish. If you want to start
-somewhere, this would be a good place to start. That said, these aren't
-necessarily the easiest tickets. They are simply things that are explained. If
-you still didn't find something to work on, search for the `Sprintable`_
-label. Those tickets are meant to be standalone and can be worked on ad-hoc.
+If you are up to more challenging tasks with a bigger scope,
+then there are a set of tickets with a `Feature`_ or `Improvement`_ tag.
+These tickets have a general overview and description of the work required to finish.
+If you want to start somewhere, this would be a good place to start
+(make sure that the issue also have the `Accepted`_ label).
+That said, these aren't necessarily the easiest tickets.
+They are simply things that are explained.
+If you still didn't find something to work on, search for the `Sprintable`_ label.
+Those tickets are meant to be standalone and can be worked on ad-hoc.
 
 When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
@@ -73,7 +75,9 @@ command will be run immediately and will inform you of the changes and errors.
     linting changes would be a great help to making this possible.
 
 
-.. _Feature Overview: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
+.. _Feature: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
+.. _Improvement: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
+.. _Accepted: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AAccepted
 .. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
 .. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
@@ -111,8 +115,7 @@ label. The reported issue …
     in the past or it was decided that the proposed feature will not be
     implemented because it does not conform with the overall goal of Read the
     Docs. Also if you happen to know that the problem was already reported,
-    label the ticket with **Status: duplicate**, reference the other ticket
-    that is already addressing the problem and close the duplicate.
+    reference the other ticket that is already addressing the problem and close the duplicate.
 
     Examples:
 
@@ -140,20 +143,29 @@ label. The reported issue …
     - *My builds stopped working. Please help!*
       Ask for a link to the build log and for which project is affected.
 
-… is a valid enhancement proposal
-    If the ticket contains an enhancement proposal that aligns with the goals
-    of Read the Docs, then add the label **Enhancement**. If the proposal
+… is a valid feature proposal
+    If the ticket contains a feature that aligns with the goals
+    of Read the Docs, then add the label **Feature**. If the proposal
     seems valid but requires further discussion between core contributors
     because there might be different possibilities on how to implement the
-    enhancement, then also add the label **Needed: design decision**.
+    feature, then also add the label **Needed: design decision**.
 
     Examples:
 
-    - *Improve documentation about MKdocs integration*
     - *Provide better integration with service XYZ*
-    - *Refactor module X for better readability*
     - *Achieve world domination* (also needs the label **Needed: design
       decision**)
+
+… is a small change to the source code
+    If the ticket is about code cleanup or small changes to existing features
+    would likely have the **Improvement** label.
+    The distinction for this label is that these issues have a lower priority than a Bug,
+    and aren't implementing new features.
+
+    Examples:
+
+    - *Refactor namedtuples to dataclasess*
+    - *Change font size for the project's title*
 
 … is a valid problem within the code base:
     If it's a valid bug, then add the label **Bug**. Try to reference related
@@ -208,14 +220,6 @@ few more at hand to further categorize issues.
     If the issue is urgent, assign this label. In the best case also go forward to
     resolve the ticket yourself as soon as possible.
 
-*Community Effort*
-    There are many valuable ideas in the issue tracker for future enhancements
-    of Read the Docs. Unfortunately too many for the core developers to handle
-    all of them. Therefore we assign the *Community Effort* label on all the
-    issues that we see as valid for the project but that we currently do not
-    have the resources to work on. We encourage community members to work
-    on these tickets and to submit a pull request.
-
 *Good First Issue*
     This label marks tickets that are easy to get started with. The ticket
     should be ideal for beginners to dive into the code base. Better is if the
@@ -224,14 +228,6 @@ few more at hand to further categorize issues.
 *Sprintable*
     Sprintable are all tickets that have the right amount of scope to be
     handled during a sprint. They are very focused and encapsulated.
-
-*Feature Overview*
-    If a feature is too big to be tackled in one ticket and should be split
-    up, then we have a feature overview ticket explaining the overarching
-    idea. Those tickets related to one feature should also be grouped by a
-    `milestone`_.
-
-.. _milestone: https://github.com/rtfd/readthedocs.org/milestones
 
 For a full list of available labels and their meanings, see
 :doc:`issue-labels`.

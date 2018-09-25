@@ -232,7 +232,6 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.requirements, '__init__.py')
 
 
-@pytest.mark.skip
 @pytest.mark.django_db
 @mock.patch('readthedocs.projects.models.Project.checkout_path')
 class TestLoadConfigV2(object):
@@ -290,12 +289,10 @@ class TestLoadConfigV2(object):
 
     @pytest.mark.parametrize('config', [{}, {'formats': []}])
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
-    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_default_empty(
-            self, append_conf, html_build, search_build,
-            checkout_path, config, tmpdir):
+            self, append_conf, html_build, checkout_path, config, tmpdir):
         """
         The default value for formats is [], which means no extra
         formats are build.
@@ -304,22 +301,26 @@ class TestLoadConfigV2(object):
         self.create_config_file(tmpdir, config)
 
         update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=update_docs.config
+        )
+        update_docs.python_env = python_env
         outcomes = update_docs.build_docs()
 
         # No extra formats were triggered
         assert outcomes['html']
-        assert outcomes['search']
         assert not outcomes['localmedia']
         assert not outcomes['pdf']
         assert not outcomes['epub']
 
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
-    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_only_pdf(
-            self, append_conf, html_build, search_build, build_docs_class,
+            self, append_conf, html_build, build_docs_class,
             checkout_path, tmpdir):
         """
         Only the pdf format is build.
@@ -328,11 +329,17 @@ class TestLoadConfigV2(object):
         self.create_config_file(tmpdir, {'formats': ['pdf']})
 
         update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=update_docs.config
+        )
+        update_docs.python_env = python_env
+
         outcomes = update_docs.build_docs()
 
         # Only pdf extra format was triggered
         assert outcomes['html']
-        assert outcomes['search']
         build_docs_class.assert_called_with('sphinx_pdf')
         assert outcomes['pdf']
         assert not outcomes['localmedia']
@@ -645,6 +652,35 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
+    def test_sphinx_configuration_default(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        """Should be default to find a conf.py file."""
+        checkout_path.return_value = str(tmpdir)
+
+        apply_fs(tmpdir, {'conf.py': ''})
+        self.create_config_file(tmpdir, {})
+        self.project.conf_py_file = ''
+        self.project.save()
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert kwargs['cwd'] == str(tmpdir)
+        append_conf.assert_called_once()
+        move.assert_called_once()
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     def test_sphinx_configuration(
             self, run, append_conf, move, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -716,6 +752,7 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
+    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
@@ -754,6 +791,7 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
+    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')

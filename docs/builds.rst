@@ -47,7 +47,7 @@ we will first look for a ``mkdocs.yml`` file in the root of your repository.
 If we don't find one,
 we will generate one for you.
 
-Then MkDocs will build any files with a ``.md`` extension within the directory specifed as ``docs_dir`` in the ``mkdocs.yml``. 
+Then MkDocs will build any files with a ``.md`` extension within the directory specified as ``docs_dir`` in the ``mkdocs.yml``. 
 
 If no ``mkdocs.yml`` was found in the root of your repository and we generated one for you, 
 Read the Docs will attempt to set ``docs_dir`` by sequentially searching for a  ``docs``, ``doc``, ``Doc``, or ``book`` directory. 

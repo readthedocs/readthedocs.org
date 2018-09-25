@@ -535,7 +535,8 @@ class Project(models.Model):
         """The path to the build json docs in the project."""
         if 'sphinx' in self.documentation_type:
             return os.path.join(self.conf_dir(version), '_build', 'json')
-        elif 'mkdocs' in self.documentation_type:
+
+        if 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), '_build', 'json')
 
     def full_singlehtml_path(self, version=LATEST):
@@ -555,11 +556,13 @@ class Project(models.Model):
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version), self.conf_py_file,)
+
             if os.path.exists(conf_path):
                 log.info('Inserting conf.py file path from model')
                 return conf_path
-            else:
-                log.warning("Conf file specified on model doesn't exist")
+
+            log.warning("Conf file specified on model doesn't exist")
+
         files = self.find('conf.py', version)
         if not files:
             files = self.full_find('conf.py', version)

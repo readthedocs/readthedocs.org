@@ -438,12 +438,8 @@ class BuildConfigV1(BuildConfigBase):
 
         if 'conda' in self.raw_config:
             raw_conda = self.raw_config['conda']
-            if not isinstance(raw_conda, dict):
-                self.error(
-                    'conda',
-                    self.PYTHON_INVALID_MESSAGE,
-                    code=PYTHON_INVALID)
-
+            with self.catch_validation_error('conda'):
+                validate_dict(raw_conda)
             conda_environment = None
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
@@ -525,6 +521,17 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def doctype(self):
         return self.defaults['doctype']
+
+    @property
+    def sphinx(self):
+        config_file = self.defaults['sphinx_configuration']
+        if config_file is not None:
+            config_file = os.path.join(self.base_path, config_file)
+        return Sphinx(
+            builder=self.doctype,
+            configuration=config_file,
+            fail_on_warning=False,
+        )
 
 
 class BuildConfigV2(BuildConfigBase):
@@ -955,7 +962,8 @@ def get_configuration_class(version):
         version = int(version)
         return configurations_class[version]
     except (KeyError, ValueError):
-        raise ConfigError(
-            'Invalid version of the configuration file',
+        raise InvalidConfig(
+            'version',
             code=VERSION_INVALID,
+            error_message='Invalid version of the configuration file',
         )

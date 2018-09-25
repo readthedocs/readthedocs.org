@@ -46,6 +46,7 @@ class BaseBuilder(object):
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
+        self.config = python_env.config if python_env else None
         self._force = force
         self.target = self.project.artifact_path(
             version=self.version.slug, type_=self.type)
@@ -104,9 +105,9 @@ class BaseBuilder(object):
                 docs_dir, 'README.{ext}'.format(ext=extension))
             if os.path.exists(readme_filename):
                 return 'README'
-            else:
-                index_file = open(index_filename, 'w+')
-                index_text = """
+
+            index_file = open(index_filename, 'w+')
+            index_text = """
 
 Welcome to Read the Docs
 ------------------------
@@ -122,8 +123,8 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
-                index_file.close()
+            index_file.write(index_text.format(dir=docs_dir, ext=extension))
+            index_file.close()
         return 'index'
 
     def run(self, *args, **kwargs):

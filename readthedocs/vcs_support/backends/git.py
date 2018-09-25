@@ -67,7 +67,7 @@ class Backend(BaseVCS):
 
             Temporarily, we support skipping these steps as submodule step can
             fail if using private submodules. This will eventually be
-            configureable with our YAML config.
+            configurable with our YAML config.
         """
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
         from readthedocs.projects.models import Feature
@@ -108,7 +108,7 @@ class Backend(BaseVCS):
         .. note::
 
             Temporarily, we support skipping submodule recursive clone via a
-            feature flag. This will eventually be configureable with our YAML
+            feature flag. This will eventually be configurable with our YAML
             config.
         """
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
@@ -171,7 +171,7 @@ class Backend(BaseVCS):
         delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
         raw_branches = csv.reader(StringIO(data), delimiter=delimiter)
         for branch in raw_branches:
-            branch = [f for f in branch if f != '' and f != '*']
+            branch = [f for f in branch if f not in ('', '*')]
             # Handle empty branches
             if branch:
                 branch = branch[0]

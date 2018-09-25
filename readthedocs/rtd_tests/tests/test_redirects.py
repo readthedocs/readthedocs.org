@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -9,6 +8,7 @@ from django_dynamic_fixture import fixture
 from mock import patch
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -184,6 +184,31 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/master/guides/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_inactive_version(self):
+        """
+        Inactive Version (``active=False``) should redirect properly.
+
+        The function that servers the page should return 404 when serving a page
+        of an inactive version and the redirect system should work.
+        """
+        version = get(
+            Version,
+            slug='oldversion',
+            project=self.pip,
+            active=False,
+        )
+        Redirect.objects.create(
+            project=self.pip,
+            redirect_type='exact',
+            from_url='/en/oldversion/',
+            to_url='/en/newversion/',
+        )
+        r = self.client.get('/en/oldversion/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/newversion/')
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_keeps_version_number(self):

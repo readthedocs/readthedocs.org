@@ -258,11 +258,8 @@ class DockerBuildCommand(BuildCommand):
                 stderr=True,
             )
 
-            output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
-            try:
-                self.output = output.decode('utf-8', 'replace')
-            except (TypeError, AttributeError):
-                self.output = ''
+            cmd_output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
+            self.output = self.sanitize_output(cmd_output)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
@@ -875,7 +872,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Return id of container if it is valid."""
         if self.container_name:
             return self.container_name
-        elif self.container:
+
+        if self.container:
             return self.container.get('Id')
 
     def container_state(self):

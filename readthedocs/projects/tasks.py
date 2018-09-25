@@ -692,6 +692,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version,
                 max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
             outcomes['html'] = self.build_docs_html()
+            outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
@@ -701,7 +702,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_html(self):
         """Build HTML docs."""
-        html_builder = get_builder_class(self.project.documentation_type)(
+        html_builder = get_builder_class(self.config.doctype)(
             build_env=self.build_env,
             python_env=self.python_env,
         )
@@ -722,6 +723,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             log.exception('move_files task has failed on socket error.')
 
         return success
+
+    def build_docs_search(self):
+        """Build search data."""
+        # TODO rely on config parameter here when Project.documentation_type is
+        # removed in #4638. Mkdocs has no search currently
+        if self.project.documentation_type == 'mkdocs':
+            return False
+        return self.build_search
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""

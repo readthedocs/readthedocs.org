@@ -396,7 +396,7 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertEqual(project_a.language, 'en')
         self.assertEqual(project_b.language, 'es')
         data = model_to_dict(project_a)
-        # Same languge
+        # Same language
         data['language'] = 'en'
         resp = self.client.post(
             reverse(

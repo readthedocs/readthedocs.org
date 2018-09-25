@@ -74,7 +74,7 @@ class VersionManager(object):
                 try:
                     self._state[major][minor] = sorted(
                         set(self._state[major][minor]))[-num_latest:]
-                except TypeError:
+                except TypeError:  # pylint: disable=try-except-raise
                     # Raise these for now.
                     raise
 
