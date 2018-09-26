@@ -118,9 +118,9 @@ class SyncRepositoryMixin(object):
                 )
                 version_repo = self.project.vcs_repo(
                     self.version.slug,
-                    # When called from ``SyncRepositoryTask.run`` we don't have
-                    # a ``setup_env`` so we use just ``None`` and commands won't
-                    # be recorded
+                    # When called from ``SyncRepositoryTaskStep.run`` we
+                    # don't have a ``setup_env`` so we use just ``None``
+                    # and commands won't be recorded
                     getattr(self, 'setup_env', None),
                 )
                 version_repo.checkout(self.version.identifier)
@@ -186,19 +186,11 @@ class SyncRepositoryMixin(object):
                          msg=msg))
 
 
-# TODO SyncRepositoryTask should be refactored into a standard celery task,
-# there is no more need to have this be a separate class
-class SyncRepositoryTask(Task):
-
+@app.task(max_retries=5, default_retry_delay=7 * 60)
+def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
-
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.sync_repository'
-
-    def run(self, *args, **kwargs):
-        step = SyncRepositoryTaskStep()
-        return step.run(*args, **kwargs)
+    step = SyncRepositoryTaskStep()
+    return step.run(version_pk)
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):

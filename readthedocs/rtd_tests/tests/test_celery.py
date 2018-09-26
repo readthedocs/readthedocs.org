@@ -123,10 +123,7 @@ class TestCeleryBuilding(RTDTestCase):
     def test_sync_repository(self):
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            sync_repository = tasks.SyncRepositoryTask()
-            result = sync_repository.apply_async(
-                args=(version.pk,),
-            )
+            result = tasks.sync_repository_task.delay(version.pk)
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.api_v2')
