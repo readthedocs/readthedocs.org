@@ -85,6 +85,7 @@ class Command(BaseCommand):
                             )
                             build_pk = build.pk
 
+                        # pylint: disable=no-value-for-parameter
                         tasks.update_docs_task(
                             version.project_id,
                             build_pk=build_pk,
@@ -102,6 +103,7 @@ class Command(BaseCommand):
                         active=True,
                         uploaded=False,
                 ):
+                    # pylint: disable=no-value-for-parameter
                     tasks.update_docs_task(
                         version.project_id,
                         record=record,
@@ -111,6 +113,7 @@ class Command(BaseCommand):
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
+                    # pylint: disable=no-value-for-parameter
                     tasks.update_docs_task(
                         project.pk,
                         record=record,

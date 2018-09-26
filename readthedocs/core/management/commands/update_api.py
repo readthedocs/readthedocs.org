@@ -33,4 +33,5 @@ class Command(BaseCommand):
             project_data = api.project(slug).get()
             p = APIProject(**project_data)
             log.info("Building %s", p)
+            # pylint: disable=no-value-for-parameter
             tasks.update_docs_task(p.pk, docker=docker)
