@@ -20,7 +20,6 @@ from collections import Counter, defaultdict
 
 import requests
 from builtins import str
-from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -231,17 +230,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
-# TODO UpdateDocsTask should be refactored into a standard celery task,
-# there is no more need to have this be a separate class
-class UpdateDocsTask(Task):
-
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    def run(self, *args, **kwargs):
-        step = UpdateDocsTaskStep(task=self)
-        return step.run(*args, **kwargs)
+@app.task(bind=True, max_retries=5, default_retry_delay=7 * 60)
+def update_docs_task(self, project_id, *args, **kwargs):
+    step = UpdateDocsTaskStep(task=self)
+    return step.run(project_id, *args, **kwargs)
 
 
 class UpdateDocsTaskStep(SyncRepositoryMixin):

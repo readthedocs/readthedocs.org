@@ -76,8 +76,7 @@ class TestCeleryBuilding(RTDTestCase):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(
+            result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
@@ -94,8 +93,7 @@ class TestCeleryBuilding(RTDTestCase):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(
+            result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
@@ -112,8 +110,7 @@ class TestCeleryBuilding(RTDTestCase):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(
+            result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,

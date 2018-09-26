@@ -85,8 +85,8 @@ class Command(BaseCommand):
                             )
                             build_pk = build.pk
 
-                        tasks.UpdateDocsTask().run(
-                            pk=version.project_id,
+                        tasks.update_docs_task(
+                            version.project_id,
                             build_pk=build_pk,
                             record=record,
                             version_pk=version.pk,
@@ -102,8 +102,8 @@ class Command(BaseCommand):
                         active=True,
                         uploaded=False,
                 ):
-                    tasks.UpdateDocsTask().run(
-                        pk=version.project_id,
+                    tasks.update_docs_task(
+                        version.project_id,
                         record=record,
                         force=force,
                         version_pk=version.pk,
@@ -111,8 +111,8 @@ class Command(BaseCommand):
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
-                    tasks.UpdateDocsTask().run(
-                        pk=project.pk,
+                    tasks.update_docs_task(
+                        project.pk,
                         record=record,
                         force=force,
                     )

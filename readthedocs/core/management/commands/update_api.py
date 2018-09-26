@@ -33,5 +33,4 @@ class Command(BaseCommand):
             project_data = api.project(slug).get()
             p = APIProject(**project_data)
             log.info("Building %s", p)
-            update_docs = tasks.UpdateDocsTask()
-            update_docs.run(pk=p.pk, docker=docker)
+            tasks.update_docs_task(p.pk, docker=docker)
