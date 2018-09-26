@@ -11,13 +11,22 @@ from contextlib import contextmanager
 
 import six
 
+from readthedocs.projects.constants import DOCUMENTATION_CHOICES
+
 from .find import find_one
 from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
-    ValidationError, validate_bool, validate_choice, validate_dict,
-    validate_directory, validate_file, validate_list, validate_string,
-    validate_value_exists)
+    ValidationError,
+    validate_bool,
+    validate_choice,
+    validate_dict,
+    validate_directory,
+    validate_file,
+    validate_list,
+    validate_string,
+    validate_value_exists,
+)
 
 __all__ = (
     'ALL',
@@ -555,12 +564,7 @@ class BuildConfigV2(BuildConfigBase):
         'htmldir': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
-    builders_display = {
-        'mkdocs': 'MkDocs',
-        'sphinx': 'Sphinx Html',
-        'sphinx_htmldir': 'Sphinx HtmlDir',
-        'sphinx_singlehtml': 'Sphinx Single Page HTML',
-    }
+    builders_display = dict(DOCUMENTATION_CHOICES)
 
     def validate(self):
         """
@@ -832,15 +836,15 @@ class BuildConfigV2(BuildConfigBase):
         dashboard_doctype = self.defaults.get('doctype', 'sphinx')
         if self.doctype != dashboard_doctype:
             error_msg = (
-                'Your project is configured as "{}" in your admin dashboard.'
+                'Your project is configured as "{}" in your admin dashboard,'
             ).format(self.builders_display[dashboard_doctype])
 
             if dashboard_doctype == 'mkdocs' or not self.sphinx:
-                error_msg += ' But there is no "{}" key specified.'.format(
+                error_msg += ' but there is no "{}" key specified.'.format(
                     'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
                 )
             else:
-                error_msg += ' But your "sphinx.builder" key does not match.'
+                error_msg += ' but your "sphinx.builder" key does not match.'
 
             key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx.builder'
             self.error(key, error_msg, code=INVALID_KEYS_COMBINATION)
