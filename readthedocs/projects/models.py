@@ -318,6 +318,11 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_('Model must have slug'))
+        if self.documentation_type == 'auto':
+            # This used to determine the type and automatically set the
+            # documentation type to Sphinx for rST and Mkdocs for markdown.
+            # It now just forces Sphinx, due to markdown support.
+            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
@@ -589,16 +594,6 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return os.path.dirname(conf_file)
-
-    @property
-    def is_type_sphinx(self):
-        """Is project type Sphinx."""
-        return 'sphinx' in self.documentation_type
-
-    @property
-    def is_type_mkdocs(self):
-        """Is project type Mkdocs."""
-        return 'mkdocs' in self.documentation_type
 
     @property
     def is_imported(self):

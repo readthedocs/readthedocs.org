@@ -470,10 +470,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for building code, usually with Docker
         with self.build_env:
-
-            if self.project.documentation_type == 'auto':
-                self.update_documentation_type()
-
             python_env_cls = Virtualenv
             if self.config.conda is not None:
                 self._log('Using conda')
@@ -589,21 +585,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
-    def update_documentation_type(self):
-        """
-        Force Sphinx for 'auto' documentation type.
-
-        This used to determine the type and automatically set the documentation
-        type to Sphinx for rST and Mkdocs for markdown. It now just forces
-        Sphinx, due to markdown support.
-        """
-        ret = 'sphinx'
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['documentation_type'] = ret
-        api_v2.project(self.project.pk).put(project_data)
-        self.project.documentation_type = ret
-        self.version.project.documentation_type = ret
-
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
         """
@@ -642,7 +623,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 pdf=pdf,
                 epub=epub,
             ),
-            callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
+            callback=sync_callback.s(
+                version_pk=self.version.pk,
+                commit=self.build['commit'],
+            ),
         )
 
     def setup_python_environment(self):
@@ -715,10 +699,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            broadcast(type='app', task=move_files,
-                      args=[self.version.pk, socket.gethostname()],
-                      kwargs=dict(html=True)
-                      )
+            broadcast(
+                type='app',
+                task=move_files,
+                args=[self.version.pk, socket.gethostname()],
+                kwargs=dict(html=True)
+            )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
 
@@ -738,15 +724,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             return False
 
         if self.build_localmedia:
-            if self.project.is_type_sphinx:
+            if self.is_type_sphinx():
                 return self.build_docs_class('sphinx_singlehtmllocalmedia')
         return False
 
     def build_docs_pdf(self):
         """Build PDF docs."""
         if ('pdf' not in self.config.formats or
-            self.project.slug in HTML_ONLY or
-                not self.project.is_type_sphinx):
+                self.project.slug in HTML_ONLY or
+                not self.is_type_sphinx()):
             return False
         return self.build_docs_class('sphinx_pdf')
 
@@ -754,7 +740,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """Build ePub docs."""
         if ('epub' not in self.config.formats or
             self.project.slug in HTML_ONLY or
-                not self.project.is_type_sphinx):
+                not self.is_type_sphinx()):
             return False
         return self.build_docs_class('sphinx_epub')
 
@@ -777,6 +763,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     def send_notifications(self):
         """Send notifications on build failure."""
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+
+    def is_type_sphinx(self):
+        """Is documentation type Sphinx."""
+        return 'sphinx' in self.config.doctype
 
 
 # Web tasks
@@ -825,8 +815,8 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 
 
 @app.task(queue='web')
-def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
-               pdf=False, epub=False):
+def move_files(version_pk, hostname, html=False, localmedia=False,
+               search=False, pdf=False, epub=False):
     """
     Task to move built documentation to web servers.
 
@@ -921,11 +911,13 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     """
     version = Version.objects.get(pk=version_pk)
 
-    if version.project.is_type_sphinx:
+    if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.debug('Unknown documentation type: %s',
-                  version.project.documentation_type)
+        log.debug(
+            'Unknown documentation type: %s',
+            version.project.documentation_type
+        )
         return
 
     log_msg = ' '.join([page['path'] for page in page_list])
