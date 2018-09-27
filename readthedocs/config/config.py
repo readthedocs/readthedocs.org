@@ -17,6 +17,7 @@ from .find import find_one
 from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
+    VALUE_NOT_FOUND,
     ValidationError,
     validate_bool,
     validate_choice,
