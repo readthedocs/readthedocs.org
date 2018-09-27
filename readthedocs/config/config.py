@@ -1,4 +1,4 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # pylint: disable=too-many-lines
 
@@ -542,6 +542,7 @@ class BuildConfigV1(BuildConfigBase):
             fail_on_warning=False,
         )
 
+    @property
     def mkdocs(self):
         return Mkdocs(
             configuration=None,
