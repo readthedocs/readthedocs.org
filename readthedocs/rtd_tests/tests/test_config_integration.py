@@ -2,6 +2,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import tempfile
 from os import path
 
 import mock
@@ -53,7 +54,19 @@ def create_load(config=None):
     return inner
 
 
-@mock.patch('readthedocs.doc_builder.config.load_config')
+def create_config_file(config, file_name='readthedocs.yml', base_path=None):
+    """
+    Creates a readthedocs configuration file with name
+    ``file_name`` in ``base_path``. If ``base_path`` is not given
+    a temporal directory is created.
+    """
+    if not base_path:
+        base_path = tempfile.mkdtemp()
+    full_path = path.join(base_path, file_name)
+    yaml.safe_dump(config, open(full_path, 'w'))
+    return full_path
+
+
 class LoadConfigTests(TestCase):
 
     def setUp(self):
@@ -61,10 +74,10 @@ class LoadConfigTests(TestCase):
             Project,
             main_language_project=None,
             install_project=False,
-            requirements_file='__init__.py'
         )
         self.version = get(Version, project=self.project)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_default_image_1_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:1.0'
@@ -100,6 +113,7 @@ class LoadConfigTests(TestCase):
         ])
         self.assertEqual(config.python.version, 2)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_1_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:1.0'
@@ -108,6 +122,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.4])
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_2_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
@@ -116,6 +131,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.5])
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_latest(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:latest'
@@ -124,12 +140,14 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.version, 2)
         self.assertEqual(config.python_interpreter, 'python2.7')
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_on_project(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
@@ -139,6 +157,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.version, 3)
         self.assertEqual(config.python_interpreter, 'python3.5')
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_in_config(self, load_config):
         load_config.side_effect = create_load({
             'python': {'version': 3.5},
@@ -149,6 +168,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.version, 3.5)
         self.assertEqual(config.python_interpreter, 'python3.5')
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_invalid_version_in_config(self, load_config):
         load_config.side_effect = create_load({
             'python': {'version': 2.6}
@@ -158,6 +178,7 @@ class LoadConfigTests(TestCase):
         with self.assertRaises(InvalidConfig):
             load_yaml_config(self.version)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_install_project(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
@@ -172,6 +193,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.install_with_setup, True)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_extra_requirements(self, load_config):
         load_config.side_effect = create_load({
             'python': {
@@ -203,33 +225,69 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.extra_requirements, [])
 
-    def test_conda(self, load_config):
-        to_find = '__init__.py'
-        load_config.side_effect = create_load({
-            'conda': {
-                'file': to_find
-            }
-        })
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_conda_with_cofig(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
+        conda_file = 'environmemt.yml'
+        full_conda_file = path.join(base_path, conda_file)
+        with open(full_conda_file, 'w') as f:
+            f.write('conda')
+        create_config_file(
+            {
+                'conda': {
+                    'file': conda_file,
+                }
+            },
+            base_path=base_path,
+        )
         config = load_yaml_config(self.version)
         self.assertTrue(config.conda is not None)
-        self.assertTrue(config.conda.environment[-len(to_find):] == to_find)
+        self.assertEqual(config.conda.environment, full_conda_file)
 
-        load_config.side_effect = create_load()
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_conda_without_cofig(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
         config = load_yaml_config(self.version)
         self.assertIsNone(config.conda)
 
-    def test_requirements_file(self, load_config):
-        requirements_file = '__init__.py'
-        load_config.side_effect = create_load({
-            'requirements_file': requirements_file
-        })
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_requirements_file_from_project_setting(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
+
+        requirements_file = 'requirements.txt'
+        self.project.requirements_file = requirements_file
+        self.project.save()
+
+        full_requirements_file = path.join(base_path, requirements_file)
+        with open(full_requirements_file, 'w') as f:
+            f.write('pip')
+
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.requirements, requirements_file)
 
-        # Respects the requirements file from the project settings
-        load_config.side_effect = create_load()
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_requirements_file_from_yml(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
+
+        self.project.requirements_file = 'no-existent-file.txt'
+        self.project.save()
+
+        requirements_file = 'requirements.txt'
+        full_requirements_file = path.join(base_path, requirements_file)
+        with open(full_requirements_file, 'w') as f:
+            f.write('pip')
+        create_config_file(
+            {
+                'requirements_file': requirements_file,
+            },
+            base_path=base_path,
+        )
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.requirements, '__init__.py')
+        self.assertEqual(config.python.requirements, requirements_file)
 
 
 @pytest.mark.django_db
