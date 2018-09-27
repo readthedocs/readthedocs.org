@@ -191,7 +191,6 @@ class MkdocsBuilderTest(TestCase):
         }
         self.assertEqual(builder.get_theme_name(config), 'mydir')
 
-
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_append_conf_create_yaml(self, checkout_path, run):

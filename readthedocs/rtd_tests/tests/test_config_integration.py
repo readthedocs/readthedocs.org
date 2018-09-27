@@ -275,14 +275,12 @@ class TestLoadConfigV2(object):
         )
         return update_docs
 
-    @pytest.mark.skip
     def test_using_v2(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {})
         update_docs = self.get_update_docs_task()
         assert update_docs.config.version == '2'
 
-    @pytest.mark.skip
     def test_report_using_invalid_version(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {'version': 12})
@@ -290,7 +288,6 @@ class TestLoadConfigV2(object):
             self.get_update_docs_task()
         assert exinfo.value.key == 'version'
 
-    @pytest.mark.skip
     @pytest.mark.parametrize('config', [{}, {'formats': []}])
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
@@ -319,7 +316,6 @@ class TestLoadConfigV2(object):
         assert not outcomes['pdf']
         assert not outcomes['epub']
 
-    @pytest.mark.skip
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
@@ -372,7 +368,6 @@ class TestLoadConfigV2(object):
         assert update_docs.config.conda.environment == conda_file
         assert isinstance(update_docs.python_env, Conda)
 
-    @pytest.mark.skip
     def test_default_build_image(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         build_image = 'readthedocs/build:latest'
@@ -380,7 +375,6 @@ class TestLoadConfigV2(object):
         update_docs = self.get_update_docs_task()
         assert update_docs.config.build.image == build_image
 
-    @pytest.mark.skip
     def test_build_image(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         build_image = 'readthedocs/build:stable'
@@ -391,7 +385,6 @@ class TestLoadConfigV2(object):
         update_docs = self.get_update_docs_task()
         assert update_docs.config.build.image == build_image
 
-    @pytest.mark.skip
     def test_custom_build_image(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
 
@@ -403,7 +396,6 @@ class TestLoadConfigV2(object):
         update_docs = self.get_update_docs_task()
         assert update_docs.config.build.image == build_image
 
-    @pytest.mark.skip
     def test_python_version(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {})
@@ -415,7 +407,6 @@ class TestLoadConfigV2(object):
         assert config.python.version == 3
         assert config.python_full_version == 3.6
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_requirements(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -445,7 +436,6 @@ class TestLoadConfigV2(object):
         assert config.python.requirements == requirements_file
         assert requirements_file in args
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_requirements_empty(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -470,7 +460,6 @@ class TestLoadConfigV2(object):
         assert config.python.requirements == ''
         assert not run.called
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_setup(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -499,7 +488,6 @@ class TestLoadConfigV2(object):
         assert config.python.install_with_setup
         assert not config.python.install_with_pip
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_pip(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -528,7 +516,6 @@ class TestLoadConfigV2(object):
         assert config.python.install_with_pip
         assert not config.python.install_with_setup
 
-    @pytest.mark.skip
     def test_python_install_project(self, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {})
@@ -541,7 +528,6 @@ class TestLoadConfigV2(object):
         assert config.python.install_with_setup
         assert not config.python.install_with_pip
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_extra_requirements(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -574,7 +560,6 @@ class TestLoadConfigV2(object):
         assert config.python.install_with_pip
         assert not config.python.install_with_setup
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_system_packages(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
@@ -603,7 +588,6 @@ class TestLoadConfigV2(object):
         assert '--system-site-packages' in args
         assert config.python.use_system_site_packages
 
-    @pytest.mark.skip
     @pytest.mark.parametrize('value,result',
                              [('html', 'sphinx'),
                               ('htmldir', 'sphinx_htmldir'),
@@ -638,7 +622,6 @@ class TestLoadConfigV2(object):
 
         get_builder_class.assert_called_with('sphinx')
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
@@ -668,7 +651,6 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
@@ -735,7 +717,6 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
-    @pytest.mark.skip
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
