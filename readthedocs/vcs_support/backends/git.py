@@ -127,7 +127,7 @@ class Backend(BaseVCS):
         .. note::
 
             Temporarily, we support skipping submodule recursive clone via a
-            feature flag. This will eventually be configureable with our YAML
+            feature flag. This will eventually be configurable with our YAML
             config.
         """
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30

@@ -185,7 +185,7 @@ class TestCeleryBuilding(RTDTestCase):
         """
         Test when a PublicTask rises an Exception.
 
-        The exception should be catched and added to the ``info`` attribute of
+        The exception should be caught and added to the ``info`` attribute of
         the result. Besides, the task should be SUCCESS.
         """
         from readthedocs.core.utils.tasks import PublicTask

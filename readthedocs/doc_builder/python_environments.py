@@ -236,7 +236,7 @@ class Virtualenv(PythonEnvironment):
             'recommonmark==0.4.0',
         ]
 
-        if self.project.documentation_type == 'mkdocs':
+        if self.config.doctype == 'mkdocs':
             requirements.append('mkdocs==0.17.3')
         else:
             # We will assume semver here and only automate up to the next
@@ -275,7 +275,7 @@ class Virtualenv(PythonEnvironment):
     def install_user_requirements(self):
         requirements_file_path = self.config.python.requirements
         if not requirements_file_path and requirements_file_path != '':
-            builder_class = get_builder_class(self.project.documentation_type)
+            builder_class = get_builder_class(self.config.doctype)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
             paths = [docs_dir, '']
@@ -352,7 +352,7 @@ class Conda(PythonEnvironment):
             'recommonmark',
         ]
 
-        if self.project.documentation_type == 'mkdocs':
+        if self.config.doctype == 'mkdocs':
             pip_requirements.append('mkdocs')
         else:
             pip_requirements.append('readthedocs-sphinx-ext')

@@ -9,8 +9,8 @@ First, you should check out the Builds tab of your project. That records all of 
 If you are still seeing errors because of C library dependencies,
 please see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
-How do I change my slug (the URL your docs are served at)?
-----------------------------------------------------------
+How do I change my project slug (the URL your docs are served at)?
+------------------------------------------------------------------
 
 We don't support allowing folks to change the slug for their project.
 You can update the name which is shown on the site,
@@ -20,6 +20,13 @@ The main reason for this is that all existing URLs to the content will break.
 You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
+
+How do I change the version slug of my project?
+-----------------------------------------------
+
+We don't support allowing folks to change the slug for their versions.
+But you can rename the branch/tag to achieve this.
+If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
@@ -112,12 +119,12 @@ Deleting a stale or broken build environment
 
 See :doc:`guides/wipe-environment`.
 
-How do I host multiple projects on one CNAME?
----------------------------------------------
+How do I host multiple projects on one custom domain?
+-----------------------------------------------------
 
-We support the concept of Subprojects.
-If you add a subproject to a project,
-that documentation will also be served under the parent project's subdomain.
+We support the concept of subprojects, which allows multiple projects to share a
+single domain. If you add a subproject to a project, that documentation will
+be served under the parent project's subdomain or custom domain.
 
 For example,
 Kombu is a subproject of Celery,
@@ -125,11 +132,11 @@ so you can access it on the `celery.readthedocs.io` domain:
 
 http://celery.readthedocs.io/projects/kombu/en/latest/
 
-This also works the same for CNAMEs:
+This also works the same for custom domains:
 
 http://docs.celeryproject.org/projects/kombu/en/latest/
 
-You can add subprojects in the Admin section for your project.
+You can add subprojects in the project admin dashboard.
 
 Where do I need to put my docs for RTD to find it?
 --------------------------------------------------

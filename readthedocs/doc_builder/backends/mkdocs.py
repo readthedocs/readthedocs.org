@@ -39,17 +39,8 @@ class BaseMkdocs(BaseBuilder):
 
     """Mkdocs builder."""
 
-    use_theme = True
-
-    # The default theme for mkdocs (outside of RTD) is the 'mkdocs' theme
-    # For RTD, our default is the 'readthedocs' theme
-    READTHEDOCS_THEME_NAME = 'readthedocs'
-
-    # Overrides for the 'readthedocs' theme that include
-    # search utilities and version selector
-    READTHEDOCS_TEMPLATE_OVERRIDE_DIR = (
-        '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
-    )
+    # The default theme for mkdocs is the 'mkdocs' theme
+    DEFAULT_THEME_NAME = 'mkdocs'
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
@@ -61,14 +52,15 @@ class BaseMkdocs(BaseBuilder):
 
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
-        # TODO: try to load from the configuration file first.
-        test_path = os.path.join(
-            self.project.checkout_path(self.version.slug),
-            'mkdocs.yml'
-        )
-        if os.path.exists(test_path):
-            return test_path
-        return None
+        mkdoc_path = self.config.mkdocs.configuration
+        if not mkdoc_path:
+            mkdoc_path = os.path.join(
+                self.project.checkout_path(self.version.slug),
+                'mkdocs.yml'
+            )
+            if not os.path.exists(mkdoc_path):
+                return None
+        return mkdoc_path
 
     def load_yaml_config(self):
         """
@@ -133,11 +125,6 @@ class BaseMkdocs(BaseBuilder):
         # This supports using RTD's privacy improvements around analytics
         user_config['google_analytics'] = None
 
-        # If using the readthedocs theme, apply the readthedocs.org overrides
-        # These use a global readthedocs search
-        # and customize the version selector.
-        self.apply_theme_override(user_config)
-
         # Write the modified mkdocs configuration
         yaml.safe_dump(
             user_config,
@@ -198,8 +185,8 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir', self.build_dir,
             '--config-file', self.yaml_file,
         ]
-        if self.use_theme:
-            build_command.extend(['--theme', 'readthedocs'])
+        if self.config.mkdocs.fail_on_warning:
+            build_command.append('--strict')
         cmd_ret = self.run(
             *build_command,
             cwd=checkout_path,
@@ -220,7 +207,7 @@ class BaseMkdocs(BaseBuilder):
         theme_setting = mkdocs_config.get('theme')
         if isinstance(theme_setting, dict):
             # Full nested theme config (the new configuration)
-            return theme_setting.get('name') or self.READTHEDOCS_THEME_NAME
+            return theme_setting.get('name') or self.DEFAULT_THEME_NAME
 
         if theme_setting:
             # A string which is the name of the theme
@@ -231,27 +218,7 @@ class BaseMkdocs(BaseBuilder):
             # Use the name of the directory in this project's custom theme directory
             return theme_dir.rstrip('/').split('/')[-1]
 
-        return self.READTHEDOCS_THEME_NAME
-
-    def apply_theme_override(self, mkdocs_config):
-        """
-        Apply theme overrides for the RTD theme (modifies the ``mkdocs_config`` parameter)
-
-        In v0.17.0, the theme configuration switched
-        from two separate configs (both optional) to a nested directive.
-        How to override the theme depends on whether the new or old configuration
-        is used.
-
-        :see: http://www.mkdocs.org/about/release-notes/#theme-customization-1164
-        """
-        if self.get_theme_name(mkdocs_config) == self.READTHEDOCS_THEME_NAME:
-            # Overriding the theme is only necessary
-            # if the 'readthedocs' theme is used.
-            theme_setting = mkdocs_config.get('theme')
-            if isinstance(theme_setting, dict):
-                theme_setting['custom_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
-            else:
-                mkdocs_config['theme_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+        return self.DEFAULT_THEME_NAME
 
 
 class MkdocsHTML(BaseMkdocs):
@@ -264,4 +231,3 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
-    use_theme = False
