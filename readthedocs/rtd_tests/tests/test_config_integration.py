@@ -890,7 +890,7 @@ class TestLoadConfigV2(object):
 
     @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
     def test_submodules_exclude_all(self, checkout_submodules,
-                                checkout_path, tmpdir):
+                                    checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(
             tmpdir,
@@ -900,6 +900,27 @@ class TestLoadConfigV2(object):
                     'recursive': True,
                 },
             }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        checkout_submodules.assert_not_called()
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_default_exclude_all(self, checkout_submodules,
+                                            checkout_path, tmpdir):
+
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {}
         )
 
         git_repo = make_git_repo(str(tmpdir))
