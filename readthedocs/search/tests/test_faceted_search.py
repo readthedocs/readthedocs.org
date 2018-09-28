@@ -7,7 +7,7 @@ from readthedocs.search.documents import PageDocument
 
 @pytest.mark.django_db
 @pytest.mark.search
-@override_settings( ELASTICSEARCH_DSL_AUTOSYNC=True)
+@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestFileSearch(object):
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])

@@ -15,7 +15,7 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 @pytest.mark.django_db
 @pytest.mark.search
-@override_settings( ELASTICSEARCH_DSL_AUTOSYNC=True)
+@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestProjectSearch(object):
     url = reverse('search')
 
@@ -66,7 +66,7 @@ class TestProjectSearch(object):
 
 @pytest.mark.django_db
 @pytest.mark.search
-@override_settings( ELASTICSEARCH_DSL_AUTOSYNC=True)
+@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestPageSearch(object):
     url = reverse('search')
 
