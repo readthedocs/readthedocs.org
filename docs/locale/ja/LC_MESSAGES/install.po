@@ -1,211 +1,194 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
-# shirou - しろう, 2014
+# shirou - しろう <shirou.faw@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-05 10:29+0800\n"
-"PO-Revision-Date: 2014-03-08 16:10+0000\n"
-"Last-Translator: shirou - しろう\n"
-"Language-Team: Japanese (http://www.transifex.com/projects/p/readthedocs-docs/language/ja/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:15+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Japanese (http://www.transifex.com/readthedocs/readthedocs-docs/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-# 818e4029f377471cb6e9a4b26c5d774f
-#: ../../install.rst:4
+#: ../../install.rst:2
 msgid "Installation"
 msgstr "インストール"
 
-# ec9b5e928ffb4a6b94c9cb7ce1e96494
-#: ../../install.rst:6
+#: ../../install.rst:4
 msgid ""
-"Installing RTD is pretty simple. Here is a step by step plan on how to do "
-"it."
+"Here is a step by step plan on how to install Read the Docs. It will get you"
+" to a point of having a local running instance."
 msgstr ""
 
-# 75b84cca63e24eeb89a1fc1175b6d852
 #: ../../install.rst:8
 msgid ""
-"First, obtain Python_ and virtualenv_ if you do not already have them. Using"
-" a virtual environment will make the installation easier, and will help to "
-"avoid clutter in your system-wide libraries. You will also need Git_ in "
-"order to clone the repository."
+"First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them."
+" Using a virtual environment will make the installation easier, and will "
+"help to avoid clutter in your system-wide libraries. You will also need Git_"
+" in order to clone the repository. If you plan to import Python 2.7 project "
+"to your RTD then you'll need to install Python 2.7 with virtualenv in your "
+"system as well."
 msgstr ""
 
-# 3f5466c88c7246b08beef8b9b0e96db3
-#: ../../install.rst:17
-msgid ""
-"Once you have these, create a virtual environment somewhere on your disk, "
-"then activate it::"
+#: ../../install.rst:25
+msgid "Requires Git version >=2"
 msgstr ""
 
-# 04545f09671541988788c40bd67e77d5
-#: ../../install.rst:24
-msgid "Create a folder in here, and clone the repository::"
-msgstr ""
-
-# 96dff4cea5f245b2a56667686b96f6fe
-#: ../../install.rst:30
-msgid ""
-"Next, install the dependencies using ``pip`` (included with virtualenv_)::"
-msgstr ""
-
-# 183e1512e5464775adb87d63b2e745a5
-#: ../../install.rst:37
+#: ../../install.rst:29
 msgid ""
 "If you are having trouble on OS X Mavericks (or possibly other versions of "
 "OS X) with building ``lxml``, you probably might need to use Homebrew_ to "
 "``brew install libxml2``, and invoke the install with::"
 msgstr ""
 
-# a29839c5a8ee454c9099d2dfde2df047
-#: ../../install.rst:47
+#: ../../install.rst:39
+msgid ""
+"Linux users may find they need to install a few additional packages in order"
+" to successfully execute ``pip install -r requirements.txt``. For example, a"
+" clean install of Ubuntu 14.04 LTS will require the following packages::"
+msgstr ""
+
+#: ../../install.rst:48
+msgid "CentOS/RHEL 7 will require::"
+msgstr ""
+
+#: ../../install.rst:52
+msgid ""
+"Users of other Linux distributions may need to install the equivalent "
+"packages, depending on their system configuration."
+msgstr ""
+
+#: ../../install.rst:57
+msgid ""
+"If you want full support for searching inside your Read the Docs site you "
+"will need to install Elasticsearch_."
+msgstr ""
+
+#: ../../install.rst:60
+msgid ""
+"Ubuntu users could install this package by following "
+":doc:`/custom_installs/elasticsearch`."
+msgstr ""
+
+#: ../../install.rst:64
+msgid "Besides the Python specific dependencies, you will also need Redis_."
+msgstr ""
+
+#: ../../install.rst:66
+msgid "Ubuntu users could install this package as following::"
+msgstr ""
+
+#: ../../install.rst:71
+msgid ""
+"You will need to verify that your pip version is higher than 1.5 you can do "
+"this as such::"
+msgstr ""
+
+#: ../../install.rst:75
+msgid ""
+"If this is not the case please update your pip version before continuing::"
+msgstr ""
+
+#: ../../install.rst:79
+msgid ""
+"Once you have these, create a virtual environment somewhere on your disk, "
+"then activate it::"
+msgstr ""
+
+#: ../../install.rst:86
+msgid "Create a folder in here, and clone the repository::"
+msgstr ""
+
+#: ../../install.rst:92
+msgid ""
+"Next, install the dependencies using ``pip`` (included inside of "
+"virtualenv_)::"
+msgstr ""
+
+#: ../../install.rst:97
 msgid ""
 "This may take a while, so go grab a beverage. When it's done, build your "
 "database::"
 msgstr ""
 
-# a19bf23fb7cb436c8bfd8e54abc7fee8
-#: ../../install.rst:53
+#: ../../install.rst:102
+msgid "Then please create a superuser account for Django::"
+msgstr ""
+
+#: ../../install.rst:106
+msgid "Now let's properly generate the static assets::"
+msgstr ""
+
+#: ../../install.rst:110
 msgid ""
-"This will prompt you to create a superuser account for Django. Do that. "
-"Then::"
+"By now, it is the right time to load in a couple users and a test project::"
 msgstr ""
 
-# 0fd46536ec7543ed892340ff65a2d8c0
-#: ../../install.rst:57
-msgid "Go ahead and load in a couple users and a test projects::"
+#: ../../install.rst:116
+msgid ""
+"If you do not opt to install test data, you'll need to create an account for"
+" API use and set ``SLUMBER_USERNAME`` and ``SLUMBER_PASSWORD`` in order for "
+"everything to work properly. This can be done by using ``createsuperuser``, "
+"then attempting a manual login to create an ``EmailAddress`` entry for the "
+"user, then you can use ``shell_plus`` to update the object with "
+"``primary=True``, ``verified=True``."
 msgstr ""
 
-# 31a93895b45f4120aac2b5165d0e0a50
-#: ../../install.rst:61
+#: ../../install.rst:123
 msgid "Finally, you're ready to start the webserver::"
 msgstr ""
 
-# 4bed87a049264508bb97ecf4774bd593
-#: ../../install.rst:65
+#: ../../install.rst:127
 msgid ""
 "Visit http://127.0.0.1:8000/ in your browser to see how it looks; you can "
 "use the admin interface via http://127.0.0.1:8000/admin (logging in with the"
 " superuser account you just created)."
 msgstr ""
 
-# 5de5b49a90b44e7aa99aa248025e807c
-#: ../../install.rst:69
+#: ../../install.rst:131
+msgid ""
+"For builds to properly kick off as expected, it is necessary the port you're"
+" serving on (i.e. ``runserver 0.0.0.0:8080``) match the port defined in "
+"``PRODUCTION_DOMAIN``. You can utilize ``local_settings.py`` to modify this."
+" (By default, it's ``localhost:8000``)"
+msgstr ""
+
+#: ../../install.rst:136
 msgid ""
 "While the webserver is running, you can build documentation for the latest "
 "version of a project called 'pip' with the ``update_repos`` command.  You "
 "can replace 'pip' with the name of any added project::"
 msgstr ""
 
-# 1d166a5c19494c6a91e9809dae75dcbd
-#: ../../install.rst:77
-msgid "Solr (Search) Setup"
-msgstr "Solr (検索) の設定"
-
-# a8bc916a941448f7a71906c7649fd680
-#: ../../install.rst:79
-msgid ""
-"Apache Solr is used to index and search documents. This is an optional "
-"requirement, and only necessary if you want to develop or use search."
-msgstr ""
-
-# 9aa79edc67e6436382cc40e9946cea9b
-#: ../../install.rst:83
-msgid "Additional python requirements necessary to use Solr::"
-msgstr ""
-
-# 425a1619b84d4f5483d29513be8053cc
-#: ../../install.rst:88
-msgid "Fetch and unpack Solr::"
-msgstr ""
-
-# 2bd53ca7849e48bbbd20b53a1235f9d3
-#: ../../install.rst:93
-msgid "Generate the schema.xml file::"
-msgstr ""
-
-# 2314117559ab4b6282d0a809cddc8f21
-#: ../../install.rst:97
-msgid "Start the server::"
-msgstr ""
-
-# 0eb8a8d72e904f05a6621906e203c501
-#: ../../install.rst:101
-msgid "Index the data::"
-msgstr ""
-
-# 0b897f6370294ccc8060ee2277e55e77
-#: ../../install.rst:108
-msgid ""
-"For production environments, you'll want to run Solr in a more permanent "
-"servelet container, such as Tomcat or Jetty. Ubuntu distributions include "
-"prepackaged Solr installations. Try ``aptitude install solr-tomcat`` or "
-"``aptitude install solr-jetty.``"
-msgstr ""
-
-# 8b46ce1bef8447cc9f9d145cba128d2d
-#: ../../install.rst:113
-msgid ""
-"See /etc/[solr|tomcat6|jetty] for configuration options.  The ``schema.xml``"
-" file must be replaced with the version built by django-haystack."
-msgstr ""
-
-# ab9c47b2440e4bbd8261075d333ce579
-#: ../../install.rst:118
+#: ../../install.rst:143
 msgid "What's available"
 msgstr ""
 
-# 1f03445818ac4295befb24243b239250
-#: ../../install.rst:120
+#: ../../install.rst:145
 msgid ""
 "After registering with the site (or creating yourself a superuser account), "
 "you will be able to log in and view the `dashboard "
-"<http://readthedocs.org/dashboard/>`_."
+"<http://localhost:8000/dashboard/>`_."
 msgstr ""
 
-# 95ece41f6f6b46dcaa02e62931df127e
-#: ../../install.rst:123
-msgid ""
-"From the dashboard you can import your existing docs provided that they are "
-"in a git or mercurial repo."
+#: ../../install.rst:149
+msgid "Importing your docs"
 msgstr ""
 
-# 63c825883d524731a11131146e7155ec
-#: ../../install.rst:128
-msgid "Creating new Docs"
-msgstr "新しいドキュメントの作成"
-
-# 18006bd7b7d2406c8ce45b7e5b01ac76
-#: ../../install.rst:130
+#: ../../install.rst:151
 msgid ""
-"One of the goals of `readthedocs.org <http://readthedocs.org>`_ is to make "
-"it easy for any open source developer to get high quality hosted docs with "
-"great visibility!  We provide a simple editor and two sample pages whenever "
-"a new project is created.  From there its up to you to fill in the gaps - "
-"we'll build the docs, give you access to history on every revision of your "
-"files, and we plan on adding more features in the weeks and months to come."
-msgstr ""
-
-# 861d806bbcbb4ee485eebbf20d07f06e
-#: ../../install.rst:139
-msgid "Importing existing docs"
-msgstr "既存ドキュメントのインポート"
-
-# 57d758b04f4140f59290f51a1ac4e871
-#: ../../install.rst:141
-msgid ""
-"The other side of `readthedocs.org <http://readthedocs.org>`_ is hosting the"
-" docs you've already built.  Simply provide us with the clone url to your "
-"repo, we'll pull your code, extract your docs, and build them!  We make "
-"available a post-commit webhook that can be configured to update the docs on"
-" our site whenever you commit to your repo, effectively letting you 'set it "
-"and forget it'."
+"One of the goals of readthedocs.org is to make it easy for any open source "
+"developer to get high quality hosted docs with great visibility! Simply "
+"provide us with the clone URL to your repo, we'll pull your code, extract "
+"your docs, and build them! We make available a post-commit webhook that can "
+"be configured to update the docs whenever you commit to your repo. See our "
+":doc:`getting_started` page to learn more."
 msgstr ""

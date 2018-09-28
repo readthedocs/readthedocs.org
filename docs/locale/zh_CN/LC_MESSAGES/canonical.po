@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/readthedocs-docs/language/zh_CN/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../canonical.rst:2
+msgid "Canonical URLs"
+msgstr ""
+
+#: ../../canonical.rst:4
+msgid ""
+"Canonical URLs allow people to have consistent page URLs for domains. This "
+"is mainly useful for search engines, so that they can send people to the "
+"correct page."
+msgstr ""
+
+#: ../../canonical.rst:8
+msgid "Read the Docs uses these in two ways:"
+msgstr ""
+
+#: ../../canonical.rst:10
+msgid "We point all versions of your docs at the \"latest\" version as canonical"
+msgstr ""
+
+#: ../../canonical.rst:11
+msgid ""
+"We point at the user specified canonical URL, generally a custom domain for "
+"your docs."
+msgstr ""
+
+#: ../../canonical.rst:14
+msgid "Example"
+msgstr ""
+
+#: ../../canonical.rst:16
+msgid ""
+"Fabric hosts their docs on Read the Docs. They mostly use their own domain "
+"for them ``http://docs.fabfile.org``. This means that Google will index both"
+" ``http://fabric-docs.readthedocs.io`` and ``http://docs.fabfile.org`` for "
+"their documentation."
+msgstr ""
+
+#: ../../canonical.rst:20
+msgid ""
+"Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL. "
+"This means that when Google indexes ``http://fabric-docs.readthedocs.io``, "
+"it will know that it should really point at ``http://docs.fabfile.org``."
+msgstr ""
+
+#: ../../canonical.rst:24
+msgid "Enabling"
+msgstr ""
+
+#: ../../canonical.rst:26
+msgid ""
+"You can set the canonical URL for your project in the Project Admin page. "
+"Check your `Domains` tab for the domains that we know about."
+msgstr ""
+
+#: ../../canonical.rst:29
+msgid "Implementation"
+msgstr ""
+
+#: ../../canonical.rst:31
+msgid ""
+"If you look at the source code for documentation built after you set your "
+"canonical URL, you should see a bit of HTML like this:"
+msgstr ""
+
+#: ../../canonical.rst:39
+msgid "Links"
+msgstr ""
+
+#: ../../canonical.rst:41
+msgid ""
+"This is a good explanation of the usage of canonical URLs in search engines:"
+msgstr ""
+
+#: ../../canonical.rst:43
+msgid "http://www.mattcutts.com/blog/seo-advice-url-canonicalization/"
+msgstr ""
+
+#: ../../canonical.rst:45
+msgid "This is a good explanation for why canonical pages are good for SEO:"
+msgstr ""
+
+#: ../../canonical.rst:47
+msgid ""
+"http://moz.com/blog/canonical-url-tag-the-most-important-advancement-in-seo-"
+"practices-since-sitemaps"
+msgstr ""

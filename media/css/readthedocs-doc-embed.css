@@ -174,7 +174,7 @@ div.ethical-footer {
 .wy-nav-side .ethical-rtd {
     /* RTD theme doesn't correctly set the sidebar width */
     width: 300px;
-    padding: 1em;
+    padding: 0 1em;
 }
 .ethical-rtd .ethical-sidebar {
     /* RTD theme doesn't set sidebar text color */

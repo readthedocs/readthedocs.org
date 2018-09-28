@@ -1,0 +1,658 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Russian (https://www.transifex.com/readthedocs/teams/2534/ru/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: ../../privacy-policy.rst:5
+msgid "Privacy Policy"
+msgstr ""
+
+#: ../../privacy-policy.rst:7
+msgid "Effective date: **May 30, 2018**"
+msgstr ""
+
+#: ../../privacy-policy.rst:9
+msgid ""
+"Welcome to Read the Docs. At Read the Docs, we believe in protecting the "
+"privacy of our users, authors, and readers."
+msgstr ""
+
+#: ../../privacy-policy.rst:15
+msgid "The short version"
+msgstr ""
+
+#: ../../privacy-policy.rst:17
+msgid ""
+"We collect your information only with your consent; we only collect the "
+"minimum amount of personal information that is necessary to fulfill the "
+"purpose of your interaction with us; we don't sell it to third parties; and "
+"we only use it as this Privacy Policy describes."
+msgstr ""
+
+#: ../../privacy-policy.rst:23
+msgid ""
+"Of course, the short version doesn't tell you everything, so please read on "
+"for more details!"
+msgstr ""
+
+#: ../../privacy-policy.rst:28
+msgid "Our services"
+msgstr ""
+
+#: ../../privacy-policy.rst:30
+msgid "Read the Docs is made up of:"
+msgstr ""
+
+#: ../../privacy-policy.rst:35
+msgid "readthedocs.org"
+msgstr ""
+
+#: ../../privacy-policy.rst:33
+msgid ""
+"This is a website aimed at documentation authors writing and building "
+"software documentation. This Privacy Policy applies to this site in full "
+"without reservation."
+msgstr ""
+
+#: ../../privacy-policy.rst:41
+msgid "readthedocs.com"
+msgstr ""
+
+#: ../../privacy-policy.rst:38
+msgid ""
+"This website is a commercial hosted offering for hosting private "
+"documentation for corporate clients. It is governed by this privacy policy "
+"but also separate `terms <https://readthedocs.com/terms/>`_."
+msgstr ""
+
+#: ../../privacy-policy.rst:48
+msgid ""
+"readthedocs.io, readthedocs-hosted.com, and other domains (\"Documentation "
+"Sites\")"
+msgstr ""
+
+#: ../../privacy-policy.rst:44
+msgid ""
+"These websites are where Read the Docs hosts documentation on behalf of "
+"documentation authors. A best effort is made to apply this Privacy Policy to"
+" these sites but the documentation may contain content and files created by "
+"documentation authors."
+msgstr ""
+
+#: ../../privacy-policy.rst:51
+msgid "What information Read the Docs collects and why"
+msgstr ""
+
+#: ../../privacy-policy.rst:54
+msgid "Information from website browsers"
+msgstr ""
+
+#: ../../privacy-policy.rst:56
+msgid ""
+"If you're **just browsing the website**, we collect the same basic "
+"information that most websites collect. We use common internet technologies,"
+" such as cookies and web server logs. We collect this basic information from"
+" everybody, whether they have an account or not."
+msgstr ""
+
+#: ../../privacy-policy.rst:60
+msgid "The information we collect about all visitors to our website includes:"
+msgstr ""
+
+#: ../../privacy-policy.rst:62
+msgid "the visitor's browser type"
+msgstr ""
+
+#: ../../privacy-policy.rst:63
+msgid "language preference"
+msgstr ""
+
+#: ../../privacy-policy.rst:64
+msgid "referring site"
+msgstr ""
+
+#: ../../privacy-policy.rst:65
+msgid "the date and time of each visitor request"
+msgstr ""
+
+#: ../../privacy-policy.rst:67
+msgid ""
+"We also collect potentially personally-identifying information like Internet"
+" Protocol (IP) addresses."
+msgstr ""
+
+#: ../../privacy-policy.rst:72 ../../privacy-policy.rst:96
+msgid "Why do we collect this?"
+msgstr ""
+
+#: ../../privacy-policy.rst:74
+msgid ""
+"We collect this information to better understand how our website visitors "
+"use Read the Docs, and to monitor and protect the security of the website."
+msgstr ""
+
+#: ../../privacy-policy.rst:79
+msgid "Information from users with accounts"
+msgstr ""
+
+#: ../../privacy-policy.rst:81
+msgid ""
+"If you **create an account**, we require some basic information at the time "
+"of account creation. You will create your own user name and password, and we"
+" will ask you for a valid email account. You also have the option to give us"
+" more information if you want to, and this may include \"User Personal "
+"Information.\""
+msgstr ""
+
+#: ../../privacy-policy.rst:86
+msgid ""
+"\"User Personal Information\" is any information about one of our users "
+"which could, alone or together with other information, personally identify "
+"him or her. Information such as a user name and password, an email address, "
+"a real name, and a photograph are examples of \"User Personal Information.\""
+msgstr ""
+
+#: ../../privacy-policy.rst:91
+msgid ""
+"User Personal Information does not include aggregated, non-personally "
+"identifying information. We may use aggregated, non-personally identifying "
+"information to operate, improve, and optimize our website and service."
+msgstr ""
+
+#: ../../privacy-policy.rst:98
+msgid ""
+"We need your User Personal Information to create your account, and to "
+"provide the services you request."
+msgstr ""
+
+#: ../../privacy-policy.rst:99
+msgid ""
+"We use your User Personal Information, specifically your user name, to "
+"identify you on Read the Docs."
+msgstr ""
+
+#: ../../privacy-policy.rst:100
+msgid ""
+"We use it to fill out your profile and share that profile with other users."
+msgstr ""
+
+#: ../../privacy-policy.rst:101
+msgid ""
+"We will use your email address to communicate with you but it is not shared "
+"publicly."
+msgstr ""
+
+#: ../../privacy-policy.rst:102
+msgid ""
+"We limit our use of your User Personal Information to the purposes listed in"
+" this Privacy Statement. If we need to use your User Personal Information "
+"for other purposes, we will ask your permission first. You can always see "
+"what information we have in your `user account "
+"<https://readthedocs.org/accounts/edit/>`__."
+msgstr ""
+
+#: ../../privacy-policy.rst:108
+msgid "What information Read the Docs does not collect"
+msgstr ""
+
+#: ../../privacy-policy.rst:110
+msgid ""
+"We do not intentionally collect **sensitive personal information**, such as "
+"social security numbers, genetic data, health information, or religious "
+"information."
+msgstr ""
+
+#: ../../privacy-policy.rst:113
+msgid ""
+"Documentation Sites hosted on Read the Docs are public, anyone (including "
+"us) may view their contents. If you have included private or sensitive "
+"information in your Documentation Site, such as email addresses, that "
+"information may be indexed by search engines or used by third parties."
+msgstr ""
+
+#: ../../privacy-policy.rst:118
+msgid ""
+"If you're a **child under the age of 13**, you may not have an account on "
+"Read the Docs. Read the Docs does not knowingly collect information from or "
+"direct any of our content specifically to children under 13. If we learn or "
+"have reason to suspect that you are a user who is under the age of 13, we "
+"will unfortunately have to close your account. We don't want to discourage "
+"you from writing software documentation, but those are the rules."
+msgstr ""
+
+#: ../../privacy-policy.rst:124
+msgid "How we share the information we collect"
+msgstr ""
+
+#: ../../privacy-policy.rst:126
+msgid ""
+"We **do not** share, sell, rent, or trade User Personal Information with "
+"third parties for their commercial purposes."
+msgstr ""
+
+#: ../../privacy-policy.rst:129
+msgid ""
+"We do not disclose User Personal Information outside Read the Docs, except "
+"in the situations listed in this section or in the section below on "
+"compelled disclosure."
+msgstr ""
+
+#: ../../privacy-policy.rst:133
+msgid ""
+"We **do** share certain aggregated, non-personally identifying information "
+"with others about how our users, collectively, use Read the Docs. For "
+"example, we may compile statistics on the prevalence of different types of "
+"documentation across Read the Docs for a blog post or popularity of "
+"programming languages for advertising partners."
+msgstr ""
+
+#: ../../privacy-policy.rst:139
+msgid ""
+"We **do** host advertising on Documentation Sites. This advertising is "
+"first-party advertising hosted by Read the Docs. We **do not** run any code "
+"from advertisers and all ad images are hosted on Read the Docs' servers. For"
+" more details, see our document on :doc:`advertising/advertising-details`."
+msgstr ""
+
+#: ../../privacy-policy.rst:145
+msgid ""
+"We may use User Personal Information with your permission, so we can perform"
+" services you have requested. For example, if you request service on "
+"commercially hosted docs, we will ask your permission to sync your private "
+"repositories."
+msgstr ""
+
+#: ../../privacy-policy.rst:150
+msgid ""
+"We may share User Personal Information with a limited number of third party "
+"vendors who process it on our behalf to provide or improve our service, and "
+"who have agreed to privacy restrictions similar to our own Privacy "
+"Statement. For more details, see our next section on :ref:`third parties "
+"<privacy-policy:Third party vendors>`."
+msgstr ""
+
+#: ../../privacy-policy.rst:157
+msgid "Third party vendors"
+msgstr ""
+
+#: ../../privacy-policy.rst:159
+msgid ""
+"As we mentioned, we may share some information with third party vendors or "
+"it may be collected by them on our behalf. The information collected and "
+"stored by third parties is subject to their policies and practices. This "
+"list will be updated from time to time and we encourage you to check back "
+"periodically."
+msgstr ""
+
+#: ../../privacy-policy.rst:167
+msgid "Payment processing"
+msgstr ""
+
+#: ../../privacy-policy.rst:169
+msgid ""
+"Should you choose to become a `Supporter`_, purchase a `Gold Membership`_, "
+"or become a subscriber to Read the Docs' commercial hosting product, your "
+"payment information and details will be processed by Stripe. Read the Docs "
+"does not store your payment information."
+msgstr ""
+
+#: ../../privacy-policy.rst:178
+msgid "Site monitoring"
+msgstr ""
+
+#: ../../privacy-policy.rst:180
+msgid ""
+"Read the Docs uses Sentry and New Relic to diagnose errors and improve the "
+"performance of our site. Both companies take part in the EU-US Privacy "
+"Shield framework. We aim to minimize the amount of personal information "
+"shared, but the information may include your IP address."
+msgstr ""
+
+#: ../../privacy-policy.rst:187
+msgid "Analytics"
+msgstr ""
+
+#: ../../privacy-policy.rst:189
+msgid ""
+"We go into detail on analytics in a :ref:`separate section specific to "
+"analytics <privacy-policy:Google Analytics>`."
+msgstr ""
+
+#: ../../privacy-policy.rst:193
+msgid "Support Desk"
+msgstr ""
+
+#: ../../privacy-policy.rst:195
+msgid ""
+"Read the Docs uses Intercom to manage support requests for documentation "
+"hosted through our commercial hosting on readthedocs.com. If you request "
+"support -- typically via email -- Intercom may process your contact "
+"information."
+msgstr ""
+
+#: ../../privacy-policy.rst:201
+msgid "Email newsletter"
+msgstr ""
+
+#: ../../privacy-policy.rst:203
+msgid ""
+"If you sign up for the `Read the Docs email newsletter`_, your email address"
+" and name will be stored by Mailchimp. This newsletter is separate from "
+"creating a Read the Docs account and signing up for Read the Docs does not "
+"opt you in for the newsletter."
+msgstr ""
+
+#: ../../privacy-policy.rst:208
+msgid ""
+"You can manage your email subscription including unsubscribing and deleting "
+"your records with Mailchimp. There is a link to do so in the footer of any "
+"newsletter you receive from us."
+msgstr ""
+
+#: ../../privacy-policy.rst:216
+msgid "Public Information on Read the Docs"
+msgstr ""
+
+#: ../../privacy-policy.rst:218
+msgid ""
+"Most of Read the Docs is public-facing including user names, project names, "
+"and Documentation Sites. If your content is public-facing, third parties may"
+" access it. We do not sell that content; it is yours."
+msgstr ""
+
+#: ../../privacy-policy.rst:225
+msgid "Our use of cookies and tracking"
+msgstr ""
+
+#: ../../privacy-policy.rst:229
+msgid "Do Not Track"
+msgstr ""
+
+#: ../../privacy-policy.rst:231
+msgid ""
+"Read the Docs supports Do Not Track (DNT) and respects users' tracking "
+"preferences. Specifically, we support the `W3C's tracking preference "
+"expression`_ and the `EFF's DNT Policy`_."
+msgstr ""
+
+#: ../../privacy-policy.rst:235
+msgid "For Read the Docs, this means:"
+msgstr ""
+
+#: ../../privacy-policy.rst:237
+msgid ""
+"We **do not** do behavioral ad targeting regardless of your DNT preference."
+msgstr ""
+
+#: ../../privacy-policy.rst:238
+msgid ""
+"When DNT is enabled, both logged-in and logged-out users are considered "
+"opted-out of :ref:`analytics <privacy-policy:Google Analytics>`."
+msgstr ""
+
+#: ../../privacy-policy.rst:240
+msgid ""
+"Regardless of DNT preference, our logs that contain IP addresses and user "
+"agent strings are deleted after 10 days unless a DNT exception applies."
+msgstr ""
+
+#: ../../privacy-policy.rst:242
+msgid "Our full DNT policy is `available here`_."
+msgstr ""
+
+#: ../../privacy-policy.rst:244
+msgid ""
+"Our DNT policy applies without reservation to readthedocs.org and "
+"readthedocs.com. A best effort is made to apply this to Documentation Sites,"
+" but we do not have complete control over the contents of these sites."
+msgstr ""
+
+#: ../../privacy-policy.rst:248
+msgid "For more details about DNT, visit `All About Do Not Track`_."
+msgstr ""
+
+#: ../../privacy-policy.rst:252
+msgid ""
+"Due to the nature of our environment where documentation is built as "
+"necessary, the DNT analytics opt-out for Documentation Sites only applies "
+"for those sites generated after May 1, 2018."
+msgstr ""
+
+#: ../../privacy-policy.rst:262
+msgid "Cookies"
+msgstr ""
+
+#: ../../privacy-policy.rst:264
+msgid ""
+"Read the Docs uses cookies to make interactions with our service easy and "
+"meaningful. We use cookies to keep you logged in, remember your preferences,"
+" and provide information for future development of Read the Docs."
+msgstr ""
+
+#: ../../privacy-policy.rst:268
+msgid ""
+"A cookie is a small piece of text that our web server stores on your "
+"computer or mobile device, which your browser sends to us when you return to"
+" our site. Cookies do not necessarily identify you if you are merely "
+"visiting Read the Docs; however, a cookie may store a unique identifier for "
+"each logged in user. The cookies Read the Docs sets are essential for the "
+"operation of the website, or are used for performance or functionality. By "
+"using our website, you agree that we can place these types of cookies on "
+"your computer or device. If you disable your browser or device's ability to "
+"accept cookies, you will not be able to log in to Read the Docs."
+msgstr ""
+
+#: ../../privacy-policy.rst:279
+msgid "Google Analytics"
+msgstr ""
+
+#: ../../privacy-policy.rst:281
+msgid ""
+"We use Google Analytics as a third party tracking service, but we don't use "
+"it to track you individually or collect your User Personal Information. We "
+"use Google Analytics to collect information about how our website performs "
+"and how our users, in general, navigate through and use Read the Docs. This "
+"helps us evaluate our users' use of Read the Docs; compile statistical "
+"reports on activity; and improve our content and website performance."
+msgstr ""
+
+#: ../../privacy-policy.rst:288
+msgid ""
+"Google Analytics gathers certain simple, non-personally identifying "
+"information over time, such as your IP address, browser type, internet "
+"service provider, referring and exit pages, time stamp, and similar data "
+"about your use of Read the Docs. We do not link this information to any of "
+"your personal information such as your user name."
+msgstr ""
+
+#: ../../privacy-policy.rst:293
+msgid ""
+"Read the Docs will not, nor will we allow any third party to, use the Google"
+" Analytics tool to track our users individually; collect any User Personal "
+"Information other than IP address; or correlate your IP address with your "
+"identity. Google provides further information about its own privacy "
+"practices and offers a `browser add-on to opt out of Google Analytics "
+"tracking <https://tools.google.com/dlpage/gaoptout>`_. You may also opt-out "
+"of analytics on Read the Docs by enabled Do Not Track."
+msgstr ""
+
+#: ../../privacy-policy.rst:303
+msgid "How Read the Docs secures your information"
+msgstr ""
+
+#: ../../privacy-policy.rst:305
+msgid ""
+"Read the Docs takes all measures reasonably necessary to protect User "
+"Personal Information from unauthorized access, alteration, or destruction; "
+"maintain data accuracy; and help ensure the appropriate use of User Personal"
+" Information. We follow generally accepted industry standards to protect the"
+" personal information submitted to us, both during transmission and once we "
+"receive it."
+msgstr ""
+
+#: ../../privacy-policy.rst:311
+msgid ""
+"No method of transmission, or method of electronic storage, is 100% secure. "
+"Therefore, we cannot guarantee its absolute security."
+msgstr ""
+
+#: ../../privacy-policy.rst:316
+msgid "Read the Docs' global privacy practices"
+msgstr ""
+
+#: ../../privacy-policy.rst:318
+msgid ""
+"**Information that we collect will be stored and processed in the United "
+"States** in accordance with this Privacy Policy. However, we understand that"
+" we have users from different countries and regions with different privacy "
+"expectations, and we try to meet those needs."
+msgstr ""
+
+#: ../../privacy-policy.rst:324
+msgid ""
+"We provide the same standard of privacy protection to all our users around "
+"the world, regardless of their country of origin or location, Additionally, "
+"we require that if our vendors or affiliates have access to User Personal "
+"Information, they must comply with our privacy policies and with applicable "
+"data privacy laws."
+msgstr ""
+
+#: ../../privacy-policy.rst:330
+msgid "In particular:"
+msgstr ""
+
+#: ../../privacy-policy.rst:332
+msgid ""
+"Read the Docs provides clear methods of unambiguous, informed consent at the"
+" time of data collection, when we do collect your personal data."
+msgstr ""
+
+#: ../../privacy-policy.rst:335
+msgid ""
+"We collect only the minimum amount of personal data necessary, unless you "
+"choose to provide more. We encourage you to only give us the amount of data "
+"you are comfortable sharing."
+msgstr ""
+
+#: ../../privacy-policy.rst:337
+msgid ""
+"We offer you simple methods of accessing, correcting, or deleting the data "
+"we have collected."
+msgstr ""
+
+#: ../../privacy-policy.rst:338
+msgid "We also provide our users a method of recourse and enforcement."
+msgstr ""
+
+#: ../../privacy-policy.rst:342
+msgid "Resolving Complaints"
+msgstr ""
+
+#: ../../privacy-policy.rst:344
+msgid ""
+"If you have concerns about the way Read the Docs is handling your User "
+"Personal Information, please let us know immediately by emailing us at "
+"privacy@readthedocs.org."
+msgstr ""
+
+#: ../../privacy-policy.rst:349
+msgid "How we respond to compelled disclosure"
+msgstr ""
+
+#: ../../privacy-policy.rst:351
+msgid ""
+"Read the Docs may disclose personally-identifying information or other "
+"information we collect about you to law enforcement in response to a valid "
+"subpoena, court order, warrant, or similar government order, or when we "
+"believe in good faith that disclosure is reasonably necessary to protect our"
+" property or rights, or those of third parties or the public at large."
+msgstr ""
+
+#: ../../privacy-policy.rst:357
+msgid ""
+"In complying with court orders and similar legal processes, Read the Docs "
+"strives for transparency. When permitted, we will make a reasonable effort "
+"to notify users of any disclosure of their information, unless we are "
+"prohibited by law or court order from doing so, or in rare, exigent "
+"circumstances."
+msgstr ""
+
+#: ../../privacy-policy.rst:366
+msgid "How you can access and control the information we collect"
+msgstr ""
+
+#: ../../privacy-policy.rst:368
+msgid ""
+"If you're already a Read the Docs user, you may access, update, alter, or "
+"delete your basic user profile information by `editing your user account "
+"<https://readthedocs.org/accounts/edit/>`__."
+msgstr ""
+
+#: ../../privacy-policy.rst:374
+msgid "Data retention and deletion"
+msgstr ""
+
+#: ../../privacy-policy.rst:376
+msgid ""
+"Read the Docs will retain User Personal Information for as long as your "
+"account is active or as needed to provide you services."
+msgstr ""
+
+#: ../../privacy-policy.rst:379
+msgid ""
+"We may retain certain User Personal Information indefinitely, unless you "
+"delete it or request its deletion. For example, we don't automatically "
+"delete inactive user accounts, so unless you choose to delete your account, "
+"we will retain your account information indefinitely."
+msgstr ""
+
+#: ../../privacy-policy.rst:385
+msgid ""
+"If you would like to delete your User Personal Information, you may do so in"
+" your `user account <https://readthedocs.org/accounts/delete/>`__. We will "
+"retain and use your information as necessary to comply with our legal "
+"obligations, resolve disputes, and enforce our agreements, but barring legal"
+" requirements, we will delete your full profile."
+msgstr ""
+
+#: ../../privacy-policy.rst:391
+msgid ""
+"Our web server logs for readthedocs.org, readthedocs.com, and Documentation "
+"Sites are deleted after 10 days barring legal obligations."
+msgstr ""
+
+#: ../../privacy-policy.rst:396
+msgid "Changes to our Privacy Policy"
+msgstr ""
+
+#: ../../privacy-policy.rst:398
+msgid ""
+"We reserve the right to revise this Privacy Policy at any time. If we change"
+" this Privacy Policy in the future, we will post the revised Privacy Policy "
+"and update the \"Effective Date,\" above, to reflect the date of the "
+"changes."
+msgstr ""
+
+#: ../../privacy-policy.rst:405
+msgid "Contacting Read the Docs"
+msgstr ""
+
+#: ../../privacy-policy.rst:407
+msgid ""
+"Questions regarding Read the Docs' Privacy Policy or information practices "
+"should be directed to privacy@readthedocs.org."
+msgstr ""

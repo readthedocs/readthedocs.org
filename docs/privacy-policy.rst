@@ -296,7 +296,8 @@ collect any User Personal Information other than IP address;
 or correlate your IP address with your identity.
 Google provides further information about its own privacy practices and offers a
 `browser add-on to opt out of Google Analytics tracking <https://tools.google.com/dlpage/gaoptout>`_.
-You may also opt-out of analytics on Read the Docs by enabled Do Not Track.
+You may also opt-out of analytics on Read the Docs by enabling
+:ref:`Do Not Track <privacy-policy:Do Not Track>`.
 
 
 How Read the Docs secures your information
