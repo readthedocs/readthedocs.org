@@ -440,12 +440,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         return True
 
     def additional_vcs_operations(self):
-        # TODO: execute with lock
+        """
+        Execution of tasks that involve the project's VCS.
+
+        All this tasks have access to the configuration object.
+        """
         version_repo = self.get_vcs_repo()
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
     def get_vcs_repo(self):
+        """Get the VCS object of the current project."""
         version_repo = self.project.vcs_repo(
             self.version.slug,
             # When called from ``SyncRepositoryTask.run`` we don't have

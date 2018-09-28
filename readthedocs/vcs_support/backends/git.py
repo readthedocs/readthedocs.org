@@ -79,7 +79,23 @@ class Backend(BaseVCS):
         return code == 0 and bool(out)
 
     def validate_submodules(self, config):
-        """Returns the submodules and check that its URLs are valid."""
+        """
+        Returns the submodules and check that its URLs are valid.
+
+        .. note::
+
+           Allways call after `self.are_submodules_available`.
+
+        :returns: tuple(bool, list)
+
+        Returns true if all required submodules URLs are valid.
+        Returns a list of all required submodules:
+        - Include is `ALL`, returns all submodules avaliable.
+        - Include is a list, returns just those.
+        - Exclude is `ALL` - this should never happen.
+        - Exlude is a list, returns all avaliable submodules
+          but those from the list.
+        """
         repo = git.Repo(self.working_dir)
         submodules = {
             sub.path: sub
