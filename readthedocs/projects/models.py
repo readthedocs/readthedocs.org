@@ -7,13 +7,15 @@ from __future__ import (
 import fnmatch
 import logging
 import os
-from builtins import object  # pylint: disable=redefined-builtin
 
+from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
@@ -24,6 +26,7 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
@@ -32,6 +35,7 @@ from readthedocs.projects.validators import validate_domain_name, validate_repos
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
+from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -926,12 +930,57 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __str__(self):
         return '%s: %s' % (self.name, self.project)
+
+
+class HTMLFile(ImportedFile):
+
+    """
+    Imported HTML file Proxy model.
+
+    This tracks only the HTML files for indexing to search.
+    """
+
+    class Meta(object):
+        proxy = True
+
+    objects = HTMLFileManager()
+
+    @cached_property
+    def json_file_path(self):
+        basename = os.path.splitext(self.path)[0]
+        file_path = basename + '.fjson'
+
+        full_json_path = self.project.get_production_media_path(type_='json',
+                                                                version_slug=self.version.slug,
+                                                                include_file=False)
+
+        file_path = os.path.join(full_json_path, file_path)
+        return file_path
+
+    def get_processed_json(self):
+        file_path = self.json_file_path
+        try:
+            return process_file(file_path)
+        except Exception:
+            log.warning('Unhandled exception during search processing file: %s' % file_path)
+        return {
+            'headers': [],
+            'content': '',
+            'path': file_path,
+            'title': '',
+            'sections': []
+        }
+
+    @cached_property
+    def processed_json(self):
+        return self.get_processed_json()
 
 
 class Notification(models.Model):
