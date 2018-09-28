@@ -55,6 +55,11 @@ and the documentation will be built.
 Check out our :doc:`/builds` page to learn more about how Read the Docs builds your docs,
 and to troubleshoot any issues that arise.
 
+Some documentation projects require additional configuration to build
+such as specifying a certain version of Python or installing additional dependencies.
+You can configure these settings in a ``readthedocs.yml`` file.
+See our :doc:`/yaml-config` docs for more details.
+
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.
 
