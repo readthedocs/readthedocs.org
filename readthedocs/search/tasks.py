@@ -59,7 +59,7 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
         # So get the index actual name to delete it
         old_index_info = old_index.get()
         # The info is a dictionary and the key is the actual name of the index
-        old_index_actual_name = old_index_info.keys()[0]
+        old_index_actual_name = list(old_index_info.keys())[0]
 
     # Put alias into the new index name and delete the old index if its exist
     new_index.put_alias(name=index_name)
