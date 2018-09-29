@@ -77,7 +77,10 @@ def index_objects_to_es(app_label, model_name, document_class, index_name,
     document = _get_document(model=model, document_class=document_class)
     doc_obj = document()
 
-    # Use queryset from model as the ids are specific
+    # WARNING: This must use the exact same queryset as from where we get the ID's
+    # There is a chance there is a race condition here as the ID's may change as the task runs,
+    # so we need to think through this a bit more and probably pass explicit ID's,
+    # but there are performance issues with that on large model sets
     queryset = doc_obj.get_queryset()
     if chunk:
         # Chunk is a tuple with start and end index of queryset
