@@ -75,9 +75,10 @@ def index_objects_to_es(app_label, model_name, document_class, index_name,
 
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
+    doc_obj = document()
 
     # Use queryset from model as the ids are specific
-    queryset = model.objects.all()
+    queryset = doc_obj.get_queryset()
     if chunk:
         # Chunk is a tuple with start and end index of queryset
         start = chunk[0]
@@ -87,7 +88,7 @@ def index_objects_to_es(app_label, model_name, document_class, index_name,
         queryset = queryset.filter(id__in=objects_id)
 
     log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
-    document().update(queryset.iterator(), index_name=index_name)
+    doc_obj.update(queryset.iterator(), index_name=index_name)
 
 
 @app.task(queue='web')
