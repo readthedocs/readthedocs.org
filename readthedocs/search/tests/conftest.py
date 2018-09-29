@@ -20,7 +20,8 @@ def es_index():
 
 
 @pytest.fixture(autouse=True)
-def all_projects(es_index, mock_processed_json, db):
+def all_projects(es_index, mock_processed_json, db, settings):
+    settings.ELASTICSEARCH_DSL_AUTOSYNC = True
     projects_list = []
     for project_slug in ALL_PROJECTS:
         project = G(Project, slug=project_slug, name=project_slug)
@@ -36,10 +37,6 @@ def all_projects(es_index, mock_processed_json, db):
 
     shuffle(projects_list)
     return projects_list
-
-@pytest.fixture(autouse=True)
-def test_with_specific_settings(settings):
-    settings.ELASTICSEARCH_DSL_AUTOSYNC = True
 
 
 @pytest.fixture
