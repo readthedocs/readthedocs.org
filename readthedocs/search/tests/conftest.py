@@ -37,6 +37,10 @@ def all_projects(es_index, mock_processed_json, db):
     shuffle(projects_list)
     return projects_list
 
+@pytest.fixture(autouse=True)
+def test_with_specific_settings(settings):
+    settings.ELASTICSEARCH_DSL_AUTOSYNC = True
+
 
 @pytest.fixture
 def project(all_projects):

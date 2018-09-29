@@ -1,7 +1,6 @@
 import pytest
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
-from django.test.utils import override_settings
 
 
 from readthedocs.builds.models import Version
@@ -11,7 +10,6 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 @pytest.mark.django_db
 @pytest.mark.search
-@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestDocumentSearch(object):
     url = reverse('doc_search')
 

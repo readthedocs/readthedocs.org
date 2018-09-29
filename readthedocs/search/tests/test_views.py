@@ -2,7 +2,6 @@
 import pytest
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
-from django.test.utils import override_settings
 
 from pyquery import PyQuery as pq
 
@@ -15,7 +14,6 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 @pytest.mark.django_db
 @pytest.mark.search
-@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestProjectSearch(object):
     url = reverse('search')
 
@@ -66,7 +64,6 @@ class TestProjectSearch(object):
 
 @pytest.mark.django_db
 @pytest.mark.search
-@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestPageSearch(object):
     url = reverse('search')
 
