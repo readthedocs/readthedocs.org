@@ -3,6 +3,8 @@ import pytest
 from readthedocs.search.documents import PageDocument
 
 
+@pytest.mark.django_db
+@pytest.mark.search
 class TestFileSearch(object):
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])

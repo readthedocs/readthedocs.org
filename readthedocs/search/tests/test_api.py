@@ -2,6 +2,7 @@ import pytest
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
 
+
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.tests.utils import get_search_query_from_project_file
