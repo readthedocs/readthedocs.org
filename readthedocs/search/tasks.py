@@ -59,7 +59,7 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
         # So get the index actual name to delete it
         old_index_info = old_index.get()
         # The info is a dictionary and the key is the actual name of the index
-        old_index_actual_name = old_index_info.keys()[0]
+        old_index_actual_name = list(old_index_info.keys())[0]
 
     # Put alias into the new index name and delete the old index if its exist
     new_index.put_alias(name=index_name)
@@ -75,9 +75,13 @@ def index_objects_to_es(app_label, model_name, document_class, index_name,
 
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
+    doc_obj = document()
 
-    # Use queryset from model as the ids are specific
-    queryset = model.objects.all()
+    # WARNING: This must use the exact same queryset as from where we get the ID's
+    # There is a chance there is a race condition here as the ID's may change as the task runs,
+    # so we need to think through this a bit more and probably pass explicit ID's,
+    # but there are performance issues with that on large model sets
+    queryset = doc_obj.get_queryset()
     if chunk:
         # Chunk is a tuple with start and end index of queryset
         start = chunk[0]
@@ -87,7 +91,7 @@ def index_objects_to_es(app_label, model_name, document_class, index_name,
         queryset = queryset.filter(id__in=objects_id)
 
     log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
-    document().update(queryset.iterator(), index_name=index_name)
+    doc_obj.update(queryset.iterator(), index_name=index_name)
 
 
 @app.task(queue='web')
