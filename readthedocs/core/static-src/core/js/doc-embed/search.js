@@ -28,8 +28,8 @@ function attach_elastic_search_query(data) {
 
         search_def
             .then(function (data) {
-                var hit_list = data.results || [];
-                var total_count = data.count || 0;
+                var hit_list = data || [];
+                var total_count = hit_list.length;
 
                 if (hit_list.length) {
                     for (var i = 0; i < hit_list.length; i += 1) {
