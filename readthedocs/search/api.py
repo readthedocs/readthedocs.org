@@ -10,7 +10,7 @@ from readthedocs.search.utils import get_project_list_or_404
 
 class PageSearchAPIView(generics.ListAPIView):
     # Turn off pagination for now to test performance
-    # pagination_class = SearchPagination
+    pagination_class = None
     filter_backends = [SearchFilterBackend]
     serializer_class = PageSearchSerializer
 
@@ -25,7 +25,7 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('query', '')
-        queryset = PageDocument.simple_search(query=query)
+        queryset = PageDocument.simple_search(query=query)[:10]
         return queryset
 
     def validate_query_params(self):
