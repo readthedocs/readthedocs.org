@@ -78,7 +78,9 @@ class Command(BaseCommand):
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chords
             chord_tasks = chord(header=indexing_tasks, body=post_index_task)
             if queue:
+                pre_index_task.set(queue=queue)
                 chord_tasks.set(queue=queue)
+                missed_index_task.set(queue=queue)
             # http://celery.readthedocs.io/en/latest/userguide/canvas.html#chain
             chain(pre_index_task, chord_tasks, missed_index_task).apply_async(**apply_async_kwargs)
 

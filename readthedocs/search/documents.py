@@ -120,6 +120,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
-        queryset = (queryset.filter(project__documentation_type='sphinx')
+        queryset = (queryset.filter(project__documentation_type__contains='sphinx')
                             .exclude(name__in=self.excluded_files))
         return queryset
