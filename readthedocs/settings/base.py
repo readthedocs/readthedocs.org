@@ -355,7 +355,7 @@ class CommunityBaseSettings(Settings):
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 10,
+                'number_of_shards': 5,
                 'number_of_replicas': 1,
             }
         },
