@@ -27,6 +27,10 @@ class PageSearchAPIView(generics.ListAPIView):
         self.validate_query_params()
         query = self.request.query_params.get('query', '')
         queryset = PageDocument.simple_search(query=query)
+
+        # Refs https://github.com/rtfd/readthedocs.org/issues/4687
+        queryset.count = None  # Disable slow ES count queries
+
         return queryset
 
     def validate_query_params(self):
