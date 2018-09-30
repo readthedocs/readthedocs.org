@@ -349,14 +349,14 @@ class CommunityBaseSettings(Settings):
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 5,
-                         'number_of_replicas': 0
+                         'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 5,
-                'number_of_replicas': 0,
+                'number_of_shards': 10,
+                'number_of_replicas': 1,
             }
         },
     }
