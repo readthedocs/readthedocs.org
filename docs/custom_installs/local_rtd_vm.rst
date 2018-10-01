@@ -7,11 +7,11 @@ Assumptions and Prerequisites
 * Debian VM provisioned with python 2.7.x
 * All python dependencies and setup tools are installed ::
 
-  sudo apt-get install python-setuptools
-  sudo apt-get install build-essential
-  sudo apt-get install python-dev
-  sudo apt-get install libevent-dev
-  sudo easy_install pip
+    sudo apt-get install python-setuptools
+    sudo apt-get install build-essential
+    sudo apt-get install python-dev
+    sudo apt-get install libevent-dev
+    sudo easy_install pip
 
 * Git ::
 
@@ -122,7 +122,7 @@ Possible Error and Resolution
 
 SSH to the VM using the ``-A`` directive. ::
 
-    ssh document-vm -A 
+    ssh document-vm -A
 
 This provides all permissions for that particular remote session, which are revoked when you logout.
 
