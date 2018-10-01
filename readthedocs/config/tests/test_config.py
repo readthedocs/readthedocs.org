@@ -1748,3 +1748,13 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == key
         assert excinfo.value.code == INVALID_KEY
+
+    def test_strict_validation_pops_all_keys(self):
+        build = self.get_build_config({
+            'version': 2,
+            'python': {
+                'version': 3,
+            },
+        })
+        build.validate()
+        assert build.raw_config == {}
