@@ -151,7 +151,7 @@ def trigger_build(project, version=None, record=True, force=False):
     :param version: version of the project to be built. Default: ``latest``
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
-    :returns: Celery AsyncResult promise
+    :returns: A tuple (Celery AsyncResult promise, Task Signature from ``prepare_build``)
     """
     update_docs_task = prepare_build(
         project,
