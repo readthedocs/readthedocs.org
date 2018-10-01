@@ -165,7 +165,7 @@ def trigger_build(project, version=None, record=True, force=False):
         # Current project is skipped
         return None
 
-    return update_docs_task.apply_async()
+    return (update_docs_task.apply_async(), update_docs_task)
 
 
 def send_email(recipient, subject, template, template_html, context=None,

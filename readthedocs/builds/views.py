@@ -62,8 +62,8 @@ class BuildTriggerMixin(object):
             slug=version_slug,
         )
 
-        trigger_build(project=project, version=version)
-        build_pk = project.builds.first().pk
+        signature = trigger_build(project=project, version=version)[1]
+        build_pk = signature.get('kwargs', {}).get('build_pk')
         return HttpResponseRedirect(
             reverse('builds_detail', args=[project.slug, build_pk])
         )
