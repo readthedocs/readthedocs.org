@@ -950,14 +950,17 @@ class BuildConfigV2(BuildConfigBase):
 
     def validate_keys(self):
         """
-        Checks that we don't have extra keys.
+        Checks that we don't have extra keys (invalid ones).
 
-        This should be called after all the validations are done.
+        This should be called after all the validations are done
+        and all keys are popped from `self.raw_config`.
         """
         msg = (
-            'Unsupported configuration option: {}. '
+            'Invalid configuration option: {}. '
             'Make sure the key name is correct.'
         )
+        # The version key isn't popped, but it's
+        # validated in `load`.
         self.pop_config('version', None)
         wrong_key = '.'.join(self._get_extra_key(self.raw_config))
         if wrong_key:
