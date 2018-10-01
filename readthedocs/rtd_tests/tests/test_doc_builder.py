@@ -353,9 +353,14 @@ class MkdocsBuilderTest(TestCase):
         checkout_path.return_value = tmpdir
         generate_rtd_data.return_value = ''
 
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
         self.searchbuilder.append_conf()
 
