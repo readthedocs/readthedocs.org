@@ -15,9 +15,10 @@ these properties, and the click **Next** to
 .. _Import: https://readthedocs.org/dashboard/import
 
 
-.. figure:: /img/first-steps/import-a-repository.png
+.. figure:: ../_static/images/first-steps/import-a-repository.png
     :align: right
     :figwidth: 300px
+    :target: ../_static/images/first-steps/import-a-repository.png
 
     Importing a repository
 

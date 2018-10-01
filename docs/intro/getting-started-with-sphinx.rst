@@ -75,6 +75,13 @@ Your ``index.rst`` has been built into ``index.html``
 in your documentation output directory (typically ``_build/html/index.html``).
 Open this file in your web browser to see your docs.
 
+.. figure:: ../_static/images/first-steps/sphinx-hello-world.png
+    :align: right
+    :figwidth: 300px
+    :target: ../_static/images/first-steps/sphinx-hello-world.png
+
+    Your Sphinx project is built
+
 Edit your files and rebuild until you like what you see, then commit your changes and push to your public repository.
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs
 by :doc:`importing your docs </intro/import-guide>`.
