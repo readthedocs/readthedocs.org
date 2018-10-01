@@ -24,17 +24,17 @@ There is `a screencast`_ that will help you get started if you prefer.
 Sphinx_ is a tool that makes it easy to create beautiful documentation.
 Assuming you have Python_ already, `install Sphinx`_::
 
-    $ pip install sphinx sphinx-autobuild
+    pip install sphinx sphinx-autobuild
 
 Create a directory inside your project to hold your docs::
 
-    $ cd /path/to/project
-    $ mkdir docs
+    cd /path/to/project
+    mkdir docs
 
 Run ``sphinx-quickstart`` in there::
 
-    $ cd docs
-    $ sphinx-quickstart
+    cd docs
+    sphinx-quickstart
 
 This quick start will walk you through creating the basic configuration; in most cases, you
 can just accept the defaults. When it's done, you'll have an ``index.rst``, a
@@ -44,7 +44,7 @@ Now, edit your ``index.rst`` and add some information about your project.
 Include as much detail as you like (refer to the reStructuredText_ syntax
 or `this template`_ if you need help). Build them to see how they look::
 
-    $ make html
+    make html
 
 .. note:: You can use ``sphinx-autobuild`` to auto-reload your docs. Run ``sphinx-autobuild . _build/html`` instead.
 
@@ -57,7 +57,7 @@ In Markdown
 You can use Markdown and reStructuredText in the same Sphinx project.
 We support this natively on Read the Docs, and you can do it locally::
 
-    $ pip install recommonmark
+    pip install recommonmark
 
 Then in your ``conf.py``:
 

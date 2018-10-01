@@ -7,23 +7,23 @@ Assumptions and Prerequisites
 * Debian VM provisioned with python 2.7.x
 * All python dependencies and setup tools are installed ::
 
-  $ sudo apt-get install python-setuptools
-  $ sudo apt-get install build-essential
-  $ sudo apt-get install python-dev
-  $ sudo apt-get install libevent-dev
-  $ sudo easy_install pip 
+  sudo apt-get install python-setuptools
+  sudo apt-get install build-essential
+  sudo apt-get install python-dev
+  sudo apt-get install libevent-dev
+  sudo easy_install pip
 
 * Git ::
 
-  $ sudo apt-get install git
-  
+  sudo apt-get install git
+
 * Git repo is ``git.corp.company.com:git/docs/documentation.git``
 * Source documents are in ``../docs/source``
 * Sphinx ::
 
-  $ sudo pip install sphinx
+  sudo pip install sphinx
 
-.. note:: Not using sudo may prevent access. “error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied” 
+.. note:: Not using sudo may prevent access. “error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied”
 
 Local RTD Setup
 ---------------
@@ -33,12 +33,12 @@ Install RTD
 
 To host your documentation on a local RTD installation, set it up in your VM. ::
 
-    $ mkdir checkouts
-    $ cd checkouts
-    $ git clone https://github.com/rtfd/readthedocs.org.git
-    $ cd readthedocs.org
-    $ sudo pip install -r requirements.txt
-    
+    mkdir checkouts
+    cd checkouts
+    git clone https://github.com/rtfd/readthedocs.org.git
+    cd readthedocs.org
+    sudo pip install -r requirements.txt
+
 Possible Error and Resolution
 `````````````````````````````
 
@@ -46,27 +46,27 @@ Possible Error and Resolution
 
 **Resolution**: Run the following commands. ::
 
-    $ sudo apt-get update
-    $ sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-devel libxslt-devel
-    $ sudo apt-get build-dep python-imaging --fix-missing 
+    sudo apt-get update
+    sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-devel libxslt-devel
+    sudo apt-get build-dep python-imaging --fix-missing
 
 On Debian 8 (jessie) the command is slightly different ::
 
-    $ sudo apt-get update
-    $ sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-dev libxslt-dev
-    $ sudo apt-get build-dep python-imaging --fix-missing 
+    sudo apt-get update
+    sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-dev libxslt-dev
+    sudo apt-get build-dep python-imaging --fix-missing
 
 Also don't forget to re-run the dependency installation ::
 
-    $ sudo pip install -r requirements.txt
+    sudo pip install -r requirements.txt
 
 Configure the RTD Server and Superuser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Run the following commands. ::
 
-    $ ./manage.py migrate
-    $ ./manage.py createsuperuser
+    ./manage.py migrate
+    ./manage.py createsuperuser
 
 2. This will prompt you to create a superuser account for Django. Enter appropriate details. For example: ::
 
@@ -79,8 +79,8 @@ RTD Server Administration
 
 Navigate to the ``../checkouts/readthedocs.org`` folder in your VM and run the following command. ::
 
-    $ ./manage.py runserver [VM IP ADDRESS]:8000
-    $ curl -i http://[VM IP ADDRESS]:8000
+    ./manage.py runserver [VM IP ADDRESS]:8000
+    curl -i http://[VM IP ADDRESS]:8000
 
 You should now be able to log into the admin interface from any PC in your LAN at ``http://[VM IP ADDRESS]:8000/admin`` using the superuser account created in django.
 
@@ -92,7 +92,7 @@ Go to the dashboard at  ``http://[VM IP ADDRESS]:8000/dashboard`` and follow the
 3. Navigate to the root path for documentation.
 4. Run the following Sphinx commands. ::
 
-    $ make html
+    make html
 
 This generates the HTML documentation site using the default Sphinx theme. Verify the output in your local documentation folder under ``../build/html``
 
@@ -107,29 +107,29 @@ Possible Error and Resolution
 
 1. In your machine, navigate to the ``.ssh`` folder. ::
 
-    $ cd .ssh/ 
-    $ cat id_rsa 
+    cd .ssh/
+    cat id_rsa
 
 2. Copy the entire Private Key.
 3. Now, SSH to the VM.
 4. Open the ``id_rsa`` file in the VM. ::
 
-    $ vim /home/<username>/.ssh/id_rsa
+    vim /home/<username>/.ssh/id_rsa
 
 5. Paste the RSA key copied from your machine and save file (``Esc``. ``:wq!``).
 
-**Workaround 2** 
+**Workaround 2**
 
 SSH to the VM using the ``-A`` directive. ::
 
-    $ ssh document-vm -A 
-    
+    ssh document-vm -A 
+
 This provides all permissions for that particular remote session, which are revoked when you logout.
 
 Build Documentation on Local RTD Instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Log into ``http://[VM IP ADDRESS]:[PORT]`` using the django superuser creds and follow these steps.	
+Log into ``http://[VM IP ADDRESS]:[PORT]`` using the django superuser creds and follow these steps.
 
 For a new project
 `````````````````

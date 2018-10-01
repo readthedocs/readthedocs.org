@@ -16,7 +16,7 @@ Here is an example of what this file looks like:
 
    build:
      image: latest
-   
+
    python:
      version: 3.6
      setup_py_install: true
@@ -142,7 +142,7 @@ This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,
 the highest supported minor version will be selected.
 
-.. warning:: 
+.. warning::
 
     The supported Python versions depends on the version of the build image your
     project is using. The default build image that is used to build
@@ -205,31 +205,31 @@ documentation.
 
 .. TODO not yet implemented. We should move these to another doc.
 .. ==============================================================
-.. 
+..
 .. type
 .. ~~~~
-.. 
+..
 .. * Default: ``sphinx``
 .. * Options: ``sphinx``, ``mkdocs``
-.. 
+..
 .. The ``type`` block allows you to configure the build tool used for building
 .. your documentation.
-.. 
+..
 .. .. code-block:: yaml
-.. 
+..
 ..     type: sphinx
-.. 
+..
 .. conf_file
 .. ~~~~~~~~~
-.. 
+..
 .. * Default: `None`
 .. * Type: Path (specified from the root of the project)
-.. 
+..
 .. The path to a specific Sphinx ``conf.py`` file. If none is found, we will
 .. choose one.
-.. 
+..
 .. .. code-block:: yaml
-.. 
+..
 ..     conf_file: project2/docs/conf.py
 
 .. _yaml__python__extra_requirements:
@@ -280,7 +280,7 @@ Behind the scene the following Pip command will be run:
 
 .. code-block:: shell
 
-    $ pip install -e .[tests,docs]
+    pip install -e .[tests,docs]
 
 
 .. _issue: https://github.com/rtfd/readthedocs.org/issues

@@ -2,7 +2,7 @@ Contributing to Read the Docs
 =============================
 
 You are here to help on Read the Docs? Awesome, feel welcome and read the
-following sections in order to know how to ask questions and how to work on something. 
+following sections in order to know how to ask questions and how to work on something.
 
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
@@ -51,18 +51,18 @@ you know if there were any problems that is wasn't able to fix automatically.
 
 To run the `pre-commit` command and check your changes::
 
-    $ pip install -U pre-commit
-    $ git add <your-modified-files>
-    $ pre-commit run
+    pip install -U pre-commit
+    git add <your-modified-files>
+    pre-commit run
 
 or to run against a specific file::
 
-    $ pre-commit run --files <file.py>
+    pre-commit run --files <file.py>
 
 `pre-commit` can also be run as a git pre-commit hook. You can set this up
 with::
 
-    $ pre-commit install
+    pre-commit install
 
 After this installation, the next time you run `git commit` the `pre-commit run`
 command will be run immediately and will inform you of the changes and errors.

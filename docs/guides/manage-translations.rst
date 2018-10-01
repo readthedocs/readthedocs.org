@@ -33,7 +33,7 @@ To generate these ``.pot`` files it's needed to run this command from your ``doc
 
 .. code-block:: console
 
-   $ sphinx-build -b gettext . _build/gettext
+   sphinx-build -b gettext . _build/gettext
 
 
 .. tip::
@@ -59,7 +59,7 @@ First, you need to install it:
 
 .. code-block:: console
 
-   $ pip install sphinx-intl
+   pip install sphinx-intl
 
 
 As a second step, we want to create a directory with each translated file per target language
@@ -68,7 +68,7 @@ This can be achieved with the following command:
 
 .. code-block:: console
 
-   $ sphinx-intl update -p _build/gettext -l es_AR -l pt_BR
+   sphinx-intl update -p _build/gettext -l es_AR -l pt_BR
 
 This command will create a directory structure similar to the following
 (with one ``.po`` file per ``.rst`` file in your documentation)::
@@ -115,7 +115,7 @@ To do this, run this command:
 
 .. code-block:: console
 
-   $ pip install transifex-client
+   pip install transifex-client
 
 After installing it, you need to configure your account.
 For this, you need to create an API Token for your user to access this service through the command line.
@@ -128,7 +128,7 @@ Now, you need to setup it to use this token:
 
 .. code-block:: console
 
-   $ tx init --token $TOKEN --no-interactive
+   tx init --token $TOKEN --no-interactive
 
 
 The next step is to map every ``.pot`` file you have created in the previous step to a resource under Transifex.
@@ -136,7 +136,7 @@ To achieve this, you need to run this command:
 
 .. code-block:: console
 
-   $ tx config mapping-bulk \
+   tx config mapping-bulk \
        --project $TRANSIFEX_PROJECT \
        --file-extension '.pot' \
        --source-file-dir docs/_build/gettext \
@@ -152,7 +152,7 @@ To do this, you can run this command:
 
 .. code-block:: console
 
-   $ tx push --source
+   tx push --source
 
 
 Now, you can go to your Transifex's project and check that there is one resource per ``.rst`` file of your documentation.
@@ -160,7 +160,7 @@ After the source files are translated using Transifex, you can download all the 
 
 .. code-block:: console
 
-   $ tx pull --all
+   tx pull --all
 
 This command will leave the ``.po`` files needed for building the documentation in the target language under ``locale/<lang>/LC_MESSAGES``.
 
@@ -178,7 +178,7 @@ Finally, to build our documentation in Spanish(Argentina) we need to tell Sphinx
 
 .. code-block:: console
 
-   $ sphinx-build -b html -D language=es_AR . _build/html/es_AR
+   sphinx-build -b html -D language=es_AR . _build/html/es_AR
 
 .. note::
 
@@ -199,19 +199,19 @@ Once you have done changes in your documentation, you may want to make these add
 
    .. code-block:: console
 
-      $ sphinx-build -b gettext . _build/gettext
+      sphinx-build -b gettext . _build/gettext
 
 
 .. For the manual workflow, we need to run this command
 
-      $ sphinx-intl update -p _build/gettext -l es_AR -l pt_BR
+      sphinx-intl update -p _build/gettext -l es_AR -l pt_BR
 
 
 #. Push new files to Transifex
 
    .. code-block:: console
 
-      $ tx push --sources
+      tx push --sources
 
 
 Build documentation from up to date translation
@@ -223,14 +223,14 @@ When translators have finished their job, you may want to update the documentati
 
    .. code-block:: console
 
-      $ tx pull --all
+      tx pull --all
 
 #. Commit and push these changes to our repo
 
    .. code-block:: console
 
-      $ git add locale/
-      $ git commit -m "Update translations"
-      $ git push
+      git add locale/
+      git commit -m "Update translations"
+      git push
 
 The last ``git push`` will trigger a build per translation defined as part of your project under Read the Docs and make it immediately available.
