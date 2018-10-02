@@ -21,7 +21,6 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
     class Meta(object):
         model = Project
         fields = ('name', 'slug', 'description')
-        auto_refresh = False
 
     url = fields.TextField(attr='get_absolute_url')
     users = fields.NestedField(properties={
@@ -53,7 +52,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
         model = HTMLFile
         fields = ('commit',)
         ignore_signals = settings.ES_PAGE_IGNORE_SIGNALS
-        auto_refresh = False
 
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
