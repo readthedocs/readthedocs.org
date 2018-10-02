@@ -109,12 +109,15 @@ class SyncRepositoryMixin(object):
             # Get the actual code on disk
             try:
                 before_vcs.send(sender=self.version)
-                self._log(
-                    'Checking out version {slug}: {identifier}'.format(
-                        slug=self.version.slug,
-                        identifier=self.version.identifier,
-                    ),
+                msg = 'Checking out version {slug}: {identifier}'.format(
+                    slug=self.version.slug,
+                    identifier=self.version.identifier,
                 )
+                log.info(LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=msg,
+                ))
                 version_repo = self.get_vcs_repo()
                 version_repo.checkout(self.version.identifier)
             finally:
@@ -168,15 +171,6 @@ class SyncRepositoryMixin(object):
                 raise RepositoryError(
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS
                 )
-
-    # TODO this is duplicated in the classes below, and this should be
-    # refactored out anyways, as calling from the method removes the original
-    # caller from logging.
-    def _log(self, msg):
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg=msg))
 
 
 # TODO SyncRepositoryTask should be refactored into a standard celery task,
@@ -284,12 +278,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.config = config
         self.task = task
         self.setup_env = None
-
-    def _log(self, msg):
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg=msg))
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
@@ -429,7 +417,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.additional_vcs_operations()
 
         if self.setup_env.failure or self.config is None:
-            self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
+            msg = 'Failing build because of setup failure: {}'.format(
+                self.setup_env.failure
+            )
+            log.info(LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version=self.version.slug,
+                msg=msg,
+            ))
 
             # Send notification to users only if the build didn't fail because of
             # LockTimeout: this exception occurs when a build is triggered before the previous
@@ -494,7 +489,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         with self.build_env:
             python_env_cls = Virtualenv
             if self.config.conda is not None:
-                self._log('Using conda')
+                log.info(LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Using conda',
+                ))
                 python_env_cls = Conda
             self.python_env = python_env_cls(
                 version=self.version,
@@ -562,7 +561,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
-        self._log(msg='Updating docs from VCS')
+        log.info(LOG_TEMPLATE.format(
+            project=self.project.slug,
+            version=self.version.slug,
+            msg='Updating docs from VCS',
+        ))
         self.sync_repo()
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
