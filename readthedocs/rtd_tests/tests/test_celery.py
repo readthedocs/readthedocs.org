@@ -191,15 +191,11 @@ class TestCeleryBuilding(RTDTestCase):
         from readthedocs.core.utils.tasks import PublicTask
         from readthedocs.worker import app
 
-        class PublicTaskException(PublicTask):
-            name = 'public_task_exception'
+        @app.task(name='public_task_exception', base=PublicTask)
+        def public_task_exception():
+            raise Exception('Something bad happened')
 
-            def run_public(self):
-                raise Exception('Something bad happened')
-
-        app.tasks.register(PublicTaskException)
-        exception_task = PublicTaskException()
-        result = exception_task.delay()
+        result = public_task_exception.delay()
 
         # although the task risen an exception, it's success since we add the
         # exception into the ``info`` attributes
