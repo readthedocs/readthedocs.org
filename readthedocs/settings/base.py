@@ -329,7 +329,6 @@ class CommunityBaseSettings(Settings):
     ELASTICSEARCH_DSL = {
         'default': {
             'hosts': '127.0.0.1:9200',
-            'refresh_interval': '5s',
             'sniff_on_start': True,
             'sniff_on_connection_fail': True,
             'sniffer_timeout': 60,
@@ -354,7 +353,7 @@ class CommunityBaseSettings(Settings):
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 5,
-                         'number_of_replicas': 1
+                         'number_of_replicas': 1,
                          }
         },
         'page': {
@@ -362,6 +361,7 @@ class CommunityBaseSettings(Settings):
             'settings': {
                 'number_of_shards': 5,
                 'number_of_replicas': 1,
+                'refresh_interval': '5s',
             }
         },
     }
