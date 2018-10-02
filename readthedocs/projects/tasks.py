@@ -115,13 +115,7 @@ class SyncRepositoryMixin(object):
                         identifier=self.version.identifier,
                     ),
                 )
-                version_repo = self.project.vcs_repo(
-                    self.version.slug,
-                    # When called from ``SyncRepositoryTask.run`` we don't have
-                    # a ``setup_env`` so we use just ``None`` and commands won't
-                    # be recorded
-                    getattr(self, 'setup_env', None),
-                )
+                version_repo = self.get_vcs_repo()
                 version_repo.checkout(self.version.identifier)
             finally:
                 after_vcs.send(sender=self.version)
@@ -432,6 +426,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         exception=str(e),
                     ))
 
+            self.additional_vcs_operations()
+
         if self.setup_env.failure or self.config is None:
             self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
 
@@ -447,6 +443,27 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.set_valid_clone()
 
         return True
+
+    def additional_vcs_operations(self):
+        """
+        Execution of tasks that involve the project's VCS.
+
+        All this tasks have access to the configuration object.
+        """
+        version_repo = self.get_vcs_repo()
+        if version_repo.supports_submodules:
+            version_repo.update_submodules(self.config)
+
+    def get_vcs_repo(self):
+        """Get the VCS object of the current project."""
+        version_repo = self.project.vcs_repo(
+            self.version.slug,
+            # When called from ``SyncRepositoryTask.run`` we don't have
+            # a ``setup_env`` so we use just ``None`` and commands won't
+            # be recorded
+            getattr(self, 'setup_env', None),
+        )
+        return version_repo
 
     def run_build(self, docker, record):
         """

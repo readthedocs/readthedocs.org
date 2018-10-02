@@ -1552,6 +1552,13 @@ class TestBuildConfigV2(object):
         assert 'configured as "Sphinx HtmlDir"' in str(excinfo.value)
         assert 'your "sphinx.builder" key does not match' in str(excinfo.value)
 
+    def test_submodule_defaults(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == ALL
+        assert build.submodules.recursive is False
+
     @pytest.mark.parametrize('value', [[], 'invalid', 0])
     def test_submodules_check_invalid_type(self, value):
         build = self.get_build_config({'submodules': value})
@@ -1682,7 +1689,7 @@ class TestBuildConfigV2(object):
         })
         build.validate()
         assert build.submodules.include == []
-        assert build.submodules.exclude == []
+        assert build.submodules.exclude == ALL
         assert build.submodules.recursive is False
 
         build = self.get_build_config({

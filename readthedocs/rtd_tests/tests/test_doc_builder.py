@@ -63,7 +63,7 @@ class SphinxBuilderTest(TestCase):
         having a ``TypeError`` because of an encoding problem in Python3)
         """
         tmp_dir = tempfile.mkdtemp()
-        checkout_path.return_value = tmp_dir 
+        checkout_path.return_value = tmp_dir
         docs_dir.return_value = tmp_dir
         create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
@@ -190,7 +190,6 @@ class MkdocsBuilderTest(TestCase):
             'theme_dir': '/path/to/mydir/',
         }
         self.assertEqual(builder.get_theme_name(config), 'mydir')
-
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')

@@ -549,6 +549,14 @@ class BuildConfigV1(BuildConfigBase):
             fail_on_warning=False,
         )
 
+    @property
+    def submodules(self):
+        return Submodules(
+            include=ALL,
+            exclude=[],
+            recursive=True,
+        )
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -871,7 +879,8 @@ class BuildConfigV2(BuildConfigBase):
             submodules['include'] = include
 
         with self.catch_validation_error('submodules.exclude'):
-            exclude = raw_submodules.get('exclude', [])
+            default = [] if submodules['include'] else ALL
+            exclude = raw_submodules.get('exclude', default)
             if exclude != ALL:
                 exclude = [
                     validate_string(submodule)
@@ -880,7 +889,11 @@ class BuildConfigV2(BuildConfigBase):
             submodules['exclude'] = exclude
 
         with self.catch_validation_error('submodules'):
-            if submodules['exclude'] and submodules['include']:
+            is_including = bool(submodules['include'])
+            is_excluding = (
+                submodules['exclude'] == ALL or bool(submodules['exclude'])
+            )
+            if is_including and is_excluding:
                 self.error(
                     'submodules',
                     'You can not exclude and include submodules '
