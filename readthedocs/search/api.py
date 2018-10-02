@@ -1,17 +1,16 @@
 from rest_framework import generics
-from rest_framework import exceptions
 from rest_framework.exceptions import ValidationError
 
-from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.filters import SearchFilterBackend
-from readthedocs.search.pagination import SearchPagination
+# from readthedocs.search.pagination import SearchPagination
 from readthedocs.search.serializers import PageSearchSerializer
 from readthedocs.search.utils import get_project_list_or_404
 
 
 class PageSearchAPIView(generics.ListAPIView):
-    pagination_class = SearchPagination
+    # Turn off pagination for now to test performance
+    pagination_class = None
     filter_backends = [SearchFilterBackend]
     serializer_class = PageSearchSerializer
 
@@ -26,7 +25,7 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('query', '')
-        queryset = PageDocument.simple_search(query=query)
+        queryset = PageDocument.simple_search(query=query)[:10]
         return queryset
 
     def validate_query_params(self):
