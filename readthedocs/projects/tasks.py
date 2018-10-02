@@ -366,6 +366,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
                 )
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
+
+            # Send notifications for unhandled errors
+            self.send_notifications()
             return False
         else:
             # No exceptions in the setup step, catch unhandled errors in the
@@ -391,6 +394,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         )
                     )
                     self.build_env.update_build(BUILD_STATE_FINISHED)
+
+                # Send notifications for unhandled errors
+                self.send_notifications()
                 return False
 
         return True
