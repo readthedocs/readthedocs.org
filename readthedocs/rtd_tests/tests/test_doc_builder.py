@@ -335,3 +335,36 @@ class MkdocsBuilderTest(TestCase):
             config['theme_dir'],
             'not-readthedocs'
         )
+
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.generate_rtd_data')
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_write_js_data_docs_dir(self, checkout_path, run, generate_rtd_data):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+        generate_rtd_data.return_value = ''
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.searchbuilder.append_conf()
+
+        generate_rtd_data.assert_called_with(
+            docs_dir='docs',
+            mkdocs_config=mock.ANY
+        )
