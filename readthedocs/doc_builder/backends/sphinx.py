@@ -74,7 +74,12 @@ class BaseSphinx(BaseBuilder):
         # TODO this should be handled better in the theme
         conf_py_path = os.path.join(
             os.path.sep,
-            self.config_file,
+            os.path.dirname(
+                os.path.relpath(
+                    self.config_file,
+                    self.project.checkout_path(self.version.slug)
+                )
+            ),
             '',
         )
         remote_version = self.version.commit_name

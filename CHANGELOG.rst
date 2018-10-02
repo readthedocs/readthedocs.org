@@ -1,3 +1,20 @@
+Version 2.7.0
+-------------
+
+:Date: September 29, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`__: Fix broken docs links (`#4677 <https://github.com/rtfd/readthedocs.org/pull/4677>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove search autosync from tests so local tests work (`#4675 <https://github.com/rtfd/readthedocs.org/pull/4675>`__)
+* `@stsewd <http://github.com/stsewd>`__: Skip local settings on local testing (`#4674 <https://github.com/rtfd/readthedocs.org/pull/4674>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Release 2.6.6 (`#4664 <https://github.com/rtfd/readthedocs.org/pull/4664>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Put search step back into project build task (`#4655 <https://github.com/rtfd/readthedocs.org/pull/4655>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Update translations from transifex (`#4645 <https://github.com/rtfd/readthedocs.org/pull/4645>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [GSoC 2018] All Search Improvements (`#4636 <https://github.com/rtfd/readthedocs.org/pull/4636>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Updates and simplification for mkdocs (`#4556 <https://github.com/rtfd/readthedocs.org/pull/4556>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement mkdocs key from v2 config (`#4486 <https://github.com/rtfd/readthedocs.org/pull/4486>`__)
+* `@stsewd <http://github.com/stsewd>`__: More robusts tests for requirements_file and conda_file (`#4394 <https://github.com/rtfd/readthedocs.org/pull/4394>`__)
+* `@berkerpeksag <http://github.com/berkerpeksag>`__: Use cname_to_slug() helper in SubdomainMiddleware (`#2317 <https://github.com/rtfd/readthedocs.org/pull/2317>`__)
+
 Version 2.6.6
 -------------
 

@@ -1,0 +1,260 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Japanese (https://www.transifex.com/readthedocs/teams/2534/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../yaml-config.rst:2
+msgid "Read the Docs YAML Config"
+msgstr ""
+
+#: ../../yaml-config.rst:4
+msgid ""
+"Read the Docs now has support for configuring builds with a YAML file. The "
+"file, ``readthedocs.yml``, must be in the root directory of your project."
+msgstr ""
+
+#: ../../yaml-config.rst:7
+msgid ""
+"This feature is in a beta state. Please file an `issue`_ if you find "
+"anything wrong."
+msgstr ""
+
+#: ../../yaml-config.rst:11
+msgid "Here is an example of what this file looks like:"
+msgstr ""
+
+#: ../../yaml-config.rst:26
+msgid "Supported settings"
+msgstr ""
+
+#: ../../yaml-config.rst:31
+msgid "formats"
+msgstr ""
+
+#: ../../yaml-config.rst:33
+msgid "Default: [``htmlzip``, ``pdf``, ``epub``]"
+msgstr ""
+
+#: ../../yaml-config.rst:34
+msgid "Options: ``htmlzip``, ``pdf``, ``epub``"
+msgstr ""
+
+#: ../../yaml-config.rst:35 ../../yaml-config.rst:241
+msgid "Type: List"
+msgstr ""
+
+#: ../../yaml-config.rst:37
+msgid ""
+"The formats of your documentation you want to be built. Set as an empty list"
+" ``[]`` to build none of the formats."
+msgstr ""
+
+#: ../../yaml-config.rst:40
+msgid ""
+"We will always build an HTML & JSON version of your documentation. These are"
+" used for web serving & search indexing, respectively."
+msgstr ""
+
+#: ../../yaml-config.rst:58
+msgid "requirements_file"
+msgstr ""
+
+#: ../../yaml-config.rst:60 ../../yaml-config.rst:79
+msgid "Default: ``null``"
+msgstr ""
+
+#: ../../yaml-config.rst:61 ../../yaml-config.rst:80
+msgid "Type: Path (specified from the root of the project)"
+msgstr ""
+
+#: ../../yaml-config.rst:63
+msgid "The path to your pip requirements file."
+msgstr ""
+
+#: ../../yaml-config.rst:72
+msgid "conda"
+msgstr ""
+
+#: ../../yaml-config.rst:74
+msgid "The ``conda`` block allows for configuring our support for Conda."
+msgstr ""
+
+#: ../../yaml-config.rst:77
+msgid "conda.file"
+msgstr ""
+
+#: ../../yaml-config.rst:82
+msgid "The file option specified the Conda `environment file`_ to use."
+msgstr ""
+
+#: ../../yaml-config.rst:89
+msgid "Conda is only supported via the YAML file."
+msgstr ""
+
+#: ../../yaml-config.rst:94
+msgid "build"
+msgstr ""
+
+#: ../../yaml-config.rst:96
+msgid ""
+"The ``build`` block configures specific aspects of the documentation build."
+msgstr ""
+
+#: ../../yaml-config.rst:101
+msgid "build.image"
+msgstr ""
+
+#: ../../yaml-config.rst:103
+msgid "Default: :djangosetting:`DOCKER_IMAGE`"
+msgstr ""
+
+#: ../../yaml-config.rst:104
+msgid "Options: ``1.0``, ``2.0``, ``latest``"
+msgstr ""
+
+#: ../../yaml-config.rst:106
+msgid ""
+"The build image to use for specific builds. This lets users specify a more "
+"experimental build image, if they want to be on the cutting edge."
+msgstr ""
+
+#: ../../yaml-config.rst:110
+msgid ""
+"Certain Python versions require a certain build image, as defined here:"
+msgstr ""
+
+#: ../../yaml-config.rst:113
+msgid "``1.0``: 2, 2.7, 3, 3.4"
+msgstr ""
+
+#: ../../yaml-config.rst:114
+msgid "``2.0``: 2, 2.7, 3, 3.5"
+msgstr ""
+
+#: ../../yaml-config.rst:115
+msgid "``latest``: 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6"
+msgstr ""
+
+#: ../../yaml-config.rst:128
+msgid "python"
+msgstr ""
+
+#: ../../yaml-config.rst:130
+msgid ""
+"The ``python`` block allows you to configure aspects of the Python "
+"executable used for building documentation."
+msgstr ""
+
+#: ../../yaml-config.rst:136
+msgid "python.version"
+msgstr ""
+
+#: ../../yaml-config.rst:138
+msgid "Default: ``2.7``"
+msgstr ""
+
+#: ../../yaml-config.rst:139
+msgid "Options: ``2.7``, ``2``, ``3.5``, ``3``"
+msgstr ""
+
+#: ../../yaml-config.rst:141
+msgid ""
+"This is the version of Python to use when building your documentation. If "
+"you specify only the major version of Python, the highest supported minor "
+"version will be selected."
+msgstr ""
+
+#: ../../yaml-config.rst:147
+msgid ""
+"The supported Python versions depends on the version of the build image your"
+" project is using. The default build image that is used to build "
+"documentation contains support for Python ``2.7`` and ``3.5``.  See the "
+":ref:`yaml__build__image` for more information on supported Python versions."
+msgstr ""
+
+#: ../../yaml-config.rst:158
+msgid "python.use_system_site_packages"
+msgstr ""
+
+#: ../../yaml-config.rst:160 ../../yaml-config.rst:178
+#: ../../yaml-config.rst:194
+msgid "Default: ``false``"
+msgstr ""
+
+#: ../../yaml-config.rst:161 ../../yaml-config.rst:179
+#: ../../yaml-config.rst:195
+msgid "Type: Boolean"
+msgstr ""
+
+#: ../../yaml-config.rst:163
+msgid ""
+"When true, it gives the virtual environment access to the global site-"
+"packages directory. Depending on the :ref:`yaml-config:build.image`, Read "
+"the Docs includes some libraries like scipy, numpy, etc. See "
+":ref:`builds:The build environment` for more details."
+msgstr ""
+
+#: ../../yaml-config.rst:176
+msgid "python.setup_py_install"
+msgstr ""
+
+#: ../../yaml-config.rst:181
+msgid ""
+"When true, install your project into the Virtualenv with ``python setup.py "
+"install`` when building documentation."
+msgstr ""
+
+#: ../../yaml-config.rst:192
+msgid "python.pip_install"
+msgstr ""
+
+#: ../../yaml-config.rst:197
+msgid ""
+"When ``true``, install your project into the virtualenv with pip when "
+"building documentation."
+msgstr ""
+
+#: ../../yaml-config.rst:238
+msgid "python.extra_requirements"
+msgstr ""
+
+#: ../../yaml-config.rst:240
+msgid "Default: ``[]``"
+msgstr ""
+
+#: ../../yaml-config.rst:243
+msgid ""
+"List of `extra requirements`_ sections to install, additionally to the "
+"`package default dependencies`_. Only works if ``python.pip_install`` option"
+" above is set to ``true``."
+msgstr ""
+
+#: ../../yaml-config.rst:247
+msgid ""
+"Let's say your Python package has a ``setup.py`` which looks like this:"
+msgstr ""
+
+#: ../../yaml-config.rst:268
+msgid ""
+"Then to have all dependencies from the ``tests`` and ``docs`` sections "
+"installed in addition to the default ``requests`` and ``simplejson``, use "
+"the ``extra_requirements`` as such:"
+msgstr ""
+
+#: ../../yaml-config.rst:279
+msgid "Behind the scene the following Pip command will be run:"
+msgstr ""

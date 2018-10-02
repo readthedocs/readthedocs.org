@@ -43,6 +43,7 @@ class BaseVCS(object):
 
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
+    supports_submodules = False
 
     # =========================================================================
     # General methods
@@ -139,3 +140,11 @@ class BaseVCS(object):
         backend is responsible to understand it's identifiers.
         """
         self.check_working_dir()
+
+    def update_submodules(self, config):
+        """
+        Update the submodules of the current checkout.
+
+        :type config: readthedocs.config.BuildConfigBase
+        """
+        raise NotImplementedError

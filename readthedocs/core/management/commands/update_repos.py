@@ -31,14 +31,6 @@ class Command(BaseCommand):
         parser.add_argument('slugs', nargs='+', type=str)
 
         parser.add_argument(
-            '-r',
-            action='store_true',
-            dest='record',
-            default=False,
-            help='Make a Build',
-        )
-
-        parser.add_argument(
             '-f',
             action='store_true',
             dest='force',
@@ -49,12 +41,11 @@ class Command(BaseCommand):
         parser.add_argument(
             '-V',
             dest='version',
-            default=None,
+            default='all',
             help='Build a version, or all versions',
         )
 
     def handle(self, *args, **options):
-        record = options['record']
         force = options['force']
         version = options['version']
 
@@ -75,27 +66,23 @@ class Command(BaseCommand):
                             uploaded=False,
                     ):
 
-                        build_pk = None
-                        if record:
-                            build = Build.objects.create(
-                                project=version.project,
-                                version=version,
-                                type='html',
-                                state='triggered',
-                            )
-                            build_pk = build.pk
+                        build = Build.objects.create(
+                            project=version.project,
+                            version=version,
+                            type='html',
+                            state='triggered',
+                        )
 
                         # pylint: disable=no-value-for-parameter
                         tasks.update_docs_task(
                             version.project_id,
                             build_pk=build_pk,
-                            record=record,
                             version_pk=version.pk,
                         )
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info('Building %s', p)
-                    trigger_build(project=p, force=force, record=record)
+                    trigger_build(project=p, force=force)
         else:
             if version == 'all':
                 log.info('Updating all versions')
@@ -106,7 +93,6 @@ class Command(BaseCommand):
                     # pylint: disable=no-value-for-parameter
                     tasks.update_docs_task(
                         version.project_id,
-                        record=record,
                         force=force,
                         version_pk=version.pk,
                     )
@@ -116,6 +102,5 @@ class Command(BaseCommand):
                     # pylint: disable=no-value-for-parameter
                     tasks.update_docs_task(
                         project.pk,
-                        record=record,
                         force=force,
                     )
