@@ -66,7 +66,6 @@ to help you create fantastic documentation for your project.
    api/index
    embed
 
-
 .. _feature-docs:
 
 .. toctree::
@@ -95,6 +94,7 @@ to help you create fantastic documentation for your project.
    :caption: About Read the Docs
 
    contribute
+   roadmap
    team
    gsoc
    code-of-conduct
@@ -114,6 +114,7 @@ to help you create fantastic documentation for your project.
 
    changelog
    install
+   development/search
    architecture
    tests
    docs
