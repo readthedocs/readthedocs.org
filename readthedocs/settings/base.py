@@ -328,7 +328,12 @@ class CommunityBaseSettings(Settings):
     ES_HOSTS = ['127.0.0.1:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': '127.0.0.1:9200',
+            'refresh_interval': '5s',
+            'sniff_on_start': True,
+            'sniff_on_connection_fail': True,
+            'sniffer_timeout': 60,
+            'retry_on_timeout': True
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
