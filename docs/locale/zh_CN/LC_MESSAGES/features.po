@@ -1,0 +1,186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/readthedocs-docs/language/zh_CN/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../features.rst:2
+msgid "Read the Docs features"
+msgstr ""
+
+#: ../../features.rst:4
+msgid ""
+"This will serve as a list of all of the features that Read the Docs "
+"currently has. Some features are important enough to have their own page in "
+"the docs, others will simply be listed here."
+msgstr ""
+
+#: ../../features.rst:7
+msgid "GitHub, Bitbucket and GitLab Integration"
+msgstr ""
+
+#: ../../features.rst:9
+msgid ""
+"We now support linking by default in the sidebar. It links to the page on "
+"your host, which should help people quickly update typos and send pull "
+"requests to contribute to project documentation."
+msgstr ""
+
+#: ../../features.rst:11
+msgid "More information can be found in the :doc:`vcs` page."
+msgstr ""
+
+#: ../../features.rst:14
+msgid "Auto-updating"
+msgstr ""
+
+#: ../../features.rst:16
+msgid ""
+"The :doc:`webhooks` page talks about the different ways you can ping RTD to "
+"let us know your project has been updated. We have official support for "
+"GitHub, Bitbucket and GitLab, and anywhere else we have a generic post-"
+"commit hook that allows you to POST to a URL to get your documentation "
+"built."
+msgstr ""
+
+#: ../../features.rst:19
+msgid "Internationalization"
+msgstr ""
+
+#: ../../features.rst:21
+msgid ""
+"Read the Docs itself is localized, and we support documentation translated "
+"into multiple languages. Read more on the :doc:`localization` and "
+":doc:`i18n` pages."
+msgstr ""
+
+#: ../../features.rst:24
+msgid "Canonical URLs"
+msgstr ""
+
+#: ../../features.rst:26
+msgid ""
+"Canonical URLs give your docs better search performance, by pointing all "
+"URLs to one version. This also helps to solve the issues around users "
+"landing on outdated versions of documentation."
+msgstr ""
+
+#: ../../features.rst:28
+msgid "More information can be found in the :doc:`canonical` page."
+msgstr ""
+
+#: ../../features.rst:31
+msgid "Versions"
+msgstr ""
+
+#: ../../features.rst:33
+msgid ""
+"We can build multiple versions of your documentation. Look on the "
+"\"Versions\" page of your project's admin (using the nav on the left) to "
+"find a list of available versions that we've inferred from the tags and "
+"branches in your source control system (according to the support matrix "
+"below). On the Versions page you can tell us which versions you'd like us to"
+" build docs for, whether each should be public, protected, or private, and "
+"what the default version should be (we'll redirect there when someone hits "
+"your main project page, e.g., http://my-project.rtfd.org/)."
+msgstr ""
+
+#: ../../features.rst:42
+msgid "Version Control Support Matrix"
+msgstr ""
+
+#: ../../features.rst:45
+msgid "Git"
+msgstr ""
+
+#: ../../features.rst:45
+msgid "hg"
+msgstr ""
+
+#: ../../features.rst:45
+msgid "bzr"
+msgstr ""
+
+#: ../../features.rst:45
+msgid "svn"
+msgstr ""
+
+#: ../../features.rst:47
+msgid "Tags"
+msgstr ""
+
+#: ../../features.rst:47 ../../features.rst:47 ../../features.rst:47
+#: ../../features.rst:49 ../../features.rst:49 ../../features.rst:49
+msgid "Yes"
+msgstr ""
+
+#: ../../features.rst:47 ../../features.rst:49
+msgid "No"
+msgstr ""
+
+#: ../../features.rst:49
+msgid "Branches"
+msgstr ""
+
+#: ../../features.rst:51
+msgid "Default"
+msgstr ""
+
+#: ../../features.rst:51
+msgid "master"
+msgstr ""
+
+#: ../../features.rst:51
+msgid "default"
+msgstr ""
+
+#: ../../features.rst:51
+msgid "trunk"
+msgstr ""
+
+#: ../../features.rst:56
+msgid "PDF Generation"
+msgstr ""
+
+#: ../../features.rst:58
+msgid ""
+"When you build your project on RTD, we automatically build a PDF of your "
+"project's documentation. We also build them for every version that you "
+"upload, so we can host the PDFs of your latest documentation, as well as "
+"your latest stable releases as well."
+msgstr ""
+
+#: ../../features.rst:61
+msgid "Search"
+msgstr ""
+
+#: ../../features.rst:63
+msgid ""
+"We provide full-text search across all of the pages of documentation hosted "
+"on our site. This uses the excellent Haystack project and Elasticsearch as "
+"the search backend. We hope to be integrating this into the site more fully "
+"in the future."
+msgstr ""
+
+#: ../../features.rst:66
+msgid "Alternate Domains"
+msgstr ""
+
+#: ../../features.rst:68
+msgid ""
+"We provide support for custom domains, subdomains, and a shorturl for your "
+"project as well. This is outlined in the :doc:`alternate_domains` section."
+msgstr ""

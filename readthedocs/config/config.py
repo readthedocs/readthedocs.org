@@ -11,13 +11,22 @@ from contextlib import contextmanager
 
 import six
 
+from readthedocs.projects.constants import DOCUMENTATION_CHOICES
+
 from .find import find_one
 from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
-    ValidationError, validate_bool, validate_choice, validate_dict,
-    validate_directory, validate_file, validate_list, validate_string,
-    validate_value_exists)
+    ValidationError,
+    validate_bool,
+    validate_choice,
+    validate_dict,
+    validate_directory,
+    validate_file,
+    validate_list,
+    validate_string,
+    validate_value_exists,
+)
 
 __all__ = (
     'ALL',
@@ -138,7 +147,7 @@ class BuildConfigBase(object):
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
         source = '{file} [{pos}]'.format(
-            file=self.source_file,
+            file=os.path.relpath(self.source_file, self.base_path),
             pos=self.source_position,
         )
         error_message = '{source}: {message}'.format(
@@ -533,6 +542,21 @@ class BuildConfigV1(BuildConfigBase):
             fail_on_warning=False,
         )
 
+    @property
+    def mkdocs(self):
+        return Mkdocs(
+            configuration=None,
+            fail_on_warning=False,
+        )
+
+    @property
+    def submodules(self):
+        return Submodules(
+            include=ALL,
+            exclude=[],
+            recursive=True,
+        )
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -548,6 +572,7 @@ class BuildConfigV2(BuildConfigBase):
         'htmldir': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
+    builders_display = dict(DOCUMENTATION_CHOICES)
 
     def validate(self):
         """
@@ -566,6 +591,8 @@ class BuildConfigV2(BuildConfigBase):
         self.validate_doc_types()
         self._config['mkdocs'] = self.validate_mkdocs()
         self._config['sphinx'] = self.validate_sphinx()
+        # TODO: remove later
+        self.validate_final_doc_type()
         self._config['submodules'] = self.validate_submodules()
 
     def validate_formats(self):
@@ -806,6 +833,30 @@ class BuildConfigV2(BuildConfigBase):
 
         return sphinx
 
+    def validate_final_doc_type(self):
+        """
+        Validates that the doctype is the same as the admin panel.
+
+        This a temporal validation, as the configuration file
+        should support per version doctype, but we need to
+        adapt the rtd code for that.
+        """
+        dashboard_doctype = self.defaults.get('doctype', 'sphinx')
+        if self.doctype != dashboard_doctype:
+            error_msg = (
+                'Your project is configured as "{}" in your admin dashboard,'
+            ).format(self.builders_display[dashboard_doctype])
+
+            if dashboard_doctype == 'mkdocs' or not self.sphinx:
+                error_msg += ' but there is no "{}" key specified.'.format(
+                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
+                )
+            else:
+                error_msg += ' but your "sphinx.builder" key does not match.'
+
+            key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx.builder'
+            self.error(key, error_msg, code=INVALID_KEYS_COMBINATION)
+
     def validate_submodules(self):
         """
         Validates the submodules key.
@@ -828,7 +879,8 @@ class BuildConfigV2(BuildConfigBase):
             submodules['include'] = include
 
         with self.catch_validation_error('submodules.exclude'):
-            exclude = raw_submodules.get('exclude', [])
+            default = [] if submodules['include'] else ALL
+            exclude = raw_submodules.get('exclude', default)
             if exclude != ALL:
                 exclude = [
                     validate_string(submodule)
@@ -837,7 +889,11 @@ class BuildConfigV2(BuildConfigBase):
             submodules['exclude'] = exclude
 
         with self.catch_validation_error('submodules'):
-            if submodules['exclude'] and submodules['include']:
+            is_including = bool(submodules['include'])
+            is_excluding = (
+                submodules['exclude'] == ALL or bool(submodules['exclude'])
+            )
+            if is_including and is_excluding:
                 self.error(
                     'submodules',
                     'You can not exclude and include submodules '

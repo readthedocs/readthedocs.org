@@ -1,8 +1,14 @@
 """Utilities for retrieving task data."""
 
-from __future__ import absolute_import
-from celery.result import AsyncResult
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
+from celery import states
+from celery.result import AsyncResult
 
 __all__ = ('TaskNotFound', 'get_task_data')
 
@@ -23,7 +29,7 @@ def get_task_data(task_id):
 
     result = AsyncResult(task_id)
     state, info = result.state, result.info
-    if state == 'PENDING':
+    if state == states.PENDING:
         raise TaskNotFound(task_id)
     if 'task_name' not in info:
         raise TaskNotFound(task_id)
