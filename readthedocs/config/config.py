@@ -128,22 +128,22 @@ class BuildConfigBase(object):
     """
     Config that handles the build of one particular documentation.
 
-    You need to call ``validate`` before the config is ready to use. Also
-    setting the ``output_base`` is required before using it for a build.
+    .. note::
+
+       You need to call ``validate`` before the config is ready to use.
+
+    :param env_config: A dict that cointains additional information
+                       about the environment.
+    :param raw_config: A dict with all configuration without validation.
+    :param source_file: The file that contains the configuration.
+                        All paths are relative to this file.
+                        If a dir is given, the configuration was loaded
+                        from another source (like the web admin).
     """
 
     version = None
 
     def __init__(self, env_config, raw_config, source_file, source_position):
-        """
-        :param env_config: A dict that cointains additional information
-                           about the environment.
-        :param raw_config: A dict with all configuration without validation.
-        :param source_file: The file that contains the configuration.
-                            All paths are relative to this file.
-                            If a dir is given, the configuration was loaded
-                            from another source (like the web admin).
-        """
         self.env_config = env_config
         self.raw_config = raw_config
         self.source_file = source_file
