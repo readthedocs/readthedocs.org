@@ -54,6 +54,7 @@ Information about development is also available:
    :caption: About Read the Docs
 
    contribute
+   roadmap
    team
    gsoc
    code-of-conduct
