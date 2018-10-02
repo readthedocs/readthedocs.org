@@ -73,8 +73,9 @@ class Command(BaseCommand):
                             state='triggered',
                         )
 
-                        tasks.UpdateDocsTask().run(
-                            pk=version.project_id,
+                        # pylint: disable=no-value-for-parameter
+                        tasks.update_docs_task(
+                            version.project_id,
                             build_pk=build.pk,
                             version_pk=version.pk,
                         )
@@ -89,15 +90,17 @@ class Command(BaseCommand):
                         active=True,
                         uploaded=False,
                 ):
-                    tasks.UpdateDocsTask().run(
-                        pk=version.project_id,
+                    # pylint: disable=no-value-for-parameter
+                    tasks.update_docs_task(
+                        version.project_id,
                         force=force,
                         version_pk=version.pk,
                     )
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
-                    tasks.UpdateDocsTask().run(
-                        pk=project.pk,
+                    # pylint: disable=no-value-for-parameter
+                    tasks.update_docs_task(
+                        project.pk,
                         force=force,
                     )

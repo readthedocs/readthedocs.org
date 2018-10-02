@@ -89,10 +89,10 @@ def prepare_build(
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
-    :returns: Celery signature of UpdateDocsTask to be executed
+    :returns: Celery signature of update_docs_task to be executed
     """
     # Avoid circular import
-    from readthedocs.projects.tasks import UpdateDocsTask
+    from readthedocs.projects.tasks import update_docs_task
     from readthedocs.builds.models import Build
 
     if project.skip:
@@ -138,9 +138,8 @@ def prepare_build(
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    update_docs_task = UpdateDocsTask()
     return update_docs_task.signature(
-        (project.pk,),
+        args=(project.pk,),
         kwargs=kwargs,
         options=options,
         immutable=True,
