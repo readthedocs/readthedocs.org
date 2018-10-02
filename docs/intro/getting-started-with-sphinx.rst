@@ -14,14 +14,6 @@ has many great features for writing technical documentation including:
 
 .. _extensions: http://www.sphinx-doc.org/en/master/ext/builtins.html#builtin-sphinx-extensions
 
-.. note::
-
-    Sphinx is a great choice for building technical documentation
-    and many projects large and small use Sphinx
-    including the Django project and the Python programming language.
-    However, Read the Docs also supports :doc:`MkDocs </intro/getting-started-with-mkdocs>`,
-    another tool for writing and building documentation.
-
 
 Quick start video
 -----------------
