@@ -354,7 +354,8 @@ class CommunityBaseSettings(Settings):
             'name': 'project_index',
             'settings': {'number_of_shards': 5,
                          'number_of_replicas': 1,
-                         }
+                         'refresh_interval': '5s',
+            }
         },
         'page': {
             'name': 'page_index',
