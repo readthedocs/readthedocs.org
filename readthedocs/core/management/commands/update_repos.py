@@ -76,7 +76,7 @@ class Command(BaseCommand):
                         # pylint: disable=no-value-for-parameter
                         tasks.update_docs_task(
                             version.project_id,
-                            build_pk=build_pk,
+                            build_pk=build.pk,
                             version_pk=version.pk,
                         )
                 else:
