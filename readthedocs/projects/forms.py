@@ -170,6 +170,12 @@ class ProjectExtraForm(ProjectForm):
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
+    python_interpreter = forms.ChoiceField(
+        choices=constants.PYTHON_CHOICES,
+        initial='python',
+        help_text=_('(Beta) The Python interpreter used to create the virtual '
+                    'environment.'),
+    )
 
     class Meta(object):
         model = Project
