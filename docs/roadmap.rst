@@ -22,9 +22,12 @@ summarize the important pieces:
   decision phase before being accepted and assigned to a milestone. This is a
   good time to discuss how to address the problem technically. Skipping this
   phase might result in your PR being blocked, sent back to design decision, or
-  perhaps even discarded. It's best to be active here before submitting a PR.
-* The core team will only work on accepted issues, and will only give PR review
-  priority to accepted issues.
+  perhaps even discarded. It's best to be active here before submitting a PR for
+  a feature or improvement.
+* The core team will only work on accepted issues, and will give PR review
+  priority to accepted issues. Pull requests addressing issues that are not on
+  our roadmap are welcome, but we cannot guarantee review response, even for
+  small or easy to review pull requests.
 
 Milestones
 ~~~~~~~~~~
@@ -38,18 +41,26 @@ releases dictate the issues that core team has discussed as priority already.
 Core team should not focus on issues outside these milestones as that implies
 either the issue was not discussed as a priority, or the issue isn't a priority.
 
+We follow `semantic versioning`_ for our release numbering and our point release
+milestones follow these guidelines. For example, our next release milestones
+might be ``2.8``, ``2.9``, and ``3.0``. Releases ``2.8`` and ``2.9`` will
+contain bug fix issues and one backwards compatible feature (this dictates the
+change in minor verison). Release ``3.0`` will contain bugfixes and at least one
+backwards incompatible change.
+
 Point release milestones try to remain static, but can shift upwards on a
-release that included an unexpected feature addition. Milestones are normally
-realistic and stick to semver, which means that only one feature addition issue
-will be in each point release milestone. Sometimes the resulting PR unexpectedly
-includes changes that dictate a minor version semver increment though. In this
-case, the current milestone is closed, future milestones are increased a minor
-point if necessary, and the remaining milestone issues are migrated to a new
-milestone for the next upcoming release number.
+release that included an unexpected feature addition. Sometimes the resulting PR
+unexpectedly includes changes that dictate a minor version increment though,
+according to `semantic versioning`_. In this case, the current milestone is
+closed, future milestones are increased a minor point if necessary, and the
+remaining milestone issues are migrated to a new milestone for the next upcoming
+release number.
 
 Group milestones are blocks of work that will have priority in the future, but
 aren't included on point releases yet. When the core team does decide to make
 these milestones a priorty, they will be moved into point release milestones.
+
+.. _semantic versioning: https://semver.org
 
 Where to contribute
 ~~~~~~~~~~~~~~~~~~~
@@ -58,8 +69,9 @@ It's best to pick off an issue from our current point release or group
 milestones, to ensure your pull request gets attention. You can also feel free
 to contribute on our Cleanup or Refactoring milestones. Though not a development
 priority, these issues are generally discrete, easier to jump into than feature
-development, and these milestones are not a place the core team can justify
-spending time in development currently.
+development, and we especially appreciate outside contributions here as these
+milestones are not a place the core team can justify spending time in
+development currently.
 
 Current roadmap
 ---------------
