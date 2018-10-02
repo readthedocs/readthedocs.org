@@ -38,6 +38,39 @@ class SphinxBuilderTest(TestCase):
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
 
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    @override_settings(DONT_HIT_API=True)
+    def test_conf_py_path(self, checkout_path, docs_dir):
+        """
+        Test the conf_py_path that is added to the conf.py file.
+
+        This value is used from the theme and footer
+        to build the ``View`` and ``Edit`` on link.
+        """
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        docs_dir.return_value = tmp_dir
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        base_sphinx = BaseSphinx(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        for value, expected in (('conf.py', '/'), ('docs/conf.py', '/docs/')):
+            base_sphinx.config_file = os.path.join(
+                tmp_dir, value
+            )
+            params = base_sphinx.get_config_params()
+            self.assertEqual(
+                params['conf_py_path'],
+                expected
+            )
+
     @patch(
         'readthedocs.doc_builder.backends.sphinx.SPHINX_TEMPLATE_DIR',
         '/tmp/sphinx-template-dir',
