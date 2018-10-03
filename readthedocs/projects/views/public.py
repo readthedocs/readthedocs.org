@@ -27,7 +27,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import ImportedFile, Project
-from readthedocs.search.documents import PageDocument
+from readthedocs.search.indexes import PageIndex
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
@@ -219,7 +219,6 @@ def elastic_project_search(request, project_slug):
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
-    results = None
     if query:
         user = ''
         if request.user.is_authenticated():
@@ -235,11 +234,48 @@ def elastic_project_search(request, project_slug):
             ))
 
     if query:
-        req = PageDocument.simple_search(query=query)
-        filtered_query = (req.filter('term', project=project.slug)
-                             .filter('term', version=version_slug))
-        paginated_query = filtered_query[:50]
-        results = paginated_query.execute()
+
+        kwargs = {}
+        body = {
+            'query': {
+                'bool': {
+                    'should': [
+                        {'match': {'title': {'query': query, 'boost': 10}}},
+                        {'match': {'headers': {'query': query, 'boost': 5}}},
+                        {'match': {'content': {'query': query}}},
+                    ]
+                }
+            },
+            'highlight': {
+                'fields': {
+                    'title': {},
+                    'headers': {},
+                    'content': {},
+                }
+            },
+            'fields': ['title', 'project', 'version', 'path'],
+            'filter': {
+                'and': [
+                    {'term': {'project': project_slug}},
+                    {'term': {'version': version_slug}},
+                ]
+            },
+            'size': 50,  # TODO: Support pagination.
+        }
+
+        # Add routing to optimize search by hitting the right shard.
+        kwargs['routing'] = project_slug
+
+        results = PageIndex().search(body, **kwargs)
+    else:
+        results = {}
+
+    if results:
+        # pre and post 1.0 compat
+        for num, hit in enumerate(results['hits']['hits']):
+            for key, val in list(hit['fields'].items()):
+                if isinstance(val, list):
+                    results['hits']['hits'][num]['fields'][key] = val[0]
 
     return render(
         request,

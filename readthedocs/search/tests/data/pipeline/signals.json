@@ -1,5 +1,5 @@
 {
-  "content": "pipelineSignals List of all signals sent by pipeline.\ncss_compressed\npipeline.signals.css_compressed\nWhenever a css package is compressed, this signal is sent after the compression.\nArguments sent with this signal :\nsender:\nThe Packager class that compressed the group.\npackage:\nThe package actually compressed.\njs_compressed\npipeline.signals.js_compressed\nWhenever a js package is compressed, this signal is sent after the compression.\nArguments sent with this signal :\nsender:\nThe Packager class that compressed the group.\npackage:\nThe package actually compressed.",
+  "content": "pipeline-Signals List of all signals sent by pipeline.\ncss_compressed\npipeline.signals.css_compressed\nWhenever a css package is compressed, this signal is sent after the compression.\nArguments sent with this signal :\nsender:\nThe Packager class that compressed the group.\npackage:\nThe package actually compressed.\njs_compressed\npipeline.signals.js_compressed\nWhenever a js package is compressed, this signal is sent after the compression.\nArguments sent with this signal :\nsender:\nThe Packager class that compressed the group.\npackage:\nThe package actually compressed.",
   "headers": [
     "Signals",
     "css_compressed",

@@ -1,42 +1,45 @@
-import json
-import os
+import random
+import string
 from random import shuffle
 
 import pytest
-from django.core.management import call_command
 from django_dynamic_fixture import G
 
-from readthedocs.projects.models import Project, HTMLFile
-from .dummy_data import ALL_PROJECTS, PROJECT_DATA_FILES
-
-
-@pytest.fixture()
-def es_index():
-    call_command('search_index', '--delete', '-f')
-    call_command('search_index', '--create')
-
-    yield
-    call_command('search_index', '--delete', '-f')
+from readthedocs.projects.models import Project
+from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
+from .dummy_data import DUMMY_PAGE_JSON, ALL_PROJECTS
 
 
 @pytest.fixture(autouse=True)
-def all_projects(es_index, mock_processed_json, db, settings):
-    settings.ELASTICSEARCH_DSL_AUTOSYNC = True
-    projects_list = []
-    for project_slug in ALL_PROJECTS:
-        project = G(Project, slug=project_slug, name=project_slug)
+def mock_elastic_index(mocker):
+    index_name = ''.join([random.choice(string.ascii_letters) for _ in range(5)])
+    mocker.patch.object(Index, '_index', index_name.lower())
 
-        for file_basename in PROJECT_DATA_FILES[project.slug]:
-            # file_basename in config are without extension so add html extension
-            file_name = file_basename + '.html'
-            version = project.versions.all()[0]
-            f = G(HTMLFile, project=project, version=version, name=file_name)
-            f.save()
 
-        projects_list.append(project)
+@pytest.fixture(autouse=True)
+def es_index(mock_elastic_index):
+    # Create the index.
+    index = Index()
+    index_name = index.timestamped_index()
+    index.create_index(index_name)
+    index.update_aliases(index_name)
+    # Update mapping
+    proj = ProjectIndex()
+    proj.put_mapping()
+    page = PageIndex()
+    page.put_mapping()
+    sec = SectionIndex()
+    sec.put_mapping()
 
-    shuffle(projects_list)
-    return projects_list
+    yield index
+    index.delete_index(index_name=index_name)
+
+
+@pytest.fixture
+def all_projects():
+    projects = [G(Project, slug=project_slug, name=project_slug) for project_slug in ALL_PROJECTS]
+    shuffle(projects)
+    return projects
 
 
 @pytest.fixture
@@ -45,19 +48,16 @@ def project(all_projects):
     return all_projects[0]
 
 
-def get_dummy_processed_json(instance):
-    project_slug = instance.project.slug
-    basename = os.path.splitext(instance.name)[0]
-    file_name = basename + '.json'
-    current_path = os.path.abspath(os.path.dirname(__file__))
-    file_path = os.path.join(current_path, "data", project_slug, file_name)
-
-    if os.path.exists(file_path):
-        with open(file_path) as f:
-            return json.load(f)
+def get_dummy_page_json(version, *args, **kwargs):
+    dummy_page_json = DUMMY_PAGE_JSON
+    project_name = version.project.name
+    return dummy_page_json.get(project_name)
 
 
 @pytest.fixture(autouse=True)
-def mock_processed_json(mocker):
-    mocked_function = mocker.patch.object(HTMLFile, 'get_processed_json', autospec=True)
-    mocked_function.side_effect = get_dummy_processed_json
+def mock_parse_json(mocker):
+
+    # patch the function from `projects.tasks` because it has been point to there
+    # http://www.voidspace.org.uk/python/mock/patch.html#where-to-patch
+    mocked_function = mocker.patch('readthedocs.projects.tasks.process_all_json_files')
+    mocked_function.side_effect = get_dummy_page_json
