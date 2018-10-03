@@ -105,6 +105,6 @@ class SendNotificationView(FormView):
         Send message through messages framework
         """
         # TODO generalize this or check if implementation in ModelAdmin is
-        # useable here
+        # usable here
         messages.add_message(self.request, level, message, extra_tags=extra_tags,
                              fail_silently=fail_silently)

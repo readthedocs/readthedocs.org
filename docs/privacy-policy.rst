@@ -140,7 +140,7 @@ We **do** host advertising on Documentation Sites.
 This advertising is first-party advertising hosted by Read the Docs.
 We **do not** run any code from advertisers and all ad images are hosted
 on Read the Docs' servers. For more details, see our document on
-:doc:`advertising-details`.
+:doc:`advertising/advertising-details`.
 
 We may use User Personal Information with your permission,
 so we can perform services you have requested.
@@ -166,12 +166,13 @@ and we encourage you to check back periodically.
 Payment processing
 ++++++++++++++++++
 
-Should you choose to donate to Read the Docs, purchase a `Gold subscription`_,
+Should you choose to become a `Supporter`_, purchase a `Gold Membership`_,
 or become a subscriber to Read the Docs' commercial hosting product,
 your payment information and details will be processed by Stripe.
 Read the Docs does not store your payment information.
 
-.. _Gold subscription: https://readthedocs.org/accounts/gold/
+.. _Gold Membership: https://readthedocs.org/accounts/gold/
+.. _Supporter: https://readthedocs.org/sustainability/
 
 Site monitoring
 +++++++++++++++
@@ -223,7 +224,6 @@ We do not sell that content; it is yours.
 Our use of cookies and tracking
 -------------------------------
 
-.. _privacy-policy-do-not-track:
 
 Do Not Track
 ~~~~~~~~~~~~
@@ -236,7 +236,7 @@ For Read the Docs, this means:
 
 * We **do not** do behavioral ad targeting regardless of your DNT preference.
 * When DNT is enabled, both logged-in and logged-out users
-  are considered opted-out of :ref:`analytics <privacy-policy-analytics>`.
+  are considered opted-out of :ref:`analytics <privacy-policy:Google Analytics>`.
 * Regardless of DNT preference, our logs that contain IP addresses
   and user agent strings are deleted after 10 days unless a DNT exception applies.
 * Our full DNT policy is `available here`_.
@@ -296,7 +296,8 @@ collect any User Personal Information other than IP address;
 or correlate your IP address with your identity.
 Google provides further information about its own privacy practices and offers a
 `browser add-on to opt out of Google Analytics tracking <https://tools.google.com/dlpage/gaoptout>`_.
-You may also opt-out of analytics on Read the Docs by enabled Do Not Track.
+You may also opt-out of analytics on Read the Docs by enabling
+:ref:`Do Not Track <privacy-policy:Do Not Track>`.
 
 
 How Read the Docs secures your information

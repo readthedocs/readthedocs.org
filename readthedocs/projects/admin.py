@@ -15,7 +15,7 @@ from readthedocs.notifications.views import SendNotificationView
 
 from .forms import FeatureForm
 from .models import (Project, ImportedFile, Feature,
-                     ProjectRelationship, EmailHook, WebHook, Domain)
+                     ProjectRelationship, EmailHook, WebHook, Domain, HTMLFile)
 from .notifications import ResourceUsageNotification
 from .tasks import remove_dir
 
@@ -184,7 +184,7 @@ class DomainAdmin(admin.ModelAdmin):
     list_display = ('domain', 'project', 'https', 'count')
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
-    list_filter = ('canonical',)
+    list_filter = ('canonical', 'https')
     model = Domain
 
 
@@ -206,3 +206,4 @@ admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
+admin.site.register(HTMLFile)

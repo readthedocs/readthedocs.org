@@ -13,8 +13,8 @@ Then we build documentation and host it for you.
 Think of it as *Continuous Documentation*.
 
 .. _Read the docs: http://readthedocs.org/
-.. _Sphinx: http://sphinx.pocoo.org/
-.. _reStructuredText: http://sphinx.pocoo.org/rest.html
+.. _Sphinx: http://www.sphinx-doc.org/
+.. _reStructuredText: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _Subversion: http://subversion.tigris.org/
 .. _Bazaar: http://bazaar.canonical.com/
 .. _Git: http://git-scm.com/
@@ -27,6 +27,11 @@ You will find complete documentation for setting up your project at `the Read
 the Docs site`_.
 
 .. _the Read the Docs site: https://docs.readthedocs.io/
+
+Get in touch
+------------
+
+You can find information about getting in touch with Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html#get-in-touch>`_.
 
 Contributing
 ------------

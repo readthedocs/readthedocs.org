@@ -15,14 +15,6 @@ urlpatterns = [
         ProjectIndex.as_view(),
         name='projects_list'),
 
-    url(r'^search/autocomplete/$',
-        public.search_autocomplete,
-        name='search_autocomplete'),
-
-    url(r'^autocomplete/version/(?P<project_slug>[-\w]+)/$',
-        public.version_autocomplete,
-        name='version_autocomplete'),
-
     url(r'^(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
         ProjectDetailView.as_view(),
         name='projects_detail'),
@@ -45,11 +37,6 @@ urlpatterns = [
         public.project_embed,
         name='project_embed'),
 
-    # url((r'^(?P<project_slug>{project_slug})/tools/analytics/$'
-    #      .format(**pattern_opts)),
-    #     public.project_analytics,
-    #     name='project_analytics'),
-
     url(r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
         public.elastic_project_search,
         name='elastic_project_search'),
@@ -63,11 +50,6 @@ urlpatterns = [
          .format(**pattern_opts)),
         build_views.BuildList.as_view(),
         name='builds_project_list'),
-
-    url((r'^(?P<project_slug>{project_slug})/autocomplete/file/$'
-         .format(**pattern_opts)),
-        public.file_autocomplete,
-        name='file_autocomplete'),
 
     url(r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),
         public.project_versions,

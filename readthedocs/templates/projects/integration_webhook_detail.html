@@ -10,7 +10,7 @@
 
 {% block project-integrations-active %}active{% endblock %}
 {% block project_edit_content_header %}
-  {% blocktrans with type=integration.get_integration_type_display %}
+  {% blocktrans trimmed with type=integration.get_integration_type_display %}
     Integration - {{ type }}
   {% endblocktrans %}
 {% endblock %}
@@ -18,7 +18,7 @@
 {% block project_edit_content %}
   {% if integration.has_sync and integration.can_sync %}
     <p>
-      {% blocktrans %}
+      {% blocktrans trimmed %}
         This webhook was configured when this project was imported. If this
         integration is not functioning correctly, try resyncing the webhook:
       {% endblocktrans %}
@@ -39,7 +39,7 @@
     {% endcomment %}
     {% if integration.has_sync and not integration.can_sync %}
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           This integration was created automatically from an existing webhook
           configured on your repository. To make any changes to this webhook,
           you'll need to update the configuration there. You can use the
@@ -48,7 +48,7 @@
       </p>
     {% else %}
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           To manually configure this webhook with your provider, use the
           following address:
         {% endblocktrans %}
@@ -63,7 +63,7 @@
     {% block integration_details %}{% endblock %}
 
     <p>
-      {% blocktrans %}
+      {% blocktrans trimmed %}
         For more information on manually configuring a webhook, refer to
         <a href="https://docs.readthedocs.io/en/latest/webhooks.html">
           our webhook documentation
@@ -80,7 +80,7 @@
         <li class="module-item">
           <span class="status status-{% if exchange.failed %}fail{% else %}pass{% endif %}">{{ exchange.status_code }}</span>
           <a href="{% url 'projects_integrations_exchanges_detail' project_slug=project.slug integration_pk=integration.pk exchange_pk=exchange.pk %}">
-            {% blocktrans with date=exchange.date|timesince %}
+            {% blocktrans trimmed with date=exchange.date|timesince %}
               {{ date }} ago
             {% endblocktrans %}
           </a>

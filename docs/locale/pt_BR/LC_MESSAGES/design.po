@@ -1,29 +1,27 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
-#
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-26 11:17+0100\n"
-"PO-Revision-Date: 2014-03-01 14:09+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/readthedocs-docs/language/pt_BR/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:30+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Portuguese (Brazil) (http://www.transifex.com/readthedocs/readthedocs-docs/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: pt_BR\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# 0ffcac912c414ce2bc4fe1e4721eafc1
-#: ../../design.rst:4
+#: ../../design.rst:2
 msgid "Designing Read the Docs"
 msgstr ""
 
-# 24693487558e4666842f76560407c7e8
-#: ../../design.rst:6
+#: ../../design.rst:4
 msgid ""
 "So you're thinking of contributing some of your time and design skills to "
 "Read the Docs? That's **awesome**. This document will lead you through a few"
@@ -31,106 +29,76 @@ msgid ""
 "and static assets."
 msgstr ""
 
-# c0eacde6575f4e32b75799f2216ecebb
-#: ../../design.rst:12
+#: ../../design.rst:10
 msgid ""
-"To start, you should follow the :ref:`installing-read-the-docs` instructions"
-" to get a working copy of the Read the Docs repository locally."
+"To start, you should follow the :doc:`install` instructions to get a working"
+" copy of the Read the Docs repository locally."
 msgstr ""
 
-# 4a01bc3189a94716b109c05424af62cd
-#: ../../design.rst:16
+#: ../../design.rst:14
 msgid "Style Catalog"
 msgstr ""
 
-# 583b7c2817c84b7193b821de7a354dde
-#: ../../design.rst:18
+#: ../../design.rst:16
 msgid ""
 "Once you have RTD running locally, you can open ``http://localhost:8000"
 "/style-catalog/`` for a quick overview of the currently available styles."
 msgstr ""
 
-# ab68a885f37949cab7d68d251ed1308d
-#: ../../design.rst:23
+#: ../../design.rst:21
 msgid ""
 "This way you can quickly get started writing HTML -- or if you're modifying "
 "existing styles you can get a quick idea of how things will change site-"
 "wide."
 msgstr ""
 
-# b0e18fc0c95f47f7a52aff5e43d8ba7f
-#: ../../design.rst:28
-msgid "Typekit Fonts"
-msgstr ""
-
-# fb5a0659e36940d1944a10f3b849dea2
-#: ../../design.rst:30
-msgid "RTD uses `FF Meta`_ via TypeKit to render most display and body text."
-msgstr ""
-
-# 82eb19c46e734002a7202ba7d8b445f8
-#: ../../design.rst:32
-msgid ""
-"To make this work locally, you can register a free TypeKit account and "
-"create a site profile for ``localhost:8000`` that includes the linked font."
-msgstr ""
-
-# f9ffd461090940d798080d1c54ce8e2d
-#: ../../design.rst:38
+#: ../../design.rst:26
 msgid "Readthedocs.org Changes"
 msgstr ""
 
-# e71a8aa519954ee6b9a4be6a4edaa0be
-#: ../../design.rst:40
+#: ../../design.rst:28
 msgid ""
 "Styles for the primary RTD site are located in ``media/css`` directory."
 msgstr ""
 
-# f94fbab0da9c4dd4a1d0b7e52e5938e0
-#: ../../design.rst:42
+#: ../../design.rst:30
 msgid ""
 "These styles only affect the primary site -- **not** any of the generated "
 "documentation using the default RTD style."
 msgstr ""
 
-# 39338eb3f0a04dcc938b91bf5f8b006d
-#: ../../design.rst:46
+#: ../../design.rst:34
 msgid "Sphinx Template Changes"
 msgstr ""
 
-# fd8bb839bc564ef9a39eb8c86e7b2404
-#: ../../design.rst:48
+#: ../../design.rst:36
 msgid ""
 "Styles for generated documentation are located in "
 "``readthedocs/templates/sphinx/_static/rtd.css``"
 msgstr ""
 
-# f8c030db016e4822a0a5197e5f8b1ebf
-#: ../../design.rst:50
+#: ../../design.rst:38
 msgid ""
 "Of note, projects will retain the version of that file they were last built "
 "with -- so if you're editing that file and not seeing any changes to your "
 "local built documentation, you need to rebuild your example project."
 msgstr ""
 
-# 800d704d06b54780886a9f1ec58f501c
-#: ../../design.rst:55
+#: ../../design.rst:43
 msgid "Contributing"
 msgstr ""
 
-# fcf521b31a984a448d32a736fc9f18eb
-#: ../../design.rst:57
+#: ../../design.rst:45
 msgid ""
-"Contributions should follow the :ref:`contributing-to-read-the-docs` "
-"guidelines where applicable -- ideally you'll create a pull request against "
-"the `Read the Docs GitHub project`_ from your forked repo and include a "
-"brief description of what you added / removed / changed, as well as an "
-"attached image (you can just take a screenshot and drop it into the PR "
-"creation form) of the effects of your changes."
+"Contributions should follow the :doc:`contribute` guidelines where "
+"applicable -- ideally you'll create a pull request against the `Read the "
+"Docs GitHub project`_ from your forked repo and include a brief description "
+"of what you added / removed / changed, as well as an attached image (you can"
+" just take a screenshot and drop it into the PR creation form) of the "
+"effects of your changes."
 msgstr ""
 
-# f656ef71dbc64bb8b2c08affac715625
-#: ../../design.rst:62
+#: ../../design.rst:50
 msgid ""
 "There's not a hard browser range, but your design changes should work "
 "reasonably well across all major browsers, IE8+ -- that's not to say it "

@@ -44,7 +44,7 @@ Information about development is also available:
    faq
    yaml-config
    guides/index
-   api
+   api/index
    embed
 
 .. _about-docs:
@@ -54,12 +54,12 @@ Information about development is also available:
    :caption: About Read the Docs
 
    contribute
+   roadmap
    team
    gsoc
    code-of-conduct
    privacy-policy
-   ethical-advertising
-   advertising-details
+   advertising/index
    sponsors
    open-source-philosophy
    story
@@ -96,6 +96,7 @@ Information about development is also available:
 
    changelog
    install
+   development/search
    architecture
    tests
    docs
@@ -106,7 +107,6 @@ Information about development is also available:
    i18n
    issue-labels
    security
-   api/index
 
 .. _business-docs:
 

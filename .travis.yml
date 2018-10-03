@@ -3,33 +3,36 @@ python:
   - 2.7
   - 3.6
 sudo: false
+env:
+  - ES_VERSION=6.2.4 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
 matrix:
   include:
-    - python: 2.7
+    - python: 3.6
       env: TOXENV=docs
     - python: 3.6
       env: TOXENV=docs-lint
-    - python: 2.7
+    - python: 3.6
       env: TOXENV=lint
-    - python: 2.7
+      script: tox
+    - python: 3.6
       env: TOXENV=eslint
-script:
-  - tox
 cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/nvm.sh
+    - ~/.npm
 install:
+  - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   - source ~/.nvm/nvm.sh
   - nvm install --lts
   - nvm use --lts
-  - npm install -g bower gulp
+  - npm install -g bower
   - npm install
   - bower install
 script:
-  - tox
+  - ./scripts/travis/run_tests.sh
 notifications:
   slack:
     rooms:

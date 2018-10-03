@@ -15,7 +15,6 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -28,7 +27,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import ImportedFile, Project
-from readthedocs.search.indexes import PageIndex
+from readthedocs.search.documents import PageDocument
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
@@ -49,7 +48,7 @@ class ProjectIndex(ListView):
 
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
-            queryset = queryset.filter(tags__name__in=[self.tag.slug])
+            queryset = queryset.filter(tags__slug__in=[self.tag.slug])
         else:
             self.tag = None
 
@@ -112,25 +111,43 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 @never_cache
 def project_badge(request, project_slug):
     """Return a sweet badge for the project."""
-    badge_path = 'projects/badges/%s.svg'
+    style = request.GET.get('style', 'flat')
+    if style not in ("flat", "plastic", "flat-square", "for-the-badge", "social"):
+        style = "flat"
+
+    # Get the local path to the badge files
+    badge_path = os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'static',
+        'projects',
+        'badges',
+        '%s-' + style + '.svg',
+    )
+
     version_slug = request.GET.get('version', LATEST)
+    file_path = badge_path % 'unknown'
+
+    version = Version.objects.public(request.user).filter(
+        project__slug=project_slug, slug=version_slug).first()
+
+    if version:
+        last_build = version.builds.filter(type='html', state='finished').order_by('-date').first()
+        if last_build:
+            if last_build.success:
+                file_path = badge_path % 'passing'
+            else:
+                file_path = badge_path % 'failing'
+
     try:
-        version = Version.objects.public(request.user).get(
-            project__slug=project_slug, slug=version_slug)
-    except Version.DoesNotExist:
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    version_builds = version.builds.filter(type='html',
-                                           state='finished').order_by('-date')
-    if not version_builds.exists():
-        url = static(badge_path % 'unknown')
-        return HttpResponseRedirect(url)
-    last_build = version_builds[0]
-    if last_build.success:
-        url = static(badge_path % 'passing')
-    else:
-        url = static(badge_path % 'failing')
-    return HttpResponseRedirect(url)
+        with open(file_path) as fd:
+            return HttpResponse(
+                fd.read(),
+                content_type='image/svg+xml',
+            )
+    except (IOError, OSError):
+        log.exception('Failed to read local filesystem while serving a docs badge')
+        return HttpResponse(status=503)
 
 
 def project_downloads(request, project_slug):
@@ -177,102 +194,23 @@ def project_download_media(request, project_slug, type_, version_slug):
             settings.MEDIA_URL, type_, project_slug, version_slug,
             '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
-    else:
-        # Get relative media path
-        path = (
-            version.project.get_production_media_path(
-                type_=type_, version_slug=version_slug)
-            .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))
-        content_type, encoding = mimetypes.guess_type(path)
-        content_type = content_type or 'application/octet-stream'
-        response = HttpResponse(content_type=content_type)
-        if encoding:
-            response['Content-Encoding'] = encoding
-        response['X-Accel-Redirect'] = path
-        # Include version in filename; this fixes a long-standing bug
-        filename = '%s-%s.%s' % (
-            project_slug, version_slug, path.split('.')[-1])
-        response['Content-Disposition'] = 'filename=%s' % filename
-        return response
 
-
-def search_autocomplete(request):
-    """Return a json list of project names."""
-    if 'term' in request.GET:
-        term = request.GET['term']
-    else:
-        raise Http404
-    queryset = Project.objects.public(
-        request.user).filter(name__icontains=term)[:20]
-
-    ret_list = []
-    for project in queryset:
-        ret_list.append({
-            'label': project.name,
-            'value': project.slug,
-        })
-
-    json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, content_type='text/javascript')
-
-
-def version_autocomplete(request, project_slug):
-    """Return a json list of version names."""
-    queryset = Project.objects.public(request.user)
-    get_object_or_404(queryset, slug=project_slug)
-    versions = Version.objects.public(request.user)
-    if 'term' in request.GET:
-        term = request.GET['term']
-    else:
-        raise Http404
-    version_queryset = versions.filter(slug__icontains=term)[:20]
-
-    names = version_queryset.values_list('slug', flat=True)
-    json_response = json.dumps(list(names))
-
-    return HttpResponse(json_response, content_type='text/javascript')
-
-
-def version_filter_autocomplete(request, project_slug):
-    queryset = Project.objects.public(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
-    versions = Version.objects.public(request.user)
-    resp_format = request.GET.get('format', 'json')
-
-    if resp_format == 'json':
-        names = versions.values_list('slug', flat=True)
-        json_response = json.dumps(list(names))
-        return HttpResponse(json_response, content_type='text/javascript')
-    elif resp_format == 'html':
-        return render(
-            request,
-            'core/version_list.html',
-            {
-                'project': project,
-                'versions': versions,
-            },
-        )
-    return HttpResponse(status=400)
-
-
-def file_autocomplete(request, project_slug):
-    """Return a json list of file names."""
-    if 'term' in request.GET:
-        term = request.GET['term']
-    else:
-        raise Http404
-    queryset = ImportedFile.objects.filter(
-        project__slug=project_slug, path__icontains=term)[:20]
-
-    ret_list = []
-    for filename in queryset:
-        ret_list.append({
-            'label': filename.path,
-            'value': filename.path,
-        })
-
-    json_response = json.dumps(ret_list)
-    return HttpResponse(json_response, content_type='text/javascript')
+    # Get relative media path
+    path = (
+        version.project.get_production_media_path(
+            type_=type_, version_slug=version_slug)
+        .replace(settings.PRODUCTION_ROOT, '/prod_artifacts'))
+    content_type, encoding = mimetypes.guess_type(path)
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(content_type=content_type)
+    if encoding:
+        response['Content-Encoding'] = encoding
+    response['X-Accel-Redirect'] = path
+    # Include version in filename; this fixes a long-standing bug
+    filename = '%s-%s.%s' % (
+        project_slug, version_slug, path.split('.')[-1])
+    response['Content-Disposition'] = 'filename=%s' % filename
+    return response
 
 
 def elastic_project_search(request, project_slug):
@@ -281,6 +219,7 @@ def elastic_project_search(request, project_slug):
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
+    results = None
     if query:
         user = ''
         if request.user.is_authenticated():
@@ -296,48 +235,11 @@ def elastic_project_search(request, project_slug):
             ))
 
     if query:
-
-        kwargs = {}
-        body = {
-            'query': {
-                'bool': {
-                    'should': [
-                        {'match': {'title': {'query': query, 'boost': 10}}},
-                        {'match': {'headers': {'query': query, 'boost': 5}}},
-                        {'match': {'content': {'query': query}}},
-                    ]
-                }
-            },
-            'highlight': {
-                'fields': {
-                    'title': {},
-                    'headers': {},
-                    'content': {},
-                }
-            },
-            'fields': ['title', 'project', 'version', 'path'],
-            'filter': {
-                'and': [
-                    {'term': {'project': project_slug}},
-                    {'term': {'version': version_slug}},
-                ]
-            },
-            'size': 50,  # TODO: Support pagination.
-        }
-
-        # Add routing to optimize search by hitting the right shard.
-        kwargs['routing'] = project_slug
-
-        results = PageIndex().search(body, **kwargs)
-    else:
-        results = {}
-
-    if results:
-        # pre and post 1.0 compat
-        for num, hit in enumerate(results['hits']['hits']):
-            for key, val in list(hit['fields'].items()):
-                if isinstance(val, list):
-                    results['hits']['hits'][num]['fields'][key] = val[0]
+        req = PageDocument.simple_search(query=query)
+        filtered_query = (req.filter('term', project=project.slug)
+                             .filter('term', version=version_slug))
+        paginated_query = filtered_query[:50]
+        results = paginated_query.execute()
 
     return render(
         request,

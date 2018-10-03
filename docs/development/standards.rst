@@ -63,9 +63,6 @@ To install these tools and dependencies::
 
     npm install
 
-This will install locally to the project, not globally. You can install globally
-if you wish, otherwise make sure ``node_modules/.bin`` is in your PATH.
-
 Next, install front end dependencies::
 
     bower install
@@ -79,18 +76,23 @@ source file that will compile over your changes.
 To test changes while developing, which will watch source files for changes and
 compile as necessary, you can run `Gulp`_ with our development target::
 
-    gulp dev
+    npm run dev
 
 Once you are satisfied with your changes, finalize the bundles (this will
 minify library sources)::
 
-    gulp build
+    npm run build
 
 If you updated any of our vendor libraries, compile those::
 
-    gulp vendor
+    npm run vendor
 
 Make sure to check in both files under ``static`` and ``static-src``.
+
+.. note::
+
+    We run Gulp  through an ``npm`` script in order to ensure
+    that the correct version from ``package.json`` is used.
 
 Making Changes
 --------------

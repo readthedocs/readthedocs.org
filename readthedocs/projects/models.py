@@ -7,13 +7,15 @@ from __future__ import (
 import fnmatch
 import logging
 import os
-from builtins import object  # pylint: disable=redefined-builtin
 
+from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
@@ -22,16 +24,18 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
+from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -160,6 +164,11 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    ad_free = models.BooleanField(
+        _('Ad-free'),
+        default=False,
+        help_text='If checked, do not show advertising for this project',
+    )
     show_version_warning = models.BooleanField(
         _('Show version warning'), default=False,
         help_text=_('Show warning banner in non-stable nor latest versions.')
@@ -202,7 +211,7 @@ class Project(models.Model):
         max_length=20,
         choices=constants.PYTHON_CHOICES,
         default='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'))
 
     use_system_packages = models.BooleanField(
@@ -216,13 +225,13 @@ class Project(models.Model):
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Level of privacy that you want on the repository. '
+        help_text=_('Level of privacy that you want on the repository. '
                     'Protected means public but not in listings.'))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default=getattr(
             settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Default level of privacy you want on built '
+        help_text=_('Default level of privacy you want on built '
                     'versions of documentation.'))
 
     # Subprojects
@@ -313,6 +322,11 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if self.slug == '':
                 raise Exception(_('Model must have slug'))
+        if self.documentation_type == 'auto':
+            # This used to determine the type and automatically set the
+            # documentation type to Sphinx for rST and Mkdocs for markdown.
+            # It now just forces Sphinx, due to markdown support.
+            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
@@ -530,7 +544,8 @@ class Project(models.Model):
         """The path to the build json docs in the project."""
         if 'sphinx' in self.documentation_type:
             return os.path.join(self.conf_dir(version), '_build', 'json')
-        elif 'mkdocs' in self.documentation_type:
+
+        if 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), '_build', 'json')
 
     def full_singlehtml_path(self, version=LATEST):
@@ -550,11 +565,13 @@ class Project(models.Model):
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version), self.conf_py_file,)
+
             if os.path.exists(conf_path):
                 log.info('Inserting conf.py file path from model')
                 return conf_path
-            else:
-                log.warning("Conf file specified on model doesn't exist")
+
+            log.warning("Conf file specified on model doesn't exist")
+
         files = self.find('conf.py', version)
         if not files:
             files = self.full_find('conf.py', version)
@@ -581,16 +598,6 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return os.path.dirname(conf_file)
-
-    @property
-    def is_type_sphinx(self):
-        """Is project type Sphinx."""
-        return 'sphinx' in self.documentation_type
-
-    @property
-    def is_type_mkdocs(self):
-        """Is project type Mkdocs."""
-        return 'mkdocs' in self.documentation_type
 
     @property
     def is_imported(self):
@@ -784,7 +791,8 @@ class Project(models.Model):
         return (
             self.versions.filter(identifier=branch) |
             self.versions.filter(identifier='remotes/origin/%s' % branch) |
-            self.versions.filter(identifier='origin/%s' % branch)
+            self.versions.filter(identifier='origin/%s' % branch) |
+            self.versions.filter(verbose_name=branch)
         )
 
     def get_default_version(self):
@@ -843,6 +851,18 @@ class Project(models.Model):
         """
         return positive if self.has_feature(feature) else negative
 
+    @property
+    def show_advertising(self):
+        """
+        Whether this project is ad-free
+
+        :return: ``True`` if advertising should be shown and ``False`` otherwise
+        """
+        if self.ad_free or self.gold_owners.exists():
+            return False
+
+        return True
+
 
 class APIProject(Project):
 
@@ -876,11 +896,19 @@ class APIProject(Project):
                 pass
         super(APIProject, self).__init__(*args, **kwargs)
 
+        # Overwrite the database property with the value from the API
+        self.ad_free = (not kwargs.pop('show_advertising', True))
+
     def save(self, *args, **kwargs):
         return 0
 
     def has_feature(self, feature_id):
         return feature_id in self.features
+
+    @property
+    def show_advertising(self):
+        """Whether this project is ad-free (don't access the database)"""
+        return not self.ad_free
 
 
 @python_2_unicode_compatible
@@ -902,12 +930,57 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __str__(self):
         return '%s: %s' % (self.name, self.project)
+
+
+class HTMLFile(ImportedFile):
+
+    """
+    Imported HTML file Proxy model.
+
+    This tracks only the HTML files for indexing to search.
+    """
+
+    class Meta(object):
+        proxy = True
+
+    objects = HTMLFileManager()
+
+    @cached_property
+    def json_file_path(self):
+        basename = os.path.splitext(self.path)[0]
+        file_path = basename + '.fjson'
+
+        full_json_path = self.project.get_production_media_path(type_='json',
+                                                                version_slug=self.version.slug,
+                                                                include_file=False)
+
+        file_path = os.path.join(full_json_path, file_path)
+        return file_path
+
+    def get_processed_json(self):
+        file_path = self.json_file_path
+        try:
+            return process_file(file_path)
+        except Exception:
+            log.warning('Unhandled exception during search processing file: %s' % file_path)
+        return {
+            'headers': [],
+            'content': '',
+            'path': file_path,
+            'title': '',
+            'sections': []
+        }
+
+    @cached_property
+    def processed_json(self):
+        return self.get_processed_json()
 
 
 class Notification(models.Model):
@@ -959,7 +1032,7 @@ class Domain(models.Model):
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
-        help_text=_('SSL is enabled for this domain')
+        help_text=_('Always use HTTPS for this domain')
     )
     count = models.IntegerField(default=0, help_text=_(
         'Number of times this domain has been hit'),)
@@ -1014,6 +1087,8 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
+    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
+    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1021,6 +1096,10 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (DONT_OVERWRITE_SPHINX_CONTEXT, _(
+            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+        (ALLOW_V2_CONFIG_FILE, _(
+            'Allow to use the v2 of the configuration file')),
     )
 
     projects = models.ManyToManyField(

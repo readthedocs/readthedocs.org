@@ -12,15 +12,15 @@ Nginx
 
 We handle a couple of different types of requests in nginx:
 
-* Requests to a readthedocs.org subdomain
-* Requests to a CNAME
+* Requests to a ``readthedocs.io`` subdomain
+* Requests to a custom domain
 
 Subdomains
 ----------
 
-For subdomains this is a simple lookup.
-This doesn't require symlinks,
-but it shows the basic logic that we need to replicate.
+For subdomains, this is a simple lookup of the project slug, using the subdomain
+portion of the request's hostname. This doesn't require symlinks, but it shows
+the basic logic that we need to replicate.
 
 When a user navigates to ``http://pip.readthedocs.org/en/latest/``,
 we know that they want the pip documentation.
@@ -46,10 +46,10 @@ So we simply serve them the documentation:
           This will cause things to hit the Python backend,
           so that proper action can be taken.
 
-CNAMEs
-------
+Custom domains
+--------------
 
-CNAMEs add a bit of difficulty,
+Custom domains add a bit of difficulty,
 because at the nginx layer we don't know what documentation to serve.
 When someone requests ``http://docs.fabfile.org/en/latest/``,
 we can't look at the URL to know to serve the ``fabric`` docs.

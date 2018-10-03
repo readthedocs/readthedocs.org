@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs-docs/language/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../symlinks.rst:2
+msgid "How we use symlinks"
+msgstr ""
+
+#: ../../symlinks.rst:4
+msgid ""
+"Read the Docs stays highly available by serving all documentation pages out "
+"of nginx. This means that they never hit our Python layer, meaning that they"
+" never hit our database. This reduces the total number of servers to serve a"
+" request to 1, each of which is redundant."
+msgstr ""
+
+#: ../../symlinks.rst:11
+msgid "Nginx"
+msgstr ""
+
+#: ../../symlinks.rst:13
+msgid "We handle a couple of different types of requests in nginx:"
+msgstr ""
+
+#: ../../symlinks.rst:15
+msgid "Requests to a ``readthedocs.io`` subdomain"
+msgstr ""
+
+#: ../../symlinks.rst:16
+msgid "Requests to a custom domain"
+msgstr ""
+
+#: ../../symlinks.rst:19
+msgid "Subdomains"
+msgstr ""
+
+#: ../../symlinks.rst:21
+msgid ""
+"For subdomains, this is a simple lookup of the project slug, using the "
+"subdomain portion of the request's hostname. This doesn't require symlinks, "
+"but it shows the basic logic that we need to replicate."
+msgstr ""
+
+#: ../../symlinks.rst:25
+msgid ""
+"When a user navigates to ``http://pip.readthedocs.org/en/latest/``, we know "
+"that they want the pip documentation. So we simply serve them the "
+"documentation:"
+msgstr ""
+
+#: ../../symlinks.rst:45
+msgid ""
+"The ``@fallback`` directive is hit when we don't find the proper file. This "
+"will cause things to hit the Python backend, so that proper action can be "
+"taken."
+msgstr ""
+
+#: ../../symlinks.rst:50
+msgid "Custom domains"
+msgstr ""
+
+#: ../../symlinks.rst:52
+msgid ""
+"Custom domains add a bit of difficulty, because at the nginx layer we don't "
+"know what documentation to serve. When someone requests "
+"``http://docs.fabfile.org/en/latest/``, we can't look at the URL to know to "
+"serve the ``fabric`` docs."
+msgstr ""
+
+#: ../../symlinks.rst:57
+msgid ""
+"This is where symlinks come in. When someone requests "
+"``http://docs.fabfile.org/en/latest/`` the first time, it hits the Python "
+"layer. In that Python layer we record that ``docs.fabfile.org`` points at "
+"``fabric``. When we build the ``fabric`` docs, we create a symlink for all "
+"domains that have pointed at ``fabric`` before."
+msgstr ""
+
+#: ../../symlinks.rst:64
+msgid ""
+"So, when we get a request for ``docs.fabfile.org`` in the future, we will be"
+" able to serve it directly from nginx. In this example, $host would be "
+"``docs.fabfile.org``:"
+msgstr ""
+
+#: ../../symlinks.rst:78
+msgid ""
+"Notice that nowhere in the above path is the project's slug mentioned. It is"
+" simply there in the symlink in the cnames directory, and the docs are "
+"served from there."
+msgstr ""

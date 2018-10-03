@@ -32,7 +32,14 @@ class BasePostCommitTest(TestCase):
         self.mocks = [mock.patch('readthedocs.core.views.hooks.trigger_build')]
         self.patches = [m.start() for m in self.mocks]
 
-        self.feature = Feature.objects.get(feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS)
+        # Remove all possible Features added by a migration
+        Feature.objects.all().delete()
+
+        self.feature = get(
+            Feature,
+            feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS,
+            default_true=True,
+        )
         self.feature.projects.add(self.pip)
         self.feature.projects.add(self.rtfd)
         self.feature.projects.add(self.sphinx)
@@ -176,7 +183,7 @@ class GitLabWebHookTest(BasePostCommitTest):
         self.assertEqual(r.status_code, 403)
 
 
-class GitHubPostCommitTest(BasePostCommitTest):
+class GitHubWebHookTest(BasePostCommitTest):
     fixtures = ["eric"]
 
     def setUp(self):
@@ -391,7 +398,7 @@ class CorePostCommitTest(BasePostCommitTest):
         self.assertEqual(r.status_code, 403)
 
 
-class BitBucketHookTests(BasePostCommitTest):
+class BitBucketWebHookTest(BasePostCommitTest):
 
     def setUp(self):
         self._setup()

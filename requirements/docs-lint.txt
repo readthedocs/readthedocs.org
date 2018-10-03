@@ -1,2 +1,4 @@
-Sphinx
-rstcheck
+# Sphinx 1.8 is incompatible with
+# the latest version of rstcheck
+Sphinx<1.8
+rstcheck==3.3

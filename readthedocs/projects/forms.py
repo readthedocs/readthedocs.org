@@ -17,14 +17,13 @@ from future.backports.urllib.parse import urlparse
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import TAG, LATEST, LATEST_VERBOSE_NAME, STABLE
+from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import (
     Domain, EmailHook, Feature, Project, ProjectRelationship, WebHook)
 from readthedocs.redirects.models import Redirect
@@ -173,7 +172,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES,
         initial='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'),
     )
 
@@ -201,7 +200,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             # Version Support
             # 'num_major', 'num_minor', 'num_point',
         )
-        initial = {'analytics_code': 'foo'}
 
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
@@ -322,7 +320,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
 
     class Meta(object):
         model = ProjectRelationship
-        exclude = []
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
@@ -688,7 +686,7 @@ class DomainForm(forms.ModelForm):
 
     class Meta(object):
         model = Domain
-        exclude = ['machine', 'cname', 'count', 'https']
+        exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -728,7 +726,7 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta(object):
         model = Integration
-        exclude = ['provider_data', 'exchanges']
+        exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

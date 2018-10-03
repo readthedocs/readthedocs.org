@@ -181,7 +181,7 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(type='app', task=tasks.clear_artifacts, args=[self.pk])
+        broadcast(type='app', task=tasks.clear_artifacts, args=[self.get_artifact_paths()])
         broadcast(
             type='app', task=tasks.symlink_project, args=[self.project.pk])
         super(Version, self).delete(*args, **kwargs)
@@ -237,6 +237,24 @@ class Version(models.Model):
             return path
         return None
 
+    def get_artifact_paths(self):
+        """
+        Return a list of all production artifacts/media path for this version.
+
+        :rtype: list
+        """
+        paths = []
+
+        for type_ in ('pdf', 'epub', 'htmlzip'):
+            paths.append(
+                self.project.get_production_media_path(
+                    type_=type_,
+                    version_slug=self.slug),
+            )
+        paths.append(self.project.rtd_build_path(version=self.slug))
+
+        return paths
+
     def clean_build_path(self):
         """
         Clean build path for project version.
@@ -268,11 +286,11 @@ class Version(models.Model):
 
         if not docroot:
             return ''
-        else:
-            if docroot[0] != '/':
-                docroot = '/{}'.format(docroot)
-            if docroot[-1] != '/':
-                docroot = '{}/'.format(docroot)
+
+        if docroot[0] != '/':
+            docroot = '/{}'.format(docroot)
+        if docroot[-1] != '/':
+            docroot = '{}/'.format(docroot)
 
         if action == 'view':
             action_string = 'blob'
@@ -302,11 +320,11 @@ class Version(models.Model):
 
         if not docroot:
             return ''
-        else:
-            if docroot[0] != '/':
-                docroot = '/{}'.format(docroot)
-            if docroot[-1] != '/':
-                docroot = '{}/'.format(docroot)
+
+        if docroot[0] != '/':
+            docroot = '/{}'.format(docroot)
+        if docroot[-1] != '/':
+            docroot = '{}/'.format(docroot)
 
         if action == 'view':
             action_string = 'blob'

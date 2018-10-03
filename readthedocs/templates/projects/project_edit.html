@@ -15,13 +15,12 @@
 {% block project_edit_content %}
   <form method="post" action=".">{% csrf_token %}
     <p class="empty">
-      You can change how your project is built in your <a href="../advanced/">Advanced Settings</a>.
+      {% blocktrans with advanced_url="../advanced" %}You can change how your project is built in your <a href="{{ advanced_url}}">Advanced Settings</a>.{% endblocktrans %}
     </p>
     {{ form.as_p }}
     <p>
       <input style="display: inline;" type="submit" value="{% trans "Save" %}">
-      {% comment %}Translators: The 'or' here is in between 'Save' and 'Delete project'.{% endcomment %}
-      {% trans "or" %}
+      {% trans "or" context "The 'or' is in between 'Save' and 'Delete project'" %}
        <a href="{% url "projects_delete" project.slug %}">{% trans "Delete project" %}</a>
     </p>
   </form>

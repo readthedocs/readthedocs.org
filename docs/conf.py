@@ -44,10 +44,9 @@ version = '1.0'
 release = '1.0'
 exclude_patterns = ['_build']
 default_role = 'obj'
-pygments_style = 'sphinx'
 intersphinx_mapping = {
     'python': ('http://python.readthedocs.io/en/latest/', None),
-    'django': ('http://django.readthedocs.io/en/1.8.x/', None),
+    'django': ('http://django.readthedocs.io/en/1.9.x/', None),
     'sphinx': ('http://sphinx.readthedocs.io/en/latest/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'

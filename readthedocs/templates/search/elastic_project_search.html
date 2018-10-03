@@ -10,32 +10,6 @@
     {% endwith %}
 {% endblock %}
 
-{% block extra_scripts %}
-<script type="text/javascript">
-
-$(document).ready(function() {
-    input_div = $('#id_elastic_project_search')
-
-    $('#id_elastic_project_search').autocomplete({
-    source: '{% url "file_autocomplete" project.slug %}',
-    minLength: 2,
-    open: function(event, ui) {
-      ac_top = $('.ui-autocomplete').css('top');
-      input_width = parseInt(input_div.css('width'))
-      input_padding = parseInt(input_div.css('padding')) 
-      $('.ui-autocomplete').css({'cursor': 'pointer', 'width': input_width, 'padding': input_padding, 'top': ac_top + 10 });
-    },
-    select: function( event, ui ) {
-      event.preventDefault()
-      window.location.replace('/docs/' + '{{ project.slug }}' + '/en/latest/' + ui.item.value)
-    }
-    });
-
-})
-</script>
-
-
-{% endblock %}
 
 {% block content %}
 <div>
@@ -70,14 +44,16 @@ $(document).ready(function() {
               <div class="module-list-wrapper">
 
                 <ul>
-                  {% for result in results.hits.hits %}
+                  {% for result in results %}
                         <li class="module-item">
                           <p class="module-item-title">
-                            <a href="{% doc_url project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
+                            <a href="{% doc_url project result.version result.path %}?highlight={{ query }}">{{ result.project }} - {{ result.title|safe }}</a>
                           </p>
-                          <p>
-                            {{ result.highlight.content.0|safe }}
-                          </p>
+                          {% for fragment in result.meta.highlight.content|slice:":3" %}
+                            <p>
+                              {{ fragment|safe }}
+                            </p>
+                          {% endfor %}
                         </li>
                   {% empty %}
                     <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
