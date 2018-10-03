@@ -1785,3 +1785,20 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({'one': {'two': 2, 'three': 3}})
         build.pop_config('one.two')
         assert build.raw_config == {'one': {'three': 3}}
+
+    def test_pop_config_default_none(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        assert build.pop_config('one.four') is None
+        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+
+    def test_pop_config_default(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        assert build.pop_config('one.four', 4) == 4
+        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+
+    def test_pop_config_raise_exception(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        with raises(ValidationError) as excinfo:
+            build.pop_config('one.four', raise_ex=True)
+        assert excinfo.value.value == 'four'
+        assert excinfo.value.code == VALUE_NOT_FOUND
