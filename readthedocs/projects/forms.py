@@ -204,55 +204,18 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     def __init__(self, *args, **kwargs):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
 
-        # default_version ChoiceField
-        versions_qs = self.instance.versions.all()
-        active = versions_qs.filter(active=True)
+        default_choice = (None, '-' * 9)
+        versions = self.instance.versions.values_list('slug', 'verbose_name')
+        self.fields['default_branch'].widget = forms.Select(
+            choices=[default_choice] + list(versions)
+        )
 
-        if active.exists():
-            version_choices = [(version.slug, version.verbose_name) for version in active]
-            version_choices = version_choices + [(LATEST, None)]
-            self.fields['default_version'].widget = forms.Select(choices=version_choices)
-
-        # default_branch ChoiceField
-        branches = self.instance.vcs_repo().branches
-        branch_choices = [(branch.verbose_name, branch.verbose_name) for branch in branches]
-        branch_choices = [(None, None)] + branch_choices
-        self.fields['default_branch'].widget = forms.Select(choices=branch_choices)
-
-        # configuration file ChoiceField
-        conf_file_choices = self.give_file_choices('conf.py')
-        if(not conf_file_choices):
-            conf_file_choices = [(None, None)]
-            self.fields['conf_py_file'].help_text = _('Path from project root to <code>conf.py'
-                                                      ' </code> file (ex. <code>docs/conf.py'
-                                                      '</code>). No <code>conf.py</code> file'
-                                                      ' found in your project. Please make sure'
-                                                      ' it contains  <code>conf.py</code> file.')
-        self.fields['conf_py_file'].widget = forms.Select(choices=conf_file_choices)
-
-        # requirements file ChoiceField
-        requirements_file_choices = self.give_file_choices('requirements.txt')
-        if(not requirements_file_choices):
-            requirements_file_choices = [(None, None)]
-            self.fields['requirements_file'].help_text = _('A <a href="https://pip.pypa.io/en/'
-                                                           'latest/user_guide.html#requirements-'
-                                                           'files"> pip requirements file</a>'
-                                                           ' needed to build your documentation.'
-                                                           ' Path from the root of your project.'
-                                                           ' No <code>requirements.txt</code> file'
-                                                           ' found in your project.')
-        self.fields['requirements_file'].widget = forms.Select(choices=requirements_file_choices)
-
-        # python interpreter ChoiceField
-        self.fields['python_interpreter'].widget = forms.Select(choices=constants.PYTHON_CHOICES)
-
-    def give_file_choices(self, file_name):
-        files = self.instance.full_find(file_name, self.instance.get_default_branch())
-        branch_path = self.instance.checkout_path(self.instance.get_default_branch())
-        choices = [(each.replace(branch_path, ''), each.replace(branch_path, '')) for each in files]
-        if(not files):
-            choices = None
-        return choices
+        versions = self.instance.all_active_versions().values_list(
+            'slug', 'verbose_name'
+        )
+        self.fields['default_version'].widget = forms.Select(
+            choices=versions
+        )
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
