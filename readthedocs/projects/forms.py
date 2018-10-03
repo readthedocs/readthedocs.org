@@ -2,7 +2,11 @@
 """Project forms."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 from random import choice
 
@@ -23,9 +27,16 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
-    Domain, EmailHook, Feature, Project, ProjectRelationship, WebHook)
+    Domain,
+    EmailHook,
+    Feature,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from readthedocs.redirects.models import Redirect
 
 
@@ -211,8 +222,12 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             choices=[default_choice] + list(versions)
         )
 
-        versions = self.instance.all_active_versions().values_list(
-            'slug', 'verbose_name'
+        versions = (
+            self.instance.all_active_versions()
+            .filter(privacy_level=PUBLIC)
+            .values_list(
+                'slug', 'verbose_name'
+            )
         )
         self.fields['default_version'].widget = forms.Select(
             choices=versions
