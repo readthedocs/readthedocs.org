@@ -1,11 +1,11 @@
-Alternate Domains
-=================
+Custom Domains
+==============
 
-.. note:: This documentation belongs to our community site.
-          If you want to setup an Alternate Domain under `readthedocs.com`_,
-          please read our :ref:`business documentation <business/alternate_domains:Alternate Domains>`.
+.. note:: These setup directions are for our community site.
+          If you want to setup a custom domain under our `commercial hosting`_,
+          please read our :ref:`commercial documentation <commercial/custom_domains:Custom Domains>`.
 
-.. _readthedocs.com: https://readthedocs.com
+.. _commercial hosting: https://readthedocs.com
 
 Read the Docs supports a number of custom domains for your convenience. Shorter URLs make everyone happy, and we like making people happy!
 
