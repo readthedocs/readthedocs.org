@@ -328,7 +328,11 @@ class CommunityBaseSettings(Settings):
     ES_HOSTS = ['127.0.0.1:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': '127.0.0.1:9200',
+            'sniff_on_start': True,
+            'sniff_on_connection_fail': True,
+            'sniffer_timeout': 60,
+            'retry_on_timeout': True
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
@@ -349,14 +353,16 @@ class CommunityBaseSettings(Settings):
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 5,
-                         'number_of_replicas': 1
-                         }
+                         'number_of_replicas': 1,
+                         'refresh_interval': '5s',
+            }
         },
         'page': {
             'name': 'page_index',
             'settings': {
                 'number_of_shards': 5,
                 'number_of_replicas': 1,
+                'refresh_interval': '5s',
             }
         },
     }
