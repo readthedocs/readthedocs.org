@@ -4,6 +4,7 @@ from __future__ import division, print_function, unicode_literals
 import os
 import re
 import textwrap
+from collections import OrderedDict
 
 import pytest
 from mock import DEFAULT, patch
@@ -1758,3 +1759,29 @@ class TestBuildConfigV2(object):
         })
         build.validate()
         assert build.raw_config == {}
+
+    @pytest.mark.parametrize('value,expected', [
+        ({}, []),
+        ({'one': 1}, ['one']),
+        ({'one': {'two': 3}}, ['one', 'two']),
+        (OrderedDict([('one', 1), ('two', 2)]), ['one']),
+        (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
+    ])
+    def test_get_extra_key(self, value, expected):
+        build = self.get_build_config({})
+        assert build._get_extra_key(value) == expected
+
+    def test_pop_config_single(self):
+        build = self.get_build_config({'one': 1})
+        build.pop_config('one')
+        assert build.raw_config == {}
+
+    def test_pop_config_nested(self):
+        build = self.get_build_config({'one': {'two': 2}})
+        build.pop_config('one.two')
+        assert build.raw_config == {}
+
+    def test_pop_config_nested_with_residue(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        build.pop_config('one.two')
+        assert build.raw_config == {'one': {'three': 3}}
