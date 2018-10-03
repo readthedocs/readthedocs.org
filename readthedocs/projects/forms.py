@@ -222,12 +222,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             choices=[default_choice] + list(versions)
         )
 
-        versions = (
-            self.instance.all_active_versions()
-            .filter(privacy_level=PUBLIC)
-            .values_list(
-                'slug', 'verbose_name'
-            )
+        versions = self.instance.all_active_versions().values_list(
+            'slug', 'verbose_name'
         )
         self.fields['default_version'].widget = forms.Select(
             choices=versions

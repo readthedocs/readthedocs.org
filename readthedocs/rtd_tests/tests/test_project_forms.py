@@ -146,7 +146,7 @@ class TestProjectAdvancedForm(TestCase):
             privacy_level=PROTECTED,
         )
 
-    def test_list_only_public_and_active_versions_on_default_version(self):
+    def test_list_only_active_versions_on_default_version(self):
         form = ProjectAdvancedForm(instance=self.project)
         # This version is created automatically by the project on save
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
@@ -155,7 +155,7 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             ),
-            {'latest', 'public-1', 'public-2'},
+            {'latest', 'public-1', 'public-2', 'private', 'protected'},
         )
 
     def test_list_all_versions_on_default_branch(self):

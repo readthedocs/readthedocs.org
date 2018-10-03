@@ -13,7 +13,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version, VersionAlias
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -43,7 +42,7 @@ class VersionForm(forms.ModelForm):
 
     def clean_active(self):
         active = self.cleaned_data['active']
-        if self._is_default_version and not active:
+        if self._is_default_version() and not active:
             msg = (
                 '{} is the default version of the project, '
                 'it should be active.'
@@ -52,18 +51,6 @@ class VersionForm(forms.ModelForm):
                 _(msg.format(self.instance.verbose_name))
             )
         return active
-
-    def clean_privacy_level(self):
-        privacy_level = self.cleaned_data['privacy_level']
-        if self._is_default_version and privacy_level != PUBLIC:
-            msg = (
-                '{} is the default version of the project, '
-                'it should be public.'
-            )
-            raise forms.ValidationError(
-                _(msg.format(self.instance.verbose_name))
-            )
-        return privacy_level
 
     def _is_default_version(self):
         project = self.instance.project
