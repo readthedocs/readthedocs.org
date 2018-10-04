@@ -53,21 +53,29 @@ python:
   # Default: '3'
   version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
 
-  # The path to the requirements file from the root of the project
-  # Default: null | project config
-  requirements: path(required=False)
-
-  # Install the project using python setup.py install or pip
-  # Default: null | project config
-  install: enum('pip', 'setup.py', required=False)
-
-  # Extra requirements sections to install in addition to the package dependencies
-  # Default: []
-  extra_requirements: list(str(), required=False)
-
   # Give the virtual environment access to the global site-packages dir
   # Default: false | project config
   system_packages: bool(required=False)
+
+  # Installation of packages and requiremens
+  install: list(any(include('python-install-requirements'), include('python-install')), required=False)
+
+python-install-requirements:
+  # The path to the requirements file from the root of the project
+  requirements: path()
+
+python-install:
+  # The path to the project to be installed
+  path: path()
+
+  # Install using python setup.py install or pip
+  # Default: pip
+  method: enum('pip', 'setuptools', required=False)
+
+  # Extra requirements sections to install in addition to the package dependencies.
+  # Only valid when `method` is `pip`.
+  # Default: []
+  extra_requirements: list(str(), required=False)
 
 sphinx:
   # The builder type for the sphinx documentation
