@@ -7,12 +7,10 @@ import logging
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.urlresolvers import set_urlconf, get_urlconf
+from django.core.urlresolvers import set_urlconf
 from django.http import Http404, HttpResponseBadRequest
 
-from readthedocs.core.utils import cname_to_slug
 from readthedocs.projects.models import Project, Domain
 
 log = logging.getLogger(__name__)
@@ -101,33 +99,21 @@ class SubdomainMiddleware(object):
                     **log_kwargs))
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
-                try:
-                    slug = cache.get(host)
-                    if not slug:
-                        slug = cname_to_slug(host)
-                        cache.set(host, slug, 60 * 60)
-                        # Cache the slug -> host mapping permanently.
-                        log.debug(LOG_TEMPLATE.format(
-                            msg='CNAME cached: %s->%s' % (slug, host),
-                            **log_kwargs))
-                    request.slug = slug
-                    request.urlconf = SUBDOMAIN_URLCONF
-                    log.debug(LOG_TEMPLATE.format(
-                        msg='CNAME detected: %s' % request.slug,
-                        **log_kwargs))
-                except:  # noqa
-                    # Some crazy person is CNAMEing to us. 404.
-                    log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
-                    raise Http404(_('Invalid hostname'))
+                # Some person is CNAMEing to us. 404.
+                log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
-                log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
+                log.debug(LOG_TEMPLATE.format(
+                    msg='404ing long domain', **log_kwargs
+                ))
                 return HttpResponseBadRequest(_('Invalid hostname'))
-            log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
-            # raise Http404(_('Invalid hostname'))
+            log.debug(LOG_TEMPLATE.format(
+                msg='Allowing long domain name', **log_kwargs
+            ))
         # Normal request.
         return None
 
