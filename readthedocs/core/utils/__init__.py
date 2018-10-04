@@ -61,14 +61,8 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     return task_promise
 
 
-def clean_url(url):
-    parsed = urlparse(url)
-    if parsed.scheme or parsed.netloc:
-        return parsed.netloc
-    return parsed.path
-
-
 def cname_to_slug(host):
+    # TODO: remove
     from dns import resolver
     answer = [ans for ans in resolver.query(host, 'CNAME')][0]
     domain = answer.target.to_unicode()

@@ -13,38 +13,10 @@ from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 
-from readthedocs.core.utils import clean_url, cname_to_slug
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.core.templatetags.core_tags import make_document_url
-
-
-@decorators.api_view(['GET'])
-@decorators.permission_classes((permissions.AllowAny,))
-@decorators.renderer_classes((JSONRenderer,))
-def cname(request):
-    """
-    Get the slug that a particular hostname resolves to.
-
-    This is useful for debugging your DNS settings,
-    or for getting the backing project name on Read the Docs for a URL.
-
-    Example::
-
-        GET https://readthedocs.org/api/v2/cname/?host=docs.python-requests.org
-
-    This will return information about ``docs.python-requests.org``
-    """
-    host = request.GET.get('host')
-    if not host:
-        return Response({'error': 'host GET arg required'}, status=status.HTTP_400_BAD_REQUEST)
-    host = clean_url(host)
-    slug = cname_to_slug(host)
-    return Response({
-        'host': host,
-        'slug': slug,
-    })
 
 
 @decorators.api_view(['GET'])

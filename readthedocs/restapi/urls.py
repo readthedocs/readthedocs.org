@@ -65,7 +65,6 @@ urlpatterns = [
 function_urls = [
     url(r'embed/', core_views.embed, name='embed'),
     url(r'docurl/', core_views.docurl, name='docurl'),
-    url(r'cname/', core_views.cname, name='cname'),
     url(r'footer_html/', footer_views.footer_html, name='footer_html'),
 ]
 
