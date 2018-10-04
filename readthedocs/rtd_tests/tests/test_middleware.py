@@ -4,7 +4,6 @@ from __future__ import absolute_import
 
 from django.http import Http404
 from django.conf import settings
-from django.core.cache import cache
 from django.core.urlresolvers import get_urlconf, set_urlconf
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -13,7 +12,8 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
 from corsheaders.middleware import CorsMiddleware
-from mock import patch
+import pytest
+
 
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Project, ProjectRelationship, Domain
@@ -31,9 +31,15 @@ class MiddlewareTests(TestCase):
         self.middleware = SubdomainMiddleware()
         self.url = '/'
         self.owner = create_user(username='owner', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner], privacy_level='public')
+        self.pip = get(
+            Project,
+            slug='pip',
+            users=[self.owner],
+            privacy_level='public'
+        )
 
     def test_failey_cname(self):
+        self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
         request = self.factory.get(self.url, HTTP_HOST='my.host.com')
         with self.assertRaises(Http404):
             self.middleware.process_request(request)
@@ -72,7 +78,9 @@ class MiddlewareTests(TestCase):
 
     @override_settings(PRODUCTION_DOMAIN='prod.readthedocs.org')
     def test_subdomain_different_length(self):
-        request = self.factory.get(self.url, HTTP_HOST='pip.prod.readthedocs.org')
+        request = self.factory.get(
+            self.url, HTTP_HOST='pip.prod.readthedocs.org'
+        )
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.subdomain, True)
@@ -93,16 +101,10 @@ class MiddlewareTests(TestCase):
         with self.assertRaises(Http404):
             self.middleware.process_request(request)
 
-    def test_proper_cname(self):
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='my.valid.homename')
-        self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
-        self.assertEqual(request.cname, True)
-        self.assertEqual(request.slug, 'my_slug')
-
     def test_request_header(self):
-        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip')
+        request = self.factory.get(
+            self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
+        )
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.cname, True)
@@ -111,7 +113,7 @@ class MiddlewareTests(TestCase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_proper_cname_uppercase(self):
-        cache.get = lambda x: x.split('.')[0]
+        get(Domain, project=self.pip, domain='pip.random.com')
         request = self.factory.get(self.url, HTTP_HOST='PIP.RANDOM.COM')
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, self.urlconf_subdomain)
@@ -119,20 +121,21 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
 
     def test_request_header_uppercase(self):
-        request = self.factory.get(self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP')
+        request = self.factory.get(
+            self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP'
+        )
         self.middleware.process_request(request)
         self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')
 
-    @override_settings(USE_SUBDOMAIN=True)
-    # no need to do a real dns query so patch cname_to_slug
-    @patch('readthedocs.core.middleware.cname_to_slug', new=lambda x: 'doesnt')
-    def test_use_subdomain_on(self):
-        request = self.factory.get(self.url, HTTP_HOST='doesnt.really.matter')
-        ret_val = self.middleware.process_request(request)
-        self.assertIsNone(ret_val, None)
+    def test_use_subdomain(self):
+        domain = 'doesnt.exists.org'
+        get(Domain, project=self.pip, domain=domain)
+        request = self.factory.get(self.url, HTTP_HOST=domain)
+        res = self.middleware.process_request(request)
+        self.assertIsNone(res)
 
 
 class TestCORSMiddleware(TestCase):
