@@ -14,7 +14,7 @@ class GoldViewTests(TestCase):
     def setUp(self):
         self.user = create_user(username='owner', password='test')
 
-        self.project = get(Project, slug='test')
+        self.project = get(Project, name='test')
 
         self.golduser = get(GoldUser, user=self.user, level=LEVEL_CHOICES[0][0])
 
