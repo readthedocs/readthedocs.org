@@ -445,7 +445,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-
     def run_build(self, docker, record):
         """
         Build the docs in an environment.
