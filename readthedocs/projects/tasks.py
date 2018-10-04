@@ -89,6 +89,17 @@ class SyncRepositoryMixin(object):
                             .get(slug=LATEST)['objects'][0])
         return APIVersion(**version_data)
 
+    def get_vcs_repo(self):
+        """Get the VCS object of the current project."""
+        version_repo = self.project.vcs_repo(
+            self.version.slug,
+            # When called from ``SyncRepositoryTask.run`` we don't have
+            # a ``setup_env`` so we use just ``None`` and commands won't
+            # be recorded
+            getattr(self, 'setup_env', None),
+        )
+        return version_repo
+
     def sync_repo(self):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
@@ -434,16 +445,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-    def get_vcs_repo(self):
-        """Get the VCS object of the current project."""
-        version_repo = self.project.vcs_repo(
-            self.version.slug,
-            # When called from ``SyncRepositoryTask.run`` we don't have
-            # a ``setup_env`` so we use just ``None`` and commands won't
-            # be recorded
-            getattr(self, 'setup_env', None),
-        )
-        return version_repo
 
     def run_build(self, docker, record):
         """
