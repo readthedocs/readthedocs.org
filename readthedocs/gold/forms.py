@@ -6,6 +6,7 @@ from builtins import object
 from django import forms
 
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
+from readthedocs.projects.models import Project
 
 from .models import LEVEL_CHOICES, GoldUser
 
@@ -90,7 +91,14 @@ class GoldProjectForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(GoldProjectForm, self).clean()
+        project_slug = cleaned_data.get('project', "")
         if self.projects.count() < self.user.num_supported_projects:
-            return cleaned_data
+            # Checking if the project with the entered slug
+            # is present in the database or not
+            if Project.objects.filter(slug=project_slug).exists():
+                return cleaned_data
+            elif project_slug:
+                self.add_error(None, f'Project with the slug "{project_slug}" not found.')
+        else:
+            self.add_error(None, 'You already have the max number of supported projects.')
 
-        self.add_error(None, 'You already have the max number of supported projects.')
