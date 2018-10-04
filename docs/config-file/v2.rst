@@ -19,6 +19,11 @@ Here is an example of how this file looks like:
 Supported settings
 ------------------
 
+.. note::
+   
+   The presence of any other key that isn't documented here will make the build to fail.
+   This is to avoid common errors.
+
 version
 ~~~~~~~
 
@@ -345,7 +350,7 @@ First, make sure to add the :ref:`version setting <config-file/v2:version>`.
 Changes
 ~~~~~~~
 
-- The default value of the :ref:`config-file/v2:formats` setting has change to ``[]``
+- The default value of the :ref:`config-file/v2:formats` setting has changed to ``[]``
   and it doesn't include the values from the web interface.
 - The top setting ``requirements_file`` was moved to ``python.requirements``
   and it accepts the ``''`` (empty string) value to completely ignore finding a requirements file.
@@ -359,6 +364,7 @@ Changes
   See :ref:`config-file/v2:python.install`.
 - The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
   See :ref:`config-file/v2:python.system_packages`.
+- The build will fail if there are invalid keys (strict mode).
 
 .. warning::
 
