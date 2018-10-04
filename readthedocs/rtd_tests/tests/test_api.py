@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import base64
 import datetime
 import json
-from builtins import str
 
 import mock
 from allauth.socialaccount.models import SocialAccount
+from builtins import str
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import QueryDict
@@ -18,10 +22,11 @@ from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Feature, Project, APIProject
+from readthedocs.projects.models import APIProject, Feature, Project
 from readthedocs.restapi.views.integrations import GitHubWebhookView
 from readthedocs.restapi.views.task_views import get_status_data
 
@@ -654,8 +659,14 @@ class IntegrationsTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.version = get(Version, verbose_name='master', active=True, project=self.project)
-        self.version_tag = get(Version, verbose_name='v1.0', active=True, project=self.project)
+        self.version = get(
+            Version, slug='master', verbose_name='master',
+            active=True, project=self.project
+        )
+        self.version_tag = get(
+            Version, slug='v1.0', verbose_name='v1.0',
+            active=True, project=self.project
+        )
 
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
@@ -895,6 +906,32 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
+
+    def test_webhook_doesnt_build_latest_if_is_deactivated(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        latest_version = self.project.versions.get(slug=LATEST)
+        latest_version.active = False
+        latest_version.save()
+
+        default_branch = self.project.versions.get(slug='master')
+        default_branch.active = False
+        default_branch.save()
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': default_branch.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.data['build_triggered'])
 
 
 class APIVersionTests(TestCase):
