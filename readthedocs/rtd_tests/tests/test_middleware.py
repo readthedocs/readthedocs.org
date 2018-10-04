@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
-from django.http import Http404
+from corsheaders.middleware import CorsMiddleware
 from django.conf import settings
 from django.core.urlresolvers import get_urlconf, set_urlconf
+from django.http import Http404
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-
 from django_dynamic_fixture import get
 
-from corsheaders.middleware import CorsMiddleware
-import pytest
-
-
 from readthedocs.core.middleware import SubdomainMiddleware
-from readthedocs.projects.models import Project, ProjectRelationship, Domain
-
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
 

@@ -1,17 +1,23 @@
 """Middleware for core app."""
 
-from __future__ import absolute_import
-from builtins import object
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import logging
 
-from django.utils.translation import ugettext_lazy as _
+from builtins import object
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.urlresolvers import set_urlconf
 from django.http import Http404, HttpResponseBadRequest
+from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
