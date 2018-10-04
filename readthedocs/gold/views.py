@@ -106,7 +106,7 @@ def projects(request):
         form = GoldProjectForm(
             data=request.POST, user=gold_user, projects=gold_projects)
         if form.is_valid():
-            to_add = Project.objects.get(name=form.cleaned_data['project'])
+            to_add = Project.objects.get(slug=form.cleaned_data['project'])
             gold_user.projects.add(to_add)
             return HttpResponseRedirect(reverse('gold_projects'))
     else:

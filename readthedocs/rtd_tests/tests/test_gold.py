@@ -14,7 +14,7 @@ class GoldViewTests(TestCase):
     def setUp(self):
         self.user = create_user(username='owner', password='test')
 
-        self.project = get(Project, name='test', slug="project-test-slug")
+        self.project = get(Project, slug='test')
 
         self.golduser = get(GoldUser, user=self.user, level=LEVEL_CHOICES[0][0])
 
@@ -27,13 +27,13 @@ class GoldViewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_too_many_projects(self):
-        self.project2 = get(Project, name='test2')
+        self.project2 = get(Project, slug='test2')
 
         self.assertEqual(self.golduser.projects.count(), 0)
-        resp = self.client.post(reverse('gold_projects'), data={'project': self.project.name})
+        resp = self.client.post(reverse('gold_projects'), data={'project': self.project.slug})
         self.assertEqual(self.golduser.projects.count(), 1)
         self.assertEqual(resp.status_code, 302)
-        resp = self.client.post(reverse('gold_projects'), data={'project': self.project2.name})
+        resp = self.client.post(reverse('gold_projects'), data={'project': self.project2.slug})
         self.assertFormError(
             resp, form='form', field=None, errors='You already have the max number of supported projects.'
         )
@@ -42,7 +42,7 @@ class GoldViewTests(TestCase):
 
     def test_remove_project(self):
         self.assertEqual(self.golduser.projects.count(), 0)
-        self.client.post(reverse('gold_projects'), data={'project': self.project.name})
+        self.client.post(reverse('gold_projects'), data={'project': self.project.slug})
         self.assertEqual(self.golduser.projects.count(), 1)
 
         self.client.post(
