@@ -17,6 +17,7 @@ from .find import find_one
 from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
 from .parser import ParseError, parse
 from .validation import (
+    VALUE_NOT_FOUND,
     ValidationError,
     validate_bool,
     validate_choice,
@@ -25,7 +26,6 @@ from .validation import (
     validate_file,
     validate_list,
     validate_string,
-    validate_value_exists,
 )
 
 __all__ = (
@@ -54,6 +54,7 @@ CONF_FILE_REQUIRED = 'conf-file-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
+INVALID_KEY = 'invalid-key'
 
 DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
@@ -175,6 +176,41 @@ class BuildConfigBase(object):
                 source_file=self.source_file,
                 source_position=self.source_position,
             )
+
+    def pop(self, name, container, default, raise_ex):
+        """
+        Search and pop a key inside a dict.
+
+        This will pop the keys recursively if the container is empty.
+
+        :param name: the key name in a list form (``['key', 'inner']``)
+        :param container: a dictionary that contains the key
+        :param default: default value to return if the key doesn't exists
+        :param raise_ex: if True, raises an exception when a key is not found
+        """
+        key = name[0]
+        validate_dict(container)
+        if key in container:
+            if len(name) > 1:
+                value = self.pop(name[1:], container[key], default, raise_ex)
+                if not container[key]:
+                    container.pop(key)
+            else:
+                value = container.pop(key)
+            return value
+        if raise_ex:
+            raise ValidationError(key, VALUE_NOT_FOUND)
+        return default
+
+    def pop_config(self, key, default=None, raise_ex=False):
+        """
+        Search and pop a key (recursively) from `self.raw_config`.
+
+        :param key: the key name in a dotted form (``key.innerkey``)
+        :param default: Optionally, it can receive a default value
+        :param raise_ex: If True, raises an exception when the key is not found
+        """
+        return self.pop(key.split('.'), self.raw_config, default, raise_ex)
 
     def validate(self):
         raise NotImplementedError()
@@ -594,6 +630,7 @@ class BuildConfigV2(BuildConfigBase):
         # TODO: remove later
         self.validate_final_doc_type()
         self._config['submodules'] = self.validate_submodules()
+        self.validate_keys()
 
     def validate_formats(self):
         """
@@ -602,7 +639,7 @@ class BuildConfigV2(BuildConfigBase):
         The ``ALL`` keyword can be used to indicate that all formats are used.
         We ignore the default values here.
         """
-        formats = self.raw_config.get('formats', [])
+        formats = self.pop_config('formats', [])
         if formats == ALL:
             return self.valid_formats
         with self.catch_validation_error('formats'):
@@ -622,7 +659,7 @@ class BuildConfigV2(BuildConfigBase):
 
         conda = {}
         with self.catch_validation_error('conda.environment'):
-            environment = validate_value_exists('environment', raw_conda)
+            environment = self.pop_config('conda.environment', raise_ex=True)
             conda['environment'] = validate_file(environment, self.base_path)
         return conda
 
@@ -637,7 +674,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
-            image = raw_build.get('image', self.default_build_image)
+            image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
                 DOCKER_DEFAULT_IMAGE,
                 validate_choice(
@@ -674,7 +711,7 @@ class BuildConfigV2(BuildConfigBase):
 
         python = {}
         with self.catch_validation_error('python.version'):
-            version = raw_python.get('version', 3)
+            version = self.pop_config('python.version', 3)
             if isinstance(version, six.string_types):
                 try:
                     version = int(version)
@@ -690,7 +727,7 @@ class BuildConfigV2(BuildConfigBase):
 
         with self.catch_validation_error('python.requirements'):
             requirements = self.defaults.get('requirements_file')
-            requirements = raw_python.get('requirements', requirements)
+            requirements = self.pop_config('python.requirements', requirements)
             if requirements != '' and requirements is not None:
                 requirements = validate_file(requirements, self.base_path)
             python['requirements'] = requirements
@@ -699,14 +736,16 @@ class BuildConfigV2(BuildConfigBase):
             install = (
                 'setup.py' if self.defaults.get('install_project') else None
             )
-            install = raw_python.get('install', install)
+            install = self.pop_config('python.install', install)
             if install is not None:
                 validate_choice(install, self.valid_install_options)
             python['install_with_setup'] = install == 'setup.py'
             python['install_with_pip'] = install == 'pip'
 
         with self.catch_validation_error('python.extra_requirements'):
-            extra_requirements = raw_python.get('extra_requirements', [])
+            extra_requirements = self.pop_config(
+                'python.extra_requirements', []
+            )
             extra_requirements = validate_list(extra_requirements)
             if extra_requirements and not python['install_with_pip']:
                 self.error(
@@ -724,8 +763,8 @@ class BuildConfigV2(BuildConfigBase):
                 'use_system_packages',
                 False,
             )
-            system_packages = raw_python.get(
-                'system_packages',
+            system_packages = self.pop_config(
+                'python.system_packages',
                 system_packages,
             )
             python['use_system_site_packages'] = validate_bool(system_packages)
@@ -778,13 +817,13 @@ class BuildConfigV2(BuildConfigBase):
 
         mkdocs = {}
         with self.catch_validation_error('mkdocs.configuration'):
-            configuration = raw_mkdocs.get('configuration')
+            configuration = self.pop_config('mkdocs.configuration', None)
             if configuration is not None:
                 configuration = validate_file(configuration, self.base_path)
             mkdocs['configuration'] = configuration
 
         with self.catch_validation_error('mkdocs.fail_on_warning'):
-            fail_on_warning = raw_mkdocs.get('fail_on_warning', False)
+            fail_on_warning = self.pop_config('mkdocs.fail_on_warning', False)
             mkdocs['fail_on_warning'] = validate_bool(fail_on_warning)
 
         return mkdocs
@@ -812,7 +851,7 @@ class BuildConfigV2(BuildConfigBase):
         sphinx = {}
         with self.catch_validation_error('sphinx.builder'):
             builder = validate_choice(
-                raw_sphinx.get('builder', 'html'),
+                self.pop_config('sphinx.builder', 'html'),
                 self.valid_sphinx_builders.keys(),
             )
             sphinx['builder'] = self.valid_sphinx_builders[builder]
@@ -822,13 +861,15 @@ class BuildConfigV2(BuildConfigBase):
             # The default value can be empty
             if not configuration:
                 configuration = None
-            configuration = raw_sphinx.get('configuration', configuration)
+            configuration = self.pop_config(
+                'sphinx.configuration', configuration
+            )
             if configuration is not None:
                 configuration = validate_file(configuration, self.base_path)
             sphinx['configuration'] = configuration
 
         with self.catch_validation_error('sphinx.fail_on_warning'):
-            fail_on_warning = raw_sphinx.get('fail_on_warning', False)
+            fail_on_warning = self.pop_config('sphinx.fail_on_warning', False)
             sphinx['fail_on_warning'] = validate_bool(fail_on_warning)
 
         return sphinx
@@ -870,7 +911,7 @@ class BuildConfigV2(BuildConfigBase):
 
         submodules = {}
         with self.catch_validation_error('submodules.include'):
-            include = raw_submodules.get('include', [])
+            include = self.pop_config('submodules.include', [])
             if include != ALL:
                 include = [
                     validate_string(submodule)
@@ -880,7 +921,7 @@ class BuildConfigV2(BuildConfigBase):
 
         with self.catch_validation_error('submodules.exclude'):
             default = [] if submodules['include'] else ALL
-            exclude = raw_submodules.get('exclude', default)
+            exclude = self.pop_config('submodules.exclude', default)
             if exclude != ALL:
                 exclude = [
                     validate_string(submodule)
@@ -902,10 +943,53 @@ class BuildConfigV2(BuildConfigBase):
                 )
 
         with self.catch_validation_error('submodules.recursive'):
-            recursive = raw_submodules.get('recursive', False)
+            recursive = self.pop_config('submodules.recursive', False)
             submodules['recursive'] = validate_bool(recursive)
 
         return submodules
+
+    def validate_keys(self):
+        """
+        Checks that we don't have extra keys (invalid ones).
+
+        This should be called after all the validations are done
+        and all keys are popped from `self.raw_config`.
+        """
+        msg = (
+            'Invalid configuration option: {}. '
+            'Make sure the key name is correct.'
+        )
+        # The version key isn't popped, but it's
+        # validated in `load`.
+        self.pop_config('version', None)
+        wrong_key = '.'.join(self._get_extra_key(self.raw_config))
+        if wrong_key:
+            self.error(
+                wrong_key,
+                msg.format(wrong_key),
+                code=INVALID_KEY,
+            )
+
+    def _get_extra_key(self, value):
+        """
+        Get the extra keyname (list form) of a dict object.
+
+        If there is more than one extra key, the first one is returned.
+
+        Example::
+
+        {
+            'key': {
+                'name':  'inner',
+            }
+        }
+
+        Will return `['key', 'name']`.
+        """
+        if isinstance(value, dict) and value:
+            key_name = next(iter(value))
+            return [key_name] + self._get_extra_key(value[key_name])
+        return []
 
     @property
     def formats(self):
