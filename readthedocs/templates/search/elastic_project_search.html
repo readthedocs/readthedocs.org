@@ -44,16 +44,14 @@
               <div class="module-list-wrapper">
 
                 <ul>
-                  {% for result in results %}
+                  {% for result in results.hits.hits %}
                         <li class="module-item">
                           <p class="module-item-title">
-                            <a href="{% doc_url project result.version result.path %}?highlight={{ query }}">{{ result.project }} - {{ result.title|safe }}</a>
+                            <a href="{% doc_url project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
                           </p>
-                          {% for fragment in result.meta.highlight.content|slice:":3" %}
-                            <p>
-                              {{ fragment|safe }}
-                            </p>
-                          {% endfor %}
+                          <p>
+                            {{ result.highlight.content.0|safe }}
+                          </p>
                         </li>
                   {% empty %}
                     <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>

@@ -54,6 +54,7 @@ Information about development is also available:
    :caption: About Read the Docs
 
    contribute
+   roadmap
    team
    gsoc
    code-of-conduct
@@ -95,7 +96,6 @@ Information about development is also available:
 
    changelog
    install
-   development/search
    architecture
    tests
    docs

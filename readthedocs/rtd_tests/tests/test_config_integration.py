@@ -13,13 +13,14 @@ from django_dynamic_fixture import get
 from mock import MagicMock, PropertyMock, patch
 
 from readthedocs.builds.models import Version
-from readthedocs.config import BuildConfigV1, InvalidConfig, ProjectConfig
+from readthedocs.config import ALL, BuildConfigV1, InvalidConfig, ProjectConfig
 from readthedocs.config.tests.utils import apply_fs
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Feature, Project
+from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
 
 
 def create_load(config=None):
@@ -889,3 +890,104 @@ class TestLoadConfigV2(object):
         assert '--strict' in args
         append_conf.assert_called_once()
         move.assert_called_once()
+
+    @pytest.mark.parametrize('value,expected', [(ALL, ['one', 'two', 'three']),
+                                                (['one', 'two'], ['one', 'two'])])
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_include(self, checkout_submodules,
+                                checkout_path, tmpdir, value, expected):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'submodules': {
+                    'include': value,
+                },
+            }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        args, kwargs = checkout_submodules.call_args
+        assert set(args[0]) == set(expected)
+        assert update_docs.config.submodules.recursive is False
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_exclude(self, checkout_submodules,
+                                checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'submodules': {
+                    'exclude': ['one'],
+                    'recursive': True,
+                },
+            }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        args, kwargs = checkout_submodules.call_args
+        assert set(args[0]) == {'two', 'three'}
+        assert update_docs.config.submodules.recursive is True
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_exclude_all(self, checkout_submodules,
+                                    checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'submodules': {
+                    'exclude': ALL,
+                    'recursive': True,
+                },
+            }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        checkout_submodules.assert_not_called()
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_default_exclude_all(self, checkout_submodules,
+                                            checkout_path, tmpdir):
+
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {}
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        checkout_submodules.assert_not_called()

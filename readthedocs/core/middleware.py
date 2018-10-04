@@ -117,7 +117,7 @@ class SubdomainMiddleware(object):
                         **log_kwargs))
                 except:  # noqa
                     # Some crazy person is CNAMEing to us. 404.
-                    log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                    log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.

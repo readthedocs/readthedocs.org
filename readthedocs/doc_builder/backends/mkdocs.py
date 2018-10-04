@@ -111,11 +111,16 @@ class BaseMkdocs(BaseBuilder):
             '%scss/readthedocs-doc-embed.css' % static_url,
         ])
 
-        docs_path = os.path.join(self.root_path, docs_dir)
+        # The docs path is relative to the location
+        # of the mkdocs configuration file.
+        docs_path = os.path.join(
+            os.path.dirname(self.yaml_file),
+            docs_dir
+        )
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
-            docs_dir=docs_dir,
+            docs_dir=os.path.relpath(docs_path, self.root_path),
             mkdocs_config=user_config
         )
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:

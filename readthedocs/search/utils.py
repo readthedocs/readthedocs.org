@@ -11,10 +11,8 @@ import logging
 import json
 
 from builtins import next, range
-from django.shortcuts import get_object_or_404
 from pyquery import PyQuery
 
-from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
@@ -308,24 +306,3 @@ def parse_sections(documentation_type, content):
             return ''
 
     return sections
-
-
-# TODO: Rewrite all the views using this in Class Based View,
-# and move this function to a mixin
-def get_project_list_or_404(project_slug, user):
-    """Return list of project and its subprojects."""
-    queryset = Project.objects.api(user).only('slug')
-
-    project = get_object_or_404(queryset, slug=project_slug)
-    subprojects = queryset.filter(superprojects__parent_id=project.id)
-
-    project_list = list(subprojects) + [project]
-    return project_list
-
-
-def get_chunk(total, chunk_size):
-    """Yield successive `chunk_size` chunks"""
-    # Based on https://stackoverflow.com/a/312464
-    # licensed under cc by-sa 3.0
-    for i in range(0, total, chunk_size):
-        yield (i, i + chunk_size)

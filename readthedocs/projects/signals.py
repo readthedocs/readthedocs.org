@@ -14,7 +14,3 @@ after_build = django.dispatch.Signal(providing_args=["version"])
 project_import = django.dispatch.Signal(providing_args=["project"])
 
 files_changed = django.dispatch.Signal(providing_args=["project", "files"])
-
-bulk_post_create = django.dispatch.Signal(providing_args=["instance_list"])
-
-bulk_post_delete = django.dispatch.Signal(providing_args=["instance_list"])

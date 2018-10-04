@@ -26,8 +26,8 @@
 
       {% if facets.language %}
         <h5> Language </h5>
-          {% for name, count, selected in facets.language %}
-            <li class="{% if selected %}active{% endif %} language-list">
+          {% for name, count in facets.language.items %}
+            <li class="{% if language == name %}active{% endif %} language-list">
               {% if language == name %}
                 <a href="?{% url_replace request 'language' ''  %}">{{ name }}
               {% else %}
@@ -45,8 +45,8 @@
 
     {% if facets.project %}
       <h5> Projects </h5>
-        {% for name, count, selected in facets.project %}
-          <li class="{% if selected %}active{% endif %} project-list">
+        {% for name, count in facets.project.items %}
+          <li class="{% if project == name %}active{% endif %} project-list">
             {% if project == name %}
               <a href="?{% url_replace request 'project' ''  %}">{{ name }}
             {% else %}
@@ -62,8 +62,8 @@
     {% if facets.version %}
 
       <h5>Version</h5>
-        {% for name, count, selected in facets.version %}
-          <li class="{% if selected %}active{% endif %} version-list">
+        {% for name, count in facets.version.items %}
+          <li class="{% if version == name %}active{% endif %} version-list">
             {% if version == name %}
               <a href="?{% url_replace request 'version' ''  %}">{{ name }}
             {% else %}
@@ -73,6 +73,25 @@
             </a>
          </li>
         {% endfor %}
+
+
+    {% endif %}
+
+    {% if facets.taxonomy %}
+
+      <h5>Taxonomy</h5> 
+        {% for name, count in facets.taxonomy.items %}
+          <li class="{% if taxonomy == name %}active{% endif %}">
+            {% if taxonomy == name %}
+              <a href="?{% url_replace request 'taxonomy' ''  %}">{{ name }}
+            {% else %}
+              <a href="?{% url_replace request 'taxonomy' name  %}">{{ name }}
+            {% endif %}        
+            ({{ count }})
+            </a>
+         </li>
+        {% endfor %}
+
 
     {% endif %}
 
@@ -122,16 +141,14 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
               <div class="module-list-wrapper">
 
                 <ul>
-                  {% for result in results %}
-                        <li class="module-item search-result-item">
+                  {% for result in results.hits.hits %}
+                        <li class="module-item">
                           <p class="module-item-title">
-                            {% if result.name %}
+                            {% if result.fields.name %} 
 
                               {# Project #}
-                              <a href="{{ result.url }}">{{ result.name }}</a>
-                          </p>
-                                {{ result.meta.description }}
-                              {% for fragment in result.meta.highlight.description|slice:":3" %}
+                              <a href="{{ result.fields.url }}">{{ result.fields.name }}</a>
+                              {% for fragment in result.highlight.description|slice:":3" %}
                                 <p>
                                 ...{{ fragment|safe }}...
                                 </p>
@@ -139,11 +156,11 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                               {% endfor %}
                               {# End Project #}
 
-                            {% elif result.path %}
+                            {% elif result.fields.path %}
 
                               {# File #}
-                              <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}">{{ result.project }} - {{ result.title|safe }}</a>
-                              {% for fragment in result.meta.highlight.content|slice:":3" %}
+                              <a href="{% doc_url result.fields.project|get_project result.fields.version result.fields.path %}?highlight={{ query }}">{{ result.fields.project }} - {{ result.fields.title|safe }}</a>
+                              {% for fragment in result.highlight.content|slice:":3" %}
                                 <p>
                                 ...{{ fragment|safe }}...
                                 </p>
@@ -151,6 +168,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                               {# End File #}
 
                             {% endif %}
+                          </p>
                         </li>
                   {% empty %}
                     <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
