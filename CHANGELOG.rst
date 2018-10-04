@@ -1,19 +1,43 @@
+Version 2.7.1
+-------------
+
+:Date: October 04, 2018
+
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Merge pull request #4636 from rtfd/search_upgrade" (`#4716 <https://github.com/rtfd/readthedocs.org/pull/4716>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Reduce the logging we do on CNAME 404 (`#4715 <https://github.com/rtfd/readthedocs.org/pull/4715>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Minor redirect admin improvements (`#4709 <https://github.com/rtfd/readthedocs.org/pull/4709>`__)
+* `@humitos <http://github.com/humitos>`__: Define the doc_search reverse URL from inside the __init__ on test (`#4703 <https://github.com/rtfd/readthedocs.org/pull/4703>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "auto refresh false" (`#4701 <https://github.com/rtfd/readthedocs.org/pull/4701>`__)
+* `@browniebroke <http://github.com/browniebroke>`__: Remove unused package nilsimsa (`#4697 <https://github.com/rtfd/readthedocs.org/pull/4697>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix broken url on sphinx projects (`#4696 <https://github.com/rtfd/readthedocs.org/pull/4696>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: Tuning elasticsearch shard and replica (`#4689 <https://github.com/rtfd/readthedocs.org/pull/4689>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix bug where we were not indexing Sphinx HTMLDir projects (`#4685 <https://github.com/rtfd/readthedocs.org/pull/4685>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix the queryset used in chunking (`#4683 <https://github.com/rtfd/readthedocs.org/pull/4683>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix python 2 syntax for getting first key in search index update (`#4682 <https://github.com/rtfd/readthedocs.org/pull/4682>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.0 (`#4681 <https://github.com/rtfd/readthedocs.org/pull/4681>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Increase footer ad text size (`#4678 <https://github.com/rtfd/readthedocs.org/pull/4678>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix broken docs links (`#4677 <https://github.com/rtfd/readthedocs.org/pull/4677>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove search autosync from tests so local tests work (`#4675 <https://github.com/rtfd/readthedocs.org/pull/4675>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor tasks into decorators (`#4666 <https://github.com/rtfd/readthedocs.org/pull/4666>`__)
+* `@stsewd <http://github.com/stsewd>`__: Clean up logging (`#4665 <https://github.com/rtfd/readthedocs.org/pull/4665>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Ad customization docs (`#4659 <https://github.com/rtfd/readthedocs.org/pull/4659>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix a typo in the privacy policy (`#4658 <https://github.com/rtfd/readthedocs.org/pull/4658>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor PublicTask into a decorator task (`#4656 <https://github.com/rtfd/readthedocs.org/pull/4656>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove -r option from update_repos command (`#4653 <https://github.com/rtfd/readthedocs.org/pull/4653>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Create an explicit ad placement (`#4647 <https://github.com/rtfd/readthedocs.org/pull/4647>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Use collectstatic on `media/`, without collecting user files (`#4502 <https://github.com/rtfd/readthedocs.org/pull/4502>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement submodules key from v2 config (`#4493 <https://github.com/rtfd/readthedocs.org/pull/4493>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement mkdocs key from v2 config (`#4486 <https://github.com/rtfd/readthedocs.org/pull/4486>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add docs on our roadmap process (`#4469 <https://github.com/rtfd/readthedocs.org/pull/4469>`__)
+* `@humitos <http://github.com/humitos>`__: Send notifications when generic/unhandled failures (`#3864 <https://github.com/rtfd/readthedocs.org/pull/3864>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use relative path for docroot on mkdocs (`#3525 <https://github.com/rtfd/readthedocs.org/pull/3525>`__)
+
 Version 2.7.0
 -------------
 
 :Date: September 29, 2018
 
-* `@davidfischer <http://github.com/davidfischer>`__: Fix broken docs links (`#4677 <https://github.com/rtfd/readthedocs.org/pull/4677>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Remove search autosync from tests so local tests work (`#4675 <https://github.com/rtfd/readthedocs.org/pull/4675>`__)
-* `@stsewd <http://github.com/stsewd>`__: Skip local settings on local testing (`#4674 <https://github.com/rtfd/readthedocs.org/pull/4674>`__)
-* `@davidfischer <http://github.com/davidfischer>`__: Release 2.6.6 (`#4664 <https://github.com/rtfd/readthedocs.org/pull/4664>`__)
-* `@agjohnson <http://github.com/agjohnson>`__: Put search step back into project build task (`#4655 <https://github.com/rtfd/readthedocs.org/pull/4655>`__)
-* `@agjohnson <http://github.com/agjohnson>`__: Update translations from transifex (`#4645 <https://github.com/rtfd/readthedocs.org/pull/4645>`__)
-* `@safwanrahman <http://github.com/safwanrahman>`__: [GSoC 2018] All Search Improvements (`#4636 <https://github.com/rtfd/readthedocs.org/pull/4636>`__)
-* `@davidfischer <http://github.com/davidfischer>`__: Updates and simplification for mkdocs (`#4556 <https://github.com/rtfd/readthedocs.org/pull/4556>`__)
-* `@stsewd <http://github.com/stsewd>`__: Implement mkdocs key from v2 config (`#4486 <https://github.com/rtfd/readthedocs.org/pull/4486>`__)
-* `@stsewd <http://github.com/stsewd>`__: More robusts tests for requirements_file and conda_file (`#4394 <https://github.com/rtfd/readthedocs.org/pull/4394>`__)
-* `@berkerpeksag <http://github.com/berkerpeksag>`__: Use cname_to_slug() helper in SubdomainMiddleware (`#2317 <https://github.com/rtfd/readthedocs.org/pull/2317>`__)
+**Reverted, do not use**
 
 Version 2.6.6
 -------------
