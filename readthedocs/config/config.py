@@ -974,7 +974,7 @@ class BuildConfigV2(BuildConfigBase):
         """
         Get the extra keyname (list form) of a dict object.
 
-        If there are more the one key, the first one is returned.
+        If there is more than one extra key, the first one is returned.
 
         Example::
 
