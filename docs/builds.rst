@@ -186,7 +186,9 @@ Writing your own builder
 
 The documentation build system in RTD is made pluggable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
 
-The builders in :doc:`/developer-interface/doc_builder` detail the higher level parts of the API that you need to implement. A basic run goes something like this::
+`The builder backends`_ detail the higher level parts of the API that you need to implement. A basic run goes something like this:
+
+.. sourcecode:: python
 
     backend = get_backend(project.documentation_type)
     if force:
@@ -195,6 +197,8 @@ The builders in :doc:`/developer-interface/doc_builder` detail the higher level 
     backend.build(version)
     if success:
         backend.move(version)
+
+.. _The builder backends: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder/backends
 
 Deleting a stale or broken build environment
 --------------------------------------------

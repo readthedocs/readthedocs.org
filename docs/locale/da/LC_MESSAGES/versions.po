@@ -1,28 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-02 12:03+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Danish (http://www.transifex.com/projects/p/readthedocs-docs/language/da/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:29+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Danish (http://www.transifex.com/readthedocs/readthedocs-docs/language/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# de1a5d052afb486dbf45f7aa3bdfb51b
 #: ../../versions.rst:2
 msgid "Versions"
 msgstr ""
 
-# 28dba4f1f9cf4eefb73d6d7ec6b4e0a0
 #: ../../versions.rst:4
 msgid ""
 "Read the Docs supports multiple versions of your repository. On the initial "
@@ -30,13 +28,18 @@ msgid ""
 "branch for your VCS control: ``master``, ``default``, or ``trunk``."
 msgstr ""
 
-# 04ea97d1f59e45b3ac93e42b544d1c54
-#: ../../versions.rst:10
+#: ../../versions.rst:9
+msgid ""
+"We also create a ``stable`` version, if your project has any tagged "
+"releases. ``stable`` will be automatically kept up to date to point at your "
+"highest version."
+msgstr ""
+
+#: ../../versions.rst:14
 msgid "How we envision versions working"
 msgstr ""
 
-# fe62be3a31b7427aa60273cc33c9bab4
-#: ../../versions.rst:12
+#: ../../versions.rst:16
 msgid ""
 "In the normal case, the ``latest`` version will always point to the most up "
 "to date development code. If you develop on a branch that is different than "
@@ -44,16 +47,28 @@ msgid ""
 "branch."
 msgstr ""
 
-# 39f2c0f8416f499fae050be9c0124c8e
-#: ../../versions.rst:17
+#: ../../versions.rst:21
 msgid ""
 "You should push a **tag** for each version of your project. These tags "
 "should be numbered in a way that is consistent with `semantic versioning "
-"<http://semver.org/>`_."
+"<http://semver.org/>`_. This will map to your ``stable`` branch by default."
 msgstr ""
 
-# e5712e7524d246fa8978c1d34f878186
-#: ../../versions.rst:20
+#: ../../versions.rst:26
+msgid ""
+"We in fact are parsing your tag names against the rules given by `PEP 440`_."
+" This spec allows \"normal\" version numbers like ``1.4.2`` as well as pre-"
+"releases. An alpha version or a release candidate are examples of pre-"
+"releases and they look like this: ``2.0a1``."
+msgstr ""
+
+#: ../../versions.rst:31
+msgid ""
+"We only consider non pre-releases for the ``stable`` version of your "
+"documentation."
+msgstr ""
+
+#: ../../versions.rst:34
 msgid ""
 "If you have documentation changes on a **long-lived branch**, you can build "
 "those too. This will allow you to see how the new docs will be built in this"
@@ -63,16 +78,42 @@ msgid ""
 "release number."
 msgstr ""
 
-# 2af2218296f4419b9a8096afeebd7187
-#: ../../versions.rst:28
+#: ../../versions.rst:44
+msgid "Tags and branches"
+msgstr ""
+
+#: ../../versions.rst:46
+msgid ""
+"Read the Docs supports two workflows for versioning: based on tags or "
+"branches. If you have at least one tag, tags will take preference over "
+"branches when selecting the stable version."
+msgstr ""
+
+#: ../../versions.rst:51
 msgid "Redirects on root URLs"
 msgstr ""
 
-# a62ff81bfba44d60acf595c9508ce5c1
-#: ../../versions.rst:30
+#: ../../versions.rst:53
 msgid ""
 "When a user hits the root URL for your documentation, for example "
-"``http://pip.readthedocs.org/``, they will be redirected to the **Default "
+"``http://pip.readthedocs.io/``, they will be redirected to the **Default "
 "version**. This defaults to **latest**, but could also point to your latest "
 "released version."
+msgstr ""
+
+#: ../../versions.rst:60
+msgid "Version warning"
+msgstr ""
+
+#: ../../versions.rst:62
+msgid ""
+"This is a banner that appears on the top of every page of your docs that "
+"aren't stable or latest. This banner has a text with a link redirecting the "
+"users to the latest version of your docs."
+msgstr ""
+
+#: ../../versions.rst:65
+msgid ""
+"This feature is disabled by default on new projects, you can enable it in "
+"the admin section of your docs (Advanced Settings)."
 msgstr ""

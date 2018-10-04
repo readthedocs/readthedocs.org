@@ -1316,7 +1316,10 @@ class TestBuildConfigV2(object):
                               ('htmldir', 'sphinx_htmldir'),
                               ('singlehtml', 'sphinx_singlehtml')])
     def test_sphinx_builder_check_valid(self, value, expected):
-        build = self.get_build_config({'sphinx': {'builder': value}})
+        build = self.get_build_config(
+            {'sphinx': {'builder': value}},
+            {'defaults': {'doctype': expected}},
+        )
         build.validate()
         assert build.sphinx.builder == expected
         assert build.doctype == expected
@@ -1333,6 +1336,8 @@ class TestBuildConfigV2(object):
         build.validate()
         build.sphinx.builder == 'sphinx'
 
+    @pytest.mark.skip(
+        'This test is not compatible with the new validation around doctype.')
     def test_sphinx_builder_ignores_default(self):
         build = self.get_build_config(
             {},
@@ -1454,6 +1459,7 @@ class TestBuildConfigV2(object):
         apply_fs(tmpdir, {'mkdocs.yml': ''})
         build = self.get_build_config(
             {'mkdocs': {'configuration': 'mkdocs.yml'}},
+            {'defaults': {'doctype': 'mkdocs'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
@@ -1472,39 +1478,86 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'mkdocs.configuration'
 
     def test_mkdocs_configuration_allow_null(self):
-        build = self.get_build_config({'mkdocs': {'configuration': None}},)
+        build = self.get_build_config(
+            {'mkdocs': {'configuration': None}},
+            {'defaults': {'doctype': 'mkdocs'}},
+        )
         build.validate()
         assert build.mkdocs.configuration is None
 
     def test_mkdocs_configuration_check_default(self):
-        build = self.get_build_config({'mkdocs': {}})
+        build = self.get_build_config(
+            {'mkdocs': {}},
+            {'defaults': {'doctype': 'mkdocs'}},
+        )
         build.validate()
         assert build.mkdocs.configuration is None
 
     @pytest.mark.parametrize('value', [[], True, 0, {}])
     def test_mkdocs_configuration_validate_type(self, value):
-        build = self.get_build_config({'mkdocs': {'configuration': value}},)
+        build = self.get_build_config(
+            {'mkdocs': {'configuration': value}},
+            {'defaults': {'doctype': 'mkdocs'}},
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'mkdocs.configuration'
 
     @pytest.mark.parametrize('value', [True, False])
     def test_mkdocs_fail_on_warning_check_valid(self, value):
-        build = self.get_build_config({'mkdocs': {'fail_on_warning': value}})
+        build = self.get_build_config(
+            {'mkdocs': {'fail_on_warning': value}},
+            {'defaults': {'doctype': 'mkdocs'}},
+        )
         build.validate()
         assert build.mkdocs.fail_on_warning is value
 
     @pytest.mark.parametrize('value', [[], 'invalid', 5])
     def test_mkdocs_fail_on_warning_check_invalid(self, value):
-        build = self.get_build_config({'mkdocs': {'fail_on_warning': value}})
+        build = self.get_build_config(
+            {'mkdocs': {'fail_on_warning': value}},
+            {'defaults': {'doctype': 'mkdocs'}},
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'mkdocs.fail_on_warning'
 
     def test_mkdocs_fail_on_warning_check_default(self):
-        build = self.get_build_config({'mkdocs': {}})
+        build = self.get_build_config(
+            {'mkdocs': {}},
+            {'defaults': {'doctype': 'mkdocs'}},
+        )
         build.validate()
         assert build.mkdocs.fail_on_warning is False
+
+    def test_validates_different_filetype_mkdocs(self):
+        build = self.get_build_config(
+            {'mkdocs': {}},
+            {'defaults': {'doctype': 'sphinx'}},
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'mkdocs'
+        assert 'configured as "Sphinx Html"' in str(excinfo.value)
+        assert 'there is no "sphinx" key' in str(excinfo.value)
+
+    def test_validates_different_filetype_sphinx(self):
+        build = self.get_build_config(
+            {'sphinx': {}},
+            {'defaults': {'doctype': 'sphinx_htmldir'}},
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'sphinx.builder'
+        assert 'configured as "Sphinx HtmlDir"' in str(excinfo.value)
+        assert 'your "sphinx.builder" key does not match' in str(excinfo.value)
+
+    def test_submodule_defaults(self):
+        build = self.get_build_config({})
+        build.validate()
+        assert build.submodules.include == []
+        assert build.submodules.exclude == ALL
+        assert build.submodules.recursive is False
 
     @pytest.mark.parametrize('value', [[], 'invalid', 0])
     def test_submodules_check_invalid_type(self, value):
@@ -1636,7 +1689,7 @@ class TestBuildConfigV2(object):
         })
         build.validate()
         assert build.submodules.include == []
-        assert build.submodules.exclude == []
+        assert build.submodules.exclude == ALL
         assert build.submodules.recursive is False
 
         build = self.get_build_config({
