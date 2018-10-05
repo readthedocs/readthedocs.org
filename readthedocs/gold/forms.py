@@ -101,4 +101,4 @@ class GoldProjectForm(forms.Form):
                 self.add_error(None, "No project found.")
         else:
             self.add_error(None, 'You already have the max number of supported projects.')
-
+            
