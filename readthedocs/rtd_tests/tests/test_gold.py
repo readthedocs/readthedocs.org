@@ -26,7 +26,7 @@ class GoldViewTests(TestCase):
         self.assertEqual(self.golduser.projects.count(), 1)
         self.assertEqual(resp.status_code, 302)
 
-     def test_incorrect_input_when_adding_projects(self):
+    def test_incorrect_input_when_adding_projects(self):
         self.assertEqual(self.golduser.projects.count(), 0)
         resp = self.client.post(reverse('gold_projects'), data={'project': 'random-incorrect-slug'})
         self.assertFormError(
