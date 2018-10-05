@@ -97,8 +97,7 @@ class GoldProjectForm(forms.Form):
             # is present in the database or not
             if Project.objects.filter(slug=project_slug).exists():
                 return cleaned_data
-            elif project_slug:
+            if project_slug:
                 self.add_error(None, "No project found.")
         else:
             self.add_error(None, 'You already have the max number of supported projects.')
-            
