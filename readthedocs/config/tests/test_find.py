@@ -4,8 +4,6 @@ import os
 import pytest
 import six
 
-import pdb
-
 from readthedocs.config.find import find_one
 
 from .utils import apply_fs
