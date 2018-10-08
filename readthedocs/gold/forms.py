@@ -90,12 +90,8 @@ class GoldProjectForm(forms.Form):
         super(GoldProjectForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
-        cleaned_data = super(GoldProjectForm, self).clean()
-        project_slug = cleaned_data.get('project', '')
+        project_slug = self.cleaned_data.get('project', '')
         project_instance = Project.objects.filter(slug=project_slug)
-
-        # Checking if the project with the entered slug
-        # is absent or present in the database.
         if not project_instance.exists():
             raise forms.ValidationError('No project found.')
         else:
