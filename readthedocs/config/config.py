@@ -14,7 +14,16 @@ import six
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
-from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
+from .models import (
+    Build,
+    Conda,
+    Mkdocs,
+    Python,
+    PythonInstall,
+    PythonInstallRequirements,
+    Sphinx,
+    Submodules,
+)
 from .parser import ParseError, parse
 from .validation import (
     VALUE_NOT_FOUND,
@@ -550,9 +559,36 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def python(self):
         """Python related configuration."""
+        python = self._config['python']
         requirements = self._config['requirements_file']
-        self._config['python']['requirements'] = requirements
-        return Python(**self._config['python'])
+        python_install = []
+        if requirements is not None:
+            python_install.append(
+                PythonInstallRequirements(
+                    requirements=requirements,
+                )
+            )
+        if python['install_with_pip']:
+            python_install.append(
+                PythonInstall(
+                    path=self.base_path,
+                    method=PIP,
+                    extra_requirements=python['extra_requirements'],
+                )
+            )
+        if python['install_with_setup']:
+            python_install.append(
+                PythonInstall(
+                    path=self.base_path,
+                    method=SETUPTOOLS,
+                )
+            )
+
+        return Python(
+            version=python['version'],
+            install=python_install,
+            use_system_site_packages=python['use_system_site_packages'],
+        )
 
     @property
     def conda(self):
@@ -1042,6 +1078,17 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def python(self):
+        python_install = []
+        for install in self._config['python']['install']:
+            if 'requirements' in install:
+                python_install.append(
+                    PythonInstallRequirements(**install)
+                )
+            elif 'path' in install:
+                python_install.append(
+                    PythonInstall(**install)
+                )
+        self._config['python']['install'] = python_install
         return Python(**self._config['python'])
 
     @property

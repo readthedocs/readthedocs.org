@@ -11,11 +11,24 @@ Python = namedtuple(  # noqa
     'Python',
     [
         'version',
-        'requirements',
-        'install_with_pip',
-        'install_with_setup',
-        'extra_requirements',
+        'install',
         'use_system_site_packages',
+    ],
+)
+
+PythonInstallRequirements = namedtuple(
+    'PythonInstallRequirements',
+    [
+        'requirements',
+    ],
+)
+
+PythonInstall = namedtuple(
+    'PythonInstall',
+    [
+        'path',
+        'method',
+        'extra_requirements',
     ],
 )
 
