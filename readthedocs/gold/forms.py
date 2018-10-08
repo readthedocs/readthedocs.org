@@ -93,7 +93,7 @@ class GoldProjectForm(forms.Form):
         project_slug = self.cleaned_data.get('project', '')
         project_instance = Project.objects.filter(slug=project_slug)
         if not project_instance.exists():
-            raise forms.ValidationError('No project found.')
+            raise forms.ValidationError(_('No project found.'))
         else:
             return project_slug
 
