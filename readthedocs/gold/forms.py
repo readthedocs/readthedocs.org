@@ -91,13 +91,13 @@ class GoldProjectForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(GoldProjectForm, self).clean()
-        project_slug = cleaned_data.get('project', "")
+        project_slug = cleaned_data.get('project', '')
         if self.projects.count() < self.user.num_supported_projects:
             # Checking if the project with the entered slug
             # is present in the database or not
             if Project.objects.filter(slug=project_slug).exists():
                 return cleaned_data
             if project_slug:
-                self.add_error(None, "No project found.")
+                self.add_error(None, 'No project found.')
         else:
             self.add_error(None, 'You already have the max number of supported projects.')
