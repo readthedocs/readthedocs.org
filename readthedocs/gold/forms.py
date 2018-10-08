@@ -89,15 +89,21 @@ class GoldProjectForm(forms.Form):
         self.projects = kwargs.pop('projects', None)
         super(GoldProjectForm, self).__init__(*args, **kwargs)
 
-    def clean(self):
+    def clean_project(self):
         cleaned_data = super(GoldProjectForm, self).clean()
         project_slug = cleaned_data.get('project', '')
-        if self.projects.count() < self.user.num_supported_projects:
-            # Checking if the project with the entered slug
-            # is present in the database or not
-            if Project.objects.filter(slug=project_slug).exists():
-                return cleaned_data
-            if project_slug:
-                self.add_error(None, 'No project found.')
+        project_instance = Project.objects.filter(slug=project_slug)
+
+        # Checking if the project with the entered slug
+        # is absent or present in the database.
+        if not project_instance.exists():
+            raise forms.ValidationError('No project found.')
         else:
-            self.add_error(None, 'You already have the max number of supported projects.')
+            return project_slug
+
+    def clean(self):
+        cleaned_data = super(GoldProjectForm, self).clean()
+        if self.projects.count() < self.user.num_supported_projects:
+            return cleaned_data
+
+        self.add_error(None, 'You already have the max number of supported projects.')
