@@ -29,9 +29,7 @@ class GoldViewTests(TestCase):
     def test_incorrect_input_when_adding_projects(self):
         self.assertEqual(self.golduser.projects.count(), 0)
         resp = self.client.post(reverse('gold_projects'), data={'project': 'random-incorrect-slug'})
-        self.assertFormError(
-            resp, form='form', field=None, errors='No project found.'
-        )
+        self.assertFormError(resp, form='form', field='project', errors='No project found.')
 
     def test_too_many_projects(self):
         self.project2 = get(Project, slug='test2')
