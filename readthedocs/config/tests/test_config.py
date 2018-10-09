@@ -12,14 +12,14 @@ from pytest import raises
 
 from readthedocs.config import (
     ALL,
+    PIP,
+    SETUPTOOLS,
     BuildConfigV1,
     BuildConfigV2,
     ConfigError,
     ConfigOptionNotSupportedError,
     InvalidConfig,
     ProjectConfig,
-    PIP,
-    SETUPTOOLS,
     load,
 )
 from readthedocs.config.config import (
@@ -32,7 +32,11 @@ from readthedocs.config.config import (
     PYTHON_INVALID,
     VERSION_INVALID,
 )
-from readthedocs.config.models import Conda, PythonInstall, PythonInstallRequirements
+from readthedocs.config.models import (
+    Conda,
+    PythonInstall,
+    PythonInstallRequirements,
+)
 from readthedocs.config.validation import (
     INVALID_BOOL,
     INVALID_CHOICE,
@@ -759,7 +763,7 @@ def test_requirements_file_repects_default_value(tmpdir):
     build.validate()
     install = build.python.install
     assert len(install) == 1
-    assert install[0].requirements == 'myrequirements.txt'
+    assert install[0].requirements == str(tmpdir.join('myrequirements.txt'))
 
 
 def test_requirements_file_respects_configuration(tmpdir):
@@ -772,7 +776,7 @@ def test_requirements_file_respects_configuration(tmpdir):
     build.validate()
     install = build.python.install
     assert len(install) == 1
-    assert install[0].requirements == 'requirements.txt'
+    assert install[0].requirements == str(tmpdir.join('requirements.txt'))
 
 
 def test_requirements_file_is_null(tmpdir):
