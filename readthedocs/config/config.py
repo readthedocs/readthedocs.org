@@ -564,12 +564,11 @@ class BuildConfigV1(BuildConfigBase):
         python = self._config['python']
         requirements = self._config['requirements_file']
         python_install = []
-        if requirements is not None:
-            python_install.append(
-                PythonInstallRequirements(
-                    requirements=requirements,
-                )
+        python_install.append(
+            PythonInstallRequirements(
+                requirements=requirements,
             )
+        )
         if python['install_with_pip']:
             python_install.append(
                 PythonInstall(

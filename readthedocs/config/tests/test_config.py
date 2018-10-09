@@ -296,16 +296,19 @@ def test_python_pip_install_default():
     build.validate()
     # Default is False.
     install = build.python.install
-    assert len(install) == 0
+    assert len(install) == 1
+    assert not isinstance(install[0], PythonInstall)
 
 
 def describe_validate_python_extra_requirements():
 
-    def it_defaults_to_not_install():
+    def it_defaults_to_install_requirements_as_none():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         install = build.python.install
-        assert len(install) == 0
+        assert len(install) == 1
+        assert isinstance(install[0], PythonInstallRequirements)
+        assert install[0].requirements is None
 
     def it_validates_is_a_list():
         build = get_build_config(
@@ -367,7 +370,8 @@ def describe_validate_setup_py_install():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
         install = build.python.install
-        assert len(install) == 0
+        assert len(install) == 1
+        assert not isinstance(install[0], PythonInstall)
 
     def it_validates_value():
         build = get_build_config(
@@ -564,7 +568,9 @@ def test_valid_build_config():
     assert build.name == 'docs'
     assert build.base
     assert build.python
-    assert len(build.python.install) == 0
+    assert len(build.python.install) == 1
+    assert isinstance(build.python.install[0], PythonInstallRequirements)
+    assert build.python.install[0].requirements is None
     assert build.output_base
 
 
@@ -735,7 +741,9 @@ def test_validates_conda_file(tmpdir):
 def test_requirements_file_empty():
     build = get_build_config({}, get_env_config())
     build.validate()
-    assert len(build.python.install) == 0
+    install = build.python.install
+    assert len(install) == 1
+    assert install[0].requirements is None
 
 
 def test_requirements_file_repects_default_value(tmpdir):
@@ -774,7 +782,9 @@ def test_requirements_file_is_null(tmpdir):
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
-    assert len(build.python.install) == 0
+    install = build.python.install
+    assert len(install) == 1
+    assert install[0].requirements is None
 
 
 def test_requirements_file_is_blank(tmpdir):
@@ -785,7 +795,8 @@ def test_requirements_file_is_blank(tmpdir):
     )
     build.validate()
     install = build.python.install
-    assert len(install) == 0
+    assert len(install) == 1
+    assert install[0].requirements is None
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
