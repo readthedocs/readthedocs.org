@@ -1093,6 +1093,12 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'python.version'
 
+    def test_python_install_default_value(self):
+        build = self.get_build_config({})
+        build.validate()
+        install = build.python.install
+        assert len(install) == 0
+
     def test_python_install_check_default(self, tmpdir):
         build = self.get_build_config(
             {
@@ -1153,12 +1159,6 @@ class TestBuildConfigV2(object):
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install.0.requirements'
-
-    def test_python_install_default_value(self):
-        build = self.get_build_config({})
-        build.validate()
-        install = build.python.install
-        assert len(install) == 0
 
     def test_python_install_requirements_does_not_allow_null(self, tmpdir):
         build = self.get_build_config(
@@ -1236,6 +1236,22 @@ class TestBuildConfigV2(object):
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install.0.requirements'
+
+    def test_python_install_path_is_required(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'method': 'pip',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0'
+        assert excinfo.value.code == CONFIG_REQUIRED
 
     def test_python_install_pip_check_valid(self, tmpdir):
         build = self.get_build_config(
@@ -1406,6 +1422,68 @@ class TestBuildConfigV2(object):
         install = build.python.install
         assert len(install) == 1
         assert install[0].extra_requirements == []
+
+    def test_python_install_several_respects_order(self, tmpdir):
+        apply_fs(tmpdir, {
+            'one': {},
+            'two': {},
+            'three.txt': '',
+        })
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'path': 'one',
+                        'method': 'pip',
+                        'extra_requirements': [],
+                    }, {
+                        'path': 'two',
+                        'method': 'setuptools',
+                    }, {
+                        'requirements': 'three.txt',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 3
+
+        assert install[0].path == str(tmpdir.join('one'))
+        assert install[0].method == PIP
+        assert install[0].extra_requirements == []
+
+        assert install[1].path == str(tmpdir.join('two'))
+        assert install[1].method == SETUPTOOLS
+
+        assert install[2].requirements == str(tmpdir.join('three.txt'))
+
+    def test_python_install_reports_correct_invalid_index(self, tmpdir):
+        apply_fs(tmpdir, {
+            'one': {},
+            'two': {},
+        })
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'path': 'one',
+                        'method': 'pip',
+                        'extra_requirements': [],
+                    }, {
+                        'path': 'two',
+                        'method': 'setuptools',
+                    }, {
+                        'requirements': 'three.txt',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.2.requirements'
 
     @pytest.mark.parametrize('value', [True, False])
     def test_python_system_packages_check_valid(self, value):

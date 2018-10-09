@@ -846,6 +846,12 @@ class BuildConfigV2(BuildConfigBase):
                         code=PYTHON_INVALID,
                     )
                 python_install['extra_requirements'] = extra_requirements
+        else:
+            self.error(
+                key,
+                '"path" or "requirements" key is required',
+                code=CONFIG_REQUIRED,
+            )
         return python_install
 
     def get_valid_python_versions(self):
