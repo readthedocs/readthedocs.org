@@ -520,7 +520,7 @@ class BuildConfigV1(BuildConfigBase):
             return None
         base_path = os.path.dirname(self.source_file)
         with self.catch_validation_error('requirements_file'):
-            validate_file(requirements_file, base_path)
+            requirements_file = validate_file(requirements_file, base_path)
         return requirements_file
 
     def validate_formats(self):
@@ -577,11 +577,12 @@ class BuildConfigV1(BuildConfigBase):
                     extra_requirements=python['extra_requirements'],
                 )
             )
-        if python['install_with_setup']:
+        elif python['install_with_setup']:
             python_install.append(
                 PythonInstall(
                     path=self.base_path,
                     method=SETUPTOOLS,
+                    extra_requirements=[],
                 )
             )
 
