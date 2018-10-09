@@ -3,7 +3,6 @@ from __future__ import division, print_function, unicode_literals
 import os
 import pytest
 import six
-
 from readthedocs.config.find import find_one
 
 from .utils import apply_fs
@@ -12,15 +11,14 @@ from .utils import apply_fs
 def test_find_no_files(tmpdir):
     with tmpdir.as_cwd():
         paths = str(find_one(os.getcwd(), r'readthedocs.yml'))
-    assert len(paths) == 0
+    assert paths == ''
 
 
 def test_find_at_root(tmpdir):
     apply_fs(tmpdir, {'readthedocs.yml': '', 'otherfile.txt': ''})
-
     base = str(tmpdir)
-    paths = find_one(base, r'readthedocs\.yml')
-    assert paths == str(os.path.abspath(os.path.join(base, 'readthedocs.yml')))
+    path = find_one(base, r'readthedocs\.yml')
+    assert path == os.path.abspath(os.path.join(base, 'readthedocs.yml'))
 
 
 @pytest.mark.skipif(not six.PY2, reason='Only for python2')
