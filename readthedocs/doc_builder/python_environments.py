@@ -2,18 +2,23 @@
 """An abstraction over virtualenv and Conda environments."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import itertools
 import json
 import logging
 import os
 import shutil
-from builtins import object, open
 
 import six
-from django.conf import settings
+from builtins import object, open
 
+from readthedocs.config import PIP, SETUPTOOLS
+from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
@@ -63,13 +68,23 @@ class PythonEnvironment(object):
             ))
             shutil.rmtree(venv_dir)
 
-    def install_package(self):
-        if (self.config.python.install_with_pip or
-                getattr(settings, 'USE_PIP_INSTALL', False)):
+    def install_requirements(self):
+        for install in self.config.python.install:
+            self._run_install_step(install)
+
+    def _run_install_step(self, install):
+        if isinstance(install, PythonInstallRequirements):
+            return self.install_requirements_file(install)
+        elif isinstance(install, PythonInstall):
+            return self.install_package(install)
+
+    def install_package(self, install):
+        rel_path = os.path.relpath(install.path, self.checkout_path)
+        if install.method == PIP:
             extra_req_param = ''
-            if self.config.python.extra_requirements:
-                extra_req_param = '[{0}]'.format(
-                    ','.join(self.config.python.extra_requirements)
+            if install.extra_requirements:
+                extra_req_param = '[{}]'.format(
+                    ','.join(install.extra_requirements)
                 )
             self.build_env.run(
                 'python',
@@ -78,14 +93,17 @@ class PythonEnvironment(object):
                 '--ignore-installed',
                 '--cache-dir',
                 self.project.pip_cache_path,
-                '.{0}'.format(extra_req_param),
+                '{path}{extra_requirements}'.format(
+                    path=rel_path,
+                    extra_requirements=extra_req_param,
+                ),
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
-        elif self.config.python.install_with_setup:
+        elif install.method == SETUPTOOLS:
             self.build_env.run(
                 'python',
-                'setup.py',
+                os.path.join(rel_path, 'setup.py'),
                 'install',
                 '--force',
                 cwd=self.checkout_path,
@@ -274,9 +292,11 @@ class Virtualenv(PythonEnvironment):
             cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
-    def install_user_requirements(self):
-        requirements_file_path = self.config.python.requirements
-        if not requirements_file_path and requirements_file_path != '':
+    def install_requirements_file(self, install):
+        requirements_file_path = install.requirements
+        if requirements_file_path is None:
+            # This only happens when the config file is from v1.
+            # We try to find a requirements file.
             builder_class = get_builder_class(self.config.doctype)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
@@ -301,7 +321,10 @@ class Virtualenv(PythonEnvironment):
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r',
-                requirements_file_path,
+                os.path.relpath(
+                    requirements_file_path,
+                    self.checkout_path
+                ),
             ]
             self.build_env.run(
                 *args,
@@ -392,7 +415,7 @@ class Conda(PythonEnvironment):
             cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
-    def install_user_requirements(self):
+    def install_requirements_file(self, install):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass

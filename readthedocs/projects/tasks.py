@@ -664,8 +664,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.python_env.setup_base()
             self.python_env.save_environment_json()
             self.python_env.install_core_requirements()
-            self.python_env.install_user_requirements()
-            self.python_env.install_package()
+            self.python_env.install_requirements()
 
     def build_docs(self):
         """
