@@ -45,7 +45,9 @@ __all__ = (
     'ConfigError',
     'ConfigOptionNotSupportedError',
     'InvalidConfig',
+    'PIP',
     'ProjectConfig',
+    'SETUPTOOLS',
 )
 
 ALL = 'all'
@@ -802,7 +804,11 @@ class BuildConfigV2(BuildConfigBase):
     def validate_python_install(self, index):
         python_install = {}
         key = 'python.install.{}'.format(index)
-        if 'requirements' in self.raw_config.get(key):
+        raw_install = self.raw_config['python']['install'][str(index)]
+        with self.catch_validation_error(key):
+            validate_dict(raw_install)
+
+        if 'requirements' in raw_install:
             requirements_key = key + '.requirements'
             with self.catch_validation_error(requirements_key):
                 requirements = validate_file(
@@ -810,7 +816,7 @@ class BuildConfigV2(BuildConfigBase):
                     self.base_path
                 )
                 python_install['requirements'] = requirements
-        elif 'path' in self.raw_config.get(key):
+        elif 'path' in raw_install:
             path_key = key + '.path'
             with self.catch_validation_error(path_key):
                 path = validate_directory(
@@ -834,7 +840,7 @@ class BuildConfigV2(BuildConfigBase):
                 )
                 if extra_requirements and python_install['method'] != PIP:
                     self.error(
-                        'python.install.extra_requirements',
+                        extrareq_key,
                         'You need to install your project with pip '
                         'to use extra_requirements',
                         code=PYTHON_INVALID,
