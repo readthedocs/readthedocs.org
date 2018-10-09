@@ -94,6 +94,22 @@ def test_load_no_config_file(tmpdir, files):
     base = str(tmpdir)
     with raises(ConfigError) as e:
         load(base, env_config)
+    nested_files = {
+        'first': {
+            'readthedocs.yml': '',
+        },
+        'second': {
+            'confuser.txt': 'content',
+        },
+        'third': {
+            'readthedocs.yml': 'content',
+            'Makefile': '',
+        },
+    }
+    apply_fs(tmpdir, nested_files)
+    with raises(ConfigError) as e:
+        load(base, env_config)
+
     assert e.value.code == CONFIG_REQUIRED
 
 
@@ -275,7 +291,6 @@ def test_python_pip_install_default():
 
 
 def describe_validate_python_extra_requirements():
-
     def it_defaults_to_list():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -309,7 +324,6 @@ def describe_validate_python_extra_requirements():
 
 
 def describe_validate_use_system_site_packages():
-
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -337,7 +351,6 @@ def describe_validate_use_system_site_packages():
 
 
 def describe_validate_setup_py_install():
-
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -365,7 +378,6 @@ def describe_validate_setup_py_install():
 
 
 def describe_validate_python_version():
-
     def it_defaults_to_a_valid_version():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -465,7 +477,6 @@ def describe_validate_python_version():
 
 
 def describe_validate_formats():
-
     def it_defaults_to_empty():
         build = get_build_config({}, get_env_config())
         build.validate()
@@ -545,7 +556,6 @@ def test_valid_build_config():
 
 
 def describe_validate_base():
-
     def it_validates_to_abspath(tmpdir):
         apply_fs(tmpdir, {'configs': minimal_config, 'docs': {}})
         with tmpdir.as_cwd():
@@ -597,7 +607,6 @@ def describe_validate_base():
 
 
 def describe_validate_build():
-
     def it_fails_if_build_is_invalid_option(tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
@@ -1089,12 +1098,12 @@ class TestBuildConfigV2(object):
         assert build.python.requirements is None
 
     def test_python_requirements_allow_null(self):
-        build = self.get_build_config({'python': {'requirements': None}},)
+        build = self.get_build_config({'python': {'requirements': None}}, )
         build.validate()
         assert build.python.requirements is None
 
     def test_python_requirements_allow_empty_string(self):
-        build = self.get_build_config({'python': {'requirements': ''}},)
+        build = self.get_build_config({'python': {'requirements': ''}}, )
         build.validate()
         assert build.python.requirements == ''
 
@@ -1120,13 +1129,13 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', [3, [], {}])
     def test_python_requirements_check_invalid_types(self, value):
-        build = self.get_build_config({'python': {'requirements': value}},)
+        build = self.get_build_config({'python': {'requirements': value}}, )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.requirements'
 
     def test_python_install_pip_check_valid(self):
-        build = self.get_build_config({'python': {'install': 'pip'}},)
+        build = self.get_build_config({'python': {'install': 'pip'}}, )
         build.validate()
         assert build.python.install_with_pip is True
         assert build.python.install_with_setup is False
@@ -1141,7 +1150,7 @@ class TestBuildConfigV2(object):
         assert build.python.install_with_setup is False
 
     def test_python_install_setuppy_check_valid(self):
-        build = self.get_build_config({'python': {'install': 'setup.py'}},)
+        build = self.get_build_config({'python': {'install': 'setup.py'}}, )
         build.validate()
         assert build.python.install_with_setup is True
         assert build.python.install_with_pip is False
@@ -1166,13 +1175,13 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', ['invalid', 'apt'])
     def test_python_install_check_invalid(self, value):
-        build = self.get_build_config({'python': {'install': value}},)
+        build = self.get_build_config({'python': {'install': value}}, )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install'
 
     def test_python_install_allow_null(self):
-        build = self.get_build_config({'python': {'install': None}},)
+        build = self.get_build_config({'python': {'install': None}}, )
         build.validate()
         assert build.python.install_with_pip is False
         assert build.python.install_with_setup is False
@@ -1185,7 +1194,7 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', [2, [], {}])
     def test_python_install_check_invalid_type(self, value):
-        build = self.get_build_config({'python': {'install': value}},)
+        build = self.get_build_config({'python': {'install': value}}, )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install'
@@ -1379,7 +1388,7 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == '.'
 
     def test_sphinx_configuration_allow_null(self):
-        build = self.get_build_config({'sphinx': {'configuration': None}},)
+        build = self.get_build_config({'sphinx': {'configuration': None}}, )
         build.validate()
         assert build.sphinx.configuration is None
 
@@ -1420,7 +1429,7 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', [[], True, 0, {}])
     def test_sphinx_configuration_validate_type(self, value):
-        build = self.get_build_config({'sphinx': {'configuration': value}},)
+        build = self.get_build_config({'sphinx': {'configuration': value}}, )
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'sphinx.configuration'
