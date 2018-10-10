@@ -33,6 +33,9 @@ To make your project continue using this version you will need to create a ``req
    and check if your docs keep building successfully.
 
 
+More detailed information about how to specify dependencies can be found :ref:`here <guides/specifying-dependencies:Specifying Dependencies>`.
+
+
 Upgrade your custom theme to be compatible with newer mkdocs versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
