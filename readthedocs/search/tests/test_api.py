@@ -25,7 +25,7 @@ class TestDocumentSearch(object):
                                                    data_type=data_type)
 
         version = project.versions.all()[0]
-        search_params = {'project': project.slug, 'version': version.slug, 'query': query}
+        search_params = {'project': project.slug, 'version': version.slug, 'q': query}
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
@@ -45,7 +45,7 @@ class TestDocumentSearch(object):
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase but filter through `kuma` project
-        search_params = {'query': 'GitHub', 'project': 'kuma', 'version': 'latest'}
+        search_params = {'q': 'GitHub', 'project': 'kuma', 'version': 'latest'}
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
@@ -67,7 +67,7 @@ class TestDocumentSearch(object):
             f.pk = None
             f.save()
 
-        search_params = {'query': query, 'project': project.slug, 'version': dummy_version.slug}
+        search_params = {'q': query, 'project': project.slug, 'version': dummy_version.slug}
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
@@ -88,7 +88,7 @@ class TestDocumentSearch(object):
             html_file.pk = None
             html_file.save()
 
-        search_params = {'query': query, 'project': project.slug, 'version': latest_version.slug}
+        search_params = {'q': query, 'project': project.slug, 'version': latest_version.slug}
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
@@ -123,7 +123,7 @@ class TestDocumentSearch(object):
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
-        search_params = {'query': query, 'project': project.slug, 'version': version.slug}
+        search_params = {'q': query, 'project': project.slug, 'version': version.slug}
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
