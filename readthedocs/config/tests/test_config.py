@@ -89,23 +89,17 @@ def get_env_config(extra=None):
     {'noroot': {'startreadthedocs.yml': ''}},
     {'readthebots.yaml': ''},
 ])
-def test_load_no_config_file(tmpdir, files):
+@pytest.mark.parametrize('nested_files',[
+    {'first': {'readthedocs.yml': ''}},
+    {'second': {'confuser.txt': 'content'}},
+    {'third': {'readthedocs.yml': 'content', 'Makefile': ''}}
+])
+def test_load_no_config_file(tmpdir, files, nested_files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
     with raises(ConfigError) as e:
         load(base, env_config)
-    nested_files = {
-        'first': {
-            'readthedocs.yml': '',
-        },
-        'second': {
-            'confuser.txt': 'content',
-        },
-        'third': {
-            'readthedocs.yml': 'content',
-            'Makefile': '',
-        },
-    }
+
     apply_fs(tmpdir, nested_files)
     with raises(ConfigError) as e:
         load(base, env_config)

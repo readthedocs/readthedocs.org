@@ -4,14 +4,13 @@ import os
 import pytest
 import six
 from readthedocs.config.find import find_one
-
 from .utils import apply_fs
 
 
 def test_find_no_files(tmpdir):
     with tmpdir.as_cwd():
-        paths = str(find_one(os.getcwd(), r'readthedocs.yml'))
-    assert paths == ''
+        path = find_one(os.getcwd(), r'readthedocs.yml')
+    assert path == ''
 
 
 def test_find_at_root(tmpdir):
