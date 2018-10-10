@@ -611,7 +611,6 @@ class TestLoadConfigV2(object):
         args, kwargs = run.call_args
 
         assert 'install' in args
-        assert '-e' in args
         assert '.' in args
         install = config.python.install
         assert len(install) == 1
@@ -658,7 +657,6 @@ class TestLoadConfigV2(object):
         args, kwargs = run.call_args
 
         assert 'install' in args
-        assert '-e' in args
         assert '.[docs]' in args
         install = config.python.install
         assert len(install) == 1
@@ -706,8 +704,7 @@ class TestLoadConfigV2(object):
 
         args, kwargs = run.call_args_list[0]
         assert 'install' in args
-        assert '-e' in args
-        assert 'one[docs]' in args
+        assert './one[docs]' in args
         assert install[0].method == PIP
 
         args, kwargs = run.call_args_list[1]

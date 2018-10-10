@@ -81,6 +81,10 @@ class PythonEnvironment(object):
     def install_package(self, install):
         rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
+            # Prefix ./ so pip installs from a local path rather than pypi
+            local_path = (
+                os.path.join('.', rel_path) if rel_path != '.' else rel_path
+            )
             extra_req_param = ''
             if install.extra_requirements:
                 extra_req_param = '[{}]'.format(
@@ -93,9 +97,8 @@ class PythonEnvironment(object):
                 '--ignore-installed',
                 '--cache-dir',
                 self.project.pip_cache_path,
-                '-e',
                 '{path}{extra_requirements}'.format(
-                    path=rel_path,
+                    path=local_path,
                     extra_requirements=extra_req_param,
                 ),
                 cwd=self.checkout_path,
