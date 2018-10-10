@@ -1091,7 +1091,8 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def python(self):
         python_install = []
-        for install in self._config['python']['install']:
+        python = self._config['python']
+        for install in python['install']:
             if 'requirements' in install:
                 python_install.append(
                     PythonInstallRequirements(**install)
@@ -1100,8 +1101,11 @@ class BuildConfigV2(BuildConfigBase):
                 python_install.append(
                     PythonInstall(**install)
                 )
-        self._config['python']['install'] = python_install
-        return Python(**self._config['python'])
+        return Python(
+            version=python['version'],
+            install=python_install,
+            use_system_site_packages=python['use_system_site_packages'],
+        )
 
     @property
     def sphinx(self):
