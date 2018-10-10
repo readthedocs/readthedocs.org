@@ -20,8 +20,8 @@ django==1.9.13
 six==1.11.0
 future==0.16.0
 
-# django-tastypie 0.13.x and 0.14.0 are not compatible with our code
-django-tastypie==0.13.2
+# django-tastypie 0.14.0 drops support for django 1.9
+django-tastypie==0.13.3
 
 django-guardian==1.4.9
 django-extensions==2.1.2
