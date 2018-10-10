@@ -111,7 +111,7 @@ class TestDocumentSearch(object):
         resp = api_client.get(self.url)
         assert resp.status_code == 400
         # Check error message is there
-        assert sorted(['query', 'project', 'version']) == sorted(resp.data.keys())
+        assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
 
     def test_doc_search_subprojects(self, api_client, all_projects):
         """Test Document search return results from subprojects also"""
