@@ -43,7 +43,7 @@ def process_all_json_files(version, build_dir=True):
 def process_headers(data, filename):
     """Read headers from toc data."""
     headers = []
-    if 'toc' in data:
+    if data.get('toc', False):
         for element in PyQuery(data['toc'])('a'):
             headers.append(recurse_while_none(element))
         if None in headers:
