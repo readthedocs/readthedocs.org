@@ -23,7 +23,7 @@ function attach_elastic_search_query(data) {
 
         search_url.href = api_host;
         search_url.pathname = '/api/v2/docsearch/';
-        search_url.search = '?query=' + $.urlencode(query) + '&project=' + project +
+        search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
                             '&version=' + version + '&language=' + language;
 
         search_def

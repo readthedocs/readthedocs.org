@@ -25,12 +25,12 @@ class PageSearchAPIView(generics.ListAPIView):
         """
         # Validate all the required params are there
         self.validate_query_params()
-        query = self.request.query_params.get('query', '')
+        query = self.request.query_params.get('q', '')
         queryset = PageDocument.simple_search(query=query)
         return queryset
 
     def validate_query_params(self):
-        required_query_params = {'query', 'project', 'version'}  # python `set` literal is `{}`
+        required_query_params = {'q', 'project', 'version'}  # python `set` literal is `{}`
         request_params = set(self.request.query_params.keys())
         missing_params = required_query_params - request_params
         if missing_params:
@@ -48,6 +48,7 @@ class PageSearchAPIView(generics.ListAPIView):
     def get_all_projects_url(self):
         version_slug = self.request.query_params.get('version')
         project_slug = self.request.query_params.get('project')
+        return {project_slug: '/foo/bar/'}
         all_projects = get_project_list_or_404(project_slug=project_slug, user=self.request.user)
         projects_url = {}
 
