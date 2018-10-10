@@ -93,6 +93,7 @@ class PythonEnvironment(object):
                 '--ignore-installed',
                 '--cache-dir',
                 self.project.pip_cache_path,
+                '-e',
                 '{path}{extra_requirements}'.format(
                     path=rel_path,
                     extra_requirements=extra_req_param,

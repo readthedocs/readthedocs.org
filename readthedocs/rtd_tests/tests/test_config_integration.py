@@ -610,8 +610,9 @@ class TestLoadConfigV2(object):
 
         args, kwargs = run.call_args
 
-        assert './setup.py' not in args
         assert 'install' in args
+        assert '-e' in args
+        assert '.' in args
         install = config.python.install
         assert len(install) == 1
         assert install[0].method == PIP
@@ -656,12 +657,68 @@ class TestLoadConfigV2(object):
 
         args, kwargs = run.call_args
 
-        assert './setup.py' not in args
         assert 'install' in args
+        assert '-e' in args
         assert '.[docs]' in args
         install = config.python.install
         assert len(install) == 1
         assert install[0].method == PIP
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_install_several_options(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        apply_fs(tmpdir, {
+            'one': {},
+            'two': {},
+            'three.txt': '',
+        })
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {
+                    'install': [{
+                        'path': 'one',
+                        'method': 'pip',
+                        'extra_requirements': ['docs'],
+                    }, {
+                        'path': 'two',
+                        'method': 'setuptools',
+                    }, {
+                        'requirements': 'three.txt',
+                    }],
+                },
+            }
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_requirements()
+
+        install = config.python.install
+        assert len(install) == 3
+
+        args, kwargs = run.call_args_list[0]
+        assert 'install' in args
+        assert '-e' in args
+        assert 'one[docs]' in args
+        assert install[0].method == PIP
+
+        args, kwargs = run.call_args_list[1]
+        assert 'two/setup.py' in args
+        assert 'install' in args
+        assert install[1].method == SETUPTOOLS
+
+        args, kwargs = run.call_args_list[2]
+        assert 'install' in args
+        assert '-r' in args
+        assert 'three.txt' in args
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_system_packages(self, run, checkout_path, tmpdir):
