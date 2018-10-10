@@ -298,9 +298,9 @@ class Virtualenv(PythonEnvironment):
 
     def install_requirements_file(self, install):
         requirements_file_path = install.requirements
+        # This only happens when the config file is from v1.
+        # We try to find a requirements file.
         if requirements_file_path is None:
-            # This only happens when the config file is from v1.
-            # We try to find a requirements file.
             builder_class = get_builder_class(self.config.doctype)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
