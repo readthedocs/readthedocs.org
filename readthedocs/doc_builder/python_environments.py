@@ -75,7 +75,7 @@ class PythonEnvironment(object):
     def _run_install_step(self, install):
         if isinstance(install, PythonInstallRequirements):
             return self.install_requirements_file(install)
-        elif isinstance(install, PythonInstall):
+        if isinstance(install, PythonInstall):
             return self.install_package(install)
 
     def install_package(self, install):

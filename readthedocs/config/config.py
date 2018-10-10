@@ -93,6 +93,14 @@ DOCKER_IMAGE_SETTINGS = {
 }
 
 
+def _list_to_dict(list_):
+    dict_ = {
+        str(i): element
+        for i, element in enumerate(list_)
+    }
+    return dict_
+
+
 class ConfigError(Exception):
 
     """Base error for the rtd configuration file."""
@@ -770,7 +778,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(raw_install)
             if raw_install:
                 self.raw_config.setdefault('python', {})['install'] = (
-                    self._list_to_dict(raw_install)
+                    _list_to_dict(raw_install)
                 )
             else:
                 self.pop_config('python.install')
@@ -794,14 +802,8 @@ class BuildConfigV2(BuildConfigBase):
 
         return python
 
-    def _list_to_dict(self, list_):
-        dict_ = {
-            str(i): element
-            for i, element in enumerate(list_)
-        }
-        return dict_
-
     def validate_python_install(self, index):
+        """Validates the python.install.index key."""
         python_install = {}
         key = 'python.install.{}'.format(index)
         raw_install = self.raw_config['python']['install'][str(index)]
