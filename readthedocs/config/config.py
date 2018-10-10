@@ -94,6 +94,7 @@ DOCKER_IMAGE_SETTINGS = {
 
 
 def _list_to_dict(list_):
+    """Transform a list to a dictionary with its indices as keys."""
     dict_ = {
         str(i): element
         for i, element in enumerate(list_)
@@ -572,6 +573,9 @@ class BuildConfigV1(BuildConfigBase):
         python = self._config['python']
         requirements = self._config['requirements_file']
         python_install = []
+
+        # Alwyas append a `PythonInstallRequirements` option.
+        # If requirements is None, rtd will try to find a requirements file.
         python_install.append(
             PythonInstallRequirements(
                 requirements=requirements,
@@ -777,6 +781,7 @@ class BuildConfigV2(BuildConfigBase):
             raw_install = self.raw_config.get('python', {}).get('install', [])
             validate_list(raw_install)
             if raw_install:
+                # Transform to a dict, so it's easy to validate extra keys.
                 self.raw_config.setdefault('python', {})['install'] = (
                     _list_to_dict(raw_install)
                 )
@@ -803,7 +808,7 @@ class BuildConfigV2(BuildConfigBase):
         return python
 
     def validate_python_install(self, index):
-        """Validates the python.install.index key."""
+        """Validates the python.install.{index} key."""
         python_install = {}
         key = 'python.install.{}'.format(index)
         raw_install = self.raw_config['python']['install'][str(index)]
@@ -835,14 +840,14 @@ class BuildConfigV2(BuildConfigBase):
                 )
                 python_install['method'] = method
 
-            extrareq_key = key + '.extra_requirements'
-            with self.catch_validation_error(extrareq_key):
+            extra_req_key = key + '.extra_requirements'
+            with self.catch_validation_error(extra_req_key):
                 extra_requirements = validate_list(
-                    self.pop_config(extrareq_key, [])
+                    self.pop_config(extra_req_key, [])
                 )
                 if extra_requirements and python_install['method'] != PIP:
                     self.error(
-                        extrareq_key,
+                        extra_req_key,
                         'You need to install your project with pip '
                         'to use extra_requirements',
                         code=PYTHON_INVALID,
