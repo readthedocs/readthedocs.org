@@ -1,7 +1,7 @@
 Keep Building Docs With Old Version Of MkDocs
 =============================================
 
-Recent changes on ``mkdocs`` forced us to `upgrade the default version installed`_ by Read the Docs and this may be a breaking change for your documentation.
+Recent changes to ``mkdocs`` forced us to `upgrade the default version installed`_ by Read the Docs and this may be a breaking change for your documentation.
 
 .. _upgrade the default version installed: https://github.com/rtfd/readthedocs.org/pull/4041
 
