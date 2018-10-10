@@ -1133,12 +1133,38 @@ class TestBuildConfigV2(object):
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
 
-    @pytest.mark.parametrize('value', ['invalid', 'apt'])
-    def test_python_install_check_invalid(self, value):
-        build = self.get_build_config({'python': {'install': value}},)
+    def test_python_install_path_check_invalid(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'path': 'noexists',
+                        'method': 'pip',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install'
+        assert excinfo.value.key == 'python.install.0.path'
+
+    @pytest.mark.parametrize('value', ['invalid', 'apt'])
+    def test_python_install_method_check_invalid(self, value, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'path': '.',
+                        'method': value,
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.method'
 
     def test_python_install_requirements_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
@@ -1973,6 +1999,20 @@ class TestBuildConfigV2(object):
                 }
             },
             'build.extra'
+        ),
+        (
+            {
+                'python': {
+                    'install': [{
+                        'path': '.',
+                    }, {
+                        'path': '.',
+                        'method': 'pip',
+                        'invalid': 'key',
+                    }]
+                }
+            },
+            'python.install.1.invalid'
         )
     ])
     def test_strict_validation(self, value, key):
