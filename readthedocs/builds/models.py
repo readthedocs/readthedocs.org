@@ -2,36 +2,56 @@
 """Models for the builds app."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import os.path
 import re
-from builtins import object
 from shutil import rmtree
 
+from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
+from jsonfield import JSONField
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
+    BITBUCKET_URL,
+    GITHUB_URL,
+    GITLAB_URL,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
-    BRANCH, BUILD_STATE, BUILD_STATE_FINISHED, BUILD_TYPES, LATEST,
-    NON_REPOSITORY_VERSIONS, STABLE, TAG, VERSION_TYPES)
+    BRANCH,
+    BUILD_STATE,
+    BUILD_STATE_FINISHED,
+    BUILD_TYPES,
+    LATEST,
+    NON_REPOSITORY_VERSIONS,
+    STABLE,
+    TAG,
+    VERSION_TYPES,
+)
 from .managers import VersionManager
 from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .utils import (
-    get_bitbucket_username_repo, get_github_username_repo,
-    get_gitlab_username_repo)
+    get_bitbucket_username_repo,
+    get_github_username_repo,
+    get_gitlab_username_repo,
+)
 from .version_slug import VersionSlugField
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
@@ -108,6 +128,15 @@ class Version(models.Model):
                 project=self.project,
                 pk=self.pk,
             ))
+
+    @property
+    def config(self):
+        last_build = (
+            self.builds.filter(type='html', state='finished')
+            .order_by('-date')
+            .first()
+        )
+        return last_build.config
 
     @property
     def commit_name(self):
@@ -448,6 +477,7 @@ class Build(models.Model):
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(
         _('Commit'), max_length=255, null=True, blank=True)
+    config = JSONField(_('Configuration used in the build'), default={})
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
