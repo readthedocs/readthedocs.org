@@ -233,6 +233,21 @@ class BuildConfigBase(object):
             )
         return ver
 
+    def as_dict(self):
+        attributes = [
+            'version', 'formats', 'python',
+            'conda', 'build', 'doctype',
+            'sphinx', 'mkdocs', 'submodules',
+        ]
+        config = {}
+        for name in attributes:
+            attr = getattr(self, name)
+            if hasattr(attr, '_asdict'):
+                config[name] = attr._asdict()
+            else:
+                config[name] = attr
+        return config
+
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
         raise ConfigOptionNotSupportedError(name)

@@ -841,6 +841,60 @@ def test_config_filenames_regex(correct_config_filename):
     assert re.match(CONFIG_FILENAME_REGEX, correct_config_filename)
 
 
+def test_as_dict(tmpdir):
+    apply_fs(tmpdir, {'requirements.txt': ''})
+    build = get_build_config(
+        {
+            'version': 1,
+            'formats': ['pdf'],
+            'python': {
+                'version': 3.5,
+            },
+            'requirements_file': 'requirements.txt',
+        },
+        get_env_config({
+            'defaults': {
+                'doctype': 'sphinx',
+                'sphinx_configuration': None,
+            },
+        }),
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    build.validate()
+    expected_dict = {
+        'version': '1',
+        'formats': ['pdf'],
+        'python': {
+            'version': 3.5,
+            'requirements': 'requirements.txt',
+            'install_with_pip': False,
+            'install_with_setup': False,
+            'extra_requirements': [],
+            'use_system_site_packages': False,
+        },
+        'build': {
+            'image': 'readthedocs/build:2.0',
+        },
+        'conda': None,
+        'sphinx': {
+            'builder': 'sphinx',
+            'configuration': None,
+            'fail_on_warning': False,
+        },
+        'mkdocs': {
+            'configuration': None,
+            'fail_on_warning': False,
+        },
+        'doctype': 'sphinx',
+        'submodules': {
+            'include': ALL,
+            'exclude': [],
+            'recursive': True,
+        },
+    }
+    assert build.as_dict() == expected_dict
+
+
 class TestBuildConfigV2(object):
 
     def get_build_config(self, config, env_config=None,
@@ -1804,3 +1858,47 @@ class TestBuildConfigV2(object):
             build.pop_config('one.four', raise_ex=True)
         assert excinfo.value.value == 'four'
         assert excinfo.value.code == VALUE_NOT_FOUND
+
+    def test_as_dict(self, tmpdir):
+        apply_fs(tmpdir, {'requirements.txt': ''})
+        build = self.get_build_config(
+            {
+                'version': 2,
+                'formats': ['pdf'],
+                'python': {
+                    'version': 3.6,
+                    'requirements': 'requirements.txt',
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        expected_dict = {
+            'version': '2',
+            'formats': ['pdf'],
+            'python': {
+                'version': 3.6,
+                'requirements': str(tmpdir.join('requirements.txt')),
+                'install_with_pip': False,
+                'install_with_setup': False,
+                'extra_requirements': [],
+                'use_system_site_packages': False,
+            },
+            'build': {
+                'image': 'readthedocs/build:latest',
+            },
+            'conda': None,
+            'sphinx': {
+                'builder': 'sphinx',
+                'configuration': None,
+                'fail_on_warning': False,
+            },
+            'mkdocs': None,
+            'doctype': 'sphinx',
+            'submodules': {
+                'include': [],
+                'exclude': ALL,
+                'recursive': False,
+            },
+        }
+        assert build.as_dict() == expected_dict
