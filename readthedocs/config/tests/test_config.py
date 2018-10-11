@@ -122,6 +122,7 @@ def test_load_no_config_file(tmpdir, files, nested_files):
         load(base, env_config)
     assert ae.value.code == CONFIG_REQUIRED
 
+
 def test_load_empty_config_file(tmpdir):
     apply_fs(tmpdir, {
         'readthedocs.yml': ''
