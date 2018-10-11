@@ -43,11 +43,11 @@ def _build_version(project, slug, already_built=()):
         # active
         latest_version = project.versions.get(slug=LATEST)
         if latest_version.active:
-            trigger_build(project=project, version=latest_version, force=True)
             log.info(
                 "(Version build) Building %s:%s",
                 project.slug, latest_version.slug
             )
+            trigger_build(project=project, version=latest_version, force=True)
             version_exists = (
                 project.versions.exclude(active=False)
                 .filter(slug=slug)
@@ -56,11 +56,11 @@ def _build_version(project, slug, already_built=()):
             if version_exists:
                 # Handle the case where we want to build the custom branch too
                 slug_version = project.versions.get(slug=slug)
-                trigger_build(project=project, version=slug_version, force=True)
                 log.info(
                     "(Version build) Building %s:%s",
-                    project.slug, slug_version.slug
+                    project.slug, slug_version.slug,
                 )
+                trigger_build(project=project, version=slug_version, force=True)
             return LATEST
         else:
             log.info(
@@ -73,9 +73,11 @@ def _build_version(project, slug, already_built=()):
 
     if slug not in already_built:
         version = project.versions.get(slug=slug)
+        log.info(
+            "(Version build) Building %s:%s",
+            project.slug, version.slug,
+        )
         trigger_build(project=project, version=version, force=True)
-        log.info("(Version build) Building %s:%s",
-                 project.slug, version.slug)
         return slug
 
     log.info("(Version build) Not Building %s", slug)
