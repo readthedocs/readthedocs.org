@@ -16,7 +16,7 @@ mkdocs==0.17.3
 # Markdown 3.0 breaks with older Django Rest Framework
 Markdown<3.0
 
-django==1.10.8
+django==1.11.16
 six==1.11.0
 future==0.16.0
 
