@@ -418,8 +418,8 @@ class APIBuildTests(TestCase):
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
-    def test_make_project(self):
-        """Test that a superuser can use the API."""
+    def test_cant_make_project(self):
+        """Test that a user can't use the API to create projects."""
         post_data = {
             'name': 'awesome-project',
             'repo': 'https://github.com/ericholscher/django-kong.git',
@@ -430,16 +430,7 @@ class APITests(TestCase):
             content_type='application/json',
             HTTP_AUTHORIZATION='Basic %s' % super_auth,
         )
-        self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], '/api/v1/project/24/')
-        resp = self.client.get(
-            '/api/v1/project/24/',
-            data={'format': 'json'},
-            HTTP_AUTHORIZATION='Basic %s' % eric_auth,
-        )
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['slug'], 'awesome-project')
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
