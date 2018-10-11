@@ -62,10 +62,9 @@ def _build_version(project, slug, already_built=()):
                 )
                 trigger_build(project=project, version=slug_version, force=True)
             return LATEST
-        else:
-            log.info(
-                "(Version build) Not Building %s, it is disabled", LATEST
-            )
+        log.info(
+            "(Version build) Not Building %s, it is disabled", LATEST
+        )
 
     if project.versions.filter(active=False, slug=slug).exists():
         log.info("(Version build) Not Building %s", slug)
