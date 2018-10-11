@@ -62,8 +62,12 @@ def _build_version(project, slug, already_built=()):
                     project.slug, slug_version.slug
                 )
             return LATEST
+        else:
+            log.info(
+                "(Version build) Not Building %s, it is disabled", LATEST
+            )
 
-    if project.versions.exclude(active=True).filter(slug=slug).exists():
+    if project.versions.filter(active=False, slug=slug).exists():
         log.info("(Version build) Not Building %s", slug)
         return None
 
