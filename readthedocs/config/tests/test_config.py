@@ -4,20 +4,42 @@ from __future__ import division, print_function, unicode_literals
 import os
 import re
 import textwrap
+from collections import OrderedDict
 
 import pytest
 from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    ALL, BuildConfigV1, BuildConfigV2, ConfigError,
-    ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
+    ALL,
+    BuildConfigV1,
+    BuildConfigV2,
+    ConfigError,
+    ConfigOptionNotSupportedError,
+    InvalidConfig,
+    ProjectConfig,
+    load,
+)
 from readthedocs.config.config import (
-    CONFIG_FILENAME_REGEX, CONFIG_NOT_SUPPORTED, CONFIG_REQUIRED, NAME_INVALID,
-    NAME_REQUIRED, PYTHON_INVALID, VERSION_INVALID)
+    CONFIG_FILENAME_REGEX,
+    CONFIG_NOT_SUPPORTED,
+    CONFIG_REQUIRED,
+    INVALID_KEY,
+    NAME_INVALID,
+    NAME_REQUIRED,
+    PYTHON_INVALID,
+    VERSION_INVALID,
+)
 from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
-    INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
+    INVALID_BOOL,
+    INVALID_CHOICE,
+    INVALID_LIST,
+    INVALID_PATH,
+    INVALID_STRING,
+    VALUE_NOT_FOUND,
+    ValidationError,
+)
 
 from .utils import apply_fs
 
@@ -81,31 +103,24 @@ def get_env_config(extra=None):
     return defaults
 
 
-@pytest.mark.parametrize('files', [
-    {},
-    {'readthedocs.ymlmore': ''},
-    {'startreadthedocs.yml': ''},
-    {'noroot': {'readthedocs.ymlmore': ''}},
-    {'noroot': {'startreadthedocs.yml': ''}},
-    {'readthebots.yaml': ''},
-])
-@pytest.mark.parametrize('nested_files',[
-    {'first': {'readthedocs.yml': ''}},
-    {'second': {'confuser.txt': 'content'}},
-    {'third': {'readthedocs.yml': 'content', 'Makefile': ''}}
+@pytest.mark.parametrize('files,nested_files', [
+    ({'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}}),
+    ({'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}}),
+    ({'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}}),
+    ({'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}}),
+    ({'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}}),
 ])
 def test_load_no_config_file(tmpdir, files, nested_files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
     with raises(ConfigError) as e:
         load(base, env_config)
-
-    apply_fs(tmpdir, nested_files)
-    with raises(ConfigError) as e:
-        load(base, env_config)
-
     assert e.value.code == CONFIG_REQUIRED
 
+    apply_fs(tmpdir, nested_files)
+    with raises(ConfigError) as ae:
+        load(base, env_config)
+    assert ae.value.code == CONFIG_REQUIRED
 
 def test_load_empty_config_file(tmpdir):
     apply_fs(tmpdir, {
@@ -1092,12 +1107,12 @@ class TestBuildConfigV2(object):
         assert build.python.requirements is None
 
     def test_python_requirements_allow_null(self):
-        build = self.get_build_config({'python': {'requirements': None}}, )
+        build = self.get_build_config({'python': {'requirements': None}},)
         build.validate()
         assert build.python.requirements is None
 
     def test_python_requirements_allow_empty_string(self):
-        build = self.get_build_config({'python': {'requirements': ''}}, )
+        build = self.get_build_config({'python': {'requirements': ''}},)
         build.validate()
         assert build.python.requirements == ''
 
@@ -1123,13 +1138,13 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', [3, [], {}])
     def test_python_requirements_check_invalid_types(self, value):
-        build = self.get_build_config({'python': {'requirements': value}}, )
+        build = self.get_build_config({'python': {'requirements': value}},)
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.requirements'
 
     def test_python_install_pip_check_valid(self):
-        build = self.get_build_config({'python': {'install': 'pip'}}, )
+        build = self.get_build_config({'python': {'install': 'pip'}},)
         build.validate()
         assert build.python.install_with_pip is True
         assert build.python.install_with_setup is False
@@ -1144,7 +1159,7 @@ class TestBuildConfigV2(object):
         assert build.python.install_with_setup is False
 
     def test_python_install_setuppy_check_valid(self):
-        build = self.get_build_config({'python': {'install': 'setup.py'}}, )
+        build = self.get_build_config({'python': {'install': 'setup.py'}},)
         build.validate()
         assert build.python.install_with_setup is True
         assert build.python.install_with_pip is False
@@ -1169,13 +1184,13 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', ['invalid', 'apt'])
     def test_python_install_check_invalid(self, value):
-        build = self.get_build_config({'python': {'install': value}}, )
+        build = self.get_build_config({'python': {'install': value}},)
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install'
 
     def test_python_install_allow_null(self):
-        build = self.get_build_config({'python': {'install': None}}, )
+        build = self.get_build_config({'python': {'install': None}},)
         build.validate()
         assert build.python.install_with_pip is False
         assert build.python.install_with_setup is False
@@ -1188,7 +1203,7 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', [2, [], {}])
     def test_python_install_check_invalid_type(self, value):
-        build = self.get_build_config({'python': {'install': value}}, )
+        build = self.get_build_config({'python': {'install': value}},)
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install'
@@ -1382,7 +1397,7 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == '.'
 
     def test_sphinx_configuration_allow_null(self):
-        build = self.get_build_config({'sphinx': {'configuration': None}}, )
+        build = self.get_build_config({'sphinx': {'configuration': None}},)
         build.validate()
         assert build.sphinx.configuration is None
 
@@ -1423,7 +1438,7 @@ class TestBuildConfigV2(object):
 
     @pytest.mark.parametrize('value', [[], True, 0, {}])
     def test_sphinx_configuration_validate_type(self, value):
-        build = self.get_build_config({'sphinx': {'configuration': value}}, )
+        build = self.get_build_config({'sphinx': {'configuration': value}},)
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'sphinx.configuration'
@@ -1705,3 +1720,83 @@ class TestBuildConfigV2(object):
         assert build.submodules.include == []
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
+
+    @pytest.mark.parametrize('value,key', [
+        ({'typo': 'something'}, 'typo'),
+        (
+            {
+                'pyton': {
+                    'version': 'another typo',
+                }
+            },
+            'pyton.version'
+        ),
+        (
+            {
+                'build': {
+                    'image': 'latest',
+                    'extra': 'key',
+                }
+            },
+            'build.extra'
+        )
+    ])
+    def test_strict_validation(self, value, key):
+        build = self.get_build_config(value)
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == key
+        assert excinfo.value.code == INVALID_KEY
+
+    def test_strict_validation_pops_all_keys(self):
+        build = self.get_build_config({
+            'version': 2,
+            'python': {
+                'version': 3,
+            },
+        })
+        build.validate()
+        assert build.raw_config == {}
+
+    @pytest.mark.parametrize('value,expected', [
+        ({}, []),
+        ({'one': 1}, ['one']),
+        ({'one': {'two': 3}}, ['one', 'two']),
+        (OrderedDict([('one', 1), ('two', 2)]), ['one']),
+        (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
+    ])
+    def test_get_extra_key(self, value, expected):
+        build = self.get_build_config({})
+        assert build._get_extra_key(value) == expected
+
+    def test_pop_config_single(self):
+        build = self.get_build_config({'one': 1})
+        build.pop_config('one')
+        assert build.raw_config == {}
+
+    def test_pop_config_nested(self):
+        build = self.get_build_config({'one': {'two': 2}})
+        build.pop_config('one.two')
+        assert build.raw_config == {}
+
+    def test_pop_config_nested_with_residue(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        build.pop_config('one.two')
+        assert build.raw_config == {'one': {'three': 3}}
+
+    def test_pop_config_default_none(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        assert build.pop_config('one.four') is None
+        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+
+    def test_pop_config_default(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        assert build.pop_config('one.four', 4) == 4
+        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+
+    def test_pop_config_raise_exception(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        with raises(ValidationError) as excinfo:
+            build.pop_config('one.four', raise_ex=True)
+        assert excinfo.value.value == 'four'
+        assert excinfo.value.code == VALUE_NOT_FOUND
