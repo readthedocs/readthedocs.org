@@ -882,6 +882,7 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -893,7 +894,7 @@ class APIProject(Project):
         super(APIProject, self).__init__(*args, **kwargs)
 
         # Overwrite the database property with the value from the API
-        self.ad_free = (not kwargs.pop('show_advertising', True))
+        self.ad_free = ad_free
 
     def save(self, *args, **kwargs):
         return 0

@@ -323,8 +323,8 @@ class DualCheckboxWidget(forms.CheckboxInput):
         super(DualCheckboxWidget, self).__init__(attrs, check_test)
         self.version = version
 
-    def render(self, name, value, attrs=None):
-        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs, renderer)
         icon = self.render_icon()
         return mark_safe('{}{}'.format(checkbox, icon))
 
