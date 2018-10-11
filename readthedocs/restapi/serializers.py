@@ -112,6 +112,7 @@ class BuildSerializer(serializers.ModelSerializer):
     version_slug = serializers.ReadOnlyField(source='version.slug')
     docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
     state_display = serializers.ReadOnlyField(source='get_state_display')
+    config = serializers.JSONField(required=False)
 
     class Meta(object):
         model = Build
