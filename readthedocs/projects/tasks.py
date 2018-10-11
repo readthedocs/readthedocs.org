@@ -113,10 +113,7 @@ class SyncRepositoryMixin(object):
                 ),
             )
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Get the actual code on disk
             try:
                 before_vcs.send(sender=self.version)
@@ -649,10 +646,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Check if the python version/build image in the current venv is the
             # same to be used in this build and if it differs, wipe the venv to
             # avoid conflicts.
@@ -682,9 +676,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+        with self.project.repo_nonblockinglock(version=self.version):
             outcomes['html'] = self.build_docs_html()
             outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
