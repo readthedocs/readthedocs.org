@@ -132,7 +132,7 @@ class Version(models.Model):
     @property
     def config(self):
         last_build = (
-            self.builds.filter(type='html', state='finished')
+            self.builds.filter(state='finished')
             .order_by('-date')
             .first()
         )
