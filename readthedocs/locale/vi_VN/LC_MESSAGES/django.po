@@ -2409,11 +2409,6 @@ msgstr "Thêm tên khác cho một phiên bản của dự án."
 msgid "Create"
 msgstr ""
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "Các tên phụ"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Xem qua các dự án"
