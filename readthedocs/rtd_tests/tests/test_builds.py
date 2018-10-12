@@ -8,10 +8,10 @@ from django_dynamic_fixture import get
 from django_dynamic_fixture import fixture
 
 from readthedocs.projects.models import Project
+from readthedocs.builds.models import Version, Build
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
@@ -223,3 +223,27 @@ class BuildEnvironmentTests(TestCase):
             task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 7)
         self.assertTrue(build_env.successful)
+
+    @mock.patch('readthedocs.projects.tasks.api_v2')
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_save_config_in_build_model(self, load_config, api_v2):
+        load_config.side_effect = create_load()
+        api_v2.build.get.return_value = {}
+        project = get(
+            Project,
+            slug='project',
+            documentation_type='sphinx',
+        )
+        build = get(Build)
+        version = get(Version, slug='1.8', project=project)
+        task = UpdateDocsTaskStep(
+            project=project, version=version, build={'id': build.pk}
+        )
+        task.setup_vcs = mock.Mock()
+        task.run_setup()
+        build_config = task.build['config']
+        # For get and put
+        assert api_v2.build.call_count == 2
+        assert build_config['version'] == '1'
+        assert 'sphinx' in build_config
+        assert build_config['doctype'] == 'sphinx'
