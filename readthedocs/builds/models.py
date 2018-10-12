@@ -131,8 +131,9 @@ class Version(models.Model):
 
     @property
     def config(self):
+        """Returns the configuration used in the last successful build."""
         last_build = (
-            self.builds.filter(state='finished')
+            self.builds.filter(state='finished', success=True)
             .order_by('-date')
             .first()
         )
