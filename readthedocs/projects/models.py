@@ -653,7 +653,7 @@ class Project(models.Model):
 
     def repo_nonblockinglock(self, version, max_lock_age=None):
         """
-        Return a ``NonBlockingLock`` or raise an exception.
+        Return a ``NonBlockingLock`` to acquire the lock via context manager.
 
         :param version: project's version that want to get the lock for.
         :param max_lock_age: time (in seconds) to consider the lock's age is old
