@@ -339,7 +339,8 @@ class TestLocalBuildEnvironment(TestCase):
             'length': mock.ANY,
             'error': (
                 'There was a problem with Read the Docs while building your '
-                'documentation. Please report this to us with your build id (123).'
+                'documentation. Please try again later. However, if this '
+                'problem persists, please report to us with your build id (123).'
             ),
             'setup': '',
             'output': '',
@@ -485,9 +486,9 @@ class TestDockerBuildEnvironment(TestCase):
             'exit_code': 1,
             'length': 0,
             'error': (
-                "There was a problem with Read the Docs while building your "
-                "documentation. Please report this to us with your build id "
-                "(123)."
+                'There was a problem with Read the Docs while building your '
+                'documentation. Please try again later. However, if this '
+                'problem persists, please report to us with your build id (123).'
             ),
             'setup': '',
             'output': '',
