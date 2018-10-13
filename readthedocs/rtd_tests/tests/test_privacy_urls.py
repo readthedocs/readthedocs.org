@@ -157,7 +157,6 @@ class ProjectMixin(URLAccessMixin):
             'filename': 'index.html',
             'type_': 'pdf',
             'tag': self.tag.slug,
-            'alias_id': self.alias.pk,
             'child_slug': self.subproject.slug,
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
