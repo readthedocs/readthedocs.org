@@ -22,8 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
-from readthedocs.builds.forms import AliasForm, VersionForm
-from readthedocs.builds.models import Version, VersionAlias
+from readthedocs.builds.forms import VersionForm
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build, prepare_build
 from readthedocs.integrations.models import HttpExchange, Integration

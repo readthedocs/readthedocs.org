@@ -11,7 +11,7 @@ from django_dynamic_fixture import get
 import mock
 from taggit.models import Tag
 
-from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
+from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project, Domain
@@ -137,7 +137,6 @@ class ProjectMixin(URLAccessMixin):
         super(ProjectMixin, self).setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
-        self.alias = get(VersionAlias, slug='that_alias', project=self.pip)
         self.subproject = get(Project, slug='sub', language='ja',
                               users=[self.owner], main_language_project=None)
         self.pip.add_subproject(self.subproject)

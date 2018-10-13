@@ -60,16 +60,6 @@ class Migration(migrations.Migration):
                 'permissions': (('view_version', 'View Version'),),
             },
         ),
-        migrations.CreateModel(
-            name='VersionAlias',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('from_slug', models.CharField(default=b'', max_length=255, verbose_name='From slug')),
-                ('to_slug', models.CharField(default=b'', max_length=255, verbose_name='To slug', blank=True)),
-                ('largest', models.BooleanField(default=False, verbose_name='Largest')),
-                ('project', models.ForeignKey(related_name='aliases', verbose_name='Project', to='projects.Project')),
-            ],
-        ),
         migrations.AddField(
             model_name='build',
             name='version',
