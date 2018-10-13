@@ -122,6 +122,7 @@ def test_load_no_config_file(tmpdir, files, nested_files):
         load(base, env_config)
     assert ae.value.code == CONFIG_REQUIRED
 
+
 def test_load_empty_config_file(tmpdir):
     apply_fs(tmpdir, {
         'readthedocs.yml': ''
@@ -300,6 +301,7 @@ def test_python_pip_install_default():
 
 
 def describe_validate_python_extra_requirements():
+
     def it_defaults_to_list():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -333,6 +335,7 @@ def describe_validate_python_extra_requirements():
 
 
 def describe_validate_use_system_site_packages():
+
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -360,6 +363,7 @@ def describe_validate_use_system_site_packages():
 
 
 def describe_validate_setup_py_install():
+
     def it_defaults_to_false():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -387,6 +391,7 @@ def describe_validate_setup_py_install():
 
 
 def describe_validate_python_version():
+
     def it_defaults_to_a_valid_version():
         build = get_build_config({'python': {}}, get_env_config())
         build.validate()
@@ -486,6 +491,7 @@ def describe_validate_python_version():
 
 
 def describe_validate_formats():
+
     def it_defaults_to_empty():
         build = get_build_config({}, get_env_config())
         build.validate()
@@ -565,6 +571,7 @@ def test_valid_build_config():
 
 
 def describe_validate_base():
+
     def it_validates_to_abspath(tmpdir):
         apply_fs(tmpdir, {'configs': minimal_config, 'docs': {}})
         with tmpdir.as_cwd():
@@ -616,6 +623,7 @@ def describe_validate_base():
 
 
 def describe_validate_build():
+
     def it_fails_if_build_is_invalid_option(tmpdir):
         apply_fs(tmpdir, minimal_config)
         build = BuildConfigV1(
