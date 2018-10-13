@@ -51,7 +51,7 @@ def get_filesystem(path, top_level_path=None):
     return fs
 
 
-TEMP_SITE_ROOT = tempfile.mkdtemp(suffix='siteroot')
+TEMP_SITE_ROOT = os.path.realpath(tempfile.mkdtemp(suffix='siteroot'))
 TEMP_DOCROOT = os.path.join(TEMP_SITE_ROOT, 'user_builds')
 
 
