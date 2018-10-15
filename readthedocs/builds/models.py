@@ -478,7 +478,7 @@ class Build(models.Model):
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(
         _('Commit'), max_length=255, null=True, blank=True)
-    config = JSONField(_('Configuration used in the build'), default={})
+    config = JSONField(_('Configuration used in the build'), default=dict)
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
