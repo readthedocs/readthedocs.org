@@ -933,6 +933,34 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.data['build_triggered'])
 
+    def test_webhook_builds_only_master(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        latest_version = self.project.versions.get(slug=LATEST)
+        latest_version.active = False
+        latest_version.save()
+
+        default_branch = self.project.versions.get(slug='master')
+
+        self.assertFalse(latest_version.active)
+        self.assertTrue(default_branch.active)
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': default_branch.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['versions'], ['master'])
+
     def test_webhook_build_latest_and_master(self, trigger_build):
         client = APIClient()
         integration = Integration.objects.create(
