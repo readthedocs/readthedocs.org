@@ -40,7 +40,7 @@ def _build_version(project, slug, already_built=()):
     # when building the default version,
     # some users may have relied on this to update the version list #4450
     version = project.versions.filter(active=True, slug=slug).first()
-    if version and version.active and slug not in already_built:
+    if version and slug not in already_built:
         log.info(
             "(Version build) Building %s:%s",
             project.slug, version.slug,
