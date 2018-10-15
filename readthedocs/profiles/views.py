@@ -12,7 +12,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.forms import UserDeleteForm, UserAdvertisingForm
@@ -101,10 +100,10 @@ def create_profile(
 
     if extra_context is None:
         extra_context = {}
-    context = RequestContext(request)
-    for key, value in list(extra_context.items()):
-        context[key] = (value() if callable(value) else value)
-
+    context = {
+        key: value() if callable(value) else value
+        for key, value in extra_context.items()
+    }
     context.update({'form': form})
     return render(request, template_name, context=context)
 
@@ -180,10 +179,10 @@ def edit_profile(
 
     if extra_context is None:
         extra_context = {}
-    context = RequestContext(request)
-    for key, value in list(extra_context.items()):
-        context[key] = (value() if callable(value) else value)
-
+    context = {
+        key: value() if callable(value) else value
+        for key, value in extra_context.items()
+    }
     context.update({
         'form': form,
         'profile': profile_obj,
@@ -274,10 +273,10 @@ def profile_detail(
 
     if extra_context is None:
         extra_context = {}
-    context = RequestContext(request)
-    for key, value in list(extra_context.items()):
-        context[key] = (value() if callable(value) else value)
-
+    context = {
+        key: value() if callable(value) else value
+        for key, value in extra_context.items()
+    }
     context.update({'profile': profile_obj})
     return render(request, template_name, context=context)
 
