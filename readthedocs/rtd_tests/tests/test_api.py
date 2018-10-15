@@ -933,6 +933,54 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.data['build_triggered'])
 
+    def test_webhook_build_latest_and_master(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        latest_version = self.project.versions.get(slug=LATEST)
+        default_branch = self.project.versions.get(slug='master')
+
+        self.assertTrue(latest_version.active)
+        self.assertTrue(default_branch.active)
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': default_branch.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(set(resp.data['versions']), {'latest', 'master'})
+
+    def test_webhook_build_another_branch(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        version_v1 = self.project.versions.get(slug='v1.0')
+
+        self.assertTrue(version_v1.active)
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': version_v1.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['versions'], ['v1.0'])
+
 
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
