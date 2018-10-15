@@ -103,24 +103,19 @@ def get_env_config(extra=None):
     return defaults
 
 
-@pytest.mark.parametrize('files,nested_files', [
-    ({'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}}),
-    ({'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}}),
-    ({'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}}),
-    ({'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}}),
-    ({'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}}),
+@pytest.mark.parametrize('files', [
+    {'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}},
+    {'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}},
+    {'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}},
+    {'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}},
+    {'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}},
 ])
-def test_load_no_config_file(tmpdir, files, nested_files):
+def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
     with raises(ConfigError) as e:
         load(base, env_config)
     assert e.value.code == CONFIG_REQUIRED
-
-    apply_fs(tmpdir, nested_files)
-    with raises(ConfigError) as ae:
-        load(base, env_config)
-    assert ae.value.code == CONFIG_REQUIRED
 
 
 def test_load_empty_config_file(tmpdir):
