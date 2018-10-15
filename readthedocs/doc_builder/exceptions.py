@@ -26,7 +26,7 @@ class BuildEnvironmentError(BuildEnvironmentException):
         'There was a problem with Read the Docs while building your documentation. '
         'Please try again later. '
         'However, if this problem persists, '
-        'please report to us with your build id ({build_id}).',
+        'please report this to us with your build id ({build_id}).',
     )
 
 

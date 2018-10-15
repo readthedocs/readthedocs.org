@@ -340,7 +340,8 @@ class TestLocalBuildEnvironment(TestCase):
             'error': (
                 'There was a problem with Read the Docs while building your '
                 'documentation. Please try again later. However, if this '
-                'problem persists, please report to us with your build id (123).'
+                'problem persists, please report this to us with your '
+                'build id (123).'
             ),
             'setup': '',
             'output': '',
@@ -488,7 +489,8 @@ class TestDockerBuildEnvironment(TestCase):
             'error': (
                 'There was a problem with Read the Docs while building your '
                 'documentation. Please try again later. However, if this '
-                'problem persists, please report to us with your build id (123).'
+                'problem persists, please report this to us with your '
+                'build id (123).'
             ),
             'setup': '',
             'output': '',
