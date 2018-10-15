@@ -13,6 +13,9 @@
 
   <!-- BEGIN your projects list -->
   <div class="col-major project-dashboard-right">
+    
+    {% block email_verification %}{% endblock %}
+
     {% if project_list %}
 
       {% if filter.qs.count > 0 %}

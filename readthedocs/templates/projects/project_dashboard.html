@@ -1,5 +1,15 @@
 {% extends 'projects/project_dashboard_base.html' %}
 
+{% block email_verification %}
+
+  {% if not primary_email_verified %}
+    <div class="msg-block">
+      Verify Your Email Address ({{ primary_email }})
+    </div>
+  {% endif %}
+
+{% endblock %}
+
 {% block dashboard-onboard-extra %}
     <!-- BEGIN Gold Pitch -->
     {% if not request.user.gold.count and request.user.projects.count > 1 %}

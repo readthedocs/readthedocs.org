@@ -61,6 +61,10 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
 
+        primary_email = self.request.user.emailaddress_set.filter(primary=True).first()
+        context['primary_email'] = primary_email.email
+        context['primary_email_verified'] = primary_email.verified
+
         return context
 
 
