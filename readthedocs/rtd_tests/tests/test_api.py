@@ -932,6 +932,7 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.data['build_triggered'])
+        trigger_build.assert_not_called()
 
     def test_webhook_builds_only_master(self, trigger_build):
         client = APIClient()
