@@ -227,7 +227,7 @@ def safe_makedirs(directory_name):
         raise
 
 
-def unlink(path):
+def safe_unlink(path):
     """
     Unlink ``path`` symlink using ``os.unlink``.
 
