@@ -36,7 +36,7 @@ from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.utils import send_email, broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -973,7 +973,7 @@ def remove_orphan_symlinks():
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
                 log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                os.unlink(orphan_domain_path)
+                safe_unlink(orphan_domain_path)
 
 
 @app.task(queue='web')
