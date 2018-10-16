@@ -626,7 +626,7 @@ class RedirectForm(forms.ModelForm):
         return redirect
 
 
-class DomainForm(forms.ModelForm):
+class DomainBaseForm(forms.ModelForm):
 
     """Form to configure a custom domain name for a project."""
 
@@ -638,7 +638,7 @@ class DomainForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(DomainForm, self).__init__(*args, **kwargs)
+        super(DomainBaseForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project
@@ -660,6 +660,10 @@ class DomainForm(forms.ModelForm):
             raise forms.ValidationError(
                 _('Only 1 Domain can be canonical at a time.'))
         return canonical
+
+
+class DomainForm(SettingsOverrideObject):
+    _default_class = DomainBaseForm
 
 
 class IntegrationForm(forms.ModelForm):
