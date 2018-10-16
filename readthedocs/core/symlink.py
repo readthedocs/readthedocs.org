@@ -63,7 +63,7 @@ from django.conf import settings
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils import safe_makedirs
+from readthedocs.core.utils import safe_makedirs, safe_unlink
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import run
@@ -95,7 +95,7 @@ class Symlink(object):
             log.info(constants.LOG_TEMPLATE.format(
                      project=self.project.slug, version='',
                      msg="Removing single version symlink"))
-            os.unlink(self.project_root)
+            safe_unlink(self.project_root)
             safe_makedirs(self.project_root)
         elif (self.project.single_version and
               not os.path.islink(self.project_root) and
@@ -164,7 +164,7 @@ class Symlink(object):
         log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
                                                version='', msg=log_msg))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
-        os.unlink(symlink)
+        safe_unlink(symlink)
 
     def symlink_subprojects(self):
         """
@@ -210,7 +210,7 @@ class Symlink(object):
         if os.path.exists(self.subproject_root):
             for subproj in os.listdir(self.subproject_root):
                 if subproj not in subprojects:
-                    os.unlink(os.path.join(self.subproject_root, subproj))
+                    safe_unlink(os.path.join(self.subproject_root, subproj))
 
     def symlink_translations(self):
         """
@@ -227,7 +227,7 @@ class Symlink(object):
         # Make sure the language directory is a directory
         language_dir = os.path.join(self.project_root, self.project.language)
         if os.path.islink(language_dir):
-            os.unlink(language_dir)
+            safe_unlink(language_dir)
         if not os.path.lexists(language_dir):
             safe_makedirs(language_dir)
 
@@ -246,7 +246,7 @@ class Symlink(object):
                     lang not in ['projects', self.project.language]):
                 to_delete = os.path.join(self.project_root, lang)
                 if os.path.islink(to_delete):
-                    os.unlink(to_delete)
+                    safe_unlink(to_delete)
                 else:
                     shutil.rmtree(to_delete)
 
@@ -262,7 +262,7 @@ class Symlink(object):
         # Clean up symlinks
         symlink = self.project_root
         if os.path.islink(symlink):
-            os.unlink(symlink)
+            safe_unlink(symlink)
         if os.path.exists(symlink):
             shutil.rmtree(symlink)
 
@@ -300,7 +300,7 @@ class Symlink(object):
         if os.path.exists(version_dir):
             for old_ver in os.listdir(version_dir):
                 if old_ver not in versions:
-                    os.unlink(os.path.join(version_dir, old_ver))
+                    safe_unlink(os.path.join(version_dir, old_ver))
 
     def get_default_version(self):
         """Look up project default version, return None if not found."""

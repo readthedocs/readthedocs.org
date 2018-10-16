@@ -36,7 +36,7 @@ from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.utils import send_email, broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -89,6 +89,17 @@ class SyncRepositoryMixin(object):
                             .get(slug=LATEST)['objects'][0])
         return APIVersion(**version_data)
 
+    def get_vcs_repo(self):
+        """Get the VCS object of the current project."""
+        version_repo = self.project.vcs_repo(
+            self.version.slug,
+            # When called from ``SyncRepositoryTask.run`` we don't have
+            # a ``setup_env`` so we use just ``None`` and commands won't
+            # be recorded
+            getattr(self, 'setup_env', None),
+        )
+        return version_repo
+
     def sync_repo(self):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
@@ -102,10 +113,7 @@ class SyncRepositoryMixin(object):
                 ),
             )
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Get the actual code on disk
             try:
                 before_vcs.send(sender=self.version)
@@ -434,17 +442,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-    def get_vcs_repo(self):
-        """Get the VCS object of the current project."""
-        version_repo = self.project.vcs_repo(
-            self.version.slug,
-            # When called from ``SyncRepositoryTask.run`` we don't have
-            # a ``setup_env`` so we use just ``None`` and commands won't
-            # be recorded
-            getattr(self, 'setup_env', None),
-        )
-        return version_repo
-
     def run_build(self, docker, record):
         """
         Build the docs in an environment.
@@ -649,10 +646,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Check if the python version/build image in the current venv is the
             # same to be used in this build and if it differs, wipe the venv to
             # avoid conflicts.
@@ -682,9 +676,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+        with self.project.repo_nonblockinglock(version=self.version):
             outcomes['html'] = self.build_docs_html()
             outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
@@ -981,7 +973,7 @@ def remove_orphan_symlinks():
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
                 log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                os.unlink(orphan_domain_path)
+                safe_unlink(orphan_domain_path)
 
 
 @app.task(queue='web')
