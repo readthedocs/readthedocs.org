@@ -1361,3 +1361,18 @@ div.highlight pre .il { color: #40a070 } /* Literal.Number.Integer.Long */
     margin-bottom: 2em;
     color: red;
 }
+
+.msg-block button {
+    margin: 1em 0em;
+}
+
+.resend-activation-link {
+    text-decoration: none;
+    color: red
+}
+
+.resend-activation-link:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: red;
+}
