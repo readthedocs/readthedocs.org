@@ -4,7 +4,7 @@ python:
   - 3.6
 sudo: false
 env:
-  - ES_VERSION=6.2.4 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+  - ES_VERSION=1.3.9 ES_DOWNLOAD_URL=https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
 matrix:
   include:
     - python: 3.6

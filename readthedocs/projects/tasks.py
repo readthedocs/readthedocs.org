@@ -10,7 +10,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import datetime
-import fnmatch
 import hashlib
 import json
 import logging
@@ -37,7 +36,7 @@ from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.utils import send_email, broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -49,14 +48,16 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
+from readthedocs.restapi.utils import index_search_request
+from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
+
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, ImportedFile, Project
-from .models import HTMLFile
-from .signals import (after_build, after_vcs, before_build, before_vcs,
-                      bulk_post_create, bulk_post_delete, files_changed)
+from .models import Domain, Feature, ImportedFile, Project
+from .signals import (
+    after_build, after_vcs, before_build, before_vcs, files_changed)
 
 log = logging.getLogger(__name__)
 
@@ -88,6 +89,17 @@ class SyncRepositoryMixin(object):
                             .get(slug=LATEST)['objects'][0])
         return APIVersion(**version_data)
 
+    def get_vcs_repo(self):
+        """Get the VCS object of the current project."""
+        version_repo = self.project.vcs_repo(
+            self.version.slug,
+            # When called from ``SyncRepositoryTask.run`` we don't have
+            # a ``setup_env`` so we use just ``None`` and commands won't
+            # be recorded
+            getattr(self, 'setup_env', None),
+        )
+        return version_repo
+
     def sync_repo(self):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
@@ -101,10 +113,7 @@ class SyncRepositoryMixin(object):
                 ),
             )
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Get the actual code on disk
             try:
                 before_vcs.send(sender=self.version)
@@ -433,17 +442,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-    def get_vcs_repo(self):
-        """Get the VCS object of the current project."""
-        version_repo = self.project.vcs_repo(
-            self.version.slug,
-            # When called from ``SyncRepositoryTask.run`` we don't have
-            # a ``setup_env`` so we use just ``None`` and commands won't
-            # be recorded
-            getattr(self, 'setup_env', None),
-        )
-        return version_repo
-
     def run_build(self, docker, record):
         """
         Build the docs in an environment.
@@ -648,10 +646,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Check if the python version/build image in the current venv is the
             # same to be used in this build and if it differs, wipe the venv to
             # avoid conflicts.
@@ -681,9 +676,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+        with self.project.repo_nonblockinglock(version=self.version):
             outcomes['html'] = self.build_docs_html()
             outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
@@ -910,6 +903,42 @@ def move_files(version_pk, hostname, html=False, localmedia=False,
 
 
 @app.task(queue='web')
+def update_search(version_pk, commit, delete_non_commit_files=True):
+    """
+    Task to update search indexes.
+
+    :param version_pk: Version id to update
+    :param commit: Commit that updated index
+    :param delete_non_commit_files: Delete files not in commit from index
+    """
+    version = Version.objects.get(pk=version_pk)
+
+    if 'sphinx' in version.project.documentation_type:
+        page_list = process_all_json_files(version, build_dir=False)
+    else:
+        log.debug(
+            'Unknown documentation type: %s',
+            version.project.documentation_type
+        )
+        return
+
+    log_msg = ' '.join([page['path'] for page in page_list])
+    log.info("(Search Index) Sending Data: %s [%s]", version.project.slug,
+             log_msg)
+    index_search_request(
+        version=version,
+        page_list=page_list,
+        commit=commit,
+        project_scale=0,
+        page_scale=0,
+        # Don't index sections to speed up indexing.
+        # They aren't currently exposed anywhere.
+        section=False,
+        delete=delete_non_commit_files,
+    )
+
+
+@app.task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -944,7 +973,7 @@ def remove_orphan_symlinks():
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
                 log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                os.unlink(orphan_domain_path)
+                safe_unlink(orphan_domain_path)
 
 
 @app.task(queue='web')
@@ -1017,27 +1046,20 @@ def _manage_imported_files(version, path, commit):
     :param commit: Commit that updated path
     """
     changed_files = set()
-    created_html_files = []
     for root, __, filenames in os.walk(path):
         for filename in filenames:
-            if fnmatch.fnmatch(filename, '*.html'):
-                model_class = HTMLFile
-            else:
-                model_class = ImportedFile
-
             dirpath = os.path.join(root.replace(path, '').lstrip('/'),
                                    filename.lstrip('/'))
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
-                # pylint: disable=unpacking-non-sequence
-                obj, __ = model_class.objects.get_or_create(
+                obj, __ = ImportedFile.objects.get_or_create(
                     project=version.project,
                     version=version,
                     path=dirpath,
                     name=filename,
                 )
-            except model_class.MultipleObjectsReturned:
+            except ImportedFile.MultipleObjectsReturned:
                 log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
@@ -1046,28 +1068,10 @@ def _manage_imported_files(version, path, commit):
             if obj.commit != commit:
                 obj.commit = commit
             obj.save()
-
-            if model_class == HTMLFile:
-                # the `obj` is HTMLFile, so add it to the list
-                created_html_files.append(obj)
-
-    # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
-
-    # Delete the HTMLFile first from previous commit and
-    # send bulk_post_delete signal for bulk removing from Elasticsearch
-    delete_queryset = (HTMLFile.objects.filter(project=version.project, version=version)
-                                       .exclude(commit=commit))
-    # Keep the objects into memory to send it to signal
-    instance_list = list(delete_queryset)
-    # Safely delete from database
-    delete_queryset.delete()
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
-
     # Delete ImportedFiles from previous versions
-    (ImportedFile.objects.filter(project=version.project, version=version)
-                         .exclude(commit=commit).delete())
+    ImportedFile.objects.filter(project=version.project,
+                                version=version
+                                ).exclude(commit=commit).delete()
     changed_files = [
         resolve_path(
             version.project, filename=file, version_slug=version.slug,
@@ -1258,6 +1262,7 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
+    update_search(version_pk, commit=commit)
 
 
 @app.task()

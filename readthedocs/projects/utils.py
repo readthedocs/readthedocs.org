@@ -32,6 +32,20 @@ def version_from_slug(slug, version):
     return v
 
 
+def find_file(filename):
+    """
+    Recursively find matching file from the current working path.
+
+    :param file: Filename to match
+    :returns: A list of matching filenames.
+    """
+    matches = []
+    for root, __, filenames in os.walk('.'):
+        for match in fnmatch.filter(filenames, filename):
+            matches.append(os.path.join(root, match))
+    return matches
+
+
 def run(*commands):
     """
     Run one or more commands.

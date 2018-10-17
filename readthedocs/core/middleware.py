@@ -107,17 +107,17 @@ class SubdomainMiddleware(object):
                         slug = cname_to_slug(host)
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        log.debug(LOG_TEMPLATE.format(
+                        log.info(LOG_TEMPLATE.format(
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
                     request.slug = slug
                     request.urlconf = SUBDOMAIN_URLCONF
-                    log.debug(LOG_TEMPLATE.format(
+                    log.warning(LOG_TEMPLATE.format(
                         msg='CNAME detected: %s' % request.slug,
                         **log_kwargs))
                 except:  # noqa
                     # Some crazy person is CNAMEing to us. 404.
-                    log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                    log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.

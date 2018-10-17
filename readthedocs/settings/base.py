@@ -90,7 +90,6 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
-            'django_elasticsearch_dsl',
 
             # our apps
             'readthedocs.projects',
@@ -106,7 +105,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
-            'readthedocs.search',
 
 
             # allauth
@@ -326,40 +324,8 @@ class CommunityBaseSettings(Settings):
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
-    ELASTICSEARCH_DSL = {
-        'default': {
-            'hosts': '127.0.0.1:9200'
-        },
-    }
-    # Chunk size for elasticsearch reindex celery tasks
-    ES_TASK_CHUNK_SIZE = 100
-    ES_PAGE_IGNORE_SIGNALS = True
-
-    # ANALYZER = 'analysis': {
-    #     'analyzer': {
-    #         'default_icu': {
-    #             'type': 'custom',
-    #             'tokenizer': 'icu_tokenizer',
-    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
-    #         }
-    #     }
-    # }
-
-    ES_INDEXES = {
-        'project': {
-            'name': 'project_index',
-            'settings': {'number_of_shards': 5,
-                         'number_of_replicas': 1
-                         }
-        },
-        'page': {
-            'name': 'page_index',
-            'settings': {
-                'number_of_shards': 5,
-                'number_of_replicas': 1,
-            }
-        },
-    }
+    ES_DEFAULT_NUM_REPLICAS = 0
+    ES_DEFAULT_NUM_SHARDS = 5
 
     ALLOWED_HOSTS = ['*']
 
