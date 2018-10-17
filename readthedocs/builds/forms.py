@@ -43,12 +43,12 @@ class VersionForm(forms.ModelForm):
     def clean_active(self):
         active = self.cleaned_data['active']
         if self._is_default_version() and not active:
-            msg = (
-                '{} is the default version of the project, '
+            msg = _(
+                '{version} is the default version of the project, '
                 'it should be active.'
             )
             raise forms.ValidationError(
-                _(msg.format(self.instance.verbose_name))
+                msg.format(self.instance.verbose_name)
             )
         return active
 
