@@ -217,16 +217,18 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
 
         default_choice = (None, '-' * 9)
-        versions = self.instance.versions.values_list('slug', 'verbose_name')
+        all_versions = self.instance.versions.values_list(
+            'slug', 'verbose_name'
+        )
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + list(versions)
+            choices=[default_choice] + list(all_versions)
         )
 
-        versions = self.instance.all_active_versions().values_list(
+        active_versions = self.instance.all_active_versions().values_list(
             'slug', 'verbose_name'
         )
         self.fields['default_version'].widget = forms.Select(
-            choices=versions
+            choices=active_versions
         )
 
     def clean_conf_py_file(self):
