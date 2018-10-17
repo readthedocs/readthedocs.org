@@ -5,7 +5,10 @@ from __future__ import absolute_import
 from builtins import object
 from django import forms
 
+from django.utils.translation import ugettext_lazy as _
+
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
+from readthedocs.projects.models import Project
 
 from .models import LEVEL_CHOICES, GoldUser
 
@@ -87,6 +90,14 @@ class GoldProjectForm(forms.Form):
         self.user = kwargs.pop('user', None)
         self.projects = kwargs.pop('projects', None)
         super(GoldProjectForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        project_slug = self.cleaned_data.get('project', '')
+        project_instance = Project.objects.filter(slug=project_slug)
+        if not project_instance.exists():
+            raise forms.ValidationError(_('No project found.'))
+        else:
+            return project_slug
 
     def clean(self):
         cleaned_data = super(GoldProjectForm, self).clean()
