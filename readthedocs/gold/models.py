@@ -42,6 +42,7 @@ class GoldUser(models.Model):
     last_4_card_digits = models.CharField(max_length=4)
     stripe_id = models.CharField(max_length=255)
     subscribed = models.BooleanField(default=False)
+    business_vat_id = models.CharField(max_length=128, null=True, blank=True)
 
     def __str__(self):
         return 'Gold Level %s for %s' % (self.level, self.user)

@@ -47,12 +47,14 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
         subscription = self.get_subscription()
         self.instance.stripe_id = subscription.customer
         self.instance.subscribed = True
+        self.instance.business_vat_id = self.cleaned_data['business_vat_id']
 
     def get_customer_kwargs(self):
         return {
             'description': self.customer.get_full_name() or self.customer.username,
             'email': self.customer.email,
-            'id': self.instance.stripe_id or None
+            'id': self.instance.stripe_id or None,
+            'business_vat_id': self.cleaned_data['business_vat_id'] or None,
         }
 
     def get_subscription(self):
