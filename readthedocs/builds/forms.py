@@ -48,7 +48,7 @@ class VersionForm(forms.ModelForm):
                 'it should be active.'
             )
             raise forms.ValidationError(
-                msg.format(self.instance.verbose_name)
+                msg.format(version=self.instance.verbose_name)
             )
         return active
 
