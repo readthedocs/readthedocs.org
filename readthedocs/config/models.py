@@ -32,6 +32,16 @@ PythonInstall = namedtuple(
     ],
 )
 
+PythonInstallPipfile = namedtuple(
+    'PythonInstallPipfile',
+    [
+        'pipfile',
+        'dev',
+        'ignore_pipfile',
+        'skip_lock',
+    ]
+)
+
 Conda = namedtuple('Conda', ['environment'])  # noqa
 
 Sphinx = namedtuple(  # noqa
