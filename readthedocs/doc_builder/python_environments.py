@@ -18,7 +18,7 @@ import six
 from builtins import object, open
 
 from readthedocs.config import PIP, SETUPTOOLS
-from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.config.models import PythonInstall, PythonInstallRequirements, PythonInstallPipfile
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
@@ -77,6 +77,8 @@ class PythonEnvironment(object):
             return self.install_requirements_file(install)
         if isinstance(install, PythonInstall):
             return self.install_package(install)
+        if isinstance(install, PythonInstallPipfile):
+            return self.install_pipfile(install)
 
     def install_package(self, install):
         rel_path = os.path.relpath(install.path, self.checkout_path)
@@ -113,6 +115,30 @@ class PythonEnvironment(object):
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def install_pipfile(self, install):
+        extra_args = []
+        if install.dev:
+            extra_args.append('--dev')
+        if install.ignore_pipfile:
+            extra_args.append('--ignore-pipfile')
+        if install.skip_lock:
+            extra_args.append('--skip-lock')
+        pipfile = os.path.relpath(
+            os.path.join(install.pipfile, 'Pipfile'),
+            self.checkout_path
+        )
+        pipfile = os.path.join('.', pipfile)
+        self.build_env.run(
+            'PIPENV_PIPFILE={}'.format(pipfile),
+            'python',
+            self.venv_bin(filename='pipenv'),
+            'install',
+            '--system',
+            *extra_args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
 
     def venv_bin(self, filename=None):
         """
@@ -258,6 +284,7 @@ class Virtualenv(PythonEnvironment):
             'alabaster>=0.7,<0.8,!=0.7.5',
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
+            'pipenv==2018.10.13',
         ]
 
         if self.config.doctype == 'mkdocs':
