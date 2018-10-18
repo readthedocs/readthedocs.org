@@ -93,6 +93,13 @@ class TestProjectForms(TestCase):
                 form = ProjectBasicsForm(initial)
                 self.assertEqual(form.is_valid(), valid, msg=url)
 
+    def test_empty_slug(self):
+        initial = {
+            'name': "''",
+        }
+        form = ProjectBasicsForm(initial)
+        self.assertFalse(form.is_valid())
+
 
 class TestTranslationForms(TestCase):
 
