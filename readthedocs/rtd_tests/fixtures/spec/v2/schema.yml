@@ -58,7 +58,7 @@ python:
   system_packages: bool(required=False)
 
   # Installation of packages and requiremens
-  install: list(any(include('python-install-requirements'), include('python-install')), required=False)
+  install: list(any(include('python-install-requirements'), include('python-install'), include('python-install-pipfile')), required=False)
 
 python-install-requirements:
   # The path to the requirements file from the root of the project
@@ -76,6 +76,22 @@ python-install:
   # Only valid when `method` is `pip`.
   # Default: []
   extra_requirements: list(str(), required=False)
+
+python-install-pipfile:
+  # The path to the project to be installed
+  pipfile: path()
+
+  # Add the --dev option to pipenv install
+  # Default: false
+  dev: bool(required=False)
+
+  # Add the --ignore-pipfile option to pipenv install
+  # Default: true
+  ignore_pipfile: bool(required=False)
+
+  # Add the --skip-lock option to pipenv install
+  # Default: false
+  skip_lock: bool(required=False)
 
 sphinx:
   # The builder type for the sphinx documentation

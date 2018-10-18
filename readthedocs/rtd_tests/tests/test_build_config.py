@@ -319,13 +319,59 @@ python:
 
 
 @pytest.mark.parametrize('value', ['', 'null', '[]'])
-def test_python_extra_requirements_empty(tmpdir, value):
+def test_python_install_extra_requirements_empty(tmpdir, value):
     content = '''
 version: "2"
 python:
   install:
     - path: .
       extra_requirements: {value}
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
+
+
+def test_python_install_pipfile(tmpdir):
+    content = '''
+version: "2"
+python:
+  install:
+    - pipfile: .
+    '''
+    assertValidConfig(tmpdir, content)
+
+
+@pytest.mark.parametrize('value', [True, False])
+def test_python_install_pipfile_dev(tmpdir, value):
+    content = '''
+version: "2"
+python:
+  install:
+    - pipfile: .
+      dev: {value}
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
+
+
+@pytest.mark.parametrize('value', [True, False])
+def test_python_install_pipfile_skip_lock(tmpdir, value):
+    content = '''
+version: "2"
+python:
+  install:
+    - pipfile: .
+      skip_lock: {value}
+    '''
+    assertValidConfig(tmpdir, content.format(value=value))
+
+
+@pytest.mark.parametrize('value', [True, False])
+def test_python_install_pipfile_ignore_pipfile(tmpdir, value):
+    content = '''
+version: "2"
+python:
+  install:
+    - pipfile: .
+      ignore_pipfile: {value}
     '''
     assertValidConfig(tmpdir, content.format(value=value))
 
