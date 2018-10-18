@@ -81,6 +81,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 class GoldProjectForm(forms.Form):
     project = forms.CharField(
         required=True,
+        help_text='Enter the project\'s slug'
     )
 
     def __init__(self, *args, **kwargs):
