@@ -5,9 +5,9 @@ from __future__ import division, print_function, unicode_literals
 from collections import namedtuple
 
 
-Build = namedtuple('Build', ['image'])  # noqa
+Build = namedtuple('Build', ['image'])
 
-Python = namedtuple(  # noqa
+Python = namedtuple(
     'Python',
     [
         'version',
@@ -42,19 +42,19 @@ PythonInstallPipfile = namedtuple(
     ]
 )
 
-Conda = namedtuple('Conda', ['environment'])  # noqa
+Conda = namedtuple('Conda', ['environment'])
 
-Sphinx = namedtuple(  # noqa
+Sphinx = namedtuple(
     'Sphinx',
     ['builder', 'configuration', 'fail_on_warning'],
 )
 
-Mkdocs = namedtuple(  # noqa
+Mkdocs = namedtuple(
     'Mkdocs',
     ['configuration', 'fail_on_warning'],
 )
 
-Submodules = namedtuple(  # noqa
+Submodules = namedtuple(
     'Submodules',
     ['include', 'exclude', 'recursive'],
 )
