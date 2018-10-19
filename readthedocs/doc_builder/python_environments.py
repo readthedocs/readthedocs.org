@@ -282,9 +282,9 @@ class Virtualenv(PythonEnvironment):
             'mock==1.0.1',
             'pillow==2.6.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
+            'pipenv==2018.10.13',
             'commonmark==0.5.4',
             'recommonmark==0.4.0',
-            'pipenv==2018.10.13',
         ]
 
         if self.config.doctype == 'mkdocs':

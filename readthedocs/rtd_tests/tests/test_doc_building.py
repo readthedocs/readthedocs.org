@@ -1147,6 +1147,7 @@ class TestPythonEnvironment(TestCase):
             'mock',
             'pillow',
             'alabaster',
+            'pipenv',
         ]
         self.base_conda_requirements = [
             'mock',
