@@ -137,7 +137,7 @@ class PythonEnvironment(object):
             '--system',
             *extra_args,
             cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
+            bin_path=self.venv_bin()  # no comma here for py2.7
         )
 
     def venv_bin(self, filename=None):
