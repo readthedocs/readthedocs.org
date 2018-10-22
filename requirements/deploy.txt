@@ -2,7 +2,7 @@
 # http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
 psycopg2==2.7.5 --no-binary psycopg2
 gunicorn==19.9.0
-pysolr==3.7.0
+pysolr==3.8.1
 django-redis-cache==1.7.1
 
 #For resizing images
