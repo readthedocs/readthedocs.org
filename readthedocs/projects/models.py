@@ -316,7 +316,7 @@ class Project(models.Model):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
-            if self.slug == '':
+            if not self.slug:
                 raise Exception(_('Model must have slug'))
         if self.documentation_type == 'auto':
             # This used to determine the type and automatically set the

@@ -106,7 +106,7 @@ class SubdomainMiddleware(object):
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
                 # Some person is CNAMEing to us. 404.
-                log.debug(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                 raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
