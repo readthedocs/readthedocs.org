@@ -132,7 +132,12 @@ class Version(models.Model):
 
     @property
     def config(self):
-        """Returns the configuration used in the last successful build."""
+        """
+        Proxy to the configuration of the build.
+
+        :returns: The configuration used in the last successful build.
+        :rtype: dict
+        """
         last_build = (
             self.builds.filter(state='finished', success=True)
             .order_by('-date')
@@ -547,7 +552,7 @@ class Build(models.Model):
         from the previous one.
 
         If the config is the same, we save the pk of the object
-        that has the **real** config under the ``__config`` key.
+        that has the **real** config under the `CONFIG_KEY` key.
         """
         previous = self.previous
         if previous is not None and self._config == previous.config:
