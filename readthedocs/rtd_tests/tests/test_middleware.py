@@ -139,6 +139,18 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
         self.assertTrue(request.domain_object)
 
+    def test_long_bad_subdomain(self):
+        domain = 'www.pip.readthedocs.org'
+        request = self.factory.get(self.url, HTTP_HOST=domain)
+        res = self.middleware.process_request(request)
+        self.assertEqual(res.status_code, 400)
+
+    def test_long_subdomain(self):
+        domain = 'some.long.readthedocs.org'
+        request = self.factory.get(self.url, HTTP_HOST=domain)
+        res = self.middleware.process_request(request)
+        self.assertIsNone(res)
+
 
 class TestCORSMiddleware(TestCase):
 
