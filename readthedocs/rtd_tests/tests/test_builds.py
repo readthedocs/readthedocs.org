@@ -378,6 +378,15 @@ class BuildModelTests(TestCase):
         build_three.config = {'version': 1}
         build_three.save()
 
+        build_four = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={},
+        )
+        build_four.config = {'version': 2}
+        build_four.save()
+
         self.assertEqual(build_one.get_config(), {'version': 1})
         self.assertEqual(build_one.config, {'version': 1})
 
@@ -386,3 +395,6 @@ class BuildModelTests(TestCase):
 
         self.assertEqual(build_two.get_config(), {'version': 1})
         self.assertEqual(build_three.get_config(), {'version': 1})
+
+        self.assertEqual(build_four.get_config(), {'version': 2})
+        self.assertEqual(build_four.config, {'version': 2})

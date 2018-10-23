@@ -42,3 +42,45 @@ class VersionConfigTests(TestCase):
         )
         config = self.version.config
         self.assertEqual(config, {'version': 2})
+
+    def test_get_correct_config_when_same_config(self):
+        build_old = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={}
+        )
+        build_old.config = {'version': 1}
+        build_old.save()
+
+        build_new = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={}
+        )
+        build_new.config = {'version': 1}
+        build_new.save()
+
+        build_new_error = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={},
+            success=False,
+        )
+        build_new_error.config = {'version': 3}
+        build_new_error.save()
+
+        build_new_unfinish = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={},
+            state='building',
+        )
+        build_new_unfinish.config = {'version': 1}
+        build_new_unfinish.save()
+
+        config = self.version.config
+        self.assertEqual(config, {'version': 1})

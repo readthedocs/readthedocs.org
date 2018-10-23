@@ -138,7 +138,7 @@ class Version(models.Model):
             .order_by('-date')
             .first()
         )
-        return last_build.config
+        return last_build.get_config()
 
     @property
     def commit_name(self):
