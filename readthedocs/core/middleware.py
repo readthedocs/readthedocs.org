@@ -69,7 +69,7 @@ class SubdomainMiddleware(object):
                 # Support ports during local dev
                 public_domain in host or public_domain in full_host
             ):
-                if Project.objects.filter(slug=subdomain).exists():
+                if not Project.objects.filter(slug=subdomain).exists():
                     raise Http404(_('Project not found'))
                 request.subdomain = True
                 request.slug = subdomain
