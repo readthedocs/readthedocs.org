@@ -330,17 +330,38 @@ python:
     assertValidConfig(tmpdir, content.format(value=value))
 
 
-def test_python_install_pipfile(tmpdir):
+@pytest.mark.parametrize('pipfile', ['another_docs/', '.', 'project/'])
+def test_python_install_pipfile(tmpdir, pipfile):
+    utils.apply_fs(tmpdir, {
+        'another_docs': {
+            'Pipfile': '',
+        },
+        'project': {},
+        'Pipfile': '',
+    })
     content = '''
 version: "2"
 python:
   install:
-    - pipfile: .
+    - pipfile: {}
     '''
-    assertValidConfig(tmpdir, content)
+    assertValidConfig(tmpdir, content.format(pipfile))
 
 
-@pytest.mark.parametrize('value', [True, False])
+@pytest.mark.parametrize('pipfile', ['docs/', '.', 'project/'])
+def test_python_install_pipfile_invalid(tmpdir, pipfile):
+    utils.apply_fs(tmpdir, {})
+    content = '''
+version: "2"
+python:
+  install:
+    - pipfile: {}
+    '''
+    content.format(pipfile)
+    assertInvalidConfig(tmpdir, content, ['is not a path'])
+
+
+@pytest.mark.parametrize('value', ['true', 'false'])
 def test_python_install_pipfile_dev(tmpdir, value):
     content = '''
 version: "2"
@@ -352,7 +373,7 @@ python:
     assertValidConfig(tmpdir, content.format(value=value))
 
 
-@pytest.mark.parametrize('value', [True, False])
+@pytest.mark.parametrize('value', ['true', 'false'])
 def test_python_install_pipfile_skip_lock(tmpdir, value):
     content = '''
 version: "2"
@@ -364,7 +385,7 @@ python:
     assertValidConfig(tmpdir, content.format(value=value))
 
 
-@pytest.mark.parametrize('value', [True, False])
+@pytest.mark.parametrize('value', ['true', 'false'])
 def test_python_install_pipfile_ignore_pipfile(tmpdir, value):
     content = '''
 version: "2"
