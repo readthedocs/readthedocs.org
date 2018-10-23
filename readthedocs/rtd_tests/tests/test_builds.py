@@ -288,8 +288,9 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1}
         )
+        build.config = {'version': 1}
+        build.save()
         self.assertEqual(build.config, {'version': 1})
 
         build.config = {'version': 2}
@@ -301,15 +302,18 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={}
         )
+        build_one.config = {}
+        build_one.save()
 
         build_two = get(
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 2}
         )
+        build_two.config = {'version': 2}
+        build_two.save()
+
         self.assertEqual(build_two.config, {'version': 2})
 
     def test_save_same_config_previous_empty(self):
@@ -317,15 +321,18 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={}
         )
+        build_one.config = {}
+        build_one.save()
 
         build_two = get(
             Build,
             project=self.project,
             version=self.version,
-            config={}
         )
+        build_two.config = {}
+        build_two.save()
+
         self.assertEqual(build_two.config, {})
         build_two.config = {'version': 2}
         build_two.save()
@@ -336,26 +343,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
-        )
-
-        build_two = get(
-            Build,
-            project=self.project,
-            version=self.version,
-            config={},
-        )
-        build_two.config = {'version': 1}
-        build_two.save()
-        self.assertEqual(build_two.config, {'__config': build_one.pk})
-        self.assertEqual(build_two.get_config(), {'version': 1})
-
-    def test_do_not_save_same_config_nested(self):
-        build_one = get(
-            Build,
-            project=self.project,
-            version=self.version,
-            config={},
         )
         build_one.config = {'version': 1}
         build_one.save()
@@ -364,7 +351,25 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
+        )
+        build_two.config = {'version': 1}
+        build_two.save()
+        self.assertEqual(build_two._config, {Build.CONFIG_KEY: build_one.pk})
+        self.assertEqual(build_two.config, {'version': 1})
+
+    def test_do_not_save_same_config_nested(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {'version': 1}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
         )
         build_two.config = {'version': 1}
         build_two.save()
@@ -373,7 +378,6 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
         )
         build_three.config = {'version': 1}
         build_three.save()
@@ -382,19 +386,18 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
         )
         build_four.config = {'version': 2}
         build_four.save()
 
-        self.assertEqual(build_one.get_config(), {'version': 1})
         self.assertEqual(build_one.config, {'version': 1})
+        self.assertEqual(build_one._config, {'version': 1})
 
-        self.assertEqual(build_two.config, {'__config': build_one.pk})
-        self.assertEqual(build_three.config, {'__config': build_one.pk})
+        self.assertEqual(build_two._config, {Build.CONFIG_KEY: build_one.pk})
+        self.assertEqual(build_three._config, {Build.CONFIG_KEY: build_one.pk})
 
-        self.assertEqual(build_two.get_config(), {'version': 1})
-        self.assertEqual(build_three.get_config(), {'version': 1})
+        self.assertEqual(build_two.config, {'version': 1})
+        self.assertEqual(build_three.config, {'version': 1})
 
-        self.assertEqual(build_four.get_config(), {'version': 2})
         self.assertEqual(build_four.config, {'version': 2})
+        self.assertEqual(build_four._config, {'version': 2})

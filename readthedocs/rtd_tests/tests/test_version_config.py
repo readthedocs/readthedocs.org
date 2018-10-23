@@ -14,34 +14,29 @@ class VersionConfigTests(TestCase):
         self.version = get(Version, project=self.project)
 
     def test_get_correct_config(self):
-        build_old = get(
-            Build,
+        build_old = Build.objects.create(
             project=self.project,
             version=self.version,
             config={'version': 1}
         )
-        build_new = get(
-            Build,
+        build_new = Build.objects.create(
             project=self.project,
             version=self.version,
             config={'version': 2}
         )
-        build_new_error = get(
-            Build,
+        build_new_error = Build.objects.create(
             project=self.project,
             version=self.version,
             config={'version': 3},
             success=False,
         )
-        build_new_unfinish = get(
-            Build,
+        build_new_unfinish = Build.objects.create(
             project=self.project,
             version=self.version,
             config={'version': 4},
             state='building',
         )
-        config = self.version.config
-        self.assertEqual(config, {'version': 2})
+        self.assertEqual(self.version.config, {'version': 2})
 
     def test_get_correct_config_when_same_config(self):
         build_old = get(
