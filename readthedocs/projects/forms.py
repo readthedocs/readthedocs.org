@@ -118,6 +118,12 @@ class ProjectBasicsForm(ProjectForm):
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
+            if not potential_slug:
+                # Check the generated slug won't be empty
+                raise forms.ValidationError(
+                    _('Invalid project name'),
+                )
+
         return name
 
     def clean_remote_repository(self):
@@ -323,8 +329,8 @@ class DualCheckboxWidget(forms.CheckboxInput):
         super(DualCheckboxWidget, self).__init__(attrs, check_test)
         self.version = version
 
-    def render(self, name, value, attrs=None):
-        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs, renderer)
         icon = self.render_icon()
         return mark_safe('{}{}'.format(checkbox, icon))
 
