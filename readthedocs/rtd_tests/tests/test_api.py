@@ -58,9 +58,8 @@ class APIBuildTests(TestCase):
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
-    
+
     def test_save_config(self):
-        """Test that a superuser can use the API."""
         client = APIClient()
         client.login(username='super', password='test')
         resp = client.post(
@@ -73,10 +72,44 @@ class APIBuildTests(TestCase):
             format='json',
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_one = resp.data
+        self.assertEqual(build_one['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/%s/' % build_one['id'])
+        self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(build['config'], {'one': 'two'})
 
-        resp = client.get('/api/v2/build/%s/' % build['id'])
+    def test_save_same_config(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_one = resp.data
+        self.assertEqual(build_one['config'], {'one': 'two'})
+
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_two = resp.data
+        self.assertEqual(build_two['config'], {'__config': build_one['id']})
+
+        resp = client.get('/api/v2/build/%s/' % build_one['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(build['config'], {'one': 'two'})
