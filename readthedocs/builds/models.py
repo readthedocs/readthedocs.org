@@ -17,6 +17,7 @@ from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
@@ -496,6 +497,46 @@ class Build(models.Model):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [['version', 'state', 'type']]
+
+    @property
+    def previous(self):
+        """Returns the previous build to this one."""
+        date = self.date or timezone.now()
+        if self.project is not None and self.version is not None:
+            return (
+                Build.objects
+                .filter(
+                    project=self.project,
+                    version=self.version,
+                    date__lt=date,
+                )
+                .order_by('-date')
+                .first()
+            )
+        return None
+
+    def get_config(self):
+        """Get the config from correct object."""
+        if '__config' in self.config:
+            return Build.objects.get(pk=self.config['__config']).config
+        return self.config
+
+    def save(self, *args, **kwargs):
+        """Save object.
+
+        To save space on the db we only save the config if it's different
+        from the previous one.
+
+        If the config is the same, we save the pk of the object
+        that has the **real** config under the ``__config`` key.
+        """
+        previous = self.previous
+        if previous is not None and self.config == previous.get_config():
+            previous_pk = previous.pk
+            if '__config' in previous.config:
+                previous_pk = previous.config['__config']
+            self.config = {'__config': previous_pk}
+        super(Build, self).save(*args, **kwargs)
 
     def __str__(self):
         return ugettext(
