@@ -521,8 +521,9 @@ class Build(models.Model):
             return Build.objects.get(pk=self.config['__config']).config
         return self.config
 
-    def save(self, *args, **kwargs):
-        """Save object.
+    def save(self, *args, **kwargs):  # noqa
+        """
+        Save object.
 
         To save space on the db we only save the config if it's different
         from the previous one.
