@@ -9,12 +9,12 @@ from __future__ import (
 
 import logging
 
-from builtins import object
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.urlresolvers import set_urlconf
 from django.http import Http404, HttpResponseBadRequest
+from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Domain, Project
@@ -34,7 +34,7 @@ SINGLE_VERSION_URLCONF = getattr(
 )
 
 
-class SubdomainMiddleware(object):
+class SubdomainMiddleware(MiddlewareMixin):
 
     """Middleware to display docs for non-dashboard domains."""
 
@@ -130,12 +130,12 @@ class SubdomainMiddleware(object):
         return response
 
 
-class SingleVersionMiddleware(object):
+class SingleVersionMiddleware(MiddlewareMixin):
 
     """
     Reset urlconf for requests for 'single_version' docs.
 
-    In settings.MIDDLEWARE_CLASSES, SingleVersionMiddleware must follow after
+    In settings.MIDDLEWARE, SingleVersionMiddleware must follow after
     SubdomainMiddleware.
     """
 
@@ -184,7 +184,7 @@ class SingleVersionMiddleware(object):
 
 
 # Forked from old Django
-class ProxyMiddleware(object):
+class ProxyMiddleware(MiddlewareMixin):
 
     """
     Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the.
