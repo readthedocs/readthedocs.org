@@ -79,8 +79,7 @@ class TestCeleryBuilding(RTDTestCase):
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
-                record=False,
-                intersphinx=False)
+                record=False)
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -96,8 +95,7 @@ class TestCeleryBuilding(RTDTestCase):
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
-                record=False,
-                intersphinx=False)
+                record=False)
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -113,8 +111,7 @@ class TestCeleryBuilding(RTDTestCase):
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
-                record=False,
-                intersphinx=False)
+                record=False)
         self.assertTrue(result.successful())
 
     def test_sync_repository(self):
