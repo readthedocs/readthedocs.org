@@ -78,7 +78,7 @@ python-install:
   extra_requirements: list(str(), required=False)
 
 python-install-pipfile:
-  # The path to the project to be installed
+  # The path to the directory that contains the Pipfile
   pipfile: path()
 
   # Add the --dev option to pipenv install
