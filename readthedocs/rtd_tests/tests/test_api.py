@@ -107,12 +107,23 @@ class APIBuildTests(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build_two = resp.data
-        self.assertEqual(build_two['config'], {'__config': build_one['id']})
+        self.assertEqual(build_two['config'], {'one': 'two'})
 
         resp = client.get('/api/v2/build/%s/' % build_one['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(build['config'], {'one': 'two'})
+
+        # Checking the values from the db, just to be sure the
+        # api isn't lying.
+        self.assertEqual(
+            Build.objects.get(pk=build_one['id'])._config,
+            {'one': 'two'},
+        )
+        self.assertEqual(
+            Build.objects.get(pk=build_two['id'])._config,
+            {Build.CONFIG_KEY: build_one['id']},
+        )
 
     def test_response_building(self):
         """
