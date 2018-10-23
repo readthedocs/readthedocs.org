@@ -138,7 +138,7 @@ class Version(models.Model):
             .order_by('-date')
             .first()
         )
-        return last_build.get_config()
+        return last_build.config
 
     @property
     def commit_name(self):
@@ -479,7 +479,7 @@ class Build(models.Model):
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(
         _('Commit'), max_length=255, null=True, blank=True)
-    config = JSONField(_('Configuration used in the build'), default=dict)
+    _config = JSONField(_('Configuration used in the build'), default=dict)
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
@@ -493,6 +493,8 @@ class Build(models.Model):
 
     objects = BuildQuerySet.as_manager()
 
+    CONFIG_KEY = '__config'
+
     class Meta(object):
         ordering = ['-date']
         get_latest_by = 'date'
@@ -500,7 +502,11 @@ class Build(models.Model):
 
     @property
     def previous(self):
-        """Returns the previous build to this one."""
+        """
+        Returns the previous build to current one.
+
+        Matching the project and version.
+        """
         date = self.date or timezone.now()
         if self.project is not None and self.version is not None:
             return (
@@ -515,11 +521,23 @@ class Build(models.Model):
             )
         return None
 
-    def get_config(self):
-        """Get the config from correct object."""
-        if '__config' in self.config:
-            return Build.objects.get(pk=self.config['__config']).config
-        return self.config
+    @property
+    def config(self):
+        """
+        Get the config used for this build.
+
+        Since we are saving the config into the JSON field only when it differs
+        from the previous one, this helper returns the correct JSON used in
+        this Build object (it could be stored in this object or one of the
+        previous ones).
+        """
+        if self.CONFIG_KEY in self._config:
+            return Build.objects.get(pk=self._config[self.CONFIG_KEY])._config
+        return self._config
+
+    @config.setter
+    def config(self, value):
+        self._config = value
 
     def save(self, *args, **kwargs):  # noqa
         """
@@ -532,11 +550,9 @@ class Build(models.Model):
         that has the **real** config under the ``__config`` key.
         """
         previous = self.previous
-        if previous is not None and self.config == previous.get_config():
-            previous_pk = previous.pk
-            if '__config' in previous.config:
-                previous_pk = previous.config['__config']
-            self.config = {'__config': previous_pk}
+        if previous is not None and self._config == previous.config:
+            previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
+            self._config = {self.CONFIG_KEY: previous_pk}
         super(Build, self).save(*args, **kwargs)
 
     def __str__(self):
