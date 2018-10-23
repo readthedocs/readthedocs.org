@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import mock
 from django.contrib.auth.models import User
@@ -10,9 +14,17 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
-    ProjectBasicsForm, ProjectExtraForm, TranslationForm, UpdateProjectForm)
+    ProjectAdvancedForm,
+    ProjectBasicsForm,
+    ProjectExtraForm,
+    TranslationForm,
+    UpdateProjectForm,
+)
 from readthedocs.projects.models import Project
 
 
@@ -102,6 +114,74 @@ class TestProjectForms(TestCase):
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
+
+
+class TestProjectAdvancedForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        get(
+            Version,
+            project=self.project,
+            slug='public-1',
+            active=True,
+            privacy_level=PUBLIC,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-2',
+            active=True,
+            privacy_level=PUBLIC,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-3',
+            active=False,
+            privacy_level=PROTECTED,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='private',
+            active=True,
+            privacy_level=PRIVATE,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='protected',
+            active=True,
+            privacy_level=PROTECTED,
+        )
+
+    def test_list_only_active_versions_on_default_version(self):
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created automatically by the project on save
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
+        self.assertEqual(
+            set(
+                slug
+                for slug, _ in form.fields['default_version'].widget.choices
+            ),
+            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+        )
+
+    def test_list_all_versions_on_default_branch(self):
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created automatically by the project on save
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
+        self.assertEqual(
+            set(
+                slug
+                for slug, _ in form.fields['default_branch'].widget.choices
+            ),
+            {
+                None, 'latest', 'public-1', 'public-2',
+                'public-3', 'protected', 'private'
+            },
+        )
 
 
 class TestTranslationForms(TestCase):
