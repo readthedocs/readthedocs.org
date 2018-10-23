@@ -136,6 +136,8 @@ class MiddlewareTests(TestCase):
         request = self.factory.get(self.url, HTTP_HOST=domain)
         res = self.middleware.process_request(request)
         self.assertIsNone(res)
+        self.assertEqual(request.slug, 'pip')
+        self.assertTrue(request.domain_object)
 
 
 class TestCORSMiddleware(TestCase):
