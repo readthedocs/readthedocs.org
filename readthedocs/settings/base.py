@@ -45,12 +45,6 @@ class CommunityBaseSettings(Settings):
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
-    ADMINS = (
-        ('Eric Holscher', 'eric@readthedocs.org'),
-        ('Anthony Johnson', 'anthony@readthedocs.org'),
-    )
-    MANAGERS = ADMINS
-
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
