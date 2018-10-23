@@ -316,7 +316,7 @@ class Project(models.Model):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
-            if self.slug == '':
+            if not self.slug:
                 raise Exception(_('Model must have slug'))
         if self.documentation_type == 'auto':
             # This used to determine the type and automatically set the
@@ -651,8 +651,28 @@ class Project(models.Model):
             repo = backend(self, version, environment)
         return repo
 
-    def repo_nonblockinglock(self, version, max_lock_age=5):
-        return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
+    def repo_nonblockinglock(self, version, max_lock_age=None):
+        """
+        Return a ``NonBlockingLock`` to acquire the lock via context manager.
+
+        :param version: project's version that want to get the lock for.
+        :param max_lock_age: time (in seconds) to consider the lock's age is old
+            and grab it anyway. It default to the ``container_time_limit`` of
+            the project or the default ``DOCKER_LIMITS['time']`` or
+            ``REPO_LOCK_SECONDS`` or 30
+        """
+        if max_lock_age is None:
+            max_lock_age = (
+                self.container_time_limit or
+                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
+                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+            )
+
+        return NonBlockingLock(
+            project=self,
+            version=version,
+            max_lock_age=max_lock_age,
+        )
 
     def repo_lock(self, version, timeout=5, polling_interval=5):
         return Lock(self, version, timeout, polling_interval)

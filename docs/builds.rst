@@ -56,6 +56,12 @@ and MkDocs will build the ``.md`` files in that directory.
 As MkDocs doesn't support automatic PDF generation, 
 Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
 
+.. warning::
+
+   We strongly recommend to :ref:`pin the MkDocs version <guides/specifying-dependencies:Specifying Dependencies>`
+   used for your project to build the docs to avoid potential future incompatibilities.
+
+
 Understanding what's going on
 -----------------------------
 
