@@ -54,7 +54,7 @@ class BaseMkdocs(BaseBuilder):
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
         # ``mkdocs`` to maintain the same behavior in Read the Docs than
-        # building locally. Although, we can't apply the this into the Corporate
+        # building locally. Although, we can't apply this into the Corporate
         # site. To keep the same default theme there, we created a Feature flag
         # for these project that were building with MkDocs in the Corporate
         # site.
