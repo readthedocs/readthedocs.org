@@ -791,8 +791,8 @@ def test_config_filenames_regex(correct_config_filename):
 
 class TestBuildConfigV2(object):
 
-    def get_build_config(self, config, env_config=None,
-                         source_file='readthedocs.yml'):
+    def get_build_config(
+            self, config, env_config=None, source_file='readthedocs.yml'):
         return BuildConfigV2(
             env_config or {},
             config,
