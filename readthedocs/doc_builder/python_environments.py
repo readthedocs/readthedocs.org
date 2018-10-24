@@ -39,26 +39,28 @@ class PythonEnvironment(object):
         # Compute here, since it's used a lot
         self.checkout_path = self.project.checkout_path(self.version.slug)
 
-    def _log(self, msg):
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg=msg))
-
     def delete_existing_build_dir(self):
         # Handle deleting old build dir
         build_dir = os.path.join(
             self.venv_path(),
             'build')
         if os.path.exists(build_dir):
-            self._log('Removing existing build directory')
+            log.info(LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version=self.version.slug,
+                msg='Removing existing build directory',
+            ))
             shutil.rmtree(build_dir)
 
     def delete_existing_venv_dir(self):
         venv_dir = self.venv_path()
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
-            self._log('Removing existing venv directory')
+            log.info(LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version=self.version.slug,
+                msg='Removing existing venv directory',
+            ))
             shutil.rmtree(venv_dir)
 
     def install_package(self):
@@ -78,7 +80,7 @@ class PythonEnvironment(object):
                 self.project.pip_cache_path,
                 '.{0}'.format(extra_req_param),
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin(),
             )
         elif self.config.python.install_with_setup:
             self.build_env.run(
@@ -87,7 +89,7 @@ class PythonEnvironment(object):
                 'install',
                 '--force',
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin(),
             )
 
     def venv_bin(self, filename=None):
@@ -214,6 +216,7 @@ class Virtualenv(PythonEnvironment):
             '--no-download',
             env_path,
             bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
+            cwd=self.checkout_path,
         )
 
     def install_core_requirements(self):
@@ -235,7 +238,7 @@ class Virtualenv(PythonEnvironment):
             'recommonmark==0.4.0',
         ]
 
-        if self.project.documentation_type == 'mkdocs':
+        if self.config.doctype == 'mkdocs':
             requirements.append('mkdocs==0.17.3')
         else:
             # We will assume semver here and only automate up to the next
@@ -267,13 +270,14 @@ class Virtualenv(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
     def install_user_requirements(self):
         requirements_file_path = self.config.python.requirements
         if not requirements_file_path and requirements_file_path != '':
-            builder_class = get_builder_class(self.project.documentation_type)
+            builder_class = get_builder_class(self.config.doctype)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
             paths = [docs_dir, '']
@@ -302,7 +306,7 @@ class Virtualenv(PythonEnvironment):
             self.build_env.run(
                 *args,
                 cwd=self.checkout_path,
-                bin_path=self.venv_bin()
+                bin_path=self.venv_bin()  # noqa - no comma here in py27 :/
             )
 
 
@@ -323,7 +327,11 @@ class Conda(PythonEnvironment):
 
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
-            self._log('Removing existing conda directory')
+            log.info(LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version=self.version.slug,
+                msg='Removing existing conda directory',
+            ))
             shutil.rmtree(version_path)
         self.build_env.run(
             'conda',
@@ -334,6 +342,7 @@ class Conda(PythonEnvironment):
             '--file',
             self.config.conda.environment,
             bin_path=None,  # Don't use conda bin that doesn't exist yet
+            cwd=self.checkout_path,
         )
 
     def install_core_requirements(self):
@@ -349,7 +358,7 @@ class Conda(PythonEnvironment):
             'recommonmark',
         ]
 
-        if self.project.documentation_type == 'mkdocs':
+        if self.config.doctype == 'mkdocs':
             pip_requirements.append('mkdocs')
         else:
             pip_requirements.append('readthedocs-sphinx-ext')
@@ -364,7 +373,8 @@ class Conda(PythonEnvironment):
         ]
         cmd.extend(requirements)
         self.build_env.run(
-            *cmd
+            *cmd,
+            cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
         pip_cmd = [
@@ -378,7 +388,8 @@ class Conda(PythonEnvironment):
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
             *pip_cmd,
-            bin_path=self.venv_bin()
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path  # noqa - no comma here in py27 :/
         )
 
     def install_user_requirements(self):

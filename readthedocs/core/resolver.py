@@ -132,8 +132,10 @@ class ResolverBase(object):
         domain = self._get_project_custom_domain(canonical_project)
         if domain:
             return domain.domain
-        elif self._use_subdomain():
+
+        if self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
+
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(self, project, require_https=False, filename='', private=None,
@@ -146,8 +148,9 @@ class ResolverBase(object):
 
         canonical_project = self._get_canonical_project(project)
         custom_domain = self._get_project_custom_domain(canonical_project)
+        use_custom_domain = self._use_custom_domain(custom_domain)
 
-        if self._use_custom_domain(custom_domain):
+        if use_custom_domain:
             domain = custom_domain.domain
         elif self._use_subdomain():
             domain = self._get_project_subdomain(canonical_project)
@@ -159,7 +162,7 @@ class ResolverBase(object):
 
         use_https_protocol = any([
             # Rely on the ``Domain.https`` field
-            custom_domain and custom_domain.https,
+            use_custom_domain and custom_domain.https,
             # or force it if specified
             require_https,
             # or fallback to settings

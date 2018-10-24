@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: shirou - しろう <shirou.faw@gmail.com>, 2018\n"
+"Language-Team: Japanese (https://www.transifex.com/readthedocs/teams/2534/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../subprojects.rst:2
+msgid "Subprojects"
+msgstr "サブプロジェクト"
+
+#: ../../subprojects.rst:4
+msgid ""
+"Projects can be configured in a nested manner, by configuring a project as a"
+" *subproject* of another project. This allows for documentation projects to "
+"share a search index and a namespace or custom domain, but still be "
+"maintained independently."
+msgstr ""
+
+#: ../../subprojects.rst:9
+msgid ""
+"For example, a parent project, ``Foo`` is set up with a subproject, ``Bar``."
+" The documentation for ``Foo`` will be available at:"
+msgstr ""
+
+#: ../../subprojects.rst:12
+msgid "https://foo.readthedocs.io/en/latest/"
+msgstr ""
+
+#: ../../subprojects.rst:14
+msgid "The documentation for ``Bar`` will be available under this same path:"
+msgstr ""
+
+#: ../../subprojects.rst:16
+msgid "https://foo.readthedocs.io/projects/bar/en/latest/"
+msgstr ""
+
+#: ../../subprojects.rst:19
+msgid "Adding a Subproject"
+msgstr ""
+
+#: ../../subprojects.rst:21
+msgid ""
+"In the admin dashboard for your project, select \"Subprojects\" from the "
+"menu. From this page you can add a subproject by typing in the project slug."
+msgstr ""
+
+#: ../../subprojects.rst:25
+msgid "Sharing a Custom Domain"
+msgstr ""
+
+#: ../../subprojects.rst:27
+msgid ""
+"Projects and subprojects can also be used to share a custom domain with a "
+"number of projects. To configure this, one project should be established as "
+"the parent project. This project will be configured with a custom domain. "
+"Projects can then be added as subprojects to this parent project."
+msgstr ""
+
+#: ../../subprojects.rst:32
+msgid ""
+"If the example project ``Foo`` was set up with a custom domain, "
+"``docs.example.com``, the URLs for projects ``Foo`` and ``Bar`` would "
+"respectively be at: http://docs.example.com/en/latest/ and "
+"http://docs.example.com/projects/bar/en/latest/"
+msgstr ""
+
+#: ../../subprojects.rst:38
+msgid "Search"
+msgstr "検索"
+
+#: ../../subprojects.rst:40
+msgid ""
+"Projects that are configured as subprojects will share a search index with "
+"their parent and sibling projects. This is currently the only way to share "
+"search indexes between projects, we do not yet support sharing search "
+"indexes between arbitrary projects."
+msgstr ""

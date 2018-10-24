@@ -258,11 +258,8 @@ class DockerBuildCommand(BuildCommand):
                 stderr=True,
             )
 
-            output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
-            try:
-                self.output = output.decode('utf-8', 'replace')
-            except (TypeError, AttributeError):
-                self.output = ''
+            cmd_output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
+            self.output = self.sanitize_output(cmd_output)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
@@ -321,13 +318,6 @@ class BaseEnvironment(object):
 
     def record_command(self, command):
         pass
-
-    def _log_warning(self, msg):
-        log.warning(LOG_TEMPLATE.format(
-            project=self.project.slug,
-            version='latest',
-            msg=msg,
-        ))
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
@@ -391,7 +381,11 @@ class BaseEnvironment(object):
                 msg += u':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
-                self._log_warning(msg)
+                log.warning(LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version='latest',
+                    msg=msg,
+                ))
             else:
                 raise BuildEnvironmentWarning(msg)
         return build_cmd
@@ -519,16 +513,6 @@ class BuildEnvironment(BaseEnvironment):
 
     def record_command(self, command):
         command.save()
-
-    def _log_warning(self, msg):
-        # :'(
-        log.warning(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg=msg,
-            )
-        )
 
     def run(self, *cmd, **kwargs):
         kwargs.update({
@@ -875,7 +859,8 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Return id of container if it is valid."""
         if self.container_name:
             return self.container_name
-        elif self.container:
+
+        if self.container:
             return self.container.get('Id')
 
     def container_state(self):

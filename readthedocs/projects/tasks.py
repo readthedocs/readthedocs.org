@@ -20,7 +20,6 @@ from collections import Counter, defaultdict
 
 import requests
 from builtins import str
-from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -37,7 +36,7 @@ from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.utils import send_email, broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -90,6 +89,17 @@ class SyncRepositoryMixin(object):
                             .get(slug=LATEST)['objects'][0])
         return APIVersion(**version_data)
 
+    def get_vcs_repo(self):
+        """Get the VCS object of the current project."""
+        version_repo = self.project.vcs_repo(
+            self.version.slug,
+            # When called from ``SyncRepositoryTask.run`` we don't have
+            # a ``setup_env`` so we use just ``None`` and commands won't
+            # be recorded
+            getattr(self, 'setup_env', None),
+        )
+        return version_repo
+
     def sync_repo(self):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
@@ -103,26 +113,20 @@ class SyncRepositoryMixin(object):
                 ),
             )
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Get the actual code on disk
             try:
                 before_vcs.send(sender=self.version)
-                self._log(
-                    'Checking out version {slug}: {identifier}'.format(
-                        slug=self.version.slug,
-                        identifier=self.version.identifier,
-                    ),
+                msg = 'Checking out version {slug}: {identifier}'.format(
+                    slug=self.version.slug,
+                    identifier=self.version.identifier,
                 )
-                version_repo = self.project.vcs_repo(
-                    self.version.slug,
-                    # When called from ``SyncRepositoryTask.run`` we don't have
-                    # a ``setup_env`` so we use just ``None`` and commands won't
-                    # be recorded
-                    getattr(self, 'setup_env', None),
-                )
+                log.info(LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=msg,
+                ))
+                version_repo = self.get_vcs_repo()
                 version_repo.checkout(self.version.identifier)
             finally:
                 after_vcs.send(sender=self.version)
@@ -176,29 +180,12 @@ class SyncRepositoryMixin(object):
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS
                 )
 
-    # TODO this is duplicated in the classes below, and this should be
-    # refactored out anyways, as calling from the method removes the original
-    # caller from logging.
-    def _log(self, msg):
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg=msg))
 
-
-# TODO SyncRepositoryTask should be refactored into a standard celery task,
-# there is no more need to have this be a separate class
-class SyncRepositoryTask(Task):
-
+@app.task(max_retries=5, default_retry_delay=7 * 60)
+def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
-
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.sync_repository'
-
-    def run(self, *args, **kwargs):
-        step = SyncRepositoryTaskStep()
-        return step.run(*args, **kwargs)
+    step = SyncRepositoryTaskStep()
+    return step.run(version_pk)
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
@@ -239,17 +226,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
-# TODO UpdateDocsTask should be refactored into a standard celery task,
-# there is no more need to have this be a separate class
-class UpdateDocsTask(Task):
-
-    max_retries = 5
-    default_retry_delay = (7 * 60)
-    name = __name__ + '.update_docs'
-
-    def run(self, *args, **kwargs):
-        step = UpdateDocsTaskStep(task=self)
-        return step.run(*args, **kwargs)
+@app.task(bind=True, max_retries=5, default_retry_delay=7 * 60)
+def update_docs_task(self, project_id, *args, **kwargs):
+    step = UpdateDocsTaskStep(task=self)
+    return step.run(project_id, *args, **kwargs)
 
 
 class UpdateDocsTaskStep(SyncRepositoryMixin):
@@ -291,12 +271,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.config = config
         self.task = task
         self.setup_env = None
-
-    def _log(self, msg):
-        log.info(LOG_TEMPLATE
-                 .format(project=self.project.slug,
-                         version=self.version.slug,
-                         msg=msg))
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
@@ -367,6 +341,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
                 )
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
+
+            # Send notifications for unhandled errors
+            self.send_notifications()
             return False
         else:
             # No exceptions in the setup step, catch unhandled errors in the
@@ -392,6 +369,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         )
                     )
                     self.build_env.update_build(BUILD_STATE_FINISHED)
+
+                # Send notifications for unhandled errors
+                self.send_notifications()
                 return False
 
         return True
@@ -427,8 +407,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         exception=str(e),
                     ))
 
+            self.additional_vcs_operations()
+
         if self.setup_env.failure or self.config is None:
-            self._log('Failing build because of setup failure: %s' % self.setup_env.failure)
+            msg = 'Failing build because of setup failure: {}'.format(
+                self.setup_env.failure
+            )
+            log.info(LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version=self.version.slug,
+                msg=msg,
+            ))
 
             # Send notification to users only if the build didn't fail because of
             # LockTimeout: this exception occurs when a build is triggered before the previous
@@ -442,6 +431,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.set_valid_clone()
 
         return True
+
+    def additional_vcs_operations(self):
+        """
+        Execution of tasks that involve the project's VCS.
+
+        All this tasks have access to the configuration object.
+        """
+        version_repo = self.get_vcs_repo()
+        if version_repo.supports_submodules:
+            version_repo.update_submodules(self.config)
 
     def run_build(self, docker, record):
         """
@@ -470,13 +469,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for building code, usually with Docker
         with self.build_env:
-
-            if self.project.documentation_type == 'auto':
-                self.update_documentation_type()
-
             python_env_cls = Virtualenv
             if self.config.conda is not None:
-                self._log('Using conda')
+                log.info(LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Using conda',
+                ))
                 python_env_cls = Conda
             self.python_env = python_env_cls(
                 version=self.version,
@@ -544,7 +543,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
-        self._log(msg='Updating docs from VCS')
+        log.info(LOG_TEMPLATE.format(
+            project=self.project.slug,
+            version=self.version.slug,
+            msg='Updating docs from VCS',
+        ))
         self.sync_repo()
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
@@ -589,21 +592,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
-    def update_documentation_type(self):
-        """
-        Force Sphinx for 'auto' documentation type.
-
-        This used to determine the type and automatically set the documentation
-        type to Sphinx for rST and Mkdocs for markdown. It now just forces
-        Sphinx, due to markdown support.
-        """
-        ret = 'sphinx'
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['documentation_type'] = ret
-        api_v2.project(self.project.pk).put(project_data)
-        self.project.documentation_type = ret
-        self.version.project.documentation_type = ret
-
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
         """
@@ -642,7 +630,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 pdf=pdf,
                 epub=epub,
             ),
-            callback=sync_callback.s(version_pk=self.version.pk, commit=self.build['commit']),
+            callback=sync_callback.s(
+                version_pk=self.version.pk,
+                commit=self.build['commit'],
+            ),
         )
 
     def setup_python_environment(self):
@@ -655,10 +646,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Check if the python version/build image in the current venv is the
             # same to be used in this build and if it differs, wipe the venv to
             # avoid conflicts.
@@ -688,10 +676,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+        with self.project.repo_nonblockinglock(version=self.version):
             outcomes['html'] = self.build_docs_html()
+            outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
             outcomes['pdf'] = self.build_docs_pdf()
             outcomes['epub'] = self.build_docs_epub()
@@ -701,7 +688,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_html(self):
         """Build HTML docs."""
-        html_builder = get_builder_class(self.project.documentation_type)(
+        html_builder = get_builder_class(self.config.doctype)(
             build_env=self.build_env,
             python_env=self.python_env,
         )
@@ -714,14 +701,24 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            broadcast(type='app', task=move_files,
-                      args=[self.version.pk, socket.gethostname()],
-                      kwargs=dict(html=True)
-                      )
+            broadcast(
+                type='app',
+                task=move_files,
+                args=[self.version.pk, socket.gethostname()],
+                kwargs=dict(html=True)
+            )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
 
         return success
+
+    def build_docs_search(self):
+        """Build search data."""
+        # TODO rely on config parameter here when Project.documentation_type is
+        # removed in #4638. Mkdocs has no search currently
+        if self.project.documentation_type == 'mkdocs':
+            return False
+        return self.build_search
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -729,15 +726,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             return False
 
         if self.build_localmedia:
-            if self.project.is_type_sphinx:
+            if self.is_type_sphinx():
                 return self.build_docs_class('sphinx_singlehtmllocalmedia')
         return False
 
     def build_docs_pdf(self):
         """Build PDF docs."""
         if ('pdf' not in self.config.formats or
-            self.project.slug in HTML_ONLY or
-                not self.project.is_type_sphinx):
+                self.project.slug in HTML_ONLY or
+                not self.is_type_sphinx()):
             return False
         return self.build_docs_class('sphinx_pdf')
 
@@ -745,7 +742,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """Build ePub docs."""
         if ('epub' not in self.config.formats or
             self.project.slug in HTML_ONLY or
-                not self.project.is_type_sphinx):
+                not self.is_type_sphinx()):
             return False
         return self.build_docs_class('sphinx_epub')
 
@@ -768,6 +765,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     def send_notifications(self):
         """Send notifications on build failure."""
         send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+
+    def is_type_sphinx(self):
+        """Is documentation type Sphinx."""
+        return 'sphinx' in self.config.doctype
 
 
 # Web tasks
@@ -816,8 +817,8 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 
 
 @app.task(queue='web')
-def move_files(version_pk, hostname, html=False, localmedia=False, search=False,
-               pdf=False, epub=False):
+def move_files(version_pk, hostname, html=False, localmedia=False,
+               search=False, pdf=False, epub=False):
     """
     Task to move built documentation to web servers.
 
@@ -912,11 +913,13 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     """
     version = Version.objects.get(pk=version_pk)
 
-    if version.project.is_type_sphinx:
+    if 'sphinx' in version.project.documentation_type:
         page_list = process_all_json_files(version, build_dir=False)
     else:
-        log.debug('Unknown documentation type: %s',
-                  version.project.documentation_type)
+        log.debug(
+            'Unknown documentation type: %s',
+            version.project.documentation_type
+        )
         return
 
     log_msg = ' '.join([page['path'] for page in page_list])
@@ -970,7 +973,7 @@ def remove_orphan_symlinks():
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
                 log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                os.unlink(orphan_domain_path)
+                safe_unlink(orphan_domain_path)
 
 
 @app.task(queue='web')

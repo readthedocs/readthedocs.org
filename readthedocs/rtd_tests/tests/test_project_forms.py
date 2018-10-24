@@ -93,6 +93,16 @@ class TestProjectForms(TestCase):
                 form = ProjectBasicsForm(initial)
                 self.assertEqual(form.is_valid(), valid, msg=url)
 
+    def test_empty_slug(self):
+        initial = {
+            'name': "''",
+            'repo_type': 'git',
+            'repo': 'https://github.com/user/repository',
+        }
+        form = ProjectBasicsForm(initial)
+        self.assertFalse(form.is_valid())
+        self.assertIn('name', form.errors)
+
 
 class TestTranslationForms(TestCase):
 

@@ -1335,8 +1335,8 @@ class TestPythonEnvironment(TestCase):
         args_conda.extend(conda_requirements)
 
         self.build_env_mock.run.assert_has_calls([
-            mock.call(*args_conda),
-            mock.call(*args_pip, bin_path=mock.ANY)
+            mock.call(*args_conda, cwd=mock.ANY),
+            mock.call(*args_pip, bin_path=mock.ANY, cwd=mock.ANY)
         ])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1374,8 +1374,8 @@ class TestPythonEnvironment(TestCase):
         args_conda.extend(conda_requirements)
 
         self.build_env_mock.run.assert_has_calls([
-            mock.call(*args_conda),
-            mock.call(*args_pip, bin_path=mock.ANY)
+            mock.call(*args_conda, cwd=mock.ANY),
+            mock.call(*args_pip, bin_path=mock.ANY, cwd=mock.ANY)
         ])
 
     @patch('readthedocs.projects.models.Project.checkout_path')

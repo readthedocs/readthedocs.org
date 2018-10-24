@@ -43,7 +43,7 @@ $(document).ready(function () {
 
     <p class="subscription-detail subscription-detail-card">
       <label>{% trans "Card" %}:</label>
-      <span>****-{{ golduser.last_4_digits }}</span>
+      <span>****-{{ golduser.last_4_card_digits }}</span>
     </p>
 
     <form method="get" action="{% url "gold_subscription" %}" class="subscription-update">
