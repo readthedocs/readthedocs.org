@@ -28,36 +28,35 @@ def test_parse_bad_type():
 def test_parse_single_config():
     buf = StringIO(u'base: path')
     config = parse(buf)
-    assert isinstance(config, list)
-    assert len(config) == 1
-    assert config[0]['base'] == 'path'
+    assert isinstance(config, dict)
+    assert config['base'] == 'path'
 
 
 def test_parse_null_value():
     buf = StringIO(u'base: null')
     config = parse(buf)
-    assert config[0]['base'] is None
+    assert config['base'] is None
 
 
 def test_parse_empty_value():
     buf = StringIO(u'base:')
     config = parse(buf)
-    assert config[0]['base'] is None
+    assert config['base'] is None
 
 
 def test_parse_empty_string_value():
     buf = StringIO(u'base: ""')
     config = parse(buf)
-    assert config[0]['base'] == ''
+    assert config['base'] == ''
 
 
 def test_parse_empty_list():
     buf = StringIO(u'base: []')
     config = parse(buf)
-    assert config[0]['base'] == []
+    assert config['base'] == []
 
 
-def test_parse_multiple_configs_in_one_file():
+def test_do_not_parse_multiple_configs_in_one_file():
     buf = StringIO(
         u'''
 base: path
@@ -67,8 +66,5 @@ name: second
 nested:
     works: true
         ''')
-    configs = parse(buf)
-    assert isinstance(configs, list)
-    assert len(configs) == 2
-    assert configs[0]['base'] == 'path'
-    assert configs[1]['nested'] == {'works': True}
+    with raises(ParseError):
+        parse(buf)

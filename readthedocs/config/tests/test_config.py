@@ -17,7 +17,6 @@ from readthedocs.config import (
     ConfigError,
     ConfigOptionNotSupportedError,
     InvalidConfig,
-    ProjectConfig,
     load,
 )
 from readthedocs.config.config import (
@@ -81,13 +80,11 @@ type: sphinx
 }
 
 
-def get_build_config(config, env_config=None, source_file='readthedocs.yml',
-                     source_position=0):
+def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
     return BuildConfigV1(
         env_config or {},
         config,
         source_file=source_file,
-        source_position=source_position,
     )
 
 
@@ -131,10 +128,7 @@ def test_load_empty_config_file(tmpdir):
 def test_minimal_config(tmpdir):
     apply_fs(tmpdir, minimal_config_dir)
     base = str(tmpdir)
-    config = load(base, env_config)
-    assert isinstance(config, ProjectConfig)
-    assert len(config) == 1
-    build = config[0]
+    build = load(base, env_config)
     assert isinstance(build, BuildConfigV1)
 
 
@@ -145,10 +139,7 @@ def test_load_version1(tmpdir):
         ''')
     })
     base = str(tmpdir)
-    config = load(base, get_env_config({'allow_v2': True}))
-    assert isinstance(config, ProjectConfig)
-    assert len(config) == 1
-    build = config[0]
+    build = load(base, get_env_config({'allow_v2': True}))
     assert isinstance(build, BuildConfigV1)
 
 
@@ -159,10 +150,7 @@ def test_load_version2(tmpdir):
         ''')
     })
     base = str(tmpdir)
-    config = load(base, get_env_config({'allow_v2': True}))
-    assert isinstance(config, ProjectConfig)
-    assert len(config) == 1
-    build = config[0]
+    build = load(base, get_env_config({'allow_v2': True}))
     assert isinstance(build, BuildConfigV2)
 
 
@@ -183,31 +171,18 @@ def test_yaml_extension(tmpdir):
     apply_fs(tmpdir, yaml_extension_config_dir)
     base = str(tmpdir)
     config = load(base, env_config)
-    assert len(config) == 1
+    assert isinstance(config, BuildConfigV1)
 
 
 def test_build_config_has_source_file(tmpdir):
     base = str(apply_fs(tmpdir, minimal_config_dir))
-    build = load(base, env_config)[0]
+    build = load(base, env_config)
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
-    assert build.source_position == 0
-
-
-def test_build_config_has_source_position(tmpdir):
-    base = str(apply_fs(tmpdir, multiple_config_dir))
-    builds = load(base, env_config)
-    assert len(builds) == 2
-    first, second = filter(
-        lambda b: not b.source_file.endswith('nested/readthedocs.yml'),
-        builds,
-    )
-    assert first.source_position == 0
-    assert second.source_position == 1
 
 
 def test_build_config_has_list_with_single_empty_value(tmpdir):
     base = str(apply_fs(tmpdir, config_with_explicit_empty_list))
-    build = load(base, env_config)[0]
+    build = load(base, env_config)
     assert isinstance(build, BuildConfigV1)
     assert build.formats == []
 
@@ -217,7 +192,6 @@ def test_config_requires_name():
         {'output_base': ''},
         {},
         source_file='readthedocs.yml',
-        source_position=0,
     )
     with raises(InvalidConfig) as excinfo:
         build.validate()
@@ -230,7 +204,6 @@ def test_build_requires_valid_name():
         {'output_base': ''},
         {'name': 'with/slashes'},
         source_file='readthedocs.yml',
-        source_position=0,
     )
     with raises(InvalidConfig) as excinfo:
         build.validate()
@@ -554,7 +527,6 @@ def test_valid_build_config():
         env_config,
         minimal_config,
         source_file='readthedocs.yml',
-        source_position=0,
     )
     build.validate()
     assert build.name == 'docs'
@@ -576,7 +548,6 @@ def describe_validate_base():
                 get_env_config(),
                 {'base': '../docs'},
                 source_file=source_file,
-                source_position=0,
             )
             build.validate()
             assert build.base == str(tmpdir.join('docs'))
@@ -597,7 +568,6 @@ def describe_validate_base():
                 get_env_config(),
                 {'base': 1},
                 source_file=str(tmpdir.join('readthedocs.yml')),
-                source_position=0,
             )
             with raises(InvalidConfig) as excinfo:
                 build.validate()
@@ -610,7 +580,6 @@ def describe_validate_base():
             get_env_config(),
             {'base': 'docs'},
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -626,7 +595,6 @@ def describe_validate_build():
             get_env_config(),
             {'build': {'image': 3.0}},
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -642,7 +610,6 @@ def describe_validate_build():
                 'python': {'version': '3.3'},
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         build.validate_build()
         with raises(InvalidConfig) as excinfo:
@@ -659,7 +626,6 @@ def describe_validate_build():
                 'python': {'version': '3.3'},
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         build.validate_build()
         build.validate_python()
@@ -670,7 +636,6 @@ def describe_validate_build():
             get_env_config(),
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         build.validate()
         assert build.build.image == 'readthedocs/build:latest'
@@ -681,7 +646,6 @@ def describe_validate_build():
             get_env_config(),
             {},
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         build.validate()
         assert build.build.image == 'readthedocs/build:2.0'
@@ -697,7 +661,6 @@ def describe_validate_build():
             get_env_config({'defaults': defaults}),
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
-            source_position=0,
         )
         build.validate()
         assert build.build.image == image
@@ -787,7 +750,6 @@ def test_build_validate_calls_all_subvalidators(tmpdir):
         {},
         {},
         source_file=str(tmpdir.join('readthedocs.yml')),
-        source_position=0,
     )
     with patch.multiple(
             BuildConfigV1,
@@ -801,20 +763,6 @@ def test_build_validate_calls_all_subvalidators(tmpdir):
         BuildConfigV1.validate_name.assert_called_with()
         BuildConfigV1.validate_python.assert_called_with()
         BuildConfigV1.validate_output_base.assert_called_with()
-
-
-def test_validate_project_config():
-    with patch.object(BuildConfigV1, 'validate') as build_validate:
-        project = ProjectConfig([
-            BuildConfigV1(
-                env_config,
-                minimal_config,
-                source_file='readthedocs.yml',
-                source_position=0,
-            ),
-        ])
-        project.validate()
-        assert build_validate.call_count == 1
 
 
 def test_load_calls_validate(tmpdir):
@@ -844,12 +792,11 @@ def test_config_filenames_regex(correct_config_filename):
 class TestBuildConfigV2(object):
 
     def get_build_config(self, config, env_config=None,
-                         source_file='readthedocs.yml', source_position=0):
+                         source_file='readthedocs.yml'):
         return BuildConfigV2(
             env_config or {},
             config,
             source_file=source_file,
-            source_position=source_position,
         )
 
     def test_version(self):
