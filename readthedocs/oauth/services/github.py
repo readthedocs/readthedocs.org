@@ -207,6 +207,13 @@ class GitHubService(Service):
                 log.info('GitHub webhook creation successful for project: %s',
                          project)
                 return (True, resp)
+            elif resp.status_code in [401, 403, 404]:
+                log.info(
+                    'GitHub project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return (False, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
