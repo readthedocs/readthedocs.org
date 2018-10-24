@@ -86,11 +86,11 @@ python-install-pipfile:
   dev: bool(required=False)
 
   # Add the --ignore-pipfile option to pipenv install
-  # Default: true
+  # Default: false
   ignore_pipfile: bool(required=False)
 
   # Add the --skip-lock option to pipenv install
-  # Default: false
+  # Default: true
   skip_lock: bool(required=False)
 
 sphinx:
