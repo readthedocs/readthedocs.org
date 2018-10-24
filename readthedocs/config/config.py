@@ -129,8 +129,17 @@ class BuildConfigBase(object):
     """
     Config that handles the build of one particular documentation.
 
-    You need to call ``validate`` before the config is ready to use. Also
-    setting the ``output_base`` is required before using it for a build.
+    .. note::
+
+       You need to call ``validate`` before the config is ready to use.
+
+    :param env_config: A dict that cointains additional information
+                       about the environment.
+    :param raw_config: A dict with all configuration without validation.
+    :param source_file: The file that contains the configuration.
+                        All paths are relative to this file.
+                        If a dir is given, the configuration was loaded
+                        from another source (like the web admin).
     """
 
     version = None
@@ -140,21 +149,27 @@ class BuildConfigBase(object):
         self.raw_config = raw_config
         self.source_file = source_file
         self.source_position = source_position
-        self.base_path = os.path.dirname(self.source_file)
+        if os.path.isdir(self.source_file):
+            self.base_path = self.source_file
+        else:
+            self.base_path = os.path.dirname(self.source_file)
         self.defaults = self.env_config.get('defaults', {})
 
         self._config = {}
 
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
-        source = '{file} [{pos}]'.format(
-            file=os.path.relpath(self.source_file, self.base_path),
-            pos=self.source_position,
-        )
-        error_message = '{source}: {message}'.format(
-            source=source,
-            message=message,
-        )
+        if not os.path.isdir(self.source_file):
+            source = '{file} [{pos}]'.format(
+                file=os.path.relpath(self.source_file, self.base_path),
+                pos=self.source_position,
+            )
+            error_message = '{source}: {message}'.format(
+                source=source,
+                message=message,
+            )
+        else:
+            error_message = message
         raise InvalidConfig(
             key=key,
             code=code,
@@ -307,10 +322,9 @@ class BuildConfigV1(BuildConfigBase):
         """Validates that ``output_base`` exists and set its absolute path."""
         assert 'output_base' in self.env_config, (
                '"output_base" required in "env_config"')
-        base_path = os.path.dirname(self.source_file)
         output_base = os.path.abspath(
             os.path.join(
-                self.env_config.get('output_base', base_path),
+                self.env_config.get('output_base', self.base_path),
             )
         )
         return output_base
@@ -338,10 +352,9 @@ class BuildConfigV1(BuildConfigBase):
         if 'base' in self.raw_config:
             base = self.raw_config['base']
         else:
-            base = os.path.dirname(self.source_file)
+            base = self.base_path
         with self.catch_validation_error('base'):
-            base_path = os.path.dirname(self.source_file)
-            base = validate_directory(base, base_path)
+            base = validate_directory(base, self.base_path)
         return base
 
     def validate_build(self):
@@ -488,9 +501,8 @@ class BuildConfigV1(BuildConfigBase):
             conda_environment = None
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
-                    base_path = os.path.dirname(self.source_file)
                     conda_environment = validate_file(
-                        raw_conda['file'], base_path
+                        raw_conda['file'], self.base_path
                     )
             conda['environment'] = conda_environment
 
@@ -505,9 +517,8 @@ class BuildConfigV1(BuildConfigBase):
             requirements_file = self.raw_config['requirements_file']
         if not requirements_file:
             return None
-        base_path = os.path.dirname(self.source_file)
         with self.catch_validation_error('requirements_file'):
-            validate_file(requirements_file, base_path)
+            validate_file(requirements_file, self.base_path)
         return requirements_file
 
     def validate_formats(self):
