@@ -1061,6 +1061,7 @@ class Feature(models.Model):
     SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
+    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1072,6 +1073,7 @@ class Feature(models.Model):
             'Do not overwrite context vars in conf.py with Read the Docs context',)),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
+        (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
     )
 
     projects = models.ManyToManyField(
