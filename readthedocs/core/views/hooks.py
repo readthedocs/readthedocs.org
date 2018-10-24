@@ -310,7 +310,7 @@ def bitbucket_build(request):
             return _build_url(search_url, projects, branches)
 
         if not branches:
-            log.error(
+            log.info(
                 'Commit/branch not found url=%s branches=%s',
                 search_url,
                 branches,
