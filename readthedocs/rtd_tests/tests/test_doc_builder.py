@@ -20,7 +20,7 @@ from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 
 
 class SphinxBuilderTest(TestCase):
@@ -223,6 +223,67 @@ class MkdocsBuilderTest(TestCase):
             'theme_dir': '/path/to/mydir/',
         }
         self.assertEqual(builder.get_theme_name(config), 'mydir')
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_get_theme_name_with_feature_flag(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
+        Feature.objects.get(
+            feature_id=Feature.MKDOCS_THEME_RTD,
+        ).projects.add(self.project)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        builder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.get_theme_name({}), 'readthedocs')
+        with patch('readthedocs.doc_builder.backends.mkdocs.yaml') as mock_yaml:
+            with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
+                mock_load_yaml_config.return_value = {'site_name': self.project.name}
+                builder.append_conf()
+
+            mock_yaml.safe_dump.assert_called_once_with(
+                {
+                    'site_name': mock.ANY,
+                    'docs_dir': mock.ANY,
+                    'extra_javascript': mock.ANY,
+                    'extra_css': mock.ANY,
+                    'google_analytics': mock.ANY,
+                    'theme': 'readthedocs',
+                },
+                mock.ANY,
+            )
+            mock_yaml.reset_mock()
+
+            config = {
+                'theme': 'customtheme',
+            }
+            self.assertEqual(builder.get_theme_name(config), 'customtheme')
+            with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
+                mock_load_yaml_config.return_value = {
+                    'site_name': self.project.name,
+                    'theme': 'customtheme',
+                }
+                builder.append_conf()
+
+            mock_yaml.safe_dump.assert_called_once_with(
+                {
+                    'site_name': mock.ANY,
+                    'docs_dir': mock.ANY,
+                    'extra_javascript': mock.ANY,
+                    'extra_css': mock.ANY,
+                    'google_analytics': mock.ANY,
+                    'theme': 'customtheme',
+                },
+                mock.ANY,
+            )
+
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
