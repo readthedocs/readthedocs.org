@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
-from os.path import exists
 import os
-
+from os.path import exists
 from tempfile import mkdtemp
-import shutil
+
 import django_dynamic_fixture as fixture
 import pytest
 from django.contrib.auth.models import User
-from mock import Mock
-from mock import patch
+from mock import Mock, patch
 
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.utils import (
-    create_git_tag, create_git_branch, delete_git_branch, delete_git_tag, make_test_git, make_test_hg)
+    create_git_branch,
+    create_git_tag,
+    delete_git_branch,
+    delete_git_tag,
+    make_test_git,
+    make_test_hg,
+)
 
 
 class TestGitBackend(RTDTestCase):
