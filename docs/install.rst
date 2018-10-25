@@ -22,7 +22,7 @@ need to install Python 2.7 with virtualenv in your system as well.
 
 .. note::
 
-    Requires Git version >=2
+    Requires Git version >=2.17.0
 
 .. note::
 
