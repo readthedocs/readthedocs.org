@@ -1,19 +1,76 @@
+Version 2.7.2
+-------------
+
+:Date: October 23, 2018
+
+* `@humitos <http://github.com/humitos>`__: Validate the slug generated is valid before importing a project (`#4780 <https://github.com/rtfd/readthedocs.org/pull/4780>`__)
+* `@humitos <http://github.com/humitos>`__: Do not log as error a webhook with an invalid branch name (`#4779 <https://github.com/rtfd/readthedocs.org/pull/4779>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add an index page to our design docs. (`#4775 <https://github.com/rtfd/readthedocs.org/pull/4775>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove /embed API endpoint (`#4771 <https://github.com/rtfd/readthedocs.org/pull/4771>`__)
+* `@stsewd <http://github.com/stsewd>`__: Upgrade logs from debug on middleware (`#4769 <https://github.com/rtfd/readthedocs.org/pull/4769>`__)
+* `@humitos <http://github.com/humitos>`__: Link to SSL for Custom Domains fixed (`#4766 <https://github.com/rtfd/readthedocs.org/pull/4766>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove Eric & Anthony from ADMINS & MANAGERS settings (`#4762 <https://github.com/rtfd/readthedocs.org/pull/4762>`__)
+* `@humitos <http://github.com/humitos>`__: Do not re-raise the exception if the one that we are checking (`#4761 <https://github.com/rtfd/readthedocs.org/pull/4761>`__)
+* `@humitos <http://github.com/humitos>`__: Do not fail when unlinking an non-existing path (`#4760 <https://github.com/rtfd/readthedocs.org/pull/4760>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend the DomainForm from outside (`#4752 <https://github.com/rtfd/readthedocs.org/pull/4752>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fixes an OSX issue with the test suite (`#4748 <https://github.com/rtfd/readthedocs.org/pull/4748>`__)
+* `@humitos <http://github.com/humitos>`__: Use Docker time limit for max lock age (`#4747 <https://github.com/rtfd/readthedocs.org/pull/4747>`__)
+* `@xyNNN <http://github.com/xyNNN>`__: Fixed link of PagerDuty (`#4744 <https://github.com/rtfd/readthedocs.org/pull/4744>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Make storage syncers extend from a base class (`#4742 <https://github.com/rtfd/readthedocs.org/pull/4742>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Upgrade theme media to 0.4.2" (`#4735 <https://github.com/rtfd/readthedocs.org/pull/4735>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Upgrade theme media to 0.4.2 (`#4734 <https://github.com/rtfd/readthedocs.org/pull/4734>`__)
+* `@stsewd <http://github.com/stsewd>`__: Extend install option from config file (v2, schema only) (`#4732 <https://github.com/rtfd/readthedocs.org/pull/4732>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove /cname endpoint (`#4731 <https://github.com/rtfd/readthedocs.org/pull/4731>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix get_vcs_repo by moving it to the Mixin (`#4727 <https://github.com/rtfd/readthedocs.org/pull/4727>`__)
+* `@humitos <http://github.com/humitos>`__: Guide explaining how to keep compatibility with mkdocs (`#4726 <https://github.com/rtfd/readthedocs.org/pull/4726>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.1 (`#4725 <https://github.com/rtfd/readthedocs.org/pull/4725>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix the form for adopting a project (`#4721 <https://github.com/rtfd/readthedocs.org/pull/4721>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove logging verbosity on syncer failure (`#4717 <https://github.com/rtfd/readthedocs.org/pull/4717>`__)
+* `@humitos <http://github.com/humitos>`__: Lint requirement file for py2 (`#4712 <https://github.com/rtfd/readthedocs.org/pull/4712>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Improve the getting started docs (`#4676 <https://github.com/rtfd/readthedocs.org/pull/4676>`__)
+* `@stsewd <http://github.com/stsewd>`__: Strict validation in configuration file (v2 only) (`#4607 <https://github.com/rtfd/readthedocs.org/pull/4607>`__)
+* `@stsewd <http://github.com/stsewd>`__: Run coverage on travis (`#4605 <https://github.com/rtfd/readthedocs.org/pull/4605>`__)
+
+Version 2.7.1
+-------------
+
+:Date: October 04, 2018
+
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Merge pull request #4636 from rtfd/search_upgrade" (`#4716 <https://github.com/rtfd/readthedocs.org/pull/4716>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Reduce the logging we do on CNAME 404 (`#4715 <https://github.com/rtfd/readthedocs.org/pull/4715>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Minor redirect admin improvements (`#4709 <https://github.com/rtfd/readthedocs.org/pull/4709>`__)
+* `@humitos <http://github.com/humitos>`__: Define the doc_search reverse URL from inside the __init__ on test (`#4703 <https://github.com/rtfd/readthedocs.org/pull/4703>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "auto refresh false" (`#4701 <https://github.com/rtfd/readthedocs.org/pull/4701>`__)
+* `@browniebroke <http://github.com/browniebroke>`__: Remove unused package nilsimsa (`#4697 <https://github.com/rtfd/readthedocs.org/pull/4697>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix broken url on sphinx projects (`#4696 <https://github.com/rtfd/readthedocs.org/pull/4696>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: Tuning elasticsearch shard and replica (`#4689 <https://github.com/rtfd/readthedocs.org/pull/4689>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix bug where we were not indexing Sphinx HTMLDir projects (`#4685 <https://github.com/rtfd/readthedocs.org/pull/4685>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix the queryset used in chunking (`#4683 <https://github.com/rtfd/readthedocs.org/pull/4683>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix python 2 syntax for getting first key in search index update (`#4682 <https://github.com/rtfd/readthedocs.org/pull/4682>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.0 (`#4681 <https://github.com/rtfd/readthedocs.org/pull/4681>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Increase footer ad text size (`#4678 <https://github.com/rtfd/readthedocs.org/pull/4678>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix broken docs links (`#4677 <https://github.com/rtfd/readthedocs.org/pull/4677>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove search autosync from tests so local tests work (`#4675 <https://github.com/rtfd/readthedocs.org/pull/4675>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor tasks into decorators (`#4666 <https://github.com/rtfd/readthedocs.org/pull/4666>`__)
+* `@stsewd <http://github.com/stsewd>`__: Clean up logging (`#4665 <https://github.com/rtfd/readthedocs.org/pull/4665>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Ad customization docs (`#4659 <https://github.com/rtfd/readthedocs.org/pull/4659>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix a typo in the privacy policy (`#4658 <https://github.com/rtfd/readthedocs.org/pull/4658>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor PublicTask into a decorator task (`#4656 <https://github.com/rtfd/readthedocs.org/pull/4656>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove -r option from update_repos command (`#4653 <https://github.com/rtfd/readthedocs.org/pull/4653>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Create an explicit ad placement (`#4647 <https://github.com/rtfd/readthedocs.org/pull/4647>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Use collectstatic on `media/`, without collecting user files (`#4502 <https://github.com/rtfd/readthedocs.org/pull/4502>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement submodules key from v2 config (`#4493 <https://github.com/rtfd/readthedocs.org/pull/4493>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement mkdocs key from v2 config (`#4486 <https://github.com/rtfd/readthedocs.org/pull/4486>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add docs on our roadmap process (`#4469 <https://github.com/rtfd/readthedocs.org/pull/4469>`__)
+* `@humitos <http://github.com/humitos>`__: Send notifications when generic/unhandled failures (`#3864 <https://github.com/rtfd/readthedocs.org/pull/3864>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use relative path for docroot on mkdocs (`#3525 <https://github.com/rtfd/readthedocs.org/pull/3525>`__)
+
 Version 2.7.0
 -------------
 
 :Date: September 29, 2018
 
-* `@davidfischer <http://github.com/davidfischer>`__: Fix broken docs links (`#4677 <https://github.com/rtfd/readthedocs.org/pull/4677>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Remove search autosync from tests so local tests work (`#4675 <https://github.com/rtfd/readthedocs.org/pull/4675>`__)
-* `@stsewd <http://github.com/stsewd>`__: Skip local settings on local testing (`#4674 <https://github.com/rtfd/readthedocs.org/pull/4674>`__)
-* `@davidfischer <http://github.com/davidfischer>`__: Release 2.6.6 (`#4664 <https://github.com/rtfd/readthedocs.org/pull/4664>`__)
-* `@agjohnson <http://github.com/agjohnson>`__: Put search step back into project build task (`#4655 <https://github.com/rtfd/readthedocs.org/pull/4655>`__)
-* `@agjohnson <http://github.com/agjohnson>`__: Update translations from transifex (`#4645 <https://github.com/rtfd/readthedocs.org/pull/4645>`__)
-* `@safwanrahman <http://github.com/safwanrahman>`__: [GSoC 2018] All Search Improvements (`#4636 <https://github.com/rtfd/readthedocs.org/pull/4636>`__)
-* `@davidfischer <http://github.com/davidfischer>`__: Updates and simplification for mkdocs (`#4556 <https://github.com/rtfd/readthedocs.org/pull/4556>`__)
-* `@stsewd <http://github.com/stsewd>`__: Implement mkdocs key from v2 config (`#4486 <https://github.com/rtfd/readthedocs.org/pull/4486>`__)
-* `@stsewd <http://github.com/stsewd>`__: More robusts tests for requirements_file and conda_file (`#4394 <https://github.com/rtfd/readthedocs.org/pull/4394>`__)
-* `@berkerpeksag <http://github.com/berkerpeksag>`__: Use cname_to_slug() helper in SubdomainMiddleware (`#2317 <https://github.com/rtfd/readthedocs.org/pull/2317>`__)
+**Reverted, do not use**
 
 Version 2.6.6
 -------------
