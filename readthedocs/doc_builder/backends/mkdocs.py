@@ -15,7 +15,7 @@ from django.conf import settings
 from django.template import loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ class BaseMkdocs(BaseBuilder):
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
                 note = ' (line %d, column %d)' % (mark.line + 1, mark.column + 1)
-            raise BuildEnvironmentError(
+            raise MkDocsYAMLParseError(
                 'Your mkdocs.yml could not be loaded, '
                 'possibly due to a syntax error{note}'.format(note=note)
             )
