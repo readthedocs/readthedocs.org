@@ -343,4 +343,8 @@ class WebhookView(APIView):
         )
         view_cls = self.VIEW_MAP[integration.integration_type]
         view = view_cls.as_view(integration=integration)
-        return view(request, project_slug)
+        # DRF uses ``rest_framework.request.Request`` and Django expects
+        # ``django.http.HttpRequest``
+        # https://www.django-rest-framework.org/api-guide/requests/
+        # https://github.com/encode/django-rest-framework/pull/5771#issuecomment-362815342
+        return view(request._request, project_slug)
