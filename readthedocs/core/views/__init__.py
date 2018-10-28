@@ -7,7 +7,6 @@ documentation and header rendering, and server errors.
 
 from __future__ import absolute_import
 from __future__ import division
-from past.utils import old_div
 import os
 import logging
 
@@ -17,10 +16,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
-from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
-from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.projects.tasks import remove_dir
 from readthedocs.redirects.utils import get_redirect_response
@@ -94,10 +91,6 @@ def wipe_version(request, project_slug, version_slug):
     return render(
         request, 'wipe_version.html',
         {'version': version, 'project': version.project})
-
-
-def divide_by_zero(request):  # pylint: disable=unused-argument
-    return old_div(1, 0)
 
 
 def server_error_500(request, template_name='500.html'):

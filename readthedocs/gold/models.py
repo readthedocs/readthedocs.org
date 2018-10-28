@@ -1,7 +1,6 @@
 """Django models for recurring donations aka Gold Membership."""
 from __future__ import absolute_import
 from __future__ import division
-from past.utils import old_div
 import math
 
 from django.db import models
@@ -49,5 +48,5 @@ class GoldUser(models.Model):
     @property
     def num_supported_projects(self):
         dollars = int(self.level.split('-')[-1])
-        num_projects = int(math.floor(old_div(dollars, DOLLARS_PER_PROJECT)))
+        num_projects = int(math.floor(dollars // DOLLARS_PER_PROJECT))
         return num_projects
