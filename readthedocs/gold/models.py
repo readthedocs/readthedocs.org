@@ -1,6 +1,13 @@
+# -*- coding: utf-8 -*-
+
 """Django models for recurring donations aka Gold Membership."""
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import math
 
 from django.db import models
@@ -8,7 +15,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Project
-
 
 #: The membership options that are currently available
 LEVEL_CHOICES = (
@@ -32,11 +38,23 @@ class GoldUser(models.Model):
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
-    user = models.ForeignKey('auth.User', verbose_name=_('User'), unique=True, related_name='gold')
-    level = models.CharField(_('Level'), max_length=20,
-                             choices=LEVEL_CHOICES, default=LEVEL_CHOICES[0][0])
-    projects = models.ManyToManyField(Project, verbose_name=_('Projects'),
-                                      related_name='gold_owners')
+    user = models.ForeignKey(
+        'auth.User',
+        verbose_name=_('User'),
+        unique=True,
+        related_name='gold',
+    )
+    level = models.CharField(
+        _('Level'),
+        max_length=20,
+        choices=LEVEL_CHOICES,
+        default=LEVEL_CHOICES[0][0],
+    )
+    projects = models.ManyToManyField(
+        Project,
+        verbose_name=_('Projects'),
+        related_name='gold_owners',
+    )
 
     last_4_card_digits = models.CharField(max_length=4)
     stripe_id = models.CharField(max_length=255)

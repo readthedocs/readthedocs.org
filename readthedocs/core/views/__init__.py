@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Core views, including the main homepage,
 
@@ -50,7 +51,11 @@ class SupportView(TemplateView):
         if not support_email:
             support_email = 'support@{domain}'.format(
                 domain=getattr(
-                    settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+                    settings,
+                    'PRODUCTION_DOMAIN',
+                    'readthedocs.org',
+                ),
+            )
 
         context['support_email'] = support_email
         return context
@@ -89,8 +94,10 @@ def wipe_version(request, project_slug, version_slug):
             broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
     return render(
-        request, 'wipe_version.html',
-        {'version': version, 'project': version.project})
+        request,
+        'wipe_version.html',
+        {'version': version, 'project': version.project},
+    )
 
 
 def server_error_500(request, template_name='500.html'):

@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
+
 """Integration models for external services."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import json
 import re
 import uuid
-from builtins import object, str
 
+from builtins import object, str
 from django.contrib.contenttypes.fields import (
-    GenericForeignKey, GenericRelation)
+    GenericForeignKey,
+    GenericRelation,
+)
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.encoding import python_2_unicode_compatible
