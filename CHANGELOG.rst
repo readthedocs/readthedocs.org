@@ -1,3 +1,26 @@
+Version 2.8.0
+-------------
+
+:Date: October 30, 2018
+
+Major change is an upgrade to Django 1.11. 
+
+* `@humitos <http://github.com/humitos>`__: Cleanup old code (remove old_div) (`#4817 <https://github.com/rtfd/readthedocs.org/pull/4817>`__)
+* `@humitos <http://github.com/humitos>`__: Remove unnecessary migration (`#4806 <https://github.com/rtfd/readthedocs.org/pull/4806>`__)
+* `@humitos <http://github.com/humitos>`__: Feature flag to make `readthedocs` theme default on MkDocs docs (`#4802 <https://github.com/rtfd/readthedocs.org/pull/4802>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add codecov badge (`#4799 <https://github.com/rtfd/readthedocs.org/pull/4799>`__)
+* `@humitos <http://github.com/humitos>`__: Pin missing dependency for the MkDocs guide compatibility (`#4798 <https://github.com/rtfd/readthedocs.org/pull/4798>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.2 (`#4796 <https://github.com/rtfd/readthedocs.org/pull/4796>`__)
+* `@humitos <http://github.com/humitos>`__: Do not log as error a webhook with an invalid branch name (`#4779 <https://github.com/rtfd/readthedocs.org/pull/4779>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Run travis on release branches (`#4763 <https://github.com/rtfd/readthedocs.org/pull/4763>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove Eric & Anthony from ADMINS & MANAGERS settings (`#4762 <https://github.com/rtfd/readthedocs.org/pull/4762>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't use RequestsContext (`#4759 <https://github.com/rtfd/readthedocs.org/pull/4759>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Django 1.11 upgrade (`#4750 <https://github.com/rtfd/readthedocs.org/pull/4750>`__)
+* `@stsewd <http://github.com/stsewd>`__: Dropdown to select Advanced Settings (`#4710 <https://github.com/rtfd/readthedocs.org/pull/4710>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove hardcoded constant from config module (`#4704 <https://github.com/rtfd/readthedocs.org/pull/4704>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update tastypie (`#4325 <https://github.com/rtfd/readthedocs.org/pull/4325>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update to Django 1.10 (`#4319 <https://github.com/rtfd/readthedocs.org/pull/4319>`__)
+
 Version 2.7.2
 -------------
 

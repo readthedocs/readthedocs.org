@@ -856,6 +856,14 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({})
         assert build.version == '2'
 
+    def test_correct_error_when_source_is_dir(self, tmpdir):
+        build = self.get_build_config({}, source_file=str(tmpdir))
+        with raises(InvalidConfig) as excinfo:
+            build.error(key='key', message='Message', code='code')
+        # We don't have any extra information about
+        # the source_file.
+        assert str(excinfo.value) == 'Invalid "key": Message'
+
     def test_formats_check_valid(self):
         build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
         build.validate()

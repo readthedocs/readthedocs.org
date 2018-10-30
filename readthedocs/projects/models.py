@@ -902,6 +902,7 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -913,7 +914,7 @@ class APIProject(Project):
         super(APIProject, self).__init__(*args, **kwargs)
 
         # Overwrite the database property with the value from the API
-        self.ad_free = (not kwargs.pop('show_advertising', True))
+        self.ad_free = ad_free
 
     def save(self, *args, **kwargs):
         return 0
@@ -1060,6 +1061,7 @@ class Feature(models.Model):
     SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
+    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1071,6 +1073,7 @@ class Feature(models.Model):
             'Do not overwrite context vars in conf.py with Read the Docs context',)),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
+        (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
     )
 
     projects = models.ManyToManyField(

@@ -42,4 +42,6 @@ notifications:
 
 branches:
   only:
-  - master
+  - master 
+  - rel # Community release branch
+  - relcorp # Corporate release branch
