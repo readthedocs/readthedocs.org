@@ -14,6 +14,7 @@ import hashlib
 import json
 import logging
 import os
+import sys
 import shutil
 import socket
 from collections import Counter, defaultdict
@@ -26,6 +27,8 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
+from sphinx.ext import intersphinx
+
 
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
@@ -46,6 +49,7 @@ from readthedocs.doc_builder.exceptions import (
     VersionLockedError, YAMLParseError)
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.domaindata.models import DomainData
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
@@ -55,7 +59,7 @@ from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, Feature, ImportedFile, Project
+from .models import Domain, ImportedFile, Project
 from .signals import (
     after_build, after_vcs, before_build, before_vcs, files_changed)
 
@@ -323,16 +327,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Catch unhandled errors in the setup step
         except Exception as e:  # noqa
+            extra = {
+                'stack': True,
+                'tags': {
+                    'build': build_pk,
+                },
+            }
+            if self.project:
+                extra['tags']['project'] = self.project.slug
+            if self.version:
+                extra['tags']['version'] = self.version.slug
             log.exception(
                 'An unhandled exception was raised during build setup',
-                extra={
-                    'stack': True,
-                    'tags': {
-                        'build': build_pk,
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                    },
-                },
+                extra=extra
             )
             if self.setup_env is not None:
                 self.setup_env.failure = BuildEnvironmentError(
@@ -1027,6 +1034,7 @@ def fileify(version_pk, commit):
             )
         )
         _manage_imported_files(version, path, commit)
+        _update_intersphinx_data(version, path, commit)
     else:
         log.info(
             LOG_TEMPLATE.format(
@@ -1035,6 +1043,56 @@ def fileify(version_pk, commit):
                 msg='No ImportedFile files',
             )
         )
+
+
+def _update_intersphinx_data(version, path, commit):
+    """
+    Update intersphinx data for this version
+
+    :param version: Version instance
+    :param path: Path to search
+    :param commit: Commit that updated path
+    """
+    object_file = os.path.join(path, 'objects.inv')
+
+    class MockConfig:
+        intersphinx_timeout = None  # type: int
+        tls_verify = False
+
+    class MockApp:
+        srcdir = ''
+        config = MockConfig()
+
+        def warn(self, msg):
+            # type: (unicode) -> None
+            print(msg, file=sys.stderr)
+
+    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
+    for key in sorted(invdata or {}):
+        domain, _type = key.split(':')
+        for name, einfo in sorted(invdata[key].items()):
+            url = einfo[2]
+            if '#' in url:
+                doc_name, anchor = url.split('#')
+            else:
+                doc_name, anchor = url, ''
+            display_name = einfo[3]
+            obj, _ = DomainData.objects.get_or_create(
+                project=version.project,
+                version=version,
+                domain=domain,
+                name=name,
+                display_name=display_name,
+                type=_type,
+                doc_name=doc_name,
+                anchor=anchor,
+            )
+            if obj.commit != commit:
+                obj.commit = commit
+                obj.save()
+    DomainData.objects.filter(project=version.project,
+                              version=version
+                              ).exclude(commit=commit).delete()
 
 
 def _manage_imported_files(version, path, commit):
