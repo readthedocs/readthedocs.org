@@ -22,13 +22,7 @@ cache:
     - ~/.nvm/nvm.sh
     - ~/.npm
 before_install:
-  - sudo apt-get install -y dh-autoreconf libcurl4-gnutls-dev libexpat1-dev gettext libz-dev libssl-dev
-  - git clone --branch v2.17.1 --depth 1 git://git.kernel.org/pub/scm/git/git.git
-  - pushd git
-  - make configure && ./configure --prefix=/usr
-  - make all && sudo make install
-  - popd
-  - git --version
+  - sudo apt-get install -y git
 install:
   - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis
