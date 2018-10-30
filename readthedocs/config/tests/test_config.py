@@ -104,12 +104,11 @@ def get_env_config(extra=None):
 
 
 @pytest.mark.parametrize('files', [
-    {},
-    {'readthedocs.ymlmore': ''},
-    {'startreadthedocs.yml': ''},
-    {'noroot': {'readthedocs.ymlmore': ''}},
-    {'noroot': {'startreadthedocs.yml': ''}},
-    {'readthebots.yaml': ''},
+    {'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}},
+    {'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}},
+    {'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}},
+    {'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}},
+    {'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}},
 ])
 def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
