@@ -84,6 +84,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'django_filters',
 
             # our apps
             'readthedocs.projects',
@@ -99,6 +100,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
+            'readthedocs.domaindata',
 
 
             # allauth
@@ -295,6 +297,7 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
+        '(.*)localhost(.*)',
         '^http://(.+)\.readthedocs\.io$',
         '^https://(.+)\.readthedocs\.io$'
     )

@@ -34,6 +34,7 @@ from .views.model_views import (
     SocialAccountViewSet,
     VersionViewSet,
 )
+from readthedocs.domaindata.api import DomainDataAPIView
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, base_name='build')
@@ -42,6 +43,7 @@ router.register(r'version', VersionViewSet, base_name='version')
 router.register(r'project', ProjectViewSet, base_name='project')
 router.register(r'notification', NotificationViewSet, base_name='emailhook')
 router.register(r'domain', DomainViewSet, base_name='domain')
+router.register(r'domaindata', DomainDataAPIView, base_name='domaindata')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
