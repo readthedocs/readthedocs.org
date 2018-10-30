@@ -4,20 +4,42 @@ from __future__ import division, print_function, unicode_literals
 import os
 import re
 import textwrap
+from collections import OrderedDict
 
 import pytest
 from mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (
-    ALL, BuildConfigV1, BuildConfigV2, ConfigError,
-    ConfigOptionNotSupportedError, InvalidConfig, ProjectConfig, load)
+    ALL,
+    BuildConfigV1,
+    BuildConfigV2,
+    ConfigError,
+    ConfigOptionNotSupportedError,
+    InvalidConfig,
+    ProjectConfig,
+    load,
+)
 from readthedocs.config.config import (
-    CONFIG_FILENAME_REGEX, CONFIG_NOT_SUPPORTED, CONFIG_REQUIRED, NAME_INVALID,
-    NAME_REQUIRED, PYTHON_INVALID, VERSION_INVALID)
+    CONFIG_FILENAME_REGEX,
+    CONFIG_NOT_SUPPORTED,
+    CONFIG_REQUIRED,
+    INVALID_KEY,
+    NAME_INVALID,
+    NAME_REQUIRED,
+    PYTHON_INVALID,
+    VERSION_INVALID,
+)
 from readthedocs.config.models import Conda
 from readthedocs.config.validation import (
-    INVALID_BOOL, INVALID_CHOICE, INVALID_LIST, INVALID_PATH, INVALID_STRING)
+    INVALID_BOOL,
+    INVALID_CHOICE,
+    INVALID_LIST,
+    INVALID_PATH,
+    INVALID_STRING,
+    VALUE_NOT_FOUND,
+    ValidationError,
+)
 
 from .utils import apply_fs
 
@@ -833,6 +855,14 @@ class TestBuildConfigV2(object):
     def test_version(self):
         build = self.get_build_config({})
         assert build.version == '2'
+
+    def test_correct_error_when_source_is_dir(self, tmpdir):
+        build = self.get_build_config({}, source_file=str(tmpdir))
+        with raises(InvalidConfig) as excinfo:
+            build.error(key='key', message='Message', code='code')
+        # We don't have any extra information about
+        # the source_file.
+        assert str(excinfo.value) == 'Invalid "key": Message'
 
     def test_formats_check_valid(self):
         build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
@@ -1702,3 +1732,83 @@ class TestBuildConfigV2(object):
         assert build.submodules.include == []
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
+
+    @pytest.mark.parametrize('value,key', [
+        ({'typo': 'something'}, 'typo'),
+        (
+            {
+                'pyton': {
+                    'version': 'another typo',
+                }
+            },
+            'pyton.version'
+        ),
+        (
+            {
+                'build': {
+                    'image': 'latest',
+                    'extra': 'key',
+                }
+            },
+            'build.extra'
+        )
+    ])
+    def test_strict_validation(self, value, key):
+        build = self.get_build_config(value)
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == key
+        assert excinfo.value.code == INVALID_KEY
+
+    def test_strict_validation_pops_all_keys(self):
+        build = self.get_build_config({
+            'version': 2,
+            'python': {
+                'version': 3,
+            },
+        })
+        build.validate()
+        assert build.raw_config == {}
+
+    @pytest.mark.parametrize('value,expected', [
+        ({}, []),
+        ({'one': 1}, ['one']),
+        ({'one': {'two': 3}}, ['one', 'two']),
+        (OrderedDict([('one', 1), ('two', 2)]), ['one']),
+        (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
+    ])
+    def test_get_extra_key(self, value, expected):
+        build = self.get_build_config({})
+        assert build._get_extra_key(value) == expected
+
+    def test_pop_config_single(self):
+        build = self.get_build_config({'one': 1})
+        build.pop_config('one')
+        assert build.raw_config == {}
+
+    def test_pop_config_nested(self):
+        build = self.get_build_config({'one': {'two': 2}})
+        build.pop_config('one.two')
+        assert build.raw_config == {}
+
+    def test_pop_config_nested_with_residue(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        build.pop_config('one.two')
+        assert build.raw_config == {'one': {'three': 3}}
+
+    def test_pop_config_default_none(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        assert build.pop_config('one.four') is None
+        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+
+    def test_pop_config_default(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        assert build.pop_config('one.four', 4) == 4
+        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+
+    def test_pop_config_raise_exception(self):
+        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        with raises(ValidationError) as excinfo:
+            build.pop_config('one.four', raise_ex=True)
+        assert excinfo.value.value == 'four'
+        assert excinfo.value.code == VALUE_NOT_FOUND
