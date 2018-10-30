@@ -3,7 +3,7 @@ Version 2.8.0
 
 :Date: October 30, 2018
 
-Major change is an upgrade to Django 1.11. 
+**Major change is an upgrade to Django 1.11**
 
 * `@humitos <http://github.com/humitos>`__: Cleanup old code (remove old_div) (`#4817 <https://github.com/rtfd/readthedocs.org/pull/4817>`__)
 * `@humitos <http://github.com/humitos>`__: Remove unnecessary migration (`#4806 <https://github.com/rtfd/readthedocs.org/pull/4806>`__)
