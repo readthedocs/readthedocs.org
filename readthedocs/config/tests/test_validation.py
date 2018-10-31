@@ -14,28 +14,28 @@ from readthedocs.config.validation import (
     validate_path, validate_string)
 
 
-def describe_validate_bool():
-    def it_accepts_true():
+class TestValidateBool(object):
+    def test_it_accepts_true(self):
         assert validate_bool(True) is True
 
-    def it_accepts_false():
+    def test_it_accepts_false(self):
         assert validate_bool(False) is False
 
-    def it_accepts_0():
+    def test_it_accepts_0(self):
         assert validate_bool(0) is False
 
-    def it_accepts_1():
+    def test_it_accepts_1(self):
         assert validate_bool(1) is True
 
-    def it_fails_on_string():
+    def test_it_fails_on_string(self):
         with raises(ValidationError) as excinfo:
             validate_bool('random string')
         assert excinfo.value.code == INVALID_BOOL
 
 
-def describe_validate_choice():
+class TestValidateChoice(object):
 
-    def it_accepts_valid_choice():
+    def test_it_accepts_valid_choice(self):
         result = validate_choice('choice', ('choice', 'another_choice'))
         assert result is 'choice'
 
@@ -43,15 +43,15 @@ def describe_validate_choice():
             validate_choice('c', 'abc')
         assert excinfo.value.code == INVALID_LIST
 
-    def it_rejects_invalid_choice():
+    def test_it_rejects_invalid_choice(self):
         with raises(ValidationError) as excinfo:
             validate_choice('not-a-choice', ('choice', 'another_choice'))
         assert excinfo.value.code == INVALID_CHOICE
 
 
-def describe_validate_list():
+class TestValidateList(object):
 
-    def it_accepts_list_types():
+    def test_it_accepts_list_types(self):
         result = validate_list(['choice', 'another_choice'])
         assert result == ['choice', 'another_choice']
 
@@ -68,15 +68,15 @@ def describe_validate_list():
             validate_choice('c', 'abc')
         assert excinfo.value.code == INVALID_LIST
 
-    def it_rejects_string_types():
+    def test_it_rejects_string_types(self):
         with raises(ValidationError) as excinfo:
             result = validate_list('choice')
         assert excinfo.value.code == INVALID_LIST
 
 
-def describe_validate_directory():
+class TestValidateDirectory(object):
 
-    def it_uses_validate_path(tmpdir):
+    def test_it_uses_validate_path(self, tmpdir):
         patcher = patch('readthedocs.config.validation.validate_path')
         with patcher as validate_path:
             path = text_type(tmpdir.mkdir('a directory'))
@@ -84,16 +84,16 @@ def describe_validate_directory():
             validate_directory(path, str(tmpdir))
             validate_path.assert_called_with(path, str(tmpdir))
 
-    def it_rejects_files(tmpdir):
+    def test_it_rejects_files(self, tmpdir):
         tmpdir.join('file').write('content')
         with raises(ValidationError) as excinfo:
             validate_directory('file', str(tmpdir))
         assert excinfo.value.code == INVALID_DIRECTORY
 
 
-def describe_validate_file():
+class TestValidateFile(object):
 
-    def it_uses_validate_path(tmpdir):
+    def test_it_uses_validate_path(self, tmpdir):
         patcher = patch('readthedocs.config.validation.validate_path')
         with patcher as validate_path:
             path = tmpdir.join('a file')
@@ -103,59 +103,59 @@ def describe_validate_file():
             validate_file(path, str(tmpdir))
             validate_path.assert_called_with(path, str(tmpdir))
 
-    def it_rejects_directories(tmpdir):
+    def test_it_rejects_directories(self, tmpdir):
         tmpdir.mkdir('directory')
         with raises(ValidationError) as excinfo:
             validate_file('directory', str(tmpdir))
         assert excinfo.value.code == INVALID_FILE
 
 
-def describe_validate_path():
+class TestValidatePath(object):
 
-    def it_accepts_relative_path(tmpdir):
+    def test_it_accepts_relative_path(self, tmpdir):
         tmpdir.mkdir('a directory')
         validate_path('a directory', str(tmpdir))
 
-    def it_accepts_files(tmpdir):
+    def test_it_accepts_files(self, tmpdir):
         tmpdir.join('file').write('content')
         validate_path('file', str(tmpdir))
 
-    def it_accepts_absolute_path(tmpdir):
+    def test_it_accepts_absolute_path(self, tmpdir):
         path = str(tmpdir.mkdir('a directory'))
         validate_path(path, 'does not matter')
 
-    def it_returns_absolute_path(tmpdir):
+    def test_it_returns_absolute_path(self, tmpdir):
         tmpdir.mkdir('a directory')
         path = validate_path('a directory', str(tmpdir))
         assert path == os.path.abspath(path)
 
-    def it_only_accepts_strings():
+    def test_it_only_accepts_strings(self):
         with raises(ValidationError) as excinfo:
             validate_path(None, '')
         assert excinfo.value.code == INVALID_STRING
 
-    def it_rejects_non_existent_path(tmpdir):
+    def test_it_rejects_non_existent_path(self, tmpdir):
         with raises(ValidationError) as excinfo:
             validate_path('does not exist', str(tmpdir))
         assert excinfo.value.code == INVALID_PATH
 
 
-def describe_validate_string():
+class TestValidateString(object):
 
-    def it_accepts_unicode():
+    def test_it_accepts_unicode(self):
         result = validate_string(u'Unicöde')
         assert isinstance(result, text_type)
 
-    def it_accepts_nonunicode():
+    def test_it_accepts_nonunicode(self):
         result = validate_string('Unicode')
         assert isinstance(result, text_type)
 
-    def it_rejects_float():
+    def test_it_rejects_float(self):
         with raises(ValidationError) as excinfo:
             validate_string(123.456)
         assert excinfo.value.code == INVALID_STRING
 
-    def it_rejects_none():
+    def test_it_rejects_none(self):
         with raises(ValidationError) as excinfo:
             validate_string(None)
         assert excinfo.value.code == INVALID_STRING

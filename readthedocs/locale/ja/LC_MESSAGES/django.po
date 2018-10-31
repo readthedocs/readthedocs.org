@@ -2481,11 +2481,6 @@ msgstr "プロジェクトのバージョンに対する別名を追加"
 msgid "Create"
 msgstr "作成"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "別名"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "プロジェクトを見る"
