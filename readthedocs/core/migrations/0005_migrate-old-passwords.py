@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.contrib.auth.hashers import make_password
 
 
 def forwards_func(apps, schema_editor):
@@ -18,7 +19,7 @@ def forwards_func(apps, schema_editor):
     for pattern in old_password_patterns:
         users = User.objects.filter(password__startswith=pattern)
         for user in users:
-            user.set_unusable_password()
+            user.password = make_password(None)
             user.save()
 
 
