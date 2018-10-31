@@ -53,8 +53,27 @@ may change, so that assets are compiled before deployment, however as our front
 end assets are in a state of flux, it's easier to keep absolute sources checked
 in.
 
-Getting Started
----------------
+Containerized build (Docker)
+----------------------------
+
+Front end assets can be built in a Docker container. This reduces the steps
+required and can be considered more secure, since you won't expose your local
+development environment to packages from NPM.
+
+You will need to install Docker on your system, then run the following commands
+from the root of your repository:
+
+.. code-block:: console
+
+    # Builds the Docker image
+    docker image build . -t "rtd-frontend" -f docker/frontend.dockerfile
+
+    # Runs the image from the repository root
+    docker run -v $PWD/:/repo "rtd-frontend"
+
+
+Local build: Getting Started
+----------------------------
 
 You will need a working version of Node and NPM to get started. We won't cover
 that here, as it varies from platform to platform.
