@@ -109,7 +109,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
 
 
 def set_or_create_version(project, slug, version_id, verbose_name, type_):
-    """Search or create a version and set its machine atribute to false."""
+    """Search or create a version and set its machine attribute to false."""
     version = (
         project.versions
         .filter(slug=slug)

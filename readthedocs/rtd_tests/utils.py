@@ -46,28 +46,10 @@ def check_output(command, env=None):
 @restoring_chdir
 def make_test_git():
     directory = mkdtemp()
-    path = get_readthedocs_app_path()
-    sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
-    directory = pjoin(directory, 'sample_repo')
-    copytree(sample, directory)
+    directory = make_git_repo(directory)
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)
-
-    # Initialize and configure
-    check_output(['git', 'init'] + [directory], env=env)
-    check_output(
-        ['git', 'config', 'user.email', 'dev@readthedocs.org'],
-        env=env
-    )
-    check_output(
-        ['git', 'config', 'user.name', 'Read the Docs'],
-        env=env
-    )
-
-    # Set up the actual repository
-    check_output(['git', 'add', '.'], env=env)
-    check_output(['git', 'commit', '-m"init"'], env=env)
 
     # Add fake repo as submodule. We need to fake this here because local path
     # URL are not allowed and using a real URL will require Internet to clone
@@ -107,6 +89,33 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
+    return directory
+
+
+@restoring_chdir
+def make_git_repo(directory, name='sample_repo'):
+    path = get_readthedocs_app_path()
+    sample = abspath(pjoin(path, 'rtd_tests/fixtures/sample_repo'))
+    directory = pjoin(directory, name)
+    copytree(sample, directory)
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    # Initialize and configure
+    check_output(['git', 'init'] + [directory], env=env)
+    check_output(
+        ['git', 'config', 'user.email', 'dev@readthedocs.org'],
+        env=env
+    )
+    check_output(
+        ['git', 'config', 'user.name', 'Read the Docs'],
+        env=env
+    )
+
+    # Set up the actual repository
+    check_output(['git', 'add', '.'], env=env)
+    check_output(['git', 'commit', '-m"init"'], env=env)
     return directory
 
 
@@ -151,6 +160,21 @@ def delete_git_branch(directory, branch):
 
     command = ['git', 'branch', '-D', branch]
     check_output(command, env=env)
+
+
+@restoring_chdir
+def create_git_submodule(directory, submodule,
+                         msg='Add realative submodule', branch='master'):
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    command = ['git', 'branch', '-D', branch]
+    check_output(command, env=env)
+    command = ['git', 'submodule', 'add', '-b', branch, './', submodule]
+    check_output(command, env=env)
+    check_output(['git', 'add', '.'], env=env)
+    check_output(['git', 'commit', '-m', '"{}"'.format(msg)], env=env)
 
 
 @restoring_chdir

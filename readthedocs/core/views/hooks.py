@@ -12,7 +12,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, Feature
-from readthedocs.projects.tasks import SyncRepositoryTask
+from readthedocs.projects.tasks import sync_repository_task
 
 import logging
 
@@ -52,18 +52,20 @@ def _build_version(project, slug, already_built=()):
             log.info("(Version build) Building %s:%s",
                      project.slug, slug_version.slug)
         return LATEST
-    elif project.versions.exclude(active=True).filter(slug=slug).exists():
+
+    if project.versions.exclude(active=True).filter(slug=slug).exists():
         log.info("(Version build) Not Building %s", slug)
         return None
-    elif slug not in already_built:
+
+    if slug not in already_built:
         version = project.versions.get(slug=slug)
         trigger_build(project=project, version=version, force=True)
         log.info("(Version build) Building %s:%s",
                  project.slug, version.slug)
         return slug
-    else:
-        log.info("(Version build) Not Building %s", slug)
-        return None
+
+    log.info("(Version build) Not Building %s", slug)
+    return None
 
 
 def build_branches(project, branch_list):
@@ -126,12 +128,9 @@ def _build_url(url, projects, branches):
     for project in projects:
         (built, not_building) = build_branches(project, branches)
         if not built:
-            # Call SyncRepositoryTask to update tag/branch info
+            # Call sync_repository_task to update tag/branch info
             version = project.versions.get(slug=LATEST)
-            sync_repository = SyncRepositoryTask()
-            sync_repository.apply_async(
-                args=(version.pk,),
-            )
+            sync_repository_task.delay(version.pk)
             msg = '(URL Build) Syncing versions for %s' % project.slug
             log.info(msg)
         all_built[project.slug] = built
@@ -305,16 +304,19 @@ def bitbucket_build(request):
             branches,
         )
         log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
+
         projects = get_project_from_url(search_url)
         if projects and branches:
             return _build_url(search_url, projects, branches)
-        elif not branches:
-            log.error(
+
+        if not branches:
+            log.info(
                 'Commit/branch not found url=%s branches=%s',
                 search_url,
                 branches,
             )
             return HttpResponseNotFound('Commit/branch not found')
+
         log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)

@@ -47,7 +47,7 @@ we will first look for a ``mkdocs.yml`` file in the root of your repository.
 If we don't find one,
 we will generate one for you.
 
-Then MkDocs will build any files with a ``.md`` extension within the directory specifed as ``docs_dir`` in the ``mkdocs.yml``. 
+Then MkDocs will build any files with a ``.md`` extension within the directory specified as ``docs_dir`` in the ``mkdocs.yml``. 
 
 If no ``mkdocs.yml`` was found in the root of your repository and we generated one for you, 
 Read the Docs will attempt to set ``docs_dir`` by sequentially searching for a  ``docs``, ``doc``, ``Doc``, or ``book`` directory. 
@@ -55,6 +55,12 @@ The first of these directories that exists and contains files with a ``.md`` ext
 and MkDocs will build the ``.md`` files in that directory. 
 As MkDocs doesn't support automatic PDF generation, 
 Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
+
+.. warning::
+
+   We strongly recommend to :ref:`pin the MkDocs version <guides/specifying-dependencies:Specifying Dependencies>`
+   used for your project to build the docs to avoid potential future incompatibilities.
+
 
 Understanding what's going on
 -----------------------------
@@ -186,7 +192,9 @@ Writing your own builder
 
 The documentation build system in RTD is made pluggable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
 
-The builders in :doc:`/developer-interface/doc_builder` detail the higher level parts of the API that you need to implement. A basic run goes something like this::
+`The builder backends`_ detail the higher level parts of the API that you need to implement. A basic run goes something like this:
+
+.. sourcecode:: python
 
     backend = get_backend(project.documentation_type)
     if force:
@@ -195,6 +203,8 @@ The builders in :doc:`/developer-interface/doc_builder` detail the higher level 
     backend.build(version)
     if success:
         backend.move(version)
+
+.. _The builder backends: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder/backends
 
 Deleting a stale or broken build environment
 --------------------------------------------

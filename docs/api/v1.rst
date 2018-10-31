@@ -70,7 +70,7 @@ Doc Search
     It returns data in the format of Elastic Search,
     which requires a bit of traversing to use.
 
-    In the future we might change the format of this endpoint to make it more abstact.
+    In the future we might change the format of this endpoint to make it more abstract.
 
     An example URL: https://readthedocs.org/api/v2/docsearch/?project=docs&version=latest&q=subdomains
 

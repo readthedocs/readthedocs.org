@@ -51,23 +51,26 @@ def get_filesystem(path, top_level_path=None):
     return fs
 
 
-class TempSiterootCase(object):
+TEMP_SITE_ROOT = os.path.realpath(tempfile.mkdtemp(suffix='siteroot'))
+TEMP_DOCROOT = os.path.join(TEMP_SITE_ROOT, 'user_builds')
 
-    """Override SITE_ROOT and patch necessary pieces to inspect symlink structure
 
-    This uses some patches and overidden settings to build out symlinking in a
+@override_settings(
+    SITE_ROOT=TEMP_SITE_ROOT,
+    DOCROOT=TEMP_DOCROOT,
+)
+class TempSiteRootTestCase(TestCase):
+
+    """
+    Override SITE_ROOT and patch necessary pieces to inspect symlink structure.
+
+    This uses some patches and overridden settings to build out symlinking in a
     temporary path.  Each test is therefore isolated, and cleanup will remove
     these paths after the test case wraps up.
-
-    And subclasses that implement :py:class:`TestCase` should also make use of
-    :py:func:`override_settings`.
     """
 
     def setUp(self):
         self.maxDiff = None
-        self.site_root = os.path.realpath(tempfile.mkdtemp(suffix='siteroot'))
-        settings.SITE_ROOT = self.site_root
-        settings.DOCROOT = os.path.join(settings.SITE_ROOT, 'user_builds')
         self.mocks = {
             'PublicSymlinkBase.CNAME_ROOT': mock.patch(
                 'readthedocs.core.symlink.PublicSymlinkBase.CNAME_ROOT',
@@ -115,16 +118,16 @@ class TempSiterootCase(object):
         )
 
     def tearDown(self):
-        shutil.rmtree(self.site_root)
+        shutil.rmtree(settings.SITE_ROOT)
 
     def assertFilesystem(self, filesystem):
         """
         Creates a nested dictionary that represents the folder structure of rootdir
         """
-        self.assertEqual(filesystem, get_filesystem(self.site_root))
+        self.assertEqual(filesystem, get_filesystem(settings.SITE_ROOT))
 
 
-class BaseSymlinkCnames(TempSiterootCase):
+class BaseSymlinkCnames(object):
 
     def setUp(self):
         super(BaseSymlinkCnames, self).setUp()
@@ -290,19 +293,17 @@ class BaseSymlinkCnames(TempSiterootCase):
         self.assertFilesystem(filesystem)
 
 
-@override_settings()
-class TestPublicSymlinkCnames(BaseSymlinkCnames, TestCase):
+class TestPublicSymlinkCnames(BaseSymlinkCnames, TempSiteRootTestCase):
     privacy = 'public'
     symlink_class = PublicSymlink
 
 
-@override_settings()
-class TestPrivateSymlinkCnames(BaseSymlinkCnames, TestCase):
+class TestPrivateSymlinkCnames(BaseSymlinkCnames, TempSiteRootTestCase):
     privacy = 'private'
     symlink_class = PrivateSymlink
 
 
-class BaseSubprojects(TempSiterootCase):
+class BaseSubprojects(object):
 
     def setUp(self):
         super(BaseSubprojects, self).setUp()
@@ -453,7 +454,7 @@ class BaseSubprojects(TempSiterootCase):
         self.assertFilesystem(filesystem)
 
     def test_remove_subprojects(self):
-        """Nonexistant subprojects are unlinked"""
+        """Nonexistent subprojects are unlinked"""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -503,19 +504,17 @@ class BaseSubprojects(TempSiterootCase):
         self.assertFilesystem(filesystem)
 
 
-@override_settings()
-class TestPublicSubprojects(BaseSubprojects, TestCase):
+class TestPublicSubprojects(BaseSubprojects, TempSiteRootTestCase):
     privacy = 'public'
     symlink_class = PublicSymlink
 
 
-@override_settings()
-class TestPrivateSubprojects(BaseSubprojects, TestCase):
+class TestPrivateSubprojects(BaseSubprojects, TempSiteRootTestCase):
     privacy = 'private'
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkTranslations(TempSiterootCase):
+class BaseSymlinkTranslations(object):
 
     def setUp(self):
         super(BaseSymlinkTranslations, self).setUp()
@@ -757,19 +756,17 @@ class BaseSymlinkTranslations(TempSiterootCase):
         self.assertFilesystem(filesystem)
 
 
-@override_settings()
-class TestPublicSymlinkTranslations(BaseSymlinkTranslations, TestCase):
+class TestPublicSymlinkTranslations(BaseSymlinkTranslations, TempSiteRootTestCase):
     privacy = 'public'
     symlink_class = PublicSymlink
 
 
-@override_settings()
-class TestPrivateSymlinkTranslations(BaseSymlinkTranslations, TestCase):
+class TestPrivateSymlinkTranslations(BaseSymlinkTranslations, TempSiteRootTestCase):
     privacy = 'private'
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkSingleVersion(TempSiterootCase):
+class BaseSymlinkSingleVersion(object):
 
     def setUp(self):
         super(BaseSymlinkSingleVersion, self).setUp()
@@ -834,19 +831,17 @@ class BaseSymlinkSingleVersion(TempSiterootCase):
         self.assertFilesystem(filesystem)
 
 
-@override_settings()
-class TestPublicSymlinkSingleVersion(BaseSymlinkSingleVersion, TestCase):
+class TestPublicSymlinkSingleVersion(BaseSymlinkSingleVersion, TempSiteRootTestCase):
     privacy = 'public'
     symlink_class = PublicSymlink
 
 
-@override_settings()
-class TestPublicSymlinkSingleVersion(BaseSymlinkSingleVersion, TestCase):
+class TestPublicSymlinkSingleVersion(BaseSymlinkSingleVersion, TempSiteRootTestCase):
     privacy = 'private'
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkVersions(TempSiterootCase):
+class BaseSymlinkVersions(object):
 
     def setUp(self):
         super(BaseSymlinkVersions, self).setUp()
@@ -962,20 +957,17 @@ class BaseSymlinkVersions(TempSiterootCase):
         self.assertFilesystem(filesystem)
 
 
-@override_settings()
-class TestPublicSymlinkVersions(BaseSymlinkVersions, TestCase):
+class TestPublicSymlinkVersions(BaseSymlinkVersions, TempSiteRootTestCase):
     privacy = 'public'
     symlink_class = PublicSymlink
 
 
-@override_settings()
-class TestPrivateSymlinkVersions(BaseSymlinkVersions, TestCase):
+class TestPrivateSymlinkVersions(BaseSymlinkVersions, TempSiteRootTestCase):
     privacy = 'private'
     symlink_class = PrivateSymlink
 
 
-@override_settings()
-class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
+class TestPublicSymlinkUnicode(TempSiteRootTestCase):
 
     def setUp(self):
         super(TestPublicSymlinkUnicode, self).setUp()
@@ -1040,8 +1032,7 @@ class TestPublicSymlinkUnicode(TempSiterootCase, TestCase):
             )
 
 
-@override_settings()
-class TestPublicPrivateSymlink(TempSiterootCase, TestCase):
+class TestPublicPrivateSymlink(TempSiteRootTestCase):
 
     def setUp(self):
         super(TestPublicPrivateSymlink, self).setUp()

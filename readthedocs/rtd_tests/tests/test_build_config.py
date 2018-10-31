@@ -74,7 +74,7 @@ def assertInvalidConfig(tmpdir, content, msgs=()):
     with pytest.raises(ValueError) as excinfo:
         validate_schema(file)
     for msg in msgs:
-        msg in str(excinfo.value)
+        assert msg in str(excinfo.value)
 
 
 def test_minimal_config(tmpdir):
@@ -250,16 +250,18 @@ def test_python_requirements(tmpdir):
     content = '''
 version: "2"
 python:
-  requirements: docs/requirements.txt
+  install:
+    - requirements: docs/requirements.txt
     '''
     assertValidConfig(tmpdir, content)
 
 
-def test_python_requirements_invalid(tmpdir):
+def test_python_install_requirements(tmpdir):
     content = '''
 version: "2"
 python:
-  requirements: 23
+  install:
+    - requirements: 23
     '''
     assertInvalidConfig(
         tmpdir,
@@ -268,22 +270,15 @@ python:
     )
 
 
-def test_python_requirements_null(tmpdir):
-    content = '''
-version: "2"
-python:
-  requirements: null
-    '''
-    assertValidConfig(tmpdir, content)
-
-
-@pytest.mark.parametrize('value', ['pip', 'setup.py'])
+@pytest.mark.parametrize('value', ['pip', 'setuptools'])
 def test_python_install(tmpdir, value):
     content = '''
 version: "2"
 python:
   version: "3.6"
-  install: {value}
+  install:
+    - path: .
+      method: {value}
     '''
     assertValidConfig(tmpdir, content.format(value=value))
 
@@ -297,7 +292,7 @@ python:
     assertInvalidConfig(
         tmpdir,
         content,
-        ["python.install: 'guido' not in"]
+        ["python.install: 'guido' is not a list"]
     )
 
 
@@ -310,30 +305,17 @@ python:
     assertValidConfig(tmpdir, content)
 
 
-def test_python_extra_requirements(tmpdir):
+def test_python_install_extra_requirements(tmpdir):
     content = '''
 version: "2"
 python:
-  extra_requirements:
-    - test
-    - dev
+  install:
+    - path: .
+      extra_requirements:
+        - test
+        - dev
     '''
     assertValidConfig(tmpdir, content)
-
-
-def test_python_extra_requirements_invalid(tmpdir):
-    content = '''
-version: "2"
-python:
-  extra_requirements:
-    - 1
-    - dev
-    '''
-    assertInvalidConfig(
-        tmpdir,
-        content,
-        ["'1' is not a str"]
-    )
 
 
 @pytest.mark.parametrize('value', ['', 'null', '[]'])
@@ -341,7 +323,9 @@ def test_python_extra_requirements_empty(tmpdir, value):
     content = '''
 version: "2"
 python:
-  extra_requirements: {value}
+  install:
+    - path: .
+      extra_requirements: {value}
     '''
     assertValidConfig(tmpdir, content.format(value=value))
 

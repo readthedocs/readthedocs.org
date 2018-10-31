@@ -1,0 +1,35 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2014-03-01 14:09+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Chinese (http://www.transifex.com/readthedocs/readthedocs-docs/language/zh/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../architecture.rst:2
+msgid "Architecture"
+msgstr ""
+
+#: ../../architecture.rst:4
+msgid ""
+"Read the Docs is architected to be highly available. A lot of projects host "
+"their documentation with us, so we have built the site so that it shouldn't "
+"go down. The load balancer is the only real single point of failure "
+"currently. This means mainly that if the network to the load balancer goes "
+"down, we have issues."
+msgstr ""
+
+#: ../../architecture.rst:7
+msgid "Diagram"
+msgstr ""

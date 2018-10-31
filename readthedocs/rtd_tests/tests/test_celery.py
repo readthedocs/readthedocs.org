@@ -76,8 +76,7 @@ class TestCeleryBuilding(RTDTestCase):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(
+            result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
@@ -94,8 +93,7 @@ class TestCeleryBuilding(RTDTestCase):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(
+            result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
@@ -112,8 +110,7 @@ class TestCeleryBuilding(RTDTestCase):
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
-            update_docs = tasks.UpdateDocsTask()
-            result = update_docs.delay(
+            result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
@@ -123,10 +120,7 @@ class TestCeleryBuilding(RTDTestCase):
     def test_sync_repository(self):
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
-            sync_repository = tasks.SyncRepositoryTask()
-            result = sync_repository.apply_async(
-                args=(version.pk,),
-            )
+            result = tasks.sync_repository_task.delay(version.pk)
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.api_v2')
@@ -185,21 +179,17 @@ class TestCeleryBuilding(RTDTestCase):
         """
         Test when a PublicTask rises an Exception.
 
-        The exception should be catched and added to the ``info`` attribute of
+        The exception should be caught and added to the ``info`` attribute of
         the result. Besides, the task should be SUCCESS.
         """
         from readthedocs.core.utils.tasks import PublicTask
         from readthedocs.worker import app
 
-        class PublicTaskException(PublicTask):
-            name = 'public_task_exception'
+        @app.task(name='public_task_exception', base=PublicTask)
+        def public_task_exception():
+            raise Exception('Something bad happened')
 
-            def run_public(self):
-                raise Exception('Something bad happened')
-
-        app.tasks.register(PublicTaskException)
-        exception_task = PublicTaskException()
-        result = exception_task.delay()
+        result = public_task_exception.delay()
 
         # although the task risen an exception, it's success since we add the
         # exception into the ``info`` attributes

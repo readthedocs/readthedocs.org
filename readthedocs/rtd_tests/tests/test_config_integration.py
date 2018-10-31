@@ -2,6 +2,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import tempfile
 from os import path
 
 import mock
@@ -12,13 +13,14 @@ from django_dynamic_fixture import get
 from mock import MagicMock, PropertyMock, patch
 
 from readthedocs.builds.models import Version
-from readthedocs.config import BuildConfigV1, InvalidConfig, ProjectConfig
+from readthedocs.config import ALL, BuildConfigV1, InvalidConfig, ProjectConfig
 from readthedocs.config.tests.utils import apply_fs
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Feature, Project
+from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
 
 
 def create_load(config=None):
@@ -53,7 +55,19 @@ def create_load(config=None):
     return inner
 
 
-@mock.patch('readthedocs.doc_builder.config.load_config')
+def create_config_file(config, file_name='readthedocs.yml', base_path=None):
+    """
+    Creates a readthedocs configuration file with name
+    ``file_name`` in ``base_path``. If ``base_path`` is not given
+    a temporal directory is created.
+    """
+    if not base_path:
+        base_path = tempfile.mkdtemp()
+    full_path = path.join(base_path, file_name)
+    yaml.safe_dump(config, open(full_path, 'w'))
+    return full_path
+
+
 class LoadConfigTests(TestCase):
 
     def setUp(self):
@@ -61,10 +75,10 @@ class LoadConfigTests(TestCase):
             Project,
             main_language_project=None,
             install_project=False,
-            requirements_file='__init__.py'
         )
         self.version = get(Version, project=self.project)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_default_image_1_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:1.0'
@@ -100,6 +114,7 @@ class LoadConfigTests(TestCase):
         ])
         self.assertEqual(config.python.version, 2)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_1_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:1.0'
@@ -108,6 +123,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.4])
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_2_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
@@ -116,6 +132,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.5])
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_latest(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:latest'
@@ -124,12 +141,14 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.get_valid_python_versions(),
                          [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.version, 2)
         self.assertEqual(config.python_interpreter, 'python2.7')
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_on_project(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
@@ -139,6 +158,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.version, 3)
         self.assertEqual(config.python_interpreter, 'python3.5')
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_in_config(self, load_config):
         load_config.side_effect = create_load({
             'python': {'version': 3.5},
@@ -149,6 +169,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.version, 3.5)
         self.assertEqual(config.python_interpreter, 'python3.5')
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_invalid_version_in_config(self, load_config):
         load_config.side_effect = create_load({
             'python': {'version': 2.6}
@@ -158,6 +179,7 @@ class LoadConfigTests(TestCase):
         with self.assertRaises(InvalidConfig):
             load_yaml_config(self.version)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_install_project(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
@@ -172,6 +194,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.install_with_setup, True)
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_extra_requirements(self, load_config):
         load_config.side_effect = create_load({
             'python': {
@@ -203,36 +226,71 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.extra_requirements, [])
 
-    def test_conda(self, load_config):
-        to_find = '__init__.py'
-        load_config.side_effect = create_load({
-            'conda': {
-                'file': to_find
-            }
-        })
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_conda_with_cofig(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
+        conda_file = 'environmemt.yml'
+        full_conda_file = path.join(base_path, conda_file)
+        with open(full_conda_file, 'w') as f:
+            f.write('conda')
+        create_config_file(
+            {
+                'conda': {
+                    'file': conda_file,
+                }
+            },
+            base_path=base_path,
+        )
         config = load_yaml_config(self.version)
         self.assertTrue(config.conda is not None)
-        self.assertTrue(config.conda.environment[-len(to_find):] == to_find)
+        self.assertEqual(config.conda.environment, full_conda_file)
 
-        load_config.side_effect = create_load()
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_conda_without_cofig(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
         config = load_yaml_config(self.version)
         self.assertIsNone(config.conda)
 
-    def test_requirements_file(self, load_config):
-        requirements_file = '__init__.py'
-        load_config.side_effect = create_load({
-            'requirements_file': requirements_file
-        })
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_requirements_file_from_project_setting(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
+
+        requirements_file = 'requirements.txt'
+        self.project.requirements_file = requirements_file
+        self.project.save()
+
+        full_requirements_file = path.join(base_path, requirements_file)
+        with open(full_requirements_file, 'w') as f:
+            f.write('pip')
+
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.requirements, requirements_file)
 
-        # Respects the requirements file from the project settings
-        load_config.side_effect = create_load()
+    @mock.patch('readthedocs.projects.models.Project.checkout_path')
+    def test_requirements_file_from_yml(self, checkout_path):
+        base_path = tempfile.mkdtemp()
+        checkout_path.return_value = base_path
+
+        self.project.requirements_file = 'no-existent-file.txt'
+        self.project.save()
+
+        requirements_file = 'requirements.txt'
+        full_requirements_file = path.join(base_path, requirements_file)
+        with open(full_requirements_file, 'w') as f:
+            f.write('pip')
+        create_config_file(
+            {
+                'requirements_file': requirements_file,
+            },
+            base_path=base_path,
+        )
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.requirements, '__init__.py')
+        self.assertEqual(config.python.requirements, requirements_file)
 
 
-@pytest.mark.skip
 @pytest.mark.django_db
 @mock.patch('readthedocs.projects.models.Project.checkout_path')
 class TestLoadConfigV2(object):
@@ -290,12 +348,10 @@ class TestLoadConfigV2(object):
 
     @pytest.mark.parametrize('config', [{}, {'formats': []}])
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
-    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_default_empty(
-            self, append_conf, html_build, search_build,
-            checkout_path, config, tmpdir):
+            self, append_conf, html_build, checkout_path, config, tmpdir):
         """
         The default value for formats is [], which means no extra
         formats are build.
@@ -304,22 +360,26 @@ class TestLoadConfigV2(object):
         self.create_config_file(tmpdir, config)
 
         update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=update_docs.config
+        )
+        update_docs.python_env = python_env
         outcomes = update_docs.build_docs()
 
         # No extra formats were triggered
         assert outcomes['html']
-        assert outcomes['search']
         assert not outcomes['localmedia']
         assert not outcomes['pdf']
         assert not outcomes['epub']
 
     @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
-    @patch('readthedocs.doc_builder.backends.sphinx.SearchBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_only_pdf(
-            self, append_conf, html_build, search_build, build_docs_class,
+            self, append_conf, html_build, build_docs_class,
             checkout_path, tmpdir):
         """
         Only the pdf format is build.
@@ -328,17 +388,22 @@ class TestLoadConfigV2(object):
         self.create_config_file(tmpdir, {'formats': ['pdf']})
 
         update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=update_docs.config
+        )
+        update_docs.python_env = python_env
+
         outcomes = update_docs.build_docs()
 
         # Only pdf extra format was triggered
         assert outcomes['html']
-        assert outcomes['search']
         build_docs_class.assert_called_with('sphinx_pdf')
         assert outcomes['pdf']
         assert not outcomes['localmedia']
         assert not outcomes['epub']
 
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.update_documentation_type', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock())
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock())
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.failed', new_callable=PropertyMock)
@@ -591,7 +656,7 @@ class TestLoadConfigV2(object):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {'sphinx': {'builder': value}})
 
-        self.project.documentation_type = 'mkdocs'
+        self.project.documentation_type = result
         self.project.save()
 
         update_docs = self.get_update_docs_task()
@@ -599,6 +664,8 @@ class TestLoadConfigV2(object):
 
         get_builder_class.assert_called_with(result)
 
+    @pytest.mark.skip(
+        'This test is not compatible with the new validation around doctype.')
     @patch('readthedocs.projects.tasks.get_builder_class')
     def test_sphinx_builder_default(
             self, get_builder_class, checkout_path, tmpdir):
@@ -612,6 +679,35 @@ class TestLoadConfigV2(object):
         update_docs.build_docs_html()
 
         get_builder_class.assert_called_with('sphinx')
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
+    def test_sphinx_configuration_default(
+            self, run, append_conf, move, checkout_path, tmpdir):
+        """Should be default to find a conf.py file."""
+        checkout_path.return_value = str(tmpdir)
+
+        apply_fs(tmpdir, {'conf.py': ''})
+        self.create_config_file(tmpdir, {})
+        self.project.conf_py_file = ''
+        self.project.save()
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+
+        update_docs.build_docs_html()
+
+        args, kwargs = run.call_args
+        assert kwargs['cwd'] == str(tmpdir)
+        append_conf.assert_called_once()
+        move.assert_called_once()
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.move')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
@@ -736,6 +832,8 @@ class TestLoadConfigV2(object):
                 },
             }
         )
+        self.project.documentation_type = 'mkdocs'
+        self.project.save()
 
         update_docs = self.get_update_docs_task()
         config = update_docs.config
@@ -774,6 +872,8 @@ class TestLoadConfigV2(object):
                 },
             }
         )
+        self.project.documentation_type = 'mkdocs'
+        self.project.save()
 
         update_docs = self.get_update_docs_task()
         config = update_docs.config
@@ -790,3 +890,104 @@ class TestLoadConfigV2(object):
         assert '--strict' in args
         append_conf.assert_called_once()
         move.assert_called_once()
+
+    @pytest.mark.parametrize('value,expected', [(ALL, ['one', 'two', 'three']),
+                                                (['one', 'two'], ['one', 'two'])])
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_include(self, checkout_submodules,
+                                checkout_path, tmpdir, value, expected):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'submodules': {
+                    'include': value,
+                },
+            }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        args, kwargs = checkout_submodules.call_args
+        assert set(args[0]) == set(expected)
+        assert update_docs.config.submodules.recursive is False
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_exclude(self, checkout_submodules,
+                                checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'submodules': {
+                    'exclude': ['one'],
+                    'recursive': True,
+                },
+            }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        args, kwargs = checkout_submodules.call_args
+        assert set(args[0]) == {'two', 'three'}
+        assert update_docs.config.submodules.recursive is True
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_exclude_all(self, checkout_submodules,
+                                    checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {
+                'submodules': {
+                    'exclude': ALL,
+                    'recursive': True,
+                },
+            }
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        checkout_submodules.assert_not_called()
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
+    def test_submodules_default_exclude_all(self, checkout_submodules,
+                                            checkout_path, tmpdir):
+
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(
+            tmpdir,
+            {}
+        )
+
+        git_repo = make_git_repo(str(tmpdir))
+        create_git_submodule(git_repo, 'one')
+        create_git_submodule(git_repo, 'two')
+        create_git_submodule(git_repo, 'three')
+
+        update_docs = self.get_update_docs_task()
+        checkout_path.return_value = git_repo
+        update_docs.additional_vcs_operations()
+
+        checkout_submodules.assert_not_called()

@@ -27,7 +27,7 @@ The file's path should be relative to documentation root.
 
     requirements_file: requirements.txt
 
-See :doc:`yaml-config` for setting up the .yml file
+See :doc:`/yaml-config` for setting up the .yml file
 
 Using the project admin dashboard
 ---------------------------------
@@ -43,7 +43,7 @@ Using a conda environment file
 
 If using conda, the dependencies can be specified in the conda environment file, ``environment.yml`` .
 
-More on Read the Doc's conda support: :doc:`conda`
+More on Read the Doc's conda support: :doc:`/conda`
 
 Working with `conda and environment.yml`_
 

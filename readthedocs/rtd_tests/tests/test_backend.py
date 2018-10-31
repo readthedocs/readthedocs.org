@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 from os.path import exists
 
+import django_dynamic_fixture as fixture
 import pytest
 from django.contrib.auth.models import User
-import django_dynamic_fixture as fixture
+from mock import Mock
 
+from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.base import RTDTestCase
-
-from readthedocs.rtd_tests.utils import create_git_tag, make_test_git, make_test_hg
+from readthedocs.rtd_tests.utils import (
+    create_git_tag, make_test_git, make_test_hg)
 
 
 class TestGitBackend(RTDTestCase):
@@ -28,6 +32,10 @@ class TestGitBackend(RTDTestCase):
             repo=git_repo
         )
         self.project.users.add(self.eric)
+        self.dummy_conf = Mock()
+        # These are the default values from v1
+        self.dummy_conf.submodules.include = ALL
+        self.dummy_conf.submodules.exclude = []
 
     def test_parse_branches(self):
         data = """
@@ -77,30 +85,32 @@ class TestGitBackend(RTDTestCase):
         repo = self.project.vcs_repo()
 
         repo.checkout()
-        self.assertFalse(repo.are_submodules_available())
+        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
         # The submodule branch contains one submodule
         repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available())
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
     def test_skip_submodule_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available())
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
         feature = fixture.get(
             Feature,
             projects=[self.project],
             feature_id=Feature.SKIP_SUBMODULES,
         )
         self.assertTrue(self.project.has_feature(Feature.SKIP_SUBMODULES))
-        self.assertFalse(repo.are_submodules_available())
+        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
     def test_check_submodule_urls(self):
         repo = self.project.vcs_repo()
         repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_valid())
+        valid, _ = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
         repo.checkout('relativesubmodule')
-        self.assertTrue(repo.are_submodules_valid())
+        valid, _ = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
 
     @pytest.mark.xfail(strict=True, reason="Fixture is not working correctly")
     def test_check_invalid_submodule_urls(self):

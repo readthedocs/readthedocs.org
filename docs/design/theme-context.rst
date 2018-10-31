@@ -112,7 +112,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
    so it's your responsibility to use this context in a proper way.
 
    In case you want *fresh data* at the moment of reading your documentation,
-   you should consider using the :doc:`Read the Docs Public API <api>` via Javascript.
+   you should consider using the :doc:`Read the Docs Public API </api/index>` via Javascript.
 
 
 Using Read the Docs context in your theme
