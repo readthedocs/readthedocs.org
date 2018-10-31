@@ -97,18 +97,6 @@ Next, install the dependencies using ``pip``
     pip install -r requirements.txt
 
 This may take a while, so go grab a beverage.
-
-.. note::
-
-    If you are having trouble on OS X Mavericks
-    (or possibly other versions of OS X) with building ``lxml``,
-    you probably might need to use Homebrew_ to ``brew install libxml2``,
-    and invoke the install with::
-    
-        CFLAGS=-I/usr/local/opt/libxml2/include/libxml2 \
-        LDFLAGS=-L/usr/local/opt/libxml2/lib \
-        pip install -r requirements.txt
-
 When it's done, build the database::
 
     python manage.py migrate
@@ -146,7 +134,7 @@ For builds to properly work as expected,
 it is necessary the port you're serving on
 (i.e. ``python manage.py runserver 0.0.0.0:8080``)
 match the port defined in ``PRODUCTION_DOMAIN``.
-You can utilize ``readthedocs/settings/local_settings.py`` to modify this
+You can use ``readthedocs/settings/local_settings.py`` to modify this
 (by default, it's ``localhost:8000``).
 
 While the web server is running,
@@ -167,23 +155,20 @@ What's available
 After registering with the site (or creating yourself a superuser account),
 you will be able to log in and view the `dashboard <http://localhost:8000/dashboard/>`_.
 
-.. note::
-
-    You can get the verification link from the console where you ran the server.
-
 Importing your docs
 ~~~~~~~~~~~~~~~~~~~
 
 One of the goals of readthedocs.org is to make it easy for any open source developer to get high quality hosted docs with great visibility!
 Simply provide us with the clone URL to your repo, we'll pull your code, extract your docs, and build them!
+
 We make available a post-commit webhook that can be configured to update the docs whenever you commit to your repo.
-See our :doc:`getting_started` page to learn more.
+See our :doc:`/intro/import-guide` page to learn more.
 
 Further steps
 -------------
 
 By now you can trigger builds on your local environment, 
-to encapsulete the build process inside a Docker container,
+to encapsulate the build process inside a Docker container,
 see :doc:`development/buildenvironments`.
 
 For building this documentation,
