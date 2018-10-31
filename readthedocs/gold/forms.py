@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
 from readthedocs.projects.models import Project
 
-from readthedocs.projects.models import Project
 from .models import LEVEL_CHOICES, GoldUser
 
 
@@ -85,10 +84,10 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 class GoldProjectForm(forms.Form):
     project = forms.ChoiceField(
         required=True,
-        help_text = 'Select a project.'
+        help_text='Select a project.'
     )
 
-    def __init__(self, active_user=None, *args, **kwargs):
+    def __init__(self, active_user, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.projects = kwargs.pop('projects', None)
         super(GoldProjectForm, self).__init__(*args, **kwargs)
