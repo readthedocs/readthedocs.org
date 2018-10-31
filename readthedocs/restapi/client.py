@@ -10,9 +10,7 @@ import logging
 import requests
 from django.conf import settings
 from requests_toolbelt.adapters import host_header_ssl
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
-from slumber import API, serialize
+from slumber import API
 
 log = logging.getLogger(__name__)
 
@@ -20,19 +18,6 @@ PRODUCTION_DOMAIN = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
 API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org')
 USER = getattr(settings, 'SLUMBER_USERNAME', None)
 PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
-
-
-class DrfJsonSerializer(serialize.JsonSerializer):
-
-    """Additional serialization help from the DRF parser/renderer."""
-
-    key = 'json-drf'
-
-    def loads(self, data):
-        return JSONParser().parse(data)
-
-    def dumps(self, data):
-        return JSONRenderer().render(data)
 
 
 def setup_api():
@@ -50,13 +35,6 @@ def setup_api():
     session.headers.update({'Host': PRODUCTION_DOMAIN})
     api_config = {
         'base_url': '%s/api/v2/' % API_HOST,
-        'serializer': serialize.Serializer(
-            default='json-drf',
-            serializers=[
-                serialize.JsonSerializer(),
-                DrfJsonSerializer(),
-            ],
-        ),
         'session': session,
     }
     if USER and PASS:
