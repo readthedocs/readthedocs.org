@@ -118,13 +118,30 @@ We hope that others will join us in this mission:
 
 .. _massive downsides: http://idlewords.com/talks/what_happens_next_will_amaze_you.htm
 
+
 Community Ads
 -------------
 
-There are a large number of projects that we care about in the software ecosystem. A large number of them operate like we have for the past 6 years, with almost no income. Our new Community Ads program will highlight some of these projects each month.
+There are a large number of projects, conferences, and initiatives
+that we care about in the software and open source ecosystems.
+A large number of them operate like we did in the past, with almost no income.
+Our new Community Ads program will highlight some of these projects each month.
 
-We'll show 10% of our ad inventory each month to support an open source project that we care about.
+There are a few qualifications for our Community Ads program:
+
+- Your organization and the linked site should not be trying to entice
+  visitors to buy a product or service.
+  We make an exception for conferences around open source projects
+  if they are run not for profit and soliciting donations for open source projects.
+- A software project should have an `OSI approved license`_.
+- We will not run a community ad for an organization tied
+  to one of our paid advertisers.
+
+We'll show 10% of our ad inventory each month to support initiatives that we care about.
 `Send us an email <mailto:rev@readthedocs.org>`_ to be considered for our Community Ads program.
+
+.. _OSI approved license: https://opensource.org/licenses
+
 
 Opting Out
 ----------
@@ -140,7 +157,8 @@ Users can opt out of seeing paid advertisements on documentation pages:
 * Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking **Settings** (https://readthedocs.org/accounts/edit/).
 * On the **Advertising** tab, you can deselect **See paid advertising**.
 
-Project owners can also disable advertisements for their projects. You can change these options:
+Project owners can also opt out of paid advertisements for their projects.
+You can change these options:
 
 * Click on your **Project** page (`/projects/<slug>/`)
 * Click the  **Admin** dashboard link 
@@ -149,7 +167,8 @@ Project owners can also disable advertisements for their projects. You can chang
 
 Project opt out options include:
 
-* Supporting us `financially <https://readthedocs.org/accounts/gold/subscription/?>`_ with Read the Docs Gold. This will disable all ads from showing on your project's documentation.
+* Supporting us `financially <https://readthedocs.org/accounts/gold/subscription/>`_ by becoming a Gold Member.
+  This will disable all ads from showing on your project's documentation.
 * Supporting us with `your time <http://docs.readthedocs.org/en/latest/contribute.html?>`_ by contributing to the project.
 * Moving to our `paid product <https://readthedocs.com/pricing/?>`_ over at readthedocs.com.
 * Opting out without doing any of the above. This will make us a little sad, but we understand not everyone has the means to contribute back.

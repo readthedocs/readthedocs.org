@@ -168,6 +168,8 @@ Version list
     :>json array results: Array of ``Version`` objects.
 
     :query string project__slug: Narrow to the versions for a specific ``Project``
+    :query boolean active: Pass ``true`` or ``false`` to show only active or inactive versions.
+        By default, the API returns all versions.
 
 .. _api-version-detail:
 
@@ -251,6 +253,7 @@ Build list
     :>json array results: Array of ``Build`` objects.
 
     :query string project__slug: Narrow to builds for a specific ``Project``
+    :query string commit: Narrow to builds for a specific ``commit``
 
 Build detail
 ++++++++++++

@@ -16,40 +16,32 @@ from django.template import loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
 
-def get_absolute_media_url():
+def get_absolute_static_url():
     """
-    Get the fully qualified media URL from settings.
+    Get the fully qualified static URL from settings.
 
-    Mkdocs needs a full domain because it tries to link to local media files.
+    Mkdocs needs a full domain because it tries to link to local files.
     """
-    media_url = settings.MEDIA_URL
+    static_url = settings.STATIC_URL
 
-    if not media_url.startswith('http'):
+    if not static_url.startswith('http'):
         domain = getattr(settings, 'PRODUCTION_DOMAIN')
-        media_url = 'http://{}{}'.format(domain, media_url)
+        static_url = 'http://{}{}'.format(domain, static_url)
 
-    return media_url
+    return static_url
 
 
 class BaseMkdocs(BaseBuilder):
 
     """Mkdocs builder."""
 
-    use_theme = True
-
-    # The default theme for mkdocs (outside of RTD) is the 'mkdocs' theme
-    # For RTD, our default is the 'readthedocs' theme
-    READTHEDOCS_THEME_NAME = 'readthedocs'
-
-    # Overrides for the 'readthedocs' theme that include
-    # search utilities and version selector
-    READTHEDOCS_TEMPLATE_OVERRIDE_DIR = (
-        '%s/readthedocs/templates/mkdocs/readthedocs' % settings.SITE_ROOT
-    )
+    # The default theme for mkdocs is the 'mkdocs' theme
+    DEFAULT_THEME_NAME = 'mkdocs'
 
     def __init__(self, *args, **kwargs):
         super(BaseMkdocs, self).__init__(*args, **kwargs)
@@ -59,16 +51,34 @@ class BaseMkdocs(BaseBuilder):
         self.root_path = self.version.project.checkout_path(self.version.slug)
         self.yaml_file = self.get_yaml_config()
 
+        # README: historically, the default theme was ``readthedocs`` but in
+        # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
+        # ``mkdocs`` to maintain the same behavior in Read the Docs than
+        # building locally. Although, we can't apply this into the Corporate
+        # site. To keep the same default theme there, we created a Feature flag
+        # for these project that were building with MkDocs in the Corporate
+        # site.
+        if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
+            self.DEFAULT_THEME_NAME = 'readthedocs'
+            log.warning(
+                'Project using readthedocs theme as default for MkDocs: slug=%s',
+                self.project.slug,
+            )
+        else:
+            self.DEFAULT_THEME_NAME = 'mkdocs'
+
+
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
-        # TODO: try to load from the configuration file first.
-        test_path = os.path.join(
-            self.project.checkout_path(self.version.slug),
-            'mkdocs.yml'
-        )
-        if os.path.exists(test_path):
-            return test_path
-        return None
+        mkdoc_path = self.config.mkdocs.configuration
+        if not mkdoc_path:
+            mkdoc_path = os.path.join(
+                self.project.checkout_path(self.version.slug),
+                'mkdocs.yml'
+            )
+            if not os.path.exists(mkdoc_path):
+                return None
+        return mkdoc_path
 
     def load_yaml_config(self):
         """
@@ -108,22 +118,27 @@ class BaseMkdocs(BaseBuilder):
         user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
-        media_url = get_absolute_media_url()
+        static_url = get_absolute_static_url()
         user_config.setdefault('extra_javascript', []).extend([
             'readthedocs-data.js',
-            '%sstatic/core/js/readthedocs-doc-embed.js' % media_url,
-            '%sjavascript/readthedocs-analytics.js' % media_url,
+            '%score/js/readthedocs-doc-embed.js' % static_url,
+            '%sjavascript/readthedocs-analytics.js' % static_url,
         ])
         user_config.setdefault('extra_css', []).extend([
-            '%scss/badge_only.css' % media_url,
-            '%scss/readthedocs-doc-embed.css' % media_url,
+            '%scss/badge_only.css' % static_url,
+            '%scss/readthedocs-doc-embed.css' % static_url,
         ])
 
-        docs_path = os.path.join(self.root_path, docs_dir)
+        # The docs path is relative to the location
+        # of the mkdocs configuration file.
+        docs_path = os.path.join(
+            os.path.dirname(self.yaml_file),
+            docs_dir
+        )
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
-            docs_dir=docs_dir,
+            docs_dir=os.path.relpath(docs_path, self.root_path),
             mkdocs_config=user_config
         )
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
@@ -133,10 +148,12 @@ class BaseMkdocs(BaseBuilder):
         # This supports using RTD's privacy improvements around analytics
         user_config['google_analytics'] = None
 
-        # If using the readthedocs theme, apply the readthedocs.org overrides
-        # These use a global readthedocs search
-        # and customize the version selector.
-        self.apply_theme_override(user_config)
+        # README: make MkDocs to use ``readthedocs`` theme as default if the
+        # user didn't specify a specific theme manually
+        if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
+            if 'theme' not in user_config:
+                # mkdocs<0.17 syntax
+                user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
         yaml.safe_dump(
@@ -198,8 +215,8 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir', self.build_dir,
             '--config-file', self.yaml_file,
         ]
-        if self.use_theme:
-            build_command.extend(['--theme', 'readthedocs'])
+        if self.config.mkdocs.fail_on_warning:
+            build_command.append('--strict')
         cmd_ret = self.run(
             *build_command,
             cwd=checkout_path,
@@ -220,7 +237,7 @@ class BaseMkdocs(BaseBuilder):
         theme_setting = mkdocs_config.get('theme')
         if isinstance(theme_setting, dict):
             # Full nested theme config (the new configuration)
-            return theme_setting.get('name') or self.READTHEDOCS_THEME_NAME
+            return theme_setting.get('name') or self.DEFAULT_THEME_NAME
 
         if theme_setting:
             # A string which is the name of the theme
@@ -231,27 +248,7 @@ class BaseMkdocs(BaseBuilder):
             # Use the name of the directory in this project's custom theme directory
             return theme_dir.rstrip('/').split('/')[-1]
 
-        return self.READTHEDOCS_THEME_NAME
-
-    def apply_theme_override(self, mkdocs_config):
-        """
-        Apply theme overrides for the RTD theme (modifies the ``mkdocs_config`` parameter)
-
-        In v0.17.0, the theme configuration switched
-        from two separate configs (both optional) to a nested directive.
-        How to override the theme depends on whether the new or old configuration
-        is used.
-
-        :see: http://www.mkdocs.org/about/release-notes/#theme-customization-1164
-        """
-        if self.get_theme_name(mkdocs_config) == self.READTHEDOCS_THEME_NAME:
-            # Overriding the theme is only necessary
-            # if the 'readthedocs' theme is used.
-            theme_setting = mkdocs_config.get('theme')
-            if isinstance(theme_setting, dict):
-                theme_setting['custom_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
-            else:
-                mkdocs_config['theme_dir'] = self.READTHEDOCS_TEMPLATE_OVERRIDE_DIR
+        return self.DEFAULT_THEME_NAME
 
 
 class MkdocsHTML(BaseMkdocs):
@@ -264,4 +261,3 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
-    use_theme = False

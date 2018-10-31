@@ -7,12 +7,23 @@
 var constants = require('./constants');
 
 var configMethods = {
-    is_rtd_theme: function () {
-        return this.get_theme_name() === constants.THEME_RTD;
+    is_rtd_like_theme: function () {
+        // Returns true for the Read the Docs theme on both sphinx and mkdocs
+        if ($('div.rst-other-versions').length === 1) {
+            // Crappy heuristic, but people change the theme name
+            // So we have to do some duck typing.
+            return true;
+        }
+        return this.theme === constants.THEME_RTD || this.theme === constants.THEME_MKDOCS_RTD;
+    },
+
+    is_alabaster_like_theme: function () {
+        // Returns true for Alabaster-like themes (eg. flask, celery)
+        return constants.ALABASTER_LIKE_THEMES.indexOf(this.get_theme_name()) > -1;
     },
 
     theme_supports_promo: function () {
-        return constants.PROMO_SUPPORTED_THEMES.indexOf(this.get_theme_name()) > -1;
+        return this.is_rtd_like_theme() || this.is_alabaster_like_theme();
     },
 
     is_sphinx_builder: function () {
@@ -20,20 +31,10 @@ var configMethods = {
     },
 
     is_mkdocs_builder: function () {
-        return (!('builder' in this) || this.builder === 'mkdocs');
+        return ('builder' in this && this.builder === 'mkdocs');
     },
 
     get_theme_name: function () {
-        // Crappy heuristic, but people change the theme name on us.  So we have to
-        // do some duck typing.
-        if (this.theme !== constants.THEME_RTD) {
-            if (this.theme === constants.THEME_MKDOCS_RTD) {
-                return constants.THEME_RTD;
-            }
-            if ($('div.rst-other-versions').length === 1) {
-                return constants.THEME_RTD;
-            }
-        }
         return this.theme;
     },
 

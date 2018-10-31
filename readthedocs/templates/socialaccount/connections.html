@@ -13,7 +13,7 @@
   <div class="module connected-services">
     <div class="module-wrapper">
       <p>
-        {% blocktrans %}
+        {% blocktrans trimmed %}
           The following services are currently connected to your account:
         {% endblocktrans %}
       </p>
@@ -47,7 +47,7 @@
 
                   {% if base_account.provider == 'bitbucket' %}
                     <p class="help error">
-                      {% blocktrans %}
+                      {% blocktrans trimmed %}
                         The API version this connection uses is no longer
                         supported, please reconnect your Bitbucket account.
                       {% endblocktrans %}

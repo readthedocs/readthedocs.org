@@ -2,7 +2,11 @@
 """Project forms."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 from random import choice
 
@@ -23,9 +27,16 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
-    Domain, EmailHook, Feature, Project, ProjectRelationship, WebHook)
+    Domain,
+    EmailHook,
+    Feature,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from readthedocs.redirects.models import Redirect
 
 
@@ -118,6 +129,12 @@ class ProjectBasicsForm(ProjectForm):
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
+            if not potential_slug:
+                # Check the generated slug won't be empty
+                raise forms.ValidationError(
+                    _('Invalid project name'),
+                )
+
         return name
 
     def clean_remote_repository(self):
@@ -202,6 +219,24 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             # 'num_major', 'num_minor', 'num_point',
         )
 
+    def __init__(self, *args, **kwargs):
+        super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+
+        default_choice = (None, '-' * 9)
+        all_versions = self.instance.versions.values_list(
+            'slug', 'verbose_name'
+        )
+        self.fields['default_branch'].widget = forms.Select(
+            choices=[default_choice] + list(all_versions)
+        )
+
+        active_versions = self.instance.all_active_versions().values_list(
+            'slug', 'verbose_name'
+        )
+        self.fields['default_version'].widget = forms.Select(
+            choices=active_versions
+        )
+
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
         if filename and 'conf.py' not in filename:
@@ -268,7 +303,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
 
     class Meta(object):
         model = ProjectRelationship
-        exclude = []
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
@@ -323,8 +358,8 @@ class DualCheckboxWidget(forms.CheckboxInput):
         super(DualCheckboxWidget, self).__init__(attrs, check_test)
         self.version = version
 
-    def render(self, name, value, attrs=None):
-        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs, renderer)
         icon = self.render_icon()
         return mark_safe('{}{}'.format(checkbox, icon))
 
@@ -626,7 +661,7 @@ class RedirectForm(forms.ModelForm):
         return redirect
 
 
-class DomainForm(forms.ModelForm):
+class DomainBaseForm(forms.ModelForm):
 
     """Form to configure a custom domain name for a project."""
 
@@ -634,11 +669,11 @@ class DomainForm(forms.ModelForm):
 
     class Meta(object):
         model = Domain
-        exclude = ['machine', 'cname', 'count', 'https']
+        exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(DomainForm, self).__init__(*args, **kwargs)
+        super(DomainBaseForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project
@@ -662,6 +697,10 @@ class DomainForm(forms.ModelForm):
         return canonical
 
 
+class DomainForm(SettingsOverrideObject):
+    _default_class = DomainBaseForm
+
+
 class IntegrationForm(forms.ModelForm):
 
     """
@@ -674,7 +713,7 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta(object):
         model = Integration
-        exclude = ['provider_data', 'exchanges']
+        exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

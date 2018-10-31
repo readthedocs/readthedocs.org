@@ -177,7 +177,7 @@ class PublicProjectMixin(ProjectMixin):
     response_data = {
         # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
-        '/projects/pip/badge/': {'status_code': 302},
+        '/projects/pip/badge/': {'status_code': 200},
     }
 
     def test_public_urls(self):

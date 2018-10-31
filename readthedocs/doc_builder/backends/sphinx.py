@@ -41,9 +41,14 @@ class BaseSphinx(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super(BaseSphinx, self).__init__(*args, **kwargs)
+        self.config_file = self.config.sphinx.configuration
         try:
+            if not self.config_file:
+                self.config_file = self.project.conf_file(self.version.slug)
             self.old_artifact_path = os.path.join(
-                self.project.conf_dir(self.version.slug), self.sphinx_build_dir)
+                os.path.dirname(self.config_file),
+                self.sphinx_build_dir
+            )
         except ProjectConfigurationError:
             docs_dir = self.docs_dir()
             self.old_artifact_path = os.path.join(
@@ -69,7 +74,12 @@ class BaseSphinx(BaseBuilder):
         # TODO this should be handled better in the theme
         conf_py_path = os.path.join(
             os.path.sep,
-            self.version.get_conf_py_path(),
+            os.path.dirname(
+                os.path.relpath(
+                    self.config_file,
+                    self.project.checkout_path(self.version.slug)
+                )
+            ),
             '',
         )
         remote_version = self.version.commit_name
@@ -136,9 +146,6 @@ class BaseSphinx(BaseBuilder):
             'display_gitlab': display_gitlab,
 
             # Features
-            'generate_json_artifacts': self.project.has_feature(
-                Feature.BUILD_JSON_ARTIFACTS_WITH_HTML
-            ),
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT
             ),
@@ -154,22 +161,23 @@ class BaseSphinx(BaseBuilder):
 
     def append_conf(self, **__):
         """Find or create a ``conf.py`` with a rendered ``doc_builder/conf.py.tmpl`` appended"""
-        try:
-            self.version.get_conf_py_path()
-        except ProjectConfigurationError:
+        if self.config_file is None:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
         try:
-            outfile_path = self.project.conf_file(self.version.slug)
-            outfile = codecs.open(outfile_path, encoding='utf-8', mode='a')
+            self.config_file = (
+                self.config_file or
+                self.project.conf_file(self.version.slug)
+            )
+            outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
             six.reraise(
+                ProjectConfigurationError,
                 ProjectConfigurationError(
                     ProjectConfigurationError.NOT_FOUND
                 ),
-                None,
                 trace
             )
 
@@ -186,7 +194,7 @@ class BaseSphinx(BaseBuilder):
         self.run(
             'cat',
             os.path.relpath(
-                outfile_path,
+                self.config_file,
                 self.project.checkout_path(self.version.slug),
             ),
             cwd=self.project.checkout_path(self.version.slug),
@@ -202,6 +210,8 @@ class BaseSphinx(BaseBuilder):
         ]
         if self._force:
             build_command.append('-E')
+        if self.config.sphinx.fail_on_warning:
+            build_command.append('-W')
         build_command.extend([
             '-b',
             self.sphinx_builder,
@@ -213,8 +223,10 @@ class BaseSphinx(BaseBuilder):
             self.sphinx_build_dir,
         ])
         cmd_ret = self.run(
-            *build_command, cwd=project.conf_dir(self.version.slug),
-            bin_path=self.python_env.venv_bin())
+            *build_command,
+            cwd=os.path.dirname(self.config_file),
+            bin_path=self.python_env.venv_bin()
+        )
         return cmd_ret.successful
 
 
@@ -228,27 +240,26 @@ class HtmlBuilder(BaseSphinx):
 
     def move(self, **__):
         super(HtmlBuilder, self).move()
-        if self.project.has_feature(Feature.BUILD_JSON_ARTIFACTS_WITH_HTML):
-            # Copy json artifacts to its own directory
-            # to keep compatibility with the older builder.
-            json_path = os.path.abspath(
-                os.path.join(self.old_artifact_path, '..', 'json')
+        # Copy JSON artifacts to its own directory
+        # to keep compatibility with the older builder.
+        json_path = os.path.abspath(
+            os.path.join(self.old_artifact_path, '..', 'json')
+        )
+        json_path_target = self.project.artifact_path(
+            version=self.version.slug, type_='sphinx_search'
+        )
+        if os.path.exists(json_path):
+            if os.path.exists(json_path_target):
+                shutil.rmtree(json_path_target)
+            log.info('Copying json on the local filesystem')
+            shutil.copytree(
+                json_path,
+                json_path_target
             )
-            json_path_target = self.project.artifact_path(
-                version=self.version.slug, type_='sphinx_search'
+        else:
+            log.warning(
+                'Not moving json because the build dir is unknown.'
             )
-            if os.path.exists(json_path):
-                if os.path.exists(json_path_target):
-                    shutil.rmtree(json_path_target)
-                log.info('Copying json on the local filesystem')
-                shutil.copytree(
-                    json_path,
-                    json_path_target
-                )
-            else:
-                log.warning(
-                    'Not moving json because the build dir is unknown.'
-                )
 
 
 class HtmlDirBuilder(HtmlBuilder):
@@ -265,13 +276,6 @@ class SingleHtmlBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super(SingleHtmlBuilder, self).__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
-
-
-class SearchBuilder(BaseSphinx):
-    type = 'sphinx_search'
-    sphinx_builder = 'json'
-    sphinx_build_dir = '_build/json'
-    ignore_patterns = ['_static']
 
 
 class LocalMediaBuilder(BaseSphinx):
@@ -321,7 +325,13 @@ class EpubBuilder(BaseSphinx):
                 self.target,
                 '{}.epub'.format(self.project.slug),
             )
-            self.run('mv', '-f', from_file, to_file)
+            self.run(
+                'mv',
+                '-f',
+                from_file,
+                to_file,
+                cwd=self.project.checkout_path(self.version.slug),
+            )
 
 
 class LatexBuildCommand(BuildCommand):
@@ -358,7 +368,7 @@ class PdfBuilder(BaseSphinx):
 
     def build(self):
         self.clean()
-        cwd = self.project.conf_dir(self.version.slug)
+        cwd = os.path.dirname(self.config_file)
 
         # Default to this so we can return it always.
         self.run(
@@ -440,4 +450,10 @@ class PdfBuilder(BaseSphinx):
         if from_file:
             to_file = os.path.join(
                 self.target, '{}.pdf'.format(self.project.slug))
-            self.run('mv', '-f', from_file, to_file)
+            self.run(
+                'mv',
+                '-f',
+                from_file,
+                to_file,
+                cwd=self.project.checkout_path(self.version.slug),
+            )

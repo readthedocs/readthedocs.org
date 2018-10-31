@@ -1,16 +1,22 @@
 -r pip.txt
 
 django-dynamic-fixture==2.0.0
-
-# 3.6.1 and >3.2.5 is incompatible
-# with pytest-describe 0.11.0
-pytest==3.2.5
-pytest-django==3.1.2
-pytest-describe==0.11.0
-pytest-xdist==1.22.0
-apipkg==1.4
+pytest==3.7.4
+pytest-django==3.4.2
+pytest-describe==0.11.1
+pytest-xdist==1.23.0
+pytest-cov
+apipkg==1.5
 execnet==1.5.0
+
+# Mercurial 4.3 and newer require Python 2.7
+# Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
+# some commands work on Python 3. However, Python 3 is not yet a
+# supported platform.
+# mercurial-scm.org/wiki/SupportedPythonVersions
+# (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2
+
 yamale==1.7.0
 pytest-mock==1.10.0
 

@@ -4,13 +4,11 @@ from datetime import datetime, timedelta
 from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib.messages import constants as message_const
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
-from django_dynamic_fixture import get
-from django_dynamic_fixture import new
+from django_dynamic_fixture import get, new
 
 import six
 
@@ -424,10 +422,6 @@ class TestPrivateMixins(MockBuildTestCase):
 class TestBadges(TestCase):
     """Test a static badge asset is served for each build."""
 
-    # To set `flat` as default style as done in code.
-    def get_badge_path(self, version, style='flat'):
-        return static(self.BADGE_PATH % (version, style))
-
     def setUp(self):
         self.BADGE_PATH = 'projects/badges/%s-%s.svg'
         self.project = get(Project, slug='badgey')
@@ -436,32 +430,39 @@ class TestBadges(TestCase):
 
     def test_unknown_badge(self):
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = self.get_badge_path('unknown')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'unknown')
+
+        # Unknown project
+        unknown_project_url = reverse('project_badge', args=['fake-project'])
+        res = self.client.get(unknown_project_url, {'version': 'latest'})
+        self.assertContains(res, 'unknown')
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = self.get_badge_path('passing')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'passing')
+        self.assertEqual(res['Content-Type'], 'image/svg+xml')
 
     def test_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = self.get_badge_path('failing')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'failing')
 
     def test_plastic_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
         res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'plastic'})
-        static_badge = self.get_badge_path('failing', 'plastic')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'failing')
+
+        # The plastic badge has slightly more rounding
+        self.assertContains(res, 'rx="4"')
 
     def test_social_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug , 'style': 'social'})
-        static_badge = self.get_badge_path('passing', 'social')
-        self.assertEquals(res.url, static_badge)
+        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'social'})
+        self.assertContains(res, 'passing')
+
+        # The social badge (but not the other badges) has this element
+        self.assertContains(res, 'rlink')
 
 
 class TestTags(TestCase):

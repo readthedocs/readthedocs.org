@@ -1,11 +1,9 @@
 -r pip.txt
-psycopg2==2.7.3.2
-gunicorn==19.1.0
-pysolr==2.0.13
-django-redis-cache==1.6.3
-django-mailgun==0.2.2
-
-hiredis==0.1.2
+# http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
+psycopg2==2.7.5 --no-binary psycopg2
+gunicorn==19.9.0
+pysolr==3.7.0
+django-redis-cache==1.7.1
 
 #For resizing images
 pillow

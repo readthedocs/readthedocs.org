@@ -20,7 +20,6 @@ BUILDER_BY_NAME = {
     # Other Sphinx Builders
     'sphinx_pdf': sphinx.PdfBuilder,
     'sphinx_epub': sphinx.EpubBuilder,
-    'sphinx_search': sphinx.SearchBuilder,
     'sphinx_singlehtmllocalmedia': sphinx.LocalMediaBuilder,
     # Other markup
     'mkdocs': mkdocs.MkdocsHTML,

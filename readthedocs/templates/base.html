@@ -10,7 +10,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   {% block extra_metas %}{% endblock extra_metas %}
 
-  <link rel="icon" type="image/png" href="{{ MEDIA_URL }}images/favicon.png">
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 
   <!-- title -->
   <title>{% block title %}{% endblock %}{% block head_title %}{% endblock %} | {% block branding %}Read the Docs {% endblock %}</title>
@@ -47,7 +47,7 @@
   <!-- End Google Analytics -->
 
   <!-- css -->
-  <link rel="stylesheet" href="{{ MEDIA_URL }}css/core.css">
+  <link rel="stylesheet" href="{% static 'css/core.css' %}">
   {% block extra_links %}{% endblock %}
 
   <!-- jquery -->
@@ -58,7 +58,7 @@
     require('jquery');
   </script>
 
-  <script src="{{ MEDIA_URL }}javascript/base.js"></script>
+  <script src="{% static 'javascript/base.js' %}"></script>
   <script src="{% static 'core/js/site.js' %}"></script>
   <script>
     var site = require('core/site');
@@ -187,6 +187,9 @@
             <li>
               <a href="https://docs.readthedocs.io/en/latest/privacy-policy.html">{% trans 'Privacy Policy' %}</a>
             </li>
+            <li>
+              <a href="https://read-the-docs-guidelines.readthedocs-hosted.com/">{% trans 'Branding' %}</a>
+            </li>
           </ul>
         </div>
 
@@ -202,6 +205,8 @@
         <div class="clearfix"></div>
 
         <div class="footer-bottom">
+          <hr>
+
           <div class="column-copyright">
             <p>
               <small>&copy; Copyright {% now "Y" %}, {% trans 'Read the Docs, Inc & contributors' %}</small>
@@ -231,9 +236,45 @@
               </form>
             </div>
           {% endblock language-select-form %}
+
         </div>
 
-        {% endblock %}
+          <div class="clearfix"></div>
+
+          <div class="sponsors">
+            <a class="sponsor" href="https://azure.microsoft.com" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/azure.png' %}" alt="Microsoft Azure" class="sponsor-image">
+              <div class="sponsor-name">Microsoft Azure</div>
+              <div class="sponsor-description">Cloud Computing</div>
+            </a>
+            <a class="sponsor" href="https://cloudflare.com" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/cloudflare.png' %}" alt="CloudFlare" class="sponsor-image">
+              <div class="sponsor-name">Cloudflare</div>
+              <div class="sponsor-description">DNS &amp; SSL</div>
+            </a>
+            <a class="sponsor" href="https://sentry.io/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/sentry.png' %}" alt="Sentry" class="sponsor-image">
+              <div class="sponsor-name">Sentry</div>
+              <div class="sponsor-description">Monitoring</div>
+            </a>
+            <a class="sponsor" href="https://www.elastic.co/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/elastic.png' %}" alt="Elastic" class="sponsor-image">
+              <div class="sponsor-name">Elastic</div>
+              <div class="sponsor-description">Search</div>
+            </a>
+            <a class="sponsor" href="https://newrelic.com/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/newrelic.png' %}" alt="New Relic" class="sponsor-image">
+              <div class="sponsor-name">New Relic</div>
+              <div class="sponsor-description">Performance</div>
+            </a>
+            <a class="sponsor" href="https://www.pagerduty.com/" rel="noopener" target="_blank">
+              <img src="{% static 'images/sponsors/pagerduty.png' %}" alt="PagerDuty" class="sponsor-image">
+              <div class="sponsor-name">PagerDuty</div>
+              <div class="sponsor-description">Monitoring</div>
+            </a>
+          </div>
+
+        {% endblock footer-content %}
 
       </div>
     </div>

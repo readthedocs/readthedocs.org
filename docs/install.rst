@@ -151,4 +151,4 @@ Importing your docs
 One of the goals of readthedocs.org is to make it easy for any open source developer to get high quality hosted docs with great visibility!
 Simply provide us with the clone URL to your repo, we'll pull your code, extract your docs, and build them!
 We make available a post-commit webhook that can be configured to update the docs whenever you commit to your repo.
-See our :doc:`getting_started` page to learn more.
+See :doc:`/intro/import-guide` to learn more.

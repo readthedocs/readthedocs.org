@@ -1,28 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
 "PO-Revision-Date: 2014-03-02 13:43+0000\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
+"Language-Team: Italian (http://www.transifex.com/readthedocs/readthedocs-docs/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# 9ea817ff76ed4771b64cedf6245c6248
 #: ../../architecture.rst:2
 msgid "Architecture"
 msgstr ""
 
-# abe94834b6fc4b70b94e5747a3babbc9
 #: ../../architecture.rst:4
 msgid ""
 "Read the Docs is architected to be highly available. A lot of projects host "
@@ -32,7 +30,6 @@ msgid ""
 "down, we have issues."
 msgstr ""
 
-# f96821ae1b7647f0a4d408e7b4eb23c4
 #: ../../architecture.rst:7
 msgid "Diagram"
 msgstr ""

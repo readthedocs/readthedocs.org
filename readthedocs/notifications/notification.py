@@ -69,8 +69,8 @@ class Notification(object):
                     source_format=source_format,
                 ))
             return names
-        else:
-            raise AttributeError()
+
+        raise AttributeError()
 
     def render(self, backend_name, source_format=constants.HTML):
         return render_to_string(

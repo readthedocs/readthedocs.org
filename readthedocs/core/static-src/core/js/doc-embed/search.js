@@ -103,15 +103,19 @@ function attach_elastic_search_query(data) {
                 return search_def.resolve(resp.responseJSON.results);
             }
         })
-        .error(function (resp, status_code, error) {
+        .fail(function (resp, status_code, error) {
             return search_def.reject();
         });
     };
 
     if (typeof Search !== 'undefined' && project && version) {
-        var query_fallback = Search.query;
-        Search.query_fallback = query_fallback;
-        Search.query = query_override;
+
+        // Do not replace the built-in search if RTD's docsearch is disabled
+        if (!data.features || !data.features.docsearch_disabled) {
+            var query_fallback = Search.query;
+            Search.query_fallback = query_fallback;
+            Search.query = query_override;
+        }
     }
     $(document).ready(function () {
         if (typeof Search !== 'undefined') {

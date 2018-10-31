@@ -11,6 +11,7 @@ import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.http import QueryDict
 from django.test import TestCase
 from django.utils import six
 from django_dynamic_fixture import get
@@ -413,12 +414,28 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{0}.txt'.format(404))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_build_filter_by_commit(self):
+        """
+        Create a build with commit
+        Should return the list of builds according to the
+        commit query params
+        """
+        get(Build, project_id=1, version_id=1, builder='foo', commit='test')
+        get(Build, project_id=2, version_id=1, builder='foo', commit='other')
+        client = APIClient()
+        api_user = get(User, staff=False, password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/', {'commit': 'test'}, format='json')
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        self.assertEqual(len(build['results']), 1)
+
 
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
-    def test_make_project(self):
-        """Test that a superuser can use the API."""
+    def test_cant_make_project(self):
+        """Test that a user can't use the API to create projects."""
         post_data = {
             'name': 'awesome-project',
             'repo': 'https://github.com/ericholscher/django-kong.git',
@@ -429,16 +446,7 @@ class APITests(TestCase):
             content_type='application/json',
             HTTP_AUTHORIZATION='Basic %s' % super_auth,
         )
-        self.assertEqual(resp.status_code, 201)
-        self.assertEqual(resp['location'], '/api/v1/project/24/')
-        resp = self.client.get(
-            '/api/v1/project/24/',
-            data={'format': 'json'},
-            HTTP_AUTHORIZATION='Basic %s' % eric_auth,
-        )
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['slug'], 'awesome-project')
+        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
@@ -967,6 +975,40 @@ class APIVersionTests(TestCase):
             resp.data,
             version_data,
         )
+
+    def test_get_active_versions(self):
+        """
+        Test the full response of ``/api/v2/version/?project__slug=pip&active=true``
+        """
+        pip = Project.objects.get(slug='pip')
+
+        data = QueryDict('', mutable=True)
+        data.update({
+            'project__slug': pip.slug,
+            'active': 'true',
+        })
+        url = '{base_url}?{querystring}'.format(
+            base_url=reverse('version-list'),
+            querystring=data.urlencode()
+        )
+
+        resp = self.client.get(url, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], pip.versions.filter(active=True).count())
+
+        # Do the same thing for inactive versions
+        data.update({
+            'project__slug': pip.slug,
+            'active': 'false',
+        })
+        url = '{base_url}?{querystring}'.format(
+            base_url=reverse('version-list'),
+            querystring=data.urlencode()
+        )
+
+        resp = self.client.get(url, content_type='application/json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
 
 
 class TaskViewsTests(TestCase):

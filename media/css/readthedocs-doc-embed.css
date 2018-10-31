@@ -7,6 +7,9 @@
     display: block;
 
     bottom: 50px;
+
+    /* Workaround for mkdocs which set a specific height for this element */
+    height: auto;
 }
 
 .rst-other-versions {
@@ -46,30 +49,66 @@ framework html structure.
 
 */
 
-div.ethical-sidebar, div.ethical-footer {
+div.ethical-sidebar,
+div.ethical-footer {
     display: block !important;
 }
-.ethical-sidebar, .ethical-footer {
-    padding: .5em;
+.ethical-sidebar,
+.ethical-footer {
+    padding: 1em;
     margin: 1em 0;
 }
-.ethical-sidebar img, .ethical-footer img {
+.ethical-sidebar img,
+.ethical-footer img {
     width: 120px;
     height: 90px;
     display: inline-block;
 }
-.ethical-sidebar .ethical-callout, .ethical-footer .ethical-callout {
+.ethical-sidebar .ethical-callout,
+.ethical-footer .ethical-callout {
     padding-top: 1em;
     clear: both;
 }
-.ethical-sidebar .ethical-pixel, .ethical-footer .ethical-pixel, .ethical-fixedfooter .ethical-pixel {
+.ethical-sidebar .ethical-pixel,
+.ethical-footer .ethical-pixel,
+.ethical-fixedfooter .ethical-pixel {
     display: none !important;
 }
-.ethical-sidebar .ethical-text, .ethical-footer .ethical-text {
+.ethical-sidebar .ethical-text,
+.ethical-footer .ethical-text {
     margin-top: 1em;
 }
-.ethical-sidebar .ethical-image-link, .ethical-footer .ethical-image-link {
+.ethical-sidebar .ethical-image-link,
+.ethical-footer .ethical-image-link {
     border: 0;
+}
+
+.ethical-sidebar,
+.ethical-footer {
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #0a0a0a;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.ethical-sidebar a,
+.ethical-sidebar a:visited,
+.ethical-sidebar a:hover,
+.ethical-sidebar a:active,
+.ethical-footer a,
+.ethical-footer a:visited,
+.ethical-footer a:hover,
+.ethical-footer a:active {
+    color: #0a0a0a;
+    text-decoration: underline !important;
+    border-bottom: 0 !important;
+}
+
+.ethical-callout a {
+    color: #707070 !important;
+    text-decoration: none !important;
 }
 
 /* Sidebar promotions */
@@ -80,14 +119,19 @@ div.ethical-sidebar, div.ethical-footer {
 /* Footer promotions */
 .ethical-footer {
     text-align: left;
-    font-size: 90%;
+
+    font-size: 14px;
+    line-height: 20px;
 }
 .ethical-footer img {
     float: right;
     margin-left: 25px;
 }
 .ethical-footer .ethical-callout {
-    text-align: right;
+    text-align: center;
+}
+.ethical-footer small {
+    font-size: 10px;
 }
 
 /* Fixed footer promotions */
@@ -127,22 +171,17 @@ div.ethical-sidebar, div.ethical-footer {
 }
 
 /* RTD Theme specific customizations */
+.wy-nav-side .ethical-rtd {
+    /* RTD theme doesn't correctly set the sidebar width */
+    width: 300px;
+    padding: 0 1em;
+}
 .ethical-rtd .ethical-sidebar {
     /* RTD theme doesn't set sidebar text color */
     color: #b3b3b3;
 
-    /* RTD theme doesn't correctly set the sidebar width */
-    width: 300px;
-
     font-size: 14px;
     line-height: 20px;
-}
-.ethical-rtd .ethical-sidebar a,
-.ethical-rtd .ethical-sidebar a:visited,
-.ethical-rtd .ethical-sidebar a:hover,
-.ethical-rtd .ethical-sidebar a:active {
-    /* RTD theme doesn't set sidebar link color */
-    color: #efefef;
 }
 
 /* Alabaster specific customizations */
@@ -161,6 +200,22 @@ div.ethical-sidebar, div.ethical-footer {
     display: table;
     margin-top: 3em;
 }
+
+/* Dark theme */
+.ethical-dark-theme .ethical-sidebar {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #a0a0a0;
+    color: #c2c2c2 !important;
+}
+.ethical-dark-theme a,
+.ethical-dark-theme a:visited {
+    color: #e6e6e6 !important;
+    border-bottom: 0 !important;
+}
+.ethical-dark-theme .ethical-callout a {
+    color: #b3b3b3 !important;
+}
+
 
 /* Ad block nag */
 .keep-us-sustainable {

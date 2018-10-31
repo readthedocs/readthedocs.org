@@ -1,4 +1,8 @@
 # Read the Docs configuration file
+# This schema uses https://github.com/23andMe/Yamale
+# for the validation.
+# Default values are indicated with a comment (``Default: ...``).
+# Some values are default to the project config (settings from the web panel).
 
 # The version of the spec to be use
 version: enum('2')
@@ -17,6 +21,7 @@ build: include('build', required=False)
 python: include('python', required=False)
 
 # Configuration for sphinx documentation
+# Default documentation type
 sphinx: include('sphinx', required=False)
 
 # Configuration for mkdocs documentation
@@ -40,6 +45,7 @@ conda:
 build:
   # The build docker image to be used
   # Default: 'latest'
+  # Note: it can be overriden by a project
   image: enum('stable', 'latest', required=False)
 
 python:
@@ -47,25 +53,37 @@ python:
   # Default: '3'
   version: enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)
 
+  # Give the virtual environment access to the global site-packages dir
+  # Default: false | project config
+  system_packages: bool(required=False)
+
+  # Installation of packages and requiremens
+  install: list(any(include('python-install-requirements'), include('python-install')), required=False)
+
+python-install-requirements:
   # The path to the requirements file from the root of the project
-  # Default: null
-  requirements: path(required=False)
+  requirements: path()
 
-  # Install the project using python setup.py install or pip
-  # Default: null
-  install: enum('pip', 'setup.py', required=False)
+python-install:
+  # The path to the project to be installed
+  path: path()
 
-  # Extra requirements sections to install in addition to the package dependencies
+  # Install using python setup.py install or pip
+  # Default: pip
+  method: enum('pip', 'setuptools', required=False)
+
+  # Extra requirements sections to install in addition to the package dependencies.
+  # Only valid when `method` is `pip`.
   # Default: []
   extra_requirements: list(str(), required=False)
 
-  # Give the virtual environment access to the global site-packages dir
-  # Default: false
-  system_packages: bool(required=False)
-
 sphinx:
+  # The builder type for the sphinx documentation
+  # Default: 'html'
+  builder: enum('html', 'htmldir', 'singlehtml', required=False)
+
   # The path to the conf.py file
-  # Default: rtd will try to find it
+  # Default: rtd will try to find it | project config
   configuration: path(required=False)
 
   # Add the -W option to sphinx-build
@@ -80,7 +98,6 @@ mkdocs:
   # Add the --strict optio to mkdocs build
   # Default: false
   fail_on_warning: bool(required=False)
-
 
 submodules:
   # List of submodules to be included

@@ -1,0 +1,3796 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Turkish (http://www.transifex.com/readthedocs/readthedocs-docs/language/tr/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: tr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: ../../changelog.rst:2
+msgid "Changelog"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:2
+msgid "Version 2.6.5"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+#: ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0 ../../../CHANGELOG.rst:0
+msgid "Date"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:4 ../../../CHANGELOG.rst:14
+msgid "August 29, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:6
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Tests for yaml file regex (`#4587 "
+"<https://github.com/rtfd/readthedocs.org/pull/4587>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:7
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Respect user language when "
+"caching homepage (`#4585 "
+"<https://github.com/rtfd/readthedocs.org/pull/4585>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:8
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Add start and termination to YAML "
+"file regex (`#4584 <https://github.com/rtfd/readthedocs.org/pull/4584>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:9
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4576] Do not "
+"delete projects which have multiple users (`#4577 "
+"<https://github.com/rtfd/readthedocs.org/pull/4577>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:12
+msgid "Version 2.6.4"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:16
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Update tests failing on master "
+"(`#4575 <https://github.com/rtfd/readthedocs.org/pull/4575>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:17
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add a flag to disable "
+"docsearch (`#4570 <https://github.com/rtfd/readthedocs.org/pull/4570>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:18
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix nested syntax in docs (`#4567 "
+"<https://github.com/rtfd/readthedocs.org/pull/4567>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:19
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix incorrect reraise (`#4566 "
+"<https://github.com/rtfd/readthedocs.org/pull/4566>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:20
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add a note about "
+"specifying the version of build tools (`#4562 "
+"<https://github.com/rtfd/readthedocs.org/pull/4562>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:21
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Serve badges directly "
+"from local filesystem (`#4561 "
+"<https://github.com/rtfd/readthedocs.org/pull/4561>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:22
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Build JSON artifacts in HTML "
+"builder (`#4554 <https://github.com/rtfd/readthedocs.org/pull/4554>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:23
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Route task to proper queue (`#4553"
+" <https://github.com/rtfd/readthedocs.org/pull/4553>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:24
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Sanitize BuildCommand.output by "
+"removing NULL characters (`#4552 "
+"<https://github.com/rtfd/readthedocs.org/pull/4552>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:25
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix changelog for 2.6.3 "
+"(`#4548 <https://github.com/rtfd/readthedocs.org/pull/4548>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:26
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Remove hiredis (`#4542 "
+"<https://github.com/rtfd/readthedocs.org/pull/4542>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:27
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Use the STATIC_URL for "
+"static files to avoid redirection (`#4522 "
+"<https://github.com/rtfd/readthedocs.org/pull/4522>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:28
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Update docs about build process "
+"(`#4515 <https://github.com/rtfd/readthedocs.org/pull/4515>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:29
+msgid ""
+"`@StefanoChiodino <http://github.com/StefanoChiodino>`__: Allow for period "
+"as a prefix and yaml extension for config file (`#4512 "
+"<https://github.com/rtfd/readthedocs.org/pull/4512>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:30
+msgid ""
+"`@AumitLeon <http://github.com/AumitLeon>`__: Update information on mkdocs "
+"build process (`#4508 "
+"<https://github.com/rtfd/readthedocs.org/pull/4508>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:31
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix Exact Redirect to work "
+"properly when using $rest keyword (`#4501 "
+"<https://github.com/rtfd/readthedocs.org/pull/4501>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:32
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Mark some BuildEnvironmentError "
+"exceptions as Warning and do not log them (`#4495 "
+"<https://github.com/rtfd/readthedocs.org/pull/4495>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:33
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: projects: don't explode trying to update"
+" UpdateDocsTaskStep state (`#4485 "
+"<https://github.com/rtfd/readthedocs.org/pull/4485>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:34
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Note with the developer flow to "
+"update our app translations (`#4481 "
+"<https://github.com/rtfd/readthedocs.org/pull/4481>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:35
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Add `trimmed` to all multilines "
+"`blocktrans` tags (`#4480 "
+"<https://github.com/rtfd/readthedocs.org/pull/4480>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:36
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Example and note with usage of "
+"trimmed option in blocktrans (`#4479 "
+"<https://github.com/rtfd/readthedocs.org/pull/4479>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:37
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Update Transifex resources for our"
+" documentation (`#4478 "
+"<https://github.com/rtfd/readthedocs.org/pull/4478>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:38
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Documentation for Manage "
+"Translations (`#4470 <https://github.com/rtfd/readthedocs.org/pull/4470>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:39
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Port https://github.com/rtfd"
+"/readthedocs-build/pull/38/ (`#4461 "
+"<https://github.com/rtfd/readthedocs.org/pull/4461>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:40
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Match v1 config interface to new one"
+" (`#4456 <https://github.com/rtfd/readthedocs.org/pull/4456>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:41
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Skip tags that point to blob "
+"objects instead of commits (`#4442 "
+"<https://github.com/rtfd/readthedocs.org/pull/4442>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:42
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Document "
+"python.use_system_site_packages option (`#4422 "
+"<https://github.com/rtfd/readthedocs.org/pull/4422>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:43
+msgid ""
+"`@humitos <http://github.com/humitos>`__: More tips about how to reduce "
+"resources usage (`#4419 "
+"<https://github.com/rtfd/readthedocs.org/pull/4419>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:44
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: projects: user in "
+"ProjectQuerySetBase.for_admin_user is mandatory (`#4417 "
+"<https://github.com/rtfd/readthedocs.org/pull/4417>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:47
+msgid "Version 2.6.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:49
+msgid "August 18, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:51
+msgid "Release to Azure!"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:53
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add Sponsors list to "
+"footer (`#4424 <https://github.com/rtfd/readthedocs.org/pull/4424>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:54
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Cache node_modules to speed up CI "
+"(`#4484 <https://github.com/rtfd/readthedocs.org/pull/4484>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:55
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: templates: mark missing string for "
+"translation on project edit (`#4518 "
+"<https://github.com/rtfd/readthedocs.org/pull/4518>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:56
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Performance improvement:"
+" cache version listing on the homepage (`#4526 "
+"<https://github.com/rtfd/readthedocs.org/pull/4526>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:57
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Remove mailgun from our "
+"dependencies (`#4531 <https://github.com/rtfd/readthedocs.org/pull/4531>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:58
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Improved ad block "
+"detection (`#4532 <https://github.com/rtfd/readthedocs.org/pull/4532>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:59
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Revert \"Remove "
+"SelectiveFileSystemFolder finder workaround\" (`#4533 "
+"<https://github.com/rtfd/readthedocs.org/pull/4533>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:60
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Slight clarification on "
+"turning off ads for a project (`#4534 "
+"<https://github.com/rtfd/readthedocs.org/pull/4534>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:61
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix the sponsor image "
+"paths (`#4535 <https://github.com/rtfd/readthedocs.org/pull/4535>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:62
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Update build assets (`#4537 "
+"<https://github.com/rtfd/readthedocs.org/pull/4537>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:66
+msgid "Version 2.6.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:68
+msgid "August 14, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:70
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Custom domain "
+"clarifications (`#4514 "
+"<https://github.com/rtfd/readthedocs.org/pull/4514>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:71
+msgid ""
+"`@trein <http://github.com/trein>`__: Use single quote throughout the file "
+"(`#4513 <https://github.com/rtfd/readthedocs.org/pull/4513>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:72
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Support ads on pallets "
+"themes (`#4499 <https://github.com/rtfd/readthedocs.org/pull/4499>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:73
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Only use "
+"HostHeaderSSLAdapter for SSL/HTTPS connections (`#4498 "
+"<https://github.com/rtfd/readthedocs.org/pull/4498>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:74
+msgid ""
+"`@keflavich <http://github.com/keflavich>`__: Very minor English correction "
+"(`#4497 <https://github.com/rtfd/readthedocs.org/pull/4497>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:75
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: All static media is run "
+"through \"collectstatic\" (`#4489 "
+"<https://github.com/rtfd/readthedocs.org/pull/4489>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:76
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix reST structure (`#4488 "
+"<https://github.com/rtfd/readthedocs.org/pull/4488>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:77
+msgid ""
+"`@nijel <http://github.com/nijel>`__: Document expected delay on CNAME "
+"change and need for CAA (`#4487 "
+"<https://github.com/rtfd/readthedocs.org/pull/4487>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:78
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Allow enforcing HTTPS "
+"for custom domains (`#4483 "
+"<https://github.com/rtfd/readthedocs.org/pull/4483>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:79
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add some details around "
+"community ad qualifications (`#4436 "
+"<https://github.com/rtfd/readthedocs.org/pull/4436>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:80
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Updates to manifest "
+"storage (`#4430 <https://github.com/rtfd/readthedocs.org/pull/4430>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:81
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Update alt domains docs "
+"with SSL (`#4425 <https://github.com/rtfd/readthedocs.org/pull/4425>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:82
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Add SNI support for API HTTPS "
+"endpoint (`#4423 <https://github.com/rtfd/readthedocs.org/pull/4423>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:83
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: API v1 cleanup (`#4415 "
+"<https://github.com/rtfd/readthedocs.org/pull/4415>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:84
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Allow filtering versions"
+" by active (`#4414 <https://github.com/rtfd/readthedocs.org/pull/4414>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:85
+msgid ""
+"`@mlncn <http://github.com/mlncn>`__: Fix broken link (`#4410 "
+"<https://github.com/rtfd/readthedocs.org/pull/4410>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:86
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4407] Port Project"
+" Search for Elasticsearch 6.x (`#4408 "
+"<https://github.com/rtfd/readthedocs.org/pull/4408>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:87
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add client ID to Google "
+"Analytics requests (`#4404 "
+"<https://github.com/rtfd/readthedocs.org/pull/4404>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:88
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: projects: fix filtering in "
+"projects_tag_detail (`#4398 "
+"<https://github.com/rtfd/readthedocs.org/pull/4398>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:89
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix a proxy model bug "
+"related to ad-free (`#4390 "
+"<https://github.com/rtfd/readthedocs.org/pull/4390>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:90
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Release 2.6.1 (`#4389 "
+"<https://github.com/rtfd/readthedocs.org/pull/4389>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:91 ../../../CHANGELOG.rst:108
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Do not access database "
+"from builds to check ad-free (`#4387 "
+"<https://github.com/rtfd/readthedocs.org/pull/4387>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:92 ../../../CHANGELOG.rst:109
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Adapt YAML config integration "
+"tests (`#4385 <https://github.com/rtfd/readthedocs.org/pull/4385>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:93 ../../../CHANGELOG.rst:110
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Set full `source_file` path for "
+"default configuration (`#4379 "
+"<https://github.com/rtfd/readthedocs.org/pull/4379>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:94
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Make `get_version` usable from a "
+"specified path (`#4376 "
+"<https://github.com/rtfd/readthedocs.org/pull/4376>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:95 ../../../CHANGELOG.rst:111
+msgid ""
+"`@humitos <http://github.com/humitos>`__: More tags when logging errors to "
+"Sentry (`#4375 <https://github.com/rtfd/readthedocs.org/pull/4375>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:96
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Check for 'options' in "
+"update_repos command (`#4373 "
+"<https://github.com/rtfd/readthedocs.org/pull/4373>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:97
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix  #4333] Implement "
+"asynchronous search reindex functionality using celery (`#4368 "
+"<https://github.com/rtfd/readthedocs.org/pull/4368>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:98
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: V2 of the configuration file (`#4355"
+" <https://github.com/rtfd/readthedocs.org/pull/4355>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:99 ../../../CHANGELOG.rst:122
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Remove the UID from the "
+"GA measurement protocol (`#4347 "
+"<https://github.com/rtfd/readthedocs.org/pull/4347>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:100 ../../../CHANGELOG.rst:583
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Mount `pip_cache_path` in Docker "
+"container (`#3556 <https://github.com/rtfd/readthedocs.org/pull/3556>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:101
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Show subprojects in search "
+"results (`#1866 <https://github.com/rtfd/readthedocs.org/pull/1866>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:104
+msgid "Version 2.6.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:106
+msgid "July 17, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:114
+msgid "Version 2.6.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:116
+msgid "July 16, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:118
+msgid "Adds initial support for HTTPS on custom domains"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:119
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Revert \"projects: serve badge with "
+"same protocol as site\" (`#4353 "
+"<https://github.com/rtfd/readthedocs.org/pull/4353>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:120
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Do not overwrite sphinx "
+"context variables feature (`#4349 "
+"<https://github.com/rtfd/readthedocs.org/pull/4349>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:121
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Calrify docs about how rtd select "
+"the stable version (`#4348 "
+"<https://github.com/rtfd/readthedocs.org/pull/4348>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:123
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix error in command (`#4345 "
+"<https://github.com/rtfd/readthedocs.org/pull/4345>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:124
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Improvements for the "
+"build/version admin (`#4344 "
+"<https://github.com/rtfd/readthedocs.org/pull/4344>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:125
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix #4265] Porting "
+"frontend docsearch to work with new API (`#4340 "
+"<https://github.com/rtfd/readthedocs.org/pull/4340>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:126
+msgid ""
+"`@ktdreyer <http://github.com/ktdreyer>`__: fix spelling of "
+"\"demonstrating\" (`#4336 "
+"<https://github.com/rtfd/readthedocs.org/pull/4336>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:127
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Warning about theme "
+"context implementation status (`#4335 "
+"<https://github.com/rtfd/readthedocs.org/pull/4335>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:128
+msgid ""
+"`@Blendify <http://github.com/Blendify>`__: Docs: Let Theme Choose Pygments "
+"Theme (`#4331 <https://github.com/rtfd/readthedocs.org/pull/4331>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:129
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Disable the ad block nag"
+" for ad-free projects (`#4329 "
+"<https://github.com/rtfd/readthedocs.org/pull/4329>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:130
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [fix #4265] Port "
+"Document search API for Elasticsearch 6.x (`#4309 "
+"<https://github.com/rtfd/readthedocs.org/pull/4309>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:131
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Refactor configuration object to "
+"class based (`#4298 <https://github.com/rtfd/readthedocs.org/pull/4298>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:134
+msgid "Version 2.5.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:136
+msgid "July 05, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:138
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: Do less work in querysets (`#4322 "
+"<https://github.com/rtfd/readthedocs.org/pull/4322>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:139
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix deprecations in management "
+"commands (`#4321 <https://github.com/rtfd/readthedocs.org/pull/4321>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:140
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add a flag for marking a"
+" project ad-free (`#4313 "
+"<https://github.com/rtfd/readthedocs.org/pull/4313>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:141
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Use \"npm run lint\" "
+"from tox (`#4312 <https://github.com/rtfd/readthedocs.org/pull/4312>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:142
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix issues building "
+"static assets (`#4311 "
+"<https://github.com/rtfd/readthedocs.org/pull/4311>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:143
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use PATHs to call clear_artifacts "
+"(`#4296 <https://github.com/rtfd/readthedocs.org/pull/4296>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:144
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix #2457] Implement "
+"exact match search (`#4292 "
+"<https://github.com/rtfd/readthedocs.org/pull/4292>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:145
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: API filtering "
+"improvements (`#4285 <https://github.com/rtfd/readthedocs.org/pull/4285>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:146
+msgid ""
+"`@annegentle <http://github.com/annegentle>`__: Remove self-referencing "
+"links for webhooks docs (`#4283 "
+"<https://github.com/rtfd/readthedocs.org/pull/4283>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:147
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix #2328 #2013] "
+"Refresh search index and test for case insensitive search (`#4277 "
+"<https://github.com/rtfd/readthedocs.org/pull/4277>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:148
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: doc_builder: clarify sphinx backend "
+"append_conf docstring (`#4276 "
+"<https://github.com/rtfd/readthedocs.org/pull/4276>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:149
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add documentation for "
+"APIv2 (`#4274 <https://github.com/rtfd/readthedocs.org/pull/4274>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:150
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Wrap notifications HTML code into "
+"a block (`#4273 <https://github.com/rtfd/readthedocs.org/pull/4273>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:151
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Move config.py from rtd build "
+"(`#4272 <https://github.com/rtfd/readthedocs.org/pull/4272>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:152
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Fix our use of `--use-"
+"wheel` in pip. (`#4269 "
+"<https://github.com/rtfd/readthedocs.org/pull/4269>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:153
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Revert \"Merge pull request "
+"#4206 from FlorianKuckelkorn/fix/pip-breaking-change\" (`#4261 "
+"<https://github.com/rtfd/readthedocs.org/pull/4261>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:154
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix triggering a build for a "
+"skipped project (`#4255 "
+"<https://github.com/rtfd/readthedocs.org/pull/4255>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:155
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Update default sphinx version "
+"(`#4250 <https://github.com/rtfd/readthedocs.org/pull/4250>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:156
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Move config module from rtd-build "
+"repo (`#4242 <https://github.com/rtfd/readthedocs.org/pull/4242>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:157
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Allow staying logged in "
+"for longer (`#4236 <https://github.com/rtfd/readthedocs.org/pull/4236>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:158
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: Upgrade Elasticsearch to"
+" version 6.x (`#4211 <https://github.com/rtfd/readthedocs.org/pull/4211>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:159
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Make tests extensible from "
+"corporate site (`#4095 "
+"<https://github.com/rtfd/readthedocs.org/pull/4095>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:160
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: `stable` version stuck on a specific"
+" commit (`#3913 <https://github.com/rtfd/readthedocs.org/pull/3913>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:163
+msgid "Version 2.5.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:165
+msgid "June 18, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:167
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Add a page detailing ad "
+"blocking (`#4244 <https://github.com/rtfd/readthedocs.org/pull/4244>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:168
+msgid ""
+"`@xrmx <http://github.com/xrmx>`_: projects: serve badge with same protocol "
+"as site (`#4228 <https://github.com/rtfd/readthedocs.org/pull/4228>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:169
+msgid ""
+"`@FlorianKuckelkorn <http://github.com/FlorianKuckelkorn>`_: Fixed breaking "
+"change in pip 10.0.0b1 (2018-03-31) (`#4206 "
+"<https://github.com/rtfd/readthedocs.org/pull/4206>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:170
+msgid ""
+"`@StefanoChiodino <http://github.com/StefanoChiodino>`_: Document that "
+"readthedocs file can now have yaml extension (`#4129 "
+"<https://github.com/rtfd/readthedocs.org/pull/4129>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:171
+msgid ""
+"`@humitos <http://github.com/humitos>`_: Downgrade docker to 3.1.3 because "
+"of timeouts in EXEC call (`#4241 "
+"<https://github.com/rtfd/readthedocs.org/pull/4241>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:172
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Move parser tests from rtd-build repo"
+" (`#4225 <https://github.com/rtfd/readthedocs.org/pull/4225>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:173
+msgid ""
+"`@humitos <http://github.com/humitos>`_: Handle revoked oauth permissions by"
+" the user (`#4074 <https://github.com/rtfd/readthedocs.org/pull/4074>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:174
+msgid ""
+"`@humitos <http://github.com/humitos>`_: Allow to hook the initial build "
+"from outside (`#4033 <https://github.com/rtfd/readthedocs.org/pull/4033>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:177
+msgid "Version 2.5.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:179
+msgid "June 14, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:181
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Add feature to build json with html "
+"in the same build (`#4229 "
+"<https://github.com/rtfd/readthedocs.org/pull/4229>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:182
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Prioritize ads based on "
+"content (`#4224 <https://github.com/rtfd/readthedocs.org/pull/4224>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:183
+msgid ""
+"`@mostaszewski <http://github.com/mostaszewski>`_: #4170 - Link the version "
+"in the footer to the changelog (`#4217 "
+"<https://github.com/rtfd/readthedocs.org/pull/4217>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:184
+msgid ""
+"`@Jmennius <http://github.com/Jmennius>`_: Add provision_elasticsearch "
+"command (`#4216 <https://github.com/rtfd/readthedocs.org/pull/4216>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:185
+msgid ""
+"`@SuriyaaKudoIsc <http://github.com/SuriyaaKudoIsc>`_: Use the latest "
+"YouTube share URL (`#4209 "
+"<https://github.com/rtfd/readthedocs.org/pull/4209>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:186
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Allow staff to trigger "
+"project builds (`#4207 "
+"<https://github.com/rtfd/readthedocs.org/pull/4207>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:187
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Use autosectionlabel in "
+"the privacy policy (`#4204 "
+"<https://github.com/rtfd/readthedocs.org/pull/4204>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:188
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: These links weren't "
+"correct after #3632 (`#4203 "
+"<https://github.com/rtfd/readthedocs.org/pull/4203>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:189
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Release 2.5.0 (`#4200 "
+"<https://github.com/rtfd/readthedocs.org/pull/4200>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:190 ../../../CHANGELOG.rst:214
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`_: Fix Build: Convert md to "
+"rst in docs (`#4199 <https://github.com/rtfd/readthedocs.org/pull/4199>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:191
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`_: Updates to #3850 to fix "
+"merge conflict (`#4198 "
+"<https://github.com/rtfd/readthedocs.org/pull/4198>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:192
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`_: Build on top of #3881 and"
+" put docs in custom_installs. (`#4196 "
+"<https://github.com/rtfd/readthedocs.org/pull/4196>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:193
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Increase the max theme "
+"version (`#4195 <https://github.com/rtfd/readthedocs.org/pull/4195>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:194 ../../../CHANGELOG.rst:215
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`_: Remove maxcdn reqs "
+"(`#4194 <https://github.com/rtfd/readthedocs.org/pull/4194>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:195 ../../../CHANGELOG.rst:216
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`_: Add missing gitignore "
+"item for ES testing (`#4193 "
+"<https://github.com/rtfd/readthedocs.org/pull/4193>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:196 ../../../CHANGELOG.rst:217
+msgid ""
+"`@xrmx <http://github.com/xrmx>`_: fabfile: update i18n helpers (`#4189 "
+"<https://github.com/rtfd/readthedocs.org/pull/4189>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:197 ../../../CHANGELOG.rst:218
+msgid ""
+"`@xrmx <http://github.com/xrmx>`_: Update italian locale (`#4188 "
+"<https://github.com/rtfd/readthedocs.org/pull/4188>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:198 ../../../CHANGELOG.rst:219
+msgid ""
+"`@xrmx <http://github.com/xrmx>`_: locale: update and build the english "
+"translation (`#4187 <https://github.com/rtfd/readthedocs.org/pull/4187>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:199
+msgid ""
+"`@humitos <http://github.com/humitos>`_: Upgrade celery to avoid "
+"AtributeError:async (`#4185 "
+"<https://github.com/rtfd/readthedocs.org/pull/4185>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:200
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Prepare code for custo mkdocs.yaml "
+"location (`#4184 <https://github.com/rtfd/readthedocs.org/pull/4184>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:201
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`_: Updates to our triage "
+"guidelines (`#4180 <https://github.com/rtfd/readthedocs.org/pull/4180>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:202
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Server side analytics "
+"(`#4131 <https://github.com/rtfd/readthedocs.org/pull/4131>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:203
+msgid ""
+"`@humitos <http://github.com/humitos>`_: Upgrade packages with pur (`#4124 "
+"<https://github.com/rtfd/readthedocs.org/pull/4124>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:204
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Fix resync remote repos (`#4113 "
+"<https://github.com/rtfd/readthedocs.org/pull/4113>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:205
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Add schema for configuration file "
+"with yamale (`#4084 <https://github.com/rtfd/readthedocs.org/pull/4084>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:206 ../../../CHANGELOG.rst:222
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Ad block nag to urge "
+"people to whitelist (`#4037 "
+"<https://github.com/rtfd/readthedocs.org/pull/4037>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:207 ../../../CHANGELOG.rst:226
+msgid ""
+"`@benjaoming <http://github.com/benjaoming>`_: Add Mexican Spanish as a "
+"project language (`#3588 "
+"<https://github.com/rtfd/readthedocs.org/pull/3588>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:210
+msgid "Version 2.5.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:212
+msgid "June 06, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:220
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`_: Test for search "
+"functionality (`#4116 <https://github.com/rtfd/readthedocs.org/pull/4116>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:221
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Update mkdocs to the "
+"latest (`#4041 <https://github.com/rtfd/readthedocs.org/pull/4041>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:223
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Decouple the theme JS "
+"from readthedocs.org (`#3968 "
+"<https://github.com/rtfd/readthedocs.org/pull/3968>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:224
+msgid ""
+"`@xrmx <http://github.com/xrmx>`_: tests: fixup url tests in "
+"test_privacy_urls (`#3966 "
+"<https://github.com/rtfd/readthedocs.org/pull/3966>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:225
+msgid ""
+"`@fenilgandhi <http://github.com/fenilgandhi>`_: Add support for different "
+"badge styles (`#3632 <https://github.com/rtfd/readthedocs.org/pull/3632>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:227
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Wrap versions' list to look more "
+"consistent (`#3445 <https://github.com/rtfd/readthedocs.org/pull/3445>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:228
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`_: Move CDN code to external "
+"abstraction (`#2091 <https://github.com/rtfd/readthedocs.org/pull/2091>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:231
+msgid "Version 2.4.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:233
+msgid "May 31, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:235
+msgid ""
+"This fixes assets that were generated against old dependencies in 2.3.14"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:236
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`_: Fix issues with search "
+"javascript (`#4176 <https://github.com/rtfd/readthedocs.org/pull/4176>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:237
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Use anonymous refs in CHANGELOG "
+"(`#4173 <https://github.com/rtfd/readthedocs.org/pull/4173>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:238
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Fix some warnings on docs (`#4172 "
+"<https://github.com/rtfd/readthedocs.org/pull/4172>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:239
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Update the privacy policy"
+" date (`#4171 <https://github.com/rtfd/readthedocs.org/pull/4171>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:240
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`_: Note about state and "
+"metro ad targeting (`#4169 "
+"<https://github.com/rtfd/readthedocs.org/pull/4169>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:241
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`_: Add another guide around "
+"fixing memory usage. (`#4168 "
+"<https://github.com/rtfd/readthedocs.org/pull/4168>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:242
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Download raw build log (`#3585 "
+"<https://github.com/rtfd/readthedocs.org/pull/3585>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:243
+msgid ""
+"`@stsewd <http://github.com/stsewd>`_: Add \"edit\" and \"view docs\" "
+"buttons to subproject list (`#3572 "
+"<https://github.com/rtfd/readthedocs.org/pull/3572>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:244
+msgid ""
+"`@kennethlarsen <http://github.com/kennethlarsen>`_: Remove outline reset to"
+" bring back outline (`#3512 "
+"<https://github.com/rtfd/readthedocs.org/pull/3512>`_)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:247
+msgid "Version 2.3.14"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:249
+msgid "May 30, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:251
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Remove CSS override that"
+" doesn't exist. (`#4165 "
+"<https://github.com/rtfd/readthedocs.org/pull/4165>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:252
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Include a DMCA request "
+"template (`#4164 <https://github.com/rtfd/readthedocs.org/pull/4164>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:253
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: No CSRF cookie for docs "
+"pages (`#4153 <https://github.com/rtfd/readthedocs.org/pull/4153>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:254
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Small footer rework "
+"(`#4150 <https://github.com/rtfd/readthedocs.org/pull/4150>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:255
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix prospector dependencies (`#4149 "
+"<https://github.com/rtfd/readthedocs.org/pull/4149>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:256
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Remove deploy directory "
+"which is unused. (`#4147 "
+"<https://github.com/rtfd/readthedocs.org/pull/4147>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:257
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Use autosectionlabel extension "
+"(`#4146 <https://github.com/rtfd/readthedocs.org/pull/4146>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:258
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add Intercom to the "
+"privacy policy (`#4145 "
+"<https://github.com/rtfd/readthedocs.org/pull/4145>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:259
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Minimum refactor to decide_if_cors"
+" (`#4143 <https://github.com/rtfd/readthedocs.org/pull/4143>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:260
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Ignore migrations from coverage "
+"report (`#4141 <https://github.com/rtfd/readthedocs.org/pull/4141>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:261
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: 5xx status in old webhooks (`#4139 "
+"<https://github.com/rtfd/readthedocs.org/pull/4139>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:262
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix with Lato Bold font "
+"(`#4138 <https://github.com/rtfd/readthedocs.org/pull/4138>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:263
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Release 2.3.13 (`#4137 "
+"<https://github.com/rtfd/readthedocs.org/pull/4137>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:264 ../../../CHANGELOG.rst:293
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Build static assets "
+"(`#4136 <https://github.com/rtfd/readthedocs.org/pull/4136>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:265
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: oauth/services: correct error handling "
+"in paginate (`#4134 <https://github.com/rtfd/readthedocs.org/pull/4134>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:266
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: oauth/services: don't abuse "
+"log.exception (`#4133 "
+"<https://github.com/rtfd/readthedocs.org/pull/4133>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:267
+msgid ""
+"`@cedk <http://github.com/cedk>`__: Use quiet mode to retrieve branches from"
+" mercurial (`#4114 <https://github.com/rtfd/readthedocs.org/pull/4114>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:268
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Add `has_valid_clone` and "
+"`has_valid_webhook` to ProjectAdminSerializer (`#4107 "
+"<https://github.com/rtfd/readthedocs.org/pull/4107>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:269
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Put the rtd extension to the "
+"beginning of the list (`#4054 "
+"<https://github.com/rtfd/readthedocs.org/pull/4054>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:270
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Use gitpython for tags (`#4052 "
+"<https://github.com/rtfd/readthedocs.org/pull/4052>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:271
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Do Not Track support "
+"(`#4046 <https://github.com/rtfd/readthedocs.org/pull/4046>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:272
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Set urlconf to None after changing "
+"SUBDOMAIN setting (`#4032 "
+"<https://github.com/rtfd/readthedocs.org/pull/4032>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:273
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix /404/ testing page (`#3976 "
+"<https://github.com/rtfd/readthedocs.org/pull/3976>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:274 ../../../CHANGELOG.rst:381
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: Fix some tests with postgres (`#3958 "
+"<https://github.com/rtfd/readthedocs.org/pull/3958>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:275 ../../../CHANGELOG.rst:394
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: Fixup DJANGO_SETTINGS_SKIP_LOCAL in "
+"tests (`#3899 <https://github.com/rtfd/readthedocs.org/pull/3899>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:276 ../../../CHANGELOG.rst:397
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: templates: mark a few more strings for "
+"translations (`#3869 <https://github.com/rtfd/readthedocs.org/pull/3869>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:277
+msgid ""
+"`@ze <http://github.com/ze>`__: Make search bar in dashboard have a more "
+"clear message. (`#3844 "
+"<https://github.com/rtfd/readthedocs.org/pull/3844>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:278
+msgid ""
+"`@varunotelli <http://github.com/varunotelli>`__: Pointed users to Python3.6"
+" (`#3817 <https://github.com/rtfd/readthedocs.org/pull/3817>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:279
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: [RDY] Fix tests for environment "
+"(`#3764 <https://github.com/rtfd/readthedocs.org/pull/3764>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:280
+msgid ""
+"`@ajatprabha <http://github.com/ajatprabha>`__: Ticket #3694: rename owners "
+"to maintainers (`#3703 "
+"<https://github.com/rtfd/readthedocs.org/pull/3703>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:281
+msgid ""
+"`@SanketDG <http://github.com/SanketDG>`__: Refactor to replace old logging "
+"to avoid mangling (`#3677 "
+"<https://github.com/rtfd/readthedocs.org/pull/3677>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:282
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Add rstcheck to CI (`#3624 "
+"<https://github.com/rtfd/readthedocs.org/pull/3624>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:283
+msgid ""
+"`@techtonik <http://github.com/techtonik>`__: Update Git on prod (`#3615 "
+"<https://github.com/rtfd/readthedocs.org/pull/3615>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:284
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Allow to hide version warning "
+"(`#3595 <https://github.com/rtfd/readthedocs.org/pull/3595>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:285
+msgid ""
+"`@cclauss <http://github.com/cclauss>`__: Modernize Python 2 code to get "
+"ready for Python 3 (`#3514 "
+"<https://github.com/rtfd/readthedocs.org/pull/3514>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:286
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Consistent version format (`#3504 "
+"<https://github.com/rtfd/readthedocs.org/pull/3504>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:289
+msgid "Version 2.3.13"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:291
+msgid "May 23, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:294
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Don't sync _static dir for search "
+"builder (`#4120 <https://github.com/rtfd/readthedocs.org/pull/4120>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:295
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Use the latest Lato "
+"release (`#4093 <https://github.com/rtfd/readthedocs.org/pull/4093>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:296
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Update Gold Member "
+"marketing (`#4063 <https://github.com/rtfd/readthedocs.org/pull/4063>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:297
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix missing fonts "
+"(`#4060 <https://github.com/rtfd/readthedocs.org/pull/4060>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:298
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Additional validation when changing "
+"the project language (`#3790 "
+"<https://github.com/rtfd/readthedocs.org/pull/3790>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:299
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Improve yaml config docs (`#3685 "
+"<https://github.com/rtfd/readthedocs.org/pull/3685>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:302
+msgid "Version 2.3.12"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:304
+msgid "May 21, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:306
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Remove Django deprecation warning "
+"(`#4112 <https://github.com/rtfd/readthedocs.org/pull/4112>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:307
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Display feature flags in"
+" the admin (`#4108 <https://github.com/rtfd/readthedocs.org/pull/4108>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:308
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Set valid clone in project "
+"instance inside the version object also (`#4105 "
+"<https://github.com/rtfd/readthedocs.org/pull/4105>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:309
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Use the latest theme "
+"version in the default builder (`#4096 "
+"<https://github.com/rtfd/readthedocs.org/pull/4096>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:310
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use next field to redirect user "
+"when login is done by social (`#4083 "
+"<https://github.com/rtfd/readthedocs.org/pull/4083>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:311
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Update the `documentation_type` "
+"when it's set to 'auto' (`#4080 "
+"<https://github.com/rtfd/readthedocs.org/pull/4080>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:312
+msgid ""
+"`@brainwane <http://github.com/brainwane>`__: Update link to license in "
+"philosophy document (`#4059 "
+"<https://github.com/rtfd/readthedocs.org/pull/4059>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:313 ../../../CHANGELOG.rst:328
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Update local assets for theme "
+"to 0.3.1 tag (`#4047 <https://github.com/rtfd/readthedocs.org/pull/4047>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:314 ../../../CHANGELOG.rst:329
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix unbalanced div (`#4044 "
+"<https://github.com/rtfd/readthedocs.org/pull/4044>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:315 ../../../CHANGELOG.rst:330
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Remove haystack from code base "
+"(`#4039 <https://github.com/rtfd/readthedocs.org/pull/4039>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:316
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Subdomains use HTTPS if "
+"settings specify (`#3987 "
+"<https://github.com/rtfd/readthedocs.org/pull/3987>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:317
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Draft Privacy Policy "
+"(`#3978 <https://github.com/rtfd/readthedocs.org/pull/3978>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:318
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Allow import Gitlab repo manually "
+"and set a webhook automatically (`#3934 "
+"<https://github.com/rtfd/readthedocs.org/pull/3934>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:319
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Enable ads on the "
+"readthedocs mkdocs theme (`#3922 "
+"<https://github.com/rtfd/readthedocs.org/pull/3922>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:320
+msgid ""
+"`@bansalnitish <http://github.com/bansalnitish>`__: Fixes #2953 - Url "
+"resolved with special characters (`#3725 "
+"<https://github.com/rtfd/readthedocs.org/pull/3725>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:321 ../../../CHANGELOG.rst:346
+msgid ""
+"`@Jigar3 <http://github.com/Jigar3>`__: Deleted bookmarks app (`#3663 "
+"<https://github.com/rtfd/readthedocs.org/pull/3663>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:324
+msgid "Version 2.3.11"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:326
+msgid "May 01, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:331
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Remove dead code from api v1 (`#4038"
+" <https://github.com/rtfd/readthedocs.org/pull/4038>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:332
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Bump sphinx default version to "
+"1.7.4 (`#4035 <https://github.com/rtfd/readthedocs.org/pull/4035>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:333
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Detail where ads are "
+"shown (`#4031 <https://github.com/rtfd/readthedocs.org/pull/4031>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:334
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Make email verification "
+"optional for dev (`#4024 "
+"<https://github.com/rtfd/readthedocs.org/pull/4024>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:335
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Support sign in and sign"
+" up with GH/GL/BB (`#4022 "
+"<https://github.com/rtfd/readthedocs.org/pull/4022>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:336
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Remove old varnish purge "
+"utility function (`#4019 "
+"<https://github.com/rtfd/readthedocs.org/pull/4019>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:337
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Remove build queue length "
+"warning on build list page (`#4018 "
+"<https://github.com/rtfd/readthedocs.org/pull/4018>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:338
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Don't check order on "
+"assertQuerysetEqual on tests for subprojects (`#4016 "
+"<https://github.com/rtfd/readthedocs.org/pull/4016>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:339
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Tests for view docs api response "
+"(`#4014 <https://github.com/rtfd/readthedocs.org/pull/4014>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:340
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: MkDocs projects use "
+"RTD's analytics privacy improvements (`#4013 "
+"<https://github.com/rtfd/readthedocs.org/pull/4013>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:341
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Release 2.3.10 (`#4009 "
+"<https://github.com/rtfd/readthedocs.org/pull/4009>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:342
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Remove typekit fonts "
+"(`#3982 <https://github.com/rtfd/readthedocs.org/pull/3982>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:343
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Move dynamic-fixture to testing "
+"requirements (`#3956 <https://github.com/rtfd/readthedocs.org/pull/3956>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:344 ../../../CHANGELOG.rst:396
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix view docs link (`#3882 "
+"<https://github.com/rtfd/readthedocs.org/pull/3882>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:345
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: [WIP] Remove comments app (`#3802 "
+"<https://github.com/rtfd/readthedocs.org/pull/3802>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:349
+msgid "Version 2.3.10"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:351
+msgid "April 24, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:353
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Downgrade docker to 3.1.3 (`#4003 "
+"<https://github.com/rtfd/readthedocs.org/pull/4003>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:356
+msgid "Version 2.3.9"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:358 ../../../CHANGELOG.rst:365
+msgid "April 20, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:360
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix recursion problem more "
+"generally (`#3989 <https://github.com/rtfd/readthedocs.org/pull/3989>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:363
+msgid "Version 2.3.8"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:367
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Give TaskStep class knowledge "
+"of the underlying task (`#3983 "
+"<https://github.com/rtfd/readthedocs.org/pull/3983>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:368
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Resolve domain when a project is a"
+" translation of itself (`#3981 "
+"<https://github.com/rtfd/readthedocs.org/pull/3981>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:371
+msgid "Version 2.3.7"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:373
+msgid "April 19, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:375
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix server_error_500 path on "
+"single version (`#3975 "
+"<https://github.com/rtfd/readthedocs.org/pull/3975>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:376
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix bookmark app lint "
+"failures (`#3969 <https://github.com/rtfd/readthedocs.org/pull/3969>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:377
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use latest setuptools (39.0.1) by "
+"default on build process (`#3967 "
+"<https://github.com/rtfd/readthedocs.org/pull/3967>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:378
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Fix exact redirects. "
+"(`#3965 <https://github.com/rtfd/readthedocs.org/pull/3965>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:379
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Make `resolve_domain` work when a "
+"project is subproject of itself (`#3962 "
+"<https://github.com/rtfd/readthedocs.org/pull/3962>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:380
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Remove django-celery-beat and use "
+"the default scheduler (`#3959 "
+"<https://github.com/rtfd/readthedocs.org/pull/3959>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:382
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add advertising details "
+"docs (`#3955 <https://github.com/rtfd/readthedocs.org/pull/3955>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:383
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use pur to upgrade python packages"
+" (`#3953 <https://github.com/rtfd/readthedocs.org/pull/3953>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:384
+msgid ""
+"`@ze <http://github.com/ze>`__: Make adjustments to Projects page (`#3948 "
+"<https://github.com/rtfd/readthedocs.org/pull/3948>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:385
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Small change to Chinese "
+"language names (`#3947 "
+"<https://github.com/rtfd/readthedocs.org/pull/3947>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:386
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Don't share state in build "
+"task (`#3946 <https://github.com/rtfd/readthedocs.org/pull/3946>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:387
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fixed footer ad width "
+"fix (`#3944 <https://github.com/rtfd/readthedocs.org/pull/3944>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:388
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Allow extend Translation and "
+"Subproject form logic from corporate (`#3937 "
+"<https://github.com/rtfd/readthedocs.org/pull/3937>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:389
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Resync valid webhook for project "
+"manually imported (`#3935 "
+"<https://github.com/rtfd/readthedocs.org/pull/3935>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:390
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Resync webhooks from Admin (`#3933"
+" <https://github.com/rtfd/readthedocs.org/pull/3933>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:391
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix attribute order call (`#3930 "
+"<https://github.com/rtfd/readthedocs.org/pull/3930>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:392
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Mention RTD in the Project URL of "
+"the issue template (`#3928 "
+"<https://github.com/rtfd/readthedocs.org/pull/3928>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:393
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Correctly report mkdocs "
+"theme name (`#3920 <https://github.com/rtfd/readthedocs.org/pull/3920>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:395
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Show an adblock "
+"admonition in the dev console (`#3894 "
+"<https://github.com/rtfd/readthedocs.org/pull/3894>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:398
+msgid ""
+"`@ze <http://github.com/ze>`__: Update quickstart from README (`#3847 "
+"<https://github.com/rtfd/readthedocs.org/pull/3847>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:399
+msgid ""
+"`@vidartf <http://github.com/vidartf>`__: Fix page redirect preview (`#3811 "
+"<https://github.com/rtfd/readthedocs.org/pull/3811>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:400
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: [RDY] Fix requirements file lookup "
+"(`#3800 <https://github.com/rtfd/readthedocs.org/pull/3800>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:401
+msgid ""
+"`@aasis21 <http://github.com/aasis21>`__: Documentation for build "
+"notifications using webhooks. (`#3671 "
+"<https://github.com/rtfd/readthedocs.org/pull/3671>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:402
+msgid ""
+"`@mashrikt <http://github.com/mashrikt>`__: [#2967] Scheduled tasks for "
+"cleaning up messages (`#3604 "
+"<https://github.com/rtfd/readthedocs.org/pull/3604>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:403
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Show URLS for exact redirect (`#3593"
+" <https://github.com/rtfd/readthedocs.org/pull/3593>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:404
+msgid ""
+"`@marcelstoer <http://github.com/marcelstoer>`__: Doc builder template "
+"should check for mkdocs_page_input_path before using it (`#3536 "
+"<https://github.com/rtfd/readthedocs.org/pull/3536>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:405
+msgid ""
+"`@Code0x58 <http://github.com/Code0x58>`__: Document creation of slumber "
+"user (`#3461 <https://github.com/rtfd/readthedocs.org/pull/3461>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:408
+msgid "Version 2.3.6"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:410 ../../../CHANGELOG.rst:426
+msgid "April 05, 2018"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:412
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Drop readthedocs- prefix to "
+"submodule (`#3916 <https://github.com/rtfd/readthedocs.org/pull/3916>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:413
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: This fixes two bugs apparent "
+"in nesting of translations in subprojects (`#3909 "
+"<https://github.com/rtfd/readthedocs.org/pull/3909>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:414
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use new django celery beat "
+"scheduler (`#3908 <https://github.com/rtfd/readthedocs.org/pull/3908>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:415
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use a proper default for `docker` "
+"attribute on UpdateDocsTask (`#3907 "
+"<https://github.com/rtfd/readthedocs.org/pull/3907>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:416
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Handle errors from "
+"publish_parts (`#3905 "
+"<https://github.com/rtfd/readthedocs.org/pull/3905>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:417 ../../../CHANGELOG.rst:428
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Drop pdbpp from testing "
+"requirements (`#3904 <https://github.com/rtfd/readthedocs.org/pull/3904>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:418
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Little improve on sync_versions "
+"(`#3902 <https://github.com/rtfd/readthedocs.org/pull/3902>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:419
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Save Docker image data in JSON "
+"file only for DockerBuildEnvironment (`#3897 "
+"<https://github.com/rtfd/readthedocs.org/pull/3897>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:420
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Single analytics file "
+"for all builders (`#3896 "
+"<https://github.com/rtfd/readthedocs.org/pull/3896>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:421
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Organize logging levels (`#3893 "
+"<https://github.com/rtfd/readthedocs.org/pull/3893>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:424
+msgid "Version 2.3.5"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:429
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Resolve subproject correctly "
+"in the case of single version (`#3901 "
+"<https://github.com/rtfd/readthedocs.org/pull/3901>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:430
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fixed footer ads again "
+"(`#3895 <https://github.com/rtfd/readthedocs.org/pull/3895>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:431
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix an Alabaster ad "
+"positioning issue (`#3889 "
+"<https://github.com/rtfd/readthedocs.org/pull/3889>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:432
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Save Docker image hash in RTD "
+"environment.json file (`#3880 "
+"<https://github.com/rtfd/readthedocs.org/pull/3880>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:433
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Add ref links for easier "
+"intersphinx on yaml config page (`#3877 "
+"<https://github.com/rtfd/readthedocs.org/pull/3877>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:434
+msgid ""
+"`@rajujha373 <http://github.com/rajujha373>`__: Typo correction in "
+"docs/features.rst (`#3872 "
+"<https://github.com/rtfd/readthedocs.org/pull/3872>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:435
+msgid ""
+"`@gaborbernat <http://github.com/gaborbernat>`__: add description for tox "
+"tasks (`#3868 <https://github.com/rtfd/readthedocs.org/pull/3868>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:436
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Another CORS hotfix for "
+"the sustainability API (`#3862 "
+"<https://github.com/rtfd/readthedocs.org/pull/3862>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:437
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix up some of the logic "
+"around repo and submodule URLs (`#3860 "
+"<https://github.com/rtfd/readthedocs.org/pull/3860>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:438 ../../../CHANGELOG.rst:455
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix linting errors in "
+"tests (`#3855 <https://github.com/rtfd/readthedocs.org/pull/3855>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:439
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Use gitpython to find a commit"
+" reference (`#3843 <https://github.com/rtfd/readthedocs.org/pull/3843>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:440 ../../../CHANGELOG.rst:460
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Remove pinned CSS Select"
+" version (`#3813 <https://github.com/rtfd/readthedocs.org/pull/3813>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:441 ../../../CHANGELOG.rst:462
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Use JSONP for "
+"sustainability API (`#3789 "
+"<https://github.com/rtfd/readthedocs.org/pull/3789>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:442
+msgid ""
+"`@rajujha373 <http://github.com/rajujha373>`__: #3718: Added date to "
+"changelog (`#3788 <https://github.com/rtfd/readthedocs.org/pull/3788>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:443
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: tests: mock test_conf_file_not_found "
+"filesystem access (`#3740 "
+"<https://github.com/rtfd/readthedocs.org/pull/3740>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:448
+msgid "Version 2.3.4"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:450
+msgid "Release for static assets"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:453
+msgid "Version 2.3.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:456
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix linting issues (`#3838 "
+"<https://github.com/rtfd/readthedocs.org/pull/3838>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:457 ../../../CHANGELOG.rst:479
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Update instance and model when "
+"`record_as_success` (`#3831 "
+"<https://github.com/rtfd/readthedocs.org/pull/3831>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:458 ../../../CHANGELOG.rst:483
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Reorder GSOC projects, "
+"and note priority order (`#3823 "
+"<https://github.com/rtfd/readthedocs.org/pull/3823>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:459 ../../../CHANGELOG.rst:485
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Add temporary method for "
+"skipping submodule checkout (`#3821 "
+"<https://github.com/rtfd/readthedocs.org/pull/3821>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:461
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use readthedocs-common to share "
+"linting files accross different repos (`#3808 "
+"<https://github.com/rtfd/readthedocs.org/pull/3808>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:463
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Define useful celery beat task for"
+" development (`#3762 <https://github.com/rtfd/readthedocs.org/pull/3762>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:464
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Auto-generate conf.py compatible "
+"with Py2 and Py3 (`#3745 "
+"<https://github.com/rtfd/readthedocs.org/pull/3745>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:465
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Task to remove orphan symlinks "
+"(`#3543 <https://github.com/rtfd/readthedocs.org/pull/3543>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:466
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix regex for public bitbucket repo "
+"(`#3533 <https://github.com/rtfd/readthedocs.org/pull/3533>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:467
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Documentation for RTD context sent"
+" to the Sphinx theme (`#3490 "
+"<https://github.com/rtfd/readthedocs.org/pull/3490>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:468
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Show link to docs on a build (`#3446"
+" <https://github.com/rtfd/readthedocs.org/pull/3446>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:471
+msgid "Version 2.3.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:473
+msgid ""
+"This version adds a hotfix branch that adds model validation to the "
+"repository URL to ensure strange URL patterns can't be used."
+msgstr ""
+
+#: ../../../CHANGELOG.rst:477
+msgid "Version 2.3.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:480
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Bump docker -> 3.1.3 (`#3828 "
+"<https://github.com/rtfd/readthedocs.org/pull/3828>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:481
+msgid ""
+"`@Doug-AWS <http://github.com/Doug-AWS>`__: Pip install note for Windows "
+"(`#3827 <https://github.com/rtfd/readthedocs.org/pull/3827>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:482
+msgid ""
+"`@himanshutejwani12 <http://github.com/himanshutejwani12>`__: Update "
+"index.rst (`#3824 <https://github.com/rtfd/readthedocs.org/pull/3824>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:484
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Autolint cleanup for #3821 "
+"(`#3822 <https://github.com/rtfd/readthedocs.org/pull/3822>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:486
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Pin astroid to fix linter issue on "
+"travis (`#3816 <https://github.com/rtfd/readthedocs.org/pull/3816>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:487
+msgid ""
+"`@varunotelli <http://github.com/varunotelli>`__: Update install.rst dropped"
+" the Python 2.7 only part (`#3814 "
+"<https://github.com/rtfd/readthedocs.org/pull/3814>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:488
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: Update machine field when activating a "
+"version from project_version_detail (`#3797 "
+"<https://github.com/rtfd/readthedocs.org/pull/3797>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:489
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Allow members of \"Admin\" Team to"
+" wipe version envs (`#3791 "
+"<https://github.com/rtfd/readthedocs.org/pull/3791>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:490
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add sustainability api "
+"to CORS (`#3782 <https://github.com/rtfd/readthedocs.org/pull/3782>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:491
+msgid ""
+"`@durwasa-chakraborty <http://github.com/durwasa-chakraborty>`__: Fixed a "
+"grammatical error (`#3780 "
+"<https://github.com/rtfd/readthedocs.org/pull/3780>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:492
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Trying to solve the end line "
+"character for a font file (`#3776 "
+"<https://github.com/rtfd/readthedocs.org/pull/3776>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:493 ../../../CHANGELOG.rst:514
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix tox env for coverage (`#3772 "
+"<https://github.com/rtfd/readthedocs.org/pull/3772>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:494
+msgid ""
+"`@bansalnitish <http://github.com/bansalnitish>`__: Added eslint rules "
+"(`#3768 <https://github.com/rtfd/readthedocs.org/pull/3768>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:495
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Use sustainability api "
+"for advertising (`#3747 "
+"<https://github.com/rtfd/readthedocs.org/pull/3747>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:496
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add a sustainability API"
+" (`#3672 <https://github.com/rtfd/readthedocs.org/pull/3672>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:497
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Upgrade django-pagination to a "
+"\"maintained\" fork (`#3666 "
+"<https://github.com/rtfd/readthedocs.org/pull/3666>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:498 ../../../CHANGELOG.rst:534
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Project updated when subproject "
+"modified (`#3649 <https://github.com/rtfd/readthedocs.org/pull/3649>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:499
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Anonymize IP addresses "
+"for Google Analytics (`#3626 "
+"<https://github.com/rtfd/readthedocs.org/pull/3626>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:500
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Improve \"Sharing\" docs (`#3472 "
+"<https://github.com/rtfd/readthedocs.org/pull/3472>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:501
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Upgrade docker-py to its latest "
+"version (docker==3.1.1) (`#3243 "
+"<https://github.com/rtfd/readthedocs.org/pull/3243>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:502
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Upgrade all packages using `pur` "
+"tool (`#2916 <https://github.com/rtfd/readthedocs.org/pull/2916>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:503
+msgid ""
+"`@rixx <http://github.com/rixx>`__: Fix page redirect preview (`#2711 "
+"<https://github.com/rtfd/readthedocs.org/pull/2711>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:508
+msgid "Version 2.3.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:511
+msgid ""
+"Version 2.3.0 includes a security fix for project translations. See "
+":ref:`security-2.3.0` for more information"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:515
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Try to fix end of file (`#3761 "
+"<https://github.com/rtfd/readthedocs.org/pull/3761>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:516
+msgid ""
+"`@berkerpeksag <http://github.com/berkerpeksag>`__: Fix indentation in "
+"docs/faq.rst (`#3758 <https://github.com/rtfd/readthedocs.org/pull/3758>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:517
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Check for http protocol before "
+"urlize (`#3755 <https://github.com/rtfd/readthedocs.org/pull/3755>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:518
+msgid ""
+"`@rajujha373 <http://github.com/rajujha373>`__: #3741: replaced Go Crazy "
+"text with Search (`#3752 "
+"<https://github.com/rtfd/readthedocs.org/pull/3752>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:519
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Log in the proper place and add "
+"the image name used (`#3750 "
+"<https://github.com/rtfd/readthedocs.org/pull/3750>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:520
+msgid ""
+"`@shubham76 <http://github.com/shubham76>`__: Changed 'Submit' text on "
+"buttons with something more meaningful (`#3749 "
+"<https://github.com/rtfd/readthedocs.org/pull/3749>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:521
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix tests for Git submodule "
+"(`#3737 <https://github.com/rtfd/readthedocs.org/pull/3737>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:522
+msgid ""
+"`@bansalnitish <http://github.com/bansalnitish>`__: Add eslint rules and fix"
+" errors (`#3726 <https://github.com/rtfd/readthedocs.org/pull/3726>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:523
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Prevent bots indexing "
+"promos (`#3719 <https://github.com/rtfd/readthedocs.org/pull/3719>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:524
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Add argument to skip errorlist"
+" through knockout on common form (`#3704 "
+"<https://github.com/rtfd/readthedocs.org/pull/3704>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:525
+msgid ""
+"`@ajatprabha <http://github.com/ajatprabha>`__: Fixed #3701: added closing "
+"tag for div element (`#3702 "
+"<https://github.com/rtfd/readthedocs.org/pull/3702>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:526
+msgid ""
+"`@bansalnitish <http://github.com/bansalnitish>`__: Fixes internal reference"
+" (`#3695 <https://github.com/rtfd/readthedocs.org/pull/3695>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:527
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Always record the git branch "
+"command as success (`#3693 "
+"<https://github.com/rtfd/readthedocs.org/pull/3693>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:528
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Show the project slug in"
+" the project admin (to make it more explicit what project is what) (`#3681 "
+"<https://github.com/rtfd/readthedocs.org/pull/3681>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:529
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Upgrade django-taggit to 0.22.2 "
+"(`#3667 <https://github.com/rtfd/readthedocs.org/pull/3667>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:530
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Check for submodules (`#3661 "
+"<https://github.com/rtfd/readthedocs.org/pull/3661>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:531 ../../../CHANGELOG.rst:545
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Hotfix for adding logging call"
+" back into project sync task (`#3657 "
+"<https://github.com/rtfd/readthedocs.org/pull/3657>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:532 ../../../CHANGELOG.rst:546
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix issue with missing setting"
+" in oauth SyncRepo task (`#3656 "
+"<https://github.com/rtfd/readthedocs.org/pull/3656>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:533 ../../../CHANGELOG.rst:549
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Remove error logging "
+"that isn't an error. (`#3650 "
+"<https://github.com/rtfd/readthedocs.org/pull/3650>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:535
+msgid ""
+"`@aasis21 <http://github.com/aasis21>`__: formatting buttons in edit project"
+" text editor (`#3633 <https://github.com/rtfd/readthedocs.org/pull/3633>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:536
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Filter by my own repositories at "
+"Import Remote Project (`#3548 "
+"<https://github.com/rtfd/readthedocs.org/pull/3548>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:537
+msgid ""
+"`@funkyHat <http://github.com/funkyHat>`__: check for matching alias before "
+"subproject slug (`#2787 "
+"<https://github.com/rtfd/readthedocs.org/pull/2787>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:540
+msgid "Version 2.2.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:542
+msgid ""
+"Version ``2.2.1`` is a bug fix release for the several issues found in "
+"production during the ``2.2.0`` release."
+msgstr ""
+
+#: ../../../CHANGELOG.rst:547 ../../../CHANGELOG.rst:556
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Tests for build notifications "
+"(`#3654 <https://github.com/rtfd/readthedocs.org/pull/3654>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:548 ../../../CHANGELOG.rst:557
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Send proper context to celery "
+"email notification task (`#3653 "
+"<https://github.com/rtfd/readthedocs.org/pull/3653>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:550 ../../../CHANGELOG.rst:561
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Update RTD security docs"
+" (`#3641 <https://github.com/rtfd/readthedocs.org/pull/3641>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:551 ../../../CHANGELOG.rst:563
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Ability to override the creation "
+"of the Celery App (`#3623 "
+"<https://github.com/rtfd/readthedocs.org/pull/3623>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:554
+msgid "Version 2.2.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:558
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: Update django-formtools to 2.1 (`#3648 "
+"<https://github.com/rtfd/readthedocs.org/pull/3648>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:559
+msgid ""
+"`@xrmx <http://github.com/xrmx>`__: Update Django to 1.9.13 (`#3647 "
+"<https://github.com/rtfd/readthedocs.org/pull/3647>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:560
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix a 500 when searching"
+" for files with API v1 (`#3645 "
+"<https://github.com/rtfd/readthedocs.org/pull/3645>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:562
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix SVN initialization for command"
+" logging (`#3638 <https://github.com/rtfd/readthedocs.org/pull/3638>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:564
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Update the operations team (`#3621"
+" <https://github.com/rtfd/readthedocs.org/pull/3621>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:565
+msgid ""
+"`@mohitkyadav <http://github.com/mohitkyadav>`__: Add venv to .gitignore "
+"(`#3620 <https://github.com/rtfd/readthedocs.org/pull/3620>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:566
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Remove hardcoded copyright year "
+"(`#3616 <https://github.com/rtfd/readthedocs.org/pull/3616>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:567
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Improve installation steps (`#3614 "
+"<https://github.com/rtfd/readthedocs.org/pull/3614>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:568
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Update GSOC (`#3607 "
+"<https://github.com/rtfd/readthedocs.org/pull/3607>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:569
+msgid ""
+"`@Jigar3 <http://github.com/Jigar3>`__: Updated AUTHORS.rst (`#3601 "
+"<https://github.com/rtfd/readthedocs.org/pull/3601>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:570
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Pin less to latest compatible "
+"version (`#3597 <https://github.com/rtfd/readthedocs.org/pull/3597>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:571
+msgid ""
+"`@Angeles4four <http://github.com/Angeles4four>`__: Grammar correction "
+"(`#3596 <https://github.com/rtfd/readthedocs.org/pull/3596>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:572
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix an unclosed tag "
+"(`#3592 <https://github.com/rtfd/readthedocs.org/pull/3592>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:573
+msgid ""
+"`@aaksarin <http://github.com/aaksarin>`__: add missed fontawesome-"
+"webfont.woff2 (`#3589 "
+"<https://github.com/rtfd/readthedocs.org/pull/3589>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:574
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Force a specific ad to "
+"be displayed (`#3584 <https://github.com/rtfd/readthedocs.org/pull/3584>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:575
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Docs about preference for tags over "
+"branches (`#3582 <https://github.com/rtfd/readthedocs.org/pull/3582>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:576
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Rework homepage (`#3579 "
+"<https://github.com/rtfd/readthedocs.org/pull/3579>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:577
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Don't allow to create a subproject "
+"of a project itself  (`#3571 "
+"<https://github.com/rtfd/readthedocs.org/pull/3571>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:578
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Fix for build screen in "
+"firefox (`#3569 <https://github.com/rtfd/readthedocs.org/pull/3569>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:579
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Style using pre-commit (`#3560 "
+"<https://github.com/rtfd/readthedocs.org/pull/3560>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:580
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use DRF 3.1 `pagination_class` "
+"(`#3559 <https://github.com/rtfd/readthedocs.org/pull/3559>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:581
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Analytics fixes (`#3558 "
+"<https://github.com/rtfd/readthedocs.org/pull/3558>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:582
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Upgrade requests version"
+" (`#3557 <https://github.com/rtfd/readthedocs.org/pull/3557>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:584
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add a number of new "
+"ideas for GSOC (`#3552 "
+"<https://github.com/rtfd/readthedocs.org/pull/3552>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:585
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix Travis lint issue (`#3551 "
+"<https://github.com/rtfd/readthedocs.org/pull/3551>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:586
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Send custom dimensions "
+"for mkdocs (`#3550 <https://github.com/rtfd/readthedocs.org/pull/3550>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:587 ../../../CHANGELOG.rst:603
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Promo contrast "
+"improvements (`#3549 <https://github.com/rtfd/readthedocs.org/pull/3549>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:588
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Allow git tags with `/` in the "
+"name and properly slugify (`#3545 "
+"<https://github.com/rtfd/readthedocs.org/pull/3545>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:589
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Allow to import public "
+"repositories on corporate site (`#3537 "
+"<https://github.com/rtfd/readthedocs.org/pull/3537>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:590
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Log `git checkout` and expose to "
+"users (`#3520 <https://github.com/rtfd/readthedocs.org/pull/3520>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:591
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Update docs (`#3498 "
+"<https://github.com/rtfd/readthedocs.org/pull/3498>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:592 ../../../CHANGELOG.rst:613
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Switch to universal "
+"analytics (`#3495 <https://github.com/rtfd/readthedocs.org/pull/3495>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:593
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Move Mercurial dependency to pip.txt"
+" (`#3488 <https://github.com/rtfd/readthedocs.org/pull/3488>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:594
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Add docs on removing edit "
+"button (`#3479 <https://github.com/rtfd/readthedocs.org/pull/3479>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:595 ../../../CHANGELOG.rst:614
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Convert default dev "
+"cache to local memory (`#3477 "
+"<https://github.com/rtfd/readthedocs.org/pull/3477>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:596 ../../../CHANGELOG.rst:703
+#: ../../../CHANGELOG.rst:741
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix lint error (`#3402 "
+"<https://github.com/rtfd/readthedocs.org/pull/3402>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:597 ../../../CHANGELOG.rst:676
+#: ../../../CHANGELOG.rst:719
+msgid ""
+"`@techtonik <http://github.com/techtonik>`__: Fix Edit links if version is "
+"referenced by annotated tag (`#3302 "
+"<https://github.com/rtfd/readthedocs.org/pull/3302>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:598
+msgid ""
+"`@jaraco <http://github.com/jaraco>`__: Fixed build results page on firefox "
+"(part two) (`#2630 <https://github.com/rtfd/readthedocs.org/pull/2630>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:601
+msgid "Version 2.1.6"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:604
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Refactor run command outside a "
+"Build and Environment (`#3542 "
+"<https://github.com/rtfd/readthedocs.org/issues/3542>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:605
+msgid ""
+"`@AnatoliyURL <http://github.com/AnatoliyURL>`__: Project in the local read "
+"the docs don't see tags. (`#3534 "
+"<https://github.com/rtfd/readthedocs.org/issues/3534>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:606
+msgid ""
+"`@malarzm <http://github.com/malarzm>`__: searchtools.js missing init() call"
+" (`#3532 <https://github.com/rtfd/readthedocs.org/issues/3532>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:607
+msgid ""
+"`@johanneskoester <http://github.com/johanneskoester>`__: Build failed "
+"without details (`#3531 "
+"<https://github.com/rtfd/readthedocs.org/issues/3531>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:608
+msgid ""
+"`@danielmitterdorfer <http://github.com/danielmitterdorfer>`__: \"Edit on "
+"Github\" points to non-existing commit (`#3530 "
+"<https://github.com/rtfd/readthedocs.org/issues/3530>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:609
+msgid ""
+"`@lk-geimfari <http://github.com/lk-geimfari>`__: No such file or directory:"
+" 'docs/requirements.txt' (`#3529 "
+"<https://github.com/rtfd/readthedocs.org/issues/3529>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:610
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix Good First Issue link (`#3522 "
+"<https://github.com/rtfd/readthedocs.org/pull/3522>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:611
+msgid ""
+"`@Blendify <http://github.com/Blendify>`__: Remove RTD Theme workaround "
+"(`#3519 <https://github.com/rtfd/readthedocs.org/pull/3519>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:612 ../../../CHANGELOG.rst:627
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Move project description to the top "
+"(`#3510 <https://github.com/rtfd/readthedocs.org/pull/3510>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:615
+msgid ""
+"`@nlgranger <http://github.com/nlgranger>`__: Github service: cannot unlink "
+"after deleting account (`#3374 "
+"<https://github.com/rtfd/readthedocs.org/issues/3374>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:616 ../../../CHANGELOG.rst:631
+#: ../../../CHANGELOG.rst:795
+msgid ""
+"`@andrewgodwin <http://github.com/andrewgodwin>`__: \"stable\" appearing to "
+"track future release branches (`#3268 "
+"<https://github.com/rtfd/readthedocs.org/issues/3268>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:617 ../../../CHANGELOG.rst:798
+msgid ""
+"`@skddc <http://github.com/skddc>`__: Add JSDoc to docs build environment "
+"(`#3069 <https://github.com/rtfd/readthedocs.org/issues/3069>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:618 ../../../CHANGELOG.rst:634
+msgid ""
+"`@chummels <http://github.com/chummels>`__: RTD building old \"stable\" docs"
+" instead of \"latest\" when auto-triggered from recent push (`#2351 "
+"<https://github.com/rtfd/readthedocs.org/issues/2351>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:619
+msgid ""
+"`@cajus <http://github.com/cajus>`__: Builds get stuck in \"Cloning\" state "
+"(`#2047 <https://github.com/rtfd/readthedocs.org/issues/2047>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:620
+msgid ""
+"`@gossi <http://github.com/gossi>`__: Cannot delete subproject (`#1341 "
+"<https://github.com/rtfd/readthedocs.org/issues/1341>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:621
+msgid ""
+"`@gigster99 <http://github.com/gigster99>`__: extension problem (`#1059 "
+"<https://github.com/rtfd/readthedocs.org/issues/1059>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:624
+msgid "Version 2.1.5"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:626
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add GSOC 2018 page "
+"(`#3518 <https://github.com/rtfd/readthedocs.org/pull/3518>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:628
+msgid ""
+"`@RichardLitt <http://github.com/RichardLitt>`__: Docs: Rename \"Good First "
+"Bug\" to \"Good First Issue\" (`#3505 "
+"<https://github.com/rtfd/readthedocs.org/pull/3505>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:629
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix regex for getting project and "
+"user (`#3501 <https://github.com/rtfd/readthedocs.org/pull/3501>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:630 ../../../CHANGELOG.rst:647
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Check to make sure "
+"changes exist in BitBucket pushes (`#3480 "
+"<https://github.com/rtfd/readthedocs.org/pull/3480>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:632
+msgid ""
+"`@cdeil <http://github.com/cdeil>`__: No module named pip in conda build "
+"(`#2827 <https://github.com/rtfd/readthedocs.org/issues/2827>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:633
+msgid ""
+"`@Yaseenh <http://github.com/Yaseenh>`__: building project does not generate"
+" new pdf with changes in it (`#2758 "
+"<https://github.com/rtfd/readthedocs.org/issues/2758>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:635
+msgid ""
+"`@KeithWoods <http://github.com/KeithWoods>`__: GitHub edit link is "
+"aggressively stripped (`#1788 "
+"<https://github.com/rtfd/readthedocs.org/issues/1788>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:638
+msgid "Version 2.1.4"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:640
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add programming language"
+" to API/READTHEDOCS_DATA (`#3499 "
+"<https://github.com/rtfd/readthedocs.org/pull/3499>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:641
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Remove our mkdocs search"
+" override (`#3496 <https://github.com/rtfd/readthedocs.org/pull/3496>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:642
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Better style (`#3494 "
+"<https://github.com/rtfd/readthedocs.org/pull/3494>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:643
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Update README.rst (`#3492 "
+"<https://github.com/rtfd/readthedocs.org/pull/3492>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:644
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Small formatting change "
+"to the Alabaster footer (`#3491 "
+"<https://github.com/rtfd/readthedocs.org/pull/3491>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:645
+msgid ""
+"`@matsen <http://github.com/matsen>`__: Fixing \"reseting\" misspelling. "
+"(`#3487 <https://github.com/rtfd/readthedocs.org/pull/3487>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:646
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add David to dev team "
+"listing (`#3485 <https://github.com/rtfd/readthedocs.org/pull/3485>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:648
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Use semvar for "
+"readthedocs-build to make bumping easier (`#3475 "
+"<https://github.com/rtfd/readthedocs.org/pull/3475>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:649
+msgid ""
+"`@davidfischer <http://github.com/davidfischer>`__: Add programming "
+"languages (`#3471 <https://github.com/rtfd/readthedocs.org/pull/3471>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:650
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Remove TEMPLATE_LOADERS since it's"
+" the default (`#3469 <https://github.com/rtfd/readthedocs.org/pull/3469>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:651
+msgid ""
+"`@Code0x58 <http://github.com/Code0x58>`__: Minor virtualenv upgrade (`#3463"
+" <https://github.com/rtfd/readthedocs.org/pull/3463>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:652
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Remove invite only message (`#3456"
+" <https://github.com/rtfd/readthedocs.org/pull/3456>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:653
+msgid ""
+"`@maxirus <http://github.com/maxirus>`__: Adding to Install Docs (`#3455 "
+"<https://github.com/rtfd/readthedocs.org/pull/3455>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:654
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Fix a little typo (`#3448 "
+"<https://github.com/rtfd/readthedocs.org/pull/3448>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:655
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Better autogenerated index file "
+"(`#3447 <https://github.com/rtfd/readthedocs.org/pull/3447>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:656
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Better help text for privacy level "
+"(`#3444 <https://github.com/rtfd/readthedocs.org/pull/3444>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:657
+msgid ""
+"`@msyriac <http://github.com/msyriac>`__: Broken link URL changed fixes "
+"#3442 (`#3443 <https://github.com/rtfd/readthedocs.org/pull/3443>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:658
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Fix git (`#3441 "
+"<https://github.com/rtfd/readthedocs.org/pull/3441>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:659
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Properly slugify the "
+"alias on Project Relationships. (`#3440 "
+"<https://github.com/rtfd/readthedocs.org/pull/3440>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:660
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Don't show \"build ideas\" to "
+"unprivileged users (`#3439 "
+"<https://github.com/rtfd/readthedocs.org/pull/3439>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:661
+msgid ""
+"`@Blendify <http://github.com/Blendify>`__: Docs: Point Theme docs to new "
+"website (`#3438 <https://github.com/rtfd/readthedocs.org/pull/3438>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:662
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Do not use double quotes on git "
+"command with --format option (`#3437 "
+"<https://github.com/rtfd/readthedocs.org/pull/3437>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:663
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Hack in a fix for "
+"missing version slug deploy that went out a while back (`#3433 "
+"<https://github.com/rtfd/readthedocs.org/pull/3433>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:664
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Check versions used to create the "
+"venv and auto-wipe (`#3432 "
+"<https://github.com/rtfd/readthedocs.org/pull/3432>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:665 ../../../CHANGELOG.rst:684
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Upgrade psycopg2 (`#3429"
+" <https://github.com/rtfd/readthedocs.org/pull/3429>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:666 ../../../CHANGELOG.rst:685
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Fix \"Edit in Github\" link "
+"(`#3427 <https://github.com/rtfd/readthedocs.org/pull/3427>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:667 ../../../CHANGELOG.rst:686
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add celery theme to "
+"supported ad options (`#3425 "
+"<https://github.com/rtfd/readthedocs.org/pull/3425>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:668 ../../../CHANGELOG.rst:690
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Link to version detail page from "
+"build detail page (`#3418 "
+"<https://github.com/rtfd/readthedocs.org/pull/3418>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:669 ../../../CHANGELOG.rst:691
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Move wipe button to version detail"
+" page (`#3417 <https://github.com/rtfd/readthedocs.org/pull/3417>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:670 ../../../CHANGELOG.rst:696
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Show/Hide \"See paid advertising\""
+" checkbox depending on USE_PROMOS (`#3412 "
+"<https://github.com/rtfd/readthedocs.org/pull/3412>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:671 ../../../CHANGELOG.rst:711
+msgid ""
+"`@benjaoming <http://github.com/benjaoming>`__: Strip well-known version "
+"component origin/ from remote version (`#3377 "
+"<https://github.com/rtfd/readthedocs.org/pull/3377>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:672 ../../../CHANGELOG.rst:712
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Remove warnings from code (`#3372 "
+"<https://github.com/rtfd/readthedocs.org/pull/3372>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:673
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add docker image from "
+"the YAML config integration (`#3339 "
+"<https://github.com/rtfd/readthedocs.org/pull/3339>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:674 ../../../CHANGELOG.rst:716
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Show proper error to user when "
+"conf.py is not found (`#3326 "
+"<https://github.com/rtfd/readthedocs.org/pull/3326>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:675 ../../../CHANGELOG.rst:718
+#: ../../../CHANGELOG.rst:746
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Simple task to finish inactive "
+"builds (`#3312 <https://github.com/rtfd/readthedocs.org/pull/3312>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:677 ../../../CHANGELOG.rst:732
+msgid ""
+"`@Riyuzakii <http://github.com/Riyuzakii>`__: changed <strong> from html to "
+"css (`#2699 <https://github.com/rtfd/readthedocs.org/pull/2699>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:680
+msgid "Version 2.1.3"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:0
+msgid "date"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:682
+msgid "Dec 21, 2017"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:687
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Only build travis push "
+"builds on master. (`#3421 "
+"<https://github.com/rtfd/readthedocs.org/pull/3421>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:688
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Add concept of dashboard"
+" analytics code (`#3420 "
+"<https://github.com/rtfd/readthedocs.org/pull/3420>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:689
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use default avatar for User/Orgs "
+"in OAuth services (`#3419 "
+"<https://github.com/rtfd/readthedocs.org/pull/3419>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:692
+msgid ""
+"`@bieagrathara <http://github.com/bieagrathara>`__: 019 497 8360 (`#3416 "
+"<https://github.com/rtfd/readthedocs.org/issues/3416>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:693
+msgid ""
+"`@bieagrathara <http://github.com/bieagrathara>`__: rew (`#3415 "
+"<https://github.com/rtfd/readthedocs.org/issues/3415>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:694
+msgid ""
+"`@tony <http://github.com/tony>`__: lint prospector task failing (`#3414 "
+"<https://github.com/rtfd/readthedocs.org/issues/3414>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:695
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Remove extra 's' (`#3413 "
+"<https://github.com/rtfd/readthedocs.org/pull/3413>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:697
+msgid ""
+"`@accraze <http://github.com/accraze>`__: Removing talks about RTD page "
+"(`#3410 <https://github.com/rtfd/readthedocs.org/pull/3410>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:698
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Pin pylint to 1.7.5 and fix "
+"docstring styling (`#3408 "
+"<https://github.com/rtfd/readthedocs.org/pull/3408>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:699
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Update style and copy on "
+"abandonment docs (`#3406 "
+"<https://github.com/rtfd/readthedocs.org/pull/3406>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:700 ../../../CHANGELOG.rst:739
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Update changelog more "
+"consistently (`#3405 <https://github.com/rtfd/readthedocs.org/pull/3405>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:701 ../../../CHANGELOG.rst:740
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Update prerelease invoke "
+"command to call with explicit path (`#3404 "
+"<https://github.com/rtfd/readthedocs.org/pull/3404>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:702
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Fix changelog command "
+"(`#3403 <https://github.com/rtfd/readthedocs.org/pull/3403>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:704
+msgid ""
+"`@julienmalard <http://github.com/julienmalard>`__: Recent builds are "
+"missing translated languages links (`#3401 "
+"<https://github.com/rtfd/readthedocs.org/issues/3401>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:705 ../../../CHANGELOG.rst:742
+msgid ""
+"`@stsewd <http://github.com/stsewd>`__: Remove copyright application (`#3400"
+" <https://github.com/rtfd/readthedocs.org/pull/3400>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:706 ../../../CHANGELOG.rst:743
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Show connect buttons for installed"
+" apps only (`#3394 <https://github.com/rtfd/readthedocs.org/pull/3394>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:707
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix display of build advice "
+"(`#3390 <https://github.com/rtfd/readthedocs.org/issues/3390>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:708 ../../../CHANGELOG.rst:744
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Don't display the build "
+"suggestions div if there are no suggestions (`#3389 "
+"<https://github.com/rtfd/readthedocs.org/pull/3389>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:709
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Pass more data into the "
+"redirects. (`#3388 <https://github.com/rtfd/readthedocs.org/pull/3388>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:710
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Fix issue where you "
+"couldn't edit your canonical domain. (`#3387 "
+"<https://github.com/rtfd/readthedocs.org/pull/3387>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:713
+msgid ""
+"`@JavaDevVictoria <http://github.com/JavaDevVictoria>`__: Updated "
+"python.setup_py_install to be true (`#3357 "
+"<https://github.com/rtfd/readthedocs.org/pull/3357>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:714
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Use default avatars for "
+"GitLab/GitHub/Bitbucket integrations (users/organizations) (`#3353 "
+"<https://github.com/rtfd/readthedocs.org/issues/3353>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:715 ../../../CHANGELOG.rst:745
+msgid ""
+"`@jonrkarr <http://github.com/jonrkarr>`__: Error in YAML configuration "
+"docs: default value for `python.setup_py_install` should be `true` (`#3334 "
+"<https://github.com/rtfd/readthedocs.org/issues/3334>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:717
+msgid ""
+"`@MikeHart85 <http://github.com/MikeHart85>`__: Badges aren't updating due "
+"to being cached on GitHub. (`#3323 "
+"<https://github.com/rtfd/readthedocs.org/issues/3323>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:720
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Remove/Update talks about RTD page"
+" (`#3283 <https://github.com/rtfd/readthedocs.org/issues/3283>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:721
+msgid ""
+"`@gawel <http://github.com/gawel>`__: Regain pyquery project ownership "
+"(`#3281 <https://github.com/rtfd/readthedocs.org/issues/3281>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:722
+msgid ""
+"`@dialex <http://github.com/dialex>`__: Build passed but I can't see the "
+"documentation (maze screen) (`#3246 "
+"<https://github.com/rtfd/readthedocs.org/issues/3246>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:723
+msgid ""
+"`@makixx <http://github.com/makixx>`__: Account is inactive (`#3241 "
+"<https://github.com/rtfd/readthedocs.org/issues/3241>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:724 ../../../CHANGELOG.rst:747
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Cleanup misreported failed "
+"builds (`#3230 <https://github.com/rtfd/readthedocs.org/issues/3230>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:725
+msgid ""
+"`@cokelaer <http://github.com/cokelaer>`__: links to github are broken "
+"(`#3203 <https://github.com/rtfd/readthedocs.org/issues/3203>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:726 ../../../CHANGELOG.rst:748
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Remove copyright application "
+"(`#3199 <https://github.com/rtfd/readthedocs.org/issues/3199>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:727
+msgid ""
+"`@shacharoo <http://github.com/shacharoo>`__: Unable to register after "
+"deleting my account (`#3189 "
+"<https://github.com/rtfd/readthedocs.org/issues/3189>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:728
+msgid ""
+"`@gtalarico <http://github.com/gtalarico>`__: 3 week old Build Stuck Cloning"
+"  (`#3126 <https://github.com/rtfd/readthedocs.org/issues/3126>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:729
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Regressions with conf.py and "
+"error reporting (`#2963 "
+"<https://github.com/rtfd/readthedocs.org/issues/2963>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:730
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Can't edit canonical domain "
+"(`#2922 <https://github.com/rtfd/readthedocs.org/issues/2922>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:731
+msgid ""
+"`@virtuald <http://github.com/virtuald>`__: Documentation stuck in 'cloning'"
+" state (`#2795 <https://github.com/rtfd/readthedocs.org/issues/2795>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:733
+msgid ""
+"`@tjanez <http://github.com/tjanez>`__: Support specifying 'python setup.py "
+"build_sphinx' as an alternative build command (`#1857 "
+"<https://github.com/rtfd/readthedocs.org/issues/1857>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:734
+msgid ""
+"`@bdarnell <http://github.com/bdarnell>`__: Broken edit links (`#1637 "
+"<https://github.com/rtfd/readthedocs.org/issues/1637>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:737
+msgid "Version 2.1.2"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:751
+msgid "Version 2.1.1"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:753
+msgid "Release information missing"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:756
+msgid "Version 2.1.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:758
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Revert \"Merge pull "
+"request #3336 from rtfd/use-active-for-stable\" (`#3368 "
+"<https://github.com/rtfd/readthedocs.org/pull/3368>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:759
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Revert \"Do not split before "
+"first argument (#3333)\" (`#3366 "
+"<https://github.com/rtfd/readthedocs.org/pull/3366>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:760
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Remove pitch from "
+"ethical ads page, point folks to actual pitch page. (`#3365 "
+"<https://github.com/rtfd/readthedocs.org/pull/3365>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:761
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Add changelog and changelog "
+"automation (`#3364 <https://github.com/rtfd/readthedocs.org/pull/3364>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:762
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Fix mkdocs search. "
+"(`#3361 <https://github.com/rtfd/readthedocs.org/pull/3361>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:763 ../../../CHANGELOG.rst:782
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Email sending: Allow "
+"kwargs for other options (`#3355 "
+"<https://github.com/rtfd/readthedocs.org/pull/3355>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:764 ../../../CHANGELOG.rst:783
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Try and get folks to put"
+" more tags. (`#3350 <https://github.com/rtfd/readthedocs.org/pull/3350>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:765
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Suggest wiping your "
+"environment to folks with bad build outcomes. (`#3347 "
+"<https://github.com/rtfd/readthedocs.org/pull/3347>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:766
+msgid ""
+"`@humitos <http://github.com/humitos>`__: GitLab Integration (`#3327 "
+"<https://github.com/rtfd/readthedocs.org/pull/3327>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:767
+msgid ""
+"`@jimfulton <http://github.com/jimfulton>`__: Draft policy for claiming "
+"existing project names. (`#3314 "
+"<https://github.com/rtfd/readthedocs.org/pull/3314>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:768
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: More logic changes to error "
+"reporting, cleanup (`#3310 "
+"<https://github.com/rtfd/readthedocs.org/pull/3310>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:769
+msgid ""
+"`@safwanrahman <http://github.com/safwanrahman>`__: [Fix #3182] Better user "
+"deletion (`#3214 <https://github.com/rtfd/readthedocs.org/pull/3214>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:770
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Better User deletion "
+"(`#3182 <https://github.com/rtfd/readthedocs.org/issues/3182>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:771
+msgid ""
+"`@RichardLitt <http://github.com/RichardLitt>`__: Add `Needed: replication` "
+"label (`#3138 <https://github.com/rtfd/readthedocs.org/pull/3138>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:772
+msgid ""
+"`@josejrobles <http://github.com/josejrobles>`__: Replaced usage of "
+"deprecated function get_fields_with_model with new … (`#3052 "
+"<https://github.com/rtfd/readthedocs.org/pull/3052>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:773
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Don't delete the "
+"subprojects directory on sync of superproject (`#3042 "
+"<https://github.com/rtfd/readthedocs.org/pull/3042>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:774
+msgid ""
+"`@andrew <http://github.com/andrew>`__: Pass query string when redirecting, "
+"fixes #2595 (`#3001 <https://github.com/rtfd/readthedocs.org/pull/3001>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:775
+msgid ""
+"`@saily <http://github.com/saily>`__: Add GitLab repo sync and webhook "
+"support (`#1870 <https://github.com/rtfd/readthedocs.org/pull/1870>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:776
+msgid ""
+"`@destroyerofbuilds <http://github.com/destroyerofbuilds>`__: Setup GitLab "
+"Web Hook on Project Import (`#1443 "
+"<https://github.com/rtfd/readthedocs.org/issues/1443>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:777
+msgid ""
+"`@takotuesday <http://github.com/takotuesday>`__: Add GitLab Provider from "
+"django-allauth (`#1441 "
+"<https://github.com/rtfd/readthedocs.org/issues/1441>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:780
+msgid "Version 2.0"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:784
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Small changes to email "
+"sending to enable from email (`#3349 "
+"<https://github.com/rtfd/readthedocs.org/pull/3349>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:785
+msgid ""
+"`@dplanella <http://github.com/dplanella>`__: Duplicate TOC entries (`#3345 "
+"<https://github.com/rtfd/readthedocs.org/issues/3345>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:786
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Small tweaks to ethical "
+"ads page (`#3344 <https://github.com/rtfd/readthedocs.org/pull/3344>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:787
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Fix python usage around oauth "
+"pagination (`#3342 <https://github.com/rtfd/readthedocs.org/pull/3342>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:788
+msgid ""
+"`@tony <http://github.com/tony>`__: Fix isort link (`#3340 "
+"<https://github.com/rtfd/readthedocs.org/pull/3340>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:789
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Change stable version "
+"switching to respect `active` (`#3336 "
+"<https://github.com/rtfd/readthedocs.org/pull/3336>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:790
+msgid ""
+"`@ericholscher <http://github.com/ericholscher>`__: Allow superusers to pass"
+" admin & member tests for projects (`#3335 "
+"<https://github.com/rtfd/readthedocs.org/pull/3335>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:791
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Do not split before first argument"
+" (`#3333 <https://github.com/rtfd/readthedocs.org/pull/3333>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:792
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Update docs for pre-commit (auto "
+"linting) (`#3332 <https://github.com/rtfd/readthedocs.org/pull/3332>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:793
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Take preferece of tags over "
+"branches when selecting the stable version (`#3331 "
+"<https://github.com/rtfd/readthedocs.org/pull/3331>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:794
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Add prospector as a pre-commit "
+"hook (`#3328 <https://github.com/rtfd/readthedocs.org/pull/3328>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:796
+msgid ""
+"`@humitos <http://github.com/humitos>`__: Config files for auto linting "
+"(`#3264 <https://github.com/rtfd/readthedocs.org/pull/3264>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:797
+msgid ""
+"`@mekrip <http://github.com/mekrip>`__: Build is not working (`#3223 "
+"<https://github.com/rtfd/readthedocs.org/issues/3223>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:799
+msgid ""
+"`@jakirkham <http://github.com/jakirkham>`__: Specifying conda version used "
+"(`#2076 <https://github.com/rtfd/readthedocs.org/issues/2076>`__)"
+msgstr ""
+
+#: ../../../CHANGELOG.rst:800
+msgid ""
+"`@agjohnson <http://github.com/agjohnson>`__: Document code style guidelines"
+" (`#1475 <https://github.com/rtfd/readthedocs.org/issues/1475>`__)"
+msgstr ""
+
+#: ../../changelog.rst:7
+msgid "Previous releases"
+msgstr ""
+
+#: ../../changelog.rst:9
+msgid ""
+"Starting with version ``2.0``, we will be incrementing the Read the Docs "
+"version based on semantic versioning principles, and will be automating the "
+"update of our changelog."
+msgstr ""
+
+#: ../../changelog.rst:13
+msgid ""
+"Below are some historical changes from when we have tried to add information"
+" here in the past"
+msgstr ""
+
+#: ../../changelog.rst:17
+msgid "July 23, 2015"
+msgstr ""
+
+#: ../../changelog.rst:19
+msgid "Django 1.8 Support Merged"
+msgstr ""
+
+#: ../../changelog.rst:22
+msgid "Code Notes"
+msgstr ""
+
+#: ../../changelog.rst:24
+msgid "Updated Django from `1.6.11` to `1.8.3`."
+msgstr ""
+
+#: ../../changelog.rst:25
+msgid ""
+"Removed South and ported the South migrations to Django's migration "
+"framework."
+msgstr ""
+
+#: ../../changelog.rst:26
+msgid ""
+"Updated django-celery from `3.0.23` to `3.1.26` as django-celery 3.0.x does "
+"not support Django 1.8."
+msgstr ""
+
+#: ../../changelog.rst:27
+msgid ""
+"Updated Celery from `3.0.24` to `3.1.18` because we had to update django-"
+"celery. We need to test this extensively and might need to think about using"
+" the new Celery API directly and dropping django-celery. See release notes: "
+"http://docs.celeryproject.org/en/latest/whatsnew-3.1.html"
+msgstr ""
+
+#: ../../changelog.rst:28
+msgid ""
+"Updated tastypie from `0.11.1` to current master (commit "
+"`1e1aff3dd4dcd21669e9c68bd7681253b286b856`) as 0.11.x is not compatible with"
+" Django 1.8. No surprises expected but we should ask for a proper release, "
+"see release notes: https://github.com/django-tastypie/django-"
+"tastypie/blob/master/docs/release_notes/v0.12.0.rst"
+msgstr ""
+
+#: ../../changelog.rst:29
+msgid ""
+"Updated django-oauth from `0.16.1` to `0.21.0`. No surprises expected, see "
+"release notes `in the docs <https://django-"
+"allauth.readthedocs.org/en/latest/changelog.html>`_ and `finer grained in "
+"the repo <https://github.com/pennersr/django-"
+"allauth/blob/9123223f167959e4e5c4074408db068f725559d1/ChangeLog#L1-169>`_"
+msgstr ""
+
+#: ../../changelog.rst:30
+msgid ""
+"Updated django-guardian from `1.2.0` to `1.3.0` to gain Django 1.8 support. "
+"No surprises expected, see release notes: https://github.com/lukaszb/django-"
+"guardian/blob/devel/CHANGES"
+msgstr ""
+
+#: ../../changelog.rst:31
+msgid ""
+"Using `django-formtools` instead of removed `django.contrib.formtools` now. "
+"Based on the Django release notes, these modules are the same except of the "
+"package name."
+msgstr ""
+
+#: ../../changelog.rst:32
+msgid ""
+"Updated pytest-django from `2.6.2` to `2.8.0`. No tests required, but "
+"running the testsuite :smile:"
+msgstr ""
+
+#: ../../changelog.rst:33
+msgid ""
+"Updated psycopg2 from 2.4 to 2.4.6 as 2.4.5 is required by Django 1.8. No "
+"trouble expected as Django is the layer between us and psycopg2. Also it's "
+"only a minor version upgrade. Release notes: "
+"http://initd.org/psycopg/docs/news.html#what-s-new-in-psycopg-2-4-6"
+msgstr ""
+
+#: ../../changelog.rst:34
+msgid ""
+"Added `django.setup()` to `conf.py` to load django properly for doc builds."
+msgstr ""
+
+#: ../../changelog.rst:35
+msgid ""
+"Added migrations for all apps with models in the `readthedocs/` directory"
+msgstr ""
+
+#: ../../changelog.rst:38
+msgid "Deployment Notes"
+msgstr ""
+
+#: ../../changelog.rst:40
+msgid ""
+"After you have updated the code and installed the new dependencies, you need"
+" to run these commands on the server::"
+msgstr ""
+
+#: ../../changelog.rst:46
+msgid ""
+"Locally I had trouble in a test environment that pip did not update to the "
+"specified commit of tastypie. It might be required to use `pip install -U -r"
+" requirements/deploy.txt` during deployment."
+msgstr ""
+
+#: ../../changelog.rst:50
+msgid "Development Update Notes"
+msgstr ""
+
+#: ../../changelog.rst:52
+msgid ""
+"The readthedocs developers need to execute these commands when switching to "
+"this branch (or when this got merged into master):"
+msgstr ""
+
+#: ../../changelog.rst:54
+msgid "**Before updating** please make sure that all migrations are applied::"
+msgstr ""
+
+#: ../../changelog.rst:59
+msgid "Update the codebase: `git pull`"
+msgstr ""
+
+#: ../../changelog.rst:60
+msgid ""
+"You need to update the requirements with `pip install -r requirements.txt`"
+msgstr ""
+
+#: ../../changelog.rst:61
+msgid "Now you need to fake the initial migrations::"
+msgstr ""

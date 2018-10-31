@@ -1,6 +1,7 @@
 {% extends "projects/base_project.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% load pagination_tags %}
 {% load privacy_tags %}
@@ -74,7 +75,7 @@
 
 {% block extra_scripts %}
 {{ block.super }}
-  <script type="text/javascript" src="{{ MEDIA_URL }}javascript/build_updater.js"></script>
+  <script type="text/javascript" src="{% static 'javascript/build_updater.js' %}"></script>
 
   <script type="text/javascript">
     $(function() {
