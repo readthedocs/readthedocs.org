@@ -5,6 +5,7 @@ virtualenv==16.0.0
 docutils==0.14
 Sphinx==1.7.8
 sphinx_rtd_theme==0.4.1
+sphinx-tabs==1.1.7
 # Required to avoid Transifex error with reserved slug
 # https://github.com/sphinx-doc/sphinx-intl/pull/27
 git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
