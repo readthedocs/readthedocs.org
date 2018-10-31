@@ -10,7 +10,6 @@ import logging
 import requests
 from django.conf import settings
 from requests_toolbelt.adapters import host_header_ssl
-from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
 
@@ -24,12 +23,9 @@ PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
 
 class DrfJsonSerializer(serialize.JsonSerializer):
 
-    """Additional serialization help from the DRF parser/renderer."""
+    """Additional serialization help from the DRF renderer"""
 
     key = 'json-drf'
-
-    def loads(self, data):
-        return JSONParser().parse(data)
 
     def dumps(self, data):
         return JSONRenderer().render(data)

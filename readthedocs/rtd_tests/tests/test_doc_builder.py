@@ -229,9 +229,12 @@ class MkdocsBuilderTest(TestCase):
     def test_get_theme_name_with_feature_flag(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         checkout_path.return_value = tmpdir
-        Feature.objects.get(
+
+        feature = get(
+            Feature,
             feature_id=Feature.MKDOCS_THEME_RTD,
-        ).projects.add(self.project)
+        )
+        feature.projects.add(self.project)
 
         python_env = Virtualenv(
             version=self.version,

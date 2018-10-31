@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
 
 
+@login_required
 def edit_profile(
         request, form_class, success_url=None,
         template_name='profiles/private/edit_profile.html', extra_context=None):
@@ -91,9 +92,6 @@ def edit_profile(
         'user': profile_obj.user,
     })
     return render(request, template_name, context=context)
-
-
-edit_profile = login_required(edit_profile)
 
 
 @login_required()
