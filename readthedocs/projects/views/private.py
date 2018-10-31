@@ -22,8 +22,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
-from readthedocs.builds.forms import AliasForm, VersionForm
-from readthedocs.builds.models import Version, VersionAlias
+from readthedocs.builds.forms import VersionForm
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build, prepare_build
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -370,39 +370,6 @@ class ImportView(PrivateViewMixin, TemplateView):
         context['has_connected_accounts'] = SocialAccount.objects.filter(
             user=self.request.user).exists()
         return context
-
-
-@login_required
-def edit_alias(request, project_slug, alias_id=None):
-    """Edit project alias form view."""
-    proj = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
-    if alias_id:
-        alias = proj.aliases.get(pk=alias_id)
-        form = AliasForm(instance=alias, data=request.POST or None)
-    else:
-        form = AliasForm(request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        alias = form.save()
-        return HttpResponseRedirect(alias.project.get_absolute_url())
-    return render(
-        request,
-        'projects/alias_edit.html',
-        {'form': form},
-    )
-
-
-class AliasList(PrivateViewMixin, ListView):
-    model = VersionAlias
-    template_context_name = 'alias'
-    template_name = 'projects/alias_list.html'
-
-    def get_queryset(self):
-        self.project = get_object_or_404(
-            Project.objects.for_admin_user(self.request.user),
-            slug=self.kwargs.get('project_slug'))
-        return self.project.aliases.all()
 
 
 class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
