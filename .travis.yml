@@ -16,6 +16,8 @@ matrix:
       script: tox
     - python: 3.6
       env: TOXENV=eslint
+    - python: 3.6
+      env: TOXENV=migrations
 cache:
   directories:
     - ~/.cache/pip
