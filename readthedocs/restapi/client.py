@@ -3,7 +3,11 @@
 """Simple client to access our API with Slumber credentials."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 
@@ -32,6 +36,7 @@ class DrfJsonSerializer(serialize.JsonSerializer):
         return JSONParser().parse(data)
 
     def dumps(self, data):
+        """This is used to be able to render datetime objects."""
         return JSONRenderer().render(data)
 
 
