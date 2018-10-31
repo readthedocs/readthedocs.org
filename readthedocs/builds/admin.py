@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 from django.contrib import admin
-from readthedocs.builds.models import Build, VersionAlias, Version, BuildCommandResult
+from readthedocs.builds.models import Build, Version, BuildCommandResult
 from guardian.admin import GuardedModelAdmin
 
 
@@ -32,5 +32,4 @@ class VersionAdmin(GuardedModelAdmin):
 
 
 admin.site.register(Build, BuildAdmin)
-admin.site.register(VersionAlias)
 admin.site.register(Version, VersionAdmin)

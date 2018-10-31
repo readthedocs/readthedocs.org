@@ -11,27 +11,8 @@ from builtins import object
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.builds.models import Version, VersionAlias
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project
-
-
-class AliasForm(forms.ModelForm):
-
-    class Meta(object):
-        model = VersionAlias
-        fields = (
-            'project',
-            'from_slug',
-            'to_slug',
-            'largest',
-        )
-
-    def __init__(self, instance=None, *args, **kwargs):  # noqa
-        super(AliasForm, self).__init__(instance=instance, *args, **kwargs)
-        if instance:
-            self.fields['project'].queryset = (Project.objects
-                                               .filter(pk=instance.project.pk))
 
 
 class VersionForm(forms.ModelForm):

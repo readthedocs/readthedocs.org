@@ -2430,11 +2430,7 @@ msgstr "Alternativer Name für eine Projektversion hinzufügen"
 msgid "Create"
 msgstr "Erstellen"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "Alternativer Name"
 
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Projekte durchsuchen"

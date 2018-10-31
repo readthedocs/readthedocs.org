@@ -137,10 +137,6 @@ class Project(models.Model):
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
-    # TODO: remove this?
-    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(
-        _('Comment Moderation'), default=False,)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -1061,6 +1057,7 @@ class Feature(models.Model):
     SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
+    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1072,6 +1069,7 @@ class Feature(models.Model):
             'Do not overwrite context vars in conf.py with Read the Docs context',)),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
+        (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
     )
 
     projects = models.ManyToManyField(
