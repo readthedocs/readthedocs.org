@@ -51,4 +51,9 @@ There's not a hard browser range, but your design changes should work reasonably
 browsers, IE8+ -- that's not to say it needs to be pixel-perfect in older browsers! Just avoid
 making changes that render older browsers utterly unusable (or provide a sane fallback).
 
+Guidelines
+----------
+
+Find our outline, style and branding guidelines `here <https://read-the-docs-guidelines.readthedocs-hosted.com/>`_.
+
 .. _Read the Docs GitHub project: https://github.com/rtfd/readthedocs.org/pulls
