@@ -37,7 +37,7 @@ from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast
+from readthedocs.core.utils import send_email, broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -112,10 +112,7 @@ class SyncRepositoryMixin(object):
                 ),
             )
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Get the actual code on disk
             try:
                 before_vcs.send(sender=self.version)
@@ -421,10 +418,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 msg=msg,
             ))
 
-            # Send notification to users only if the build didn't fail because of
-            # LockTimeout: this exception occurs when a build is triggered before the previous
-            # one has finished (e.g. two webhooks, one after the other)
-            if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
+            # Send notification to users only if the build didn't fail because
+            # of VerisionLockedTimeout: this exception occurs when a build is
+            # triggered before the previous one has finished (e.g. two webhooks,
+            # one after the other)
+            if not isinstance(self.setup_env.failure, VersionLockedError):
                 self.send_notifications()
 
             return False
@@ -607,7 +605,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
-                    'active': True,
                     'built': True,
                 })
         except HttpClientError:
@@ -648,10 +645,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
-
+        with self.project.repo_nonblockinglock(version=self.version):
             # Check if the python version/build image in the current venv is the
             # same to be used in this build and if it differs, wipe the venv to
             # avoid conflicts.
@@ -681,9 +675,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
-        with self.project.repo_nonblockinglock(
-                version=self.version,
-                max_lock_age=getattr(settings, 'REPO_LOCK_SECONDS', 30)):
+        with self.project.repo_nonblockinglock(version=self.version):
             outcomes['html'] = self.build_docs_html()
             outcomes['search'] = self.build_docs_search()
             outcomes['localmedia'] = self.build_docs_localmedia()
@@ -944,7 +936,7 @@ def remove_orphan_symlinks():
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
                 log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                os.unlink(orphan_domain_path)
+                safe_unlink(orphan_domain_path)
 
 
 @app.task(queue='web')

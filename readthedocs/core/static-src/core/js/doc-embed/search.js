@@ -102,7 +102,7 @@ function attach_elastic_search_query(data) {
                 return search_def.resolve(resp.responseJSON);
             }
         })
-        .error(function (resp, status_code, error) {
+        .fail(function (resp, status_code, error) {
             return search_def.reject();
         });
     };

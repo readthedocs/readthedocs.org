@@ -1,3 +1,20 @@
 [run]
+branch = true
+source = .
 omit =
   */**/migrations/*
+  */**/management/commands/*
+  */**/settings/*
+  */**/settings.py
+  analytics/vendor/*
+  rtd_tests/*
+  */**/tests/**
+  wsgi.py
+
+[report]
+exclude_lines =
+    if self.debug:
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if getattr(settings, 'DEBUG'):

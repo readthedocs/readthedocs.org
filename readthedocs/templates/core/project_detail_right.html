@@ -17,6 +17,14 @@
   {% endif %}
 {% endblock %}
 
+{% block slug %}
+  {% trans "Used in URL's and in code to represent the project name" as title %}
+  <h3 title="{{ title }}">{% trans "Project Slug" %}</h3>
+  <p title="{{ title }}" class="detail-long">
+      {{ project.slug }}
+  </p>
+{% endblock %}
+
 {% block last-built %}
   <h3>{% trans "Last Built" %}</h3>
   <p>
