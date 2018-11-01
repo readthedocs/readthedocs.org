@@ -5,9 +5,6 @@ import os.path
 
 from future.moves.configparser import RawConfigParser
 
-# Import the Celery application before anything else happens
-from readthedocs.worker import app  # noqa
-
 
 def get_version(setupcfg_path):
     """Return package version from setup.cfg."""

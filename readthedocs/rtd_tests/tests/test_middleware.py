@@ -48,6 +48,13 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_wrong_subdomain(self):
+        http_host = 'xyz-wrong-sub-domain-xyz.readthedocs.org'
+        request = self.factory.get(self.url, HTTP_HOST=http_host)
+        with self.assertRaises(Http404):
+            self.middleware.process_request(request)
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_restore_urlconf_after_request(self):
         """
         The urlconf attribute for the current thread
