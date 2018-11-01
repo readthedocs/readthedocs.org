@@ -323,11 +323,11 @@ class Project(models.Model):
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            if self.default_branch:
-                latest = self.versions.get(slug=LATEST)
-                if latest.identifier != self.default_branch:
-                    latest.identifier = self.default_branch
-                    latest.save()
+            latest = self.versions.get(slug=LATEST)
+            default_branch = self.get_default_branch()
+            if latest.identifier != default_branch:
+                latest.identifier = default_branch
+                latest.save()
         except Exception:
             log.exception('Failed to update latest identifier')
 
