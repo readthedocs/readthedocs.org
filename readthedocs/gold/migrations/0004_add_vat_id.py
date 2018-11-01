@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gold', '0002_rename_last_4_digits'),
+        ('gold', '0003_add_missing_model_change_migrations'),
     ]
 
     operations = [
