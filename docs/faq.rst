@@ -70,13 +70,9 @@ I get import errors on libraries that depend on C modules
 .. note::
     Another use case for this is when you have a module with a C extension.
 
-This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
+This happens because our build system doesn't have the dependencies for building your project. This happens with things like ``libevent``, ``mysql``, and other python packages that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-If you are mocking your Sphinx dependencies without using the mock library, then you can use `autodoc_mock_imports`_.
-
-.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
-
-For mocking the dependencies with the mock library, you can mock out the imports for these modules in your ``conf.py`` with the following snippet::
+With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. Alternatively you can use the mock library by putting the following snippet in your ``conf.py``::
 
     import sys
     from unittest.mock import MagicMock
@@ -97,6 +93,8 @@ You need to replace ``MOCK_MODULES`` with the modules that you want to mock out.
         from mock import Mock as MagicMock
 
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
+
+.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
 `Client Error 401` when building documentation
 ----------------------------------------------
