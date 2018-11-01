@@ -13,7 +13,7 @@ since it will help you to avoid clutter in your system-wide libraries.
 
 Additionally Read the Docs depends on:
 
-* `Git`_ (version >=2)
+* `Git`_ (version >=2.17.0)
 * `Mercurial`_ (only if you need to work with mercurial repositories)
 * `Pip`_ (version >1.5)
 * `Redis`_
