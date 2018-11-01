@@ -1,0 +1,109 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/readthedocs-docs/language/zh_CN/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../privacy.rst:2
+msgid "Privacy Levels"
+msgstr ""
+
+#: ../../privacy.rst:4
+msgid ""
+"Read the Docs supports 3 different privacy levels on 2 different objects; "
+"Public, Protected, Private on Projects and Versions."
+msgstr ""
+
+#: ../../privacy.rst:8
+msgid "Understanding the Privacy Levels"
+msgstr ""
+
+#: ../../privacy.rst:11
+msgid "Level"
+msgstr ""
+
+#: ../../privacy.rst:11
+msgid "Detail"
+msgstr ""
+
+#: ../../privacy.rst:11
+msgid "Listing"
+msgstr ""
+
+#: ../../privacy.rst:11
+msgid "Search"
+msgstr ""
+
+#: ../../privacy.rst:11
+msgid "Viewing"
+msgstr ""
+
+#: ../../privacy.rst:13 ../../privacy.rst:43
+msgid "Private"
+msgstr ""
+
+#: ../../privacy.rst:13 ../../privacy.rst:13 ../../privacy.rst:13
+#: ../../privacy.rst:15 ../../privacy.rst:15
+msgid "No"
+msgstr ""
+
+#: ../../privacy.rst:13 ../../privacy.rst:15 ../../privacy.rst:15
+#: ../../privacy.rst:17 ../../privacy.rst:17 ../../privacy.rst:17
+#: ../../privacy.rst:17
+msgid "Yes"
+msgstr ""
+
+#: ../../privacy.rst:15 ../../privacy.rst:31
+msgid "Protected"
+msgstr ""
+
+#: ../../privacy.rst:17 ../../privacy.rst:25
+msgid "Public"
+msgstr ""
+
+#: ../../privacy.rst:20
+msgid ""
+"With a URL to view the actual documentation, even private docs are viewable."
+" This is because our architecture doesn't do any logic on documentation "
+"display, to increase availability."
+msgstr ""
+
+#: ../../privacy.rst:27
+msgid ""
+"This is the easiest and most obvious. It is also the default. It means that "
+"everything is available to be seen by everyone."
+msgstr ""
+
+#: ../../privacy.rst:33
+msgid ""
+"Protected means that your object won't show up in Listing Pages, but Detail "
+"pages still work. For example, a Project that is Protected will not show on "
+"the homepage Recently Updated list, however, if you link directly to the "
+"project, you will get a 200 and the page will display."
+msgstr ""
+
+#: ../../privacy.rst:38
+msgid ""
+"Protected Versions are similar, they won't show up in your version listings,"
+" but will be available once linked to."
+msgstr ""
+
+#: ../../privacy.rst:45
+msgid ""
+"Private objects are available only to people who have permissions to see "
+"them. They will not display on any list view, and will 404 when you link "
+"them to others."
+msgstr ""

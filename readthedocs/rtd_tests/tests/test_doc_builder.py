@@ -16,11 +16,11 @@ from django_dynamic_fixture import get
 from mock import patch
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import BaseMkdocs, MkdocsHTML
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 
 
 class SphinxBuilderTest(TestCase):
@@ -37,6 +37,39 @@ class SphinxBuilderTest(TestCase):
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
+
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    @override_settings(DONT_HIT_API=True)
+    def test_conf_py_path(self, checkout_path, docs_dir):
+        """
+        Test the conf_py_path that is added to the conf.py file.
+
+        This value is used from the theme and footer
+        to build the ``View`` and ``Edit`` on link.
+        """
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        docs_dir.return_value = tmp_dir
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        base_sphinx = BaseSphinx(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        for value, expected in (('conf.py', '/'), ('docs/conf.py', '/docs/')):
+            base_sphinx.config_file = os.path.join(
+                tmp_dir, value
+            )
+            params = base_sphinx.get_config_params()
+            self.assertEqual(
+                params['conf_py_path'],
+                expected
+            )
 
     @patch(
         'readthedocs.doc_builder.backends.sphinx.SPHINX_TEMPLATE_DIR',
@@ -63,7 +96,7 @@ class SphinxBuilderTest(TestCase):
         having a ``TypeError`` because of an encoding problem in Python3)
         """
         tmp_dir = tempfile.mkdtemp()
-        checkout_path.return_value = tmp_dir 
+        checkout_path.return_value = tmp_dir
         docs_dir.return_value = tmp_dir
         create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
@@ -150,10 +183,18 @@ class MkdocsBuilderTest(TestCase):
         self.build_env.project = self.project
         self.build_env.version = self.version
 
-    def test_get_theme_name(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_get_theme_name(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
         builder = MkdocsHTML(
             build_env=self.build_env,
-            python_env=None
+            python_env=python_env,
         )
 
         # The default theme is mkdocs but in mkdocs>=1.0, theme is required
@@ -182,6 +223,69 @@ class MkdocsBuilderTest(TestCase):
             'theme_dir': '/path/to/mydir/',
         }
         self.assertEqual(builder.get_theme_name(config), 'mydir')
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_get_theme_name_with_feature_flag(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
+
+        feature = get(
+            Feature,
+            feature_id=Feature.MKDOCS_THEME_RTD,
+        )
+        feature.projects.add(self.project)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        builder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.get_theme_name({}), 'readthedocs')
+        with patch('readthedocs.doc_builder.backends.mkdocs.yaml') as mock_yaml:
+            with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
+                mock_load_yaml_config.return_value = {'site_name': self.project.name}
+                builder.append_conf()
+
+            mock_yaml.safe_dump.assert_called_once_with(
+                {
+                    'site_name': mock.ANY,
+                    'docs_dir': mock.ANY,
+                    'extra_javascript': mock.ANY,
+                    'extra_css': mock.ANY,
+                    'google_analytics': mock.ANY,
+                    'theme': 'readthedocs',
+                },
+                mock.ANY,
+            )
+            mock_yaml.reset_mock()
+
+            config = {
+                'theme': 'customtheme',
+            }
+            self.assertEqual(builder.get_theme_name(config), 'customtheme')
+            with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
+                mock_load_yaml_config.return_value = {
+                    'site_name': self.project.name,
+                    'theme': 'customtheme',
+                }
+                builder.append_conf()
+
+            mock_yaml.safe_dump.assert_called_once_with(
+                {
+                    'site_name': mock.ANY,
+                    'docs_dir': mock.ANY,
+                    'extra_javascript': mock.ANY,
+                    'extra_css': mock.ANY,
+                    'google_analytics': mock.ANY,
+                    'theme': 'customtheme',
+                },
+                mock.ANY,
+            )
 
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
@@ -326,4 +430,37 @@ class MkdocsBuilderTest(TestCase):
         self.assertEqual(
             config['theme_dir'],
             'not-readthedocs'
+        )
+
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.generate_rtd_data')
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_write_js_data_docs_dir(self, checkout_path, run, generate_rtd_data):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'docs_dir': 'docs',
+            },
+            open(yaml_file, 'w')
+        )
+        checkout_path.return_value = tmpdir
+        generate_rtd_data.return_value = ''
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.searchbuilder.append_conf()
+
+        generate_rtd_data.assert_called_with(
+            docs_dir='docs',
+            mkdocs_config=mock.ANY
         )

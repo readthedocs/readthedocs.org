@@ -51,7 +51,7 @@ def get_filesystem(path, top_level_path=None):
     return fs
 
 
-TEMP_SITE_ROOT = tempfile.mkdtemp(suffix='siteroot')
+TEMP_SITE_ROOT = os.path.realpath(tempfile.mkdtemp(suffix='siteroot'))
 TEMP_DOCROOT = os.path.join(TEMP_SITE_ROOT, 'user_builds')
 
 
@@ -64,7 +64,7 @@ class TempSiteRootTestCase(TestCase):
     """
     Override SITE_ROOT and patch necessary pieces to inspect symlink structure.
 
-    This uses some patches and overidden settings to build out symlinking in a
+    This uses some patches and overridden settings to build out symlinking in a
     temporary path.  Each test is therefore isolated, and cleanup will remove
     these paths after the test case wraps up.
     """
@@ -454,7 +454,7 @@ class BaseSubprojects(object):
         self.assertFilesystem(filesystem)
 
     def test_remove_subprojects(self):
-        """Nonexistant subprojects are unlinked"""
+        """Nonexistent subprojects are unlinked"""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         filesystem = {

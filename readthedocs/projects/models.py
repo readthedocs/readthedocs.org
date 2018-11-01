@@ -137,10 +137,6 @@ class Project(models.Model):
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
-    # TODO: remove this?
-    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(
-        _('Comment Moderation'), default=False,)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -316,17 +312,22 @@ class Project(models.Model):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
-            if self.slug == '':
+            if not self.slug:
                 raise Exception(_('Model must have slug'))
+        if self.documentation_type == 'auto':
+            # This used to determine the type and automatically set the
+            # documentation type to Sphinx for rST and Mkdocs for markdown.
+            # It now just forces Sphinx, due to markdown support.
+            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            if self.default_branch:
-                latest = self.versions.get(slug=LATEST)
-                if latest.identifier != self.default_branch:
-                    latest.identifier = self.default_branch
-                    latest.save()
+            latest = self.versions.get(slug=LATEST)
+            default_branch = self.get_default_branch()
+            if latest.identifier != default_branch:
+                latest.identifier = default_branch
+                latest.save()
         except Exception:
             log.exception('Failed to update latest identifier')
 
@@ -591,16 +592,6 @@ class Project(models.Model):
             return os.path.dirname(conf_file)
 
     @property
-    def is_type_sphinx(self):
-        """Is project type Sphinx."""
-        return 'sphinx' in self.documentation_type
-
-    @property
-    def is_type_mkdocs(self):
-        """Is project type Mkdocs."""
-        return 'mkdocs' in self.documentation_type
-
-    @property
     def is_imported(self):
         return bool(self.repo)
 
@@ -656,8 +647,28 @@ class Project(models.Model):
             repo = backend(self, version, environment)
         return repo
 
-    def repo_nonblockinglock(self, version, max_lock_age=5):
-        return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
+    def repo_nonblockinglock(self, version, max_lock_age=None):
+        """
+        Return a ``NonBlockingLock`` to acquire the lock via context manager.
+
+        :param version: project's version that want to get the lock for.
+        :param max_lock_age: time (in seconds) to consider the lock's age is old
+            and grab it anyway. It default to the ``container_time_limit`` of
+            the project or the default ``DOCKER_LIMITS['time']`` or
+            ``REPO_LOCK_SECONDS`` or 30
+        """
+        if max_lock_age is None:
+            max_lock_age = (
+                self.container_time_limit or
+                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
+                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+            )
+
+        return NonBlockingLock(
+            project=self,
+            version=version,
+            max_lock_age=max_lock_age,
+        )
 
     def repo_lock(self, version, timeout=5, polling_interval=5):
         return Lock(self, version, timeout, polling_interval)
@@ -887,6 +898,7 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -898,7 +910,7 @@ class APIProject(Project):
         super(APIProject, self).__init__(*args, **kwargs)
 
         # Overwrite the database property with the value from the API
-        self.ad_free = (not kwargs.pop('show_advertising', True))
+        self.ad_free = ad_free
 
     def save(self, *args, **kwargs):
         return 0
@@ -1045,6 +1057,7 @@ class Feature(models.Model):
     SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
+    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1056,6 +1069,7 @@ class Feature(models.Model):
             'Do not overwrite context vars in conf.py with Read the Docs context',)),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
+        (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
     )
 
     projects = models.ManyToManyField(

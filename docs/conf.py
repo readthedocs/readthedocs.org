@@ -27,6 +27,7 @@ extensions = [
     'sphinxcontrib.httpdomain',
     'djangodocs',
     'doc_extensions',
+    'sphinx_tabs.tabs',
 ]
 templates_path = ['_templates']
 
@@ -40,8 +41,8 @@ project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = '1.0'
-release = '1.0'
+version = '2.7'
+release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
 intersphinx_mapping = {
@@ -71,7 +72,7 @@ locale_dirs = [
 gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
-# html_static_path = ['_static']
+html_static_path = ['_static']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
 html_theme_options = {

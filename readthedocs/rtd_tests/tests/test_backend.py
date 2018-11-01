@@ -1,17 +1,33 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, unicode_literals
-from os.path import exists
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
+import os
+from os.path import exists
+from tempfile import mkdtemp
+
+import django_dynamic_fixture as fixture
 import pytest
 from django.contrib.auth.models import User
-import django_dynamic_fixture as fixture
+from mock import Mock, patch
 
+from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.base import RTDTestCase
-
-from readthedocs.rtd_tests.utils import create_git_tag, make_test_git, make_test_hg
+from readthedocs.rtd_tests.utils import (
+    create_git_branch,
+    create_git_tag,
+    delete_git_branch,
+    delete_git_tag,
+    make_test_git,
+    make_test_hg,
+)
 
 
 class TestGitBackend(RTDTestCase):
@@ -28,6 +44,10 @@ class TestGitBackend(RTDTestCase):
             repo=git_repo
         )
         self.project.users.add(self.eric)
+        self.dummy_conf = Mock()
+        # These are the default values from v1
+        self.dummy_conf.submodules.include = ALL
+        self.dummy_conf.submodules.exclude = []
 
     def test_parse_branches(self):
         data = """
@@ -77,36 +97,83 @@ class TestGitBackend(RTDTestCase):
         repo = self.project.vcs_repo()
 
         repo.checkout()
-        self.assertFalse(repo.are_submodules_available())
+        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
         # The submodule branch contains one submodule
         repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available())
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
     def test_skip_submodule_checkout(self):
         repo = self.project.vcs_repo()
         repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available())
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
         feature = fixture.get(
             Feature,
             projects=[self.project],
             feature_id=Feature.SKIP_SUBMODULES,
         )
         self.assertTrue(self.project.has_feature(Feature.SKIP_SUBMODULES))
-        self.assertFalse(repo.are_submodules_available())
+        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
     def test_check_submodule_urls(self):
         repo = self.project.vcs_repo()
         repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_valid())
+        valid, _ = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
         repo.checkout('relativesubmodule')
-        self.assertTrue(repo.are_submodules_valid())
+        valid, _ = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
 
     @pytest.mark.xfail(strict=True, reason="Fixture is not working correctly")
     def test_check_invalid_submodule_urls(self):
         with self.assertRaises(RepositoryError) as e:
             repo.checkout('invalidsubmodule')
             self.assertEqual(e.msg, RepositoryError.INVALID_SUBMODULES)
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_fetch_clean_tags_and_branches(self, checkout_path):
+        upstream_repo = self.project.repo
+        create_git_tag(upstream_repo, 'v01')
+        create_git_tag(upstream_repo, 'v02')
+        create_git_branch(upstream_repo, 'newbranch')
+
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
+        repo = self.project.vcs_repo()
+        repo.clone()
+
+        delete_git_tag(upstream_repo, 'v02')
+        delete_git_branch(upstream_repo, 'newbranch')
+
+        # We still have all branches and tags in the local repo
+        self.assertEqual(
+            set(['v01', 'v02']),
+            set(vcs.verbose_name for vcs in repo.tags)
+        )
+        self.assertEqual(
+            set([
+                'relativesubmodule', 'invalidsubmodule',
+                'master', 'submodule', 'newbranch',
+            ]),
+            set(vcs.verbose_name for vcs in repo.branches)
+        )
+
+        repo.checkout()
+
+        # We don't have the eliminated branches and tags in the local repo
+        self.assertEqual(
+            set(['v01']),
+            set(vcs.verbose_name for vcs in repo.tags)
+        )
+        self.assertEqual(
+            set([
+                'relativesubmodule', 'invalidsubmodule',
+                'master', 'submodule'
+            ]),
+            set(vcs.verbose_name for vcs in repo.branches)
+        )
 
 
 class TestHgBackend(RTDTestCase):

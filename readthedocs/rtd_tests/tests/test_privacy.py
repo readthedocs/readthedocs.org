@@ -27,7 +27,7 @@ class PrivacyTests(TestCase):
         self.tester.set_password('test')
         self.tester.save()
 
-        tasks.UpdateDocsTask.delay = mock.Mock()
+        tasks.update_docs_task.delay = mock.Mock()
 
     def _create_kong(self, privacy_level='private',
                      version_privacy_level='private'):

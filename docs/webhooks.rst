@@ -23,7 +23,7 @@ repository provider such as GitHub, GitLab, or Bitbucket.
 Webhook Creation
 ----------------
 
-If you import a project using a :ref:`connected account <getting_started:Sign Up and Connect an External Account>`,
+If you have :doc:`connected your Read the Docs account </connected-accounts>` to GitHub, Bitbucket, or GitLab,
 a webhook will be set up automatically for your repository. However, if your
 project was not imported through a connected account, you may need to
 manually configure a webhook for your project.

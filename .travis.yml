@@ -16,11 +16,15 @@ matrix:
       script: tox
     - python: 3.6
       env: TOXENV=eslint
+    - python: 3.6
+      env: TOXENV=migrations
 cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/nvm.sh
     - ~/.npm
+before_install:
+  - sudo apt-get install -y git
 install:
   - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis
@@ -42,4 +46,6 @@ notifications:
 
 branches:
   only:
-  - master
+  - master 
+  - rel # Community release branch
+  - relcorp # Corporate release branch

@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:30+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs-docs/language/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../index.rst:2
+msgid "Welcome to Read The Docs"
+msgstr ""
+
+#: ../../index.rst:4
+msgid ""
+"`Read the Docs`_ hosts documentation for the open source community. We "
+"support Sphinx_ docs written with reStructuredText_ and `CommonMark`_. We "
+"pull your code from your Subversion_, Bazaar_, Git_, and Mercurial_ "
+"repositories. Then we build documentation and host it for you. Think of it "
+"as *Continuous Documentation*."
+msgstr ""
+
+#: ../../index.rst:10
+msgid "The code is open source, and `available on GitHub`_."
+msgstr ""
+
+#: ../../index.rst:22
+msgid ""
+"The main documentation for the site is organized into a couple sections:"
+msgstr ""
+
+#: ../../index.rst:24
+msgid ":ref:`user-docs`"
+msgstr ""
+
+#: ../../index.rst:25
+msgid ":ref:`feature-docs`"
+msgstr ""
+
+#: ../../index.rst:26
+msgid ":ref:`about-docs`"
+msgstr ""
+
+#: ../../index.rst:28
+msgid "Information about development is also available:"
+msgstr ""
+
+#: ../../index.rst:30
+msgid ":ref:`dev-docs`"
+msgstr ""
+
+#: ../../index.rst:31
+msgid ":ref:`design-docs`"
+msgstr ""
+
+#: ../../index.rst:35
+msgid "User Documentation"
+msgstr ""
+
+#: ../../index.rst:52
+msgid "About Read the Docs"
+msgstr ""
+
+#: ../../index.rst:70
+msgid "Feature Documentation"
+msgstr ""
+
+#: ../../index.rst:92
+msgid "Developer Documentation"
+msgstr ""
+
+#: ../../index.rst:111
+msgid "Business Documentation"
+msgstr ""
+
+#: ../../index.rst:119
+msgid "Custom Install Documentation"
+msgstr ""
+
+#: ../../index.rst:127
+msgid "Designer Documentation"
+msgstr ""

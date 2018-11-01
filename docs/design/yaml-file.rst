@@ -1,8 +1,8 @@
 YAML Configuration File
 =======================
 
-Backgroud
----------
+Background
+----------
 
 The current YAML configuration file is in beta state.
 There are many options and features that it doesn't support yet.

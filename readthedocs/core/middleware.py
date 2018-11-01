@@ -1,19 +1,21 @@
 """Middleware for core app."""
 
-from __future__ import absolute_import
-from builtins import object
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals)
+
 import logging
 
-from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.core.urlresolvers import set_urlconf, get_urlconf
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.core.urlresolvers import get_urlconf, set_urlconf
 from django.http import Http404, HttpResponseBadRequest
+from django.utils.deprecation import MiddlewareMixin
+from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.utils import cname_to_slug
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +32,7 @@ SINGLE_VERSION_URLCONF = getattr(
 )
 
 
-class SubdomainMiddleware(object):
+class SubdomainMiddleware(MiddlewareMixin):
 
     """Middleware to display docs for non-dashboard domains."""
 
@@ -69,6 +71,8 @@ class SubdomainMiddleware(object):
                 # Support ports during local dev
                 public_domain in host or public_domain in full_host
             ):
+                if not Project.objects.filter(slug=subdomain).exists():
+                    raise Http404(_('Project not found'))
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = SUBDOMAIN_URLCONF
@@ -107,17 +111,17 @@ class SubdomainMiddleware(object):
                         slug = cname_to_slug(host)
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        log.debug(LOG_TEMPLATE.format(
+                        log.info(LOG_TEMPLATE.format(
                             msg='CNAME cached: %s->%s' % (slug, host),
                             **log_kwargs))
                     request.slug = slug
                     request.urlconf = SUBDOMAIN_URLCONF
-                    log.debug(LOG_TEMPLATE.format(
+                    log.warning(LOG_TEMPLATE.format(
                         msg='CNAME detected: %s' % request.slug,
                         **log_kwargs))
                 except:  # noqa
                     # Some crazy person is CNAMEing to us. 404.
-                    log.exception(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                    log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
@@ -138,12 +142,12 @@ class SubdomainMiddleware(object):
         return response
 
 
-class SingleVersionMiddleware(object):
+class SingleVersionMiddleware(MiddlewareMixin):
 
     """
     Reset urlconf for requests for 'single_version' docs.
 
-    In settings.MIDDLEWARE_CLASSES, SingleVersionMiddleware must follow after
+    In settings.MIDDLEWARE, SingleVersionMiddleware must follow after
     SubdomainMiddleware.
     """
 
@@ -192,7 +196,7 @@ class SingleVersionMiddleware(object):
 
 
 # Forked from old Django
-class ProxyMiddleware(object):
+class ProxyMiddleware(MiddlewareMixin):
 
     """
     Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the.

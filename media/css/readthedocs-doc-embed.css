@@ -120,8 +120,8 @@ div.ethical-footer {
 .ethical-footer {
     text-align: left;
 
-    font-size: 12px;
-    line-height: 18px;
+    font-size: 14px;
+    line-height: 20px;
 }
 .ethical-footer img {
     float: right;
@@ -174,7 +174,7 @@ div.ethical-footer {
 .wy-nav-side .ethical-rtd {
     /* RTD theme doesn't correctly set the sidebar width */
     width: 300px;
-    padding: 1em;
+    padding: 0 1em;
 }
 .ethical-rtd .ethical-sidebar {
     /* RTD theme doesn't set sidebar text color */

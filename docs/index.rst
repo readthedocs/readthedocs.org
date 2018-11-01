@@ -1,34 +1,53 @@
-Welcome to Read The Docs
-========================
+Read the Docs: Documentation Simplified
+=======================================
 
-`Read the Docs`_ hosts documentation for the open source community.
-We support Sphinx_ docs written with reStructuredText_ and `CommonMark`_.
-We pull your code from your Subversion_, Bazaar_, Git_, and Mercurial_ repositories.
-Then we build documentation and host it for you.
+`Read the Docs`_ simplifies software documentation
+by automating building, versioning, and hosting of your docs for you.
 Think of it as *Continuous Documentation*.
 
-The code is open source, and `available on GitHub`_.
+Never out of sync
+    Whenever you push code to your favorite version control system,
+    whether that is Git, Mercurial, Bazaar, or Subversion,
+    Read the Docs will automatically build your docs
+    so your code and documentation are always up-to-date.
+
+Multiple versions
+    Read the Docs can host and build multiple versions of your docs
+    so having a 1.0 version of your docs and a 2.0 version
+    of your docs is as easy as having a separate branch or tag in your version control system.
+
+Free and open source
+    Read the Docs is free and open source and hosts documentation
+    for nearly 100,000 large and small open source projects
+    in almost every human and computer language.
 
 .. _Read the docs: http://readthedocs.org/
-.. _Sphinx: http://sphinx.pocoo.org/
-.. _reStructuredText: http://sphinx.pocoo.org/rest.html
-.. _CommonMark: http://commonmark.org/
-.. _Subversion: http://subversion.tigris.org/
-.. _Bazaar: http://bazaar.canonical.com/
-.. _Git: http://git-scm.com/
-.. _Mercurial: https://www.mercurial-scm.org/
-.. _available on GitHub: http://github.com/rtfd/readthedocs.org
 
-The main documentation for the site is organized into a couple sections:
 
-* :ref:`user-docs`
-* :ref:`feature-docs`
-* :ref:`about-docs`
+First steps
+-----------
 
-Information about development is also available:
+Are you new to software documentation
+or are you looking to use your existing docs with Read the Docs?
+Learn about documentation authoring tools such as Sphinx and MkDocs
+to help you create fantastic documentation for your project.
 
-* :ref:`dev-docs`
-* :ref:`design-docs`
+* **Getting started**:
+  :doc:`With Sphinx <intro/getting-started-with-sphinx>` |
+  :doc:`With MkDocs <intro/getting-started-with-mkdocs>`
+
+* **Importing your existing documentation**:
+  :doc:`Import guide <intro/import-guide>`
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: First Steps
+
+   intro/getting-started-with-sphinx
+   intro/getting-started-with-mkdocs
+   intro/import-guide
+
 
 .. _user-docs:
 
@@ -36,34 +55,16 @@ Information about development is also available:
    :maxdepth: 2
    :caption: User Documentation
 
-   getting_started
    versions
    builds
    features
+   connected-accounts
    support
    faq
    yaml-config
    guides/index
    api/index
    embed
-
-.. _about-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: About Read the Docs
-
-   contribute
-   team
-   gsoc
-   code-of-conduct
-   privacy-policy
-   advertising/index
-   sponsors
-   open-source-philosophy
-   story
-   abandoned-projects
-   dmca/index
 
 .. _feature-docs:
 
@@ -86,11 +87,29 @@ Information about development is also available:
    automatic-redirects
    features/*
 
+.. _about-docs:
+
+.. toctree::
+   :maxdepth: 1
+   :caption: About Read the Docs
+
+   contribute
+   roadmap
+   team
+   gsoc
+   code-of-conduct
+   privacy-policy
+   advertising/index
+   sponsors
+   open-source-philosophy
+   story
+   abandoned-projects
+   dmca/index
 
 .. _dev-docs:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Developer Documentation
 
    changelog
@@ -105,14 +124,16 @@ Information about development is also available:
    i18n
    issue-labels
    security
+   design
+   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
 
-.. _business-docs:
+.. _commercial-docs:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Business Documentation
+   :caption: Commercial Documentation
 
-   business/index
+   commercial/index
 
 .. _custom-docs:
 
@@ -121,13 +142,3 @@ Information about development is also available:
    :caption: Custom Install Documentation
 
    custom_installs/index
-
-.. _design-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Designer Documentation
-
-   design
-   Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
-

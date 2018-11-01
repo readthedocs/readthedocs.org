@@ -61,14 +61,8 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     return task_promise
 
 
-def clean_url(url):
-    parsed = urlparse(url)
-    if parsed.scheme or parsed.netloc:
-        return parsed.netloc
-    return parsed.path
-
-
 def cname_to_slug(host):
+    # TODO: remove
     from dns import resolver
     answer = [ans for ans in resolver.query(host, 'CNAME')][0]
     domain = answer.target.to_unicode()
@@ -89,10 +83,10 @@ def prepare_build(
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
-    :returns: Celery signature of UpdateDocsTask to be executed
+    :returns: Celery signature of update_docs_task to be executed
     """
     # Avoid circular import
-    from readthedocs.projects.tasks import UpdateDocsTask
+    from readthedocs.projects.tasks import update_docs_task
     from readthedocs.builds.models import Build
 
     if project.skip:
@@ -138,9 +132,8 @@ def prepare_build(
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    update_docs_task = UpdateDocsTask()
     return update_docs_task.signature(
-        (project.pk,),
+        args=(project.pk,),
         kwargs=kwargs,
         options=options,
         immutable=True,
@@ -223,6 +216,22 @@ def safe_makedirs(directory_name):
     try:
         os.makedirs(directory_name)
     except OSError as e:
-        if e.errno == errno.EEXIST:
-            pass
-        raise
+        if e.errno != errno.EEXIST:  # 17, FileExistsError
+            raise
+
+
+def safe_unlink(path):
+    """
+    Unlink ``path`` symlink using ``os.unlink``.
+
+    This helper handles the exception ``FileNotFoundError`` to avoid logging in
+    cases where the symlink does not exist already and there is nothing to
+    unlink.
+
+    :param path: symlink path to unlink
+    :type path: str
+    """
+    try:
+        os.unlink(path)
+    except FileNotFoundError:
+        log.warning('Unlink failed. Path %s does not exists', path)

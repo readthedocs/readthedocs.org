@@ -9,8 +9,8 @@ First, you should check out the Builds tab of your project. That records all of 
 If you are still seeing errors because of C library dependencies,
 please see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
-How do I change my slug (the URL your docs are served at)?
-----------------------------------------------------------
+How do I change my project slug (the URL your docs are served at)?
+------------------------------------------------------------------
 
 We don't support allowing folks to change the slug for their project.
 You can update the name which is shown on the site,
@@ -20,6 +20,13 @@ The main reason for this is that all existing URLs to the content will break.
 You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
+
+How do I change the version slug of my project?
+-----------------------------------------------
+
+We don't support allowing folks to change the slug for their versions.
+But you can rename the branch/tag to achieve this.
+If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
@@ -63,9 +70,9 @@ I get import errors on libraries that depend on C modules
 .. note::
     Another use case for this is when you have a module with a C extension.
 
-This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
+This happens because our build system doesn't have the dependencies for building your project. This happens with things like ``libevent``, ``mysql``, and other python packages that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
+With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. Alternatively you can use the mock library by putting the following snippet in your ``conf.py``::
 
     import sys
     from unittest.mock import MagicMock
@@ -78,7 +85,7 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
+You need to replace ``MOCK_MODULES`` with the modules that you want to mock out.
 
 .. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
     from PyPI with (ie ``pip install mock``) and replace the above import::
@@ -86,6 +93,8 @@ Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
         from mock import Mock as MagicMock
 
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
+
+.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
 `Client Error 401` when building documentation
 ----------------------------------------------
