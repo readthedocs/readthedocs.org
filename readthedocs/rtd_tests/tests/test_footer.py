@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import mock
-from django_dynamic_fixture import get
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
 
@@ -12,7 +15,9 @@ from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
 from readthedocs.projects.models import Project
 from readthedocs.restapi.views.footer_views import (
-    footer_html, get_version_compare_data)
+    footer_html,
+    get_version_compare_data,
+)
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
