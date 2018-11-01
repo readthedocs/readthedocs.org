@@ -243,7 +243,7 @@ class BuildViewSetBase(UserSelectViewSet):
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build
-    filter_fields = ('project__slug',)
+    filter_fields = ('project__slug', 'commit')
 
 
 class BuildViewSet(SettingsOverrideObject):

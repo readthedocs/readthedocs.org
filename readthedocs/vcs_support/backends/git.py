@@ -122,7 +122,9 @@ class Backend(BaseVCS):
         return True, submodules.keys()
 
     def fetch(self):
-        code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
+        code, _, _ = self.run(
+            'git', 'fetch', '--tags', '--prune', '--prune-tags',
+        )
         if code != 0:
             raise RepositoryError
 

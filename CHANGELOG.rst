@@ -1,3 +1,59 @@
+Version 2.8.0
+-------------
+
+:Date: October 30, 2018
+
+Major change is an upgrade to Django 1.11. 
+
+* `@humitos <http://github.com/humitos>`__: Cleanup old code (remove old_div) (`#4817 <https://github.com/rtfd/readthedocs.org/pull/4817>`__)
+* `@humitos <http://github.com/humitos>`__: Remove unnecessary migration (`#4806 <https://github.com/rtfd/readthedocs.org/pull/4806>`__)
+* `@humitos <http://github.com/humitos>`__: Feature flag to make `readthedocs` theme default on MkDocs docs (`#4802 <https://github.com/rtfd/readthedocs.org/pull/4802>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add codecov badge (`#4799 <https://github.com/rtfd/readthedocs.org/pull/4799>`__)
+* `@humitos <http://github.com/humitos>`__: Pin missing dependency for the MkDocs guide compatibility (`#4798 <https://github.com/rtfd/readthedocs.org/pull/4798>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.2 (`#4796 <https://github.com/rtfd/readthedocs.org/pull/4796>`__)
+* `@humitos <http://github.com/humitos>`__: Do not log as error a webhook with an invalid branch name (`#4779 <https://github.com/rtfd/readthedocs.org/pull/4779>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Run travis on release branches (`#4763 <https://github.com/rtfd/readthedocs.org/pull/4763>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove Eric & Anthony from ADMINS & MANAGERS settings (`#4762 <https://github.com/rtfd/readthedocs.org/pull/4762>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't use RequestsContext (`#4759 <https://github.com/rtfd/readthedocs.org/pull/4759>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Django 1.11 upgrade (`#4750 <https://github.com/rtfd/readthedocs.org/pull/4750>`__)
+* `@stsewd <http://github.com/stsewd>`__: Dropdown to select Advanced Settings (`#4710 <https://github.com/rtfd/readthedocs.org/pull/4710>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove hardcoded constant from config module (`#4704 <https://github.com/rtfd/readthedocs.org/pull/4704>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update tastypie (`#4325 <https://github.com/rtfd/readthedocs.org/pull/4325>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update to Django 1.10 (`#4319 <https://github.com/rtfd/readthedocs.org/pull/4319>`__)
+
+Version 2.7.2
+-------------
+
+:Date: October 23, 2018
+
+* `@humitos <http://github.com/humitos>`__: Validate the slug generated is valid before importing a project (`#4780 <https://github.com/rtfd/readthedocs.org/pull/4780>`__)
+* `@humitos <http://github.com/humitos>`__: Do not log as error a webhook with an invalid branch name (`#4779 <https://github.com/rtfd/readthedocs.org/pull/4779>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add an index page to our design docs. (`#4775 <https://github.com/rtfd/readthedocs.org/pull/4775>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove /embed API endpoint (`#4771 <https://github.com/rtfd/readthedocs.org/pull/4771>`__)
+* `@stsewd <http://github.com/stsewd>`__: Upgrade logs from debug on middleware (`#4769 <https://github.com/rtfd/readthedocs.org/pull/4769>`__)
+* `@humitos <http://github.com/humitos>`__: Link to SSL for Custom Domains fixed (`#4766 <https://github.com/rtfd/readthedocs.org/pull/4766>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove Eric & Anthony from ADMINS & MANAGERS settings (`#4762 <https://github.com/rtfd/readthedocs.org/pull/4762>`__)
+* `@humitos <http://github.com/humitos>`__: Do not re-raise the exception if the one that we are checking (`#4761 <https://github.com/rtfd/readthedocs.org/pull/4761>`__)
+* `@humitos <http://github.com/humitos>`__: Do not fail when unlinking an non-existing path (`#4760 <https://github.com/rtfd/readthedocs.org/pull/4760>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend the DomainForm from outside (`#4752 <https://github.com/rtfd/readthedocs.org/pull/4752>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fixes an OSX issue with the test suite (`#4748 <https://github.com/rtfd/readthedocs.org/pull/4748>`__)
+* `@humitos <http://github.com/humitos>`__: Use Docker time limit for max lock age (`#4747 <https://github.com/rtfd/readthedocs.org/pull/4747>`__)
+* `@xyNNN <http://github.com/xyNNN>`__: Fixed link of PagerDuty (`#4744 <https://github.com/rtfd/readthedocs.org/pull/4744>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Make storage syncers extend from a base class (`#4742 <https://github.com/rtfd/readthedocs.org/pull/4742>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Upgrade theme media to 0.4.2" (`#4735 <https://github.com/rtfd/readthedocs.org/pull/4735>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Upgrade theme media to 0.4.2 (`#4734 <https://github.com/rtfd/readthedocs.org/pull/4734>`__)
+* `@stsewd <http://github.com/stsewd>`__: Extend install option from config file (v2, schema only) (`#4732 <https://github.com/rtfd/readthedocs.org/pull/4732>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove /cname endpoint (`#4731 <https://github.com/rtfd/readthedocs.org/pull/4731>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix get_vcs_repo by moving it to the Mixin (`#4727 <https://github.com/rtfd/readthedocs.org/pull/4727>`__)
+* `@humitos <http://github.com/humitos>`__: Guide explaining how to keep compatibility with mkdocs (`#4726 <https://github.com/rtfd/readthedocs.org/pull/4726>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.1 (`#4725 <https://github.com/rtfd/readthedocs.org/pull/4725>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix the form for adopting a project (`#4721 <https://github.com/rtfd/readthedocs.org/pull/4721>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove logging verbosity on syncer failure (`#4717 <https://github.com/rtfd/readthedocs.org/pull/4717>`__)
+* `@humitos <http://github.com/humitos>`__: Lint requirement file for py2 (`#4712 <https://github.com/rtfd/readthedocs.org/pull/4712>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Improve the getting started docs (`#4676 <https://github.com/rtfd/readthedocs.org/pull/4676>`__)
+* `@stsewd <http://github.com/stsewd>`__: Strict validation in configuration file (v2 only) (`#4607 <https://github.com/rtfd/readthedocs.org/pull/4607>`__)
+* `@stsewd <http://github.com/stsewd>`__: Run coverage on travis (`#4605 <https://github.com/rtfd/readthedocs.org/pull/4605>`__)
+
 Version 2.7.1
 -------------
 

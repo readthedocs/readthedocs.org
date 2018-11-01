@@ -27,6 +27,7 @@ extensions = [
     'sphinxcontrib.httpdomain',
     'djangodocs',
     'doc_extensions',
+    'sphinx_tabs.tabs',
 ]
 templates_path = ['_templates']
 
@@ -40,8 +41,8 @@ project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = '1.0'
-release = '1.0'
+version = '2.7'
+release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
 intersphinx_mapping = {

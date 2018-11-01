@@ -37,7 +37,7 @@ from .constants import (
 from .exceptions import (
     BuildEnvironmentCreationFailed, BuildEnvironmentError,
     BuildEnvironmentException, BuildEnvironmentWarning, BuildTimeoutError,
-    ProjectBuildsSkippedError, VersionLockedError, YAMLParseError)
+    ProjectBuildsSkippedError, VersionLockedError, YAMLParseError, MkDocsYAMLParseError)
 
 log = logging.getLogger(__name__)
 
@@ -438,6 +438,7 @@ class BuildEnvironment(BaseEnvironment):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
+        MkDocsYAMLParseError
     )
 
     def __init__(self, project=None, version=None, build=None, config=None,

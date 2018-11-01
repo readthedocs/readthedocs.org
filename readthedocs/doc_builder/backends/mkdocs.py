@@ -15,7 +15,8 @@ from django.conf import settings
 from django.template import loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +51,23 @@ class BaseMkdocs(BaseBuilder):
         self.root_path = self.version.project.checkout_path(self.version.slug)
         self.yaml_file = self.get_yaml_config()
 
+        # README: historically, the default theme was ``readthedocs`` but in
+        # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
+        # ``mkdocs`` to maintain the same behavior in Read the Docs than
+        # building locally. Although, we can't apply this into the Corporate
+        # site. To keep the same default theme there, we created a Feature flag
+        # for these project that were building with MkDocs in the Corporate
+        # site.
+        if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
+            self.DEFAULT_THEME_NAME = 'readthedocs'
+            log.warning(
+                'Project using readthedocs theme as default for MkDocs: slug=%s',
+                self.project.slug,
+            )
+        else:
+            self.DEFAULT_THEME_NAME = 'mkdocs'
+
+
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
         mkdoc_path = self.config.mkdocs.configuration
@@ -81,7 +99,7 @@ class BaseMkdocs(BaseBuilder):
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
                 note = ' (line %d, column %d)' % (mark.line + 1, mark.column + 1)
-            raise BuildEnvironmentError(
+            raise MkDocsYAMLParseError(
                 'Your mkdocs.yml could not be loaded, '
                 'possibly due to a syntax error{note}'.format(note=note)
             )
@@ -129,6 +147,13 @@ class BaseMkdocs(BaseBuilder):
         # Use Read the Docs' analytics setup rather than mkdocs'
         # This supports using RTD's privacy improvements around analytics
         user_config['google_analytics'] = None
+
+        # README: make MkDocs to use ``readthedocs`` theme as default if the
+        # user didn't specify a specific theme manually
+        if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
+            if 'theme' not in user_config:
+                # mkdocs<0.17 syntax
+                user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
         yaml.safe_dump(

@@ -73,7 +73,7 @@ def load_yaml_config(version):
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
-            source_file=path.join(checkout_path, 'empty'),
+            source_file=checkout_path,
             source_position=0,
         )
         config.validate()

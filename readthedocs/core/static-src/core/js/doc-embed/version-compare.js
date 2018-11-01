@@ -15,8 +15,8 @@ function init(data) {
         '<div class="admonition warning"> ' +
         '<p class="first admonition-title">Note</p> ' +
         '<p class="last"> ' +
-        'You are not using the most up to date version of the library. ' +
-        '<a href="#"></a> is the newest version.' +
+        'You are not reading the most recent version of this documentation. ' +
+        '<a href="#"></a> is the latest version available.' +
         '</p>' +
         '</div>');
 

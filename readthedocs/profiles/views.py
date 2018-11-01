@@ -2,124 +2,30 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.core.forms import UserDeleteForm, UserAdvertisingForm
+from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
 
 
-def create_profile(
-        request, form_class, success_url=None,
-        template_name='profiles/private/create_profile.html',
-        extra_context=None):
-    """
-    Create a profile for the current user, if one doesn't already exist.
-
-    If the user already has a profile, a redirect will be issued to the
-    :view:`profiles.views.edit_profile` view.
-
-    **Optional arguments:**
-
-    ``extra_context``
-        A dictionary of variables to add to the template context. Any
-        callable object in this dictionary will be called to produce
-        the end result which appears in the context.
-
-    ``form_class``
-        The form class to use for validating and creating the user
-        profile. This form class must define a method named
-        ``save()``, implementing the same argument signature as the
-        ``save()`` method of a standard Django ``ModelForm`` (this
-        view will call ``save(commit=False)`` to obtain the profile
-        object, and fill in the user before the final save). If the
-        profile object includes many-to-many relations, the convention
-        established by ``ModelForm`` of using a method named
-        ``save_m2m()`` will be used, and so your form class should
-        also define this method.
-
-    ``success_url``
-        The URL to redirect to after successful profile creation. If
-        this argument is not supplied, this will default to the URL of
-        :view:`profiles.views.profile_detail` for the newly-created
-        profile object.
-
-    ``template_name``
-        The template to use when displaying the profile-creation
-        form. If not supplied, this will default to
-        :template:`profiles/create_profile.html`.
-
-    **Context:**
-
-    ``form``
-        The profile-creation form.
-
-    **Template:**
-
-    ``template_name`` keyword argument, or
-    :template:`profiles/create_profile.html`.
-    """
-    try:
-        profile_obj = request.user.profile
-        return HttpResponseRedirect(reverse('profiles_edit_profile'))
-    except ObjectDoesNotExist:
-        pass
-
-    #
-    # We set up success_url here, rather than as the default value for
-    # the argument. Trying to do it as the argument's default would
-    # mean evaluating the call to reverse() at the time this module is
-    # first imported, which introduces a circular dependency: to
-    # perform the reverse lookup we need access to profiles/urls.py,
-    # but profiles/urls.py in turn imports this module.
-    #
-
-    if success_url is None:
-        success_url = reverse(
-            'profiles_profile_detail',
-            kwargs={'username': request.user.username})
-    if request.method == 'POST':
-        form = form_class(data=request.POST, files=request.FILES)
-        if form.is_valid():
-            profile_obj = form.save(commit=False)
-            profile_obj.user = request.user
-            profile_obj.save()
-            if hasattr(form, 'save_m2m'):
-                form.save_m2m()
-            return HttpResponseRedirect(success_url)
-    else:
-        form = form_class()
-
-    if extra_context is None:
-        extra_context = {}
-    context = RequestContext(request)
-    for key, value in list(extra_context.items()):
-        context[key] = (value() if callable(value) else value)
-
-    context.update({'form': form})
-    return render(request, template_name, context=context)
-
-
-create_profile = login_required(create_profile)
-
-
+@login_required
 def edit_profile(
         request, form_class, success_url=None,
         template_name='profiles/private/edit_profile.html', extra_context=None):
     """
     Edit the current user's profile.
-
-    If the user does not already have a profile, a redirect will be issued to
-    the :view:`profiles.views.create_profile` view.
 
     **Optional arguments:**
 
@@ -160,11 +66,7 @@ def edit_profile(
     ``template_name`` keyword argument or
     :template:`profiles/edit_profile.html`.
     """
-    try:
-        profile_obj = request.user.profile
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('profiles_profile_create'))
-
+    profile_obj = request.user.profile
     if success_url is None:
         success_url = reverse(
             'profiles_profile_detail',
@@ -180,19 +82,16 @@ def edit_profile(
 
     if extra_context is None:
         extra_context = {}
-    context = RequestContext(request)
-    for key, value in list(extra_context.items()):
-        context[key] = (value() if callable(value) else value)
-
+    context = {
+        key: value() if callable(value) else value
+        for key, value in extra_context.items()
+    }
     context.update({
         'form': form,
         'profile': profile_obj,
         'user': profile_obj.user,
     })
     return render(request, template_name, context=context)
-
-
-edit_profile = login_required(edit_profile)
 
 
 @login_required()
@@ -204,7 +103,7 @@ def delete_account(request):
         form = UserDeleteForm(instance=request.user, data=request.POST)
         if form.is_valid():
             # Delete the user permanently
-            # It will also delete some projects where he is the only owner
+            # It will also delete some projects where the user is the only owner
             request.user.delete()
             logout(request)
             messages.info(request, 'You have successfully deleted your account')
@@ -221,8 +120,7 @@ def profile_detail(
     """
     Detail view of a user's profile.
 
-    If the user has not yet created a profile, ``Http404`` will be
-    raised.
+    If the user does not exists, ``Http404`` will be raised.
 
     **Required arguments:**
 
@@ -264,20 +162,17 @@ def profile_detail(
     :template:`profiles/profile_detail.html`.
     """
     user = get_object_or_404(User, username=username)
-    try:
-        profile_obj = user.profile
-    except ObjectDoesNotExist:
-        raise Http404
-    if public_profile_field is not None and \
-       not getattr(profile_obj, public_profile_field):
+    profile_obj = user.profile
+    if (public_profile_field is not None and
+            not getattr(profile_obj, public_profile_field)):
         profile_obj = None
 
     if extra_context is None:
         extra_context = {}
-    context = RequestContext(request)
-    for key, value in list(extra_context.items()):
-        context[key] = (value() if callable(value) else value)
-
+    context = {
+        key: value() if callable(value) else value
+        for key, value in extra_context.items()
+    }
     context.update({'profile': profile_obj})
     return render(request, template_name, context=context)
 
@@ -285,12 +180,7 @@ def profile_detail(
 @login_required
 def account_advertising(request):
     success_url = reverse(account_advertising)
-
-    try:
-        profile_obj = request.user.profile
-    except ObjectDoesNotExist:
-        return HttpResponseRedirect(reverse('profiles_profile_create'))
-
+    profile_obj = request.user.profile
     if request.method == 'POST':
         form = UserAdvertisingForm(
             data=request.POST,

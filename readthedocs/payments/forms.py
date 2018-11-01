@@ -71,6 +71,11 @@ class StripeModelForm(forms.ModelForm):
     :cvar cc_cvv: Credit card security code field, used only by Stripe.js
     """
 
+    business_vat_id = forms.CharField(
+        label=_('VAT ID number'),
+        required=False,
+    )
+
     # Stripe token input from Stripe.js
     stripe_token = forms.CharField(
         required=False,
