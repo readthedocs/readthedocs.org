@@ -72,13 +72,11 @@ I get import errors on libraries that depend on C modules
 
 This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-If you are mocking your dependencies without using the mock library, then you can use this feature `autodoc_mock_imports`_ to mock your dependencies.
+If you are mocking your Sphinx dependencies without using the mock library, then you can use `autodoc_mock_imports`_.
 
-.. _autodock_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
+.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
-For mocking the dependencies with mock library:
-
-You can mock out the imports for these modules in your ``conf.py`` with the following snippet:
+For mocking the dependencies with the mock library, you can mock out the imports for these modules in your ``conf.py`` with the following snippet::
 
     import sys
     from unittest.mock import MagicMock
@@ -91,7 +89,7 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
+You need to replace ``MOCK_MODULES`` with the modules that you want to mock out.
 
 .. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
     from PyPI with (ie ``pip install mock``) and replace the above import::
