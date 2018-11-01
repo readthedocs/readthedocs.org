@@ -24,7 +24,9 @@ class BuildEnvironmentError(BuildEnvironmentException):
 
     GENERIC_WITH_BUILD_ID = ugettext_noop(
         'There was a problem with Read the Docs while building your documentation. '
-        'Please report this to us with your build id ({build_id}).',
+        'Please try again later. '
+        'However, if this problem persists, '
+        'please report this to us with your build id ({build_id}).',
     )
 
 
