@@ -16,6 +16,8 @@ matrix:
       script: tox
     - python: 3.6
       env: TOXENV=eslint
+    - python: 3.6
+      env: TOXENV=migrations
 cache:
   directories:
     - ~/.cache/pip
@@ -42,4 +44,6 @@ notifications:
 
 branches:
   only:
-  - master
+  - master 
+  - rel # Community release branch
+  - relcorp # Corporate release branch
