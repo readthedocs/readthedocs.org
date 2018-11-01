@@ -17,15 +17,15 @@
 
 <div class="navigable">
 <ul>
-    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">Projects</a></li>
-    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">Files</a></li>
+    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
+    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
 
     <hr>
 
     {% if type == 'project' %}
 
       {% if facets.language %}
-        <h5> Language </h5>
+        <h5>{% trans 'Language' %}</h5>
           {% for name, count in facets.language.items %}
             <li class="{% if language == name %}active{% endif %} language-list">
               {% if language == name %}
@@ -44,7 +44,7 @@
   {% if type == 'file' %}
 
     {% if facets.project %}
-      <h5> Projects </h5>
+      <h5>{% trans 'Projects' %}</h5>
         {% for name, count in facets.project.items %}
           <li class="{% if project == name %}active{% endif %} project-list">
             {% if project == name %}
@@ -61,7 +61,7 @@
 
     {% if facets.version %}
 
-      <h5>Version</h5>
+      <h5>{% trans 'Version' %}</h5>
         {% for name, count in facets.version.items %}
           <li class="{% if version == name %}active{% endif %} version-list">
             {% if version == name %}
@@ -79,7 +79,7 @@
 
     {% if facets.taxonomy %}
 
-      <h5>Taxonomy</h5> 
+      <h5>{% trans 'Taxonomy' %}</h5>
         {% for name, count in facets.taxonomy.items %}
           <li class="{% if taxonomy == name %}active{% endif %}">
             {% if taxonomy == name %}
@@ -105,7 +105,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
 
 </ul>
   <div>
-        <h2>Search</h2>
+        <h2>{% trans 'Search' %}</h2>
         <!-- BEGIN search form -->
         <div class="wide-search-bar">
           <div class="wide-search-bar-wrapper clearfix">

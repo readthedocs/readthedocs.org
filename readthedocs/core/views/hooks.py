@@ -33,35 +33,19 @@ def _build_version(project, slug, already_built=()):
 
     All webhook logic should route here to call ``trigger_build``.
     """
-    default = project.default_branch or (project.vcs_repo().fallback_branch)
     if not project.has_valid_webhook:
         project.has_valid_webhook = True
         project.save()
-    if slug == default and slug not in already_built:
-        # short circuit versions that are default
-        # these will build at "latest", and thus won't be
-        # active
-        latest_version = project.versions.get(slug=LATEST)
-        trigger_build(project=project, version=latest_version, force=True)
-        log.info("(Version build) Building %s:%s",
-                 project.slug, latest_version.slug)
-        if project.versions.exclude(active=False).filter(slug=slug).exists():
-            # Handle the case where we want to build the custom branch too
-            slug_version = project.versions.get(slug=slug)
-            trigger_build(project=project, version=slug_version, force=True)
-            log.info("(Version build) Building %s:%s",
-                     project.slug, slug_version.slug)
-        return LATEST
-
-    if project.versions.exclude(active=True).filter(slug=slug).exists():
-        log.info("(Version build) Not Building %s", slug)
-        return None
-
-    if slug not in already_built:
-        version = project.versions.get(slug=slug)
+    # Previously we were building the latest version (inactive or active)
+    # when building the default version,
+    # some users may have relied on this to update the version list #4450
+    version = project.versions.filter(active=True, slug=slug).first()
+    if version and slug not in already_built:
+        log.info(
+            "(Version build) Building %s:%s",
+            project.slug, version.slug,
+        )
         trigger_build(project=project, version=version, force=True)
-        log.info("(Version build) Building %s:%s",
-                 project.slug, version.slug)
         return slug
 
     log.info("(Version build) Not Building %s", slug)
