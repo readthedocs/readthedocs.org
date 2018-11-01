@@ -19,6 +19,7 @@ you can still host with us.
 We require two steps from your side:
 
 * Add a CNAME record in your DNS that points to our servers ``<organization-slug>.users.readthedocs.com``
+* Set your project's Privacy Level to *Public* from **Project Admin > Advance Settings**.
 * Add a Domain in the **Project Admin > Domains** page for your project.
 
 .. note:: The domain that should be used is the actual subdomain that you want your docs served on.
