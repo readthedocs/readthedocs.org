@@ -605,7 +605,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
-                    'active': True,
                     'built': True,
                 })
         except HttpClientError:
