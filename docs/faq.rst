@@ -98,7 +98,6 @@ You need to replace ``MOCK_MODULES`` with the modules that you want to mock out.
 
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
-
 `Client Error 401` when building documentation
 ----------------------------------------------
 
