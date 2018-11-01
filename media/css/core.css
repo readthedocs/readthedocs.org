@@ -395,6 +395,29 @@ div.search-sponsored { margin-top: 50px; }
 #search_module .pagination { float: right; margin-top: 1em; }
 
 
+/* email-verification block */
+
+.verification-error-block {
+    margin-bottom: 2em;
+    color: red;
+}
+
+.verification-error-block button {
+    margin: 1em 0em;
+}
+
+.resend-activation-link {
+    text-decoration: none;
+    color: red
+}
+
+.resend-activation-link:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: red;
+}
+
+
 /* module */
 
 .module { margin-bottom: 60px;  }
@@ -1356,23 +1379,3 @@ div.highlight pre .vc { color: #bb60d5 } /* Name.Variable.Class */
 div.highlight pre .vg { color: #bb60d5 } /* Name.Variable.Global */
 div.highlight pre .vi { color: #bb60d5 } /* Name.Variable.Instance */
 div.highlight pre .il { color: #40a070 } /* Literal.Number.Integer.Long */
-
-.msg-block {
-    margin-bottom: 2em;
-    color: red;
-}
-
-.msg-block button {
-    margin: 1em 0em;
-}
-
-.resend-activation-link {
-    text-decoration: none;
-    color: red
-}
-
-.resend-activation-link:hover {
-    cursor: pointer;
-    text-decoration: underline;
-    color: red;
-}
