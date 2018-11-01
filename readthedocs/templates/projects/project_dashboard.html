@@ -4,12 +4,12 @@
 
   {% if not primary_email.verified %}
     <div class="verification-error-block">
-      Verify Your Email Address ({{ primary_email.email }})
+      Please verify your email address ({{ primary_email.email }})
       <br />
       <form action="{% url 'account_email' %}" method="post">
         {% csrf_token %}
         <input type="hidden" value="{{ primary_email.email }}" name="email" />
-        <button type="submit" name="action_send">Re-send Activation Link</button>
+        <button type="submit" name="action_send">Re-send activation link</button>
       </form>
     </div>
   {% endif %}
