@@ -108,6 +108,8 @@ class BaseSphinx(BaseBuilder):
             downloads = api.version(self.version.pk).get()['downloads']
 
         data = {
+            'html_theme': 'sphinx_rtd_theme',
+            'html_theme_import': 'sphinx_rtd_theme',
             'current_version': self.version.verbose_name,
             'project': self.project,
             'version': self.version,

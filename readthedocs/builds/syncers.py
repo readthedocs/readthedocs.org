@@ -22,10 +22,19 @@ from readthedocs.core.utils import safe_makedirs
 log = logging.getLogger(__name__)
 
 
-class LocalSyncer(object):
+class BaseSyncer(object):
+
+    """A base object for syncers and pullers"""
 
     @classmethod
-    def copy(cls, path, target, is_file=False, **__):
+    def copy(cls, path, target, is_file=False, **kwargs):
+        raise NotImplementedError
+
+
+class LocalSyncer(BaseSyncer):
+
+    @classmethod
+    def copy(cls, path, target, is_file=False, **kwargs):
         """A copy command that works with files or directories."""
         log.info("Local Copy %s to %s", path, target)
         if is_file:
@@ -41,10 +50,10 @@ class LocalSyncer(object):
             shutil.copytree(path, target)
 
 
-class RemoteSyncer(object):
+class RemoteSyncer(BaseSyncer):
 
     @classmethod
-    def copy(cls, path, target, is_file=False, **__):
+    def copy(cls, path, target, is_file=False, **kwargs):
         """
         A better copy command that works with files or directories.
 
@@ -77,10 +86,10 @@ class RemoteSyncer(object):
                     log.debug("Copy error to app servers: cmd=%s", sync_cmd)
 
 
-class DoubleRemotePuller(object):
+class DoubleRemotePuller(BaseSyncer):
 
     @classmethod
-    def copy(cls, path, target, host, is_file=False, **__):
+    def copy(cls, path, target, host, is_file=False, **kwargs):  # pylint: disable=arguments-differ
         """
         A better copy command that works from the webs.
 
@@ -114,10 +123,10 @@ class DoubleRemotePuller(object):
                 log.debug("Copy error to app servers: cmd=%s", sync_cmd)
 
 
-class RemotePuller(object):
+class RemotePuller(BaseSyncer):
 
     @classmethod
-    def copy(cls, path, target, host, is_file=False, **__):
+    def copy(cls, path, target, host, is_file=False, **kwargs):  # pylint: disable=arguments-differ
         """
         A better copy command that works from the webs.
 

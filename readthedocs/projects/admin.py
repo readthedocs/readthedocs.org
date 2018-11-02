@@ -195,6 +195,7 @@ class FeatureAdmin(admin.ModelAdmin):
     search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)
+    raw_id_fields = ('projects',)
 
     def project_count(self, feature):
         return feature.projects.count()
