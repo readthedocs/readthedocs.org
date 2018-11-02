@@ -19,6 +19,16 @@ def forwards_func(apps, schema_editor):
         project.slug = project.slug[:max_length]
         project.save()
 
+    projects_invalid_name = (
+        Project
+        .objects
+        .annotate(name_length=Length('name'))
+        .filter(name_length__gt=max_length)
+    )
+    for project in projects_invalid_name:
+        project.name = project.name[:max_length]
+        project.save()
+
 
 class Migration(migrations.Migration):
 
@@ -32,5 +42,10 @@ class Migration(migrations.Migration):
             model_name='project',
             name='slug',
             field=models.SlugField(max_length=63, unique=True, verbose_name='Slug'),
+        ),
+        migrations.AlterField(
+            model_name='project',
+            name='name',
+            field=models.CharField(max_length=63, verbose_name='Name'),
         ),
     ]
