@@ -104,13 +104,17 @@ def projects(request):
 
     if request.method == 'POST':
         form = GoldProjectForm(
-            data=request.POST, user=gold_user, projects=gold_projects)
+            active_user=request.user, data=request.POST, user=gold_user, projects=gold_projects)
         if form.is_valid():
             to_add = Project.objects.get(slug=form.cleaned_data['project'])
             gold_user.projects.add(to_add)
             return HttpResponseRedirect(reverse('gold_projects'))
     else:
-        form = GoldProjectForm()
+        # HACK: active_user=request.user is passed
+        # as argument to get the currently active
+        # user in the GoldProjectForm which is used
+        # to filter the choices based on the user.
+        form = GoldProjectForm(active_user=request.user)
 
     return render(
         request, 'gold/projects.html', {

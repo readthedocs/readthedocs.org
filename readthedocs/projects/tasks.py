@@ -421,10 +421,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 msg=msg,
             ))
 
-            # Send notification to users only if the build didn't fail because of
-            # LockTimeout: this exception occurs when a build is triggered before the previous
-            # one has finished (e.g. two webhooks, one after the other)
-            if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
+            # Send notification to users only if the build didn't fail because
+            # of VerisionLockedTimeout: this exception occurs when a build is
+            # triggered before the previous one has finished (e.g. two webhooks,
+            # one after the other)
+            if not isinstance(self.setup_env.failure, VersionLockedError):
                 self.send_notifications()
 
             return False
@@ -621,7 +622,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
-                    'active': True,
                     'built': True,
                 })
         except HttpClientError:
