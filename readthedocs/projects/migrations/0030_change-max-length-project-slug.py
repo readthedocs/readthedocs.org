@@ -46,6 +46,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='project',
             name='name',
-            field=models.SlugField(max_length=63, verbose_name='Name'),
+            field=models.CharField(max_length=63, verbose_name='Name'),
         ),
     ]
