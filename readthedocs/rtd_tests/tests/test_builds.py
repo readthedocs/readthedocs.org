@@ -244,8 +244,8 @@ class BuildEnvironmentTests(TestCase):
         task.setup_vcs = mock.Mock()
         task.run_setup()
         build_config = task.build['config']
-        # For get and put
-        assert api_v2.build.call_count == 2
+        # For patch
+        api_v2.build.assert_called_once()
         assert build_config['version'] == '1'
         assert 'sphinx' in build_config
         assert build_config['doctype'] == 'sphinx'

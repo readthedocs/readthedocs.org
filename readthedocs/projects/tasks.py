@@ -603,10 +603,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     def save_build_config(self):
         """Save config in the build object."""
         pk = self.build['id']
-        build_data = api_v2.build(pk).get()
         config = self.config.as_dict()
-        build_data['config'] = config
-        api_v2.build(pk).put(build_data)
+        api_v2.build(pk).patch({
+            'config': config,
+        })
         self.build['config'] = config
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
