@@ -2,16 +2,22 @@
 
 {% block email_verification %}
 
-  {% if not primary_email.verified %}
-    <div class="verification-error-block">
-      Please verify your email address ({{ primary_email.email }})
-      <br />
-      <form action="{% url 'account_email' %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" value="{{ primary_email.email }}" name="email" />
-        <button type="submit" name="action_send">Re-send activation link</button>
-      </form>
-    </div>
+  {% if primary_email %}
+    {% if not primary_email.verified %}
+      <div class="verification-error-block">
+        Please verify your email address ({{ primary_email.email }})
+        <br />
+        <form action="{% url 'account_email' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" value="{{ primary_email.email }}" name="email" />
+          <button type="submit" name="action_send">Re-send activation link</button>
+        </form>
+      </div>
+    {% endif %}
+  {% else %}
+      <div class="verification-error-block">
+        Please Add A Primary Email. Click <a href="{% url 'account_email' %}">Here</a> To Add.
+      </div>
   {% endif %}
 
 {% endblock %}

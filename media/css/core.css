@@ -402,6 +402,10 @@ div.search-sponsored { margin-top: 50px; }
     color: red;
 }
 
+.verification-error-block a {
+    color: red;
+}
+
 .verification-error-block button {
     margin: 1em 0em;
 }
