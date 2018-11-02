@@ -505,6 +505,10 @@ class Build(models.Model):
         get_latest_by = 'date'
         index_together = [['version', 'state', 'type']]
 
+    def __init__(self, *args, **kwargs):
+        super(Build, self).__init__(*args, **kwargs)
+        self._config_changed = False
+
     @property
     def previous(self):
         """
@@ -543,6 +547,7 @@ class Build(models.Model):
     @config.setter
     def config(self, value):
         self._config = value
+        self._config_changed = True
 
     def save(self, *args, **kwargs):  # noqa
         """
@@ -554,11 +559,13 @@ class Build(models.Model):
         If the config is the same, we save the pk of the object
         that has the **real** config under the `CONFIG_KEY` key.
         """
-        previous = self.previous
-        if previous is not None and self._config == previous.config:
-            previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
-            self._config = {self.CONFIG_KEY: previous_pk}
+        if self.pk is None or self._config_changed:
+            previous = self.previous
+            if previous is not None and self._config == previous.config:
+                previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
+                self._config = {self.CONFIG_KEY: previous_pk}
         super(Build, self).save(*args, **kwargs)
+        self.__config_changed = False
 
     def __str__(self):
         return ugettext(
