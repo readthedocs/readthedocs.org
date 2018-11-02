@@ -538,12 +538,9 @@ class WebHookForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super(WebHookForm, self).__init__(*args, **kwargs)
 
-    def clean_url(self):
+    def save(self, commit=True):
         self.webhook = WebHook.objects.get_or_create(
             url=self.cleaned_data['url'], project=self.project)[0]
-        return self.webhook
-
-    def save(self, commit=True):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
