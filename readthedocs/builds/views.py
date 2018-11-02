@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Views for builds app."""
 
 from __future__ import (
@@ -35,8 +36,13 @@ class BuildBase(object):
 
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
-        self.project = get_object_or_404(Project.objects.protected(self.request.user),slug=self.project_slug,)
-        queryset = Build.objects.public(user=self.request.user, project=self.project)
+        self.project = get_object_or_404(
+            Project.objects.protected(self.request.user),
+            slug=self.project_slug,
+        )
+        queryset = Build.objects.public(
+            user=self.request.user, project=self.project
+        )
 
         return queryset
 
@@ -57,10 +63,10 @@ class BuildTriggerMixin(object):
             slug=version_slug,
         )
 
-        _, signature = trigger_build(project=project, version=version)
-        build_pk = signature.get('kwargs', {}).get('build_pk')
+        _, build = trigger_build(project=project, version=version)
         return HttpResponseRedirect(
-            reverse('builds_detail', args=[project.slug, build_pk]))
+            reverse('builds_detail', args=[project.slug, build.pk]),
+        )
 
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
@@ -68,11 +74,14 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
 
-        active_builds = self.get_queryset().exclude(state='finished').values('id')
+        active_builds = self.get_queryset().exclude(state='finished'
+                                                    ).values('id')
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
+        context['versions'] = Version.objects.public(
+            user=self.request.user, project=self.project
+        )
         context['build_qs'] = self.get_queryset()
 
         return context
@@ -91,8 +100,12 @@ class BuildDetail(BuildBase, DetailView):
 
 
 def builds_redirect_list(request, project_slug):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(reverse('builds_project_list', args=[project_slug]))
+    return HttpResponsePermanentRedirect(
+        reverse('builds_project_list', args=[project_slug])
+    )
 
 
 def builds_redirect_detail(request, project_slug, pk):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(reverse('builds_detail', args=[project_slug, pk]))
+    return HttpResponsePermanentRedirect(
+        reverse('builds_detail', args=[project_slug, pk])
+    )
