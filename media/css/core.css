@@ -397,23 +397,10 @@ div.search-sponsored { margin-top: 50px; }
 
 /* email-verification block */
 
-.verification-error-block {
-    margin-bottom: 2em;
-    color: red;
-}
-
-.verification-error-block a {
-    color: red;
-}
-
-.verification-error-block button {
-    margin: 1em 0em;
-}
-
-.resend-activation-link {
-    text-decoration: none;
-    color: red
-}
+.verification-error-block { margin-bottom: 2em; color: red;}
+.verification-error-block a { color: red; }
+.verification-error-block button { margin: 1em 0em; }
+.resend-activation-link { text-decoration: none; color: red }
 
 .resend-activation-link:hover {
     cursor: pointer;
