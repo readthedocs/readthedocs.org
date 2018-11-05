@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0029_add_additional_languages'),
+        ('projects', '0030_add_modified_date_importedfile'),
     ]
 
     operations = [
