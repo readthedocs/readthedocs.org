@@ -476,6 +476,76 @@ Build triggering
     :statuscode 401: Not valid permissions
 
 
+Footer
+~~~~~~
+
+
+.. http:get::  /api/v3/footer/(string:project_slug)/
+
+    Retrieve footer data for the project.
+
+    **Example response**:
+
+    .. sourcecode:: js
+
+        {
+            "version": {VERSION DETAIL},
+            "project": {PROJECT DETAIL},
+            "sphinx": {
+                "html_theme": "sphinx_rtd_theme",
+                "source_suffix": ".rst"
+            },
+            "analytics": {
+                "user_analytics_code": "UA-00000",
+                "global_analytics_code": "UA-00001"
+            },
+            "vcs": {
+                "type": "github"
+                "user": "pypa",
+                "repo": "pip",
+                "commit": "3a6b3995c141c0888af6591a59240ba5db7d9914",
+                "version": "18.1",
+                "display": true,
+                "conf_py_path": "/docs/conf.py"
+            },
+            "meta": {
+                "API_HOST": "readthedocs.org",
+                "MEDIA_URL": "https://media.readthedocs.org",
+                "PRODUCTION_DOMAIN": "readthedocs.io",
+                "READTHEDOCS": true
+            }
+        }
+    }
+
+
+    .. TODO:
+
+       Complete JSON body response fields
+
+    :query string version_slug: The version slug of the current docs
+    :query string page_slug: Page currently displayed to user for reading
+    :query string theme: Theme used in the documentation
+    :query string docroot: Docroot used to generate external links
+    :query string source_suffix: Source suffix used to generate external links
+    :query string format: Output format (``jsonp``, ``json``)
+
+    :statuscode 200: Success
+    :statuscode 404: There is no ``Project`` with this slug
+
+
+    .. TODO:
+
+       We could return less information here and rely on the client to
+       query what is specifically needed to create the footer version
+       flyout but we will probably do all the queries in the general
+       case. I think it's preferable to return what is needed in this
+       case and if less information is required, other endpoints can
+       be used.
+
+       The name of the endpoint could be under
+       ``/api/v3/project/(string:slug)/flyout/`` maybe or similar
+       since it's not a footer I think.
+
 
 References
 ----------
@@ -485,3 +555,4 @@ References
 * https://www.django-rest-framework.org/tutorial/5-relationships-and-hyperlinked-apis/#hyperlinking-our-api
 * https://restfulapi.net/hateoas/
 * https://en.wikipedia.org/wiki/HATEOAS
+* https://martinfowler.com/articles/richardsonMaturityModel.html#level3
