@@ -422,7 +422,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             ))
 
             # Send notification to users only if the build didn't fail because
-            # of VerisionLockedTimeout: this exception occurs when a build is
+            # of VersionLockedError: this exception occurs when a build is
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):

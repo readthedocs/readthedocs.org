@@ -229,6 +229,10 @@ class Version(models.Model):
             return self.identifier[:8]
         return self.identifier
 
+    @property
+    def is_editable(self):
+        return self.type == BRANCH
+
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(
