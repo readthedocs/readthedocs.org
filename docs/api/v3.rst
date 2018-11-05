@@ -303,7 +303,7 @@ For example, here is the `Pip project's version screen`_.
 Version detail
 ++++++++++++++
 
-.. http:get::  /api/v2/project/(string:project-slug)/version/(string:version-slug)/
+.. http:get::  /api/v2/project/(string:project_slug)/version/(string:version_slug)/
 
     Retrieve details of a single version.
 
