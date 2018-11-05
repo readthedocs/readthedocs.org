@@ -22,10 +22,10 @@ Available scopes
 ++++++++++++++++
 
 * ``project``
-  * ``project:admin``: access to change admin settings (similar to Admin tab)
-  * ``project:read``: access to read all the information about the projects
-  * ``project:write``: access to anything related to perform write actions (triggering a Build for this project, activate/deactivate versions, etc)
-  * ``project:docs``: access any file from any version of the project's documentation
+   * ``project:admin``: access to change admin settings (similar to Admin tab)
+   * ``project:read``: access to read all the information about the projects
+   * ``project:write``: access to anything related to perform write actions (triggering a Build for this project, activate/deactivate versions, etc)
+   * ``project:docs``: access any file from any version of the project's documentation
 
 
 .. TODO:
@@ -196,14 +196,6 @@ Project import
 
     .. sourcecode:: js
 
-        // Simple form
-        {
-            "name": "Pip",
-            "repo_url": "https://github.com/pypa/pip",
-            "repo_type": "git"
-        }
-
-        // Advanced form
         {
             "name": "Pip",
             "repo_url": "https://github.com/pypa/pip",
@@ -219,6 +211,8 @@ Project import
             ],
             "homepage": "https://pip.readthedocs.io/"
         }
+
+    ``name``, ``repo_url`` and ``repo_type`` are required.
 
     **Example response**:
 
