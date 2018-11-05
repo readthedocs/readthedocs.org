@@ -128,6 +128,11 @@ Project details
                     "type": "GET"
                 },
                 {
+                    "href": "/api/v3/project/pip/redirects/",
+                    "rel": "redirects",
+                    "type": "GET"
+                },
+                {
                     "href": "/api/v3/project/pip/notifications/",
                     "rel": "notifications",
                     "type": "GET"
@@ -144,6 +149,11 @@ Project details
                 },
                 {
                     "href": "/api/v3/project/pip/translations/",
+                    "rel": "translations",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/integrations/",
                     "rel": "translations",
                     "type": "GET"
                 }
@@ -174,6 +184,115 @@ Project details
 
    https://readthedocs.org/api/v2/project/?slug=pip
 
+
+Project import
+++++++++++++++
+
+.. http:post::  /api/v3/project/import/
+
+    Import a new project.
+
+    **Example request**:
+
+    .. sourcecode:: js
+
+        // Simple form
+        {
+            "name": "Pip",
+            "repo_url": "https://github.com/pypa/pip",
+            "repo_type": "git"
+        }
+
+        // Advanced form
+        {
+            "name": "Pip",
+            "repo_url": "https://github.com/pypa/pip",
+            "repo_type": "git"
+            "description": "Pip Installs Packages.",
+            "documentation_type": "sphinx_htmldir",
+            "language": "en",
+            "programing_language": "py",
+            "tags": [
+                "pip",
+                "python",
+                "packaging"
+            ],
+            "homepage": "https://pip.readthedocs.io/"
+        }
+
+    **Example response**:
+
+    *See Project details*
+
+    :statuscode 201: Created sucessfully
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
+
+
+Project edit
+++++++++++++
+
+.. http:patch::  /api/v3/project/(string:slug)/
+
+    Edit a project.
+
+    **Example request**:
+
+    .. sourcecode:: js
+
+        {
+            "description": "Pip helps you to install packages.",
+            "default_version": "stable",
+            "homepage": "https://pypi.org/project/pip/"
+        }
+
+    :statuscode 204: Edited successfully
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
+
+
+Add User to Project
++++++++++++++++++++
+
+
+.. http:post::  /api/v3/project/(string:slug)/users/
+
+    Add a User as mantainer to the project.
+
+    **Example request**:
+
+    .. sourcecode:: js
+
+        {
+            "username": "humitos"
+        }
+
+    :statuscode 201: Added successfully
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
+
+
+Add Domain to Project
++++++++++++++++++++++
+
+
+.. http:post::  /api/v3/project/(string:slug)/domains/
+
+    Add a Domain to the project.
+
+    **Example request**:
+
+    .. sourcecode:: js
+
+        {
+            "domain": "docs.pip.org"
+            "canonical": true,
+            "use_https": true
+        }
+
+    :statuscode 201: Added successfully
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
 
 
 Versions
@@ -233,6 +352,32 @@ Version detail
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Version`` with this slug
+
+
+Version edit
+++++++++++++
+
+.. http:patch::  /api/v3/project/(string:slug)/version/(string:slug)/
+
+    Edit a version.
+
+    **Example request**:
+
+    .. sourcecode:: js
+
+        {
+            "active": true,
+            "privacy_level": "public",
+            "tags": [
+                "python",
+                "packaging"
+            ]
+        }
+
+    :statuscode 204: Edited sucessfully
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
+
 
 
 Builds
@@ -308,6 +453,35 @@ Build detail
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Build`` with this ID
+
+
+Build triggering
+++++++++++++++++
+
+.. TODO:
+
+   This endpoint may be under Project section
+
+.. http:post::  /api/v3/project/(string:slug)/builds/
+
+    Trigger a new build for this project.
+
+    **Example request**:
+
+    .. sourcecode:: js
+
+        {
+            "version": "latest",
+        }
+
+    **Example response**:
+
+    *See Build details*
+
+    :statuscode 201: Created sucessfully
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
+
 
 
 References
