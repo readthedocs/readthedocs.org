@@ -404,7 +404,6 @@ Build detail
             "id": 7367364,
             "date": "2018-06-19T15:15:59.135894",
             "length": 59,
-            "type": "html",
             "state": "finished",
             "state_display": "Finished",
             "success": true,
