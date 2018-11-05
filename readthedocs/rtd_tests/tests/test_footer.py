@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import mock
 from django.test import TestCase
@@ -11,13 +15,15 @@ from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
 from readthedocs.projects.models import Project
 from readthedocs.restapi.views.footer_views import (
-    footer_html, get_version_compare_data)
+    footer_html,
+    get_version_compare_data,
+)
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
 class Testmaker(APITestCase):
     fixtures = ['test_data']
-    url = '/api/v2/footer_html/?project=pip&version=latest&page=index'
+    url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
     factory = APIRequestFactory()
 
     @classmethod
@@ -98,6 +104,24 @@ class Testmaker(APITestCase):
         self.pip.save()
         response = self.render()
         self.assertTrue(response.data['show_version_warning'])
+
+    def test_show_edit_on_github(self):
+        version = self.pip.versions.get(slug=LATEST)
+        version.type = BRANCH
+        version.save()
+        response = self.render()
+        self.assertIn('On GitHub', response.data['html'])
+        self.assertIn('View', response.data['html'])
+        self.assertIn('Edit', response.data['html'])
+
+    def test_not_show_edit_on_github(self):
+        version = self.pip.versions.get(slug=LATEST)
+        version.type = TAG
+        version.save()
+        response = self.render()
+        self.assertIn('On GitHub', response.data['html'])
+        self.assertIn('View', response.data['html'])
+        self.assertNotIn('Edit', response.data['html'])
 
 
 class TestVersionCompareFooter(TestCase):
