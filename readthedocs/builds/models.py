@@ -545,7 +545,8 @@ class Build(models.Model):
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
-            if previous is not None and self._config == previous.config:
+            if (previous is not None and
+                    self._config and self._config == previous.config):
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
         super(Build, self).save(*args, **kwargs)

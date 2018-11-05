@@ -401,3 +401,22 @@ class BuildModelTests(TestCase):
 
         self.assertEqual(build_four.config, {'version': 2})
         self.assertEqual(build_four._config, {'version': 2})
+
+    def test_do_not_reference_empty_configs(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {}
+        build_two.save()
+        self.assertEqual(build_two._config, {})
+        self.assertEqual(build_two.config, {})
