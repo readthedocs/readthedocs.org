@@ -1,0 +1,320 @@
+API v3
+======
+
+The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
+JSON is returned by all API responses including errors
+and HTTP response status codes are to designate success and failure.
+
+
+Authentication and authorization
+--------------------------------
+
+Requests to the Read the Docs public API are for public and private information
+and do require authentication even for requesting public information.
+
+Scopes
+~~~~~~
+
+The API can be accessed by using the HTTP header ``Authorization``
+with a specific ``Token`` that provide access to different resources.
+
+Available scopes
+++++++++++++++++
+
+* ``project``
+  * ``project:admin``: access to change admin settings (similar to Admin tab)
+  * ``project:read``: access to read all the information about the projects
+  * ``project:write``: access to anything related to perform write actions (triggering a Build for this project, activate/deactivate versions, etc)
+  * ``project:docs``: access any file from any version of the project's documentation
+
+
+.. TODO:
+
+   We could extend the scopes to be per-project or per-user. I'm not
+   sure if this is possible yet, but we should consider it.
+
+   * per-project: the user could go to the Project Admin tab and create a Token for this specific project
+   * per-user: the user could go to their own User settings and create token for all his projects
+
+
+Resources
+---------
+
+Projects
+~~~~~~~~
+
+Project list
+++++++++++++
+
+.. http:get::  /api/v3/project/
+
+    Retrieve a list of all the projects of the current logged in user.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/project/
+
+    **Example response**:
+
+    .. sourcecode:: js
+
+        {
+            "count": 25,
+            "next": "/api/v3/project/limit=10&offset=10",
+            "previous": null,
+            "results": [PROJECTS]
+        }
+
+    :>json integer count: Total number of Projects.
+    :>json string next: URI for next set of Projects.
+    :>json string previous: URI for previous set of Projects.
+    :>json array results: Array of ``Project`` objects.
+
+.. TODO:
+
+   Add query string filters to narrow the query:
+     * privacy level
+     * language
+     * programming language
+     * repo url
+     * repo type
+     * version active
+     * version built
+     * all database?
+
+
+Project details
++++++++++++++++
+
+.. http:get::  /api/v3/project/(string:slug)/
+
+    Retrieve details of a single project.
+
+    .. sourcecode:: js
+
+        {
+            "name": "Pip",
+            "slug": "pip",
+            "description": "Pip Installs Packages.",
+            "language": "en",
+            "programming_language": "py",
+            "repo": "https://github.com/pypa/pip",
+            "repo_type": "git",
+            "default_version": "stable",
+            "default_branch": "master",
+            "documentation_type": "sphinx_htmldir",
+            "canonical_url": "http://pip.pypa.io/en/stable/",
+            "links": [
+                {
+                    "href": "/api/v3/project/pip/users/",
+                    "rel": "users",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/versions/",
+                    "rel": "versions",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/builds/",
+                    "rel": "builds",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/domains/",
+                    "rel": "domains",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/notifications/",
+                    "rel": "notifications",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/features/",
+                    "rel": "features",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/subprojects/",
+                    "rel": "subprojects",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/translations/",
+                    "rel": "translations",
+                    "type": "GET"
+                }
+            ]
+        }
+
+
+    :>json string name: The name of the project.
+    :>json string slug: The project slug (used in the URL).
+    :>json string description: An RST description of the project
+    :>json string language: The language code of this project
+    :>json string programming_language: The programming language of the project (eg. "py", "js")
+    :>json string repo: The repository URL for the project
+    :>json string repo_type: Version control repository of the project
+    :>json string default_version: The default version of the project (eg. "latest", "stable", "v3")
+    :>json string default_branch: The default version control branch
+    :>json string documentation_type: An RST description of the project
+    :>json string canonical_url: The canonical URL of the default docs
+    :>json array links: Array with HEATEOAS_ links to retrieve related information
+
+    :statuscode 200: Success
+    :statuscode 404: There is no ``Project`` with this slug
+
+.. TODO:
+
+   Currently, v2 of this endpoint returns a lot of fields more like
+   ``enable_epub_build``, ``skip``, etc.
+
+   https://readthedocs.org/api/v2/project/?slug=pip
+
+
+
+Versions
+~~~~~~~~
+
+Versions are different versions of the same project documentation.
+
+The versions for a given project can be viewed in a project's version screen.
+For example, here is the `Pip project's version screen`_.
+
+.. _Pip project's version screen: https://readthedocs.org/projects/pip/versions/
+
+
+Version detail
+++++++++++++++
+
+.. http:get::  /api/v2/project/(string:project-slug)/versions/(string:version-slug)/
+
+    Retrieve details of a single version.
+
+    .. sourcecode:: js
+
+        {
+            "slug": "stable",
+            "verbose_name": "stable",
+            "identifier": "3a6b3995c141c0888af6591a59240ba5db7d9914",
+            "built": true,
+            "active": true,
+            "type": "tag",
+            "downloads": {
+                "pdf": "//readthedocs.org/projects/pip/downloads/pdf/stable/",
+                "htmlzip": "//readthedocs.org/projects/pip/downloads/htmlzip/stable/",
+                "epub": "//readthedocs.org/projects/pip/downloads/epub/stable/"
+            },
+            "links": [
+                {
+                    "href": "/api/v3/project/pip/version/stable/builds/",
+                    "rel": "builds",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/",
+                    "rel": "project",
+                    "type": "GET"
+                }
+            ]
+        }
+
+    :>json string slug: The version slug.
+    :>json string verbose_name: The name of the version.
+    :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
+    :>json string built: Whether this version has been built
+    :>json string active: Whether this version is still active
+    :>json string type: The type of this version (typically "tag" or "branch")
+    :>json array downloads: URLs to downloads of this version's documentation
+    :>json array links: Array with HEATEOAS_ links to retrieve related information
+
+    :statuscode 200: Success
+    :statuscode 404: There is no ``Version`` with this slug
+
+
+Builds
+~~~~~~
+
+Builds are created by Read the Docs whenever a ``Project`` has its documentation built.
+Frequently this happens automatically via a web hook but can be triggered manually.
+
+Builds can be viewed in the build screen for a project.
+For example, here is `Pip's build screen`_.
+
+.. _Pip's build screen: https://readthedocs.org/projects/pip/builds/
+
+
+.. TODO:
+
+   for filtering by ``commit`` we need the build listing --the other cases are useless
+
+
+Build detail
+++++++++++++
+
+.. http:get::  /api/v3/build/(int:id)/
+
+    Retrieve details of a single build.
+
+    .. sourcecode:: js
+
+        {
+            "id": 7367364,
+            "date": "2018-06-19T15:15:59.135894",
+            "length": 59,
+            "type": "html",
+            "state": "finished",
+            "state_display": "Finished",
+            "success": true,
+            "error": null,
+            "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
+            "docs_url": "http://pip.pypa.io/en/latest/",
+            "builder": "build03",
+            "cold_storage": false,
+            "links": [
+                {
+                    "href": "/api/v3/build/7367364/commands/",
+                    "rel": "commands",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/",
+                    "rel": "project",
+                    "type": "GET"
+                },
+                {
+                    "href": "/api/v3/project/pip/version/latest/",
+                    "rel": "version",
+                    "type": "GET"
+                }
+        }
+
+
+    :>json integer id: The ID of the build
+    :>json string date: The ISO-8601 datetime of the build.
+    :>json integer length: The length of the build in seconds.
+    :>json string type: The type of the build (one of "html", "pdf", "epub")
+    :>json string state: The state of the build (one of "triggered", "building", "installing", "cloning", or "finished")
+    :>json string state_display: The state of the build to be shown to the user
+    :>json boolean success: Whether the build was successful
+    :>json string error: An error message if the build was unsuccessful
+    :>json string commit: A version control identifier for this build (eg. the commit hash)
+    :>json string docs_url: The canonical URL of the build docs
+    :>json string builder: The hostname server that built the docs
+    :>json array links: Array with HEATEOAS_ links to retrieve related information
+
+    :statuscode 200: Success
+    :statuscode 404: There is no ``Build`` with this ID
+
+
+References
+----------
+
+* https://www.django-rest-framework.org/topics/rest-hypermedia-hateoas/
+* https://blog.majsky.cz/implementing-hateoas-django-rest-framework/
+* https://www.django-rest-framework.org/tutorial/5-relationships-and-hyperlinked-apis/#hyperlinking-our-api
+* https://restfulapi.net/hateoas/
+* https://en.wikipedia.org/wiki/HATEOAS
