@@ -550,7 +550,7 @@ class Build(models.Model):
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
         super(Build, self).save(*args, **kwargs)
-        self.__config_changed = False
+        self._config_changed = False
 
     def __str__(self):
         return ugettext(
