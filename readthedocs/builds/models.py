@@ -491,7 +491,7 @@ class Build(models.Model):
     @property
     def previous(self):
         """
-        Returns the previous build to current one.
+        Returns the previous build to the current one.
 
         Matching the project and version.
         """
