@@ -2,36 +2,55 @@
 """Models for the builds app."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import os.path
 import re
-from builtins import object
 from shutil import rmtree
 
+from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
+    BITBUCKET_URL,
+    GITHUB_URL,
+    GITLAB_URL,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
-    BRANCH, BUILD_STATE, BUILD_STATE_FINISHED, BUILD_TYPES, LATEST,
-    NON_REPOSITORY_VERSIONS, STABLE, TAG, VERSION_TYPES)
+    BRANCH,
+    BUILD_STATE,
+    BUILD_STATE_FINISHED,
+    BUILD_TYPES,
+    LATEST,
+    NON_REPOSITORY_VERSIONS,
+    STABLE,
+    TAG,
+    VERSION_TYPES,
+)
 from .managers import VersionManager
 from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .utils import (
-    get_bitbucket_username_repo, get_github_username_repo,
-    get_gitlab_username_repo)
+    get_bitbucket_username_repo,
+    get_github_username_repo,
+    get_gitlab_username_repo,
+)
 from .version_slug import VersionSlugField
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
@@ -192,6 +211,10 @@ class Version(models.Model):
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
+
+    @property
+    def is_editable(self):
+        return self.type == BRANCH
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
