@@ -525,6 +525,11 @@ class Build(models.Model):
 
     @config.setter
     def config(self, value):
+        """
+        Set `_config` to value.
+
+        `_config` should never be set directly from outside the class.
+        """
         self._config = value
         self._config_changed = True
 
