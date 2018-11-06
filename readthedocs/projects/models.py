@@ -95,18 +95,6 @@ class Project(models.Model):
                                   help_text=_('The project\'s homepage'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
                                     help_text=_('URL that documentation is expected to serve from'))
-    version = models.CharField(_('Version'), max_length=100, blank=True,
-                               help_text=_('Project version these docs apply '
-                                           'to, i.e. 1.0a'))
-    copyright = models.CharField(_('Copyright'), max_length=255, blank=True,
-                                 help_text=_('Project copyright information'))
-    theme = models.CharField(
-        _('Theme'), max_length=20, choices=constants.DEFAULT_THEME_CHOICES,
-        default=constants.THEME_DEFAULT,
-        help_text=(u'<a href="http://sphinx.pocoo.org/theming.html#builtin-'
-                   'themes" target="_blank">%s</a>') % _('Examples'))
-    suffix = models.CharField(_('Suffix'), max_length=10, editable=False,
-                              default='.rst')
     single_version = models.BooleanField(
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your '
@@ -189,7 +177,6 @@ class Project(models.Model):
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
-    mirror = models.BooleanField(_('Mirror'), default=False)
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_('Install your project inside a virtualenv using <code>setup.py '
@@ -213,8 +200,6 @@ class Project(models.Model):
                     'site-packages dir.'),
         default=False
     )
-    django_packages_url = models.CharField(_('Django Packages URL'),
-                                           max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
@@ -251,29 +236,6 @@ class Project(models.Model):
                                               related_name='translations',
                                               on_delete=models.SET_NULL,
                                               blank=True, null=True)
-
-    # Version State
-    num_major = models.IntegerField(
-        _('Number of Major versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X')
-    )
-    num_minor = models.IntegerField(
-        _('Number of Minor versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X')
-    )
-    num_point = models.IntegerField(
-        _('Number of Point versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0')
-    )
 
     has_valid_webhook = models.BooleanField(
         default=False, help_text=_('This project has been built with a webhook')
