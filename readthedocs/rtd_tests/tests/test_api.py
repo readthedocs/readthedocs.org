@@ -64,6 +64,29 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
 
+    def test_api_does_not_have_private_config_key_superuser(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        resp = client.get('/api/v2/build/{}/'.format(build.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('config', resp.data)
+        self.assertNotIn('_config', resp.data)
+
+    def test_api_does_not_have_private_config_key_normal_user(self):
+        client = APIClient()
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        resp = client.get('/api/v2/build/{}/'.format(build.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('config', resp.data)
+        self.assertNotIn('_config', resp.data)
+
     def test_save_config(self):
         client = APIClient()
         client.login(username='super', password='test')

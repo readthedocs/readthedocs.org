@@ -116,7 +116,8 @@ class BuildSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Build
-        exclude = ('builder',)
+        # `_config` should be excluded to avoid conflicts with `config`
+        exclude = ('builder', '_config')
 
 
 class BuildAdminSerializer(BuildSerializer):
@@ -124,7 +125,8 @@ class BuildAdminSerializer(BuildSerializer):
     """Build serializer for display to admin users and build instances."""
 
     class Meta(BuildSerializer.Meta):
-        exclude = ()
+        # `_config` should be excluded to avoid conflicts with `config`
+        exclude = ('_config',)
 
 
 class SearchIndexSerializer(serializers.Serializer):
