@@ -324,9 +324,9 @@ class Project(models.Model):
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            latest = self.versions.get(slug=LATEST)
+            latest = self.versions.filter(slug=LATEST).first()
             default_branch = self.get_default_branch()
-            if latest.identifier != default_branch:
+            if latest and latest.identifier != default_branch:
                 latest.identifier = default_branch
                 latest.save()
         except Exception:
@@ -944,6 +944,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
