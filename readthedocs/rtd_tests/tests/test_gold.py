@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from django_dynamic_fixture import get
+from django_dynamic_fixture import get, fixture
 
 from readthedocs.gold.models import GoldUser, LEVEL_CHOICES
 from readthedocs.projects.models import Project
@@ -14,7 +14,7 @@ class GoldViewTests(TestCase):
     def setUp(self):
         self.user = create_user(username='owner', password='test')
 
-        self.project = get(Project, slug='test')
+        self.project = get(Project, slug='test', users=[fixture(), self.user])
 
         self.golduser = get(GoldUser, user=self.user, level=LEVEL_CHOICES[0][0])
 
@@ -25,13 +25,6 @@ class GoldViewTests(TestCase):
         resp = self.client.post(reverse('gold_projects'), data={'project': 'test'})
         self.assertEqual(self.golduser.projects.count(), 1)
         self.assertEqual(resp.status_code, 302)
-
-    def test_incorrect_input_when_adding_projects(self):
-        self.assertEqual(self.golduser.projects.count(), 0)
-        incorrect_slug = 'xyz-random-incorrect-slug-xyz'
-        self.assertEqual(Project.objects.filter(slug=incorrect_slug).count(), 0)
-        resp = self.client.post(reverse('gold_projects'), data={'project': incorrect_slug})
-        self.assertFormError(resp, form='form', field='project', errors='No project found.')
 
     def test_too_many_projects(self):
         self.project2 = get(Project, slug='test2')

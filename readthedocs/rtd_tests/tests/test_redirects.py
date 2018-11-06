@@ -128,6 +128,34 @@ class RedirectAppTests(TestCase):
         self.pip.versions.create_latest()
 
     @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_prefix_infinite(self):
+        """
+        Avoid infinite redirects.
+
+        If the URL hit is the same that the URL returned for redirection, we
+        return a 404.
+
+        These examples comes from this issue:
+          * https://github.com/rtfd/readthedocs.org/issues/4673
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='prefix',
+            from_url='/',
+        )
+        r = self.client.get('/redirect', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/redirect.html')
+
+        r = self.client.get('/redirect/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/redirect/')
+
+        r = self.client.get('/en/latest/redirect/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 404)
+
+    @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_root(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='prefix', from_url='/woot/')

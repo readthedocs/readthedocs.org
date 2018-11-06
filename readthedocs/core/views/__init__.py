@@ -116,8 +116,16 @@ def server_error_404(request, exception=None, template_name='404.html'):  # pyli
         Marking exception as optional to make /404/ testing page to work.
     """
     response = get_redirect_response(request, path=request.get_full_path())
+
     if response:
-        return response
+        if response.url == request.build_absolute_uri():
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                response.url,
+            )
+        else:
+            return response
     r = render(request, template_name)
     r.status_code = 404
     return r

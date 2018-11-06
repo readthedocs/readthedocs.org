@@ -80,8 +80,9 @@ class Project(models.Model):
     # Generally from conf.py
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
-    name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    # A DNS label can contain up to 63 characters.
+    name = models.CharField(_('Name'), max_length=63)
+    slug = models.SlugField(_('Slug'), max_length=63, unique=True)
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
@@ -137,10 +138,6 @@ class Project(models.Model):
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
-    # TODO: remove this?
-    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(
-        _('Comment Moderation'), default=False,)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -327,11 +324,11 @@ class Project(models.Model):
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            if self.default_branch:
-                latest = self.versions.get(slug=LATEST)
-                if latest.identifier != self.default_branch:
-                    latest.identifier = self.default_branch
-                    latest.save()
+            latest = self.versions.get(slug=LATEST)
+            default_branch = self.get_default_branch()
+            if latest.identifier != default_branch:
+                latest.identifier = default_branch
+                latest.save()
         except Exception:
             log.exception('Failed to update latest identifier')
 
@@ -947,6 +944,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
