@@ -215,8 +215,10 @@ class Virtualenv(PythonEnvironment):
             site_packages,
             '--no-download',
             env_path,
-            bin_path=None,  # Don't use virtualenv bin that doesn't exist yet
-            cwd=self.checkout_path,
+            # Don't use virtualenv bin that doesn't exist yet
+            bin_path=None,
+            # Don't use the project's root, some config files can interfere
+            cwd='$HOME',
         )
 
     def install_core_requirements(self):
