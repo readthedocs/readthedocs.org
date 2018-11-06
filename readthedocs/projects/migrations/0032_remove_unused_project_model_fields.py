@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0030_change-max-length-project-slug'),
+        ('projects', '0031_add_modified_date_importedfile'),
     ]
 
     operations = [
