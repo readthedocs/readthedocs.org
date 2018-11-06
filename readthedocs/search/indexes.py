@@ -16,7 +16,8 @@ TODO: Handle page removal case in Page.
 """
 from __future__ import absolute_import
 from builtins import object
-import datetime
+
+from django.utils import timezone
 
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import bulk_index
@@ -92,7 +93,7 @@ class Index(object):
 
     def timestamped_index(self):
         return '{0}-{1}'.format(
-            self._index, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+            self._index, timezone.now().strftime('%Y%m%d%H%M%S'))
 
     def create_index(self, index=None):
         """
