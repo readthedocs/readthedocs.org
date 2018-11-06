@@ -102,7 +102,7 @@ class ProjectAdmin(GuardedModelAdmin):
     """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured', 'theme')
+    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
     list_filter = ('repo_type', 'featured', 'privacy_level',
                    'documentation_type', 'programming_language',
                    ProjectOwnerBannedFilter)
