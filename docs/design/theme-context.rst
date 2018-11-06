@@ -7,6 +7,13 @@ This extra context can be used to build some awesome features in your own theme.
 
 .. _html_context Sphinx setting: http://www.sphinx-doc.org/en/stable/config.html#confval-html_context
 
+.. warning::
+
+    This design document details future features that are **not yet implemented**.
+    To discuss this document, please get in touch in the `issue tracker`_.
+
+.. _issue tracker: https://github.com/rtfd/readthedocs.org/issues
+
 .. note::
 
    The `Read the Docs Sphinx Theme`_ uses this context to add additional features to the built documentation.
@@ -25,74 +32,76 @@ Note that this dictionary is injected under the main key `readthedocs`:
 
 .. code:: python
 
-    'readthedocs': {
-        'v1': {
-            'version': {
-                'id': int,
-                'slug': str,
-                'verbose_name': str,
-                'identifier': str,
-                'type': str,
-                'build_date': str,
-                'downloads': {
-                    'pdf: str,
-                    'htmlzip': str,
-                    'epub': str
-                },
-                'links': [{
-                    'href': 'https://readthedocs.org/api/v2/version/{id}/',
-                    'rel': 'self
-                }]
-            },
-            'project': {
-                'id': int
-                'name': str,
-                'slug': str,
-                'description': str,
-                'language': str,
-                'canonical_url': str,
-                'subprojects': [{
-                    'id': int
-                    'name': str,
-                    'slug': str,
-                    'description': str,
-                    'language': str,
-                    'canonical_url': str,
-                    'links': [{
-                        'href': 'https://readthedocs.org/api/v2/project/{id}/',
-                        'rel': 'self
-                    }]
-                }],
-                'links': [{
-                    'href': 'https://readthedocs.org/api/v2/project/{id}/',
-                    'rel': 'self
-                }]
-            },
-            'sphinx': {
-                'html_theme': str,
-                'source_suffix': str
-            },
-            'analytics': {
-                'user_analytics_code': str,
-                'global_analytics_code': str
-            },
-            'vcs': {
-                'type': str,  # 'bitbucket', 'github', 'gitlab' or 'svn'
-                'user': str,
-                'repo': str,
-                'commit': str,
-                'version': str,
-                'display': bool,
-                'conf_py_path': str
-            },
-            'meta': {
-                'API_HOST': str,
-                'MEDIA_URL': str,
-                'PRODUCTION_DOMAIN': str,
-                'READTHEDOCS': True
-            }
-        }
-    }
+   {
+       'readthedocs': {
+           'v1': {
+               'version': {
+                   'id': int,
+                   'slug': str,
+                   'verbose_name': str,
+                   'identifier': str,
+                   'type': str,
+                   'build_date': str,
+                   'downloads': {
+                       'pdf': str,
+                       'htmlzip': str,
+                       'epub': str
+                   },
+                   'links': [{
+                       'href': 'https://readthedocs.org/api/v2/version/{id}/',
+                       'rel': 'self'
+                   }],
+               },
+               'project': {
+                   'id': int,
+                   'name': str,
+                   'slug': str,
+                   'description': str,
+                   'language': str,
+                   'canonical_url': str,
+                   'subprojects': [{
+                       'id': int,
+                       'name': str,
+                       'slug': str,
+                       'description': str,
+                       'language': str,
+                       'canonical_url': str,
+                       'links': [{
+                           'href': 'https://readthedocs.org/api/v2/project/{id}/',
+                           'rel': 'self'
+                       }]
+                   }],
+                   'links': [{
+                       'href': 'https://readthedocs.org/api/v2/project/{id}/',
+                       'rel': 'self'
+                   }]
+               },
+               'sphinx': {
+                   'html_theme': str,
+                   'source_suffix': str
+               },
+               'analytics': {
+                   'user_analytics_code': str,
+                   'global_analytics_code': str
+               },
+               'vcs': {
+                   'type': str,  # 'bitbucket', 'github', 'gitlab' or 'svn'
+                   'user': str,
+                   'repo': str,
+                   'commit': str,
+                   'version': str,
+                   'display': bool,
+                   'conf_py_path': str
+               },
+               'meta': {
+                   'API_HOST': str,
+                   'MEDIA_URL': str,
+                   'PRODUCTION_DOMAIN': str,
+                   'READTHEDOCS': True
+               }
+           }
+       }
+   }
 
 
 .. warning::
@@ -103,7 +112,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
    so it's your responsibility to use this context in a proper way.
 
    In case you want *fresh data* at the moment of reading your documentation,
-   you should consider using the :doc:`Read the Docs Public API <api>` via Javascript.
+   you should consider using the :doc:`Read the Docs Public API </api/index>` via Javascript.
 
 
 Using Read the Docs context in your theme

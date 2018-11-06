@@ -1,12 +1,13 @@
 """Clean up stable build paths per project version"""
 
 from __future__ import absolute_import
-from datetime import datetime, timedelta
+from datetime import timedelta
 import logging
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.db.models import Max
+from django.utils import timezone
 
 from readthedocs.builds.models import Build, Version
 
@@ -17,21 +18,25 @@ class Command(BaseCommand):
 
     help = __doc__
 
-    option_list = BaseCommand.option_list + (
-        make_option('--days',
-                    dest='days',
-                    type='int',
-                    default=365,
-                    help='Find builds older than DAYS days, default: 365'),
-        make_option('--dryrun',
-                    action='store_true',
-                    dest='dryrun',
-                    help='Perform dry run on build cleanup'),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--days',
+            dest='days',
+            type='int',
+            default=365,
+            help='Find builds older than DAYS days, default: 365'
+        )
+
+        parser.add_argument(
+            '--dryrun',
+            action='store_true',
+            dest='dryrun',
+            help='Perform dry run on build cleanup'
+        )
 
     def handle(self, *args, **options):
         """Find stale builds and remove build paths"""
-        max_date = datetime.now() - timedelta(days=options['days'])
+        max_date = timezone.now() - timedelta(days=options['days'])
         queryset = (Build.objects
                     .values('project', 'version')
                     .annotate(max_date=Max('date'))

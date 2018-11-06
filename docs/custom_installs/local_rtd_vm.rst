@@ -28,8 +28,8 @@ Assumptions and Prerequisites
 Local RTD Setup
 ---------------
 
-1. Install RTD.
-~~~~~~~~~~~~~~~
+Install RTD
+~~~~~~~~~~~
 
 To host your documentation on a local RTD installation, set it up in your VM. ::
 
@@ -60,8 +60,8 @@ Also don't forget to re-run the dependency installation ::
 
     $ sudo pip install -r requirements.txt
 
-2. Configure the RTD Server and Superuser.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure the RTD Server and Superuser
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Run the following commands. ::
 
@@ -74,8 +74,8 @@ Also don't forget to re-run the dependency installation ::
     Email address: monami.b@email.com
     Password: pa$$word
 
-3. RTD Server Administration.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+RTD Server Administration
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Navigate to the ``../checkouts/readthedocs.org`` folder in your VM and run the following command. ::
 
@@ -86,9 +86,8 @@ You should now be able to log into the admin interface from any PC in your LAN a
 
 Go to the dashboard at  ``http://[VM IP ADDRESS]:8000/dashboard`` and follow these steps:
 
-1. Point the repository to your corporate Git project where the documentation source is checked in. Example:
-git.corp.company.com:/git/docs/documentation.git
-
+1. Point the repository to your corporate Git project where the documentation source is checked in.
+   Example: ``git.corp.company.com:/git/docs/documentation.git``.
 2. Clone the documentation sources from Git in the VM.
 3. Navigate to the root path for documentation.
 4. Run the following Sphinx commands. ::
@@ -127,8 +126,8 @@ SSH to the VM using the ``-A`` directive. ::
     
 This provides all permissions for that particular remote session, which are revoked when you logout.
 
-4. Build Documentation on Local RTD Instance.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Build Documentation on Local RTD Instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Log into ``http://[VM IP ADDRESS]:[PORT]`` using the django superuser creds and follow these steps.	
 

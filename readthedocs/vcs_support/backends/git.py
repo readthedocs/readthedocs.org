@@ -10,12 +10,14 @@ import os
 import re
 
 import git
+from builtins import str
 from django.core.exceptions import ValidationError
 from git.exc import BadName
 from six import PY2, StringIO
 
-from readthedocs.core.validators import validate_submodule_url
+from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = logging.getLogger(__name__)
@@ -27,6 +29,7 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
+    supports_submodules = True
     fallback_branch = 'master'  # default branch
 
     def __init__(self, *args, **kwargs):
@@ -52,41 +55,76 @@ class Backend(BaseVCS):
 
     def update(self):
         # Use checkout() to update repo
+        # TODO: See where we call this
         self.checkout()
 
     def repo_exists(self):
         code, _, _ = self.run('git', 'status', record=False)
         return code == 0
 
-    def are_submodules_available(self):
-        """
-        Test whether git submodule checkout step should be performed.
-
-        .. note::
-
-            Temporarily, we support skipping these steps as submodule step can
-            fail if using private submodules. This will eventually be
-            configureable with our YAML config.
-        """
-        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
+    def are_submodules_available(self, config):
+        """Test whether git submodule checkout step should be performed."""
+        # TODO remove this after users migrate to a config file
         from readthedocs.projects.models import Feature
-        if self.project.has_feature(Feature.SKIP_SUBMODULES):
+        submodules_in_config = (
+            config.submodules.exclude != ALL or
+            config.submodules.include
+        )
+        if (self.project.has_feature(Feature.SKIP_SUBMODULES) or
+                not submodules_in_config):
             return False
+
+        # Keep compatibility with previous projects
         code, out, _ = self.run('git', 'submodule', 'status', record=False)
         return code == 0 and bool(out)
 
-    def are_submodules_valid(self):
-        """Test that all submodule URLs are valid."""
+    def validate_submodules(self, config):
+        """
+        Returns the submodules and check that its URLs are valid.
+
+        .. note::
+
+           Allways call after `self.are_submodules_available`.
+
+        :returns: tuple(bool, list)
+
+        Returns true if all required submodules URLs are valid.
+        Returns a list of all required submodules:
+        - Include is `ALL`, returns all submodules avaliable.
+        - Include is a list, returns just those.
+        - Exclude is `ALL` - this should never happen.
+        - Exlude is a list, returns all avaliable submodules
+          but those from the list.
+        """
         repo = git.Repo(self.working_dir)
-        for submodule in repo.submodules:
+        submodules = {
+            sub.path: sub
+            for sub in repo.submodules
+        }
+
+        for sub_path in config.submodules.exclude:
+            path = sub_path.rstrip('/')
+            if path in submodules:
+                del submodules[path]
+
+        if config.submodules.include != ALL and config.submodules.include:
+            submodules_include = {}
+            for sub_path in config.submodules.include:
+                path = sub_path.rstrip('/')
+                submodules_include[path] = submodules[path]
+            submodules = submodules_include
+
+        for path, submodule in submodules.items():
             try:
                 validate_submodule_url(submodule.url)
             except ValidationError:
-                return False
-        return True
+                return False, []
+        return True, submodules.keys()
 
     def fetch(self):
-        code, _, _ = self.run('git', 'fetch', '--tags', '--prune')
+        code, _, _ = self.run(
+            'git', 'fetch', '--tags', '--prune', '--prune-tags',
+        )
         if code != 0:
             raise RepositoryError
 
@@ -107,14 +145,12 @@ class Backend(BaseVCS):
         .. note::
 
             Temporarily, we support skipping submodule recursive clone via a
-            feature flag. This will eventually be configureable with our YAML
+            feature flag. This will eventually be configurable with our YAML
             config.
         """
         # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
         from readthedocs.projects.models import Feature
         cmd = ['git', 'clone']
-        if not self.project.has_feature(Feature.SKIP_SUBMODULES):
-            cmd.append('--recursive')
         cmd.extend([self.repo_url, '.'])
         code, _, _ = self.run(*cmd)
         if code != 0:
@@ -122,46 +158,19 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout, _ = self.run(
-            'git',
-            'show-ref',
-            '--tags',
-            record_as_success=True,
-        )
-        # error (or no tags found)
-        if retcode != 0:
-            return []
-        return self.parse_tags(stdout)
-
-    def parse_tags(self, data):
-        """
-        Parses output of show-ref --tags, eg:
-
-            3b32886c8d3cb815df3793b3937b2e91d0fb00f1 refs/tags/2.0.0
-            bd533a768ff661991a689d3758fcfe72f455435d refs/tags/2.0.1
-            c0288a17899b2c6818f74e3a90b77e2a1779f96a refs/tags/2.0.2
-            a63a2de628a3ce89034b7d1a5ca5e8159534eef0 refs/tags/2.1.0.beta2
-            c7fc3d16ed9dc0b19f0d27583ca661a64562d21e refs/tags/2.1.0.rc1
-            edc0a2d02a0cc8eae8b67a3a275f65cd126c05b1 refs/tags/2.1.0.rc2
-
-        Into VCSTag objects with the tag name as verbose_name and the commit
-        hash as identifier.
-        """
-        # parse the lines into a list of tuples (commit-hash, tag ref name)
-        # StringIO below is expecting Unicode data, so ensure that it gets it.
-        if not isinstance(data, str):
-            data = str(data)
-        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
-        raw_tags = csv.reader(StringIO(data), delimiter=delimiter)
-        vcs_tags = []
-        for row in raw_tags:
-            row = [f for f in row if f != '']
-            if row == []:
+        versions = []
+        repo = git.Repo(self.working_dir)
+        for tag in repo.tags:
+            try:
+                versions.append(VCSVersion(self, str(tag.commit), str(tag)))
+            except ValueError as e:
+                # ValueError: Cannot resolve commit as tag TAGNAME points to a
+                # blob object - use the `.object` property instead to access it
+                # This is not a real tag for us, so we skip it
+                # https://github.com/rtfd/readthedocs.org/issues/4440
+                log.warning('Git tag skipped: %s', tag, exc_info=True)
                 continue
-            commit_hash, name = row
-            clean_name = name.replace('refs/tags/', '')
-            vcs_tags.append(VCSVersion(self, commit_hash, clean_name))
-        return vcs_tags
+        return versions
 
     @property
     def branches(self):
@@ -197,7 +206,7 @@ class Backend(BaseVCS):
         delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
         raw_branches = csv.reader(StringIO(data), delimiter=delimiter)
         for branch in raw_branches:
-            branch = [f for f in branch if f != '' and f != '*']
+            branch = [f for f in branch if f not in ('', '*')]
             # Handle empty branches
             if branch:
                 branch = branch[0]
@@ -240,27 +249,30 @@ class Backend(BaseVCS):
 
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')
-
-        # Update submodules, temporarily allow for skipping submodule checkout
-        # step for projects need more submodule configuration.
-        if self.are_submodules_available():
-            if self.are_submodules_valid():
-                self.checkout_submodules()
-            else:
-                raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
         return code, out, err
 
-    def checkout_submodules(self):
-        """Checkout all repository submodules recursively."""
+    def update_submodules(self, config):
+        if self.are_submodules_available(config):
+            valid, submodules = self.validate_submodules(config)
+            if valid:
+                self.checkout_submodules(submodules, config)
+            else:
+                raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
+
+    def checkout_submodules(self, submodules, config):
+        """Checkout all repository submodules."""
         self.run('git', 'submodule', 'sync')
-        self.run(
+        cmd = [
             'git',
             'submodule',
             'update',
             '--init',
-            '--recursive',
             '--force',
-        )
+        ]
+        if config.submodules.recursive:
+            cmd.append('--recursive')
+        cmd += submodules
+        self.run(*cmd)
 
     def find_ref(self, ref):
         # Check if ref starts with 'origin/'

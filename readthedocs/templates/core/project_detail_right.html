@@ -17,6 +17,14 @@
   {% endif %}
 {% endblock %}
 
+{% block slug %}
+  {% trans "Used in URL's and in code to represent the project name" as title %}
+  <h3 title="{{ title }}">{% trans "Project Slug" %}</h3>
+  <p title="{{ title }}" class="detail-long">
+      {{ project.slug }}
+  </p>
+{% endblock %}
+
 {% block last-built %}
   <h3>{% trans "Last Built" %}</h3>
   <p>
@@ -40,7 +48,7 @@
 {% endblock %}
 
 {% block owners %}
-    <h3>{% trans "Owners" %}</h3>
+    <h3>{% trans "Maintainers" %}</h3>
     <p>
       {% for user in project.users.all %}
       <a href="{% url "profiles_profile_detail" user.username %}">{% gravatar user.email 32 %}</a>
@@ -79,7 +87,7 @@
       {% if request.user|is_admin:project %}
 
         {% url 'projects_edit' project.slug as edit_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
           Add some in your <a href="{{ edit_url }}">project settings</a>.
           {% endblocktrans %}
       {% endif %}

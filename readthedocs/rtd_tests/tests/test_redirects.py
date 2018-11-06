@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -9,6 +8,7 @@ from django_dynamic_fixture import fixture
 from mock import patch
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -128,6 +128,34 @@ class RedirectAppTests(TestCase):
         self.pip.versions.create_latest()
 
     @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_prefix_infinite(self):
+        """
+        Avoid infinite redirects.
+
+        If the URL hit is the same that the URL returned for redirection, we
+        return a 404.
+
+        These examples comes from this issue:
+          * https://github.com/rtfd/readthedocs.org/issues/4673
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='prefix',
+            from_url='/',
+        )
+        r = self.client.get('/redirect', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/redirect.html')
+
+        r = self.client.get('/redirect/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/redirect/')
+
+        r = self.client.get('/en/latest/redirect/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 404)
+
+    @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_root(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='prefix', from_url='/woot/')
@@ -157,6 +185,58 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_exact_with_rest(self):
+        """
+        Exact redirects can have a ``$rest`` in the ``from_url``.
+
+        Use case: we want to deprecate version ``2.0`` and replace it by
+        ``3.0``. We write an exact redirect from ``/en/2.0/$rest`` to
+        ``/en/3.0/``.
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='exact',
+            from_url='/en/latest/$rest', to_url='/en/version/', # change version
+        )
+        r = self.client.get('/en/latest/guides/install.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/version/guides/install.html')
+
+        Redirect.objects.create(
+            project=self.pip, redirect_type='exact',
+            from_url='/es/version/$rest', to_url='/en/master/', # change language and version
+        )
+        r = self.client.get('/es/version/guides/install.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/master/guides/install.html')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_inactive_version(self):
+        """
+        Inactive Version (``active=False``) should redirect properly.
+
+        The function that servers the page should return 404 when serving a page
+        of an inactive version and the redirect system should work.
+        """
+        version = get(
+            Version,
+            slug='oldversion',
+            project=self.pip,
+            active=False,
+        )
+        Redirect.objects.create(
+            project=self.pip,
+            redirect_type='exact',
+            from_url='/en/oldversion/',
+            to_url='/en/newversion/',
+        )
+        r = self.client.get('/en/oldversion/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/newversion/')
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_keeps_version_number(self):

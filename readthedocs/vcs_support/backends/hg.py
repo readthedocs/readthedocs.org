@@ -38,14 +38,24 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', record_as_success=True)[:2]
+        retcode, stdout = self.run(
+            'hg', 'branches', '--quiet', record_as_success=True)[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
         return self.parse_branches(stdout)
 
     def parse_branches(self, data):
-        """Stable / default"""
+        """
+        Parses output of `hg branches --quiet`, eg:
+
+            default
+            0.2
+            0.1
+
+        Into VCSVersion objects with branch name as verbose_name and
+        identifier.
+        """
         names = [name.lstrip() for name in data.splitlines()]
         return [VCSVersion(self, name, name) for name in names if name]
 

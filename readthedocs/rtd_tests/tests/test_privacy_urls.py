@@ -11,7 +11,7 @@ from django_dynamic_fixture import get
 import mock
 from taggit.models import Tag
 
-from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
+from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project, Domain
@@ -32,6 +32,9 @@ class URLAccessMixin(object):
 
     def is_admin(self):
         raise NotImplementedError
+
+    def get_url_path_ctx(self):
+        return {}
 
     def assertResponse(self, path, name=None, method=None, data=None, **kwargs):
         self.login()
@@ -57,7 +60,7 @@ class URLAccessMixin(object):
             response_data = self.response_data.get(name, {}).copy()
 
         response_attrs = {
-            'status_code': kwargs.pop('status_code', self.default_status_code),
+            'status_code': response_data.pop('status_code', self.default_status_code),
         }
         response_attrs.update(kwargs)
         response_attrs.update(response_data)
@@ -98,6 +101,13 @@ class URLAccessMixin(object):
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
         added_kwargs = {}
+
+        # we need to format urls with proper ids
+        url_ctx = self.get_url_path_ctx()
+        if url_ctx:
+            self.response_data = {
+                url.format(**url_ctx): data for url, data in self.response_data.items()}
+
         for (view, regex, namespace, name) in deconstructed_urls:
             request_data = self.request_data.get(name, {}).copy()
             for key in list(re.compile(regex).groupindex.keys()):
@@ -127,7 +137,6 @@ class ProjectMixin(URLAccessMixin):
         super(ProjectMixin, self).setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
-        self.alias = get(VersionAlias, slug='that_alias', project=self.pip)
         self.subproject = get(Project, slug='sub', language='ja',
                               users=[self.owner], main_language_project=None)
         self.pip.add_subproject(self.subproject)
@@ -148,7 +157,6 @@ class ProjectMixin(URLAccessMixin):
             'filename': 'index.html',
             'type_': 'pdf',
             'tag': self.tag.slug,
-            'alias_id': self.alias.pk,
             'child_slug': self.subproject.slug,
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
@@ -167,7 +175,7 @@ class PublicProjectMixin(ProjectMixin):
     response_data = {
         # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
-        '/projects/pip/badge/': {'status_code': 302},
+        '/projects/pip/badge/': {'status_code': 200},
     }
 
     def test_public_urls(self):
@@ -231,9 +239,14 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
         '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
     }
+
+    def get_url_path_ctx(self):
+        return {
+            'integration_id': self.integration.id,
+        }
 
     def login(self):
         return self.client.login(username='owner', password='test')
@@ -260,12 +273,17 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
         '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
     default_status_code = 404
+
+    def get_url_path_ctx(self):
+        return {
+            'integration_id': self.integration.id,
+        }
 
     def login(self):
         return self.client.login(username='tester', password='test')

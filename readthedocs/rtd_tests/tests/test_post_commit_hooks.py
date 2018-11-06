@@ -32,7 +32,14 @@ class BasePostCommitTest(TestCase):
         self.mocks = [mock.patch('readthedocs.core.views.hooks.trigger_build')]
         self.patches = [m.start() for m in self.mocks]
 
-        self.feature = Feature.objects.get(feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS)
+        # Remove all possible Features added by a migration
+        Feature.objects.all().delete()
+
+        self.feature = get(
+            Feature,
+            feature_id=Feature.ALLOW_DEPRECATED_WEBHOOKS,
+            default_true=True,
+        )
         self.feature.projects.add(self.pip)
         self.feature.projects.add(self.rtfd)
         self.feature.projects.add(self.sphinx)
@@ -146,6 +153,18 @@ class GitLabWebHookTest(BasePostCommitTest):
         rtd.default_branch = old_default
         rtd.save()
 
+    def test_gitlab_request_empty_url(self):
+        """
+        The gitlab hook shouldn't build any project
+        if the url, ssh_url or ref are empty.
+        """
+        self.payload['project']['http_url'] = ''
+        r = self.client.post(
+            '/gitlab/', data=json.dumps(self.payload),
+            content_type='application/json'
+        )
+        self.assertEqual(r.status_code, 404)
+
     def test_gitlab_webhook_is_deprecated(self):
         # Project is created after feature, not included in historical allowance
         url = 'https://github.com/rtfd/readthedocs-build'
@@ -164,7 +183,7 @@ class GitLabWebHookTest(BasePostCommitTest):
         self.assertEqual(r.status_code, 403)
 
 
-class GitHubPostCommitTest(BasePostCommitTest):
+class GitHubWebHookTest(BasePostCommitTest):
     fixtures = ["eric"]
 
     def setUp(self):
@@ -264,6 +283,19 @@ class GitHubPostCommitTest(BasePostCommitTest):
         r = self.client.post('/github/', data=json.dumps(payload),
                              content_type='application/json')
         self.assertEqual(r.status_code, 400)
+
+    def test_github_request_empty_url(self):
+        """
+        The github hook shouldn't build any project
+        if the url, ssh_url or ref are empty.
+        """
+        self.payload['repository']['url'] = ''
+        self.payload['repository']['ssh_url'] = ''
+        r = self.client.post(
+            '/github/', data=json.dumps(self.payload),
+            content_type='application/json'
+        )
+        self.assertEqual(r.status_code, 403)
 
     def test_private_repo_mapping(self):
         """
@@ -366,7 +398,7 @@ class CorePostCommitTest(BasePostCommitTest):
         self.assertEqual(r.status_code, 403)
 
 
-class BitBucketHookTests(BasePostCommitTest):
+class BitBucketWebHookTest(BasePostCommitTest):
 
     def setUp(self):
         self._setup()
@@ -533,6 +565,18 @@ class BitBucketHookTests(BasePostCommitTest):
         r = self.client.post('/bitbucket/', data=json.dumps(self.git_payload),
                              content_type='application/json')
         self.assertContains(r, '(URL Build) Build Started: bitbucket.org/test/project [latest]')
+
+    def test_bitbucket_request_empty_url(self):
+        """
+        The bitbucket hook shouldn't build any project
+        if the url, ssh_url or ref are empty.
+        """
+        self.git_payload['repository']['absolute_url'] = ''
+        r = self.client.post(
+            '/bitbucket/', data=json.dumps(self.git_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(r.status_code, 400)
 
     def test_bitbucket_webhook_is_deprecated(self):
         # Project is created after feature, not included in historical allowance

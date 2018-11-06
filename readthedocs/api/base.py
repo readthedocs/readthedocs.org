@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from tastypie import fields
-from tastypie.authorization import DjangoAuthorization
+from tastypie.authorization import DjangoAuthorization, ReadOnlyAuthorization
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.http import HttpCreated
 from tastypie.resources import ModelResource
@@ -39,7 +39,7 @@ class ProjectResource(ModelResource):
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.api()
         authentication = PostAuthentication()
-        authorization = DjangoAuthorization()
+        authorization = ReadOnlyAuthorization()
         excludes = ['path', 'featured', 'programming_language']
         filtering = {
             'users': ALL_WITH_RELATIONS,
@@ -193,7 +193,7 @@ class UserResource(ModelResource):
     class Meta(object):
         allowed_methods = ['get']
         queryset = User.objects.all()
-        fields = ['username', 'first_name', 'last_name', 'last_login', 'id']
+        fields = ['username', 'id']
         filtering = {
             'username': 'exact',
         }

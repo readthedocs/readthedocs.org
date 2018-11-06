@@ -52,7 +52,7 @@ Example layout
         fabric -> rtd-builds/fabric/en/latest/ # single version
 """
 
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from builtins import object
 import os
 import shutil
@@ -63,7 +63,7 @@ from django.conf import settings
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils import safe_makedirs
+from readthedocs.core.utils import safe_makedirs, safe_unlink
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
 from readthedocs.projects.utils import run
@@ -85,14 +85,6 @@ class Symlink(object):
         )
         self.sanity_check()
 
-    def _log(self, msg, level='info'):
-        logger = getattr(log, level)
-        logger(constants.LOG_TEMPLATE
-               .format(project=self.project.slug,
-                       version='',
-                       msg=msg)
-               )
-
     def sanity_check(self):
         """
         Make sure the project_root is the proper structure before continuing.
@@ -100,8 +92,10 @@ class Symlink(object):
         This will leave it in the proper state for the single_project setting.
         """
         if os.path.islink(self.project_root) and not self.project.single_version:
-            self._log("Removing single version symlink")
-            os.unlink(self.project_root)
+            log.info(constants.LOG_TEMPLATE.format(
+                     project=self.project.slug, version='',
+                     msg="Removing single version symlink"))
+            safe_unlink(self.project_root)
             safe_makedirs(self.project_root)
         elif (self.project.single_version and
               not os.path.islink(self.project_root) and
@@ -152,7 +146,9 @@ class Symlink(object):
         else:
             domains = Domain.objects.filter(project=self.project)
         for dom in domains:
-            self._log(u"Symlinking CNAME: {0} -> {1}".format(dom.domain, self.project.slug))
+            log_msg = 'Symlinking CNAME: {0} -> {1}'.format(dom.domain, self.project.slug)
+            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                   version='', msg=log_msg))
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
@@ -164,9 +160,11 @@ class Symlink(object):
 
     def remove_symlink_cname(self, domain):
         """Remove CNAME symlink."""
-        self._log(u"Removing symlink for CNAME {0}".format(domain.domain))
+        log_msg = "Removing symlink for CNAME {0}".format(domain.domain)
+        log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                               version='', msg=log_msg))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
-        os.unlink(symlink)
+        safe_unlink(symlink)
 
     def symlink_subprojects(self):
         """
@@ -178,7 +176,7 @@ class Symlink(object):
         subprojects = set()
         rels = self.get_subprojects()
         if rels.count():
-            # Don't creat the `projects/` directory unless subprojects exist.
+            # Don't create the `projects/` directory unless subprojects exist.
             if not os.path.exists(self.subproject_root):
                 safe_makedirs(self.subproject_root)
         for rel in rels:
@@ -190,7 +188,9 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
-                self._log(u"Symlinking subproject: {0} -> {1}".format(from_slug, to_slug))
+                log_msg = "Symlinking subproject: {0} -> {1}".format(from_slug, to_slug)
+                log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                       version='', msg=log_msg))
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
                     self.WEB_ROOT, to_slug
@@ -210,7 +210,7 @@ class Symlink(object):
         if os.path.exists(self.subproject_root):
             for subproj in os.listdir(self.subproject_root):
                 if subproj not in subprojects:
-                    os.unlink(os.path.join(self.subproject_root, subproj))
+                    safe_unlink(os.path.join(self.subproject_root, subproj))
 
     def symlink_translations(self):
         """
@@ -227,12 +227,15 @@ class Symlink(object):
         # Make sure the language directory is a directory
         language_dir = os.path.join(self.project_root, self.project.language)
         if os.path.islink(language_dir):
-            os.unlink(language_dir)
+            safe_unlink(language_dir)
         if not os.path.lexists(language_dir):
             safe_makedirs(language_dir)
 
         for (language, slug) in list(translations.items()):
-            self._log(u"Symlinking translation: {0}->{1}".format(language, slug))
+
+            log_msg = 'Symlinking translation: {0}->{1}'.format(language, slug)
+            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                   version='', msg=log_msg))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             run(['ln', '-nsf', docs_dir, symlink])
@@ -243,7 +246,7 @@ class Symlink(object):
                     lang not in ['projects', self.project.language]):
                 to_delete = os.path.join(self.project_root, lang)
                 if os.path.islink(to_delete):
-                    os.unlink(to_delete)
+                    safe_unlink(to_delete)
                 else:
                     shutil.rmtree(to_delete)
 
@@ -259,7 +262,7 @@ class Symlink(object):
         # Clean up symlinks
         symlink = self.project_root
         if os.path.islink(symlink):
-            os.unlink(symlink)
+            safe_unlink(symlink)
         if os.path.exists(symlink):
             shutil.rmtree(symlink)
 
@@ -285,7 +288,9 @@ class Symlink(object):
             if not os.path.exists(version_dir):
                 safe_makedirs(version_dir)
         for version in version_queryset:
-            self._log(u"Symlinking Version: %s" % version)
+            log_msg = 'Symlinking Version: {}'.format(version)
+            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
+                                                   version='', msg=log_msg))
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
             run(['ln', '-nsf', docs_dir, symlink])
@@ -295,7 +300,7 @@ class Symlink(object):
         if os.path.exists(version_dir):
             for old_ver in os.listdir(version_dir):
                 if old_ver not in versions:
-                    os.unlink(os.path.join(version_dir, old_ver))
+                    safe_unlink(os.path.join(version_dir, old_ver))
 
     def get_default_version(self):
         """Look up project default version, return None if not found."""

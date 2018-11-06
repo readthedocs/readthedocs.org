@@ -1,8 +1,8 @@
 YAML Configuration File
 =======================
 
-Backgroud
----------
+Background
+----------
 
 The current YAML configuration file is in beta state.
 There are many options and features that it doesn't support yet.
@@ -86,8 +86,10 @@ The file format is based on the YAML spec 1.2 [#yaml-spec]_
 
 The file must be on the root directory of the repository, and must be named as:
 
-- ``.readthedocs.yml``
 - ``readthedocs.yml``
+- ``readthedocs.yaml``
+- ``.readthedocs.yml``
+- ``.readthedocs.yaml``
 
 Conventions
 ~~~~~~~~~~~

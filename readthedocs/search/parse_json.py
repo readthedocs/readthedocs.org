@@ -35,8 +35,7 @@ def process_all_json_files(version, build_dir=True):
             if result:
                 page_list.append(result)
         # we're unsure which exceptions can be raised
-        # pylint: disable=bare-except
-        except:
+        except:  # noqa
             pass
     return page_list
 
@@ -95,9 +94,9 @@ def process_file(filename):
     try:
         with codecs.open(filename, encoding='utf-8', mode='r') as f:
             file_contents = f.read()
-    except IOError as e:
-        log.info('Unable to index file: %s', filename, exc_info=True)
-        return
+    except IOError:
+        log.info('Unable to read file: %s', filename)
+        return None
     data = json.loads(file_contents)
     sections = []
     title = ''

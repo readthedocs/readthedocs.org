@@ -65,24 +65,27 @@ class GoldSubscriptionFormTests(TestCase):
         ])
 
         # Create user and subscription
-        subscription_form = GoldSubscriptionForm(
-            {'level': 'v1-org-5',
-             'last_4_digits': '0000',
-             'stripe_token': 'GARYBUSEY'},
-            customer=self.user
+        subscription_form = GoldSubscriptionForm({
+            'level': 'v1-org-5',
+            'last_4_card_digits': '0000',
+            'stripe_token': 'GARYBUSEY',
+            'business_vat_id': 'business-vat-id',
+        },
+            customer=self.user,
         )
         self.assertTrue(subscription_form.is_valid())
         subscription = subscription_form.save()
 
         self.assertEqual(subscription.level, 'v1-org-5')
         self.assertEqual(subscription.stripe_id, 'cus_12345')
+        self.assertEqual(subscription.business_vat_id, 'business-vat-id')
         self.assertIsNotNone(self.user.gold)
         self.assertEqual(self.user.gold.first().level, 'v1-org-5')
 
         self.mocks['request'].request.assert_has_calls([
             mock.call('post',
                       '/v1/customers',
-                      {'description': mock.ANY, 'email': mock.ANY},
+                      {'description': mock.ANY, 'email': mock.ANY, 'business_vat_id': 'business-vat-id'},
                       mock.ANY),
             mock.call('get',
                       '/v1/customers/cus_12345/subscriptions',
@@ -132,7 +135,7 @@ class GoldSubscriptionFormTests(TestCase):
         golduser = fixture.get(GoldUser, user=self.user, stripe_id='cus_12345')
         subscription_form = GoldSubscriptionForm(
             {'level': 'v1-org-5',
-             'last_4_digits': '0000',
+             'last_4_card_digits': '0000',
              'stripe_token': 'GARYBUSEY'},
             customer=self.user,
             instance=golduser
@@ -198,7 +201,7 @@ class GoldSubscriptionFormTests(TestCase):
         ])
         subscription_form = GoldSubscriptionForm(
             {'level': 'v1-org-5',
-             'last_4_digits': '0000',
+             'last_4_card_digits': '0000',
              'stripe_token': 'GARYBUSEY'},
             customer=self.user
         )

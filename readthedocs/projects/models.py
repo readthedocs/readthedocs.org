@@ -22,13 +22,13 @@ from taggit.managers import TaggableManager
 from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects.version_handling import (
     determine_stable_version, version_windows)
 from readthedocs.restapi.client import api
@@ -80,8 +80,9 @@ class Project(models.Model):
     # Generally from conf.py
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
-    name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    # A DNS label can contain up to 63 characters.
+    name = models.CharField(_('Name'), max_length=63)
+    slug = models.SlugField(_('Slug'), max_length=63, unique=True)
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
@@ -132,15 +133,11 @@ class Project(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
-        help_text=_('Type of documentation you are building. <a href="http://'
-                    'sphinx-doc.org/builders.html#sphinx.builders.html.'
+        help_text=_('Type of documentation you are building. <a href="'
+                    'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
-    # TODO: remove this?
-    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(
-        _('Comment Moderation'), default=False,)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -160,6 +157,15 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    ad_free = models.BooleanField(
+        _('Ad-free'),
+        default=False,
+        help_text='If checked, do not show advertising for this project',
+    )
+    show_version_warning = models.BooleanField(
+        _('Show version warning'), default=False,
+        help_text=_('Show warning banner in non-stable nor latest versions.')
+    )
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
@@ -198,7 +204,7 @@ class Project(models.Model):
         max_length=20,
         choices=constants.PYTHON_CHOICES,
         default='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'))
 
     use_system_packages = models.BooleanField(
@@ -212,13 +218,13 @@ class Project(models.Model):
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Level of privacy that you want on the repository. '
+        help_text=_('Level of privacy that you want on the repository. '
                     'Protected means public but not in listings.'))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default=getattr(
             settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Default level of privacy you want on built '
+        help_text=_('Default level of privacy you want on built '
                     'versions of documentation.'))
 
     # Subprojects
@@ -307,17 +313,22 @@ class Project(models.Model):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
-            if self.slug == '':
+            if not self.slug:
                 raise Exception(_('Model must have slug'))
+        if self.documentation_type == 'auto':
+            # This used to determine the type and automatically set the
+            # documentation type to Sphinx for rST and Mkdocs for markdown.
+            # It now just forces Sphinx, due to markdown support.
+            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            if self.default_branch:
-                latest = self.versions.get(slug=LATEST)
-                if latest.identifier != self.default_branch:
-                    latest.identifier = self.default_branch
-                    latest.save()
+            latest = self.versions.filter(slug=LATEST).first()
+            default_branch = self.get_default_branch()
+            if latest and latest.identifier != default_branch:
+                latest.identifier = default_branch
+                latest.save()
         except Exception:
             log.exception('Failed to update latest identifier')
 
@@ -526,7 +537,8 @@ class Project(models.Model):
         """The path to the build json docs in the project."""
         if 'sphinx' in self.documentation_type:
             return os.path.join(self.conf_dir(version), '_build', 'json')
-        elif 'mkdocs' in self.documentation_type:
+
+        if 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), '_build', 'json')
 
     def full_singlehtml_path(self, version=LATEST):
@@ -546,11 +558,13 @@ class Project(models.Model):
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version), self.conf_py_file,)
+
             if os.path.exists(conf_path):
                 log.info('Inserting conf.py file path from model')
                 return conf_path
-            else:
-                log.warning("Conf file specified on model doesn't exist")
+
+            log.warning("Conf file specified on model doesn't exist")
+
         files = self.find('conf.py', version)
         if not files:
             files = self.full_find('conf.py', version)
@@ -577,16 +591,6 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return os.path.dirname(conf_file)
-
-    @property
-    def is_type_sphinx(self):
-        """Is project type Sphinx."""
-        return 'sphinx' in self.documentation_type
-
-    @property
-    def is_type_mkdocs(self):
-        """Is project type Mkdocs."""
-        return 'mkdocs' in self.documentation_type
 
     @property
     def is_imported(self):
@@ -644,8 +648,28 @@ class Project(models.Model):
             repo = backend(self, version, environment)
         return repo
 
-    def repo_nonblockinglock(self, version, max_lock_age=5):
-        return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
+    def repo_nonblockinglock(self, version, max_lock_age=None):
+        """
+        Return a ``NonBlockingLock`` to acquire the lock via context manager.
+
+        :param version: project's version that want to get the lock for.
+        :param max_lock_age: time (in seconds) to consider the lock's age is old
+            and grab it anyway. It default to the ``container_time_limit`` of
+            the project or the default ``DOCKER_LIMITS['time']`` or
+            ``REPO_LOCK_SECONDS`` or 30
+        """
+        if max_lock_age is None:
+            max_lock_age = (
+                self.container_time_limit or
+                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
+                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+            )
+
+        return NonBlockingLock(
+            project=self,
+            version=version,
+            max_lock_age=max_lock_age,
+        )
 
     def repo_lock(self, version, timeout=5, polling_interval=5):
         return Lock(self, version, timeout, polling_interval)
@@ -780,7 +804,8 @@ class Project(models.Model):
         return (
             self.versions.filter(identifier=branch) |
             self.versions.filter(identifier='remotes/origin/%s' % branch) |
-            self.versions.filter(identifier='origin/%s' % branch)
+            self.versions.filter(identifier='origin/%s' % branch) |
+            self.versions.filter(verbose_name=branch)
         )
 
     def get_default_version(self):
@@ -839,6 +864,18 @@ class Project(models.Model):
         """
         return positive if self.has_feature(feature) else negative
 
+    @property
+    def show_advertising(self):
+        """
+        Whether this project is ad-free
+
+        :return: ``True`` if advertising should be shown and ``False`` otherwise
+        """
+        if self.ad_free or self.gold_owners.exists():
+            return False
+
+        return True
+
 
 class APIProject(Project):
 
@@ -846,7 +883,7 @@ class APIProject(Project):
     Project proxy model for API data deserialization.
 
     This replaces the pattern where API data was deserialized into a mocked
-    :py:cls:`Project` object. This pattern was confusing, as it was not explicit
+    :py:class:`Project` object. This pattern was confusing, as it was not explicit
     as to what form of object you were working with -- API backed or database
     backed.
 
@@ -862,6 +899,7 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -872,11 +910,19 @@ class APIProject(Project):
                 pass
         super(APIProject, self).__init__(*args, **kwargs)
 
+        # Overwrite the database property with the value from the API
+        self.ad_free = ad_free
+
     def save(self, *args, **kwargs):
         return 0
 
     def has_feature(self, feature_id):
         return feature_id in self.features
+
+    @property
+    def show_advertising(self):
+        """Whether this project is ad-free (don't access the database)"""
+        return not self.ad_free
 
 
 @python_2_unicode_compatible
@@ -898,6 +944,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
@@ -955,7 +1002,7 @@ class Domain(models.Model):
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
-        help_text=_('SSL is enabled for this domain')
+        help_text=_('Always use HTTPS for this domain')
     )
     count = models.IntegerField(default=0, help_text=_(
         'Number of times this domain has been hit'),)
@@ -1010,6 +1057,9 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
+    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
+    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
+    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1017,6 +1067,11 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (DONT_OVERWRITE_SPHINX_CONTEXT, _(
+            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+        (ALLOW_V2_CONFIG_FILE, _(
+            'Allow to use the v2 of the configuration file')),
+        (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
     )
 
     projects = models.ManyToManyField(

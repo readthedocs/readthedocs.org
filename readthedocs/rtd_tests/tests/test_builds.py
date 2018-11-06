@@ -8,12 +8,12 @@ from django_dynamic_fixture import get
 from django_dynamic_fixture import fixture
 
 from readthedocs.projects.models import Project
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.tasks import UpdateDocsTaskStep
-from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
 
@@ -27,8 +27,10 @@ class BuildEnvironmentTests(TestCase):
     def tearDown(self):
         self.mocks.stop()
 
-    def test_build(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build(self, load_config):
         '''Test full build'''
+        load_config.side_effect = create_load()
         project = get(Project,
                       slug='project-1',
                       documentation_type='sphinx',
@@ -43,7 +45,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
+        config = load_yaml_config(version)
         task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
@@ -54,8 +56,10 @@ class BuildEnvironmentTests(TestCase):
         self.assertRegexpMatches(cmd[0][0], r'python')
         self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
 
-    def test_build_respects_pdf_flag(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_respects_pdf_flag(self, load_config):
         '''Build output format control'''
+        load_config.side_effect = create_load()
         project = get(Project,
                       slug='project-1',
                       documentation_type='sphinx',
@@ -67,7 +71,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
+        config = load_yaml_config(version)
         task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
@@ -79,8 +83,10 @@ class BuildEnvironmentTests(TestCase):
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.epub_build.called)
 
-    def test_build_respects_epub_flag(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_respects_epub_flag(self, load_config):
         '''Test build with epub enabled'''
+        load_config.side_effect = create_load()
         project = get(Project,
                       slug='project-1',
                       documentation_type='sphinx',
@@ -92,7 +98,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
+        config = load_yaml_config(version)
         task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
@@ -103,8 +109,10 @@ class BuildEnvironmentTests(TestCase):
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.pdf_build.called)
 
-    def test_build_respects_yaml(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_respects_yaml(self, load_config):
         '''Test YAML build options'''
+        load_config.side_effect = create_load({'formats': ['epub']})
         project = get(Project,
                       slug='project-1',
                       documentation_type='sphinx',
@@ -116,9 +124,8 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        config = ConfigWrapper(version=version, yaml_config=create_load({
-            'formats': ['epub']
-        })()[0])
+
+        config = load_yaml_config(version)
         task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
         task.build_docs()
@@ -129,9 +136,11 @@ class BuildEnvironmentTests(TestCase):
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.pdf_build.called)
 
-    def test_build_pdf_latex_failures(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_pdf_latex_failures(self, load_config):
         '''Build failure if latex fails'''
 
+        load_config.side_effect = create_load()
         self.mocks.patches['html_build'].stop()
         self.mocks.patches['pdf_build'].stop()
 
@@ -147,7 +156,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
+        config = load_yaml_config(version)
         task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 
@@ -171,9 +180,11 @@ class BuildEnvironmentTests(TestCase):
         self.assertEqual(self.mocks.popen.call_count, 7)
         self.assertTrue(build_env.failed)
 
-    def test_build_pdf_latex_not_failure(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_pdf_latex_not_failure(self, load_config):
         '''Test pass during PDF builds and bad latex failure status code'''
 
+        load_config.side_effect = create_load()
         self.mocks.patches['html_build'].stop()
         self.mocks.patches['pdf_build'].stop()
 
@@ -189,7 +200,7 @@ class BuildEnvironmentTests(TestCase):
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
-        config = ConfigWrapper(version=version, yaml_config=create_load()()[0])
+        config = load_yaml_config(version)
         task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
                               version=version, search=False, localmedia=False, config=config)
 

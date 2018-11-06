@@ -6,8 +6,10 @@ import datetime
 import json
 
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.test import TestCase
 from django_dynamic_fixture import get
+from django.utils import timezone
 from mock import patch
 from rest_framework.reverse import reverse
 
@@ -20,12 +22,16 @@ from readthedocs.projects.tasks import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
-class TestProject(TestCase):
+class ProjectMixin(object):
+
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
+
+
+class TestProject(ProjectMixin, TestCase):
 
     def test_valid_versions(self):
         r = self.client.get('/api/v2/project/6/valid_versions/', {})
@@ -39,6 +45,88 @@ class TestProject(TestCase):
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['subprojects'][0]['id'], 23)
+
+    def test_token(self):
+        r = self.client.get('/api/v2/project/6/token/', {})
+        resp = json.loads(r.content)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(resp['token'], None)
+
+    def test_has_pdf(self):
+        # The project has a pdf if the PDF file exists on disk.
+        with fake_paths_by_regex('\.pdf$'):
+            self.assertTrue(self.pip.has_pdf(LATEST))
+
+        # The project has no pdf if there is no file on disk.
+        with fake_paths_by_regex('\.pdf$', exists=False):
+            self.assertFalse(self.pip.has_pdf(LATEST))
+
+    def test_has_pdf_with_pdf_build_disabled(self):
+        # The project has NO pdf if pdf builds are disabled
+        self.pip.enable_pdf_build = False
+        with fake_paths_by_regex('\.pdf$'):
+            self.assertFalse(self.pip.has_pdf(LATEST))
+
+    def test_has_epub(self):
+        # The project has a epub if the PDF file exists on disk.
+        with fake_paths_by_regex('\.epub$'):
+            self.assertTrue(self.pip.has_epub(LATEST))
+
+        # The project has no epub if there is no file on disk.
+        with fake_paths_by_regex('\.epub$', exists=False):
+            self.assertFalse(self.pip.has_epub(LATEST))
+
+    def test_has_epub_with_epub_build_disabled(self):
+        # The project has NO epub if epub builds are disabled
+        self.pip.enable_epub_build = False
+        with fake_paths_by_regex('\.epub$'):
+            self.assertFalse(self.pip.has_epub(LATEST))
+
+    @patch('readthedocs.projects.models.Project.find')
+    def test_conf_file_found(self, find_method):
+        find_method.return_value = [
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+        ]
+        self.assertEqual(
+            self.pip.conf_file(),
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+        )
+
+    @patch('readthedocs.projects.models.Project.find')
+    def test_multiple_conf_file_one_doc_in_path(self, find_method):
+        find_method.return_value = [
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
+        ]
+        self.assertEqual(
+            self.pip.conf_file(),
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
+        )
+
+    @patch('readthedocs.projects.models.Project.find')
+    @patch('readthedocs.projects.models.Project.full_find')
+    def test_conf_file_not_found(self, find_method, full_find_method):
+        find_method.return_value = []
+        full_find_method.return_value = []
+        with self.assertRaisesMessage(
+                ProjectConfigurationError,
+                ProjectConfigurationError.NOT_FOUND) as cm:
+            self.pip.conf_file()
+
+    @patch('readthedocs.projects.models.Project.find')
+    def test_multiple_conf_files(self, find_method):
+        find_method.return_value = [
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/conf.py',
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/conf.py',
+            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/src/conf.py',
+        ]
+        with self.assertRaisesMessage(
+                ProjectConfigurationError,
+                ProjectConfigurationError.MULTIPLE_CONF_FILES) as cm:
+            self.pip.conf_file()
+
+
+class TestProjectTranslations(ProjectMixin, TestCase):
 
     def test_translations(self):
         main_project = get(Project)
@@ -258,84 +346,69 @@ class TestProject(TestCase):
         self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
 
-    def test_token(self):
-        r = self.client.get('/api/v2/project/6/token/', {})
-        resp = json.loads(r.content)
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['token'], None)
-
-    def test_has_pdf(self):
-        # The project has a pdf if the PDF file exists on disk.
-        with fake_paths_by_regex('\.pdf$'):
-            self.assertTrue(self.pip.has_pdf(LATEST))
-
-        # The project has no pdf if there is no file on disk.
-        with fake_paths_by_regex('\.pdf$', exists=False):
-            self.assertFalse(self.pip.has_pdf(LATEST))
-
-    def test_has_pdf_with_pdf_build_disabled(self):
-        # The project has NO pdf if pdf builds are disabled
-        self.pip.enable_pdf_build = False
-        with fake_paths_by_regex('\.pdf$'):
-            self.assertFalse(self.pip.has_pdf(LATEST))
-
-    def test_has_epub(self):
-        # The project has a epub if the PDF file exists on disk.
-        with fake_paths_by_regex('\.epub$'):
-            self.assertTrue(self.pip.has_epub(LATEST))
-
-        # The project has no epub if there is no file on disk.
-        with fake_paths_by_regex('\.epub$', exists=False):
-            self.assertFalse(self.pip.has_epub(LATEST))
-
-    def test_has_epub_with_epub_build_disabled(self):
-        # The project has NO epub if epub builds are disabled
-        self.pip.enable_epub_build = False
-        with fake_paths_by_regex('\.epub$'):
-            self.assertFalse(self.pip.has_epub(LATEST))
-
-    @patch('readthedocs.projects.models.Project.find')
-    def test_conf_file_found(self, find_method):
-        find_method.return_value = [
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
-        ]
-        self.assertEqual(
-            self.pip.conf_file(),
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
+    def test_user_cant_change_lang_to_translation_lang(self):
+        user_a = User.objects.get(username='eric')
+        project_a = Project.objects.get(slug='read-the-docs')
+        project_b = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
         )
 
-    @patch('readthedocs.projects.models.Project.find')
-    def test_multiple_conf_file_one_doc_in_path(self, find_method):
-        find_method.return_value = [
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/src/conf.py',
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
-        ]
-        self.assertEqual(
-            self.pip.conf_file(),
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/latest/docs/conf.py',
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        # User tries to change the language
+        # to the same of the translation
+        self.client.login(username=user_a.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        self.assertEqual(project_a.language, 'en')
+        self.assertEqual(project_b.language, 'es')
+        data = model_to_dict(project_a)
+        data['language'] = 'es'
+        resp = self.client.post(
+            reverse(
+                'projects_edit',
+                args=[project_a.slug]
+            ),
+            data=data,
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            'There is already a &quot;es&quot; translation '
+            'for the read-the-docs project'
         )
 
-    @patch('readthedocs.projects.models.Project.find')
-    @patch('readthedocs.projects.models.Project.full_find')
-    def test_conf_file_not_found(self, find_method, full_find_method):
-        find_method.return_value = []
-        full_find_method.return_value = []
-        with self.assertRaisesMessage(
-                ProjectConfigurationError,
-                ProjectConfigurationError.NOT_FOUND) as cm:
-            self.pip.conf_file()
+    def test_user_can_change_project_with_same_lang(self):
+        user_a = User.objects.get(username='eric')
+        project_a = Project.objects.get(slug='read-the-docs')
+        project_b = get(
+            Project, users=[user_a],
+            language='es', main_language_project=None
+        )
 
-    @patch('readthedocs.projects.models.Project.find')
-    def test_multiple_conf_files(self, find_method):
-        find_method.return_value = [
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/conf.py',
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/conf.py',
-            '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/src/conf.py',
-        ]
-        with self.assertRaisesMessage(
-                ProjectConfigurationError,
-                ProjectConfigurationError.MULTIPLE_CONF_FILES) as cm:
-            self.pip.conf_file()
+        project_a.translations.add(project_b)
+        project_a.save()
+
+        # User save the project with no modifications
+        self.client.login(username=user_a.username, password='test')
+        self.assertIn(project_b, project_a.translations.all())
+        self.assertEqual(project_a.language, 'en')
+        self.assertEqual(project_b.language, 'es')
+        data = model_to_dict(project_a)
+        # Same language
+        data['language'] = 'en'
+        resp = self.client.post(
+            reverse(
+                'projects_edit',
+                args=[project_a.slug]
+            ),
+            data=data,
+            follow=True
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, 'There is already a')
 
 
 class TestFinishInactiveBuildsTask(TestCase):
@@ -363,7 +436,7 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_2.date = (
-            datetime.datetime.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1))
         self.build_2.save()
 
         # Build started an hour ago with custom time (2 hours)
@@ -373,7 +446,7 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_3.date = (
-            datetime.datetime.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1))
         self.build_3.save()
 
     def test_finish_inactive_builds_task(self):

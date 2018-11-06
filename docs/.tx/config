@@ -1,204 +1,429 @@
 [main]
 host = https://www.transifex.com
+
+[readthedocs-docs.embed]
+file_filter = locale/<lang>/LC_MESSAGES/embed.po
+source_file = _build/locale/embed.pot
+source_lang = en
 type = PO
-
-[readthedocs-docs.api]
-file_filter = locale/<lang>/LC_MESSAGES/api.po
-source_file = locale/pot/api.pot
-source_lang = en
-
-[readthedocs-docs.getting_started]
-file_filter = locale/<lang>/LC_MESSAGES/getting_started.po
-source_file = locale/pot/getting_started.pot
-source_lang = en
-
-[readthedocs-docs.gsoc]
-file_filter = locale/<lang>/LC_MESSAGES/gsoc.po
-source_file = locale/pot/gsoc.pot
-source_lang = en
-
-[readthedocs-docs.i18n]
-file_filter = locale/<lang>/LC_MESSAGES/i18n.po
-source_file = locale/pot/i18n.pot
-source_lang = en
-
-[readthedocs-docs.index]
-file_filter = locale/<lang>/LC_MESSAGES/index.po
-source_file = locale/pot/index.pot
-source_lang = en
-
-[readthedocs-docs.install]
-file_filter = locale/<lang>/LC_MESSAGES/install.po
-source_file = locale/pot/install.pot
-source_lang = en
-
-[readthedocs-docs.localization]
-file_filter = locale/<lang>/LC_MESSAGES/localization.po
-source_file = locale/pot/localization.pot
-source_lang = en
 
 [readthedocs-docs.privacy]
 file_filter = locale/<lang>/LC_MESSAGES/privacy.po
-source_file = locale/pot/privacy.pot
+source_file = _build/locale/privacy.pot
 source_lang = en
+type = PO
 
-[readthedocs-docs.redirects]
-file_filter = locale/<lang>/LC_MESSAGES/redirects.po
-source_file = locale/pot/redirects.pot
+[readthedocs-docs.user-defined-redirects]
+file_filter = locale/<lang>/LC_MESSAGES/user-defined-redirects.po
+source_file = _build/locale/user-defined-redirects.pot
 source_lang = en
-
-[readthedocs-docs.rtfd]
-file_filter = locale/<lang>/LC_MESSAGES/rtfd.po
-source_file = locale/pot/rtfd.pot
-source_lang = en
-
-[readthedocs-docs.settings]
-file_filter = locale/<lang>/LC_MESSAGES/settings.po
-source_file = locale/pot/settings.pot
-source_lang = en
-
-[readthedocs-docs.single_version]
-file_filter = locale/<lang>/LC_MESSAGES/single_version.po
-source_file = locale/pot/single_version.pot
-source_lang = en
+type = PO
 
 [readthedocs-docs.sponsors]
 file_filter = locale/<lang>/LC_MESSAGES/sponsors.po
-source_file = locale/pot/sponsors.pot
+source_file = _build/locale/sponsors.pot
 source_lang = en
+type = PO
 
-[readthedocs-docs.support]
-file_filter = locale/<lang>/LC_MESSAGES/support.po
-source_file = locale/pot/support.pot
+[readthedocs-docs.team]
+file_filter = locale/<lang>/LC_MESSAGES/team.po
+source_file = _build/locale/team.pot
 source_lang = en
+type = PO
 
-[readthedocs-docs.symlinks]
-file_filter = locale/<lang>/LC_MESSAGES/symlinks.po
-source_file = locale/pot/symlinks.pot
+[readthedocs-docs.install]
+file_filter = locale/<lang>/LC_MESSAGES/install.po
+source_file = _build/locale/install.pot
 source_lang = en
-
-[readthedocs-docs.talks]
-file_filter = locale/<lang>/LC_MESSAGES/talks.po
-source_file = locale/pot/talks.pot
-source_lang = en
-
-[readthedocs-docs.tests]
-file_filter = locale/<lang>/LC_MESSAGES/tests.po
-source_file = locale/pot/tests.pot
-source_lang = en
-
-[readthedocs-docs.theme]
-file_filter = locale/<lang>/LC_MESSAGES/theme.po
-source_file = locale/pot/theme.pot
-source_lang = en
-
-[readthedocs-docs.todo]
-file_filter = locale/<lang>/LC_MESSAGES/todo.po
-source_file = locale/pot/todo.pot
-source_lang = en
-
-[readthedocs-docs.vcs]
-file_filter = locale/<lang>/LC_MESSAGES/vcs.po
-source_file = locale/pot/vcs.pot
-source_lang = en
-
-[readthedocs-docs.versions]
-file_filter = locale/<lang>/LC_MESSAGES/versions.po
-source_file = locale/pot/versions.pot
-source_lang = en
-
-[readthedocs-docs.webhooks]
-file_filter = locale/<lang>/LC_MESSAGES/webhooks.po
-source_file = locale/pot/webhooks.pot
-source_lang = en
-
-[readthedocs-docs.api--builds]
-file_filter = locale/<lang>/LC_MESSAGES/api/builds.po
-source_file = locale/pot/api/builds.pot
-source_lang = en
-
-[readthedocs-docs.api--core]
-file_filter = locale/<lang>/LC_MESSAGES/api/core.po
-source_file = locale/pot/api/core.pot
-source_lang = en
-
-[readthedocs-docs.api--doc_builder]
-file_filter = locale/<lang>/LC_MESSAGES/api/doc_builder.po
-source_file = locale/pot/api/doc_builder.pot
-source_lang = en
-
-[readthedocs-docs.api--index]
-file_filter = locale/<lang>/LC_MESSAGES/api/index.po
-source_file = locale/pot/api/index.pot
-source_lang = en
-
-[readthedocs-docs.api--projects]
-file_filter = locale/<lang>/LC_MESSAGES/api/projects.po
-source_file = locale/pot/api/projects.pot
-source_lang = en
-
-[readthedocs-docs.api--vcs_support]
-file_filter = locale/<lang>/LC_MESSAGES/api/vcs_support.po
-source_file = locale/pot/api/vcs_support.pot
-source_lang = en
-
-[readthedocs-docs.custom_installs--customization]
-file_filter = locale/<lang>/LC_MESSAGES/custom_installs/customization.po
-source_file = locale/pot/custom_installs/customization.pot
-source_lang = en
-
-[readthedocs-docs.custom_installs--index]
-file_filter = locale/<lang>/LC_MESSAGES/custom_installs/index.po
-source_file = locale/pot/custom_installs/index.pot
-source_lang = en
-
-[readthedocs-docs.alternate_domains]
-file_filter = locale/<lang>/LC_MESSAGES/alternate_domains.po
-source_file = locale/pot/alternate_domains.pot
-source_lang = en
-
-[readthedocs-docs.architecture]
-file_filter = locale/<lang>/LC_MESSAGES/architecture.po
-source_file = locale/pot/architecture.pot
-source_lang = en
-
-[readthedocs-docs.builds]
-file_filter = locale/<lang>/LC_MESSAGES/builds.po
-source_file = locale/pot/builds.pot
-source_lang = en
-
-[readthedocs-docs.canonical]
-file_filter = locale/<lang>/LC_MESSAGES/canonical.po
-source_file = locale/pot/canonical.pot
-source_lang = en
-
-[readthedocs-docs.changelog]
-file_filter = locale/<lang>/LC_MESSAGES/changelog.po
-source_file = locale/pot/changelog.pot
-source_lang = en
-
-[readthedocs-docs.contribute]
-file_filter = locale/<lang>/LC_MESSAGES/contribute.po
-source_file = locale/pot/contribute.pot
-source_lang = en
-
-[readthedocs-docs.custom_installs]
-file_filter = locale/<lang>/LC_MESSAGES/custom_installs.po
-source_file = locale/pot/custom_installs.pot
-source_lang = en
+type = PO
 
 [readthedocs-docs.design]
 file_filter = locale/<lang>/LC_MESSAGES/design.po
-source_file = locale/pot/design.pot
+source_file = _build/locale/design.pot
 source_lang = en
+type = PO
 
-[readthedocs-docs.faq]
-file_filter = locale/<lang>/LC_MESSAGES/faq.po
-source_file = locale/pot/faq.pot
+[readthedocs-docs.builds]
+file_filter = locale/<lang>/LC_MESSAGES/builds.po
+source_file = _build/locale/builds.pot
 source_lang = en
+type = PO
+
+[readthedocs-docs.single_version]
+file_filter = locale/<lang>/LC_MESSAGES/single_version.po
+source_file = _build/locale/single_version.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.open-source-philosophy]
+file_filter = locale/<lang>/LC_MESSAGES/open-source-philosophy.po
+source_file = _build/locale/open-source-philosophy.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.webhooks]
+file_filter = locale/<lang>/LC_MESSAGES/webhooks.po
+source_file = _build/locale/webhooks.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.issue-labels]
+file_filter = locale/<lang>/LC_MESSAGES/issue-labels.po
+source_file = _build/locale/issue-labels.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.security]
+file_filter = locale/<lang>/LC_MESSAGES/security.po
+source_file = _build/locale/security.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.tests]
+file_filter = locale/<lang>/LC_MESSAGES/tests.po
+source_file = _build/locale/tests.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.docs]
+file_filter = locale/<lang>/LC_MESSAGES/docs.po
+source_file = _build/locale/docs.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.alternate_domains]
+file_filter = locale/<lang>/LC_MESSAGES/alternate_domains.po
+source_file = _build/locale/alternate_domains.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.index]
+file_filter = locale/<lang>/LC_MESSAGES/index.po
+source_file = _build/locale/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.abandoned-projects]
+file_filter = locale/<lang>/LC_MESSAGES/abandoned-projects.po
+source_file = _build/locale/abandoned-projects.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.canonical]
+file_filter = locale/<lang>/LC_MESSAGES/canonical.po
+source_file = _build/locale/canonical.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.versions]
+file_filter = locale/<lang>/LC_MESSAGES/versions.po
+source_file = _build/locale/versions.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.i18n]
+file_filter = locale/<lang>/LC_MESSAGES/i18n.po
+source_file = _build/locale/i18n.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.yaml-config]
+file_filter = locale/<lang>/LC_MESSAGES/yaml-config.po
+source_file = _build/locale/yaml-config.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.changelog]
+file_filter = locale/<lang>/LC_MESSAGES/changelog.po
+source_file = _build/locale/changelog.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.automatic-redirects]
+file_filter = locale/<lang>/LC_MESSAGES/automatic-redirects.po
+source_file = _build/locale/automatic-redirects.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.support]
+file_filter = locale/<lang>/LC_MESSAGES/support.po
+source_file = _build/locale/support.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.badges]
+file_filter = locale/<lang>/LC_MESSAGES/badges.po
+source_file = _build/locale/badges.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.vcs]
+file_filter = locale/<lang>/LC_MESSAGES/vcs.po
+source_file = _build/locale/vcs.pot
+source_lang = en
+type = PO
 
 [readthedocs-docs.features]
 file_filter = locale/<lang>/LC_MESSAGES/features.po
-source_file = locale/pot/features.pot
+source_file = _build/locale/features.pot
 source_lang = en
+type = PO
+
+[readthedocs-docs.gsoc]
+file_filter = locale/<lang>/LC_MESSAGES/gsoc.po
+source_file = _build/locale/gsoc.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.contribute]
+file_filter = locale/<lang>/LC_MESSAGES/contribute.po
+source_file = _build/locale/contribute.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.code-of-conduct]
+file_filter = locale/<lang>/LC_MESSAGES/code-of-conduct.po
+source_file = _build/locale/code-of-conduct.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.architecture]
+file_filter = locale/<lang>/LC_MESSAGES/architecture.po
+source_file = _build/locale/architecture.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.conda]
+file_filter = locale/<lang>/LC_MESSAGES/conda.po
+source_file = _build/locale/conda.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.symlinks]
+file_filter = locale/<lang>/LC_MESSAGES/symlinks.po
+source_file = _build/locale/symlinks.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.subprojects]
+file_filter = locale/<lang>/LC_MESSAGES/subprojects.po
+source_file = _build/locale/subprojects.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.privacy-policy]
+file_filter = locale/<lang>/LC_MESSAGES/privacy-policy.po
+source_file = _build/locale/privacy-policy.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.faq]
+file_filter = locale/<lang>/LC_MESSAGES/faq.po
+source_file = _build/locale/faq.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.getting_started]
+file_filter = locale/<lang>/LC_MESSAGES/getting_started.po
+source_file = _build/locale/getting_started.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.localization]
+file_filter = locale/<lang>/LC_MESSAGES/localization.po
+source_file = _build/locale/localization.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.story]
+file_filter = locale/<lang>/LC_MESSAGES/story.po
+source_file = _build/locale/story.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.advertising--index]
+file_filter = locale/<lang>/LC_MESSAGES/advertising/index.po
+source_file = _build/locale/advertising/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.advertising--ethical-advertising]
+file_filter = locale/<lang>/LC_MESSAGES/advertising/ethical-advertising.po
+source_file = _build/locale/advertising/ethical-advertising.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.advertising--ad-blocking]
+file_filter = locale/<lang>/LC_MESSAGES/advertising/ad-blocking.po
+source_file = _build/locale/advertising/ad-blocking.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.advertising--advertising-details]
+file_filter = locale/<lang>/LC_MESSAGES/advertising/advertising-details.po
+source_file = _build/locale/advertising/advertising-details.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.business--sharing]
+file_filter = locale/<lang>/LC_MESSAGES/business/sharing.po
+source_file = _build/locale/business/sharing.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.business--analytics]
+file_filter = locale/<lang>/LC_MESSAGES/business/analytics.po
+source_file = _build/locale/business/analytics.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.business--index]
+file_filter = locale/<lang>/LC_MESSAGES/business/index.po
+source_file = _build/locale/business/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.business--organizations]
+file_filter = locale/<lang>/LC_MESSAGES/business/organizations.po
+source_file = _build/locale/business/organizations.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.design--yaml-file]
+file_filter = locale/<lang>/LC_MESSAGES/design/yaml-file.po
+source_file = _build/locale/design/yaml-file.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.design--theme-context]
+file_filter = locale/<lang>/LC_MESSAGES/design/theme-context.po
+source_file = _build/locale/design/theme-context.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--google-analytics]
+file_filter = locale/<lang>/LC_MESSAGES/guides/google-analytics.po
+source_file = _build/locale/guides/google-analytics.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--build-using-too-many-resources]
+file_filter = locale/<lang>/LC_MESSAGES/guides/build-using-too-many-resources.po
+source_file = _build/locale/guides/build-using-too-many-resources.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--specifying-dependencies]
+file_filter = locale/<lang>/LC_MESSAGES/guides/specifying-dependencies.po
+source_file = _build/locale/guides/specifying-dependencies.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--index]
+file_filter = locale/<lang>/LC_MESSAGES/guides/index.po
+source_file = _build/locale/guides/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--build-notifications]
+file_filter = locale/<lang>/LC_MESSAGES/guides/build-notifications.po
+source_file = _build/locale/guides/build-notifications.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--adding-custom-css]
+file_filter = locale/<lang>/LC_MESSAGES/guides/adding-custom-css.po
+source_file = _build/locale/guides/adding-custom-css.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--manage-translations]
+file_filter = locale/<lang>/LC_MESSAGES/guides/manage-translations.po
+source_file = _build/locale/guides/manage-translations.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--wipe-environment]
+file_filter = locale/<lang>/LC_MESSAGES/guides/wipe-environment.po
+source_file = _build/locale/guides/wipe-environment.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.guides--remove-edit-buttons]
+file_filter = locale/<lang>/LC_MESSAGES/guides/remove-edit-buttons.po
+source_file = _build/locale/guides/remove-edit-buttons.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.features--embed]
+file_filter = locale/<lang>/LC_MESSAGES/features/embed.po
+source_file = _build/locale/features/embed.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.custom_installs--local_rtd_vm]
+file_filter = locale/<lang>/LC_MESSAGES/custom_installs/local_rtd_vm.po
+source_file = _build/locale/custom_installs/local_rtd_vm.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.custom_installs--index]
+file_filter = locale/<lang>/LC_MESSAGES/custom_installs/index.po
+source_file = _build/locale/custom_installs/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.custom_installs--customization]
+file_filter = locale/<lang>/LC_MESSAGES/custom_installs/customization.po
+source_file = _build/locale/custom_installs/customization.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.custom_installs--elasticsearch]
+file_filter = locale/<lang>/LC_MESSAGES/custom_installs/elasticsearch.po
+source_file = _build/locale/custom_installs/elasticsearch.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.api--v2]
+file_filter = locale/<lang>/LC_MESSAGES/api/v2.po
+source_file = _build/locale/api/v2.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.api--index]
+file_filter = locale/<lang>/LC_MESSAGES/api/index.po
+source_file = _build/locale/api/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.api--v1]
+file_filter = locale/<lang>/LC_MESSAGES/api/v1.po
+source_file = _build/locale/api/v1.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.development--buildenvironments]
+file_filter = locale/<lang>/LC_MESSAGES/development/buildenvironments.po
+source_file = _build/locale/development/buildenvironments.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.development--standards]
+file_filter = locale/<lang>/LC_MESSAGES/development/standards.po
+source_file = _build/locale/development/standards.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.dmca--index]
+file_filter = locale/<lang>/LC_MESSAGES/dmca/index.po
+source_file = _build/locale/dmca/index.pot
+source_lang = en
+type = PO
+
+[readthedocs-docs.settings_]
+file_filter = locale/<lang>/LC_MESSAGES/settings.po
+source_file = _build/locale/settings.pot
+source_lang = en
+type = PO
 

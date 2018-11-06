@@ -184,7 +184,7 @@ class DomainAdmin(admin.ModelAdmin):
     list_display = ('domain', 'project', 'https', 'count')
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
-    list_filter = ('canonical',)
+    list_filter = ('canonical', 'https')
     model = Domain
 
 
@@ -195,6 +195,7 @@ class FeatureAdmin(admin.ModelAdmin):
     search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)
+    raw_id_fields = ('projects',)
 
     def project_count(self, feature):
         return feature.projects.count()

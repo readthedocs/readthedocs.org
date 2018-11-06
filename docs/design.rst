@@ -1,5 +1,3 @@
-.. _designing-read-the-docs:
-
 Designing Read the Docs
 =======================
 
@@ -9,7 +7,7 @@ time and design skills to Read the Docs? That's
 a few features available to ease the process of
 working with Read the Doc's CSS and static assets.
 
-To start, you should follow the :ref:`installing-read-the-docs` instructions
+To start, you should follow the :doc:`install` instructions
 to get a working copy of the Read the Docs repository locally.
 
 Style Catalog
@@ -44,7 +42,7 @@ your example project.
 Contributing
 ------------
 
-Contributions should follow the :ref:`contributing-to-read-the-docs` guidelines where applicable -- ideally you'll
+Contributions should follow the :doc:`contribute` guidelines where applicable -- ideally you'll
 create a pull request against the `Read the Docs GitHub project`_ from your forked repo and include
 a brief description of what you added / removed / changed, as well as an attached image (you can just
 take a screenshot and drop it into the PR creation form) of the effects of your changes.
@@ -53,8 +51,10 @@ There's not a hard browser range, but your design changes should work reasonably
 browsers, IE8+ -- that's not to say it needs to be pixel-perfect in older browsers! Just avoid
 making changes that render older browsers utterly unusable (or provide a sane fallback).
 
+Brand Guidelines
+----------------
+
+Find our branding guidelines in our guidelines documentation: https://read-the-docs-guidelines.readthedocs-hosted.com.
+
 .. _Read the Docs GitHub project: https://github.com/rtfd/readthedocs.org/pulls
-
-
-
 

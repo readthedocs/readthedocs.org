@@ -7,10 +7,12 @@ from __future__ import (
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from builtins import str
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.builds.constants import BRANCH, TAG
@@ -32,6 +34,28 @@ from ..serializers import (
     SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
 
 log = logging.getLogger(__name__)
+
+
+class PlainTextBuildRenderer(BaseRenderer):
+
+    """
+    Custom renderer for text/plain format.
+
+    charset is 'utf-8' by default.
+    """
+
+    media_type = 'text/plain'
+    format = 'txt'
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        renderer_context = renderer_context or {}
+        response = renderer_context.get('response')
+        if not response or response.exception:
+            return data.get('detail', '').encode(self.charset)
+        data = render_to_string(
+            'restapi/log.txt', {'build': data}
+        )
+        return data.encode(self.charset)
 
 
 class UserSelectViewSet(viewsets.ModelViewSet):
@@ -68,6 +92,7 @@ class ProjectViewSet(UserSelectViewSet):
     admin_serializer_class = ProjectAdminSerializer
     model = Project
     pagination_class = api_utils.ProjectPagination
+    filter_fields = ('slug',)
 
     @decorators.detail_route()
     def valid_versions(self, request, **kwargs):
@@ -173,7 +198,7 @@ class ProjectViewSet(UserSelectViewSet):
             log.exception('Sync Versions Error')
             return Response(
                 {
-                    'error': e.message,
+                    'error': str(e),
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -209,14 +234,16 @@ class VersionViewSet(UserSelectViewSet):
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
     model = Version
+    filter_fields = ('active', 'project__slug',)
 
 
 class BuildViewSetBase(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build
+    filter_fields = ('project__slug', 'commit')
 
 
 class BuildViewSet(SettingsOverrideObject):

@@ -1,15 +1,15 @@
 User-defined Redirects
 ======================
 
-You can set up redirects for a project in your project dashboard's Redirects page. 
+You can set up redirects for a project in your project dashboard's Redirects page.
 
 Quick Summary
 -------------
 
-* Log into your Readthedocs.com Admin account.
+* Log into your readthedocs.org account.
 * From your dashboard, select the project on which you wish to add redirects.
 * From the project's top navigation bar, select the Admin tab.
-* From the left navigation menu, select Redirects. 
+* From the left navigation menu, select Redirects.
 * In the form box "Redirect Type" select the type of redirect you want. See below for detail.
 * Depending on the redirect type you select, enter FROM and/or TO URL as needed.
 * When finished, click the SUBMIT Button.
@@ -18,6 +18,7 @@ Your redirects will be effective immediately.
 
 Redirect Types
 --------------
+
 Prefix Redirects
 ~~~~~~~~~~~~~~~~
 
@@ -39,10 +40,18 @@ The example configuration would be::
 
 Your users query would now redirect in the following manner::
 
-	docs.example.com/dev/install.html ->
-	docs.example.com/en/latest/install.html
+        docs.example.com/dev/install.html ->
+        docs.example.com/en/latest/install.html
 
 Where ``en`` and ``latest`` are the default language and version values for your project.
+
+
+.. note::
+
+   In other words, a *Prefix Redirect* removes a prefix from the original URL.
+   This prefix is removed from the rest of the URL's ``path`` after ``/$lang/$version``.
+   For example, if the URL is ``/es/1.0/guides/tutorial/install.html`` the "From URL's prefix" will be removed from ``/guides/tutorial/install.html`` part.
+
 
 Page Redirects
 ~~~~~~~~~~~~~~
@@ -59,8 +68,14 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-Note that the ``/`` at the start doesn't count the ``/en/latest``, 
+Note that the ``/`` at the start doesn't count the ``/en/latest``,
 but just the user-controlled section of the URL.
+
+.. tip::
+
+   *Page Redirects* can redirect URLs **outside** Read the Docs platform
+   just by defining the "To URL" as the absolute URL you want to redirect to.
+
 
 Exact Redirects
 ~~~~~~~~~~~~~~~
@@ -81,11 +96,33 @@ The example configuration would be::
 
 Your users query would now redirect in the following manner::
 
-	docs.example.com/dev/install.html ->
-	docs.example.com/en/latest/installing-your-site.html
+        docs.example.com/dev/install.html ->
+        docs.example.com/en/latest/installing-your-site.html
 
 Note that you should insert the desired language for "en" and version for "latest" to
 achieve the desired redirect.
+
+*Exact Redirects* could be also useful to redirect a whole sub-path to a different one by using a special ``$rest`` keyword in the "From URL".
+Let's say that you want to redirect your readers of your version ``2.0`` of your documentation under ``/en/2.0/`` because it's deprecated,
+to the newest ``3.0`` version of it at ``/en/3.0/``.
+
+This example would be::
+
+  Type: Exact Redirect
+  From URL: /en/2.0/$rest
+  To URL: /en/3.0/
+
+The readers of your documentation will now be redirected as::
+
+  docs.example.com/en/2.0/dev/install.html ->
+  docs.example.com/en/3.0/dev/install.html
+
+
+.. tip::
+
+   *Exact Redirects* can redirect URLs **outside** Read the Docs platform
+   just by defining the "To URL" as the absolute URL you want to redirect to.
+
 
 Sphinx Redirects
 ~~~~~~~~~~~~~~~~
@@ -94,7 +131,7 @@ We also support redirects for changing the type of documentation Sphinx is build
 If you switch between *HTMLDir* and *HTML*, your URL's will change.
 A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
-The built in redirects for this will handle redirecting users appropriately. 
+The built in redirects for this will handle redirecting users appropriately.
 
 Implementation
 --------------
@@ -105,4 +142,3 @@ This means that redirects will only happen in the case of a *404 File Not Found*
 
 In the future we might implement redirect logic in Javascript,
 but this first version is only implemented in the 404 handlers.
-

@@ -1,16 +1,16 @@
 from __future__ import absolute_import
-from datetime import datetime, timedelta
+from datetime import timedelta
+
 
 from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.contrib.messages import constants as message_const
 from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
-from django_dynamic_fixture import get
-from django_dynamic_fixture import new
+from django.utils import timezone
+from django_dynamic_fixture import get, new
 
 import six
 
@@ -25,7 +25,7 @@ from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects import tasks
 
 
-@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
 class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -200,6 +200,50 @@ class TestAdvancedForm(TestBasicsForm):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
+
+    @patch('readthedocs.projects.views.private.ProjectExtraForm.clean_description',
+           create=True)
+    def test_form_spam(self, mocked_validator):
+        """Don't add project on a spammy description"""
+        self.user.date_joined = timezone.now() - timedelta(days=365)
+        self.user.save()
+        mocked_validator.side_effect = ProjectSpamError
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+
+        resp = self.post_step('basics')
+        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
+        self.assertIsInstance(resp, HttpResponseRedirect)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/')
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+        self.assertFalse(self.user.profile.banned)
+
+    @patch('readthedocs.projects.views.private.ProjectExtraForm.clean_description',
+           create=True)
+    def test_form_spam_ban_user(self, mocked_validator):
+        """Don't add spam and ban new user"""
+        self.user.date_joined = timezone.now()
+        self.user.save()
+        mocked_validator.side_effect = ProjectSpamError
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+
+        resp = self.post_step('basics')
+        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step('extra', session=list(resp._request.session.items()))
+        self.assertIsInstance(resp, HttpResponseRedirect)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['location'], '/')
+
+        with self.assertRaises(Project.DoesNotExist):
+            proj = Project.objects.get(name='foobar')
+        self.assertTrue(self.user.profile.banned)
 
 
 class TestImportDemoView(MockBuildTestCase):
@@ -379,24 +423,51 @@ class TestBadges(TestCase):
     """Test a static badge asset is served for each build."""
 
     def setUp(self):
-        self.BADGE_PATH = 'projects/badges/%s.svg'
+        self.BADGE_PATH = 'projects/badges/%s-%s.svg'
         self.project = get(Project, slug='badgey')
         self.version = Version.objects.get(project=self.project)
         self.badge_url = reverse('project_badge', args=[self.project.slug])
 
     def test_unknown_badge(self):
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = static(self.BADGE_PATH % 'unknown')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'unknown')
+
+        # Unknown project
+        unknown_project_url = reverse('project_badge', args=['fake-project'])
+        res = self.client.get(unknown_project_url, {'version': 'latest'})
+        self.assertContains(res, 'unknown')
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = static(self.BADGE_PATH % 'passing')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'passing')
+        self.assertEqual(res['Content-Type'], 'image/svg+xml')
 
     def test_failing_badge(self):
         get(Build, project=self.project, version=self.version, success=False)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        static_badge = static(self.BADGE_PATH % 'failing')
-        self.assertEquals(res.url, static_badge)
+        self.assertContains(res, 'failing')
+
+    def test_plastic_failing_badge(self):
+        get(Build, project=self.project, version=self.version, success=False)
+        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'plastic'})
+        self.assertContains(res, 'failing')
+
+        # The plastic badge has slightly more rounding
+        self.assertContains(res, 'rx="4"')
+
+    def test_social_passing_badge(self):
+        get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'social'})
+        self.assertContains(res, 'passing')
+
+        # The social badge (but not the other badges) has this element
+        self.assertContains(res, 'rlink')
+
+
+class TestTags(TestCase):
+    def test_project_filtering_work_with_tags_with_space_in_name(self):
+        pip = get(Project, slug='pip')
+        pip.tags.add('tag with space')
+        response = self.client.get('/projects/tags/tag-with-space/')
+        self.assertContains(response, '"/projects/pip/"')

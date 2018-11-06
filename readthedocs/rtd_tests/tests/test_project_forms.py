@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import mock
 from django.contrib.auth.models import User
@@ -10,14 +14,42 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.projects.constants import (
+    PRIVATE,
+    PROTECTED,
+    PUBLIC,
+    REPO_TYPE_GIT,
+    REPO_TYPE_HG,
+)
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
-    ProjectBasicsForm, ProjectExtraForm, TranslationForm)
+    ProjectAdvancedForm,
+    ProjectBasicsForm,
+    ProjectExtraForm,
+    TranslationForm,
+    UpdateProjectForm,
+)
 from readthedocs.projects.models import Project
 
 
 class TestProjectForms(TestCase):
-    
+
+    @mock.patch.object(ClassifierValidator, '__call__')
+    def test_form_spam(self, mocked_validator):
+        """Form description field fails spam validation."""
+        mocked_validator.side_effect = ProjectSpamError
+
+        data = {
+            'description': 'foo',
+            'documentation_type': 'sphinx',
+            'language': 'en',
+        }
+        form = ProjectExtraForm(data)
+        with self.assertRaises(ProjectSpamError):
+            form.is_valid()
+
     def test_import_repo_url(self):
         """Validate different type of repository URLs on importing a Project."""
 
@@ -58,16 +90,17 @@ class TestProjectForms(TestCase):
             ('ssh+git://github.com/humitos/foo', True),
             ('strangeuser@bitbucket.org:strangeuser/readthedocs.git', True),
             ('user@one-ssh.domain.com:22/_ssh/docs', True),
-         ] + common_urls
+        ] + common_urls
 
-        for url, valid in public_urls:
-            initial = {
-                'name': 'foo',
-                'repo_type': 'git',
-                'repo': url,
-            }
-            form = ProjectBasicsForm(initial)
-            self.assertEqual(form.is_valid(), valid, msg=url)
+        with override_settings(ALLOW_PRIVATE_REPOS=False):
+            for url, valid in public_urls:
+                initial = {
+                    'name': 'foo',
+                    'repo_type': 'git',
+                    'repo': url,
+                }
+                form = ProjectBasicsForm(initial)
+                self.assertEqual(form.is_valid(), valid, msg=url)
 
         with override_settings(ALLOW_PRIVATE_REPOS=True):
             for url, valid in private_urls:
@@ -79,8 +112,127 @@ class TestProjectForms(TestCase):
                 form = ProjectBasicsForm(initial)
                 self.assertEqual(form.is_valid(), valid, msg=url)
 
+    def test_empty_slug(self):
+        initial = {
+            'name': "''",
+            'repo_type': 'git',
+            'repo': 'https://github.com/user/repository',
+        }
+        form = ProjectBasicsForm(initial)
+        self.assertFalse(form.is_valid())
+        self.assertIn('name', form.errors)
 
-class TestTranslationForm(TestCase):
+    def test_changing_vcs_should_change_latest(self):
+        """When changing the project's VCS, latest should be changed too."""
+        project = get(Project, repo_type=REPO_TYPE_HG, default_branch=None)
+        latest = project.versions.get(slug=LATEST)
+        self.assertEqual(latest.identifier, 'default')
+
+        form = ProjectBasicsForm(
+            {
+                'repo': 'http://github.com/test/test',
+                'name': 'name',
+                'repo_type': REPO_TYPE_GIT,
+            },
+            instance=project,
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        latest.refresh_from_db()
+        self.assertEqual(latest.identifier, 'master')
+
+    def test_changing_vcs_should_not_change_latest_is_not_none(self):
+        """
+        When changing the project's VCS,
+        we should respect the custom default branch.
+        """
+        project = get(Project, repo_type=REPO_TYPE_HG, default_branch='custom')
+        latest = project.versions.get(slug=LATEST)
+        self.assertEqual(latest.identifier, 'custom')
+
+        form = ProjectBasicsForm(
+            {
+                'repo': 'http://github.com/test/test',
+                'name': 'name',
+                'repo_type': REPO_TYPE_GIT,
+            },
+            instance=project,
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        latest.refresh_from_db()
+        self.assertEqual(latest.identifier, 'custom')
+
+
+class TestProjectAdvancedForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        get(
+            Version,
+            project=self.project,
+            slug='public-1',
+            active=True,
+            privacy_level=PUBLIC,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-2',
+            active=True,
+            privacy_level=PUBLIC,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-3',
+            active=False,
+            privacy_level=PROTECTED,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='private',
+            active=True,
+            privacy_level=PRIVATE,
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='protected',
+            active=True,
+            privacy_level=PROTECTED,
+        )
+
+    def test_list_only_active_versions_on_default_version(self):
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created automatically by the project on save
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
+        self.assertEqual(
+            set(
+                slug
+                for slug, _ in form.fields['default_version'].widget.choices
+            ),
+            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+        )
+
+    def test_list_all_versions_on_default_branch(self):
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created automatically by the project on save
+        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
+        self.assertEqual(
+            set(
+                slug
+                for slug, _ in form.fields['default_branch'].widget.choices
+            ),
+            {
+                None, 'latest', 'public-1', 'public-2',
+                'public-3', 'protected', 'private'
+            },
+        )
+
+
+class TestTranslationForms(TestCase):
 
     def setUp(self):
         self.user_a = get(User)
@@ -247,3 +399,82 @@ class TestTranslationForm(TestCase):
             'is already a translation',
             ''.join(form.errors['project'])
         )
+
+    def test_cant_change_language_to_translation_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.translations.add(self.project_c_br)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'en',
+            },
+            instance=self.project_a_es
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "en" translation',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_b_en
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "es" translation',
+            ''.join(form.errors['language'])
+        )
+
+        # Translation tries to change lang
+        # to the same as its sibling
+        form = UpdateProjectForm(
+            {
+                'documentation_type': 'sphinx',
+                'language': 'br',
+            },
+            instance=self.project_b_en
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a "br" translation',
+            ''.join(form.errors['language'])
+        )
+
+    def test_can_change_language_to_self_lang(self):
+        self.project_a_es.translations.add(self.project_b_en)
+        self.project_a_es.translations.add(self.project_c_br)
+        self.project_a_es.save()
+
+        # Parent project tries to change lang
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_a_es.repo_type,
+                'name': self.project_a_es.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_a_es
+        )
+        self.assertTrue(form.is_valid())
+
+        # Translation tries to change lang
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'en',
+            },
+            instance=self.project_b_en
+        )
+        self.assertTrue(form.is_valid())

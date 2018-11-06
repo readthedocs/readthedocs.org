@@ -2,36 +2,55 @@
 """Models for the builds app."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import os.path
 import re
-from builtins import object
 from shutil import rmtree
 
+from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
+    BITBUCKET_URL,
+    GITHUB_URL,
+    GITLAB_URL,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
-    BRANCH, BUILD_STATE, BUILD_STATE_FINISHED, BUILD_TYPES, LATEST,
-    NON_REPOSITORY_VERSIONS, STABLE, TAG, VERSION_TYPES)
+    BRANCH,
+    BUILD_STATE,
+    BUILD_STATE_FINISHED,
+    BUILD_TYPES,
+    LATEST,
+    NON_REPOSITORY_VERSIONS,
+    STABLE,
+    TAG,
+    VERSION_TYPES,
+)
 from .managers import VersionManager
 from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .utils import (
-    get_bitbucket_username_repo, get_github_username_repo,
-    get_gitlab_username_repo)
+    get_bitbucket_username_repo,
+    get_github_username_repo,
+    get_gitlab_username_repo,
+)
 from .version_slug import VersionSlugField
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
@@ -181,7 +200,7 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(type='app', task=tasks.clear_artifacts, args=[self.pk])
+        broadcast(type='app', task=tasks.clear_artifacts, args=[self.get_artifact_paths()])
         broadcast(
             type='app', task=tasks.symlink_project, args=[self.project.pk])
         super(Version, self).delete(*args, **kwargs)
@@ -192,6 +211,10 @@ class Version(models.Model):
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
+
+    @property
+    def is_editable(self):
+        return self.type == BRANCH
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
@@ -237,6 +260,24 @@ class Version(models.Model):
             return path
         return None
 
+    def get_artifact_paths(self):
+        """
+        Return a list of all production artifacts/media path for this version.
+
+        :rtype: list
+        """
+        paths = []
+
+        for type_ in ('pdf', 'epub', 'htmlzip'):
+            paths.append(
+                self.project.get_production_media_path(
+                    type_=type_,
+                    version_slug=self.slug),
+            )
+        paths.append(self.project.rtd_build_path(version=self.slug))
+
+        return paths
+
     def clean_build_path(self):
         """
         Clean build path for project version.
@@ -268,11 +309,11 @@ class Version(models.Model):
 
         if not docroot:
             return ''
-        else:
-            if docroot[0] != '/':
-                docroot = '/{}'.format(docroot)
-            if docroot[-1] != '/':
-                docroot = '{}/'.format(docroot)
+
+        if docroot[0] != '/':
+            docroot = '/{}'.format(docroot)
+        if docroot[-1] != '/':
+            docroot = '{}/'.format(docroot)
 
         if action == 'view':
             action_string = 'blob'
@@ -302,11 +343,11 @@ class Version(models.Model):
 
         if not docroot:
             return ''
-        else:
-            if docroot[0] != '/':
-                docroot = '/{}'.format(docroot)
-            if docroot[-1] != '/':
-                docroot = '{}/'.format(docroot)
+
+        if docroot[0] != '/':
+            docroot = '/{}'.format(docroot)
+        if docroot[-1] != '/':
+            docroot = '{}/'.format(docroot)
 
         if action == 'view':
             action_string = 'blob'
@@ -356,7 +397,8 @@ class APIVersion(Version):
     Version proxy model for API data deserialization.
 
     This replaces the pattern where API data was deserialized into a mocked
-    :py:cls:`Version` object. This pattern was confusing, as it was not explicit
+    :py:class:`Version` object.
+    This pattern was confusing, as it was not explicit
     as to what form of object you were working with -- API backed or database
     backed.
 
@@ -383,27 +425,6 @@ class APIVersion(Version):
 
     def save(self, *args, **kwargs):
         return 0
-
-
-@python_2_unicode_compatible
-class VersionAlias(models.Model):
-
-    """Alias for a ``Version``."""
-
-    project = models.ForeignKey(
-        Project, verbose_name=_('Project'), related_name='aliases')
-    from_slug = models.CharField(_('From slug'), max_length=255, default='')
-    to_slug = models.CharField(
-        _('To slug'), max_length=255, default='', blank=True)
-    largest = models.BooleanField(_('Largest'), default=False)
-
-    def __str__(self):
-        return ugettext(
-            'Alias for {project}: {_from} -> {to}'.format(
-                project=self.project,
-                _from=self.from_slug,
-                to=self.to_slug,
-            ))
 
 
 @python_2_unicode_compatible

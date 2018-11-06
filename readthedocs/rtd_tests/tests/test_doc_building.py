@@ -8,32 +8,33 @@ Things to know:
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-import os.path
 import json
+import os
 import re
 import tempfile
 import uuid
-from builtins import str
 
 import mock
 import pytest
+from builtins import str
 from django.test import TestCase
+from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from mock import Mock, PropertyMock, mock_open, patch
-from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.config import ConfigWrapper
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
-    BuildCommand, DockerBuildCommand, DockerBuildEnvironment, LocalBuildEnvironment)
+    BuildCommand, DockerBuildCommand, DockerBuildEnvironment,
+    LocalBuildEnvironment)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
-from readthedocs.rtd_tests.tests.test_config_wrapper import create_load
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
@@ -78,6 +79,17 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -86,9 +98,95 @@ class TestLocalBuildEnvironment(TestCase):
             'setup_error': u'',
             'length': mock.ANY,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+            'exit_code': 0,
+        })
+
+    def test_command_not_recorded(self):
+        """Normal build in passing state with no command recorded."""
+        self.mocks.configure_mock('process', {
+            'communicate.return_value': (b'This is okay', '')
+        })
+        type(self.mocks.process).returncode = PropertyMock(return_value=0)
+
+        build_env = LocalBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo', 'test', record=False)
+        self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
+        self.assertTrue(build_env.successful)
+        self.assertEqual(len(build_env.commands), 0)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': '',
+            'length': mock.ANY,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_record_command_as_success(self):
+        self.mocks.configure_mock('process', {
+            'communicate.return_value': (b'This is okay', '')
+        })
+        type(self.mocks.process).returncode = PropertyMock(return_value=1)
+
+        build_env = LocalBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo', 'test', record_as_success=True)
+        self.assertTrue(self.mocks.process.communicate.called)
+        self.assertTrue(build_env.done)
+        self.assertTrue(build_env.successful)
+        self.assertEqual(len(build_env.commands), 1)
+        self.assertEqual(build_env.commands[0].output, u'This is okay')
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': u'',
+            'length': mock.ANY,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
             'exit_code': 0,
         })
@@ -115,17 +213,18 @@ class TestLocalBuildEnvironment(TestCase):
                 self.mocks.mocks['api_v2.build']().put.assert_called_with({
                     'id': DUMMY_BUILD_ID,
                     'version': self.version.pk,
-                    'success': True,
                     'project': self.project.pk,
-                    'setup_error': u'',
+                    'setup_error': '',
                     'length': mock.ANY,
                     'error': '',
-                    'setup': u'',
-                    'output': u'',
+                    'setup': '',
+                    'output': '',
                     'state': BUILD_STATE_CLONING,
                     'builder': mock.ANY,
-                    'exit_code': 0,
                 })
+            self.assertIsNone(build_env.failure)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
 
     def test_failing_execution(self):
         """Build in failing state."""
@@ -151,6 +250,17 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 1,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -159,9 +269,9 @@ class TestLocalBuildEnvironment(TestCase):
             'setup_error': u'',
             'length': mock.ANY,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
             'exit_code': 1,
         })
@@ -184,17 +294,19 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'length': mock.ANY,
             'error': 'Foobar',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
             'exit_code': 1,
         })
@@ -216,20 +328,24 @@ class TestLocalBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'length': mock.ANY,
             'error': (
                 'There was a problem with Read the Docs while building your '
-                'documentation. Please report this to us with your build id (123).'
+                'documentation. Please try again later. However, if this '
+                'problem persists, please report this to us with your '
+                'build id (123).'
             ),
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -274,17 +390,19 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': True,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'length': 0,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -304,6 +422,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.assertFalse(self.mocks.mocks['api_v2.build']().put.called)
 
     def test_environment_failed_build_without_update_but_with_error(self):
@@ -322,18 +442,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'Test',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -354,22 +476,25 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': (
-                "There was a problem with Read the Docs while building your "
-                "documentation. Please report this to us with your build id "
-                "(123)."
+                'There was a problem with Read the Docs while building your '
+                'documentation. Please try again later. However, if this '
+                'problem persists, please report this to us with your '
+                'build id (123).'
             ),
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -397,6 +522,8 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -437,6 +564,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': -1,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -469,18 +607,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'Failed',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -507,18 +647,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # No commands were executed
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'Inner failed',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -550,18 +692,124 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 1,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': '',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_command_not_recorded(self):
+        """Command execution through Docker without record the command."""
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 1},
+            })
+
+        build_env = DockerBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo test', cwd='/tmp', record=False)
+
+        self.mocks.docker_client.exec_create.assert_called_with(
+            container='build-123-project-6-pip',
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
+        self.assertEqual(len(build_env.commands), 0)
+        self.assertFalse(build_env.failed)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was not saved
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': '',
+            'length': 0,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
+            'builder': mock.ANY,
+        })
+
+    def test_record_command_as_success(self):
+        self.mocks.configure_mock(
+            'docker_client', {
+                'exec_create.return_value': {'Id': b'container-foobar'},
+                'exec_start.return_value': b'This is the return',
+                'exec_inspect.return_value': {'ExitCode': 1},
+            })
+
+        build_env = DockerBuildEnvironment(
+            version=self.version,
+            project=self.project,
+            build={'id': DUMMY_BUILD_ID},
+        )
+
+        with build_env:
+            build_env.run('echo test', cwd='/tmp', record_as_success=True)
+
+        self.mocks.docker_client.exec_create.assert_called_with(
+            container='build-123-project-6-pip',
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True)
+        self.assertEqual(build_env.commands[0].exit_code, 0)
+        self.assertEqual(build_env.commands[0].output, u'This is the return')
+        self.assertEqual(build_env.commands[0].error, None)
+        self.assertFalse(build_env.failed)
+
+        # api() is not called anymore, we use api_v2 instead
+        self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
+        self.mocks.mocks['api_v2.build']().put.assert_called_with({
+            'id': DUMMY_BUILD_ID,
+            'version': self.version.pk,
+            'success': True,
+            'project': self.project.pk,
+            'setup_error': '',
+            'exit_code': 0,
+            'length': 0,
+            'error': '',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -594,6 +842,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -638,18 +897,20 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The build failed before executing any command
+        self.assertFalse(self.mocks.mocks['api_v2.command'].post.called)
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
             'success': False,
             'project': self.project.pk,
-            'setup_error': u'',
+            'setup_error': '',
             'exit_code': 1,
             'length': 0,
             'error': 'A build environment is currently running for this version',
-            'setup': u'',
-            'output': u'',
-            'state': u'finished',
+            'setup': '',
+            'output': '',
+            'state': 'finished',
             'builder': mock.ANY,
         })
 
@@ -685,6 +946,17 @@ class TestDockerBuildEnvironment(TestCase):
 
         # api() is not called anymore, we use api_v2 instead
         self.assertFalse(self.mocks.api()(DUMMY_BUILD_ID).put.called)
+        # The command was saved
+        command = build_env.commands[0]
+        self.mocks.mocks['api_v2.command'].post.assert_called_once_with({
+            'build': DUMMY_BUILD_ID,
+            'command': command.get_command(),
+            'description': command.description,
+            'output': command.output,
+            'exit_code': 0,
+            'start_time': command.start_time,
+            'end_time': command.end_time,
+        })
         self.mocks.mocks['api_v2.build']().put.assert_called_with({
             'id': DUMMY_BUILD_ID,
             'version': self.version.pk,
@@ -740,8 +1012,17 @@ class TestBuildCommand(TestCase):
     def test_output(self):
         """Test output command."""
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
-        cmd.run()
-        self.assertEqual(cmd.output, 'FOOBAR')
+
+        # Mock BuildCommand.sanitized_output just to count the amount of calls,
+        # but use the original method to behaves as real
+        original_sanitized_output = cmd.sanitize_output
+        with patch('readthedocs.doc_builder.environments.BuildCommand.sanitize_output') as sanitize_output:  # noqa
+            sanitize_output.side_effect = original_sanitized_output
+            cmd.run()
+            self.assertEqual(cmd.output, 'FOOBAR')
+
+            # Check that we sanitize the output
+            self.assertEqual(sanitize_output.call_count, 2)
 
     def test_error_output(self):
         """Test error output from command."""
@@ -756,6 +1037,16 @@ class TestBuildCommand(TestCase):
         cmd.run()
         self.assertEqual(cmd.output, '')
         self.assertEqual(cmd.error, 'FOOBAR')
+
+    def test_sanitize_output(self):
+        cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
+        checks = (
+            (b'Hola', 'Hola'),
+            (b'H\x00i', 'Hi'),
+            (b'H\x00i \x00\x00\x00You!\x00', 'Hi You!'),
+        )
+        for output, sanitized in checks:
+            self.assertEqual(cmd.sanitize_output(output), sanitized)
 
     @patch('subprocess.Popen')
     def test_unicode_output(self, mock_subprocess):
@@ -853,12 +1144,12 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'Pygments==2.2.0',
-            'setuptools<40',
-            'docutils==0.13.1',
-            'mock==1.0.1',
-            'pillow==2.6.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
+            'Pygments',
+            'setuptools',
+            'docutils',
+            'mock',
+            'pillow',
+            'alabaster',
         ]
         self.base_conda_requirements = [
             'mock',
@@ -869,49 +1160,63 @@ class TestPythonEnvironment(TestCase):
             'python',
             mock.ANY,  # pip path
             'install',
-            '--use-wheel',
             '--upgrade',
             '--cache-dir',
             mock.ANY,  # cache path
         ]
 
-    def test_install_core_requirements_sphinx(self):
+    def assertArgsStartsWith(self, args, function_mock):
+        """
+        Assert that each element of args of the mock start
+        with each element of args.
+        """
+        args_mock, _ = function_mock.call_args
+        for arg, arg_mock in zip(args, args_mock):
+            if arg is not mock.ANY:
+                self.assertTrue(arg_mock.startswith(arg))
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Virtualenv(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
-            'sphinx==1.7.4',
-            'sphinx-rtd-theme<0.4',
-            'readthedocs-sphinx-ext<0.6',
+            'commonmark',
+            'recommonmark',
+            'sphinx',
+            'sphinx-rtd-theme',
+            'readthedocs-sphinx-ext',
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once_with(
-            *args, bin_path=mock.ANY
-        )
+        self.build_env_mock.run.assert_called_once()
+        self.assertArgsStartsWith(args, self.build_env_mock.run)
 
-    def test_install_core_requirements_mkdocs(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_mkdocs(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Virtualenv(
             version=self.version_mkdocs,
             build_env=self.build_env_mock
         )
         python_env.install_core_requirements()
         requirements_mkdocs = [
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
-            'mkdocs==0.15.0',
+            'commonmark',
+            'recommonmark',
+            'mkdocs',
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once_with(
-            *args, bin_path=mock.ANY
-        )
+        self.build_env_mock.run.assert_called_once()
+        self.assertArgsStartsWith(args, self.build_env_mock.run)
 
-    def test_install_user_requirements(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_user_requirements(self, checkout_path):
         """
         If a projects does not specify a requirements file,
         RTD will choose one automatically.
@@ -922,6 +1227,8 @@ class TestPythonEnvironment(TestCase):
         - ``pip_requirements.txt``
         - ``requirements.txt``
         """
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         self.build_env_mock.project = self.project_sphinx
         self.build_env_mock.version = self.version_sphinx
         python_env = Virtualenv(
@@ -946,6 +1253,7 @@ class TestPythonEnvironment(TestCase):
             '--exists-action=w',
             '--cache-dir',
             mock.ANY,  # cache path
+            '-r',
             'requirements_file'
         ]
 
@@ -955,7 +1263,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -966,7 +1274,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(root_requirements)
+        args[-1] = root_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -977,7 +1285,7 @@ class TestPythonEnvironment(TestCase):
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
             python_env.install_user_requirements()
-        args[-1] = '-r{}'.format(docs_requirements)
+        args[-1] = docs_requirements
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -991,7 +1299,10 @@ class TestPythonEnvironment(TestCase):
             python_env.install_user_requirements()
         self.build_env_mock.run.assert_not_called()
 
-    def test_install_core_requirements_sphinx_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_sphinx_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1027,11 +1338,14 @@ class TestPythonEnvironment(TestCase):
         args_conda.extend(conda_requirements)
 
         self.build_env_mock.run.assert_has_calls([
-            mock.call(*args_conda),
-            mock.call(*args_pip, bin_path=mock.ANY)
+            mock.call(*args_conda, cwd=mock.ANY),
+            mock.call(*args_pip, bin_path=mock.ANY, cwd=mock.ANY)
         ])
 
-    def test_install_core_requirements_mkdocs_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_core_requirements_mkdocs_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_mkdocs,
             build_env=self.build_env_mock,
@@ -1063,11 +1377,14 @@ class TestPythonEnvironment(TestCase):
         args_conda.extend(conda_requirements)
 
         self.build_env_mock.run.assert_has_calls([
-            mock.call(*args_conda),
-            mock.call(*args_pip, bin_path=mock.ANY)
+            mock.call(*args_conda, cwd=mock.ANY),
+            mock.call(*args_pip, bin_path=mock.ANY, cwd=mock.ANY)
         ])
 
-    def test_install_user_requirements_conda(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_install_user_requirements_conda(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        checkout_path.return_value = tmpdir
         python_env = Conda(
             version=self.version_sphinx,
             build_env=self.build_env_mock,
@@ -1089,7 +1406,8 @@ class AutoWipeEnvironmentBase(object):
             build={'id': DUMMY_BUILD_ID},
         )
 
-    def test_save_environment_json(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_save_environment_json(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1098,8 +1416,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1125,9 +1443,10 @@ class AutoWipeEnvironmentBase(object):
         }
         self.assertDictEqual(json_data, expected_data)
 
-    def test_is_obsolete_without_env_json_file(self):
-        yaml_config = create_load()()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_without_env_json_file(self, load_config):
+        load_config.side_effect = create_load()
+        config = load_yaml_config(self.version)
 
         with patch('os.path.exists') as exists:
             exists.return_value = False
@@ -1139,9 +1458,10 @@ class AutoWipeEnvironmentBase(object):
 
         self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_invalid_env_json_file(self):
-        yaml_config = create_load()()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_invalid_env_json_file(self, load_config):
+        load_config.side_effect = create_load()
+        config = load_yaml_config(self.version)
 
         with patch('os.path.exists') as exists:
             exists.return_value = True
@@ -1153,7 +1473,8 @@ class AutoWipeEnvironmentBase(object):
 
         self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_python_version(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_python_version(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1162,8 +1483,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1175,7 +1496,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': 'latest',
@@ -1184,8 +1506,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1195,9 +1517,11 @@ class AutoWipeEnvironmentBase(object):
         env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 2.7}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
-            self.assertTrue(python_env.is_obsolete)
+            obsolete = python_env.is_obsolete
+            self.assertTrue(obsolete)
 
-    def test_is_obsolete_with_project_different_build_image(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_project_different_build_image(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1206,12 +1530,13 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:latest'
         self.pip.save()
+
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1223,7 +1548,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_same_data_as_version(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_same_data_as_version(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1232,8 +1558,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 3.5,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         python_env = Virtualenv(
             version=self.version,
@@ -1245,7 +1571,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_different_build_hash(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_different_build_hash(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1254,8 +1581,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:2.0'
@@ -1271,7 +1598,8 @@ class AutoWipeEnvironmentBase(object):
             exists.return_value = True
             self.assertTrue(python_env.is_obsolete)
 
-    def test_is_obsolete_with_json_missing_build_hash(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_is_obsolete_with_json_missing_build_hash(self, load_config):
         config_data = {
             'build': {
                 'image': '2.0',
@@ -1281,8 +1609,8 @@ class AutoWipeEnvironmentBase(object):
                 'version': 2.7,
             },
         }
-        yaml_config = create_load(config_data)()[0]
-        config = ConfigWrapper(version=self.version, yaml_config=yaml_config)
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
 
         # Set container_image manually
         self.pip.container_image = 'readthedocs/build:2.0'

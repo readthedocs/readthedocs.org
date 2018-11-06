@@ -96,8 +96,8 @@ class GitHubService(Service):
                 log.debug('Not importing %s because mismatched orgs',
                           fields['name'])
                 return None
-            else:
-                repo.organization = organization
+
+            repo.organization = organization
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url']
@@ -214,7 +214,7 @@ class GitHubService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitHub webhook creation failed for project: %s',
                 project,
             )
@@ -274,7 +274,7 @@ class GitHubService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitHub webhook update failed for project: %s',
                 project,
             )

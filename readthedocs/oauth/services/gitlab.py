@@ -161,9 +161,8 @@ class GitLabService(Service):
                     fields['name'],
                 )
                 return None
-            else:
-                repo.organization = organization
 
+            repo.organization = organization
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
@@ -305,7 +304,7 @@ class GitLabService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
@@ -363,7 +362,7 @@ class GitLabService(Service):
             log.exception(
                 'GitLab webhook update failed for project: %s', project)
         else:
-            log.exception(
+            log.error(
                 'GitLab webhook update failed for project: %s',
                 project,
             )

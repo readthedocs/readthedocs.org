@@ -11,4 +11,5 @@ class GoldAdmin(admin.ModelAdmin):
     list_display = ('user', 'level', 'modified_date', 'subscribed')
     list_filter = ('level',)
 
+
 admin.site.register(GoldUser, GoldAdmin)

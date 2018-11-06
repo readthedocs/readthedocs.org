@@ -45,20 +45,19 @@ class CommunityBaseSettings(Settings):
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
-    ADMINS = (
-        ('Eric Holscher', 'eric@readthedocs.org'),
-        ('Anthony Johnson', 'anthony@readthedocs.org'),
-    )
-    MANAGERS = ADMINS
-
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-    # Cookies
+    # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
+    SESSION_SAVE_EVERY_REQUEST = True
+
+    # CSRF
     CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
     # Application classes
     @property
@@ -99,6 +98,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.payments',
             'readthedocs.notifications',
             'readthedocs.integrations',
+            'readthedocs.analytics',
 
 
             # allauth
@@ -120,7 +120,7 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
@@ -161,12 +161,19 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
 
     # Assets and media
-    STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
+    STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
     STATIC_URL = '/static/'
     MEDIA_ROOT = os.path.join(SITE_ROOT, 'media/')
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
-    STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
+    STATICFILES_DIRS = [
+        os.path.join(SITE_ROOT, 'readthedocs', 'static'),
+        os.path.join(SITE_ROOT, 'media'),
+    ]
+    STATICFILES_FINDERS = [
+        'readthedocs.core.static.SelectiveFileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    ]
 
     TEMPLATES = [
         {
@@ -202,7 +209,8 @@ class CommunityBaseSettings(Settings):
     CACHE_MIDDLEWARE_SECONDS = 60
 
     # I18n
-    TIME_ZONE = 'America/Chicago'
+    TIME_ZONE = 'UTC'
+    USE_TZ = True
     LANGUAGE_CODE = 'en-us'
     LANGUAGES = (
         ('ca', gettext('Catalan')),
@@ -330,10 +338,13 @@ class CommunityBaseSettings(Settings):
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
 
+    # Do Not Track support
+    DO_NOT_TRACK_ENABLED = False
+
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
-    GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
+    GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
@@ -351,6 +362,7 @@ class CommunityBaseSettings(Settings):
         'field_name_limit': 50,
     }
     REST_FRAMEWORK = {
+        'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }

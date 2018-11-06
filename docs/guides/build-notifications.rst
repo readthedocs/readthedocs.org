@@ -36,7 +36,7 @@ The project name, slug and its details for the build that failed will be sent as
             "build": {
                 "id": 6321373,
                 "success": false,
-                "date": "2017-02-15 20:35:54",
+                "date": "2017-02-15 20:35:54"
             }
        }
 

@@ -1,0 +1,189 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs-docs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:15+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Dutch (http://www.transifex.com/readthedocs/readthedocs-docs/language/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../alternate_domains.rst:2
+msgid "Alternate Domains"
+msgstr ""
+
+#: ../../alternate_domains.rst:4
+msgid ""
+"Read the Docs supports a number of custom domains for your convenience. "
+"Shorter URLs make everyone happy, and we like making people happy!"
+msgstr ""
+
+#: ../../alternate_domains.rst:7
+msgid "Subdomain Support"
+msgstr ""
+
+#: ../../alternate_domains.rst:9
+msgid ""
+"Every project has a subdomain that is available to serve its documentation. "
+"If you go to <slug>.readthedocs.io, it should show you the latest version of"
+" documentation. A good example is https://pip.readthedocs.io"
+msgstr ""
+
+#: ../../alternate_domains.rst:11
+msgid ""
+"If you have an old project that has an underscore (_) in the name, it will "
+"use a subdomain with a hyphen (-). `RFC 1035 "
+"<http://tools.ietf.org/html/rfc1035>`_ has more information on valid "
+"subdomains."
+msgstr ""
+
+#: ../../alternate_domains.rst:15
+msgid "Custom Domain Support"
+msgstr ""
+
+#: ../../alternate_domains.rst:17
+msgid ""
+"You can also host your documentation from your own domain by adding a domain"
+" to your project:"
+msgstr ""
+
+#: ../../alternate_domains.rst:20
+msgid ""
+"Add a CNAME record in your DNS that points the domain to: ``readthedocs.io``"
+msgstr ""
+
+#: ../../alternate_domains.rst:21
+msgid ""
+"Add a project domain in the :guilabel:`Domains` project admin page for your "
+"project."
+msgstr ""
+
+#: ../../alternate_domains.rst:24
+msgid ""
+"We don't currently support pointing subdomains or naked domains to a project"
+" using ``A`` records. It's best to point a subdomain, ``docs.example.com`` "
+"for example, using a CNAME record."
+msgstr ""
+
+#: ../../alternate_domains.rst:28
+msgid ""
+"Using pip as an example, https://pip.pypa.io resolves, but is hosted on our "
+"infrastructure."
+msgstr ""
+
+#: ../../alternate_domains.rst:30
+msgid "As another example, fabric's dig record looks like this::"
+msgstr ""
+
+#: ../../alternate_domains.rst:38
+msgid "Custom Domain SSL"
+msgstr ""
+
+#: ../../alternate_domains.rst:40
+msgid ""
+"By default, when you setup a custom domain to host documentation at Read the"
+" Docs, we will attempt to provision a domain validated SSL certificate for "
+"the domain. This service is generously provided by Cloudflare."
+msgstr ""
+
+#: ../../alternate_domains.rst:44
+msgid ""
+"After configuring your custom domain on Read the Docs, you can see the "
+"status of the certificate on the domain page in your project admin dashboard"
+" (:guilabel:`Domains` > :guilabel:`Edit Domain`)."
+msgstr ""
+
+#: ../../alternate_domains.rst:48
+msgid ""
+"If your domain has configured CAA records, please do not forget to include "
+"Cloudflare CAA entries, see their `Certification Authority Authorization "
+"(CAA) FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832"
+"-Certification-Authority-Authorization-CAA-FAQ>`_."
+msgstr ""
+
+#: ../../alternate_domains.rst:54
+msgid ""
+"Some older setups configured a CNAME record pointing to ``readthedocs.org`` "
+"or another variation. While these continue to resolve, they do not yet allow"
+" us to acquire SSL certificates for those domains. Point the CNAME to "
+"``readthedocs.io`` and re-request a certificate by saving the domain in the "
+"project admin (:guilabel:`Domains` > :guilabel:`Edit Domain`)."
+msgstr ""
+
+#: ../../alternate_domains.rst:61
+msgid ""
+"If you change the CNAME record, the SSL certificate issuance can take about "
+"one hour."
+msgstr ""
+
+#: ../../alternate_domains.rst:66
+msgid ""
+"Due to a limitation, a domain cannot be proxied on Cloudflare to another "
+"Cloudflare account that also proxies. This results in a \"CNAME Cross-User "
+"Banned\" error. In order to do SSL termination, we must proxy this "
+"connection. If you don't want us to do SSL termination for your domain -- "
+"**which means you are responsible for the SSL certificate** -- then set your"
+" CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of "
+"``readthedocs.io``."
+msgstr ""
+
+#: ../../alternate_domains.rst:75
+msgid "For more details, see this `previous issue`_."
+msgstr ""
+
+#: ../../alternate_domains.rst:81
+msgid "Proxy SSL"
+msgstr ""
+
+#: ../../alternate_domains.rst:83
+msgid ""
+"If you would prefer to do your own SSL termination on a server you own and "
+"control, you can do that although the setup is a bit more complex."
+msgstr ""
+
+#: ../../alternate_domains.rst:87
+msgid "Broadly, the steps are:"
+msgstr ""
+
+#: ../../alternate_domains.rst:89
+msgid "Have a server listening on 443 that you control"
+msgstr ""
+
+#: ../../alternate_domains.rst:90
+msgid ""
+"Procure an SSL certificate for your domain and provision it and the private "
+"key on your server."
+msgstr ""
+
+#: ../../alternate_domains.rst:92
+msgid "Add a domain that you wish to point at Read the Docs"
+msgstr ""
+
+#: ../../alternate_domains.rst:93
+msgid "Enable proxying to us, with a custom ``X-RTD-SLUG`` header"
+msgstr ""
+
+#: ../../alternate_domains.rst:95
+msgid "An example nginx configuration for pip would look like:"
+msgstr ""
+
+#: ../../alternate_domains.rst:115
+msgid "rtfd.org"
+msgstr ""
+
+#: ../../alternate_domains.rst:117
+msgid ""
+"You can also use `rtfd.io` and `rtfd.org` for short URLs for Read the Docs. "
+"For example, https://pip.rtfd.io redirects to its documentation page. Any "
+"use of `rtfd.io` or `rtfd.org` will simply be redirected to "
+"`readthedocs.io`."
+msgstr ""

@@ -111,8 +111,8 @@ class BitbucketService(Service):
                 log.debug('Not importing %s because mismatched orgs',
                           fields['name'])
                 return None
-            else:
-                repo.organization = organization
+
+            repo.organization = organization
             repo.users.add(self.user)
             repo.name = fields['name']
             repo.description = fields['description']
@@ -141,9 +141,11 @@ class BitbucketService(Service):
             repo.json = json.dumps(fields)
             repo.save()
             return repo
-        else:
-            log.debug('Not importing %s because mismatched type',
-                      fields['name'])
+
+        log.debug(
+            'Not importing %s because mismatched type',
+            fields['name'],
+        )
 
     def create_organization(self, fields):
         """
@@ -230,7 +232,7 @@ class BitbucketService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'Bitbucket webhook creation failed for project: %s',
                 project,
             )
@@ -287,7 +289,7 @@ class BitbucketService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'Bitbucket webhook update failed for project: %s',
                 project,
             )
