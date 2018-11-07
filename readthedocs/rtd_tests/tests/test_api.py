@@ -748,7 +748,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             self.github_payload,
             format='json',
-            **headers,
+            **headers
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
