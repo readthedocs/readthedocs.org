@@ -406,8 +406,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 raise YAMLParseError(
                     YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
                         exception=str(e),
-                    ))
+                    )
+                )
 
+            self.save_build_config()
             self.additional_vcs_operations()
 
         if self.setup_env.failure or self.config is None:
@@ -531,9 +533,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         build = {}
         if build_pk:
             build = api_v2.build(build_pk).get()
-        return dict((key, val) for (key, val) in list(build.items())
-                    if key not in ['project', 'version', 'resource_uri',
-                                   'absolute_uri'])
+        private_keys = [
+            'project', 'version', 'resource_uri', 'absolute_uri'
+        ]
+        return {
+            key: val
+            for key, val in build.items()
+            if key not in private_keys
+        }
 
     def setup_vcs(self):
         """
@@ -593,6 +600,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
+
+    def save_build_config(self):
+        """Save config in the build object."""
+        pk = self.build['id']
+        config = self.config.as_dict()
+        api_v2.build(pk).patch({
+            'config': config,
+        })
+        self.build['config'] = config
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):

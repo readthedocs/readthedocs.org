@@ -142,6 +142,11 @@ class BuildConfigBase(object):
                         from another source (like the web admin).
     """
 
+    PUBLIC_ATTRIBUTES = [
+        'version', 'formats', 'python',
+        'conda', 'build', 'doctype',
+        'sphinx', 'mkdocs', 'submodules',
+    ]
     version = None
 
     def __init__(self, env_config, raw_config, source_file, source_position):
@@ -247,6 +252,16 @@ class BuildConfigBase(object):
                 if v < ver + 1
             )
         return ver
+
+    def as_dict(self):
+        config = {}
+        for name in self.PUBLIC_ATTRIBUTES:
+            attr = getattr(self, name)
+            if hasattr(attr, '_asdict'):
+                config[name] = attr._asdict()
+            else:
+                config[name] = attr
+        return config
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
