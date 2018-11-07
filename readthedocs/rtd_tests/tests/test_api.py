@@ -738,9 +738,8 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=self.version_tag, project=self.project)])
 
-    @mock.patch('readthedocs.restapi.views.integrations.sync_versions')
-    def test_github_create_event(self, sync_versions, trigger_build):
-        sync_versions.return_value = LATEST
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_github_create_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
@@ -755,7 +754,8 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
-        sync_versions.assert_called_with(self.project)
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
