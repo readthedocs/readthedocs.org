@@ -213,15 +213,31 @@ class GitLabWebhookView(WebhookMixin, APIView):
     def handle_webhook(self):
         # Get event and trigger other webhook events
         event = self.request.data.get('object_kind', GITLAB_PUSH)
-        webhook_gitlab.send(Project, project=self.project,
-                            data=self.request.data, event=event)
+        webhook_gitlab.send(
+            Project,
+            project=self.project,
+            data=self.request.data,
+            event=event
+        )
         # Handle push events and trigger builds
-        if event == GITLAB_PUSH:
+        if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
+            data = self.request.data
+            before = data['before']
+            after = data['after']
+            # Tag/branch created/deleted
+            if before == GITLAB_NULL_HASH or after == GITLAB_NULL_HASH:
+                return self.sync_versions(self.project)
+            # Normal push to master
             try:
-                branches = [self.request.data['ref'].replace('refs/heads/', '')]
+                branches = [self._normalize_ref(data['ref'])]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+        return None
+
+    def _normalize_ref(self, ref):
+        pattern = re.compile(r'^refs/(heads|tags)/')
+        return pattern.sub('', ref)
 
 
 class BitbucketWebhookView(WebhookMixin, APIView):
