@@ -259,16 +259,6 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-    def sync_supported_versions(self):
-        supported = self.supported_versions()
-        if supported:
-            self.versions.filter(
-                verbose_name__in=supported).update(supported=True)
-            self.versions.exclude(
-                verbose_name__in=supported).update(supported=False)
-            self.versions.filter(
-                verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
-
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         first_save = self.pk is None
@@ -294,11 +284,6 @@ class Project(models.Model):
         except Exception:
             log.exception('Failed to update latest identifier')
 
-        # Add exceptions here for safety
-        try:
-            self.sync_supported_versions()
-        except Exception:
-            log.exception('failed to sync supported versions')
         try:
             if not first_save:
                 log.info(
@@ -709,23 +694,6 @@ class Project(models.Model):
         :returns: :py:class:`Version` queryset
         """
         return self.versions.filter(active=True)
-
-    def supported_versions(self):
-        """
-        Get the list of supported versions.
-
-        :returns: List of version strings.
-        """
-        if not self.num_major or not self.num_minor or not self.num_point:
-            return []
-        version_identifiers = self.versions.values_list(
-            'verbose_name', flat=True,)
-        return version_windows(
-            version_identifiers,
-            major=self.num_major,
-            minor=self.num_minor,
-            point=self.num_point,
-        )
 
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()

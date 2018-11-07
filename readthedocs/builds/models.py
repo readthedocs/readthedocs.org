@@ -189,10 +189,6 @@ class Version(models.Model):
         obj = super(Version, self).save(*args, **kwargs)
         for owner in self.project.users.all():
             assign('view_version', owner, self)
-        try:
-            self.project.sync_supported_versions()
-        except Exception:
-            log.exception('failed to sync supported versions')
         broadcast(
             type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
