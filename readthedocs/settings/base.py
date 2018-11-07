@@ -209,7 +209,8 @@ class CommunityBaseSettings(Settings):
     CACHE_MIDDLEWARE_SECONDS = 60
 
     # I18n
-    TIME_ZONE = 'America/Chicago'
+    TIME_ZONE = 'UTC'
+    USE_TZ = True
     LANGUAGE_CODE = 'en-us'
     LANGUAGES = (
         ('ca', gettext('Catalan')),

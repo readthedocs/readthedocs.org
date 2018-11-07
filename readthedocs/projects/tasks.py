@@ -25,6 +25,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import (
@@ -420,7 +421,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             ))
 
             # Send notification to users only if the build didn't fail because
-            # of VerisionLockedTimeout: this exception occurs when a build is
+            # of VersionLockedError: this exception occurs when a build is
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
@@ -1280,7 +1281,7 @@ def finish_inactive_builds():
     time_limit = int(DOCKER_LIMITS['time'] * 1.2)
     delta = datetime.timedelta(seconds=time_limit)
     query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=datetime.datetime.now() - delta))
+             Q(date__lte=timezone.now() - delta))
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
@@ -1290,7 +1291,7 @@ def finish_inactive_builds():
             custom_delta = datetime.timedelta(
                 seconds=int(build.project.container_time_limit),
             )
-            if build.date + custom_delta > datetime.datetime.now():
+            if build.date + custom_delta > timezone.now():
                 # Do not mark as FINISHED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
                 continue

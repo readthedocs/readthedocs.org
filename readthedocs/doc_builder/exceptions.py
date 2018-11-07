@@ -43,7 +43,7 @@ class ProjectBuildsSkippedError(BuildEnvironmentError):
 
 class YAMLParseError(BuildEnvironmentError):
     GENERIC_WITH_PARSE_EXCEPTION = ugettext_noop(
-        'Problem parsing YAML configuration. {exception}',
+        'Problem in your project\'s configuration. {exception}',
     )
 
 
