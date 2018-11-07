@@ -812,19 +812,24 @@ class IntegrationsTests(TestCase):
         """GitLab webhook API."""
         client = APIClient()
         client.post(
-            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
-            {'object_kind': 'push', 'ref': 'master'},
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
             format='json',
         )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_called_with(
+            force=True, version=mock.ANY, project=self.project
+        )
+
+        trigger_build.reset_mock()
+        self.gitlab_payload.update(
+            ref='non-existent',
+        )
         client.post(
-            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
-            {'object_kind': 'push', 'ref': 'non-existent'},
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
             format='json',
         )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
 
     def test_gitlab_webhook_for_tags(self, trigger_build):
         client = APIClient()
