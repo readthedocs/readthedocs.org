@@ -87,11 +87,12 @@ def sync_versions(project):
     :returns: The version that was used to trigger the clone (usually latest).
     """
     try:
-        version = project.versions.get(slug=LATEST)
+        version_slug = LATEST
+        version = project.versions.get(slug=version_slug)
         sync_repository_task.delay(version.pk)
         return version.slug
     except Project.DoesNotExist:
-        log.info('Unable to sync from %s version', LATEST)
+        log.info('Unable to sync from %s version', version_slug)
     except Exception as e:
         log.exception('Unknown sync versions exception')
     return None
