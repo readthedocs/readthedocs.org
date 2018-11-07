@@ -27,7 +27,11 @@ from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import APIProject, Feature, Project
-from readthedocs.restapi.views.integrations import GitHubWebhookView
+from readthedocs.restapi.views.integrations import (
+    GITHUB_CREATE,
+    GITHUB_EVENT_HEADER,
+    GitHubWebhookView,
+)
 from readthedocs.restapi.views.task_views import get_status_data
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
@@ -674,6 +678,9 @@ class IntegrationsTests(TestCase):
             Version, slug='v1.0', verbose_name='v1.0',
             active=True, project=self.project
         )
+        self.github_payload = {
+            'ref': 'master',
+        }
 
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
@@ -730,6 +737,25 @@ class IntegrationsTests(TestCase):
         )
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=self.version_tag, project=self.project)])
+
+    @mock.patch('readthedocs.restapi.views.integrations.sync_versions')
+    def test_github_create_event(self, sync_versions, trigger_build):
+        sync_versions.return_value = LATEST
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_payload,
+            format='json',
+            **headers,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        sync_versions.assert_called_with(self.project)
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()

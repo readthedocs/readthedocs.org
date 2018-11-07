@@ -31,6 +31,7 @@ from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 
+GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_PUSH = 'push'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
@@ -170,7 +171,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
-        event = self.request.META.get('HTTP_X_GITHUB_EVENT', GITHUB_PUSH)
+        event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(Project, project=self.project,
                             data=self.data, event=event)
         # Handle push events and trigger builds
