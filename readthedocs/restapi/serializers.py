@@ -112,6 +112,8 @@ class BuildSerializer(serializers.ModelSerializer):
     version_slug = serializers.ReadOnlyField(source='version.slug')
     docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
     state_display = serializers.ReadOnlyField(source='get_state_display')
+    # Jsonfield needs an explicit serializer
+    # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
     config = serializers.JSONField(required=False)
 
     class Meta(object):

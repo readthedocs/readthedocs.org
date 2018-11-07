@@ -142,6 +142,11 @@ class BuildConfigBase(object):
                         from another source (like the web admin).
     """
 
+    PUBLIC_ATTRIBUTES = [
+        'version', 'formats', 'python',
+        'conda', 'build', 'doctype',
+        'sphinx', 'mkdocs', 'submodules',
+    ]
     version = None
 
     def __init__(self, env_config, raw_config, source_file, source_position):
@@ -249,13 +254,8 @@ class BuildConfigBase(object):
         return ver
 
     def as_dict(self):
-        attributes = [
-            'version', 'formats', 'python',
-            'conda', 'build', 'doctype',
-            'sphinx', 'mkdocs', 'submodules',
-        ]
         config = {}
-        for name in attributes:
+        for name in self.PUBLIC_ATTRIBUTES:
             attr = getattr(self, name)
             if hasattr(attr, '_asdict'):
                 config[name] = attr._asdict()
