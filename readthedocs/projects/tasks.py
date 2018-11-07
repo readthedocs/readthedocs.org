@@ -56,7 +56,7 @@ from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, Feature, ImportedFile, Project
+from .models import Domain, ImportedFile, Project
 from .signals import (
     after_build, after_vcs, before_build, before_vcs, files_changed)
 
@@ -219,10 +219,24 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         except RepositoryError:
             # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
+        except vcs_support_utils.LockTimeout:
+            log.info(
+                'Lock still active: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
+
             )
         return False
 
@@ -557,7 +571,31 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             version=self.version.slug,
             msg='Updating docs from VCS',
         ))
-        self.sync_repo()
+        try:
+            self.sync_repo()
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
+        except vcs_support_utils.LockTimeout:
+            log.info(
+                'Lock still active: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
+        except Exception:
+            # Catch unhandled errors when syncing
+            log.exception(
+                'An unhandled exception was raised during VCS syncing',
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'build': self.build['id'],
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
+            )
+
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
