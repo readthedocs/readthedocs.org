@@ -29,6 +29,7 @@ from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import APIProject, Feature, Project
 from readthedocs.restapi.views.integrations import (
     GITHUB_CREATE,
+    GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
     GitHubWebhookView,
 )
@@ -756,6 +757,41 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_github_delete_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_DELETE}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_github_unknow_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: 'foobar'}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data, {'detail': 'Unhandled webhook event'})
+        trigger_build.assert_not_called()
+        sync_repository_task.delay.assert_not_called()
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()

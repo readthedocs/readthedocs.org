@@ -181,8 +181,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
-        elif event in (GITHUB_CREATE, GITHUB_DELETE):
+        if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
+        return None
 
     def _normalize_ref(self, ref):
         pattern = re.compile(r'^refs/(heads|tags)/')
