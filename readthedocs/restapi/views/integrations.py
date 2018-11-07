@@ -36,6 +36,8 @@ GITHUB_PUSH = 'push'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
 GITLAB_PUSH = 'push'
+GITLAB_NULL_HASH = '0' * 40
+GITLAB_TAG_PUSH = 'tag_push'
 BITBUCKET_PUSH = 'repo:push'
 
 

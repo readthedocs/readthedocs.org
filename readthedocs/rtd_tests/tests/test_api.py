@@ -31,6 +31,9 @@ from readthedocs.restapi.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
+    GITLAB_NULL_HASH,
+    GITLAB_PUSH,
+    GITLAB_TAG_PUSH,
     GitHubWebhookView,
 )
 from readthedocs.restapi.views.task_views import get_status_data
@@ -682,6 +685,12 @@ class IntegrationsTests(TestCase):
         self.github_payload = {
             'ref': 'master',
         }
+        self.gitlab_payload = {
+            'object_kind': GITLAB_PUSH,
+            'ref': 'master',
+            'before': '95790bf891e76fee5e1747ab589903a6a1f80f22',
+            'after': '95790bf891e76fee5e1747ab589903a6a1f80f23',
+        }
 
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
@@ -777,22 +786,6 @@ class IntegrationsTests(TestCase):
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.delay.assert_called_with(latest_version.pk)
 
-    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
-    def test_github_unknow_event(self, sync_repository_task, trigger_build):
-        client = APIClient()
-
-        headers = {GITHUB_EVENT_HEADER: 'foobar'}
-        resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            self.github_payload,
-            format='json',
-            **headers
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data, {'detail': 'Unhandled webhook event'})
-        trigger_build.assert_not_called()
-        sync_repository_task.delay.assert_not_called()
-
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
 
@@ -815,7 +808,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
-    def test_gitlab_webhook(self, trigger_build):
+    def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
         client.post(
@@ -832,6 +825,131 @@ class IntegrationsTests(TestCase):
         )
         trigger_build.assert_has_calls(
             [mock.call(force=True, version=mock.ANY, project=self.project)])
+
+    def test_gitlab_webhook_for_tags(self, trigger_build):
+        client = APIClient()
+        self.gitlab_payload.update(
+            object_kind=GITLAB_TAG_PUSH,
+            ref='v1.0',
+        )
+        client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        trigger_build.assert_called_with(
+            force=True, version=self.version_tag, project=self.project
+        )
+
+        trigger_build.reset_mock()
+        self.gitlab_payload.update(
+            ref='refs/tags/v1.0',
+        )
+        client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        trigger_build.assert_called_with(
+            force=True, version=self.version_tag, project=self.project
+        )
+
+        trigger_build.reset_mock()
+        self.gitlab_payload.update(
+            ref='refs/heads/non-existent',
+        )
+        client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        trigger_build.assert_not_called()
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_push_hook_creation(
+            self, sync_repository_task, trigger_build):
+        client = APIClient()
+        self.gitlab_payload.update(
+            before=GITLAB_NULL_HASH,
+            after='95790bf891e76fee5e1747ab589903a6a1f80f22',
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_push_hook_deletion(
+            self, sync_repository_task, trigger_build):
+        client = APIClient()
+        self.gitlab_payload.update(
+            before='95790bf891e76fee5e1747ab589903a6a1f80f22',
+            after=GITLAB_NULL_HASH,
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_tag_push_hook_creation(
+            self, sync_repository_task, trigger_build):
+        client = APIClient()
+        self.gitlab_payload.update(
+            object_kind=GITLAB_TAG_PUSH,
+            before=GITLAB_NULL_HASH,
+            after='95790bf891e76fee5e1747ab589903a6a1f80f22',
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_tag_push_hook_deletion(
+            self, sync_repository_task, trigger_build):
+        client = APIClient()
+        self.gitlab_payload.update(
+            object_kind=GITLAB_TAG_PUSH,
+            before='95790bf891e76fee5e1747ab589903a6a1f80f22',
+            after=GITLAB_NULL_HASH,
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
 
     def test_gitlab_invalid_webhook(self, trigger_build):
         """GitLab webhook unhandled event."""
