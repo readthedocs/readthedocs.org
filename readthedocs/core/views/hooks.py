@@ -75,6 +75,28 @@ def build_branches(project, branch_list):
     return (to_build, not_building)
 
 
+def sync_versions(project):
+    """
+    Sync the versions of a repo using its latest version.
+
+    This doesn't register a new build,
+    but clones the repo and syncs the versions.
+    Due that `sync_repository_task` is bound to a version,
+    we always pass the latest version.
+
+    :returns: The version that was used to trigger the clone (usually latest).
+    """
+    try:
+        version = project.versions.get(slug=LATEST)
+        sync_repository_task.delay(version.pk)
+        return version.slug
+    except Project.DoesNotExist:
+        log.info('Unable to sync from %s version', LATEST)
+    except Exception as e:
+        log.exception('Unknown sync versions exception')
+    return None
+
+
 def get_project_from_url(url):
     if not url:
         return Project.objects.none()

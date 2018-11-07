@@ -1,31 +1,39 @@
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import json
 import logging
 import re
 
-from builtins import object
+import six
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
-from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.exceptions import ParseError, NotFound
+from rest_framework.views import APIView
 
-from django.shortcuts import get_object_or_404
-
-from readthedocs.core.views.hooks import build_branches
-from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
-                                      webhook_gitlab)
+from readthedocs.core.signals import (
+    webhook_bitbucket,
+    webhook_github,
+    webhook_gitlab,
+)
+from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
-import six
-
 
 log = logging.getLogger(__name__)
 
 GITHUB_PUSH = 'push'
+GITHUB_CREATE = 'create'
+GITHUB_DELETE = 'delete'
 GITLAB_PUSH = 'push'
 BITBUCKET_PUSH = 'repo:push'
 
@@ -124,6 +132,14 @@ class WebhookMixin(object):
                 'project': project.slug,
                 'versions': list(to_build)}
 
+    def sync_versions(self, project):
+        version = sync_versions(project)
+        return {
+            'build_triggered': False,
+            'project': project.slug,
+            'versions': [version],
+        }
+
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
@@ -154,7 +170,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
-        event = self.request.META.get('HTTP_X_GITHUB_EVENT', 'push')
+        event = self.request.META.get('HTTP_X_GITHUB_EVENT', GITHUB_PUSH)
         webhook_github.send(Project, project=self.project,
                             data=self.data, event=event)
         # Handle push events and trigger builds
@@ -164,6 +180,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+        elif event in (GITHUB_CREATE, GITHUB_DELETE):
+            return self.sync_versions(self.project)
 
     def _normalize_ref(self, ref):
         pattern = re.compile(r'^refs/(heads|tags)/')
