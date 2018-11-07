@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
 from django_dynamic_fixture import get
+from django.utils import timezone
 from mock import patch
 from rest_framework.reverse import reverse
 
@@ -435,7 +436,7 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_2.date = (
-            datetime.datetime.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1))
         self.build_2.save()
 
         # Build started an hour ago with custom time (2 hours)
@@ -445,7 +446,7 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_3.date = (
-            datetime.datetime.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1))
         self.build_3.save()
 
     def test_finish_inactive_builds_task(self):

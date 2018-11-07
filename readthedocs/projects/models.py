@@ -324,9 +324,9 @@ class Project(models.Model):
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            latest = self.versions.get(slug=LATEST)
+            latest = self.versions.filter(slug=LATEST).first()
             default_branch = self.get_default_branch()
-            if latest.identifier != default_branch:
+            if latest and latest.identifier != default_branch:
                 latest.identifier = default_branch
                 latest.save()
         except Exception:
@@ -972,7 +972,7 @@ class EmailHook(Notification):
 
 @python_2_unicode_compatible
 class WebHook(Notification):
-    url = models.URLField(blank=True,
+    url = models.URLField(max_length=600, blank=True,
                           help_text=_('URL to send the webhook to'))
 
     def __str__(self):
