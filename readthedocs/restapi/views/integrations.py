@@ -225,7 +225,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             before = data['before']
             after = data['after']
             # Tag/branch created/deleted
-            if before == GITLAB_NULL_HASH or after == GITLAB_NULL_HASH:
+            if GITLAB_NULL_HASH in (before, after):
                 return self.sync_versions(self.project)
             # Normal push to master
             try:
