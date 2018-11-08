@@ -289,8 +289,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                         branches.append(new['name'])
                 if branches:
                     return self.get_response_push(self.project, branches)
-                else:
-                    return self.sync_versions(self.project)
+                return self.sync_versions(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
         return None
