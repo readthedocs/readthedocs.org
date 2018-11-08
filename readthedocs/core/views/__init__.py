@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Core views, including the main homepage,
 
@@ -7,7 +8,6 @@ documentation and header rendering, and server errors.
 
 from __future__ import absolute_import
 from __future__ import division
-from past.utils import old_div
 import os
 import logging
 
@@ -17,10 +17,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
-from readthedocs.builds.models import Build
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
-from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.projects.tasks import remove_dir
 from readthedocs.redirects.utils import get_redirect_response
@@ -53,7 +51,11 @@ class SupportView(TemplateView):
         if not support_email:
             support_email = 'support@{domain}'.format(
                 domain=getattr(
-                    settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'))
+                    settings,
+                    'PRODUCTION_DOMAIN',
+                    'readthedocs.org',
+                ),
+            )
 
         context['support_email'] = support_email
         return context
@@ -92,12 +94,10 @@ def wipe_version(request, project_slug, version_slug):
             broadcast(type='build', task=remove_dir, args=[del_dir])
         return redirect('project_version_list', project_slug)
     return render(
-        request, 'wipe_version.html',
-        {'version': version, 'project': version.project})
-
-
-def divide_by_zero(request):  # pylint: disable=unused-argument
-    return old_div(1, 0)
+        request,
+        'wipe_version.html',
+        {'version': version, 'project': version.project},
+    )
 
 
 def server_error_500(request, template_name='500.html'):
@@ -116,8 +116,16 @@ def server_error_404(request, exception=None, template_name='404.html'):  # pyli
         Marking exception as optional to make /404/ testing page to work.
     """
     response = get_redirect_response(request, path=request.get_full_path())
+
     if response:
-        return response
+        if response.url == request.build_absolute_uri():
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                response.url,
+            )
+        else:
+            return response
     r = render(request, template_name)
     r.status_code = 404
     return r
