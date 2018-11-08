@@ -1,7 +1,12 @@
 -r pip.txt
-astroid==2.0.4
-pylint==2.1.1
-pylint-django==2.0.2
+# We need these special cases of Python < 3 because we run tests with
+# Python 2 still
+astroid==2.0.4; python_version > '3'
+astroid==1.6.4; python_version < '3'
+pylint==2.1.1; python_version > '3'
+pylint<2; python_version < '3'
+pylint-django==2.0.2; python_version > '3'
+pylint-django==0.11.1; python_version < '3'
 pylint-celery==0.3
 prospector==1.1.4
 pyflakes==2.0.0
