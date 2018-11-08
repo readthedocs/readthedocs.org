@@ -390,7 +390,7 @@ class CommunityBaseSettings(Settings):
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
-            'null': {   
+            'null': {
                 'class': 'logging.NullHandler',
             },
         },
