@@ -82,7 +82,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.shell = shell
         if cwd is None:
             cwd = os.getcwd()
-        self.cwd = os.path.expandvars(cwd)
+        self.cwd = cwd
         self.environment = os.environ.copy()
         if environment is not None:
             assert 'PATH' not in environment, "PATH can't be set"
@@ -148,7 +148,7 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 self.command,
                 shell=self.shell,
-                cwd=self.cwd,
+                cwd=os.path.expandvars(self.cwd),
                 stdin=stdin,
                 stdout=stdout,
                 stderr=stderr,
