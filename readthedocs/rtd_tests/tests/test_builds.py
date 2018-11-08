@@ -1,17 +1,19 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import mock
-import six
-
 from django.test import TestCase
-from django_dynamic_fixture import get
-from django_dynamic_fixture import fixture
+from django_dynamic_fixture import fixture, get
 
-from readthedocs.projects.models import Project
+from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
@@ -223,3 +225,198 @@ class BuildEnvironmentTests(TestCase):
             task.build_docs()
         self.assertEqual(self.mocks.popen.call_count, 7)
         self.assertTrue(build_env.successful)
+
+    @mock.patch('readthedocs.projects.tasks.api_v2')
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_save_config_in_build_model(self, load_config, api_v2):
+        load_config.side_effect = create_load()
+        api_v2.build.get.return_value = {}
+        project = get(
+            Project,
+            slug='project',
+            documentation_type='sphinx',
+        )
+        build = get(Build)
+        version = get(Version, slug='1.8', project=project)
+        task = UpdateDocsTaskStep(
+            project=project, version=version, build={'id': build.pk}
+        )
+        task.setup_vcs = mock.Mock()
+        task.run_setup()
+        build_config = task.build['config']
+        # For patch
+        api_v2.build.assert_called_once()
+        assert build_config['version'] == '1'
+        assert 'sphinx' in build_config
+        assert build_config['doctype'] == 'sphinx'
+
+
+class BuildModelTests(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(Version, project=self.project)
+
+    def test_get_previous_build(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1}
+        )
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 2}
+        )
+        build_three = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 3},
+            success=False,
+        )
+
+        self.assertIsNone(build_one.previous)
+        self.assertEqual(build_two.previous, build_one)
+        self.assertEqual(build_three.previous, build_two)
+        self.assertEqual(build_three.previous.previous, build_one)
+
+    def test_normal_save_config(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build.config = {'version': 1}
+        build.save()
+        self.assertEqual(build.config, {'version': 1})
+
+        build.config = {'version': 2}
+        build.save()
+        self.assertEqual(build.config, {'version': 2})
+
+    def test_save_same_config(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {'version': 2}
+        build_two.save()
+
+        self.assertEqual(build_two.config, {'version': 2})
+
+    def test_save_same_config_previous_empty(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {}
+        build_two.save()
+
+        self.assertEqual(build_two.config, {})
+        build_two.config = {'version': 2}
+        build_two.save()
+        self.assertEqual(build_two.config, {'version': 2})
+
+    def test_do_not_save_same_config(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {'version': 1}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {'version': 1}
+        build_two.save()
+        self.assertEqual(build_two._config, {Build.CONFIG_KEY: build_one.pk})
+        self.assertEqual(build_two.config, {'version': 1})
+
+    def test_do_not_save_same_config_nested(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {'version': 1}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {'version': 1}
+        build_two.save()
+
+        build_three = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_three.config = {'version': 1}
+        build_three.save()
+
+        build_four = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_four.config = {'version': 2}
+        build_four.save()
+
+        self.assertEqual(build_one.config, {'version': 1})
+        self.assertEqual(build_one._config, {'version': 1})
+
+        self.assertEqual(build_two._config, {Build.CONFIG_KEY: build_one.pk})
+        self.assertEqual(build_three._config, {Build.CONFIG_KEY: build_one.pk})
+
+        self.assertEqual(build_two.config, {'version': 1})
+        self.assertEqual(build_three.config, {'version': 1})
+
+        self.assertEqual(build_four.config, {'version': 2})
+        self.assertEqual(build_four._config, {'version': 2})
+
+    def test_do_not_reference_empty_configs(self):
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_one.config = {}
+        build_one.save()
+
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+        )
+        build_two.config = {}
+        build_two.save()
+        self.assertEqual(build_two._config, {})
+        self.assertEqual(build_two.config, {})

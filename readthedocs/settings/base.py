@@ -332,7 +332,6 @@ class CommunityBaseSettings(Settings):
 
     # Guardian Settings
     GUARDIAN_RAISE_403 = True
-    ANONYMOUS_USER_ID = -1
 
     # Stripe
     STRIPE_SECRET = None

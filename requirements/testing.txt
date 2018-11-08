@@ -21,3 +21,4 @@ pytest-mock==1.10.0
 
 # local debugging tools
 datadiff
+ipdb

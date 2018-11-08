@@ -64,12 +64,139 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
         self.assertEqual(build['state_display'], 'Cloning')
+        self.assertEqual(build['config'], {})
 
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
+
+    def test_api_does_not_have_private_config_key_superuser(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        resp = client.get('/api/v2/build/{}/'.format(build.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('config', resp.data)
+        self.assertNotIn('_config', resp.data)
+
+    def test_api_does_not_have_private_config_key_normal_user(self):
+        client = APIClient()
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        resp = client.get('/api/v2/build/{}/'.format(build.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('config', resp.data)
+        self.assertNotIn('_config', resp.data)
+
+    def test_save_config(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_one = resp.data
+        self.assertEqual(build_one['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/%s/' % build_one['id'])
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        self.assertEqual(build['config'], {'one': 'two'})
+
+    def test_save_same_config(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_one = resp.data
+        self.assertEqual(build_one['config'], {'one': 'two'})
+
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_two = resp.data
+        self.assertEqual(build_two['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/%s/' % build_one['id'])
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        self.assertEqual(build['config'], {'one': 'two'})
+
+        # Checking the values from the db, just to be sure the
+        # api isn't lying.
+        self.assertEqual(
+            Build.objects.get(pk=build_one['id'])._config,
+            {'one': 'two'},
+        )
+        self.assertEqual(
+            Build.objects.get(pk=build_two['id'])._config,
+            {Build.CONFIG_KEY: build_one['id']},
+        )
+
+    def test_save_same_config_using_patch(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build_one = Build.objects.create(project=project, version=version)
+        resp = client.patch(
+            '/api/v2/build/{}/'.format(build_one.pk),
+            {'config': {'one': 'two'}},
+            format='json',
+        )
+        self.assertEqual(resp.data['config'], {'one': 'two'})
+
+        build_two = Build.objects.create(project=project, version=version)
+        resp = client.patch(
+            '/api/v2/build/{}/'.format(build_two.pk),
+            {'config': {'one': 'two'}},
+            format='json',
+        )
+        self.assertEqual(resp.data['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/{}/'.format(build_one.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        build = resp.data
+        self.assertEqual(build['config'], {'one': 'two'})
+
+        # Checking the values from the db, just to be sure the
+        # api isn't lying.
+        self.assertEqual(
+            Build.objects.get(pk=build_one.pk)._config,
+            {'one': 'two'},
+        )
+        self.assertEqual(
+            Build.objects.get(pk=build_two.pk)._config,
+            {Build.CONFIG_KEY: build_one.pk},
+        )
 
     def test_response_building(self):
         """

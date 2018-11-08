@@ -177,6 +177,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
     """Admin view for :py:class:`ImportedFile`"""
 
+    raw_id_fields = ('project', 'version')
     list_display = ('path', 'name', 'version')
 
 
