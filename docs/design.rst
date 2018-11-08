@@ -30,15 +30,6 @@ Styles for the primary RTD site are located in ``media/css`` directory.
 These styles only affect the primary site -- **not** any of the generated
 documentation using the default RTD style.
 
-Sphinx Template Changes
------------------------
-
-Styles for generated documentation are located in ``readthedocs/templates/sphinx/_static/rtd.css``
-
-Of note, projects will retain the version of that file they were last built with -- so if you're
-editing that file and not seeing any changes to your local built documentation, you need to rebuild
-your example project.
-
 Contributing
 ------------
 
