@@ -390,6 +390,9 @@ class CommunityBaseSettings(Settings):
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
+            'null': {   
+                'class': 'logging.NullHandler',
+            },
         },
         'loggers': {
             '': {  # root logger
@@ -401,6 +404,10 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
                 # Don't double log at the root logger for these.
+                'propagate': False,
+            },
+            'django.security.DisallowedHost': {
+                'handlers': ['null'],
                 'propagate': False,
             },
         },
