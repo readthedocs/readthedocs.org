@@ -185,21 +185,12 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
 
-    def test_invalid_project(self):
-        request = self.factory.get(
-            self.url,
-            {'project': 'foo'},
-            HTTP_ORIGIN='http://my.valid.domain',
-        )
-        resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
-
     def test_valid_subproject(self):
         self.assertTrue(
             Project.objects.filter(
                 pk=self.project.pk,
-                subprojects__child=self.subproject
-            ).exists()
+                subprojects__child=self.subproject,
+            ).exists(),
         )
         request = self.factory.get(
             self.url,
@@ -208,3 +199,21 @@ class TestCORSMiddleware(TestCase):
         )
         resp = self.middleware.process_response(request, {})
         self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_apiv2_endpoint_allowed(self):
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project__slug': self.project.slug, 'active': True},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_apiv2_endpoint_not_allowed(self):
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project__slug': self.project.slug, 'active': True},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)

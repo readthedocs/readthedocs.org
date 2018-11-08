@@ -49,6 +49,12 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     if request.path_info.startswith('/api/v2/sustainability'):
         return True
 
+    # Don't do domain checking for APIv2 when the Domain is known
+    if request.path_info.startswith('/api/v2/'):
+        domain = Domain.objects.filter(domain__icontains=host)
+        if domain.exists():
+            return True
+
     valid_url = False
     for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
@@ -69,7 +75,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
         domain = Domain.objects.filter(
             Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project)
+            Q(project=project) | Q(project__subprojects__child=project),
         )
         if domain.exists():
             return True
