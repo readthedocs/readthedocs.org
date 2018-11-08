@@ -1,9 +1,9 @@
 -r pip.txt
 
 django-dynamic-fixture==2.0.0
-pytest==3.9.2
+pytest==3.10.0
 pytest-django==3.4.3
-pytest-xdist==1.23.2
+pytest-xdist==1.24.0
 pytest-cov
 apipkg==1.5
 execnet==1.5.0
@@ -16,7 +16,7 @@ execnet==1.5.0
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2
 
-yamale==1.7.0
+yamale==1.7.1
 pytest-mock==1.10.0
 
 # local debugging tools

@@ -1,25 +1,25 @@
 # Base packages
 pip==18.1
 appdirs==1.4.3
-virtualenv==16.0.0
+virtualenv==16.1.0
 docutils==0.14
 Sphinx==1.8.1
 sphinx_rtd_theme==0.4.2
-sphinx-tabs==1.1.7
+sphinx-tabs==1.1.8
 # Required to avoid Transifex error with reserved slug
 # https://github.com/sphinx-doc/sphinx-intl/pull/27
 git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
 
 Pygments==2.2.0
 
-mkdocs==0.17.3
+mkdocs==1.0.4
 # mkdocs requires markdown
 # Markdown 3.0 breaks with older Django Rest Framework
 Markdown<3.0
 
 django==1.11.16
 six==1.11.0
-future==0.17.0
+future==0.17.1
 django-tastypie==0.14.2
 django-guardian==1.4.9
 django-extensions==2.1.3
@@ -67,7 +67,7 @@ pyquery==1.4.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2018.6
+pytz==2018.7
 beautifulsoup4==4.6.3
 Unipath==1.1
 django-kombu==0.9.4
