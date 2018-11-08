@@ -82,7 +82,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.shell = shell
         if cwd is None:
             cwd = os.getcwd()
-        self.cwd = cwd
+        self.cwd = os.path.expandvars(cwd)
         self.environment = os.environ.copy()
         if environment is not None:
             assert 'PATH' not in environment, "PATH can't be set"
