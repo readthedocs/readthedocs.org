@@ -148,6 +148,8 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 self.command,
                 shell=self.shell,
+                # This is done here for local builds, but not for docker,
+                # as we want docker to expand inside the container
                 cwd=os.path.expandvars(self.cwd),
                 stdin=stdin,
                 stdout=stdout,
