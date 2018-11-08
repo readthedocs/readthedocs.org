@@ -38,6 +38,7 @@ GITHUB_DELETE = 'delete'
 GITLAB_PUSH = 'push'
 GITLAB_NULL_HASH = '0' * 40
 GITLAB_TAG_PUSH = 'tag_push'
+BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
 BITBUCKET_PUSH = 'repo:push'
 
 
@@ -268,19 +269,31 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
-        event = self.request.META.get('HTTP_X_EVENT_KEY', BITBUCKET_PUSH)
-        webhook_bitbucket.send(Project, project=self.project,
-                               data=self.request.data, event=event)
-        # Handle push events and trigger builds
+        event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
+        webhook_bitbucket.send(
+            Project,
+            project=self.project,
+            data=self.request.data,
+            event=event
+        )
         if event == BITBUCKET_PUSH:
             try:
-                changes = self.request.data['push']['changes']
-                branches = [change['new']['name']
-                            for change in changes
-                            if change.get('new')]
-                return self.get_response_push(self.project, branches)
+                data = self.request.data
+                changes = data['push']['changes']
+                branches = []
+                for change in changes:
+                    old = change['old']
+                    new = change['new']
+                    # Normal push to master
+                    if old is not None and new is not None:
+                        branches.append(new['name'])
+                if branches:
+                    return self.get_response_push(self.project, branches)
+                else:
+                    return self.sync_versions(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
+        return None
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
