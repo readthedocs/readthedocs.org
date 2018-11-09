@@ -88,8 +88,6 @@ class LoadConfigTests(TestCase):
                 env_config={
                     'allow_v2': mock.ANY,
                     'build': {'image': 'readthedocs/build:1.0'},
-                    'output_base': '',
-                    'name': mock.ANY,
                     'defaults': {
                         'install_project': self.project.install_project,
                         'formats': [
