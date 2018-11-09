@@ -6,7 +6,6 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
-import re
 from contextlib import contextmanager
 
 import six
@@ -22,7 +21,6 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
-    validate_directory,
     validate_file,
     validate_list,
     validate_string,
@@ -43,12 +41,8 @@ CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
-BASE_INVALID = 'base-invalid'
-BASE_NOT_A_DIR = 'base-not-a-directory'
 CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
 CONFIG_REQUIRED = 'config-required'
-NAME_REQUIRED = 'name-required'
-NAME_INVALID = 'name-invalid'
 CONF_FILE_REQUIRED = 'conf-file-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
@@ -263,12 +257,6 @@ class BuildConfigV1(BuildConfigBase):
 
     """Version 1 of the configuration file."""
 
-    BASE_INVALID_MESSAGE = 'Invalid value for base: {base}'
-    BASE_NOT_A_DIR_MESSAGE = '"base" is not a directory: {base}'
-    NAME_REQUIRED_MESSAGE = 'Missing key "name"'
-    NAME_INVALID_MESSAGE = (
-        'Invalid name "{name}". Valid values must match {name_re}'
-    )
     CONF_FILE_REQUIRED_MESSAGE = 'Missing key "conf_file"'
     PYTHON_INVALID_MESSAGE = '"python" section must be a mapping.'
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
@@ -306,62 +294,16 @@ class BuildConfigV1(BuildConfigBase):
           ``readthedocs.yml`` config file if not set
         """
         # Validate env_config.
-        # TODO: this isn't used
-        self._config['output_base'] = self.validate_output_base()
-
         # Validate the build environment first
         # Must happen before `validate_python`!
         self._config['build'] = self.validate_build()
 
         # Validate raw_config. Order matters.
-        # TODO: this isn't used
-        self._config['name'] = self.validate_name()
-        # TODO: this isn't used
-        self._config['base'] = self.validate_base()
         self._config['python'] = self.validate_python()
         self._config['formats'] = self.validate_formats()
 
         self._config['conda'] = self.validate_conda()
         self._config['requirements_file'] = self.validate_requirements_file()
-
-    def validate_output_base(self):
-        """Validates that ``output_base`` exists and set its absolute path."""
-        assert 'output_base' in self.env_config, (
-               '"output_base" required in "env_config"')
-        output_base = os.path.abspath(
-            os.path.join(
-                self.env_config.get('output_base', self.base_path),
-            )
-        )
-        return output_base
-
-    def validate_name(self):
-        """Validates that name exists."""
-        name = self.raw_config.get('name', None)
-        if not name:
-            name = self.env_config.get('name', None)
-        if not name:
-            self.error('name', self.NAME_REQUIRED_MESSAGE, code=NAME_REQUIRED)
-        name_re = r'^[-_.0-9a-zA-Z]+$'
-        if not re.match(name_re, name):
-            self.error(
-                'name',
-                self.NAME_INVALID_MESSAGE.format(
-                    name=name,
-                    name_re=name_re),
-                code=NAME_INVALID)
-
-        return name
-
-    def validate_base(self):
-        """Validates that path is a valid directory."""
-        if 'base' in self.raw_config:
-            base = self.raw_config['base']
-        else:
-            base = self.base_path
-        with self.catch_validation_error('base'):
-            base = validate_directory(base, self.base_path)
-        return base
 
     def validate_build(self):
         """
@@ -541,21 +483,6 @@ class BuildConfigV1(BuildConfigBase):
                 validate_choice(format_, self.get_valid_formats())
 
         return formats
-
-    @property
-    def name(self):
-        """The project name."""
-        return self._config['name']
-
-    @property
-    def base(self):
-        """The base directory."""
-        return self._config['base']
-
-    @property
-    def output_base(self):
-        """The output base."""
-        return self._config['output_base']
 
     @property
     def formats(self):

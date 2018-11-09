@@ -24,8 +24,6 @@ from readthedocs.config.config import (
     CONFIG_NOT_SUPPORTED,
     CONFIG_REQUIRED,
     INVALID_KEY,
-    NAME_INVALID,
-    NAME_REQUIRED,
     PYTHON_INVALID,
     VERSION_INVALID,
 )
@@ -34,8 +32,6 @@ from readthedocs.config.validation import (
     INVALID_BOOL,
     INVALID_CHOICE,
     INVALID_LIST,
-    INVALID_PATH,
-    INVALID_STRING,
     VALUE_NOT_FOUND,
     ValidationError,
 )
@@ -90,10 +86,7 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
 
 def get_env_config(extra=None):
     """Get the minimal env_config for the configuration object."""
-    defaults = {
-        'output_base': '',
-        'name': 'name',
-    }
+    defaults = {}
     if extra is None:
         extra = {}
     defaults.update(extra)
@@ -184,30 +177,6 @@ def test_build_config_has_list_with_single_empty_value(tmpdir):
     build = load(base, env_config)
     assert isinstance(build, BuildConfigV1)
     assert build.formats == []
-
-
-def test_config_requires_name():
-    build = BuildConfigV1(
-        {'output_base': ''},
-        {},
-        source_file='readthedocs.yml',
-    )
-    with raises(InvalidConfig) as excinfo:
-        build.validate()
-    assert excinfo.value.key == 'name'
-    assert excinfo.value.code == NAME_REQUIRED
-
-
-def test_build_requires_valid_name():
-    build = BuildConfigV1(
-        {'output_base': ''},
-        {'name': 'with/slashes'},
-        source_file='readthedocs.yml',
-    )
-    with raises(InvalidConfig) as excinfo:
-        build.validate()
-    assert excinfo.value.key == 'name'
-    assert excinfo.value.code == NAME_INVALID
 
 
 def test_version():
@@ -528,62 +497,10 @@ def test_valid_build_config():
         source_file='readthedocs.yml',
     )
     build.validate()
-    assert build.name == 'docs'
-    assert build.base
     assert build.python
     assert build.python.install_with_setup is False
     assert build.python.install_with_pip is False
     assert build.python.use_system_site_packages is False
-    assert build.output_base
-
-
-class TestValidateBase(object):
-
-    def test_it_validates_to_abspath(self, tmpdir):
-        apply_fs(tmpdir, {'configs': minimal_config, 'docs': {}})
-        with tmpdir.as_cwd():
-            source_file = str(tmpdir.join('configs', 'readthedocs.yml'))
-            build = BuildConfigV1(
-                get_env_config(),
-                {'base': '../docs'},
-                source_file=source_file,
-            )
-            build.validate()
-            assert build.base == str(tmpdir.join('docs'))
-
-    @patch('readthedocs.config.config.validate_directory')
-    def test_it_uses_validate_directory(self, validate_directory):
-        validate_directory.return_value = 'path'
-        build = get_build_config({'base': '../my-path'}, get_env_config())
-        build.validate()
-        # Test for first argument to validate_directory
-        args, kwargs = validate_directory.call_args
-        assert args[0] == '../my-path'
-
-    def test_it_fails_if_base_is_not_a_string(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
-        with tmpdir.as_cwd():
-            build = BuildConfigV1(
-                get_env_config(),
-                {'base': 1},
-                source_file=str(tmpdir.join('readthedocs.yml')),
-            )
-            with raises(InvalidConfig) as excinfo:
-                build.validate()
-            assert excinfo.value.key == 'base'
-            assert excinfo.value.code == INVALID_STRING
-
-    def test_it_fails_if_base_does_not_exist(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
-        build = BuildConfigV1(
-            get_env_config(),
-            {'base': 'docs'},
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'base'
-        assert excinfo.value.code == INVALID_PATH
 
 
 class TestValidateBuild(object):
@@ -752,16 +669,10 @@ def test_build_validate_calls_all_subvalidators(tmpdir):
     )
     with patch.multiple(
             BuildConfigV1,
-            validate_base=DEFAULT,
-            validate_name=DEFAULT,
             validate_python=DEFAULT,
-            validate_output_base=DEFAULT,
     ):
         build.validate()
-        BuildConfigV1.validate_base.assert_called_with()
-        BuildConfigV1.validate_name.assert_called_with()
         BuildConfigV1.validate_python.assert_called_with()
-        BuildConfigV1.validate_output_base.assert_called_with()
 
 
 def test_load_calls_validate(tmpdir):
