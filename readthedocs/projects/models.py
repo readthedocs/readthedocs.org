@@ -19,7 +19,7 @@ from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
