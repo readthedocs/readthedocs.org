@@ -38,41 +38,13 @@ from readthedocs.config.validation import (
 
 from .utils import apply_fs
 
-env_config = {
-    'output_base': '/tmp',
-}
-
-minimal_config = {
-    'name': 'docs',
-}
-
-config_with_explicit_empty_list = {
-    'readthedocs.yml': '''
-name: docs
-formats: []
-''',
-}
-
-minimal_config_dir = {
-    'readthedocs.yml': '''\
-name: docs
-''',
-}
-
-multiple_config_dir = {
-    'readthedocs.yml': '''
-name: first
----
-name: second
-    ''',
-    'nested': minimal_config_dir,
-}
-
-yaml_extension_config_dir = {
-    'readthedocs.yaml': '''\
-name: docs
-type: sphinx
-'''
+yaml_config_dir = {
+    'readthedocs.yml': textwrap.dedent(
+        '''
+        formats:
+          - pdf
+        '''
+    ),
 }
 
 
@@ -82,15 +54,6 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
         config,
         source_file=source_file,
     )
-
-
-def get_env_config(extra=None):
-    """Get the minimal env_config for the configuration object."""
-    defaults = {}
-    if extra is None:
-        extra = {}
-    defaults.update(extra)
-    return defaults
 
 
 @pytest.mark.parametrize('files', [
@@ -104,7 +67,7 @@ def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
     with raises(ConfigError) as e:
-        load(base, env_config)
+        load(base, {})
     assert e.value.code == CONFIG_REQUIRED
 
 
@@ -114,13 +77,13 @@ def test_load_empty_config_file(tmpdir):
     })
     base = str(tmpdir)
     with raises(ConfigError):
-        load(base, env_config)
+        load(base, {})
 
 
 def test_minimal_config(tmpdir):
-    apply_fs(tmpdir, minimal_config_dir)
+    apply_fs(tmpdir, yaml_config_dir)
     base = str(tmpdir)
-    build = load(base, env_config)
+    build = load(base, {'formats': []})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -131,7 +94,7 @@ def test_load_version1(tmpdir):
         ''')
     })
     base = str(tmpdir)
-    build = load(base, get_env_config({'allow_v2': True}))
+    build = load(base, {'allow_v2': True})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -142,7 +105,7 @@ def test_load_version2(tmpdir):
         ''')
     })
     base = str(tmpdir)
-    build = load(base, get_env_config({'allow_v2': True}))
+    build = load(base, {'allow_v2': True})
     assert isinstance(build, BuildConfigV2)
 
 
@@ -154,59 +117,70 @@ def test_load_unknow_version(tmpdir):
     })
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, get_env_config({'allow_v2': True}))
+        load(base, {'allow_v2': True})
     assert excinfo.value.code == VERSION_INVALID
 
 
 def test_yaml_extension(tmpdir):
     """Make sure it's capable of loading the 'readthedocs' file with a 'yaml' extension."""
-    apply_fs(tmpdir, yaml_extension_config_dir)
+    apply_fs(tmpdir, {
+        'readthedocs.yaml': textwrap.dedent(
+            '''
+            python:
+              version: 3
+            '''
+        ),
+    })
     base = str(tmpdir)
-    config = load(base, env_config)
+    config = load(base, {})
     assert isinstance(config, BuildConfigV1)
 
 
 def test_build_config_has_source_file(tmpdir):
-    base = str(apply_fs(tmpdir, minimal_config_dir))
-    build = load(base, env_config)
+    base = str(apply_fs(tmpdir, yaml_config_dir))
+    build = load(base, {})
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
 
 
 def test_build_config_has_list_with_single_empty_value(tmpdir):
-    base = str(apply_fs(tmpdir, config_with_explicit_empty_list))
-    build = load(base, env_config)
+    base = str(apply_fs(tmpdir, {
+        'readthedocs.yml': textwrap.dedent(
+            '''
+            formats: []
+            '''
+        )
+    }))
+    build = load(base, {})
     assert isinstance(build, BuildConfigV1)
     assert build.formats == []
 
 
 def test_version():
-    build = get_build_config({}, get_env_config())
+    build = get_build_config({}, {})
     assert build.version == '1'
 
 
 def test_doc_type():
     build = get_build_config(
         {},
-        get_env_config(
-            {
-                'defaults': {
-                    'doctype': 'sphinx',
-                },
-            }
-        )
+        {
+            'defaults': {
+                'doctype': 'sphinx',
+            },
+        }
     )
     build.validate()
     assert build.doctype == 'sphinx'
 
 
 def test_empty_python_section_is_valid():
-    build = get_build_config({'python': {}}, get_env_config())
+    build = get_build_config({'python': {}}, {})
     build.validate()
     assert build.python
 
 
 def test_python_section_must_be_dict():
-    build = get_build_config({'python': 123}, get_env_config())
+    build = get_build_config({'python': 123}, {})
     with raises(InvalidConfig) as excinfo:
         build.validate()
     assert excinfo.value.key == 'python'
@@ -214,7 +188,7 @@ def test_python_section_must_be_dict():
 
 
 def test_use_system_site_packages_defaults_to_false():
-    build = get_build_config({'python': {}}, get_env_config())
+    build = get_build_config({'python': {}}, {})
     build.validate()
     # Default is False.
     assert not build.python.use_system_site_packages
@@ -225,13 +199,13 @@ def test_use_system_site_packages_repects_default_value(value):
     defaults = {
         'use_system_packages': value,
     }
-    build = get_build_config({}, get_env_config({'defaults': defaults}))
+    build = get_build_config({}, {'defaults': defaults})
     build.validate()
     assert build.python.use_system_site_packages is value
 
 
 def test_python_pip_install_default():
-    build = get_build_config({'python': {}}, get_env_config())
+    build = get_build_config({'python': {}}, {})
     build.validate()
     # Default is False.
     assert build.python.install_with_pip is False
@@ -240,7 +214,7 @@ def test_python_pip_install_default():
 class TestValidatePythonExtraRequirements(object):
 
     def test_it_defaults_to_list(self):
-        build = get_build_config({'python': {}}, get_env_config())
+        build = get_build_config({'python': {}}, {})
         build.validate()
         # Default is an empty list.
         assert build.python.extra_requirements == []
@@ -248,7 +222,7 @@ class TestValidatePythonExtraRequirements(object):
     def test_it_validates_is_a_list(self):
         build = get_build_config(
             {'python': {'extra_requirements': 'invalid'}},
-            get_env_config(),
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -265,7 +239,7 @@ class TestValidatePythonExtraRequirements(object):
                     'extra_requirements': ['tests'],
                 },
             },
-            get_env_config(),
+            {},
         )
         build.validate()
         validate_string.assert_any_call('tests')
@@ -274,14 +248,14 @@ class TestValidatePythonExtraRequirements(object):
 class TestValidateUseSystemSitePackages(object):
 
     def test_it_defaults_to_false(self):
-        build = get_build_config({'python': {}}, get_env_config())
+        build = get_build_config({'python': {}}, {})
         build.validate()
         assert build.python.use_system_site_packages is False
 
     def test_it_validates_value(self):
         build = get_build_config(
             {'python': {'use_system_site_packages': 'invalid'}},
-            get_env_config(),
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -293,7 +267,7 @@ class TestValidateUseSystemSitePackages(object):
         validate_bool.return_value = True
         build = get_build_config(
             {'python': {'use_system_site_packages': 'to-validate'}},
-            get_env_config(),
+            {},
         )
         build.validate()
         validate_bool.assert_any_call('to-validate')
@@ -302,14 +276,14 @@ class TestValidateUseSystemSitePackages(object):
 class TestValidateSetupPyInstall(object):
 
     def test_it_defaults_to_false(self):
-        build = get_build_config({'python': {}}, get_env_config())
+        build = get_build_config({'python': {}}, {})
         build.validate()
         assert build.python.install_with_setup is False
 
     def test_it_validates_value(self):
         build = get_build_config(
             {'python': {'setup_py_install': 'this-is-string'}},
-            get_env_config(),
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -321,7 +295,7 @@ class TestValidateSetupPyInstall(object):
         validate_bool.return_value = True
         build = get_build_config(
             {'python': {'setup_py_install': 'to-validate'}},
-            get_env_config(),
+            {},
         )
         build.validate()
         validate_bool.assert_any_call('to-validate')
@@ -330,7 +304,7 @@ class TestValidateSetupPyInstall(object):
 class TestValidatePythonVersion(object):
 
     def test_it_defaults_to_a_valid_version(self):
-        build = get_build_config({'python': {}}, get_env_config())
+        build = get_build_config({'python': {}}, {})
         build.validate()
         assert build.python.version == 2
         assert build.python_interpreter == 'python2.7'
@@ -339,7 +313,7 @@ class TestValidatePythonVersion(object):
     def test_it_supports_other_versions(self):
         build = get_build_config(
             {'python': {'version': 3.5}},
-            get_env_config(),
+            {},
         )
         build.validate()
         assert build.python.version == 3.5
@@ -349,7 +323,7 @@ class TestValidatePythonVersion(object):
     def test_it_validates_versions_out_of_range(self):
         build = get_build_config(
             {'python': {'version': 1.0}},
-            get_env_config(),
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -359,7 +333,7 @@ class TestValidatePythonVersion(object):
     def test_it_validates_wrong_type(self):
         build = get_build_config(
             {'python': {'version': 'this-is-string'}},
-            get_env_config(),
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -369,7 +343,7 @@ class TestValidatePythonVersion(object):
     def test_it_validates_wrong_type_right_value(self):
         build = get_build_config(
             {'python': {'version': '3.5'}},
-            get_env_config(),
+            {},
         )
         build.validate()
         assert build.python.version == 3.5
@@ -378,7 +352,7 @@ class TestValidatePythonVersion(object):
 
         build = get_build_config(
             {'python': {'version': '3'}},
-            get_env_config(),
+            {},
         )
         build.validate()
         assert build.python.version == 3
@@ -388,12 +362,10 @@ class TestValidatePythonVersion(object):
     def test_it_validates_env_supported_versions(self):
         build = get_build_config(
             {'python': {'version': 3.6}},
-            env_config=get_env_config(
-                {
-                    'python': {'supported_versions': [3.5]},
-                    'build': {'image': 'custom'},
-                }
-            )
+            env_config={
+                'python': {'supported_versions': [3.5]},
+                'build': {'image': 'custom'},
+            },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -402,12 +374,10 @@ class TestValidatePythonVersion(object):
 
         build = get_build_config(
             {'python': {'version': 3.6}},
-            env_config=get_env_config(
-                {
-                    'python': {'supported_versions': [3.5, 3.6]},
-                    'build': {'image': 'custom'},
-                }
-            )
+            env_config={
+                'python': {'supported_versions': [3.5, 3.6]},
+                'build': {'image': 'custom'},
+            },
         )
         build.validate()
         assert build.python.version == 3.6
@@ -421,7 +391,7 @@ class TestValidatePythonVersion(object):
         }
         build = get_build_config(
             {},
-            get_env_config({'defaults': defaults}),
+            {'defaults': defaults},
         )
         build.validate()
         assert build.python.version == value
@@ -430,34 +400,34 @@ class TestValidatePythonVersion(object):
 class TestValidateFormats(object):
 
     def test_it_defaults_to_empty(self):
-        build = get_build_config({}, get_env_config())
+        build = get_build_config({}, {})
         build.validate()
         assert build.formats == []
 
     def test_it_gets_set_correctly(self):
-        build = get_build_config({'formats': ['pdf']}, get_env_config())
+        build = get_build_config({'formats': ['pdf']}, {})
         build.validate()
         assert build.formats == ['pdf']
 
     def test_formats_can_be_null(self):
-        build = get_build_config({'formats': None}, get_env_config())
+        build = get_build_config({'formats': None}, {})
         build.validate()
         assert build.formats == []
 
     def test_formats_with_previous_none(self):
-        build = get_build_config({'formats': ['none']}, get_env_config())
+        build = get_build_config({'formats': ['none']}, {})
         build.validate()
         assert build.formats == []
 
     def test_formats_can_be_empty(self):
-        build = get_build_config({'formats': []}, get_env_config())
+        build = get_build_config({'formats': []}, {})
         build.validate()
         assert build.formats == []
 
     def test_all_valid_formats(self):
         build = get_build_config(
             {'formats': ['pdf', 'htmlzip', 'epub']},
-            get_env_config()
+            {},
         )
         build.validate()
         assert build.formats == ['pdf', 'htmlzip', 'epub']
@@ -465,7 +435,7 @@ class TestValidateFormats(object):
     def test_cant_have_none_as_format(self):
         build = get_build_config(
             {'formats': ['htmlzip', None]},
-            get_env_config()
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -475,7 +445,7 @@ class TestValidateFormats(object):
     def test_formats_have_only_allowed_values(self):
         build = get_build_config(
             {'formats': ['htmlzip', 'csv']},
-            get_env_config()
+            {},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -483,7 +453,7 @@ class TestValidateFormats(object):
         assert excinfo.value.code == INVALID_CHOICE
 
     def test_only_list_type(self):
-        build = get_build_config({'formats': 'no-list'}, get_env_config())
+        build = get_build_config({'formats': 'no-list'}, {})
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'format'
@@ -492,8 +462,8 @@ class TestValidateFormats(object):
 
 def test_valid_build_config():
     build = BuildConfigV1(
-        env_config,
-        minimal_config,
+        {},
+        {},
         source_file='readthedocs.yml',
     )
     build.validate()
@@ -506,9 +476,9 @@ def test_valid_build_config():
 class TestValidateBuild(object):
 
     def test_it_fails_if_build_is_invalid_option(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
+        apply_fs(tmpdir, yaml_config_dir)
         build = BuildConfigV1(
-            get_env_config(),
+            {},
             {'build': {'image': 3.0}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -518,7 +488,7 @@ class TestValidateBuild(object):
         assert excinfo.value.code == INVALID_CHOICE
 
     def test_it_fails_on_python_validation(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
+        apply_fs(tmpdir, yaml_config_dir)
         build = BuildConfigV1(
             {},
             {
@@ -534,7 +504,7 @@ class TestValidateBuild(object):
         assert excinfo.value.code == INVALID_CHOICE
 
     def test_it_works_on_python_validation(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
+        apply_fs(tmpdir, yaml_config_dir)
         build = BuildConfigV1(
             {},
             {
@@ -547,9 +517,9 @@ class TestValidateBuild(object):
         build.validate_python()
 
     def test_it_works(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
+        apply_fs(tmpdir, yaml_config_dir)
         build = BuildConfigV1(
-            get_env_config(),
+            {},
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -557,9 +527,9 @@ class TestValidateBuild(object):
         assert build.build.image == 'readthedocs/build:latest'
 
     def test_default(self, tmpdir):
-        apply_fs(tmpdir, minimal_config)
+        apply_fs(tmpdir, yaml_config_dir)
         build = BuildConfigV1(
-            get_env_config(),
+            {},
             {},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -569,12 +539,12 @@ class TestValidateBuild(object):
     @pytest.mark.parametrize(
         'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
     def test_it_priorities_image_from_env_config(self, tmpdir, image):
-        apply_fs(tmpdir, minimal_config)
+        apply_fs(tmpdir, yaml_config_dir)
         defaults = {
             'build_image': image,
         }
         build = BuildConfigV1(
-            get_env_config({'defaults': defaults}),
+            {'defaults': defaults},
             {'build': {'image': 'latest'}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -583,7 +553,7 @@ class TestValidateBuild(object):
 
 
 def test_use_conda_default_false():
-    build = get_build_config({}, get_env_config())
+    build = get_build_config({}, {})
     build.validate()
     assert build.conda is None
 
@@ -591,7 +561,7 @@ def test_use_conda_default_false():
 def test_use_conda_respects_config():
     build = get_build_config(
         {'conda': {}},
-        get_env_config(),
+        {},
     )
     build.validate()
     assert isinstance(build.conda, Conda)
@@ -601,7 +571,7 @@ def test_validates_conda_file(tmpdir):
     apply_fs(tmpdir, {'environment.yml': ''})
     build = get_build_config(
         {'conda': {'file': 'environment.yml'}},
-        get_env_config(),
+        {},
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
@@ -610,7 +580,7 @@ def test_validates_conda_file(tmpdir):
 
 
 def test_requirements_file_empty():
-    build = get_build_config({}, get_env_config())
+    build = get_build_config({}, {})
     build.validate()
     assert build.python.requirements is None
 
@@ -622,7 +592,7 @@ def test_requirements_file_repects_default_value(tmpdir):
     }
     build = get_build_config(
         {},
-        get_env_config({'defaults': defaults}),
+        {'defaults': defaults},
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
@@ -633,7 +603,7 @@ def test_requirements_file_respects_configuration(tmpdir):
     apply_fs(tmpdir, {'requirements.txt': ''})
     build = get_build_config(
         {'requirements_file': 'requirements.txt'},
-        get_env_config(),
+        {},
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
@@ -643,7 +613,7 @@ def test_requirements_file_respects_configuration(tmpdir):
 def test_requirements_file_is_null(tmpdir):
     build = get_build_config(
         {'requirements_file': None},
-        get_env_config(),
+        {},
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
@@ -653,7 +623,7 @@ def test_requirements_file_is_null(tmpdir):
 def test_requirements_file_is_blank(tmpdir):
     build = get_build_config(
         {'requirements_file': ''},
-        get_env_config(),
+        {},
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
@@ -661,7 +631,7 @@ def test_requirements_file_is_blank(tmpdir):
 
 
 def test_build_validate_calls_all_subvalidators(tmpdir):
-    apply_fs(tmpdir, minimal_config)
+    apply_fs(tmpdir, {})
     build = BuildConfigV1(
         {},
         {},
@@ -676,15 +646,15 @@ def test_build_validate_calls_all_subvalidators(tmpdir):
 
 
 def test_load_calls_validate(tmpdir):
-    apply_fs(tmpdir, minimal_config_dir)
+    apply_fs(tmpdir, yaml_config_dir)
     base = str(tmpdir)
     with patch.object(BuildConfigV1, 'validate') as build_validate:
-        load(base, env_config)
+        load(base, {})
         assert build_validate.call_count == 1
 
 
 def test_raise_config_not_supported():
-    build = get_build_config({}, get_env_config())
+    build = get_build_config({}, {})
     build.validate()
     with raises(ConfigOptionNotSupportedError) as excinfo:
         build.redirects
@@ -710,12 +680,12 @@ def test_as_dict(tmpdir):
             },
             'requirements_file': 'requirements.txt',
         },
-        get_env_config({
+        {
             'defaults': {
                 'doctype': 'sphinx',
                 'sphinx_configuration': None,
             },
-        }),
+        },
         source_file=str(tmpdir.join('readthedocs.yml')),
     )
     build.validate()
