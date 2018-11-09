@@ -89,40 +89,6 @@ class VersionManager(object):
         ]
 
 
-def version_windows(versions, major=1, minor=1, point=1):
-    """
-    Return list of versions that have been pruned to version windows.
-
-    Uses :py:class:`VersionManager` to prune the list of versions
-
-    :param versions: List of version strings
-    :param major: Major version window
-    :param minor: Minor version window
-    :param point: Point version window
-    """
-    # TODO: This needs some documentation on how VersionManager etc works and
-    # some examples what the expected outcome is.
-
-    version_identifiers = []
-    for version_string in versions:
-        try:
-            version_identifiers.append(Version(version_string))
-        except (InvalidVersion, UnicodeEncodeError):
-            pass
-
-    major_version_window = major
-    minor_version_window = minor
-    point_version_window = point
-
-    manager = VersionManager()
-    for v in version_identifiers:
-        manager.add(v)
-    manager.prune_major(major_version_window)
-    manager.prune_minor(minor_version_window)
-    manager.prune_point(point_version_window)
-    return manager.get_version_list()
-
-
 def parse_version_failsafe(version_string):
     """
     Parse a version in string form and return Version object.
