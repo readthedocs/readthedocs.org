@@ -1024,12 +1024,12 @@ class Domain(models.Model):
             self.domain = parsed.path
         super(Domain, self).save(*args, **kwargs)
         broadcast(type='app', task=tasks.symlink_domain,
-                  args=[self.project.pk, self.pk],)
+                  args=[self.project.pk, self.domain],)
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain,
-                  args=[self.project.pk, self.pk, True],)
+                  args=[self.project.pk, self.domain, True],)
         super(Domain, self).delete(*args, **kwargs)
 
 

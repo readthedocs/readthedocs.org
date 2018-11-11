@@ -1002,15 +1002,14 @@ def symlink_project(project_pk):
 
 
 @app.task(queue='web')
-def symlink_domain(project_pk, domain_pk, delete=False):
+def symlink_domain(project_pk, domain_str, delete=False):
     project = Project.objects.get(pk=project_pk)
-    domain = Domain.objects.get(pk=domain_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         if delete:
-            sym.remove_symlink_cname(domain)
+            sym.remove_symlink_cname(domain_str)
         else:
-            sym.symlink_cnames(domain)
+            sym.symlink_cnames(domain_str)
 
 
 @app.task(queue='web')
