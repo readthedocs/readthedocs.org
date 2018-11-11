@@ -16,9 +16,9 @@ from rest_framework.reverse import reverse
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING, BUILD_STATE_FINISHED, BUILD_STATE_TRIGGERED, LATEST)
 from readthedocs.builds.models import Build
+from readthedocs.builds.tasks import finish_inactive_builds
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 

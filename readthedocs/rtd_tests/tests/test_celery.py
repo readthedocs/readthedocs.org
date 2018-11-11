@@ -15,6 +15,7 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.builds.models import Build
 from readthedocs.projects.models import Project
 from readthedocs.projects import tasks
+from readthedocs.builds.tasks import clear_artifacts, remove_dir
 
 from readthedocs.rtd_tests.utils import (
     create_git_branch, create_git_tag, delete_git_branch)
@@ -49,7 +50,7 @@ class TestCeleryBuilding(RTDTestCase):
     def test_remove_dir(self):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
-        result = tasks.remove_dir.delay(directory)
+        result = remove_dir.delay(directory)
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -58,14 +59,14 @@ class TestCeleryBuilding(RTDTestCase):
         directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = clear_artifacts.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
         directory = version.project.rtd_build_path(version=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = clear_artifacts.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 

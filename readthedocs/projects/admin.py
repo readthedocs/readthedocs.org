@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
+from readthedocs.builds.tasks import remove_dir
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
@@ -31,7 +32,6 @@ from .models import (
     WebHook,
 )
 from .notifications import ResourceUsageNotification
-from .tasks import remove_dir
 
 
 class ProjectSendNotificationView(SendNotificationView):

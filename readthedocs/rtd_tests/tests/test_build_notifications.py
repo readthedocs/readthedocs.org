@@ -11,7 +11,7 @@ from mock import patch
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project, EmailHook, WebHook
-from readthedocs.projects.tasks import send_notifications
+from readthedocs.notifications.tasks import send_notifications
 from readthedocs.projects.forms import WebHookForm
 
 
@@ -27,7 +27,7 @@ class BuildNotificationsTests(TestCase):
 
     def test_send_webhook_notification(self):
         fixture.get(WebHook, project=self.project)
-        with patch('readthedocs.projects.tasks.requests.post') as mock:
+        with patch('readthedocs.notifications.tasks.requests.post') as mock:
             mock.return_value = None
             send_notifications(self.version.pk, self.build.pk)
             mock.assert_called_once()
@@ -42,7 +42,7 @@ class BuildNotificationsTests(TestCase):
     def test_send_email_and_webhook__notification(self):
         fixture.get(EmailHook, project=self.project)
         fixture.get(WebHook, project=self.project)
-        with patch('readthedocs.projects.tasks.requests.post') as mock:
+        with patch('readthedocs.notifications.tasks.requests.post') as mock:
             mock.return_value = None
             send_notifications(self.version.pk, self.build.pk)
             mock.assert_called_once()

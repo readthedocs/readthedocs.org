@@ -12,7 +12,6 @@ from messages_extends.models import Message as PersistentMessage
 
 from readthedocs.worker import app
 
-
 log = logging.getLogger(__name__)
 
 EMAIL_TIME_LIMIT = 30

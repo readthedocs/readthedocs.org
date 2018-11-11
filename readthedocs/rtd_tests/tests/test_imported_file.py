@@ -2,8 +2,8 @@ from __future__ import absolute_import
 import os
 from django.test import TestCase
 
-from readthedocs.projects.tasks import _manage_imported_files
 from readthedocs.projects.models import Project, ImportedFile
+from readthedocs.projects.tasks import _manage_imported_files
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
 

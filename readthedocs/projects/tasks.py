@@ -13,16 +13,13 @@ from __future__ import (
     unicode_literals,
 )
 
-import datetime
 import hashlib
 import json
 import logging
 import os
-import shutil
 import socket
 from collections import Counter, defaultdict
 
-import requests
 from builtins import str
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
@@ -44,12 +41,14 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
+from readthedocs.builds.tasks import fileify, remove_dir
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.core.utils import broadcast, safe_unlink, send_email
+from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.core.utils import broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,
@@ -63,6 +62,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.notifications.tasks import send_notifications
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.restapi.utils import index_search_request
@@ -1085,49 +1085,6 @@ def symlink_subproject(project_pk):
         sym.symlink_subprojects()
 
 
-@app.task(queue='web')
-def fileify(version_pk, commit):
-    """
-    Create ImportedFile objects for all of a version's files.
-
-    This is so we have an idea of what files we have in the database.
-    """
-    version = Version.objects.get(pk=version_pk)
-    project = version.project
-
-    if not commit:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg=(
-                    'Imported File not being built because no commit '
-                    'information'
-                ),
-            )
-        )
-        return
-
-    path = project.rtd_build_path(version.slug)
-    if path:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=version.project.slug,
-                version=version.slug,
-                msg='Creating ImportedFiles',
-            )
-        )
-        _manage_imported_files(version, path, commit)
-    else:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg='No ImportedFile files',
-            )
-        )
-
-
 def _manage_imported_files(version, path, commit):
     """
     Update imported files for version.
@@ -1170,102 +1127,6 @@ def _manage_imported_files(version, path, commit):
     ]
     files_changed.send(sender=Project, project=version.project,
                        files=changed_files)
-
-
-@app.task(queue='web')
-def send_notifications(version_pk, build_pk):
-    version = Version.objects.get(pk=version_pk)
-    build = Build.objects.get(pk=build_pk)
-
-    for hook in version.project.webhook_notifications.all():
-        webhook_notification(version, build, hook.url)
-    for email in version.project.emailhook_notifications.all().values_list('email', flat=True):
-        email_notification(version, build, email)
-
-
-def email_notification(version, build, email):
-    """
-    Send email notifications for build failure.
-
-    :param version: :py:class:`Version` instance that failed
-    :param build: :py:class:`Build` instance that failed
-    :param email: Email recipient address
-    """
-    log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='sending email to: %s' % email,
-        )
-    )
-
-    # We send only what we need from the Django model objects here to avoid
-    # serialization problems in the ``readthedocs.core.tasks.send_email_task``
-    context = {
-        'version': {
-            'verbose_name': version.verbose_name,
-        },
-        'project': {
-            'name': version.project.name,
-        },
-        'build': {
-            'pk': build.pk,
-            'error': build.error,
-        },
-        'build_url': 'https://{0}{1}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-            build.get_absolute_url(),
-        ),
-        'unsub_url': 'https://{0}{1}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
-            reverse('projects_notifications', args=[version.project.slug]),
-        ),
-    }
-
-    if build.commit:
-        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
-    else:
-        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
-
-    send_email(
-        email,
-        title,
-        template='projects/email/build_failed.txt',
-        template_html='projects/email/build_failed.html',
-        context=context,
-    )
-
-
-def webhook_notification(version, build, hook_url):
-    """
-    Send webhook notification for project webhook.
-
-    :param version: Version instance to send hook for
-    :param build: Build instance that failed
-    :param hook_url: Hook URL to send to
-    """
-    project = version.project
-
-    data = json.dumps({
-        'name': project.name,
-        'slug': project.slug,
-        'build': {
-            'id': build.id,
-            'success': build.success,
-            'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
-        },
-    })
-    log.debug(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='sending notification to: %s' % hook_url,
-        )
-    )
-    try:
-        requests.post(hook_url, data=data)
-    except Exception:
-        log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
 
 @app.task(queue='web')
@@ -1320,31 +1181,6 @@ def update_static_metadata(project_pk, path=None):
         )
 
 
-# Random Tasks
-@app.task()
-def remove_dir(path):
-    """
-    Remove a directory on the build/celery server.
-
-    This is mainly a wrapper around shutil.rmtree so that app servers can kill
-    things on the build server.
-    """
-    log.info('Removing %s', path)
-    shutil.rmtree(path, ignore_errors=True)
-
-
-@app.task()
-def clear_artifacts(paths):
-    """
-    Remove artifacts from the web servers.
-
-    :param paths: list containing PATHs where production media is on disk
-        (usually ``Version.get_artifact_paths``)
-    """
-    for path in paths:
-        remove_dir(path)
-
-
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
@@ -1354,49 +1190,3 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
     fileify(version_pk, commit=commit)
     update_search(version_pk, commit=commit)
-
-
-@app.task()
-def finish_inactive_builds():
-    """
-    Finish inactive builds.
-
-    A build is consider inactive if it's not in ``FINISHED`` state and it has been
-    "running" for more time that the allowed one (``Project.container_time_limit``
-    or ``DOCKER_LIMITS['time']`` plus a 20% of it).
-
-    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
-    ``error`` to be communicated to the user.
-    """
-    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
-    delta = datetime.timedelta(seconds=time_limit)
-    query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=timezone.now() - delta))
-
-    builds_finished = 0
-    builds = Build.objects.filter(query)[:50]
-    for build in builds:
-
-        if build.project.container_time_limit:
-            custom_delta = datetime.timedelta(
-                seconds=int(build.project.container_time_limit),
-            )
-            if build.date + custom_delta > timezone.now():
-                # Do not mark as FINISHED builds with a custom time limit that wasn't
-                # expired yet (they are still building the project version)
-                continue
-
-        build.success = False
-        build.state = BUILD_STATE_FINISHED
-        build.error = _(
-            'This build was terminated due to inactivity. If you '
-            'continue to encounter this error, file a support '
-            'request with and reference this build id ({0}).'.format(build.pk),
-        )
-        build.save()
-        builds_finished += 1
-
-    log.info(
-        'Builds marked as "Terminated due inactivity": %s',
-        builds_finished,
-    )
