@@ -34,6 +34,7 @@ from readthedocs.projects.version_handling import (
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
+from readthedocs.projects import tasks
 
 log = logging.getLogger(__name__)
 
@@ -308,7 +309,6 @@ class Project(models.Model):
                 verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
@@ -1016,7 +1016,6 @@ class Domain(models.Model):
         return '{domain} pointed at {project}'.format(domain=self.domain, project=self.project.name)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
@@ -1027,7 +1026,6 @@ class Domain(models.Model):
                   args=[self.project.pk, self.domain],)
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain,
                   args=[self.project.pk, self.domain, True],)
         super(Domain, self).delete(*args, **kwargs)
