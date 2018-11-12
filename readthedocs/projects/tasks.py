@@ -62,8 +62,6 @@ from .signals import (
 
 log = logging.getLogger(__name__)
 
-HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
-
 
 class SyncRepositoryMixin(object):
 
@@ -266,13 +264,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     """
 
     def __init__(self, build_env=None, python_env=None, config=None,
-                 force=False, search=True, localmedia=True,
-                 build=None, project=None, version=None, task=None):
+                 force=False, build=None, project=None,
+                 version=None, task=None):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
-        self.build_search = search
-        self.build_localmedia = localmedia
         self.build = {}
         if build is not None:
             self.build = build
@@ -289,7 +285,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=None, search=True, force=False, localmedia=True, **__):
+            docker=None, force=False, **__):
         """
         Run a documentation sync n' build.
 
@@ -312,9 +308,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
             ``settings.DOCKER_ENABLE`` is used)
-        :param search bool: update search
         :param force bool: force Sphinx build
-        :param localmedia bool: update localmedia
 
         :returns: whether build was successful or not
 
@@ -327,8 +321,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
-            self.build_search = search
-            self.build_localmedia = localmedia
             self.build_force = force
             self.config = None
 
@@ -769,37 +761,38 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_search(self):
         """Build search data."""
-        # TODO rely on config parameter here when Project.documentation_type is
-        # removed in #4638. Mkdocs has no search currently
-        if self.project.documentation_type == 'mkdocs':
-            return False
-        return self.build_search
+        # Search is always run in sphinx using the rtd-sphinx-extension.
+        # Mkdocs has no search currently.
+        if self.is_type_sphinx():
+            return True
+        return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
         if 'htmlzip' not in self.config.formats:
             return False
-
-        if self.build_localmedia:
-            if self.is_type_sphinx():
-                return self.build_docs_class('sphinx_singlehtmllocalmedia')
+        # We don't generate a zip for mkdocs currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class('sphinx_singlehtmllocalmedia')
         return False
 
     def build_docs_pdf(self):
         """Build PDF docs."""
-        if ('pdf' not in self.config.formats or
-                self.project.slug in HTML_ONLY or
-                not self.is_type_sphinx()):
+        if 'pdf' not in self.config.formats:
             return False
-        return self.build_docs_class('sphinx_pdf')
+        # Mkdocs has no pdf generation currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class('sphinx_pdf')
+        return False
 
     def build_docs_epub(self):
         """Build ePub docs."""
-        if ('epub' not in self.config.formats or
-            self.project.slug in HTML_ONLY or
-                not self.is_type_sphinx()):
+        if 'epub' not in self.config.formats:
             return False
-        return self.build_docs_class('sphinx_epub')
+        # Mkdocs has no epub generation currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class('sphinx_epub')
+        return False
 
     def build_docs_class(self, builder_class):
         """

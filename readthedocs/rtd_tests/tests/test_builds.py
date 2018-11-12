@@ -48,8 +48,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
@@ -74,8 +76,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         task.build_docs()
 
@@ -101,8 +105,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # The HTML and the Epub format were built.
@@ -128,8 +134,10 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
 
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # The HTML and the Epub format were built.
@@ -159,8 +167,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
@@ -203,8 +213,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [

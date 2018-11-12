@@ -34,6 +34,10 @@ class EnvironmentMockGroup(object):
                 'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build'),
             'html_move': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.move'),
+            'localmedia_build': mock.patch(
+                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.build'),
+            'localmedia_move': mock.patch(
+                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.move'),
             'pdf_build': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.PdfBuilder.build'),
             'pdf_move': mock.patch(
