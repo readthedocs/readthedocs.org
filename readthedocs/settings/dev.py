@@ -48,8 +48,6 @@ class CommunityDevSettings(CommunityBaseSettings):
         'test:8000',
     )
 
-    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
-
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super(CommunityDevSettings, self).LOGGING
