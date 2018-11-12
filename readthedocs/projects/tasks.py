@@ -689,6 +689,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
+                doctype=self.config.doctype,
             ),
         )
 
@@ -1313,14 +1314,14 @@ def clear_artifacts(paths):
 
 
 @app.task(queue='web')
-def sync_callback(_, version_pk, commit, *args, **kwargs):
+def sync_callback(_, version_pk, commit, doctype, *args, **kwargs):
     """
     Called once the sync_files tasks are done.
 
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
-    update_search(version_pk, commit=commit)
+    update_search(version_pk, commit=commit, doctype=doctype)
 
 
 @app.task()

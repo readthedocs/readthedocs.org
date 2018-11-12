@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 update_search(
                     version.pk,
                     commit,
-                    doctype=project.documentation_type,
+                    doctype=version.project.documentation_type,
                     delete_non_commit_files=False
                 )
             except Exception as e:
