@@ -676,6 +676,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             args=[
                 self.project.pk,
                 self.version.pk,
+                self.config.doctype,
             ],
             kwargs=dict(
                 hostname=socket.gethostname(),
@@ -759,7 +760,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             broadcast(
                 type='app',
                 task=move_files,
-                args=[self.version.pk, socket.gethostname()],
+                args=[
+                    self.version.pk, socket.gethostname(), self.config.doctype
+                ],
                 kwargs=dict(html=True)
             )
         except socket.error:
@@ -828,7 +831,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
 # Web tasks
 @app.task(queue='web')
-def sync_files(project_pk, version_pk, hostname=None, html=False,
+def sync_files(project_pk, version_pk, doctype, hostname=None, html=False,
                localmedia=False, search=False, pdf=False, epub=False):
     """
     Sync build artifacts to application instances.
@@ -857,6 +860,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
     move_files(
         version_pk,
         hostname,
+        doctype,
         html=html,
         localmedia=localmedia,
         search=search,
@@ -872,7 +876,7 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 
 
 @app.task(queue='web')
-def move_files(version_pk, hostname, html=False, localmedia=False,
+def move_files(version_pk, hostname, doctype, html=False, localmedia=False,
                search=False, pdf=False, epub=False):
     """
     Task to move built documentation to web servers.
@@ -902,63 +906,62 @@ def move_files(version_pk, hostname, html=False, localmedia=False,
     if html:
         from_path = version.project.artifact_path(
             version=version.slug,
-            type_=version.project.documentation_type,
+            type_=doctype,
         )
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
-    if 'sphinx' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_search',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='json',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    if search:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_search',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='json',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
-        if localmedia:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_localmedia',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='htmlzip',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    if localmedia:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_localmedia',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='htmlzip',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
-        # Always move PDF's because the return code lies.
-        if pdf:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_pdf',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
-        if epub:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_epub',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    # Always move PDF's because the return code lies.
+    if pdf:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_pdf',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='pdf',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
+    if epub:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_epub',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='epub',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
 
 @app.task(queue='web')
-def update_search(version_pk, commit, delete_non_commit_files=True):
+def update_search(version_pk, commit, doctype, delete_non_commit_files=True):
     """
     Task to update search indexes.
 
@@ -968,12 +971,12 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     """
     version = Version.objects.get(pk=version_pk)
 
-    if 'sphinx' in version.project.documentation_type:
+    if 'sphinx' in doctype:
         page_list = process_all_json_files(version, build_dir=False)
     else:
         log.debug(
             'Unknown documentation type: %s',
-            version.project.documentation_type
+            doctype
         )
         return
 
