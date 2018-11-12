@@ -144,7 +144,7 @@ class Symlink(object):
         if domain:
             domains = [domain]
         else:
-            domains = (dom.domain for dom in Domain.objects.filter(project=self.project))
+            domains = [dom.domain for dom in Domain.objects.filter(project=self.project)]
         for dom in domains:
             log_msg = 'Symlinking CNAME: {0} -> {1}'.format(dom, self.project.slug)
             log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
