@@ -2,13 +2,18 @@
 
 from __future__ import absolute_import
 
+import logging
+
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 from .constants import (BRANCH, TAG, LATEST, LATEST_VERBOSE_NAME, STABLE,
                         STABLE_VERBOSE_NAME)
 from .querysets import VersionQuerySet
 from readthedocs.core.utils.extend import (SettingsOverrideObject,
                                            get_override_class)
+
+log = logging.getLogger(__name__)
 
 
 __all__ = ['VersionManager']
@@ -57,6 +62,12 @@ class VersionManagerBase(models.Manager):
         }
         defaults.update(kwargs)
         return self.create(**defaults)
+
+    def get_object_or_log(self, **kwargs):
+        try:
+            return super().get(**kwargs)
+        except ObjectDoesNotExist:
+            log.warning('Version Not Found. Details: ', kwargs)
 
 
 class VersionManager(SettingsOverrideObject):
