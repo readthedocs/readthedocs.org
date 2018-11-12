@@ -1,9 +1,9 @@
 -r pip.txt
 
 django-dynamic-fixture==2.0.0
-pytest==3.10.0
+pytest==3.10.1
 pytest-django==3.4.3
-pytest-xdist==1.24.0
+pytest-xdist==1.24.1
 pytest-cov
 apipkg==1.5
 execnet==1.5.0

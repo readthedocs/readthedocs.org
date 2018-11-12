@@ -3,7 +3,7 @@ pip==18.1
 appdirs==1.4.3
 virtualenv==16.1.0
 docutils==0.14
-Sphinx==1.8.1
+Sphinx==1.8.2
 sphinx_rtd_theme==0.4.2
 sphinx-tabs==1.1.8
 # Required to avoid Transifex error with reserved slug
@@ -13,9 +13,7 @@ git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c
 Pygments==2.2.0
 
 mkdocs==1.0.4
-# mkdocs requires markdown
-# Markdown 3.0 breaks with older Django Rest Framework
-Markdown<3.0
+Markdown==3.0.1
 
 django==1.11.16
 six==1.11.0
@@ -38,7 +36,7 @@ django-filter<2.0.0
 django-vanilla-views==1.0.5
 jsonfield==2.0.2
 
-requests==2.20.0
+requests==2.20.1
 requests-toolbelt==0.8.0
 slumber==0.7.1
 lxml==4.2.5
