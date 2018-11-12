@@ -15,6 +15,7 @@ from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
@@ -1109,3 +1110,19 @@ class Feature(models.Model):
         implement this behavior.
         """
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
+
+
+class EnvironmentVariable(TimeStampedModel, models.Model):
+    name = models.CharField(
+        max_length=128,
+        help_text='Name of the environment variable',
+    )
+    value = models.CharField(
+        max_length=256,
+        help_text='Value of the environment variable',
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        help_text='Project where this variable will be used',
+    )

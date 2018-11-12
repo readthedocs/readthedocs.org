@@ -117,6 +117,13 @@ class ProjectViewSet(UserSelectViewSet):
             'flat': version_strings,
         })
 
+    @detail_route(permission_classes=[permissions.IsAdminUser])
+    def environment_variables(self, request, *_, **__):
+        return Response({
+            env.name: env.value
+            for env in self.get_object().environmentvariable_set.all()
+        })
+
     @detail_route()
     def translations(self, *_, **__):
         translations = self.get_object().translations.all()

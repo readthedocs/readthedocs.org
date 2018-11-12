@@ -440,7 +440,7 @@ class BuildEnvironment(BaseEnvironment):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
-        MkDocsYAMLParseError
+        MkDocsYAMLParseError,
     )
 
     def __init__(self, project=None, version=None, build=None, config=None,
@@ -466,7 +466,7 @@ class BuildEnvironment(BaseEnvironment):
                 project=self.project.slug,
                 version=self.version.slug,
                 msg='Build finished',
-            )
+            ),
         )
         return ret
 
