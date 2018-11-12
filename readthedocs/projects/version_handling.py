@@ -4,8 +4,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import unicodedata
-from builtins import object, range
-from collections import defaultdict
 
 import six
 from packaging.version import InvalidVersion, Version
