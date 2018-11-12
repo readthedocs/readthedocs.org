@@ -46,6 +46,12 @@ class EnvironmentMockGroup(object):
                 'readthedocs.doc_builder.backends.sphinx.EpubBuilder.build'),
             'epub_move': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.EpubBuilder.move'),
+            'move_mkdocs': mock.patch(
+                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move'),
+            'append_conf_mkdocs': mock.patch(
+                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf'),
+            'html_build_mkdocs': mock.patch(
+                'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.build'),
             'glob': mock.patch('readthedocs.doc_builder.backends.sphinx.glob'),
 
             'docker': mock.patch('readthedocs.doc_builder.environments.APIClient'),
