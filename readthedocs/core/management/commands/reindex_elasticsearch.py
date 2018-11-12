@@ -2,7 +2,6 @@
 
 from __future__ import absolute_import
 import logging
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
@@ -52,7 +51,11 @@ class Command(BaseCommand):
                 commit = None
 
             try:
-                update_search(version.pk, commit,
-                              delete_non_commit_files=False)
+                update_search(
+                    version.pk,
+                    commit,
+                    doctype=project.documentation_type,
+                    delete_non_commit_files=False
+                )
             except Exception as e:
                 log.exception('Reindex failed for %s, %s', version, e)
