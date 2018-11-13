@@ -44,9 +44,16 @@ class ProjectAdminSerializer(ProjectSerializer):
     )
 
     show_advertising = serializers.SerializerMethodField()
+    environment_variables = serializers.SerializerMethodField()
 
     def get_show_advertising(self, obj):
         return obj.show_advertising
+
+    def get_environment_variables(self, obj):
+        return {
+            variable.name: variable.value
+            for variable in obj.environmentvariable_set.all()
+        }
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
@@ -68,6 +75,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_clone',
             'has_valid_webhook',
             'show_advertising',
+            'environment_variables',
         )
 
 

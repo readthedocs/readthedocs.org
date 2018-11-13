@@ -900,6 +900,7 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        self.environment_variables = kwargs.pop('environment_variables', {})
         ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
@@ -1115,14 +1116,14 @@ class Feature(models.Model):
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,
-        help_text='Name of the environment variable',
+        help_text=_('Name of the environment variable'),
     )
     value = models.CharField(
         max_length=256,
-        help_text='Value of the environment variable',
+        help_text=_('Value of the environment variable'),
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-        help_text='Project where this variable will be used',
+        help_text=_('Project where this variable will be used'),
     )
