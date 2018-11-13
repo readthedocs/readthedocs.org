@@ -9,7 +9,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import sync_files
 
 
-class WebTasksTests(TestCase):
+class SyncFilesTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
