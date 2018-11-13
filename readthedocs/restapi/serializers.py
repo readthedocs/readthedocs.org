@@ -43,18 +43,6 @@ class ProjectAdminSerializer(ProjectSerializer):
         slug_field='feature_id',
     )
 
-    show_advertising = serializers.SerializerMethodField()
-    environment_variables = serializers.SerializerMethodField()
-
-    def get_show_advertising(self, obj):
-        return obj.show_advertising
-
-    def get_environment_variables(self, obj):
-        return {
-            variable.name: variable.value
-            for variable in obj.environmentvariable_set.all()
-        }
-
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
             'enable_epub_build',
