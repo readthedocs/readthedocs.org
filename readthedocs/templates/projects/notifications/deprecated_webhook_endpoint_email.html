@@ -1,0 +1,7 @@
+<p>Just a heads up, your project {{ project.name }} has configured a <em>DEPRECATED</em> webhook to trigger new builds and should be upgraded. Projects hitting these deprecated webhook will stop building on Jan 1, 2019. Please, update it soon!</p>
+
+<p>To update the webhook your project is hitting, you need to go to the project's settings under your VCS service (GitHub, Bitbucket or GitLab) and remove the Read the Docs webhook from there.</p>
+
+<p>Once you have done that, you need to go to your <a href="{% url "projects_integrations" project.slug %}">project's Integrations</a> under Read the Docs project's Admin, click integration and then in "Resync webhook" button.</p>
+
+<p>Thanks!</p>

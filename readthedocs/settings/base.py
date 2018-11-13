@@ -264,6 +264,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
+        'every-week-endpoint-deprecated-notifications': {
+            'task': 'readthedocs.projects.tasks.send_deprecated_endpoint_notifications',
+            'schedule': crontab(minute=0, hour='10', day_of_week='monday'),
+            'options': {'queue': 'web'},
+        },
     }
 
     # Docker

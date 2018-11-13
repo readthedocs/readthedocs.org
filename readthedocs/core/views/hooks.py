@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.core.utils import trigger_build
+from readthedocs.notifications.decorators import notify_deprecated_endpoint
 from readthedocs.projects import constants
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
@@ -175,6 +176,7 @@ def _build_url(url, projects, branches):
 
 
 @csrf_exempt
+@notify_deprecated_endpoint
 def github_build(request):  # noqa: D205
     """
     GitHub webhook consumer.
@@ -230,6 +232,7 @@ def github_build(request):  # noqa: D205
 
 
 @csrf_exempt
+@notify_deprecated_endpoint
 def gitlab_build(request):  # noqa: D205
     """
     GitLab webhook consumer.
@@ -265,6 +268,7 @@ def gitlab_build(request):  # noqa: D205
 
 
 @csrf_exempt
+@notify_deprecated_endpoint
 def bitbucket_build(request):
     """
     Consume webhooks from multiple versions of Bitbucket's API.
@@ -341,6 +345,7 @@ def bitbucket_build(request):
 
 
 @csrf_exempt
+@notify_deprecated_endpoint
 def generic_build(request, project_id_or_slug=None):
     """
     Generic webhook build endpoint.
