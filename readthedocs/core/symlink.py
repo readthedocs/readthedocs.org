@@ -158,12 +158,12 @@ class Symlink(object):
             project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom)
             run(['ln', '-nsf', self.project.doc_path, project_cname_symlink])
 
-    def remove_symlink_cname(self, domain_str):
+    def remove_symlink_cname(self, domain):
         """Remove CNAME symlink."""
-        log_msg = "Removing symlink for CNAME {0}".format(domain_str)
+        log_msg = "Removing symlink for CNAME {0}".format(domain)
         log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
                                                version='', msg=log_msg))
-        symlink = os.path.join(self.CNAME_ROOT, domain_str)
+        symlink = os.path.join(self.CNAME_ROOT, domain)
         safe_unlink(symlink)
 
     def symlink_subprojects(self):
