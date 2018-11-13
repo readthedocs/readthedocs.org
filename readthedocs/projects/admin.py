@@ -33,6 +33,7 @@ from .models import (
 from .notifications import ResourceUsageNotification
 from .tasks import remove_dir
 
+
 class ProjectSendNotificationView(SendNotificationView):
     notification_classes = [ResourceUsageNotification]
 
