@@ -6,6 +6,7 @@ from __future__ import (
 )
 
 import mock
+import os
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 
@@ -13,7 +14,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
@@ -249,6 +250,55 @@ class BuildEnvironmentTests(TestCase):
         assert build_config['version'] == '1'
         assert 'sphinx' in build_config
         assert build_config['doctype'] == 'sphinx'
+
+    def test_get_env_vars(self):
+        project = get(
+            Project,
+            slug='project',
+            documentation_type='sphinx',
+        )
+        get(
+            EnvironmentVariable,
+            name='TOKEN',
+            value='a1b2c3',
+            project=project,
+        )
+        build = get(Build)
+        version = get(Version, slug='1.8', project=project)
+        task = UpdateDocsTaskStep(
+            project=project, version=version, build={'id': build.pk},
+        )
+
+        # mock this object to make sure that we are NOT in a conda env
+        task.config = mock.Mock(conda=None)
+
+        env = {
+            'READTHEDOCS': True,
+            'READTHEDOCS_VERSION': version.slug,
+            'READTHEDOCS_PROJECT': project.slug,
+            'BIN_PATH': os.path.join(
+                project.doc_path,
+                'envs',
+                version.slug,
+                'bin',
+            ),
+            'TOKEN': 'a1b2c3',
+        }
+        self.assertEqual(task.get_env_vars(), env)
+
+        # mock this object to make sure that we are in a conda env
+        task.config = mock.Mock(conda=True)
+        env.update({
+            'CONDA_ENVS_PATH': os.path.join(project.doc_path, 'conda'),
+            'CONDA_DEFAULT_ENV': version.slug,
+            'BIN_PATH': os.path.join(
+                project.doc_path,
+                'conda',
+                version.slug,
+                'bin',
+            ),
+        })
+        self.assertEqual(task.get_env_vars(), env)
 
 
 class BuildModelTests(TestCase):

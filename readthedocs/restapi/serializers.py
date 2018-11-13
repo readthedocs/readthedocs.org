@@ -43,11 +43,6 @@ class ProjectAdminSerializer(ProjectSerializer):
         slug_field='feature_id',
     )
 
-    show_advertising = serializers.SerializerMethodField()
-
-    def get_show_advertising(self, obj):
-        return obj.show_advertising
-
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
             'enable_epub_build',
@@ -68,6 +63,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_clone',
             'has_valid_webhook',
             'show_advertising',
+            'environment_variables',
         )
 
 

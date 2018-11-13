@@ -548,7 +548,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if build_pk:
             build = api_v2.build(build_pk).get()
         private_keys = [
-            'project', 'version', 'resource_uri', 'absolute_uri'
+            'project', 'version', 'resource_uri', 'absolute_uri',
         ]
         return {
             key: val
@@ -605,7 +605,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         env = {
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug
+            'READTHEDOCS_PROJECT': self.project.slug,
         }
 
         if self.config.conda is not None:
@@ -616,7 +616,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.project.doc_path,
                     'conda',
                     self.version.slug,
-                    'bin'
+                    'bin',
                 ),
             })
         else:
@@ -625,9 +625,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.project.doc_path,
                     'envs',
                     self.version.slug,
-                    'bin'
+                    'bin',
                 ),
             })
+
+        # Update environment from Project's specific environment variables
+        env.update(self.project.environment_variables)
 
         return env
 
