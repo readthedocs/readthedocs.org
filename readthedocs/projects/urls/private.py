@@ -1,18 +1,38 @@
-"""Project URLs for authenticated users"""
+"""Project URLs for authenticated users."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
+from readthedocs.projects.backends.views import ImportDemoView, ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
-    ProjectDashboard, ImportView,
-    ProjectUpdate, ProjectAdvancedUpdate,
-    DomainList, DomainCreate, DomainDelete, DomainUpdate,
-    IntegrationList, IntegrationCreate, IntegrationDetail, IntegrationDelete,
-    IntegrationExchangeDetail, IntegrationWebhookSync, ProjectAdvertisingUpdate)
-from readthedocs.projects.backends.views import ImportWizardView, ImportDemoView
-
+    DomainCreate,
+    DomainDelete,
+    DomainList,
+    DomainUpdate,
+    EnvironmentVariableCreate,
+    EnvironmentVariableDelete,
+    EnvironmentVariableList,
+    EnvironmentVariableUpdate,
+    ImportView,
+    IntegrationCreate,
+    IntegrationDelete,
+    IntegrationDetail,
+    IntegrationExchangeDetail,
+    IntegrationList,
+    IntegrationWebhookSync,
+    ProjectAdvancedUpdate,
+    ProjectAdvertisingUpdate,
+    ProjectDashboard,
+    ProjectUpdate,
+)
 
 urlpatterns = [
     url(r'^$',
@@ -171,3 +191,20 @@ subproject_urls = [
 ]
 
 urlpatterns += subproject_urls
+
+environmentvariable_urls = [
+    url(r'^(?P<project_slug>[-\w]+)/environmentvariables/$',
+        EnvironmentVariableList.as_view(),
+        name='projects_environmentvariables'),
+    url(r'^(?P<project_slug>[-\w]+)/environmentvariables/create/$',
+        EnvironmentVariableCreate.as_view(),
+        name='projects_environmentvariables_create'),
+    url(r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/edit/$',
+        EnvironmentVariableUpdate.as_view(),
+        name='projects_environmentvariables_edit'),
+    url(r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',
+        EnvironmentVariableDelete.as_view(),
+        name='projects_environmentvariables_delete'),
+]
+
+urlpatterns += environmentvariable_urls

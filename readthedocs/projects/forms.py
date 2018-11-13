@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project forms."""
 
 from __future__ import (
@@ -27,18 +28,17 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
+    EnvironmentVariable,
     Feature,
     Project,
     ProjectRelationship,
     WebHook,
 )
 from readthedocs.redirects.models import Redirect
-
 
 class ProjectForm(forms.ModelForm):
 
@@ -758,3 +758,41 @@ class FeatureForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FeatureForm, self).__init__(*args, **kwargs)
         self.fields['feature_id'].choices = Feature.FEATURES
+
+
+class EnvironmentVariableForm(forms.ModelForm):
+
+    """
+    Form to add an EnvironmentVariable to a Project.
+
+    This limits the name of the variable.
+    """
+
+    project = forms.CharField(widget=forms.HiddenInput(), required=True)
+
+    class Meta(object):
+        model = EnvironmentVariable
+        fields = ('name', 'value', 'project')
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(EnvironmentVariableForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        return self.project
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if name.startswith('__'):
+            raise forms.ValidationError(
+                _("Variable name can't start with __ (double underscore)"),
+            )
+        elif name.startswith('READTHEDOCS'):
+            raise forms.ValidationError(
+                _("Variable name can't start with READTHEDOCS"),
+            )
+        elif self.project.environmentvariable_set.filter(name=name).exists():
+            raise forms.ValidationError(
+                _('There is already a variable with this name for this project'),
+            )
+        return name
