@@ -74,9 +74,10 @@ class TestGitBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
-    def test_git_update(self):
+    def test_git_update_and_checkout(self):
         repo = self.project.vcs_repo()
         repo.update()
+        repo.checkout()
         self.assertTrue(exists(repo.working_dir))
 
     def test_git_tags(self):
