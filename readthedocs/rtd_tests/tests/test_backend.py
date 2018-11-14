@@ -76,9 +76,9 @@ class TestGitBackend(RTDTestCase):
 
     def test_git_update_and_checkout(self):
         repo = self.project.vcs_repo()
-        code, *_ = repo.update()
+        code, _, _ = repo.update()
         self.assertEqual(code, 0)
-        code, *_ = repo.checkout()
+        code, _, _ = repo.checkout()
         self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
@@ -210,9 +210,9 @@ class TestHgBackend(RTDTestCase):
 
     def test_update_and_checkout(self):
         repo = self.project.vcs_repo()
-        code, *_ = repo.update()
+        code, _, _ = repo.update()
         self.assertEqual(code, 0)
-        code, *_ = repo.checkout()
+        code, _, _ = repo.checkout()
         self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
