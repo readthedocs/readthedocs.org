@@ -24,9 +24,8 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         retcode = self.run('bzr', 'status', record=False)[0]
         if retcode == 0:
-            self.up()
-        else:
-            self.clone()
+            return self.up()
+        return self.clone()
 
     def up(self):
         retcode = self.run('bzr', 'revert')[0]

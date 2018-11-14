@@ -104,9 +104,4 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         if not identifier:
             identifier = 'tip'
-        retcode = self.run('hg', 'status', record=False)[0]
-        if retcode == 0:
-            self.run('hg', 'pull')
-        else:
-            self.clone()
         return self.run('hg', 'update', '--clean', identifier)
