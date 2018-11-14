@@ -13,6 +13,7 @@ import logging
 
 import requests
 from django.conf import settings
+from requests.packages.urllib3.util.retry import Retry
 from requests_toolbelt.adapters import host_header_ssl
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
@@ -44,9 +45,21 @@ def setup_api():
     else:
         adapter_class = requests.adapters.HTTPAdapter
 
+    # Define a retry mechanism trying to attempt to not fail in the first
+    # error. Builders hit this issue frequently because the webs are high loaded
+    retry = Retry(
+        total=3,
+        read=3,
+        connect=3,
+        status=3,
+        backoff_factor=0.5,  # 0.5, 1, 2 seconds
+        method_whitelist=('GET', 'PUT', 'PATCH', 'POST'),
+        status_forcelist=(408, 413, 429, 500, 502, 503, 504),
+    )
+
     session.mount(
         API_HOST,
-        adapter_class(max_retries=3),
+        adapter_class(max_retries=retry),
     )
     session.headers.update({'Host': PRODUCTION_DOMAIN})
     api_config = {
