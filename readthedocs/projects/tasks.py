@@ -25,6 +25,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import (
@@ -55,7 +56,7 @@ from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, Feature, ImportedFile, Project
+from .models import Domain, ImportedFile, Project
 from .signals import (
     after_build, after_vcs, before_build, before_vcs, files_changed)
 
@@ -218,10 +219,24 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         except RepositoryError:
             # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
+        except vcs_support_utils.LockTimeout:
+            log.info(
+                'Lock still active: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
+
             )
         return False
 
@@ -405,8 +420,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 raise YAMLParseError(
                     YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
                         exception=str(e),
-                    ))
+                    )
+                )
 
+            self.save_build_config()
             self.additional_vcs_operations()
 
         if self.setup_env.failure or self.config is None:
@@ -419,10 +436,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 msg=msg,
             ))
 
-            # Send notification to users only if the build didn't fail because of
-            # LockTimeout: this exception occurs when a build is triggered before the previous
-            # one has finished (e.g. two webhooks, one after the other)
-            if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
+            # Send notification to users only if the build didn't fail because
+            # of VersionLockedError: this exception occurs when a build is
+            # triggered before the previous one has finished (e.g. two webhooks,
+            # one after the other)
+            if not isinstance(self.setup_env.failure, VersionLockedError):
                 self.send_notifications()
 
             return False
@@ -529,9 +547,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         build = {}
         if build_pk:
             build = api_v2.build(build_pk).get()
-        return dict((key, val) for (key, val) in list(build.items())
-                    if key not in ['project', 'version', 'resource_uri',
-                                   'absolute_uri'])
+        private_keys = [
+            'project', 'version', 'resource_uri', 'absolute_uri',
+        ]
+        return {
+            key: val
+            for key, val in build.items()
+            if key not in private_keys
+        }
 
     def setup_vcs(self):
         """
@@ -548,7 +571,31 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             version=self.version.slug,
             msg='Updating docs from VCS',
         ))
-        self.sync_repo()
+        try:
+            self.sync_repo()
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
+        except vcs_support_utils.LockTimeout:
+            log.info(
+                'Lock still active: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
+        except Exception:
+            # Catch unhandled errors when syncing
+            log.exception(
+                'An unhandled exception was raised during VCS syncing',
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'build': self.build['id'],
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
+            )
+
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
@@ -558,7 +605,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         env = {
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug
+            'READTHEDOCS_PROJECT': self.project.slug,
         }
 
         if self.config.conda is not None:
@@ -569,7 +616,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.project.doc_path,
                     'conda',
                     self.version.slug,
-                    'bin'
+                    'bin',
                 ),
             })
         else:
@@ -578,9 +625,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.project.doc_path,
                     'envs',
                     self.version.slug,
-                    'bin'
+                    'bin',
                 ),
             })
+
+        # Update environment from Project's specific environment variables
+        env.update(self.project.environment_variables)
 
         return env
 
@@ -591,6 +641,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
+
+    def save_build_config(self):
+        """Save config in the build object."""
+        pk = self.build['id']
+        config = self.config.as_dict()
+        api_v2.build(pk).patch({
+            'config': config,
+        })
+        self.build['config'] = config
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
@@ -605,7 +664,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
-                    'active': True,
                     'built': True,
                 })
         except HttpClientError:
@@ -1279,7 +1337,7 @@ def finish_inactive_builds():
     time_limit = int(DOCKER_LIMITS['time'] * 1.2)
     delta = datetime.timedelta(seconds=time_limit)
     query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=datetime.datetime.now() - delta))
+             Q(date__lte=timezone.now() - delta))
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
@@ -1289,7 +1347,7 @@ def finish_inactive_builds():
             custom_delta = datetime.timedelta(
                 seconds=int(build.project.container_time_limit),
             )
-            if build.date + custom_delta > datetime.datetime.now():
+            if build.date + custom_delta > timezone.now():
                 # Do not mark as FINISHED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
                 continue

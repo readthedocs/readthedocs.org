@@ -1,21 +1,33 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
+import os
 from os.path import exists
+from tempfile import mkdtemp
 
 import django_dynamic_fixture as fixture
 import pytest
 from django.contrib.auth.models import User
-from mock import Mock
+from mock import Mock, patch
 
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.utils import (
-    create_git_tag, make_test_git, make_test_hg)
+    create_git_branch,
+    create_git_tag,
+    delete_git_branch,
+    delete_git_tag,
+    make_test_git,
+    make_test_hg,
+)
 
 
 class TestGitBackend(RTDTestCase):
@@ -117,6 +129,51 @@ class TestGitBackend(RTDTestCase):
         with self.assertRaises(RepositoryError) as e:
             repo.checkout('invalidsubmodule')
             self.assertEqual(e.msg, RepositoryError.INVALID_SUBMODULES)
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_fetch_clean_tags_and_branches(self, checkout_path):
+        upstream_repo = self.project.repo
+        create_git_tag(upstream_repo, 'v01')
+        create_git_tag(upstream_repo, 'v02')
+        create_git_branch(upstream_repo, 'newbranch')
+
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
+        repo = self.project.vcs_repo()
+        repo.clone()
+
+        delete_git_tag(upstream_repo, 'v02')
+        delete_git_branch(upstream_repo, 'newbranch')
+
+        # We still have all branches and tags in the local repo
+        self.assertEqual(
+            set(['v01', 'v02']),
+            set(vcs.verbose_name for vcs in repo.tags)
+        )
+        self.assertEqual(
+            set([
+                'relativesubmodule', 'invalidsubmodule',
+                'master', 'submodule', 'newbranch',
+            ]),
+            set(vcs.verbose_name for vcs in repo.branches)
+        )
+
+        repo.checkout()
+
+        # We don't have the eliminated branches and tags in the local repo
+        self.assertEqual(
+            set(['v01']),
+            set(vcs.verbose_name for vcs in repo.tags)
+        )
+        self.assertEqual(
+            set([
+                'relativesubmodule', 'invalidsubmodule',
+                'master', 'submodule'
+            ]),
+            set(vcs.verbose_name for vcs in repo.branches)
+        )
 
 
 class TestHgBackend(RTDTestCase):

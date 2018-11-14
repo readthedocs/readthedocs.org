@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Common utilty functions."""
 
 from __future__ import absolute_import
@@ -14,12 +15,10 @@ from django.utils import six
 from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
-from future.backports.urllib.parse import urlparse
 from celery import group, chord
 
 from readthedocs.builds.constants import LATEST, BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-
 
 log = logging.getLogger(__name__)
 
@@ -40,9 +39,9 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         kwargs = {}
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
     if type in ['web', 'app']:
-        servers = getattr(settings, "MULTIPLE_APP_SERVERS", [default_queue])
+        servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [default_queue])
     elif type in ['build']:
-        servers = getattr(settings, "MULTIPLE_BUILD_SERVERS", [default_queue])
+        servers = getattr(settings, 'MULTIPLE_BUILD_SERVERS', [default_queue])
 
     tasks = []
     for server in servers:
@@ -71,7 +70,12 @@ def cname_to_slug(host):
 
 
 def prepare_build(
-        project, version=None, record=True, force=False, immutable=True):
+        project,
+        version=None,
+        record=True,
+        force=False,
+        immutable=True,
+):
     """
     Prepare a build in a Celery task for project and version.
 
@@ -132,11 +136,14 @@ def prepare_build(
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
-    return update_docs_task.signature(
-        args=(project.pk,),
-        kwargs=kwargs,
-        options=options,
-        immutable=True,
+    return (
+        update_docs_task.signature(
+            args=(project.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        ),
+        build,
     )
 
 
@@ -151,9 +158,9 @@ def trigger_build(project, version=None, record=True, force=False):
     :param version: version of the project to be built. Default: ``latest``
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
-    :returns: Celery AsyncResult promise
+    :returns: A tuple (Celery AsyncResult promise, Task Signature from ``prepare_build``)
     """
-    update_docs_task = prepare_build(
+    update_docs_task, build = prepare_build(
         project,
         version,
         record,
@@ -165,11 +172,13 @@ def trigger_build(project, version=None, record=True, force=False):
         # Current project is skipped
         return None
 
-    return update_docs_task.apply_async()
+    return (update_docs_task.apply_async(), build)
 
 
-def send_email(recipient, subject, template, template_html, context=None,
-               request=None, from_email=None, **kwargs):  # pylint: disable=unused-argument
+def send_email(
+        recipient, subject, template, template_html, context=None, request=None,
+        from_email=None, **kwargs
+):  # pylint: disable=unused-argument
     """
     Alter context passed in and call email send task.
 
@@ -183,10 +192,14 @@ def send_email(recipient, subject, template, template_html, context=None,
     if context is None:
         context = {}
     context['uri'] = '{scheme}://{host}'.format(
-        scheme='https', host=settings.PRODUCTION_DOMAIN)
-    send_email_task.delay(recipient=recipient, subject=subject, template=template,
-                          template_html=template_html, context=context, from_email=from_email,
-                          **kwargs)
+        scheme='https',
+        host=settings.PRODUCTION_DOMAIN,
+    )
+    send_email_task.delay(
+        recipient=recipient, subject=subject, template=template,
+        template_html=template_html, context=context, from_email=from_email,
+        **kwargs
+    )
 
 
 def slugify(value, *args, **kwargs):

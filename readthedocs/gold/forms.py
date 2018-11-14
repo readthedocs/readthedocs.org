@@ -50,13 +50,20 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
         subscription = self.get_subscription()
         self.instance.stripe_id = subscription.customer
         self.instance.subscribed = True
+        self.instance.business_vat_id = self.cleaned_data['business_vat_id']
 
     def get_customer_kwargs(self):
-        return {
+        data = {
             'description': self.customer.get_full_name() or self.customer.username,
             'email': self.customer.email,
-            'id': self.instance.stripe_id or None
+            'id': self.instance.stripe_id or None,
         }
+        business_vat_id = self.cleaned_data.get('business_vat_id')
+        if business_vat_id:
+            data.update({
+                'business_vat_id': self.cleaned_data['business_vat_id'],
+            })
+        return data
 
     def get_subscription(self):
         customer = self.get_customer()
@@ -82,15 +89,21 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
 
 class GoldProjectForm(forms.Form):
-    project = forms.CharField(
+    project = forms.ChoiceField(
         required=True,
-        help_text='Enter the project\'s slug'
+        help_text='Select a project.'
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, active_user, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.projects = kwargs.pop('projects', None)
         super(GoldProjectForm, self).__init__(*args, **kwargs)
+        self.fields['project'].choices = self.generate_choices(active_user)
+
+    def generate_choices(self, active_user):
+        queryset = Project.objects.filter(users=active_user)
+        choices = ((proj.slug, str(proj)) for proj in queryset)
+        return choices
 
     def clean_project(self):
         project_slug = self.cleaned_data.get('project', '')

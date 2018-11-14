@@ -2,36 +2,57 @@
 """Models for the builds app."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import os.path
 import re
-from builtins import object
 from shutil import rmtree
 
+from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
+from jsonfield import JSONField
 from taggit.managers import TaggableManager
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
-    BITBUCKET_URL, GITHUB_URL, GITLAB_URL, PRIVACY_CHOICES, PRIVATE)
+    BITBUCKET_URL,
+    GITHUB_URL,
+    GITLAB_URL,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
 from readthedocs.projects.models import APIProject, Project
 
 from .constants import (
-    BRANCH, BUILD_STATE, BUILD_STATE_FINISHED, BUILD_TYPES, LATEST,
-    NON_REPOSITORY_VERSIONS, STABLE, TAG, VERSION_TYPES)
+    BRANCH,
+    BUILD_STATE,
+    BUILD_STATE_FINISHED,
+    BUILD_TYPES,
+    LATEST,
+    NON_REPOSITORY_VERSIONS,
+    STABLE,
+    TAG,
+    VERSION_TYPES,
+)
 from .managers import VersionManager
 from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .utils import (
-    get_bitbucket_username_repo, get_github_username_repo,
-    get_gitlab_username_repo)
+    get_bitbucket_username_repo,
+    get_github_username_repo,
+    get_gitlab_username_repo,
+)
 from .version_slug import VersionSlugField
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
@@ -108,6 +129,21 @@ class Version(models.Model):
                 project=self.project,
                 pk=self.pk,
             ))
+
+    @property
+    def config(self):
+        """
+        Proxy to the configuration of the build.
+
+        :returns: The configuration used in the last successful build.
+        :rtype: dict
+        """
+        last_build = (
+            self.builds.filter(state='finished', success=True)
+            .order_by('-date')
+            .first()
+        )
+        return last_build.config
 
     @property
     def commit_name(self):
@@ -192,6 +228,10 @@ class Version(models.Model):
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
+
+    @property
+    def is_editable(self):
+        return self.type == BRANCH
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
@@ -427,6 +467,7 @@ class Build(models.Model):
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(
         _('Commit'), max_length=255, null=True, blank=True)
+    _config = JSONField(_('Configuration used in the build'), default=dict)
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
@@ -440,10 +481,80 @@ class Build(models.Model):
 
     objects = BuildQuerySet.as_manager()
 
+    CONFIG_KEY = '__config'
+
     class Meta(object):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [['version', 'state', 'type']]
+
+    def __init__(self, *args, **kwargs):
+        super(Build, self).__init__(*args, **kwargs)
+        self._config_changed = False
+
+    @property
+    def previous(self):
+        """
+        Returns the previous build to the current one.
+
+        Matching the project and version.
+        """
+        date = self.date or timezone.now()
+        if self.project is not None and self.version is not None:
+            return (
+                Build.objects
+                .filter(
+                    project=self.project,
+                    version=self.version,
+                    date__lt=date,
+                )
+                .order_by('-date')
+                .first()
+            )
+        return None
+
+    @property
+    def config(self):
+        """
+        Get the config used for this build.
+
+        Since we are saving the config into the JSON field only when it differs
+        from the previous one, this helper returns the correct JSON used in
+        this Build object (it could be stored in this object or one of the
+        previous ones).
+        """
+        if self.CONFIG_KEY in self._config:
+            return Build.objects.get(pk=self._config[self.CONFIG_KEY])._config
+        return self._config
+
+    @config.setter
+    def config(self, value):
+        """
+        Set `_config` to value.
+
+        `_config` should never be set directly from outside the class.
+        """
+        self._config = value
+        self._config_changed = True
+
+    def save(self, *args, **kwargs):  # noqa
+        """
+        Save object.
+
+        To save space on the db we only save the config if it's different
+        from the previous one.
+
+        If the config is the same, we save the pk of the object
+        that has the **real** config under the `CONFIG_KEY` key.
+        """
+        if self.pk is None or self._config_changed:
+            previous = self.previous
+            if (previous is not None and
+                    self._config and self._config == previous.config):
+                previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
+                self._config = {self.CONFIG_KEY: previous_pk}
+        super(Build, self).save(*args, **kwargs)
+        self._config_changed = False
 
     def __str__(self):
         return ugettext(
