@@ -835,10 +835,9 @@ def test_as_dict(tmpdir):
         'formats': ['pdf'],
         'python': {
             'version': 3.5,
-            'requirements': 'requirements.txt',
-            'install_with_pip': False,
-            'install_with_setup': False,
-            'extra_requirements': [],
+            'install': [{
+                'requirements': str(tmpdir.join('requirements.txt')),
+            }],
             'use_system_site_packages': False,
         },
         'build': {
@@ -2091,7 +2090,9 @@ class TestBuildConfigV2(object):
                 'formats': ['pdf'],
                 'python': {
                     'version': 3.6,
-                    'requirements': 'requirements.txt',
+                    'install': [{
+                        'requirements': 'requirements.txt',
+                    }],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -2102,10 +2103,9 @@ class TestBuildConfigV2(object):
             'formats': ['pdf'],
             'python': {
                 'version': 3.6,
-                'requirements': str(tmpdir.join('requirements.txt')),
-                'install_with_pip': False,
-                'install_with_setup': False,
-                'extra_requirements': [],
+                'install': [{
+                    'requirements': str(tmpdir.join('requirements.txt')),
+                }],
                 'use_system_site_packages': False,
             },
             'build': {

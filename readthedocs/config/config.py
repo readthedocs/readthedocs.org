@@ -270,11 +270,23 @@ class BuildConfigBase(object):
         config = {}
         for name in self.PUBLIC_ATTRIBUTES:
             attr = getattr(self, name)
-            if hasattr(attr, '_asdict'):
-                config[name] = attr._asdict()
-            else:
-                config[name] = attr
+            config[name] = self.to_dict(attr)
         return config
+
+    def to_dict(self, value):
+        if hasattr(value, 'as_dict'):
+            return value.as_dict()
+        if isinstance(value, list):
+            return [
+                self.to_dict(e)
+                for e in value
+            ]
+        if isinstance(value, dict):
+            return {
+                k: self.to_dict(v)
+                for k, v in value.items()
+            }
+        return value
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
