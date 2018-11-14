@@ -182,6 +182,7 @@ class TestGitBackend(RTDTestCase):
 
 
 class TestHgBackend(RTDTestCase):
+
     def setUp(self):
         hg_repo = make_test_hg()
         super(TestHgBackend, self).setUp()
@@ -189,9 +190,9 @@ class TestHgBackend(RTDTestCase):
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="hg",
-            #Our top-level checkout
+            name='Test Project',
+            repo_type='hg',
+            # Our top-level checkout
             repo=hg_repo
         )
         self.project.users.add(self.eric)
@@ -207,9 +208,12 @@ class TestHgBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
-    def test_checkout(self):
+    def test_update_and_checkout(self):
         repo = self.project.vcs_repo()
-        repo.checkout()
+        code, *_ = repo.update()
+        self.assertEqual(code, 0)
+        code, *_ = repo.checkout()
+        self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
     def test_parse_tags(self):
