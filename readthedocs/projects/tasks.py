@@ -7,7 +7,11 @@ rebuilding documentation.
 """
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import datetime
 import hashlib
@@ -24,27 +28,39 @@ from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
-    BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
+    BUILD_STATE_BUILDING,
+    BUILD_STATE_CLONING,
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_INSTALLING,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+)
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast, safe_unlink
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.core.utils import broadcast, safe_unlink, send_email
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
-    DockerBuildEnvironment, LocalBuildEnvironment)
+    DockerBuildEnvironment,
+    LocalBuildEnvironment,
+)
 from readthedocs.doc_builder.exceptions import (
-    BuildEnvironmentError, BuildTimeoutError, ProjectBuildsSkippedError,
-    VersionLockedError, YAMLParseError)
+    BuildEnvironmentError,
+    BuildTimeoutError,
+    ProjectBuildsSkippedError,
+    VersionLockedError,
+    YAMLParseError,
+)
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject
@@ -58,7 +74,12 @@ from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
 from .models import Domain, ImportedFile, Project
 from .signals import (
-    after_build, after_vcs, before_build, before_vcs, files_changed)
+    after_build,
+    after_vcs,
+    before_build,
+    before_vcs,
+    files_changed,
+)
 
 log = logging.getLogger(__name__)
 

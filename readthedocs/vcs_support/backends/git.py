@@ -2,7 +2,11 @@
 """Git-related utilities."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import csv
 import logging
