@@ -74,9 +74,9 @@ class TestGitBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
-    def test_git_checkout(self):
+    def test_git_update(self):
         repo = self.project.vcs_repo()
-        repo.checkout()
+        repo.update()
         self.assertTrue(exists(repo.working_dir))
 
     def test_git_tags(self):
@@ -96,7 +96,7 @@ class TestGitBackend(RTDTestCase):
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo()
 
-        repo.checkout()
+        repo.update()
         self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
         # The submodule branch contains one submodule
@@ -105,6 +105,7 @@ class TestGitBackend(RTDTestCase):
 
     def test_skip_submodule_checkout(self):
         repo = self.project.vcs_repo()
+        repo.update()
         repo.checkout('submodule')
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
         feature = fixture.get(
@@ -117,6 +118,7 @@ class TestGitBackend(RTDTestCase):
 
     def test_check_submodule_urls(self):
         repo = self.project.vcs_repo()
+        repo.update()
         repo.checkout('submodule')
         valid, _ = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
@@ -160,7 +162,7 @@ class TestGitBackend(RTDTestCase):
             set(vcs.verbose_name for vcs in repo.branches)
         )
 
-        repo.checkout()
+        repo.update()
 
         # We don't have the eliminated branches and tags in the local repo
         self.assertEqual(

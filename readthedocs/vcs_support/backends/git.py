@@ -144,9 +144,7 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self):
-        """
-        Clone the repository.
-        """
+        """Clones the repository."""
         code, stdout, stderr = self.run(
             'git', 'clone', self.repo_url, '.'
         )
