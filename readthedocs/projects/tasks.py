@@ -128,37 +128,48 @@ class SyncRepositoryMixin(object):
                     msg=msg,
                 ))
                 version_repo = self.get_vcs_repo()
+                version_repo.update()
+                self.sync_versions(version_repo)
                 version_repo.checkout(self.version.identifier)
             finally:
                 after_vcs.send(sender=self.version)
 
-            # Update tags/version
-            version_post_data = {'repo': version_repo.repo_url}
+    def sync_versions(self, version_repo):
+        """
+        Update tags/branches hitting the API.
 
-            if version_repo.supports_tags:
-                version_post_data['tags'] = [
-                    {'identifier': v.identifier,
-                     'verbose_name': v.verbose_name,
-                     } for v in version_repo.tags
-                ]
+        It may trigger a new build.
+        """
+        version_post_data = {'repo': version_repo.repo_url}
 
-            if version_repo.supports_branches:
-                version_post_data['branches'] = [
-                    {'identifier': v.identifier,
-                     'verbose_name': v.verbose_name,
-                     } for v in version_repo.branches
-                ]
+        if version_repo.supports_tags:
+            version_post_data['tags'] = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in version_repo.tags
+            ]
 
-            self.validate_duplicate_reserved_versions(version_post_data)
+        if version_repo.supports_branches:
+            version_post_data['branches'] = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in version_repo.branches
+            ]
 
-            try:
-                # Hit the API ``sync_versions`` which may trigger a new build
-                # for the stable version
-                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
-            except HttpClientError:
-                log.exception('Sync Versions Exception')
-            except Exception:
-                log.exception('Unknown Sync Versions Exception')
+        self.validate_duplicate_reserved_versions(version_post_data)
+
+        try:
+            api_v2.project(self.project.pk).sync_versions.post(
+                version_post_data
+            )
+        except HttpClientError:
+            log.exception('Sync Versions Exception')
+        except Exception:
+            log.exception('Unknown Sync Versions Exception')
 
     def validate_duplicate_reserved_versions(self, data):
         """
