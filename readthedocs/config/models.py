@@ -2,6 +2,8 @@
 
 from __future__ import division, print_function, unicode_literals
 
+from readthedocs.config.utils import to_dict
+
 
 class Base(object):
 
@@ -18,25 +20,9 @@ class Base(object):
 
     def as_dict(self):
         return {
-            name: self.to_dict(getattr(self, name))
+            name: to_dict(getattr(self, name))
             for name in self.__slots__
         }
-
-    def to_dict(self, value):
-        """Recursively transform the class to a dict."""
-        if hasattr(value, 'as_dict'):
-            return value.as_dict()
-        if isinstance(value, list):
-            return [
-                self.to_dict(e)
-                for e in value
-            ]
-        if isinstance(value, dict):
-            return {
-                k: self.to_dict(v)
-                for k, v in value.items()
-            }
-        return value
 
 
 class Build(Base):
