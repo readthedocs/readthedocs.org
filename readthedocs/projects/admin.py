@@ -1,21 +1,35 @@
+# -*- coding: utf-8 -*-
 """Django administration interface for `projects.models`"""
 
-from __future__ import absolute_import
-from django.contrib import admin
-from django.contrib import messages
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
+from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
+from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
-from readthedocs.builds.models import Version
-from readthedocs.redirects.models import Redirect
 from readthedocs.notifications.views import SendNotificationView
+from readthedocs.redirects.models import Redirect
 
 from .forms import FeatureForm
-from .models import (Project, ImportedFile, Feature,
-                     ProjectRelationship, EmailHook, WebHook, Domain)
+from .models import (
+    Domain,
+    EmailHook,
+    EnvironmentVariable,
+    Feature,
+    ImportedFile,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from .notifications import ResourceUsageNotification
 from .tasks import remove_dir
 
@@ -202,7 +216,14 @@ class FeatureAdmin(admin.ModelAdmin):
         return feature.projects.count()
 
 
+class EnvironmentVariableAdmin(admin.ModelAdmin):
+    model = EnvironmentVariable
+    list_display = ('name', 'value', 'project', 'created')
+    search_fields = ('name', 'project__slug')
+
+
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(EnvironmentVariable, EnvironmentVariableAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)

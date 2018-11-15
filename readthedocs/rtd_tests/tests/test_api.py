@@ -26,7 +26,12 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import APIProject, Feature, Project
+from readthedocs.projects.models import (
+    APIProject,
+    EnvironmentVariable,
+    Feature,
+    Project,
+)
 from readthedocs.restapi.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
@@ -712,6 +717,27 @@ class APITests(TestCase):
         self.assertEqual(len(resp.data['results']), 25)  # page_size
         self.assertIn('?page=2', resp.data['next'])
 
+    def test_project_environment_variables(self):
+        user = get(User, is_staff=True)
+        project = get(Project, main_language_project=None)
+        get(
+            EnvironmentVariable,
+            name='TOKEN',
+            value='a1b2c3',
+            project=project,
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('environment_variables', resp.data)
+        self.assertEqual(
+            resp.data['environment_variables'],
+            {'TOKEN': 'a1b2c3'},
+        )
+
     def test_init_api_project(self):
         project_data = {
             'name': 'Test Project',
@@ -724,13 +750,16 @@ class APITests(TestCase):
         self.assertEqual(api_project.features, [])
         self.assertFalse(api_project.ad_free)
         self.assertTrue(api_project.show_advertising)
+        self.assertEqual(api_project.environment_variables, {})
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
+        project_data['environment_variables'] = {'TOKEN': 'a1b2c3'}
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.features, ['test-feature'])
         self.assertTrue(api_project.ad_free)
         self.assertFalse(api_project.show_advertising)
+        self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
 
 
 class APIImportTests(TestCase):
@@ -1414,6 +1443,7 @@ class APIVersionTests(TestCase):
                 'default_version': 'latest',
                 'description': '',
                 'documentation_type': 'sphinx',
+                'environment_variables': {},
                 'enable_epub_build': True,
                 'enable_pdf_build': True,
                 'features': ['allow_deprecated_webhooks'],
