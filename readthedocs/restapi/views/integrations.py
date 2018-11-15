@@ -160,6 +160,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
             "ref": "branch-name",
             ...
         }
+
+    See full payload here:
+
+    - https://developer.github.com/v3/activity/events/types/#pushevent
+    - https://developer.github.com/v3/activity/events/types/#createevent
+    - https://developer.github.com/v3/activity/events/types/#deleteevent
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
@@ -175,8 +181,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def handle_webhook(self):
         # Get event and trigger other webhook events
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
-        webhook_github.send(Project, project=self.project,
-                            data=self.data, event=event)
+        webhook_github.send(
+            Project,
+            project=self.project,
+            data=self.data,
+            event=event
+        )
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
             try:
@@ -203,16 +213,29 @@ class GitLabWebhookView(WebhookMixin, APIView):
     Expects the following JSON::
 
         {
+            "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
+            "after": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
             "object_kind": "push",
             "ref": "branch-name",
             ...
         }
+
+    See full payload here:
+
+    - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#push-events
+    - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#tag-events
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
 
     def handle_webhook(self):
-        # Get event and trigger other webhook events
+        """
+        Handle GitLab events for push and tag_push.
+
+        GitLab doesn't have a separate event for creation/deletion,
+        instead, it sets the before/after field to
+        0000000000000000000000000000000000000000 ('0' * 40)
+        """
         event = self.request.data.get('object_kind', GITLAB_PUSH)
         webhook_gitlab.send(
             Project,
@@ -257,18 +280,32 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                         "name": "branch-name",
                         ...
                     },
+                    "old" {
+                        "name": "branch-name",
+                        ...
+                    },
                     ...
                 }],
                 ...
             },
             ...
         }
+
+    See full payload here:
+
+    - https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-Push
     """
 
     integration_type = Integration.BITBUCKET_WEBHOOK
 
     def handle_webhook(self):
-        # Get event and trigger other webhook events
+        """
+        Handle BitBucket events for push.
+
+        BitBucket doesn't have a separate event for creation/deletion,
+        instead it sets the new attribute (null if it is a deletion)
+        and the old attribute (null if it is a creation).
+        """
         event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
         webhook_bitbucket.send(
             Project,
@@ -287,6 +324,10 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                     # Normal push to master
                     if old is not None and new is not None:
                         branches.append(new['name'])
+                # BitBuck returns an array of changes rather than
+                # one webhook per change. If we have at least one normal push
+                # we don't trigger the sync versions, because that
+                # will be triggered with the normal push.
                 if branches:
                     return self.get_response_push(self.project, branches)
                 return self.sync_versions(self.project)
