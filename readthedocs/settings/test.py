@@ -18,7 +18,7 @@ class CommunityTestSettings(CommunityDevSettings):
     TEMPLATE_DEBUG = False
     ES_PAGE_IGNORE_SIGNALS = False
     ELASTICSEARCH_DSL_AUTOSYNC = False
-    ELASTICSEARCH_DSL_AUTO_REFRESH = False
+    ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
     @property
     def ES_INDEXES(self):  # noqa - avoid pep8 N802
