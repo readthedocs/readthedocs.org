@@ -343,18 +343,23 @@ class CommunityBaseSettings(Settings):
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 5,
+            'settings': {'number_of_shards': 1,
                          'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 5,
-                'number_of_replicas': 1,
+                'number_of_shards': 3,
+                'number_of_replicas': 3,
+                "index": {
+                    "sort.field": ["project", "version"]
+                }
             }
         },
     }
+    # Disable auto refresh for increasing index performance
+    ELASTICSEARCH_DSL_AUTO_REFRESH = False
 
     ALLOWED_HOSTS = ['*']
 
