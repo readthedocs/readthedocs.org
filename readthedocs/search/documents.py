@@ -59,7 +59,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     title = fields.TextField(attr='processed_json.title')
     headers = fields.TextField(attr='processed_json.headers')
     content = fields.TextField(attr='processed_json.content')
-    path = fields.TextField(attr='processed_json.path')
+    path = fields.KeywordField(attr='processed_json.path')
 
     # Fields to perform search with weight
     search_fields = ['title^10', 'headers^5', 'content']
