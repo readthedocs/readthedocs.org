@@ -34,6 +34,18 @@ class UserProfileForm(forms.ModelForm):
         except AttributeError:
             pass
 
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
+        if not len(first_name) <= 30:
+            raise forms.ValidationError('Ensure that first name has at most 30 characters.')
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name')
+        if not len(last_name) <= 30:
+            raise forms.ValidationError('Ensure that last name has at most 30 characters.')
+        return last_name
+
     def save(self, commit=True):
         first_name = self.cleaned_data.pop('first_name', None)
         last_name = self.cleaned_data.pop('last_name', None)
