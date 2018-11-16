@@ -343,7 +343,7 @@ class CommunityBaseSettings(Settings):
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            # We do not have much data in the project node, therefore only 1 shard with
+            # We do not have much data in the project index, therefore only 1 shard with
             # 1 replica is appropriate project index
             'settings': {'number_of_shards': 1,
                          'number_of_replicas': 1
