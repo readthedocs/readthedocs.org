@@ -18,8 +18,8 @@ log = logging.getLogger(__name__)
 
 
 class UserProfileForm(forms.ModelForm):
-    first_name = CharField(label=_('First name'), required=False)
-    last_name = CharField(label=_('Last name'), required=False)
+    first_name = CharField(label=_('First name'), required=False, max_length=30)
+    last_name = CharField(label=_('Last name'), required=False, max_length=30)
 
     class Meta(object):
         model = UserProfile
@@ -33,18 +33,6 @@ class UserProfileForm(forms.ModelForm):
             self.fields['last_name'].initial = self.instance.user.last_name
         except AttributeError:
             pass
-
-    def clean_first_name(self):
-        first_name = self.cleaned_data.get('first_name')
-        if not len(first_name) <= 30:
-            raise forms.ValidationError('Ensure that first name has at most 30 characters.')
-        return first_name
-
-    def clean_last_name(self):
-        last_name = self.cleaned_data.get('last_name')
-        if not len(last_name) <= 30:
-            raise forms.ValidationError('Ensure that last name has at most 30 characters.')
-        return last_name
 
     def save(self, commit=True):
         first_name = self.cleaned_data.pop('first_name', None)
