@@ -57,10 +57,12 @@ class ProfileViewsTest(TestCase):
                 'homepage': long_homepage,
             }
         )
-        
-        self.assertFormError(resp, form='form', field='first_name', errors='Ensure this value has at most 30 characters (it has {}).'.format(len(long_first_name)))
-        self.assertFormError(resp, form='form', field='last_name', errors='Ensure this value has at most 30 characters (it has {}).'.format(len(long_last_name)))
-        self.assertFormError(resp, form='form', field='homepage', errors='Ensure this value has at most 100 characters (it has {}).'.format(len(long_homepage)))
+
+        FORM_ERROR_FORMAT = 'Ensure this value has at most {} characters (it has {}).'
+
+        self.assertFormError(resp, form='form', field='first_name', errors=FORM_ERROR_FORMAT.format(30, len(long_first_name)))
+        self.assertFormError(resp, form='form', field='last_name', errors=FORM_ERROR_FORMAT.format(30, len(long_last_name)))
+        self.assertFormError(resp, form='form', field='homepage', errors=FORM_ERROR_FORMAT.format(100, len(long_homepage)))
 
     def test_delete_account(self):
         resp = self.client.get(
