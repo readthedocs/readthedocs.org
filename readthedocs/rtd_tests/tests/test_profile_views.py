@@ -41,28 +41,20 @@ class ProfileViewsTest(TestCase):
         )
         self.assertTrue(resp.status_code, 200)
 
-        long_first_name = 'this-is-first_name-whose-length-is-greater-than-30'
-        long_last_name = 'this-is-last_name-whose-length-is-greater-than-30'
-        long_homepage = 'this-is-the-the-link-to-the-homepage-of-the-user-which-is-pretty-long-and-that-is-why-wrong-value.org'
-
-        self.assertTrue(len(long_first_name) > 30)
-        self.assertTrue(len(long_last_name) > 30)
-        self.assertTrue(len(long_homepage) > 100)
-
         resp = self.client.post(
             reverse('profiles_profile_edit'),
             data={
-                'first_name': long_first_name,
-                'last_name': long_last_name,
-                'homepage': long_homepage,
+                'first_name': 'a' * 31,
+                'last_name': 'b' * 31,
+                'homepage': 'c' * 101,
             }
         )
 
         FORM_ERROR_FORMAT = 'Ensure this value has at most {} characters (it has {}).'
 
-        self.assertFormError(resp, form='form', field='first_name', errors=FORM_ERROR_FORMAT.format(30, len(long_first_name)))
-        self.assertFormError(resp, form='form', field='last_name', errors=FORM_ERROR_FORMAT.format(30, len(long_last_name)))
-        self.assertFormError(resp, form='form', field='homepage', errors=FORM_ERROR_FORMAT.format(100, len(long_homepage)))
+        self.assertFormError(resp, form='form', field='first_name', errors=FORM_ERROR_FORMAT.format(30, 31))
+        self.assertFormError(resp, form='form', field='last_name', errors=FORM_ERROR_FORMAT.format(30, 31))
+        self.assertFormError(resp, form='form', field='homepage', errors=FORM_ERROR_FORMAT.format(100, 101))
 
     def test_delete_account(self):
         resp = self.client.get(
