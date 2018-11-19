@@ -3,6 +3,7 @@
 import logging
 
 from django.db.models import Q
+from django.http import HttpRequest
 
 from readthedocs.projects.models import Project
 from readthedocs.projects.notifications import DeprecatedWebhookEndpointNotification
@@ -14,22 +15,31 @@ def notify_deprecated_endpoint(function):
     """
     Decorator to notify owners that the endpoint is DEPRECATED.
     """
-    def wrap(request, *args, project_id_or_slug=None, **kwargs):
-        try:
-            project = Project.objects.get(
+    def wrap(*args, **kwargs):
+        # Called from ``generic_build``
+        project_id_or_slug = kwargs.get('project_id_or_slug')
+
+        if project_id_or_slug:
+            projects = Project.objects.filter(
                 Q(pk=project_id_or_slug) | Q(slug=project_id_or_slug),
             )
-        except (Project.DoesNotExist, ValueError):
-            log.info('Project not found: slug=%s', project_id_or_slug)
+        else:
+            # Called from ``_build_url``
+            projects = args[1]  # ``projects`` argument
 
-        # Send one notification to each owner of the project
-        for user in project.users.all():
-            notification = DeprecatedWebhookEndpointNotification(
-                project,
-                request,
-                user,
-            )
-            notification.send()
-        return function(request, *args, project_id_or_slug, **kwargs)
+        if projects:
+            for project in projects:
+                # Send one notification to each owner of the project
+                for user in project.users.all():
+                    notification = DeprecatedWebhookEndpointNotification(
+                        project,
+                        HttpRequest(),
+                        user,
+                    )
+                    notification.send()
+        else:
+            log.info('Projects not found when hitting deprecated webhook')
+
+        return function(*args, **kwargs)
 
     return wrap
