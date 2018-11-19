@@ -66,7 +66,7 @@ class DeprecatedWebhookEndpointNotification(Notification):
             extra_tags='email_delayed',
         )
 
-    def send(self, *args, **kwargs):
+    def send(self, *args, **kwargs):  # noqa
         if self.message.created + self.email_period < timezone.now():
             # Mark this instance to really send the email and rely on the
             # EmailBackend to effectively send the email
