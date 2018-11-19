@@ -159,7 +159,8 @@ class SyncRepositoryMixin(object):
         """
         Update tags/branches hitting the API.
 
-        It may trigger a new build.
+        It may trigger a new build to the stable version
+        when hittig the ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
 
