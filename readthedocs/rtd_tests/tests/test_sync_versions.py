@@ -651,6 +651,97 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(version_latest.machine)
 
+    def test_deletes_version_with_same_identifier(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'one',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # We only have one version with an identifier `1234`
+        self.assertEqual(
+            self.pip.versions.filter(identifier='1234').count(),
+            1
+        )
+
+        # We add a new tag with the same identifier
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'two',
+                },
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'one',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # We have two versions with an identifier `1234`
+        self.assertEqual(
+            self.pip.versions.filter(identifier='1234').count(),
+            2
+        )
+
+        # We delete one version with identifier `1234`
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'one',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # We have only one version with an identifier `1234`
+        self.assertEqual(
+            self.pip.versions.filter(identifier='1234').count(),
+            1
+        )
+
 
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
