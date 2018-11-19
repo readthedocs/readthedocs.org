@@ -2,16 +2,22 @@
 """Notification tests"""
 
 from __future__ import absolute_import
+from datetime import timedelta
 import mock
 import django_dynamic_fixture as fixture
+from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import User, AnonymousUser
+from django.utils import timezone
+from freezegun import freeze_time
 from messages_extends.models import Message as PersistentMessage
 
 from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.backends import EmailBackend, SiteBackend
 from readthedocs.notifications.constants import ERROR, INFO_NON_PERSISTENT, WARNING_NON_PERSISTENT
+from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import DeprecatedWebhookEndpointNotification
 from readthedocs.builds.models import Build
 
 
@@ -222,3 +228,92 @@ class SiteNotificationTests(TestCase):
         with mock.patch('readthedocs.notifications.notification.log') as mock_log:
             self.assertEqual(self.n.get_message(False), '')
             mock_log.error.assert_called_once()
+
+
+class DeprecatedWebhookEndpointNotificationTests(TestCase):
+
+    def setUp(self):
+        PersistentMessage.objects.all().delete()
+
+        self.project = fixture.get(Project)
+        self.user = fixture.get(User)
+        self.request = HttpRequest()
+
+        self.notification = DeprecatedWebhookEndpointNotification(
+            self.project,
+            self.request,
+            self.user,
+        )
+
+    def test_deduplication(self):
+        self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 1)
+        for x in range(5):
+            DeprecatedWebhookEndpointNotification(
+                self.project,
+                self.request,
+                self.user,
+            )
+        self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 1)
+        DeprecatedWebhookEndpointNotification(
+            self.project,
+            self.request,
+            fixture.get(User),
+        )
+        self.assertEqual(PersistentMessage.objects.count(), 2)
+        self.notification.message.extra_tags = 'email_sent'
+        self.notification.message.save()
+        DeprecatedWebhookEndpointNotification(
+            self.project,
+            self.request,
+            self.user,
+        )
+        self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 2)
+        self.assertEqual(PersistentMessage.objects.count(), 3)
+
+    @mock.patch('readthedocs.notifications.backends.send_email')
+    def test_send_email(self, send_email):
+        # After creating the notification object, ``send_email=True``
+        self.assertTrue(self.notification.send_email)
+
+        # Calling ``.send`` on this instance will send the email and the
+        # ``Message`` will stay in ``email_delayed`` status.
+        self.notification.send()
+        self.notification.message.refresh_from_db()
+        self.assertEqual(self.notification.message.extra_tags, 'email_delayed')
+        self.assertTrue(send_email.called)
+        send_email.reset_mock()
+
+        # Hit the endpoint twice
+        for x in range(2):
+            notification = DeprecatedWebhookEndpointNotification(
+                self.project,
+                self.request,
+                self.user,
+            )
+        # A SiteNotification is created after calling ``.send`` so we filter for
+        # the message also to be sure that no new notification was created
+        self.assertEqual(PersistentMessage.objects.filter(
+            user=self.user,
+            message__startswith=DeprecatedWebhookEndpointNotification.name).count(),
+            1,
+        )
+        self.assertFalse(notification.send_email)  # second notification
+        notification.send()
+        self.assertFalse(send_email.called)
+        self.assertEqual(notification.message.extra_tags, 'email_delayed')
+
+        # In 7 days, when the ``.send`` method is called from a new created
+        # instance, this method will send the email and mark this ``Message`` as
+        # ``email_sent``
+        with freeze_time(timezone.now() + timedelta(days=7)):
+            notification.send()
+
+        self.assertTrue(send_email.called)
+        self.assertEqual(notification.message.extra_tags, 'email_sent')
+        # A new Message object is created
+        self.assertEqual(PersistentMessage.objects.filter(
+            user=self.user,
+            message__startswith=DeprecatedWebhookEndpointNotification.name).count(),
+            2,
+        )
+        self.assertEqual(PersistentMessage.objects.last().extra_tags, 'email_delayed')

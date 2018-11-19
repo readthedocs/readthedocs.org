@@ -19,6 +19,8 @@ Mercurial==4.4.2
 yamale==1.8.0
 pytest-mock==1.10.0
 
+freezegun==0.3.11
+
 # local debugging tools
 datadiff
 ipdb
