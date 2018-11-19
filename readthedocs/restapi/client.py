@@ -13,7 +13,7 @@ import logging
 
 import requests
 from django.conf import settings
-from requests.packages.urllib3.util.retry import Retry
+from requests.packages.urllib3.util.retry import Retry  # noqa
 from requests_toolbelt.adapters import host_header_ssl
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
