@@ -14,6 +14,12 @@ log = logging.getLogger(__name__)
 def notify_deprecated_endpoint(function):
     """
     Decorator to notify owners that the endpoint is DEPRECATED.
+
+    .. note::
+
+        See the class ``DeprecatedWebhookEndpointNotification`` which contains
+        all the logic to send notification for this messages properly without
+        spamming.
     """
     def wrap(*args, **kwargs):
         # Called from ``generic_build``
