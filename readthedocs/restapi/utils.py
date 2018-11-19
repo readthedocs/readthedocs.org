@@ -2,16 +2,26 @@
 """Utility functions that are used by both views and celery tasks."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import hashlib
 import logging
 
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.builds.constants import (LATEST, LATEST_VERBOSE_NAME,
-                                          NON_REPOSITORY_VERSIONS, STABLE,
-                                          STABLE_VERBOSE_NAME)
+from readthedocs.builds.constants import (
+    BRANCH,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    NON_REPOSITORY_VERSIONS,
+    STABLE,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from readthedocs.builds.models import Version
 from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
 
@@ -133,15 +143,26 @@ def set_or_create_version(project, slug, version_id, verbose_name, type_):
 
 def delete_versions(project, version_data):
     """Delete all versions not in the current repo."""
-    current_versions = []
-    if 'tags' in version_data:
-        for version in version_data['tags']:
-            current_versions.append(version['identifier'])
-    if 'branches' in version_data:
-        for version in version_data['branches']:
-            current_versions.append(version['identifier'])
+
+    # We use verbose_name for tags
+    # becuase several tags can point to the same identifier.
+    versions_tags = [
+        version['verbose_name']
+        for version in version_data.get('tags', [])
+    ]
+    versions_branches = [
+        version['identifier']
+        for version in version_data.get('branches', [])
+    ]
     to_delete_qs = project.versions.all()
-    to_delete_qs = to_delete_qs.exclude(identifier__in=current_versions)
+    to_delete_qs = to_delete_qs.exclude(
+        type=TAG,
+        verbose_name__in=versions_tags,
+    )
+    to_delete_qs = to_delete_qs.exclude(
+        type=BRANCH,
+        identifier__in=versions_branches,
+    )
     to_delete_qs = to_delete_qs.exclude(uploaded=True)
     to_delete_qs = to_delete_qs.exclude(active=True)
     to_delete_qs = to_delete_qs.exclude(slug__in=NON_REPOSITORY_VERSIONS)
