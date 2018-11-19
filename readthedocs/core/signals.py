@@ -13,6 +13,7 @@ from django.dispatch import Signal
 from django.db.models import Q, Count
 from django.dispatch import receiver
 from future.backports.urllib.parse import urlparse
+from rest_framework.permissions import SAFE_METHODS
 
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Project, Domain
@@ -50,7 +51,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         return True
 
     # Don't do domain checking for APIv2 when the Domain is known
-    if request.path_info.startswith('/api/v2/'):
+    if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
         domain = Domain.objects.filter(domain__icontains=host)
         if domain.exists():
             return True

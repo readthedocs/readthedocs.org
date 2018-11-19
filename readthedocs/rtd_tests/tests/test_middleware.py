@@ -217,3 +217,12 @@ class TestCORSMiddleware(TestCase):
         )
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        # POST is not allowed
+        request = self.factory.post(
+            '/api/v2/version/',
+            {'project__slug': self.project.slug, 'active': True},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
