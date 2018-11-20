@@ -2,7 +2,11 @@
 """Git-related utilities."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import csv
 import logging
@@ -54,9 +58,13 @@ class Backend(BaseVCS):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
     def update(self):
-        # Use checkout() to update repo
-        # TODO: See where we call this
-        self.checkout()
+        """Clone or update the repository."""
+        super(Backend, self).update()
+        if self.repo_exists():
+            self.set_remote_url(self.repo_url)
+            return self.fetch()
+        self.make_clean_working_dir()
+        return self.clone()
 
     def repo_exists(self):
         code, _, _ = self.run('git', 'status', record=False)
@@ -122,11 +130,12 @@ class Backend(BaseVCS):
         return True, submodules.keys()
 
     def fetch(self):
-        code, _, _ = self.run(
+        code, stdout, stderr = self.run(
             'git', 'fetch', '--tags', '--prune', '--prune-tags',
         )
         if code != 0:
             raise RepositoryError
+        return code, stdout, stderr
 
     def checkout_revision(self, revision=None):
         if not revision:
@@ -139,22 +148,13 @@ class Backend(BaseVCS):
         return [code, out, err]
 
     def clone(self):
-        """
-        Clone the repository.
-
-        .. note::
-
-            Temporarily, we support skipping submodule recursive clone via a
-            feature flag. This will eventually be configurable with our YAML
-            config.
-        """
-        # TODO remove with https://github.com/rtfd/readthedocs-build/issues/30
-        from readthedocs.projects.models import Feature
-        cmd = ['git', 'clone']
-        cmd.extend([self.repo_url, '.'])
-        code, _, _ = self.run(*cmd)
+        """Clones the repository."""
+        code, stdout, stderr = self.run(
+            'git', 'clone', self.repo_url, '.'
+        )
         if code != 0:
             raise RepositoryError
+        return code, stdout, stderr
 
     @property
     def tags(self):
@@ -226,16 +226,8 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        self.check_working_dir()
-
-        # Clone or update repository
-        if self.repo_exists():
-            self.set_remote_url(self.repo_url)
-            self.fetch()
-        else:
-            self.make_clean_working_dir()
-            self.clone()
-
+        """Checkout to identifier or latest."""
+        super(Backend, self).checkout()
         # Find proper identifier
         if not identifier:
             identifier = self.default_branch or self.fallback_branch
