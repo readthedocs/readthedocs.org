@@ -18,7 +18,7 @@ Here is an example of what this file looks like:
      image: latest
    
    python:
-     version: 3.6
+     version: 3.5
      setup_py_install: true
 
 
