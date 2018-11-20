@@ -143,7 +143,6 @@ def set_or_create_version(project, slug, version_id, verbose_name, type_):
 
 def delete_versions(project, version_data):
     """Delete all versions not in the current repo."""
-
     # We use verbose_name for tags
     # becuase several tags can point to the same identifier.
     versions_tags = [

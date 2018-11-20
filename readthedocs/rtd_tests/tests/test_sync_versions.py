@@ -105,12 +105,13 @@ class TestSyncVersions(TestCase):
             self.pip.get_stable_version().identifier,
         )
 
-    def test_new_tag_update_inactive(self):
+    def test_new_tag_dont_update_inactive(self):
 
         Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
             verbose_name='0.8.3',
+            type=TAG,
             active=False,
         )
 
@@ -142,13 +143,13 @@ class TestSyncVersions(TestCase):
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
-        # Version 0.9 becomes the stable version and active
-        version_9 = Version.objects.get(slug='0.9')
+        # Version 0.9 becomes the stable version, but it's inactive
+        version_9 = self.pip.versions.get(slug='0.9')
         self.assertEqual(
             version_9.identifier,
             self.pip.get_stable_version().identifier,
         )
-        self.assertTrue(version_9.active)
+        self.assertFalse(version_9.active)
 
         # Version 0.8.3 is still inactive
         version_8 = Version.objects.get(slug='0.8.3')
