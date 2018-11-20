@@ -4,7 +4,6 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
-import csv
 import logging
 import os
 import re
@@ -13,7 +12,6 @@ import git
 from builtins import str
 from django.core.exceptions import ValidationError
 from git.exc import BadName
-from six import PY2, StringIO
 
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
