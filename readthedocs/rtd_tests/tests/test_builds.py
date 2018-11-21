@@ -5,20 +5,22 @@ from __future__ import (
     unicode_literals,
 )
 
-import mock
 import os
+
+import mock
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import HtmlBuilder as SphinxHTML
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.models import Project, EnvironmentVariable
-from readthedocs.rtd_tests.tests.test_config_integration import create_load
+from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_endswith
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
 
@@ -61,7 +63,9 @@ class BuildEnvironmentTests(TestCase):
         self.assertRegexpMatches(cmd[0][0], r'python')
         self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
 
-    def test_build_generate_index_file_force(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_generate_index_file_force(self, load_config):
+        load_config.side_effect = create_load()
         project = get(
             Project,
             slug='project-1',
@@ -92,7 +96,9 @@ class BuildEnvironmentTests(TestCase):
             )
             self.assertEqual(result, 'index')
 
-    def test_build_get_index_file_force(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_get_index_file_force(self, load_config):
+        load_config.side_effect = create_load()
         project = get(
             Project,
             slug='project-1',
@@ -121,7 +127,9 @@ class BuildEnvironmentTests(TestCase):
             self.assertEqual(len(mock_open.mock_calls), 0)
             self.assertEqual(result, 'index')
 
-    def test_build_generate_index_file(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_generate_index_file(self, load_config):
+        load_config.side_effect = create_load()
         project = get(
             Project,
             slug='project-1',
@@ -152,7 +160,9 @@ class BuildEnvironmentTests(TestCase):
             )
             self.assertEqual(result, 'index')
 
-    def test_get_readme_file(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_get_readme_file(self, load_config):
+        load_config.side_effect = create_load()
         project = get(
             Project,
             slug='project-1',
@@ -181,7 +191,9 @@ class BuildEnvironmentTests(TestCase):
             self.assertEqual(len(mock_open.mock_calls), 0)
             self.assertEqual(result, 'README')
 
-    def test_get_index_file(self):
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_get_index_file(self, load_config):
+        load_config.side_effect = create_load()
         project = get(
             Project,
             slug='project-1',
