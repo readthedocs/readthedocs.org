@@ -1,5 +1,7 @@
 import datetime
+import hashlib
 import logging
+import os
 import shutil
 
 from django.db.models import Q
@@ -8,13 +10,60 @@ from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Version, Build
+from readthedocs.core.resolver import resolve_path
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.signals import files_changed
 
 from readthedocs.worker import app
 
 
 log = logging.getLogger(__name__)
+
+
+def _manage_imported_files(version, path, commit):
+    """
+    Update imported files for version.
+
+    :param version: Version instance
+    :param path: Path to search
+    :param commit: Commit that updated path
+    """
+    changed_files = set()
+    for root, __, filenames in os.walk(path):
+        for filename in filenames:
+            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
+                                   filename.lstrip('/'))
+            full_path = os.path.join(root, filename)
+            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+            try:
+                obj, __ = ImportedFile.objects.get_or_create(
+                    project=version.project,
+                    version=version,
+                    path=dirpath,
+                    name=filename,
+                )
+            except ImportedFile.MultipleObjectsReturned:
+                log.warning('Error creating ImportedFile')
+                continue
+            if obj.md5 != md5:
+                obj.md5 = md5
+                changed_files.add(dirpath)
+            if obj.commit != commit:
+                obj.commit = commit
+            obj.save()
+    # Delete ImportedFiles from previous versions
+    ImportedFile.objects.filter(project=version.project,
+                                version=version
+                                ).exclude(commit=commit).delete()
+    changed_files = [
+        resolve_path(
+            version.project, filename=file, version_slug=version.slug,
+        ) for file in changed_files
+    ]
+    files_changed.send(sender=Project, project=version.project,
+                       files=changed_files)
 
 
 @app.task(queue='web')
@@ -61,7 +110,6 @@ def fileify(version_pk, commit):
         )
 
 
-# Random Tasks
 @app.task()
 def remove_dir(path):
     """

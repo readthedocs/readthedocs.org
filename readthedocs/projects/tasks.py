@@ -13,7 +13,6 @@ from __future__ import (
     unicode_literals,
 )
 
-import hashlib
 import json
 import logging
 import os
@@ -43,9 +42,6 @@ from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
 from readthedocs.builds.tasks import fileify, remove_dir
 from readthedocs.config import ConfigError
-from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.utils import broadcast, safe_unlink, send_email
 from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
 from readthedocs.core.utils import broadcast, safe_unlink
 from readthedocs.doc_builder.config import load_yaml_config
@@ -72,14 +68,14 @@ from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, ImportedFile, Project
+from .models import Domain, Project
 from .signals import (
     after_build,
     after_vcs,
     before_build,
     before_vcs,
-    files_changed,
 )
+
 
 log = logging.getLogger(__name__)
 
@@ -1083,50 +1079,6 @@ def symlink_subproject(project_pk):
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         sym.symlink_subprojects()
-
-
-def _manage_imported_files(version, path, commit):
-    """
-    Update imported files for version.
-
-    :param version: Version instance
-    :param path: Path to search
-    :param commit: Commit that updated path
-    """
-    changed_files = set()
-    for root, __, filenames in os.walk(path):
-        for filename in filenames:
-            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                   filename.lstrip('/'))
-            full_path = os.path.join(root, filename)
-            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
-            try:
-                obj, __ = ImportedFile.objects.get_or_create(
-                    project=version.project,
-                    version=version,
-                    path=dirpath,
-                    name=filename,
-                )
-            except ImportedFile.MultipleObjectsReturned:
-                log.warning('Error creating ImportedFile')
-                continue
-            if obj.md5 != md5:
-                obj.md5 = md5
-                changed_files.add(dirpath)
-            if obj.commit != commit:
-                obj.commit = commit
-            obj.save()
-    # Delete ImportedFiles from previous versions
-    ImportedFile.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
-    changed_files = [
-        resolve_path(
-            version.project, filename=file, version_slug=version.slug,
-        ) for file in changed_files
-    ]
-    files_changed.send(sender=Project, project=version.project,
-                       files=changed_files)
 
 
 @app.task(queue='web')
