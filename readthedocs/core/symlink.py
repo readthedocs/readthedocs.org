@@ -64,9 +64,9 @@ from django.conf import settings
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils import safe_makedirs, safe_unlink
+from readthedocs.doc_builder.environments import LocalEnvironment
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
-from readthedocs.projects.utils import run
 
 log = logging.getLogger(__name__)
 
@@ -83,6 +83,7 @@ class Symlink(object):
         self.subproject_root = os.path.join(
             self.project_root, 'projects'
         )
+        self.environment = LocalEnvironment(project)
         self.sanity_check()
 
     def sanity_check(self):
@@ -152,11 +153,13 @@ class Symlink(object):
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
-            run(['ln', '-nsf', self.project_root, symlink])
+            self.environment.run('ln', '-nsf', self.project_root, symlink)
 
             # Project symlink
             project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom.domain)
-            run(['ln', '-nsf', self.project.doc_path, project_cname_symlink])
+            self.environment.run(
+                'ln', '-nsf', self.project.doc_path, project_cname_symlink
+            )
 
     def remove_symlink_cname(self, domain):
         """Remove CNAME symlink."""
@@ -201,10 +204,12 @@ class Symlink(object):
                 # TODO this should use os.symlink, not a call to shell. For now,
                 # this passes command as a list to be explicit about escaping
                 # characters like spaces.
-                status, _, stderr = run(['ln', '-nsf', docs_dir, symlink])
-                if status > 0:
-                    log.error('Could not symlink path: status=%d error=%s',
-                              status, stderr)
+                result = self.environment.run('ln', '-nsf', docs_dir, symlink)
+                if result.exit_code > 0:
+                    log.error(
+                        'Could not symlink path: status=%d error=%s',
+                        result.exit_code, result.error
+                    )
 
         # Remove old symlinks
         if os.path.exists(self.subproject_root):
@@ -238,7 +243,7 @@ class Symlink(object):
                                                    version='', msg=log_msg))
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
-            run(['ln', '-nsf', docs_dir, symlink])
+            self.environment.run('ln', '-nsf', docs_dir, symlink)
 
         # Remove old symlinks
         for lang in os.listdir(self.project_root):
@@ -270,7 +275,7 @@ class Symlink(object):
         if version is not None:
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
                                     'rtd-builds', version.slug)
-            run(['ln', '-nsf', docs_dir, symlink])
+            self.environment.run('ln', '-nsf', docs_dir, symlink)
 
     def symlink_versions(self):
         """
@@ -293,7 +298,7 @@ class Symlink(object):
                                                    version='', msg=log_msg))
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
-            run(['ln', '-nsf', docs_dir, symlink])
+            self.environment.run('ln', '-nsf', docs_dir, symlink)
             versions.add(version.slug)
 
         # Remove old symlinks
