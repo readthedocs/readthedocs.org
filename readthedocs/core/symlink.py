@@ -52,18 +52,24 @@ Example layout
         fabric -> rtd-builds/fabric/en/latest/ # single version
 """
 
-from __future__ import absolute_import, unicode_literals
-from builtins import object
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
+import logging
 import os
 import shutil
-import logging
 from collections import OrderedDict
 
+from builtins import object
 from django.conf import settings
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils import safe_makedirs, safe_unlink
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.doc_builder.environments import LocalEnvironment
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
@@ -147,16 +153,24 @@ class Symlink(object):
         else:
             domains = Domain.objects.filter(project=self.project)
         for dom in domains:
-            log_msg = 'Symlinking CNAME: {0} -> {1}'.format(dom.domain, self.project.slug)
-            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
-                                                   version='', msg=log_msg))
+            log_msg = 'Symlinking CNAME: {} -> {}'.format(
+                dom.domain, self.project.slug
+            )
+            log.info(
+                constants.LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version='', msg=log_msg
+                )
+            )
 
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom.domain)
             self.environment.run('ln', '-nsf', self.project_root, symlink)
 
             # Project symlink
-            project_cname_symlink = os.path.join(self.PROJECT_CNAME_ROOT, dom.domain)
+            project_cname_symlink = os.path.join(
+                self.PROJECT_CNAME_ROOT, dom.domain
+            )
             self.environment.run(
                 'ln', '-nsf', self.project.doc_path, project_cname_symlink
             )
@@ -238,9 +252,13 @@ class Symlink(object):
 
         for (language, slug) in list(translations.items()):
 
-            log_msg = 'Symlinking translation: {0}->{1}'.format(language, slug)
-            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
-                                                   version='', msg=log_msg))
+            log_msg = 'Symlinking translation: {}->{}'.format(language, slug)
+            log.info(
+                constants.LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version='', msg=log_msg
+                )
+            )
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
             self.environment.run('ln', '-nsf', docs_dir, symlink)
@@ -273,8 +291,12 @@ class Symlink(object):
 
         # Create symlink
         if version is not None:
-            docs_dir = os.path.join(settings.DOCROOT, self.project.slug,
-                                    'rtd-builds', version.slug)
+            docs_dir = os.path.join(
+                settings.DOCROOT,
+                self.project.slug,
+                'rtd-builds',
+                version.slug
+            )
             self.environment.run('ln', '-nsf', docs_dir, symlink)
 
     def symlink_versions(self):
@@ -285,7 +307,9 @@ class Symlink(object):
                   HOME/user_builds/<project>/rtd-builds/<version>
         """
         versions = set()
-        version_dir = os.path.join(self.WEB_ROOT, self.project.slug, self.project.language)
+        version_dir = os.path.join(
+            self.WEB_ROOT, self.project.slug, self.project.language
+        )
         # Include active public versions,
         # as well as public versions that are built but not active, for archived versions
         version_queryset = self.get_version_queryset()
@@ -294,10 +318,20 @@ class Symlink(object):
                 safe_makedirs(version_dir)
         for version in version_queryset:
             log_msg = 'Symlinking Version: {}'.format(version)
-            log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
-                                                   version='', msg=log_msg))
+            log.info(
+                constants.LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version='',
+                    msg=log_msg
+                )
+            )
             symlink = os.path.join(version_dir, version.slug)
-            docs_dir = os.path.join(settings.DOCROOT, self.project.slug, 'rtd-builds', version.slug)
+            docs_dir = os.path.join(
+                settings.DOCROOT,
+                self.project.slug,
+                'rtd-builds',
+                version.slug
+            )
             self.environment.run('ln', '-nsf', docs_dir, symlink)
             versions.add(version.slug)
 
