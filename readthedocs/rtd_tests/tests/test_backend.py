@@ -74,9 +74,12 @@ class TestGitBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
-    def test_git_checkout(self):
+    def test_git_update_and_checkout(self):
         repo = self.project.vcs_repo()
-        repo.checkout()
+        code, _, _ = repo.update()
+        self.assertEqual(code, 0)
+        code, _, _ = repo.checkout()
+        self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
     def test_git_tags(self):
@@ -96,7 +99,7 @@ class TestGitBackend(RTDTestCase):
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo()
 
-        repo.checkout()
+        repo.update()
         self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
         # The submodule branch contains one submodule
@@ -105,6 +108,7 @@ class TestGitBackend(RTDTestCase):
 
     def test_skip_submodule_checkout(self):
         repo = self.project.vcs_repo()
+        repo.update()
         repo.checkout('submodule')
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
         feature = fixture.get(
@@ -117,6 +121,7 @@ class TestGitBackend(RTDTestCase):
 
     def test_check_submodule_urls(self):
         repo = self.project.vcs_repo()
+        repo.update()
         repo.checkout('submodule')
         valid, _ = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
@@ -160,7 +165,7 @@ class TestGitBackend(RTDTestCase):
             set(vcs.verbose_name for vcs in repo.branches)
         )
 
-        repo.checkout()
+        repo.update()
 
         # We don't have the eliminated branches and tags in the local repo
         self.assertEqual(
@@ -177,6 +182,7 @@ class TestGitBackend(RTDTestCase):
 
 
 class TestHgBackend(RTDTestCase):
+
     def setUp(self):
         hg_repo = make_test_hg()
         super(TestHgBackend, self).setUp()
@@ -184,9 +190,9 @@ class TestHgBackend(RTDTestCase):
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="hg",
-            #Our top-level checkout
+            name='Test Project',
+            repo_type='hg',
+            # Our top-level checkout
             repo=hg_repo
         )
         self.project.users.add(self.eric)
@@ -202,9 +208,12 @@ class TestHgBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
-    def test_checkout(self):
+    def test_update_and_checkout(self):
         repo = self.project.vcs_repo()
-        repo.checkout()
+        code, _, _ = repo.update()
+        self.assertEqual(code, 0)
+        code, _, _ = repo.checkout()
+        self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
     def test_parse_tags(self):

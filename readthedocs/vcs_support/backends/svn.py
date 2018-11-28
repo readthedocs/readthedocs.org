@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 """Subversion-related utilities."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import csv
 
@@ -36,9 +41,8 @@ class Backend(BaseVCS):
         # directories that's why I use `svn info` here.
         retcode = self.run('svn', 'info', record_as_success=True)[0]
         if retcode == 0:
-            self.up()
-        else:
-            self.co()
+            return self.up()
+        return self.co()
 
     def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]
@@ -99,10 +103,4 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        retcode = self.run('svn', 'info', record=False)[0]
-        if retcode == 0:
-            result = self.up()
-        else:
-            result = self.co(identifier)
-        # result is (return_code, stdout, stderr)
-        return result
+        return self.co(identifier)

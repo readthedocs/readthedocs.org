@@ -209,7 +209,8 @@ class CommunityBaseSettings(Settings):
     CACHE_MIDDLEWARE_SECONDS = 60
 
     # I18n
-    TIME_ZONE = 'America/Chicago'
+    TIME_ZONE = 'UTC'
+    USE_TZ = True
     LANGUAGE_CODE = 'en-us'
     LANGUAGES = (
         ('ca', gettext('Catalan')),
@@ -331,7 +332,6 @@ class CommunityBaseSettings(Settings):
 
     # Guardian Settings
     GUARDIAN_RAISE_403 = True
-    ANONYMOUS_USER_ID = -1
 
     # Stripe
     STRIPE_SECRET = None
@@ -390,6 +390,9 @@ class CommunityBaseSettings(Settings):
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
+            'null': {
+                'class': 'logging.NullHandler',
+            },
         },
         'loggers': {
             '': {  # root logger
@@ -401,6 +404,10 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
                 # Don't double log at the root logger for these.
+                'propagate': False,
+            },
+            'django.security.DisallowedHost': {
+                'handlers': ['null'],
                 'propagate': False,
             },
         },

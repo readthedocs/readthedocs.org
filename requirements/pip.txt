@@ -82,10 +82,7 @@ beautifulsoup4==4.6.3
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-
-# stripe 1.20.2 is the latest compatible with our code base (otherwise
-# gold/tests/test_forms.py fails)
-stripe==1.20.2
+stripe==2.12.0
 
 django-formtools==2.1
 

@@ -69,7 +69,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
         customer = self.get_customer()
 
         # TODO get the first subscription more intelligently
-        subscriptions = customer.subscriptions.all(limit=5)
+        subscriptions = customer.subscriptions.list(limit=5)
         if subscriptions.data:
             # Update an existing subscription - Stripe prorates by default
             subscription = subscriptions.data[0]

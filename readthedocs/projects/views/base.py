@@ -5,12 +5,13 @@ from __future__ import (
 
 import logging
 from builtins import object
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from ..exceptions import ProjectSpamError
 from ..models import Project
@@ -101,7 +102,7 @@ class ProjectSpamMixin(object):
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
         except ProjectSpamError:
-            date_maturity = datetime.now() - timedelta(days=USER_MATURITY_DAYS)
+            date_maturity = timezone.now() - timedelta(days=USER_MATURITY_DAYS)
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()
