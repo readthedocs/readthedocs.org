@@ -223,6 +223,24 @@ class Virtualenv(PythonEnvironment):
 
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""
+        pip_install_cmd = [
+            'python',
+            self.venv_bin(filename='pip'),
+            'install',
+            '--upgrade',
+            '--cache-dir',
+            self.project.pip_cache_path,
+        ]
+
+        # Install latest pip first,
+        # so it is used when installing the other requirements.
+        cmd = pip_install_cmd + ['pip==18.1']
+        self.build_env.run(
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path
+        )
+
         requirements = [
             'Pygments==2.2.0',
             # Assume semver for setuptools version, support up to next backwards
@@ -255,21 +273,14 @@ class Virtualenv(PythonEnvironment):
                 'readthedocs-sphinx-ext<0.6'
             ])
 
-        cmd = [
-            'python',
-            self.venv_bin(filename='pip'),
-            'install',
-            '--upgrade',
-            '--cache-dir',
-            self.project.pip_cache_path,
-        ]
+        cmd = pip_install_cmd
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
-            cmd.append('-I')
-        cmd.extend(requirements)
+            cmd += ['-I']
+        cmd += requirements
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
