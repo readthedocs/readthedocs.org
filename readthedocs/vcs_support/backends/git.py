@@ -131,7 +131,7 @@ class Backend(BaseVCS):
 
     def fetch(self):
         code, stdout, stderr = self.run(
-            'git', 'fetch', '--tags', '--prune', '--prune-tags',
+            'git', 'fetch', '--depth=1', '--tags', '--prune', '--prune-tags',
         )
         if code != 0:
             raise RepositoryError
@@ -150,7 +150,8 @@ class Backend(BaseVCS):
     def clone(self):
         """Clones the repository."""
         code, stdout, stderr = self.run(
-            'git', 'clone', self.repo_url, '.'
+            'git', 'clone', '--depth=1', '--no-single-branch',
+            self.repo_url, '.'
         )
         if code != 0:
             raise RepositoryError
