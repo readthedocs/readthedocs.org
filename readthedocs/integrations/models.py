@@ -30,6 +30,7 @@ from pygments.lexers import JsonLexer
 from rest_framework import status
 
 from readthedocs.core.fields import default_token
+from readthedocs.integrations.utils import get_secret
 from readthedocs.projects.models import Project
 
 from .utils import normalize_request_payload
@@ -268,6 +269,7 @@ class Integration(models.Model):
         'HttpExchange',
         related_query_name='integrations',
     )
+    secret = models.CharField(max_length=255, blank=True, default=get_secret)
 
     objects = IntegrationQuerySet.as_manager()
 

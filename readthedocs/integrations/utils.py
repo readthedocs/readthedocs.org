@@ -1,7 +1,12 @@
 """Integration utility functions."""
 
+from __future__ import division, print_function, unicode_literals
 
-def normalize_request_payload(request):
+import json
+import os
+
+
+def normalize_request_payload(request_body, content_type):
     """
     Normalize the request body, hopefully to JSON.
 
@@ -12,12 +17,12 @@ def normalize_request_payload(request):
     :returns: The request body as a string
     :rtype: str
     """
-    request_payload = getattr(request, 'data', {})
-    if request.content_type != 'application/json':
+    if content_type != 'application/json':
         # Here, request_body can be a dict or a MergeDict. Probably best to
         # normalize everything first
-        try:
-            request_payload = dict(list(request_payload.items()))
-        except AttributeError:
-            pass
-    return request_payload
+        raise NotImplementedError
+    return json.loads(request_body)
+
+
+def get_secret(size=64):
+    return os.urandom(size).hex()
