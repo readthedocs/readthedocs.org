@@ -7,6 +7,8 @@ from __future__ import (
     unicode_literals,
 )
 
+import hashlib
+import hmac
 import json
 import logging
 import re
@@ -14,7 +16,7 @@ import re
 import six
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
-from rest_framework.exceptions import NotFound, ParseError
+from rest_framework.exceptions import AuthenticationFailed, NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -59,6 +61,9 @@ class WebhookMixin(object):
             self.project = self.get_project(slug=project_slug)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
+        self.body = self.request.stream.read().decode()
+        if not self.validate_payload():
+            raise AuthenticationFailed('Payload not valid')
         self.data = self.get_data()
         resp = self.handle_webhook()
         if resp is None:
@@ -83,11 +88,17 @@ class WebhookMixin(object):
 
     def get_data(self):
         """Normalize posted data."""
-        return normalize_request_payload(self.request)
+        return normalize_request_payload(
+            self.body,
+            self.request.content_type
+        )
 
     def handle_webhook(self):
         """Handle webhook payload."""
         raise NotImplementedError
+
+    def validate_payload(self):
+        return True
 
     def get_integration(self):
         """
@@ -177,6 +188,22 @@ class GitHubWebhookView(WebhookMixin, APIView):
             except (ValueError, KeyError):
                 pass
         return super(GitHubWebhookView, self).get_data()
+
+    def validate_payload(self):
+        signature = self.request.META['HTTP_X_HUB_SIGNATURE']
+        msg = self.body
+        key = self.get_integration().secret
+        digest = hmac.new(
+            key.encode(),
+            msg=msg.encode(),
+            digestmod=hashlib.sha1
+        ).hexdigest()
+        result = hmac.compare_digest(
+            b'sha1=' + digest.encode(),
+            signature.encode()
+        )
+        log.info('Valid payload? %s', result)
+        return result
 
     def handle_webhook(self):
         # Get event and trigger other webhook events

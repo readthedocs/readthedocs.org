@@ -170,6 +170,7 @@ class GitHubService(Service):
                                 'integration_pk': integration.pk}
                     )
                 ),
+                'secret': integration.secret,
                 'content_type': 'json',
             },
             'events': ['push', 'pull_request', 'create', 'delete'],
