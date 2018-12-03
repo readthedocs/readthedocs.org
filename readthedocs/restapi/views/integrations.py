@@ -199,7 +199,13 @@ class GitHubWebhookView(WebhookMixin, APIView):
         """
         See https://developer.github.com/webhooks/securing/
         """
-        signature = self.request.META[GITHUB_SIGNATURE_HEADER]
+        signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
+        if not signature:
+            log.info(
+                'Skipping payload validation for project: %s',
+                self.project.slug
+            )
+            return True
         msg = self.body
         key = self.get_integration().secret
         digest = hmac.new(
