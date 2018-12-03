@@ -27,9 +27,7 @@ class RawBodyParser(BaseParser):
 
 class RawBodyJSONParser(RawBodyParser):
 
-    """
-    Parser adapted from `rest_framework.parsers.JSONParser`.
-    """
+    """Parser adapted from `rest_framework.parsers.JSONParser`."""
 
     media_type = 'application/json'
 
@@ -45,9 +43,7 @@ class RawBodyJSONParser(RawBodyParser):
 
 class RawBodyFormParser(RawBodyParser):
 
-    """
-    Parser adapted from `rest_framework.parsers.FormParser`.
-    """
+    """Parser adapted from `rest_framework.parsers.FormParser`."""
 
     media_type = 'application/x-www-form-urlencoded'
 

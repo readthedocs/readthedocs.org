@@ -95,9 +95,7 @@ class WebhookMixin(object):
         raise NotImplementedError
 
     def is_payload_valid(self):
-        """
-        Validates the webhook's payload using the secret from the integration.
-        """
+        """Validates the webhook's payload using the integration's secret."""
         return True
 
     def get_integration(self):
@@ -190,9 +188,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         return super(GitHubWebhookView, self).get_data()
 
     def is_payload_valid(self):
-        """
-        See https://developer.github.com/webhooks/securing/
-        """
+        """See https://developer.github.com/webhooks/securing/"""
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
         if not signature:
             log.info(
@@ -262,6 +258,9 @@ class GitLabWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
+
+    def is_payload_valid(self):
+        return True
 
     def handle_webhook(self):
         """
