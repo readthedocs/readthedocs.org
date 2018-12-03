@@ -269,7 +269,13 @@ class Integration(models.Model):
         'HttpExchange',
         related_query_name='integrations',
     )
-    secret = models.CharField(max_length=255, blank=True, default=get_secret)
+    secret = models.CharField(
+        help_text='Secret used to validate the payload of the webhook',
+        max_length=255,
+        blank=True,
+        null=True,
+        default=get_secret
+    )
 
     objects = IntegrationQuerySet.as_manager()
 
