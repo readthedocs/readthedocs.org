@@ -3,6 +3,7 @@ from __future__ import division, print_function, unicode_literals
 import json
 
 from django.http import QueryDict
+from rest_framework.exceptions import ParseError
 from rest_framework.parsers import BaseParser
 
 
@@ -26,18 +27,26 @@ class RawBodyParser(BaseParser):
 
 class RawBodyJSONParser(RawBodyParser):
 
+    """
+    Parser adapted from `rest_framework.parsers.JSONParser`.
+    """
+
     media_type = 'application/json'
 
     def parse(self, stream, media_type, parser_context):
         raw_body = super(RawBodyJSONParser, self).parse(
             stream, media_type, parser_context
         )
-        return json.loads(raw_body)
+        try:
+            return json.loads(raw_body)
+        except ValueError as exc:
+            raise ParseError('JSON parse error - %s' % str(exc))
 
 
 class RawBodyFormParser(RawBodyParser):
+
     """
-    Parser for form data.
+    Parser adapted from `rest_framework.parsers.FormParser`.
     """
 
     media_type = 'application/x-www-form-urlencoded'
