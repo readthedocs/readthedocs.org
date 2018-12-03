@@ -24,7 +24,7 @@ class BuildNotificationsTests(TestCase):
     @patch('readthedocs.builds.managers.log')
     def test_send_notification_none_if_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        send_notifications('345343', self.build.pk)
+        send_notifications(version_pk=345343, build_pk=None)
         mock_logger.warning.assert_called_with('Version not found for the pk = 345343')
 
 
