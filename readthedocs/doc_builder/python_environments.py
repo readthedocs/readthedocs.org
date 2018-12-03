@@ -234,7 +234,7 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip==18.1']
+        cmd = pip_install_cmd + ['pip']
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
