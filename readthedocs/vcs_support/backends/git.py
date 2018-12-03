@@ -8,7 +8,6 @@ from __future__ import (
     unicode_literals,
 )
 
-import csv
 import logging
 import os
 import re
@@ -17,7 +16,6 @@ import git
 from builtins import str
 from django.core.exceptions import ValidationError
 from git.exc import BadName
-from six import PY2, StringIO
 
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
@@ -174,51 +172,23 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        # Only show remote branches
-        retcode, stdout, _ = self.run(
-            'git',
-            'branch',
-            '-r',
-            record_as_success=True,
-        )
-        # error (or no branches found)
-        if retcode != 0:
-            return []
-        return self.parse_branches(stdout)
+        repo = git.Repo(self.working_dir)
+        versions = []
 
-    def parse_branches(self, data):
-        """
-        Parse output of git branch -r.
+        # ``repo.branches`` returns local branches and
+        branches = repo.branches
+        # ``repo.remotes.origin.refs`` returns remote branches
+        if repo.remotes:
+            branches += repo.remotes.origin.refs
 
-        e.g.:
-
-              origin/2.0.X
-              origin/HEAD -> origin/master
-              origin/develop
-              origin/master
-              origin/release/2.0.0
-              origin/release/2.1.0
-        """
-        clean_branches = []
-        # StringIO below is expecting Unicode data, so ensure that it gets it.
-        if not isinstance(data, str):
-            data = str(data)
-        delimiter = str(' ').encode('utf-8') if PY2 else str(' ')
-        raw_branches = csv.reader(StringIO(data), delimiter=delimiter)
-        for branch in raw_branches:
-            branch = [f for f in branch if f not in ('', '*')]
-            # Handle empty branches
-            if branch:
-                branch = branch[0]
-                if branch.startswith('origin/'):
-                    verbose_name = branch.replace('origin/', '')
-                    if verbose_name in ['HEAD']:
-                        continue
-                    clean_branches.append(
-                        VCSVersion(self, branch, verbose_name))
-                else:
-                    clean_branches.append(VCSVersion(self, branch, branch))
-        return clean_branches
+        for branch in branches:
+            verbose_name = branch.name
+            if verbose_name.startswith('origin/'):
+                verbose_name = verbose_name.replace('origin/', '')
+            if verbose_name == 'HEAD':
+                continue
+            versions.append(VCSVersion(self, str(branch), verbose_name))
+        return versions
 
     @property
     def commit(self):

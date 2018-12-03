@@ -314,24 +314,24 @@ PROGRAMMING_LANGUAGES = (
 
 LOG_TEMPLATE = '(Build) [{project}:{version}] {msg}'
 
-PROJECT_PK_REGEX = '(?:[-\w]+)'
-PROJECT_SLUG_REGEX = '(?:[-\w]+)'
+PROJECT_PK_REGEX = r'(?:[-\w]+)'
+PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
-    re.compile('github.com/(.+)/(.+)(?:\.git){1}$'),
-    re.compile('github.com/(.+)/(.+)'),
-    re.compile('github.com:(.+)/(.+)\.git$'),
+    re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    re.compile(r'github.com/(.+)/(.+)'),
+    re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
-    re.compile('bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile('@bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile('bitbucket.org/(.+)/(.+)/?'),
-    re.compile('bitbucket.org:(.+)/(.+)\.git$'),
+    re.compile(r'bitbucket.org/(.+)/(.+)\.git$'),
+    re.compile(r'@bitbucket.org/(.+)/(.+)\.git$'),
+    re.compile(r'bitbucket.org/(.+)/(.+)/?'),
+    re.compile(r'bitbucket.org:(.+)/(.+)\.git$'),
 ]
 GITLAB_REGEXS = [
-    re.compile('gitlab.com/(.+)/(.+)(?:\.git){1}$'),
-    re.compile('gitlab.com/(.+)/(.+)'),
-    re.compile('gitlab.com:(.+)/(.+)\.git$'),
+    re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    re.compile(r'gitlab.com/(.+)/(.+)'),
+    re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
 ]
 GITHUB_URL = (
     'https://github.com/{user}/{repo}/'

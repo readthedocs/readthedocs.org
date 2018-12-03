@@ -35,6 +35,27 @@ class ProfileViewsTest(TestCase):
         self.assertEqual(self.user.last_name, 'Docs')
         self.assertEqual(self.user.profile.homepage, 'readthedocs.org')
 
+    def test_edit_profile_with_invalid_values(self):
+        resp = self.client.get(
+            reverse('profiles_profile_edit'),
+        )
+        self.assertTrue(resp.status_code, 200)
+
+        resp = self.client.post(
+            reverse('profiles_profile_edit'),
+            data={
+                'first_name': 'a' * 31,
+                'last_name': 'b' * 31,
+                'homepage': 'c' * 101,
+            }
+        )
+
+        FORM_ERROR_FORMAT = 'Ensure this value has at most {} characters (it has {}).'
+
+        self.assertFormError(resp, form='form', field='first_name', errors=FORM_ERROR_FORMAT.format(30, 31))
+        self.assertFormError(resp, form='form', field='last_name', errors=FORM_ERROR_FORMAT.format(30, 31))
+        self.assertFormError(resp, form='form', field='homepage', errors=FORM_ERROR_FORMAT.format(100, 101))
+
     def test_delete_account(self):
         resp = self.client.get(
             reverse('delete_account')
