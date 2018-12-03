@@ -67,7 +67,7 @@ class VersionManagerBase(models.Manager):
         try:
             return super(VersionManagerBase, self).get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for the pk = {pk}'.format(pk=kwargs.get['pk']))
+            log.warning('Version not found for the pk = {pk}'.format(pk=kwargs.get('pk')))
 
 
 class VersionManager(SettingsOverrideObject):
