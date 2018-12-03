@@ -8,7 +8,10 @@ from __future__ import (
 
 import base64
 import datetime
+import hashlib
+import hmac
 import json
+import textwrap
 
 import mock
 from allauth.socialaccount.models import SocialAccount
@@ -36,6 +39,8 @@ from readthedocs.restapi.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
+    GITHUB_PUSH,
+    GITHUB_SIGNATURE_HEADER,
     GITLAB_NULL_HASH,
     GITLAB_PUSH,
     GITLAB_TAG_PUSH,
@@ -977,6 +982,49 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
+    def test_github_invalid_payload(self, trigger_build):
+        client = APIClient()
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: '1234',
+        }
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            {'foo': 'bar'},
+            **headers,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.data['detail'], 'Payload not valid')
+
+    def test_github_valid_payload(self, trigger_build):
+        client = APIClient()
+        payload = textwrap.dedent(
+            """
+            {
+              "foo": "bar"
+            }
+            """
+        )
+        secret = '1234'
+        digest = hmac.new(
+            secret.encode(),
+            msg=payload.encode(),
+            digestmod=hashlib.sha1
+        ).hexdigest()
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: 'sha1=' + digest,
+        }
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            json.loads(payload),
+            **headers,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.data['detail'], 'Payload not valid')
 
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
