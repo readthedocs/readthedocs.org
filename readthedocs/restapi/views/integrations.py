@@ -28,8 +28,8 @@ from readthedocs.core.signals import (
 )
 from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
+from readthedocs.restapi.parsers import RawBodyFormParser, RawBodyJSONParser
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +50,7 @@ class WebhookMixin(object):
     """Base class for Webhook mixins."""
 
     permission_classes = (permissions.AllowAny,)
+    parser_classes = (RawBodyJSONParser, RawBodyFormParser)
     renderer_classes = (JSONRenderer,)
     integration = None
     integration_type = None
@@ -62,12 +63,9 @@ class WebhookMixin(object):
             self.project = self.get_project(slug=project_slug)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
-        # DRF doesn't expose the request's body after using ``request.data``.
-        # We need to read the body and using it instead of ``request.data ``.
-        self.body = self.request.stream.read().decode()
+        self.data = self.get_data()
         if not self.is_payload_valid():
             raise AuthenticationFailed('Payload not valid')
-        self.data = self.get_data()
         resp = self.handle_webhook()
         if resp is None:
             log.info('Unhandled webhook event')
@@ -90,11 +88,7 @@ class WebhookMixin(object):
         return resp
 
     def get_data(self):
-        """Normalize posted data."""
-        return normalize_request_payload(
-            self.body,
-            self.request.content_type
-        )
+        return self.request.data
 
     def handle_webhook(self):
         """Handle webhook payload."""
@@ -206,7 +200,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 self.project.slug
             )
             return True
-        msg = self.body
+        msg = self.request.raw_body
         key = self.get_integration().secret
         digest = hmac.new(
             key.encode(),
