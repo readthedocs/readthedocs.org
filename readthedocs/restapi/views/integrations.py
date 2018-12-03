@@ -34,6 +34,7 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
+GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
@@ -61,8 +62,10 @@ class WebhookMixin(object):
             self.project = self.get_project(slug=project_slug)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
+        # DRF doesn't expose the request's body after using ``request.data``.
+        # We need to read the body and using it instead of ``request.data ``.
         self.body = self.request.stream.read().decode()
-        if not self.validate_payload():
+        if not self.is_payload_valid():
             raise AuthenticationFailed('Payload not valid')
         self.data = self.get_data()
         resp = self.handle_webhook()
@@ -97,7 +100,10 @@ class WebhookMixin(object):
         """Handle webhook payload."""
         raise NotImplementedError
 
-    def validate_payload(self):
+    def is_payload_valid(self):
+        """
+        Validates the webhook's payload using the secret from the integration.
+        """
         return True
 
     def get_integration(self):
@@ -189,8 +195,11 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 pass
         return super(GitHubWebhookView, self).get_data()
 
-    def validate_payload(self):
-        signature = self.request.META['HTTP_X_HUB_SIGNATURE']
+    def is_payload_valid(self):
+        """
+        See https://developer.github.com/webhooks/securing/
+        """
+        signature = self.request.META[GITHUB_SIGNATURE_HEADER]
         msg = self.body
         key = self.get_integration().secret
         digest = hmac.new(
@@ -202,7 +211,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
             b'sha1=' + digest.encode(),
             signature.encode()
         )
-        log.info('Valid payload? %s', result)
         return result
 
     def handle_webhook(self):
