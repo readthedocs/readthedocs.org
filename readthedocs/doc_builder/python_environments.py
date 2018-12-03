@@ -273,14 +273,14 @@ class Virtualenv(PythonEnvironment):
                 'readthedocs-sphinx-ext<0.6'
             ])
 
-        cmd = pip_install_cmd
+        cmd = pip_install_cmd.copy()
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
-            cmd += ['-I']
-        cmd += requirements
+            cmd.append('-I')
+        cmd.extend(requirements)
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
