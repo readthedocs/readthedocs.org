@@ -124,7 +124,9 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_reserved_version_latest(self, api_v2):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
+        checkout_path.return_value = self.project.repo
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
 
@@ -144,7 +146,9 @@ class TestCeleryBuilding(RTDTestCase):
         api_v2.project().sync_versions.post.assert_called()
 
     @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_reserved_version_stable(self, api_v2):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_check_duplicate_reserved_version_stable(self, checkout_path, api_v2):
+        checkout_path.return_value = self.project.repo
         create_git_branch(self.repo, 'stable')
         create_git_tag(self.repo, 'stable')
 
