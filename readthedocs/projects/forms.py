@@ -40,6 +40,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.redirects.models import Redirect
 
+
 class ProjectForm(forms.ModelForm):
 
     """
