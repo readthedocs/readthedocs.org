@@ -14,6 +14,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -270,10 +271,17 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
+        try:
+            integration = Integration.objects.get(
+                project=project,
+                integration_type=Integration.GITLAB_WEBHOOK,
+            )
+        except Integration.DoesNotExist:
+            integration = Integration.objects.create(
+                project=project,
+                integration_type=Integration.GITLAB_WEBHOOK,
+                secret=get_secret(),
+            )
 
         repo_id = self._get_repo_id(project)
         if repo_id is None:

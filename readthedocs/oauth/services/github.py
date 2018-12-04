@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
+from readthedocs.integrations.utils import get_secret
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
@@ -187,10 +188,17 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-        )
+        try:
+            integration = Integration.objects.get(
+                project=project,
+                integration_type=Integration.GITHUB_WEBHOOK,
+            )
+        except Integration.DoesNotExist:
+            integration = Integration.objects.create(
+                project=project,
+                integration_type=Integration.GITHUB_WEBHOOK,
+                secret=get_secret(),
+            )
         data = self.get_webhook_data(project, integration)
         resp = None
         try:

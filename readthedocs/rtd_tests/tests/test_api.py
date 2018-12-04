@@ -26,11 +26,8 @@ from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.integrations.models import (
-    GitHubWebhook,
-    GitLabWebhook,
-    Integration,
-)
+from readthedocs.integrations.models import GitHubWebhook, Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import (
     APIProject,
@@ -992,9 +989,9 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,
+            secret=get_secret(),
         )
         wrong_signature = '1234'
-        self.assertTrue(integration.secret)
         self.assertNotEqual(integration.secret, wrong_signature)
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
@@ -1015,8 +1012,8 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,
+            secret=get_secret(),
         )
-        self.assertTrue(integration.secret)
         digest = hmac.new(
             integration.secret.encode(),
             msg=payload.encode(),
@@ -1043,8 +1040,8 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,
+            secret=get_secret(),
         )
-        self.assertTrue(integration.secret)
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             self.github_payload,
@@ -1240,8 +1237,8 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITLAB_WEBHOOK,
+            secret=get_secret(),
         )
-        self.assertTrue(integration.secret)
         self.assertNotEqual(integration.secret, wrong_secret)
         headers = {
             GITLAB_TOKEN_HEADER: wrong_secret,
@@ -1260,8 +1257,8 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITLAB_WEBHOOK,
+            secret=get_secret(),
         )
-        self.assertTrue(integration.secret)
         headers = {
             GITLAB_TOKEN_HEADER: integration.secret,
         }
@@ -1278,8 +1275,8 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITLAB_WEBHOOK,
+            secret=get_secret(),
         )
-        self.assertTrue(integration.secret)
         headers = {
             GITLAB_TOKEN_HEADER: '',
         }
