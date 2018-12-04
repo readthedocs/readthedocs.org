@@ -191,16 +191,16 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def is_payload_valid(self):
         """See https://developer.github.com/webhooks/securing/"""
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
-        if not signature:
+        secret = self.get_integration().secret
+        if not secret:
             log.info(
                 'Skipping payload validation for project: %s',
                 self.project.slug
             )
             return True
         msg = self.request.raw_body
-        key = self.get_integration().secret
         digest = hmac.new(
-            key.encode(),
+            secret.encode(),
             msg=msg.encode(),
             digestmod=hashlib.sha1
         ).hexdigest()
@@ -263,13 +263,14 @@ class GitLabWebhookView(WebhookMixin, APIView):
     def is_payload_valid(self):
         """GitLab only sends back the token."""
         token = self.request.META.get(GITLAB_TOKEN_HEADER)
-        if not token:
+        secret = self.get_integration().secret
+        if not secret:
             log.info(
                 'Skipping payload validation for project: %s',
                 self.project.slug
             )
             return True
-        result = token == self.integration.secret
+        result = token == secret
         return result
 
     def handle_webhook(self):
