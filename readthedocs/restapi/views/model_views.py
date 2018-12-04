@@ -11,7 +11,6 @@ from builtins import str
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
-from rest_framework.decorators import detail_route
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
@@ -95,7 +94,7 @@ class ProjectViewSet(UserSelectViewSet):
     filter_fields = ('slug',)  # django-filter<2.0.0
     filterset_fields = ('slug',)
 
-    @decorators.detail_route()
+    @decorators.action(detail=True)
     def valid_versions(self, request, **kwargs):
         """Maintain state of versions that are wanted."""
         project = get_object_or_404(
@@ -118,14 +117,14 @@ class ProjectViewSet(UserSelectViewSet):
             'flat': version_strings,
         })
 
-    @detail_route()
+    @decorators.action(detail=True)
     def translations(self, *_, **__):
         translations = self.get_object().translations.all()
         return Response({
             'translations': ProjectSerializer(translations, many=True).data,
         })
 
-    @detail_route()
+    @decorators.action(detail=True)
     def subprojects(self, request, **kwargs):
         project = get_object_or_404(
             Project.objects.api(request.user), pk=kwargs['pk'])
@@ -135,7 +134,7 @@ class ProjectViewSet(UserSelectViewSet):
             'subprojects': ProjectSerializer(children, many=True).data,
         })
 
-    @detail_route()
+    @decorators.action(detail=True)
     def active_versions(self, request, **kwargs):
         project = get_object_or_404(
             Project.objects.api(request.user), pk=kwargs['pk'])
@@ -144,7 +143,7 @@ class ProjectViewSet(UserSelectViewSet):
             'versions': VersionSerializer(versions, many=True).data,
         })
 
-    @decorators.detail_route(permission_classes=[permissions.IsAdminUser])
+    @decorators.action(detail=True, permission_classes=[permissions.IsAdminUser])
     def token(self, request, **kwargs):
         project = get_object_or_404(
             Project.objects.api(request.user), pk=kwargs['pk'])
@@ -153,7 +152,7 @@ class ProjectViewSet(UserSelectViewSet):
             'token': token,
         })
 
-    @decorators.detail_route()
+    @decorators.action(detail=True)
     def canonical_url(self, request, **kwargs):
         project = get_object_or_404(
             Project.objects.api(request.user), pk=kwargs['pk'])
@@ -161,8 +160,10 @@ class ProjectViewSet(UserSelectViewSet):
             'url': project.get_docs_url(),
         })
 
-    @decorators.detail_route(
-        permission_classes=[permissions.IsAdminUser], methods=['post'])
+    @decorators.action(
+        detail=True, permission_classes=[permissions.IsAdminUser],
+        methods=['post'],
+    )
     def sync_versions(self, request, **kwargs):  # noqa: D205
         """
         Sync the version data in the repo (on the build server).
