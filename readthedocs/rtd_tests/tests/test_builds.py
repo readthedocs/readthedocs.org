@@ -56,8 +56,8 @@ class BuildEnvironmentTests(TestCase):
         # Get command and check first part of command list is a call to sphinx
         self.assertEqual(self.mocks.popen.call_count, 3)
         cmd = self.mocks.popen.call_args_list[2][0]
-        self.assertRegexpMatches(cmd[0][0], r'python')
-        self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
+        self.assertRegex(cmd[0][0], r'python')
+        self.assertRegex(cmd[0][1], r'sphinx-build')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):

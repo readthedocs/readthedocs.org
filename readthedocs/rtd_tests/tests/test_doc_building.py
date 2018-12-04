@@ -1001,7 +1001,7 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(path)
         cmd.run()
         missing_re = re.compile(r'(?:No such file or directory|not found)')
-        self.assertRegexpMatches(cmd.error, missing_re)
+        self.assertRegex(cmd.error, missing_re)
 
     def test_input(self):
         """Test input to command."""
