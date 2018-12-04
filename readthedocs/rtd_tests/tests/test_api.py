@@ -1020,8 +1020,8 @@ class IntegrationsTests(TestCase):
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             json.loads(payload),
-            **headers,
             format='json',
+            **headers,
         )
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.data['detail'], 'Payload not valid')
