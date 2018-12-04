@@ -214,22 +214,6 @@ class Version(models.Model):
             type='app', task=tasks.symlink_project, args=[self.project.pk])
         return obj
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        log.info('Removing files for version %s', self.slug)
-        broadcast(
-            type='app',
-            task=tasks.clear_artifacts,
-            args=[self.get_artifact_paths()],
-        )
-        project_pk = self.project.pk
-        super(Version, self).delete(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[project_pk],
-        )
-
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
