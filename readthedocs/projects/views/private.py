@@ -889,12 +889,12 @@ class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
 
     def get_success_url(self):
         return reverse(
-            'projects_environment_variables',
+            'projects_environmentvariables',
             args=[self.get_project().slug],
         )
 
 
-class EnvironmentVariableList(EnvironmentVariableMixin, ListViewWithForm):
+class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
     pass
 
 
@@ -902,7 +902,7 @@ class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
     pass
 
 
-class EnvironmentVariableUpdate(EnvironmentVariableMixin, UpdateView):
+class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
     pass
 
 

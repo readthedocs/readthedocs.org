@@ -768,7 +768,7 @@ class EnvironmentVariableForm(forms.ModelForm):
     This limits the name of the variable.
     """
 
-    project = forms.CharField(widget=forms.HiddenInput(), required=True)
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta(object):
         model = EnvironmentVariable
