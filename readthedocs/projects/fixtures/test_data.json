@@ -3,15 +3,15 @@
         "pk": 1,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 14:36:46",
+            "modified_date": "2010-08-15T14:36:46+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/rtfd/readthedocs.org",
             "version": "0.1",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 01:37:58",
+        1
+        ],
+            "pub_date": "2010-08-14T01:37:58+00:00",
             "slug": "read-the-docs",
             "name": "Read The Docs"
         }
@@ -20,15 +20,15 @@
         "pk": 22,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:23",
+            "modified_date": "2010-08-15T13:18:23+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/alex/django-taggit",
             "version": "0.8",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-15 13:04:19",
+        1
+        ],
+            "pub_date": "2010-08-15T13:04:19+00:00",
             "slug": "taggit",
             "name": "Taggit"
         }
@@ -37,15 +37,15 @@
         "pk": 6,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:23",
+            "modified_date": "2010-08-15T13:18:23+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/pypa/pip",
             "version": "",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 11:08:12",
+        1
+        ],
+            "pub_date": "2010-08-14T11:08:12+00:00",
             "slug": "pip",
             "name": "Pip"
         }
@@ -54,15 +54,15 @@
         "pk": 10,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:22",
+            "modified_date": "2010-08-15T13:18:22+00:00",
             "description": "Awesome forms!",
             "project_url": "",
             "repo": "https://github.com/pydanny/django-uni-form",
             "version": "0.7",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 13:34:59",
+        1
+        ],
+            "pub_date": "2010-08-14T13:34:59+00:00",
             "slug": "django-uni-form",
             "name": "Django Uni Form"
         }
@@ -71,15 +71,15 @@
         "pk": 9,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:21",
+            "modified_date": "2010-08-15T13:18:21+00:00",
             "description": "OMG API!",
             "project_url": "",
             "repo": "http://github.com/codysoyland/django-tastypie",
             "version": "0.8.2",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 13:16:35",
+        1
+        ],
+            "pub_date": "2010-08-14T13:16:35+00:00",
             "slug": "tastypie",
             "name": "Tastypie"
         }
@@ -88,15 +88,15 @@
         "pk": 8,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:20",
+            "modified_date": "2010-08-15T13:18:20+00:00",
             "description": "ZOMG HE'S COMING?!",
             "project_url": "",
             "repo": "https://github.com/ericholscher/django-kong",
             "version": "0.1",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 13:01:57",
+        1
+        ],
+            "pub_date": "2010-08-14T13:01:57+00:00",
             "slug": "kong",
             "name": "Kong"
         }
@@ -105,15 +105,15 @@
         "pk": 7,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:20",
+            "modified_date": "2010-08-15T13:18:20+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/worldcompany/djangoembed",
             "version": "",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 11:30:33",
+        1
+        ],
+            "pub_date": "2010-08-14T11:30:33+00:00",
             "slug": "djangoembed",
             "name": "Djangoembed"
         }
@@ -122,15 +122,15 @@
         "pk": 5,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:19",
+            "modified_date": "2010-08-15T13:18:19+00:00",
             "description": "",
             "project_url": "",
             "repo": "http://github.com/dmishe/django-south",
             "version": "0.7",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 10:59:47",
+        1
+        ],
+            "pub_date": "2010-08-14T10:59:47+00:00",
             "slug": "south",
             "name": "South"
         }
@@ -139,15 +139,15 @@
         "pk": 4,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:19",
+            "modified_date": "2010-08-15T13:18:19+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/fabric/fabric",
             "version": "0.1.0",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 08:00:49",
+        1
+        ],
+            "pub_date": "2010-08-14T08:00:49+00:00",
             "slug": "fabric",
             "name": "Fabric"
         }
@@ -156,15 +156,15 @@
         "pk": 14,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:18",
+            "modified_date": "2010-08-15T13:18:18+00:00",
             "description": "",
             "project_url": "",
             "repo": "http://github.com/coleifer/cue.git",
             "version": "0.1.0",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 23:19:49",
+        1
+        ],
+            "pub_date": "2010-08-14T23:19:49+00:00",
             "slug": "cue",
             "name": "Cue"
         }
@@ -173,15 +173,15 @@
         "pk": 16,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:17",
+            "modified_date": "2010-08-15T13:18:17+00:00",
             "description": "Awesome",
             "project_url": "",
             "repo": "http://github.com/pinax/pinax",
             "version": "0.9",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-15 00:12:14",
+        1
+        ],
+            "pub_date": "2010-08-15T00:12:14+00:00",
             "slug": "pinax",
             "name": "Pinax"
         }
@@ -190,15 +190,15 @@
         "pk": 2,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:16",
+            "modified_date": "2010-08-15T13:18:16+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/ericholscher/django-test-utils",
             "version": "0.2",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-14 02:16:35",
+        1
+        ],
+            "pub_date": "2010-08-14T02:16:35+00:00",
             "slug": "django-test-utils",
             "name": "Django Test Utils"
         }
@@ -278,27 +278,27 @@
             "is_active": true,
             "is_superuser": true,
             "is_staff": true,
-            "last_login": "2010-08-14 01:51:05",
+            "last_login": "2010-08-14T01:51:05+00:00",
             "groups": [],
             "user_permissions": [],
             "password": "pbkdf2_sha256$30000$Vs87OlKZEzCb$nUw1o5pGQw7ff/QhnleSpUOupBaT1DogZrVaoZyQRyc=",
             "email": "e@etest.co",
-            "date_joined": "2010-08-14 01:50:58"
+            "date_joined": "2010-08-14T01:50:58+00:00"
         }
     },
     {
         "pk": 17,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2010-08-15 13:18:14",
+            "modified_date": "2010-08-15T13:18:14+00:00",
             "description": "Awesome docs",
             "project_url": "",
             "repo": "https://github.com/toastdriven/django-haystack",
             "version": "1.1.0",
             "users": [
-		1
-	    ],
-            "pub_date": "2010-08-15 01:11:22",
+        1
+        ],
+            "pub_date": "2010-08-15T01:11:22+00:00",
             "slug": "haystack",
             "name": "Haystack"
         }
@@ -307,12 +307,12 @@
         "pk": 23,
         "model": "projects.project",
         "fields": {
-            "modified_date": "2014-09-10T11:58:01.277",
+            "modified_date": "2014-09-10T11:58:01.277+00:00",
             "description": "",
             "project_url": "",
             "repo": "https://github.com/bogususer/non-existing-repo",
             "version": "",
-            "pub_date": "2014-09-10 11:58:01",
+            "pub_date": "2014-09-10T11:58:01+00:00",
             "slug": "test_project",
             "name": "test_project"
         }

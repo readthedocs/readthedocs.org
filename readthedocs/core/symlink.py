@@ -263,7 +263,7 @@ class Symlink(object):
         symlink = self.project_root
         if os.path.islink(symlink):
             safe_unlink(symlink)
-        if os.path.exists(symlink):
+        elif os.path.exists(symlink):
             shutil.rmtree(symlink)
 
         # Create symlink

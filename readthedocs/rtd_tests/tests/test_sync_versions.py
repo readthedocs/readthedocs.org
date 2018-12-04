@@ -105,12 +105,13 @@ class TestSyncVersions(TestCase):
             self.pip.get_stable_version().identifier,
         )
 
-    def test_new_tag_update_inactive(self):
+    def test_new_tag_dont_update_inactive(self):
 
         Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
             verbose_name='0.8.3',
+            type=TAG,
             active=False,
         )
 
@@ -142,13 +143,13 @@ class TestSyncVersions(TestCase):
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
-        # Version 0.9 becomes the stable version and active
-        version_9 = Version.objects.get(slug='0.9')
+        # Version 0.9 becomes the stable version, but it's inactive
+        version_9 = self.pip.versions.get(slug='0.9')
         self.assertEqual(
             version_9.identifier,
             self.pip.get_stable_version().identifier,
         )
-        self.assertTrue(version_9.active)
+        self.assertFalse(version_9.active)
 
         # Version 0.8.3 is still inactive
         version_8 = Version.objects.get(slug='0.8.3')
@@ -650,6 +651,97 @@ class TestSyncVersions(TestCase):
             version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
+
+    def test_deletes_version_with_same_identifier(self):
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'one',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # We only have one version with an identifier `1234`
+        self.assertEqual(
+            self.pip.versions.filter(identifier='1234').count(),
+            1
+        )
+
+        # We add a new tag with the same identifier
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'two',
+                },
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'one',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # We have two versions with an identifier `1234`
+        self.assertEqual(
+            self.pip.versions.filter(identifier='1234').count(),
+            2
+        )
+
+        # We delete one version with identifier `1234`
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': '1234',
+                    'verbose_name': 'one',
+                },
+            ],
+        }
+
+        resp = self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # We have only one version with an identifier `1234`
+        self.assertEqual(
+            self.pip.versions.filter(identifier='1234').count(),
+            1
+        )
 
 
 class TestStableVersion(TestCase):

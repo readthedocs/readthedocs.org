@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 """Bazaar-related utilities."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import csv
 import re
 
-from builtins import bytes, str  # pylint: disable=redefined-builtin
+from builtins import str  # pylint: disable=redefined-builtin
 from six import StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
@@ -24,9 +29,8 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         retcode = self.run('bzr', 'status', record=False)[0]
         if retcode == 0:
-            self.up()
-        else:
-            self.clone()
+            return self.up()
+        return self.clone()
 
     def up(self):
         retcode = self.run('bzr', 'revert')[0]
@@ -87,7 +91,6 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        self.update()
         if not identifier:
             return self.up()
         return self.run('bzr', 'switch', identifier)

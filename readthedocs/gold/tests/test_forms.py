@@ -222,7 +222,7 @@ class GoldSubscriptionFormTests(TestCase):
                       mock.ANY,
                       mock.ANY),
             mock.call('post',
-                      '/v1/customers/cus_12345/subscriptions/sub_12345',
+                      '/v1/subscriptions/sub_12345',
                       {'source': mock.ANY, 'plan': 'v1-org-5'},
                       mock.ANY),
         ])

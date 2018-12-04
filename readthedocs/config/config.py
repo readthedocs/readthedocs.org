@@ -36,7 +36,6 @@ __all__ = (
     'ConfigError',
     'ConfigOptionNotSupportedError',
     'InvalidConfig',
-    'ProjectConfig',
 )
 
 ALL = 'all'
@@ -110,12 +109,10 @@ class InvalidConfig(ConfigError):
 
     message_template = 'Invalid "{key}": {error}'
 
-    def __init__(self, key, code, error_message, source_file=None,
-                 source_position=None):
+    def __init__(self, key, code, error_message, source_file=None):
         self.key = key
         self.code = code
         self.source_file = source_file
-        self.source_position = source_position
         message = self.message_template.format(
             key=key,
             code=code,
@@ -142,13 +139,17 @@ class BuildConfigBase(object):
                         from another source (like the web admin).
     """
 
+    PUBLIC_ATTRIBUTES = [
+        'version', 'formats', 'python',
+        'conda', 'build', 'doctype',
+        'sphinx', 'mkdocs', 'submodules',
+    ]
     version = None
 
-    def __init__(self, env_config, raw_config, source_file, source_position):
+    def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
         self.raw_config = raw_config
         self.source_file = source_file
-        self.source_position = source_position
         if os.path.isdir(self.source_file):
             self.base_path = self.source_file
         else:
@@ -160,10 +161,7 @@ class BuildConfigBase(object):
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
         if not os.path.isdir(self.source_file):
-            source = '{file} [{pos}]'.format(
-                file=os.path.relpath(self.source_file, self.base_path),
-                pos=self.source_position,
-            )
+            source = os.path.relpath(self.source_file, self.base_path)
             error_message = '{source}: {message}'.format(
                 source=source,
                 message=message,
@@ -175,7 +173,6 @@ class BuildConfigBase(object):
             code=code,
             error_message=error_message,
             source_file=self.source_file,
-            source_position=self.source_position,
         )
 
     @contextmanager
@@ -189,7 +186,6 @@ class BuildConfigBase(object):
                 code=error.code,
                 error_message=str(error),
                 source_file=self.source_file,
-                source_position=self.source_position,
             )
 
     def pop(self, name, container, default, raise_ex):
@@ -247,6 +243,16 @@ class BuildConfigBase(object):
                 if v < ver + 1
             )
         return ver
+
+    def as_dict(self):
+        config = {}
+        for name in self.PUBLIC_ATTRIBUTES:
+            attr = getattr(self, name)
+            if hasattr(attr, '_asdict'):
+                config[name] = attr._asdict()
+            else:
+                config[name] = attr
+        return config
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
@@ -1043,16 +1049,6 @@ class BuildConfigV2(BuildConfigBase):
         return Submodules(**self._config['submodules'])
 
 
-class ProjectConfig(list):
-
-    """Wrapper for multiple build configs."""
-
-    def validate(self):
-        """Validates each configuration build."""
-        for build in self:
-            build.validate()
-
-
 def load(path, env_config):
     """
     Load a project configuration and the top-most build config for a given path.
@@ -1068,10 +1064,9 @@ def load(path, env_config):
             'No configuration file found',
             code=CONFIG_REQUIRED
         )
-    build_configs = []
     with open(filename, 'r') as configuration_file:
         try:
-            configs = parse(configuration_file.read())
+            config = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
                 'Parse error in {filename}: {message}'.format(
@@ -1080,23 +1075,19 @@ def load(path, env_config):
                 ),
                 code=CONFIG_SYNTAX_INVALID,
             )
-        for i, config in enumerate(configs):
-            allow_v2 = env_config.get('allow_v2')
-            if allow_v2:
-                version = config.get('version', 1)
-            else:
-                version = 1
-            build_config = get_configuration_class(version)(
-                env_config,
-                config,
-                source_file=filename,
-                source_position=i,
-            )
-            build_configs.append(build_config)
+        allow_v2 = env_config.get('allow_v2')
+        if allow_v2:
+            version = config.get('version', 1)
+        else:
+            version = 1
+        build_config = get_configuration_class(version)(
+            env_config,
+            config,
+            source_file=filename,
+        )
 
-    project_config = ProjectConfig(build_configs)
-    project_config.validate()
-    return project_config
+    build_config.validate()
+    return build_config
 
 
 def get_configuration_class(version):
