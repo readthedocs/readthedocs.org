@@ -215,8 +215,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'python_interpreter',
             # Fringe
             'analytics_code',
-            # Version Support
-            # 'num_major', 'num_minor', 'num_point',
         )
 
     def __init__(self, *args, **kwargs):

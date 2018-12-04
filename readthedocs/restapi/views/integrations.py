@@ -419,7 +419,7 @@ class APIWebhookView(WebhookMixin, APIView):
         the integration token to be specified as a POST argument.
         """
         # If the user is not an admin of the project, fall back to token auth
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             try:
                 return (Project.objects
                         .for_admin_user(self.request.user)
