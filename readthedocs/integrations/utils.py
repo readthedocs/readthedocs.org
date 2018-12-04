@@ -3,6 +3,7 @@
 from __future__ import division, print_function, unicode_literals
 
 import os
+import six
 
 
 def normalize_request_payload(request):
@@ -33,4 +34,8 @@ def get_secret(size=64):
 
     :param size: Number of bytes
     """
-    return os.urandom(size).hex()
+    secret = os.urandom(size)
+    if six.PY2:
+        # On python two os.urandom returns str instead of bytes
+        return secret.encode('hex')
+    return secret.hex()
