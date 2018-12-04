@@ -55,7 +55,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             'container_time_limit',
             'install_project',
             'use_system_packages',
-            'suffix',
             'skip',
             'requirements_file',
             'python_interpreter',

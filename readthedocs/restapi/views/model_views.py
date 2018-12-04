@@ -95,29 +95,6 @@ class ProjectViewSet(UserSelectViewSet):
     filterset_fields = ('slug',)
 
     @decorators.action(detail=True)
-    def valid_versions(self, request, **kwargs):
-        """Maintain state of versions that are wanted."""
-        project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
-        if (not project.num_major or not project.num_minor or
-                not project.num_point):
-            return Response(
-                {
-                    'error': 'Project does not support point version control',
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        version_strings = project.supported_versions()
-        # Disable making old versions inactive for now.
-        # project.versions.exclude(verbose_name__in=version_strings).update(active=False)
-        project.versions.filter(verbose_name__in=version_strings).update(
-            active=True,
-        )
-        return Response({
-            'flat': version_strings,
-        })
-
-    @decorators.action(detail=True)
     def translations(self, *_, **__):
         translations = self.get_object().translations.all()
         return Response({

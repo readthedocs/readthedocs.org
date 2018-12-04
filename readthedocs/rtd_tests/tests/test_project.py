@@ -33,13 +33,6 @@ class ProjectMixin(object):
 
 class TestProject(ProjectMixin, TestCase):
 
-    def test_valid_versions(self):
-        r = self.client.get('/api/v2/project/6/valid_versions/', {})
-        resp = json.loads(r.content)
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['flat'][0], '0.8')
-        self.assertEqual(resp['flat'][1], '0.8.1')
-
     def test_subprojects(self):
         r = self.client.get('/api/v2/project/6/subprojects/', {})
         resp = json.loads(r.content)

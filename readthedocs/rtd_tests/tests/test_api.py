@@ -1461,7 +1461,6 @@ class APIVersionTests(TestCase):
                 'show_advertising': True,
                 'skip': False,
                 'slug': 'pip',
-                'suffix': '.rst',
                 'use_system_packages': False,
                 'users': [1],
             },
