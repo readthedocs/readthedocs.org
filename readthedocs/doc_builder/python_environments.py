@@ -2,16 +2,21 @@
 """An abstraction over virtualenv and Conda environments."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
+import copy
 import itertools
 import json
 import logging
 import os
 import shutil
-from builtins import object, open
 
 import six
+from builtins import object, open
 from django.conf import settings
 
 from readthedocs.doc_builder.config import load_yaml_config
@@ -273,7 +278,7 @@ class Virtualenv(PythonEnvironment):
                 'readthedocs-sphinx-ext<0.6'
             ])
 
-        cmd = pip_install_cmd.copy()
+        cmd = copy.copy(pip_install_cmd)
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
