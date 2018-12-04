@@ -25,13 +25,14 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
+    EnvironmentVariableForm,
     ProjectAdvancedForm,
     ProjectBasicsForm,
     ProjectExtraForm,
     TranslationForm,
     UpdateProjectForm,
 )
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 
 
 class TestProjectForms(TestCase):
@@ -478,3 +479,55 @@ class TestTranslationForms(TestCase):
             instance=self.project_b_en
         )
         self.assertTrue(form.is_valid())
+
+
+class TestProjectEnvironmentVariablesForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_use_invalid_names(self):
+        data = {
+            'name': 'READTHEDOCS__INVALID',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Variable name can't start with READTHEDOCS",
+            form.errors['name'],
+        )
+        data = {
+            'name': '__INVALID',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Variable name can't start with __ (double underscore)",
+            form.errors['name'],
+        )
+
+        get(EnvironmentVariable, name='EXISTENT_VAR', project=self.project)
+        data = {
+            'name': 'EXISTENT_VAR',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a variable with this name for this project',
+            form.errors['name'],
+        )
+
+    def test_create(self):
+        data = {
+            'name': 'MYTOKEN',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        form.save()
+
+        self.assertEqual(EnvironmentVariable.objects.count(), 1)
+        self.assertEqual(EnvironmentVariable.objects.first().name, 'MYTOKEN')
+        self.assertEqual(EnvironmentVariable.objects.first().value, 'string here')
