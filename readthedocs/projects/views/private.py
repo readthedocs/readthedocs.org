@@ -677,43 +677,6 @@ def project_redirects_delete(request, project_slug):
     )
 
 
-@login_required
-def project_version_delete_html(request, project_slug, version_slug):
-    """
-    Project version 'delete' HTML.
-
-    This marks a version as not built
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    version = get_object_or_404(
-        Version.objects.public(
-            user=request.user,
-            project=project,
-            only_active=False,
-        ),
-        slug=version_slug,
-    )
-
-    if not version.active:
-        version.built = False
-        version.save()
-        broadcast(
-            type='app',
-            task=tasks.clear_artifacts,
-            args=[version.get_artifact_paths()],
-        )
-    else:
-        return HttpResponseBadRequest(
-            "Can't delete HTML for an active version.",
-        )
-    return HttpResponseRedirect(
-        reverse('project_version_list', kwargs={'project_slug': project_slug}),
-    )
-
-
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     model = Domain
     form_class = DomainForm

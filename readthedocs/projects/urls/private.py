@@ -44,10 +44,6 @@ urlpatterns = [
         ProjectAdvancedUpdate.as_view(),
         name='projects_advanced'),
 
-    url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
-        private.project_version_delete_html,
-        name='project_version_delete_html'),
-
     url(r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/$',
         private.project_version_detail,
         name='project_version_detail'),

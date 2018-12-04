@@ -102,10 +102,6 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/pip/advanced/')
         self.assertRedirectToLogin(response)
 
-    def test_version_delete_html(self):
-        response = self.client.get('/dashboard/pip/version/0.8.1/delete_html/')
-        self.assertRedirectToLogin(response)
-
     def test_version_detail(self):
         response = self.client.get('/dashboard/pip/version/0.8.1/')
         self.assertRedirectToLogin(response)
