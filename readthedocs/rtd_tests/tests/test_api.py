@@ -993,7 +993,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'foo': 'bar'},
             format='json',
-            **headers,
+            **headers
         )
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.data['detail'], 'Payload not valid')
@@ -1021,7 +1021,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             json.loads(payload),
             format='json',
-            **headers,
+            **headers
         )
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.data['detail'], 'Payload not valid')
