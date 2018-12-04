@@ -221,7 +221,7 @@ def elastic_project_search(request, project_slug):
     query = request.GET.get('q', None)
     if query:
         user = ''
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             user = request.user
         log.info(
             LOG_TEMPLATE.format(
