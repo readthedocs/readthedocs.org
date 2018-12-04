@@ -33,6 +33,7 @@ class Backend(BaseVCS):
     supports_branches = True
     supports_submodules = True
     fallback_branch = 'master'  # default branch
+    repo_depth = 50
 
     def __init__(self, *args, **kwargs):
         super(Backend, self).__init__(*args, **kwargs)
@@ -129,7 +130,8 @@ class Backend(BaseVCS):
 
     def fetch(self):
         code, stdout, stderr = self.run(
-            'git', 'fetch', '--tags', '--prune', '--prune-tags',
+            'git', 'fetch', '--depth', str(self.repo_depth),
+            '--tags', '--prune', '--prune-tags',
         )
         if code != 0:
             raise RepositoryError
@@ -148,7 +150,8 @@ class Backend(BaseVCS):
     def clone(self):
         """Clones the repository."""
         code, stdout, stderr = self.run(
-            'git', 'clone', self.repo_url, '.'
+            'git', 'clone', '--depth', str(self.repo_depth),
+            '--no-single-branch', self.repo_url, '.'
         )
         if code != 0:
             raise RepositoryError
