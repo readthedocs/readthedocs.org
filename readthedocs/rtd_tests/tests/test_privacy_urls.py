@@ -14,7 +14,7 @@ from taggit.models import Tag
 from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Project, Domain, EnvironmentVariable
 from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
 
@@ -150,6 +150,7 @@ class ProjectMixin(URLAccessMixin):
             status_code=200,
         )
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.environment_variable = get(EnvironmentVariable, project=self.pip)
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'subproject_slug': self.subproject.slug,
@@ -162,6 +163,7 @@ class ProjectMixin(URLAccessMixin):
             'domain_pk': self.domain.pk,
             'integration_pk': self.integration.pk,
             'exchange_pk': self.webhook_exchange.pk,
+            'environmentvariable_pk': self.environment_variable.pk,
         }
 
 
