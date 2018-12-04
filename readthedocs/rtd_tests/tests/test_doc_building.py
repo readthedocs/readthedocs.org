@@ -1193,7 +1193,7 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once()
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1212,7 +1212,7 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once()
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
