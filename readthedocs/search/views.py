@@ -72,7 +72,7 @@ def elastic_search(request):
 
     if user_input.query:
         user = ''
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             user = request.user
         log.info(
             LOG_TEMPLATE.format(

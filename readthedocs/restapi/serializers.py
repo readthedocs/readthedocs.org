@@ -168,7 +168,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     def get_matches(self, obj):
         request = self.context['request']
-        if request.user is not None and request.user.is_authenticated():
+        if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
 
 
