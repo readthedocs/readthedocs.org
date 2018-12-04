@@ -114,10 +114,19 @@ class WebhookMixin(object):
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        integration, _ = Integration.objects.get_or_create(
-            project=self.project,
-            integration_type=self.integration_type,
-        )
+        try:
+            integration = Integration.objects.get(
+                project=self.project,
+                integration_type=self.integration_type,
+            )
+        except Integration.DoesNotExist:
+            integration = Integration.objects.create(
+                project=self.project,
+                integration_type=self.integration_type,
+                # If we didn't create the integration,
+                # we didn't set a secret.
+                secret='',
+            )
         return integration
 
     def get_response_push(self, project, branches):
@@ -198,6 +207,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 self.project.slug
             )
             return True
+        if not signature:
+            return False
         msg = self.request.raw_body
         digest = hmac.new(
             secret.encode(),
@@ -270,6 +281,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 self.project.slug
             )
             return True
+        if not token:
+            return False
         result = token == secret
         return result
 

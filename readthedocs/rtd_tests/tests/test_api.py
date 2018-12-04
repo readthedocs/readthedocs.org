@@ -989,13 +989,20 @@ class IntegrationsTests(TestCase):
 
     def test_github_invalid_payload(self, trigger_build):
         client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        wrong_signature = '1234'
+        self.assertTrue(integration.secret)
+        self.assertNotEqual(integration.secret, wrong_signature)
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
-            GITHUB_SIGNATURE_HEADER: '1234',
+            GITHUB_SIGNATURE_HEADER: wrong_signature,
         }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'foo': 'bar'},
+            self.github_payload,
             format='json',
             **headers
         )
@@ -1033,9 +1040,14 @@ class IntegrationsTests(TestCase):
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
             GITHUB_SIGNATURE_HEADER: '',
         }
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        self.assertTrue(integration.secret)
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'foo': 'bar'},
+            self.github_payload,
             format='json',
             **headers
         )
@@ -1224,12 +1236,19 @@ class IntegrationsTests(TestCase):
 
     def test_gitlab_invalid_payload(self, trigger_build):
         client = APIClient()
+        wrong_secret = '1234'
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+        )
+        self.assertTrue(integration.secret)
+        self.assertNotEqual(integration.secret, wrong_secret)
         headers = {
-            GITLAB_TOKEN_HEADER: '1234',
+            GITLAB_TOKEN_HEADER: wrong_secret,
         }
         resp = client.post(
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
-            {'object_kind': 'pull_request'},
+            self.gitlab_payload,
             format='json',
             **headers
         )

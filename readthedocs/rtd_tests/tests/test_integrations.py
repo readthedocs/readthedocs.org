@@ -1,15 +1,19 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
-from builtins import range
 import django_dynamic_fixture as fixture
-from django.test import TestCase, RequestFactory
-from django.contrib.contenttypes.models import ContentType
+from builtins import range
+from django.test import TestCase
 from rest_framework.test import APIClient
-from rest_framework.test import APIRequestFactory
-from rest_framework.response import Response
 
 from readthedocs.integrations.models import (
-    HttpExchange, Integration, GitHubWebhook
+    GitHubWebhook,
+    HttpExchange,
+    Integration,
 )
 from readthedocs.projects.models import Project
 
@@ -26,9 +30,13 @@ class HttpExchangeTests(TestCase):
         client = APIClient()
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
-        integration = fixture.get(Integration, project=project,
-                                  integration_type=Integration.GITHUB_WEBHOOK,
-                                  provider_data='')
+        integration = fixture.get(
+            Integration,
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            provider_data='',
+            secret='',
+        )
         resp = client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
             {'ref': 'exchange_json'},
@@ -59,9 +67,13 @@ class HttpExchangeTests(TestCase):
         client = APIClient()
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
-        integration = fixture.get(Integration, project=project,
-                                  integration_type=Integration.GITHUB_WEBHOOK,
-                                  provider_data='')
+        integration = fixture.get(
+            Integration,
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            provider_data='',
+            secret='',
+        )
         resp = client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
             'payload=%7B%22ref%22%3A+%22exchange_form%22%7D',
