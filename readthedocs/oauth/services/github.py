@@ -172,7 +172,7 @@ class GitHubService(Service):
                 ),
                 'content_type': 'json',
             },
-            'events': ['push', 'pull_request'],
+            'events': ['push', 'pull_request', 'create', 'delete'],
         })
 
     def setup_webhook(self, project):

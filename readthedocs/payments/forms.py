@@ -5,7 +5,7 @@ from builtins import str
 from builtins import object
 import logging
 
-from stripe.resource import Customer, Charge
+from stripe import Customer, Charge
 from stripe.error import InvalidRequestError
 from django import forms
 from django.utils.translation import ugettext_lazy as _
