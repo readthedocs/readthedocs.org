@@ -243,11 +243,13 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
         return {
             'integration_id': self.integration.id,
+            'environmentvariable_id': self.environment_variable.id,
         }
 
     def login(self):
@@ -277,6 +279,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -285,6 +288,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
     def get_url_path_ctx(self):
         return {
             'integration_id': self.integration.id,
+            'environmentvariable_id': self.environment_variable.id,
         }
 
     def login(self):

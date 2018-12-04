@@ -907,4 +907,7 @@ class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
-    pass
+
+    # This removes the delete confirmation
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
