@@ -250,6 +250,7 @@ class GitLabService(Service):
                     },
                 ),
             ),
+            'token': integration.secret,
 
             # Optional
             'issues_events': False,

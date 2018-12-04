@@ -38,6 +38,7 @@ GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
+GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
 GITLAB_PUSH = 'push'
 GITLAB_NULL_HASH = '0' * 40
 GITLAB_TAG_PUSH = 'tag_push'
@@ -260,7 +261,16 @@ class GitLabWebhookView(WebhookMixin, APIView):
     integration_type = Integration.GITLAB_WEBHOOK
 
     def is_payload_valid(self):
-        return True
+        """GitLab only sends back the token."""
+        token = self.request.META.get(GITLAB_TOKEN_HEADER)
+        if not token:
+            log.info(
+                'Skipping payload validation for project: %s',
+                self.project.slug
+            )
+            return True
+        result = token == self.integration.secret
+        return result
 
     def handle_webhook(self):
         """
