@@ -182,6 +182,15 @@ class ProjectExtraForm(ProjectForm):
         widget=forms.Textarea,
     )
 
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags')
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _('Each tag must be less than 100 characters long.')
+                )
+        return tags
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
