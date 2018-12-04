@@ -280,8 +280,9 @@ class GitLabService(Service):
             integration = Integration.objects.create(
                 project=project,
                 integration_type=Integration.GITLAB_WEBHOOK,
-                secret=get_secret(),
             )
+        integration.secret = get_secret()
+        integration.save()
 
         repo_id = self._get_repo_id(project)
         if repo_id is None:
@@ -340,6 +341,8 @@ class GitLabService(Service):
         if repo_id is None:
             return (False, None)
 
+        integration.secret = get_secret()
+        integration.save()
         data = self.get_webhook_data(repo_id, project, integration)
         hook_id = integration.provider_data.get('id')
         resp = None

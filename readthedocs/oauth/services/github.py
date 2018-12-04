@@ -1,20 +1,25 @@
 """OAuth utility functions."""
 
-from __future__ import absolute_import
-from builtins import str
-import logging
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import json
+import logging
 import re
 
+from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from requests.exceptions import RequestException
-from allauth.socialaccount.models import SocialToken
-from readthedocs.integrations.utils import get_secret
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -197,8 +202,9 @@ class GitHubService(Service):
             integration = Integration.objects.create(
                 project=project,
                 integration_type=Integration.GITHUB_WEBHOOK,
-                secret=get_secret(),
             )
+        integration.secret = get_secret()
+        integration.save()
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
@@ -251,6 +257,8 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
+        integration.secret = get_secret()
+        integration.save()
         data = self.get_webhook_data(project, integration)
         url = integration.provider_data.get('url')
         resp = None
