@@ -11,7 +11,6 @@ import datetime
 import hashlib
 import hmac
 import json
-import textwrap
 
 import mock
 from allauth.socialaccount.models import SocialAccount
