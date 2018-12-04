@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0032_increase_webhook_maxsize'),
+        ('projects', '0033_add_environment_variables'),
     ]
 
     operations = [
