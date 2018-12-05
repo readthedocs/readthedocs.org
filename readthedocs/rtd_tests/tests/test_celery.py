@@ -120,16 +120,10 @@ class TestCeleryBuilding(RTDTestCase):
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
-    @patch('readthedocs.projects.tasks.LocalBuildEnvironment')
-    def test_no_notification_on_version_locked_error(self, mock_cls):
-        x = VersionLockedError
-        y = VersionLockedError()
-        z = None
-
-        mock_cls.handle_exception.return_value = False
-        mock_cls.failure = VersionLockedError()
-        mock_cls.__exit__.side_effect = lambda x, y, z: False
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.send_notifications')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
+    def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
+        mock_setup_vcs.side_effect = VersionLockedError()
 
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
@@ -139,6 +133,8 @@ class TestCeleryBuilding(RTDTestCase):
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False)
+
+        mock_send_notifications.assert_not_called()
         self.assertTrue(result.successful())
 
     def test_sync_repository(self):
