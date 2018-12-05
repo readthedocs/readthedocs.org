@@ -12,6 +12,9 @@ class Base(object):
 
     Each inherited class should define
     its attibutes in the `__slots__` attribute.
+
+    We are using `__slots__` so we can't add more attributes by mistake,
+    this is similar to a namedtuple.
     """
 
     def __init__(self, **kwargs):
