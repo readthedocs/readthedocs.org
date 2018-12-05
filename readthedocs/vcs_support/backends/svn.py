@@ -39,7 +39,7 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
-        retcode = self.run('svn', 'info', record_as_success=True)[0]
+        retcode, _, _ = self.run('svn', 'info', record=False)
         if retcode == 0:
             return self.up()
         return self.co()

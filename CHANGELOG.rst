@@ -1,3 +1,25 @@
+Version 2.8.3
+-------------
+
+:Date: December 05, 2018
+
+* `@nutann3 <http://github.com/nutann3>`__: Update "install Sphinx" URL (`#4959 <https://github.com/rtfd/readthedocs.org/pull/4959>`__)
+* `@humitos <http://github.com/humitos>`__: Pin redis to the current stable and compatible version (`#4956 <https://github.com/rtfd/readthedocs.org/pull/4956>`__)
+* `@humitos <http://github.com/humitos>`__: Properly set LANG environment variables (`#4954 <https://github.com/rtfd/readthedocs.org/pull/4954>`__)
+* `@humitos <http://github.com/humitos>`__: Adapt code to remove and ignore warnings (`#4953 <https://github.com/rtfd/readthedocs.org/pull/4953>`__)
+* `@stsewd <http://github.com/stsewd>`__: Shallow git clone (`#4939 <https://github.com/rtfd/readthedocs.org/pull/4939>`__)
+* `@stsewd <http://github.com/stsewd>`__: Install latest version of pip (`#4938 <https://github.com/rtfd/readthedocs.org/pull/4938>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix svn update (`#4933 <https://github.com/rtfd/readthedocs.org/pull/4933>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.8.2 (`#4931 <https://github.com/rtfd/readthedocs.org/pull/4931>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove repeated and dead code (`#4929 <https://github.com/rtfd/readthedocs.org/pull/4929>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove deprecated sudo from travis (`#4919 <https://github.com/rtfd/readthedocs.org/pull/4919>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Validate profile form fields (`#4910 <https://github.com/rtfd/readthedocs.org/pull/4910>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Calculate actual ad views (`#4885 <https://github.com/rtfd/readthedocs.org/pull/4885>`__)
+* `@stsewd <http://github.com/stsewd>`__: Sync versions when creating/deleting versions (`#4876 <https://github.com/rtfd/readthedocs.org/pull/4876>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove unused project model fields (`#4870 <https://github.com/rtfd/readthedocs.org/pull/4870>`__)
+* `@humitos <http://github.com/humitos>`__: All package updates (`#4792 <https://github.com/rtfd/readthedocs.org/pull/4792>`__)
+* `@humitos <http://github.com/humitos>`__: Support git unicode branches (`#4433 <https://github.com/rtfd/readthedocs.org/pull/4433>`__)
+
 Version 2.8.2
 -------------
 
