@@ -59,7 +59,9 @@ class Backend(BaseVCS):
         self.make_clean_working_dir()
         if identifier:
             base = self.base_url.rstrip('/')
-            tag = identifier.lstrip('/')
+            tag = ''
+            if identifier:
+                tag = identifier.lstrip('/')
             url = '{}/{}'.format(base, tag)
         else:
             url = self.repo_url
