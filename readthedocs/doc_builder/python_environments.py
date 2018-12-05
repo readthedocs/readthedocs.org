@@ -73,9 +73,9 @@ class PythonEnvironment(object):
         """Install all requirements from the config object."""
         for install in self.config.python.install:
             if isinstance(install, PythonInstallRequirements):
-                return self.install_requirements_file(install)
+                self.install_requirements_file(install)
             if isinstance(install, PythonInstall):
-                return self.install_package(install)
+                self.install_package(install)
 
     def install_package(self, install):
         """Install the package using pip or setuptools."""
