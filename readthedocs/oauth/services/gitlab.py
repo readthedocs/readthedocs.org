@@ -271,7 +271,7 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        integration, _ = self.get_or_create_webhook(
+        integration, _ = self.get_or_create_integration(
             project,
             Integration.GITLAB_WEBHOOK,
         )

@@ -193,7 +193,7 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        integration, _ = self.get_or_create_webhook(
+        integration, _ = self.get_or_create_integration(
             project,
             Integration.GITHUB_WEBHOOK,
         )
