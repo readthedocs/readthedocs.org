@@ -81,10 +81,7 @@ class ResolverBase(object):
                      language=None, single_version=None, subdomain=None,
                      cname=None, private=None):
         """Resolve a URL with a subset of fields defined."""
-        relation = project.superprojects.first()
         cname = cname or project.domains.filter(canonical=True).first()
-        main_language_project = project.main_language_project
-
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
@@ -93,17 +90,27 @@ class ResolverBase(object):
 
         filename = self._fix_filename(project, filename)
 
-        if main_language_project:
-            project_slug = main_language_project.slug
-            language = project.language
-            subproject_slug = None
-        elif relation:
-            project_slug = relation.parent.slug
-            subproject_slug = relation.alias
-            cname = relation.parent.domains.filter(canonical=True).first()
-        else:
-            project_slug = project.slug
-            subproject_slug = None
+        current_project = project
+        project_slug = project.slug
+        subproject_slug = None
+        # We currently support more than 2 levels of nesting subprojects and
+        # translations, only loop twice to avoid sticking in the loop
+        for _ in range(0, 2):
+            main_language_project = current_project.main_language_project
+            relation = current_project.superprojects.first()
+
+            if main_language_project:
+                current_project = main_language_project
+                project_slug = main_language_project.slug
+                language = project.language
+                subproject_slug = None
+            elif relation:
+                current_project = relation.parent
+                project_slug = relation.parent.slug
+                subproject_slug = relation.alias
+                cname = relation.parent.domains.filter(canonical=True).first()
+            else:
+                break
 
         single_version = bool(project.single_version or single_version)
 
@@ -122,14 +129,16 @@ class ResolverBase(object):
     def resolve_domain(self, project, private=None):
         # pylint: disable=unused-argument
         canonical_project = self._get_canonical_project(project)
-        domain = canonical_project.domains.filter(canonical=True).first()
+        domain = self._get_project_custom_domain(canonical_project)
         if domain:
             return domain.domain
-        elif self._use_subdomain():
+
+        if self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
+
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, protocol='http', filename='', private=None,
+    def resolve(self, project, require_https=False, filename='', private=None,
                 **kwargs):
         if private is None:
             version_slug = kwargs.get('version_slug')
@@ -137,26 +146,64 @@ class ResolverBase(object):
                 version_slug = project.get_default_version()
             private = self._get_private(project, version_slug)
 
+        canonical_project = self._get_canonical_project(project)
+        custom_domain = self._get_project_custom_domain(canonical_project)
+        use_custom_domain = self._use_custom_domain(custom_domain)
+
+        if use_custom_domain:
+            domain = custom_domain.domain
+        elif self._use_subdomain():
+            domain = self._get_project_subdomain(canonical_project)
+        else:
+            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+
+        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
+
+        use_https_protocol = any([
+            # Rely on the ``Domain.https`` field
+            use_custom_domain and custom_domain.https,
+            # or force it if specified
+            require_https,
+            # or fallback to settings
+            use_https and public_domain and public_domain in domain,
+        ])
+        protocol = 'https' if use_https_protocol else 'http'
+
         return '{protocol}://{domain}{path}'.format(
             protocol=protocol,
-            domain=self.resolve_domain(project, private=private),
+            domain=domain,
             path=self.resolve_path(project, filename=filename, private=private,
                                    **kwargs),
         )
 
-    def _get_canonical_project(self, project):
+    def _get_canonical_project(self, project, projects=None):
         """
-        Get canonical project in the case of subproject or translations.
+        Recursively get canonical project for subproject or translations.
+
+        We need to recursively search here as a nested translations inside
+        subprojects, and vice versa, are supported.
 
         :type project: Project
+        :type projects: List of projects for iteration
         :rtype: Project
         """
-        main_language_project = project.main_language_project
+        # Track what projects have already been traversed to avoid infinite
+        # recursion. We can't determine a root project well here, so you get
+        # what you get if you have configured your project in a strange manner
+        if projects is None:
+            projects = [project]
+        else:
+            projects.append(project)
+        next_project = None
+
         relation = project.superprojects.first()
-        if main_language_project:
-            return main_language_project
+        if project.main_language_project:
+            next_project = project.main_language_project
         elif relation:
-            return relation.parent
+            next_project = relation.parent
+        if next_project and next_project not in projects:
+            return self._get_canonical_project(next_project, projects)
         return project
 
     def _get_project_subdomain(self, project):
@@ -166,6 +213,9 @@ class ResolverBase(object):
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
             return "%s.%s" % (subdomain_slug, public_domain)
+
+    def _get_project_custom_domain(self, project):
+        return project.domains.filter(canonical=True).first()
 
     def _get_private(self, project, version_slug):
         from readthedocs.builds.models import Version
@@ -203,6 +253,17 @@ class ResolverBase(object):
         else:
             path = ""
         return path
+
+    def _use_custom_domain(self, custom_domain):
+        """
+        Make decision about whether to use a custom domain to serve docs.
+
+        Always use the custom domain if it exists.
+
+        :param custom_domain: Domain instance or ``None``
+        :type custom_domain: readthedocs.projects.models.Domain
+        """
+        return True if custom_domain is not None else False
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""

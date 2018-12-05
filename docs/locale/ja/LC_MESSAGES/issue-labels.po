@@ -1,0 +1,251 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Japanese (https://www.transifex.com/readthedocs/teams/2534/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../issue-labels.rst:2
+msgid "Overview of issue labels"
+msgstr ""
+
+#: ../../issue-labels.rst:4
+msgid ""
+"Here is a full list of labels that we use in the `GitHub issue tracker`_ and"
+" what they stand for."
+msgstr ""
+
+#: ../../issue-labels.rst:18
+msgid "*Accepted*"
+msgstr ""
+
+#: ../../issue-labels.rst:10
+msgid ""
+"Issues with this label are issues that the core team has accepted on to the "
+"roadmap. The core team focuses on accepted bugs, features, and improvements "
+"that are on our immediate roadmap and will give priority to these issues. "
+"Pull requests could be delayed or closed if the pull request doesn't align "
+"with our current roadmap. An issue or pull request that has not been "
+"accepted should either eventually move to an accepted state, or should be "
+"closed. As an issue is accepted, we will find room for it on our roadmap, "
+"either on an upcoming release (point release milestones), or on a future "
+"milestone project (named milestones)."
+msgstr ""
+
+#: ../../issue-labels.rst:24
+msgid "*Bug*"
+msgstr ""
+
+#: ../../issue-labels.rst:21
+msgid ""
+"An issue describing unexpected or malicious behaviour of the readthedocs.org"
+" software. A Bug issue differs from an Improvement issue in that Bug issues "
+"are given priority on our roadmap. On release, these issues generally only "
+"warrant incrementing the patch level version."
+msgstr ""
+
+#: ../../issue-labels.rst:27
+msgid "*Design*"
+msgstr ""
+
+#: ../../issue-labels.rst:27
+msgid "Issues related to the UI of the readthedocs.org website."
+msgstr ""
+
+#: ../../issue-labels.rst:33
+msgid "*Feature*"
+msgstr ""
+
+#: ../../issue-labels.rst:30
+msgid ""
+"Issues that describe new features. Issues that do not describe new features,"
+" such as code cleanup or fixes that are not related to a bug, should "
+"probably be given the Improvement label instead. On release, issues with the"
+" Feature label warrant at least a minor version increase."
+msgstr ""
+
+#: ../../issue-labels.rst:37
+msgid "*Good First Issue*"
+msgstr ""
+
+#: ../../issue-labels.rst:36
+msgid ""
+"This label marks issues that are easy to get started with. The issue should "
+"be ideal for beginners to dive into the code base."
+msgstr ""
+
+#: ../../issue-labels.rst:40
+msgid "*Priority: high*"
+msgstr ""
+
+#: ../../issue-labels.rst:40
+msgid "Issues with this label should be resolved as quickly as possible."
+msgstr ""
+
+#: ../../issue-labels.rst:43
+msgid "*Priority: low*"
+msgstr ""
+
+#: ../../issue-labels.rst:43
+msgid ""
+"Issues with this label won't have the immediate focus of the core team."
+msgstr ""
+
+#: ../../issue-labels.rst:50
+msgid "*Improvement*"
+msgstr ""
+
+#: ../../issue-labels.rst:46
+msgid ""
+"An issue with this label is not a Bug nor a Feature. Code cleanup or small "
+"changes to existing features would likely have this label. The distinction "
+"for this label is that these issues have a lower priority on our roadmap "
+"compared to issues labeled Bug, and aren't implementing new features, such "
+"as a Feature issue might."
+msgstr ""
+
+#: ../../issue-labels.rst:54
+msgid "*Needed: design decision*"
+msgstr ""
+
+#: ../../issue-labels.rst:53
+msgid ""
+"Issues that need a design decision are blocked for development until a "
+"project leader clarifies the way in which the issue should be approached."
+msgstr ""
+
+#: ../../issue-labels.rst:58
+msgid "*Needed: documentation*"
+msgstr ""
+
+#: ../../issue-labels.rst:57
+msgid ""
+"If an issue involves creating or refining documentation, this label will be "
+"assigned."
+msgstr ""
+
+#: ../../issue-labels.rst:65
+msgid "*Needed: more information*"
+msgstr ""
+
+#: ../../issue-labels.rst:61
+msgid ""
+"This label indicates that a reply with more information is required from the"
+" bug reporter. If no response is given by the reporter, the issue is "
+"considered invalid after 2 weeks and will be closed. See the documentation "
+"about our :ref:`triage process <triage-not-enough-information>` for more "
+"information."
+msgstr ""
+
+#: ../../issue-labels.rst:69
+msgid "*Needed: patch*"
+msgstr ""
+
+#: ../../issue-labels.rst:68
+msgid ""
+"This label indicates that a patch is required in order to resolve the issue."
+" A fix should be proposed via a pull request on GitHub."
+msgstr ""
+
+#: ../../issue-labels.rst:73
+msgid "*Needed: tests*"
+msgstr ""
+
+#: ../../issue-labels.rst:72
+msgid ""
+"This label indicates that a better test coverage is required to resolve the "
+"issue. New tests should be proposed via a pull request on GitHub."
+msgstr ""
+
+#: ../../issue-labels.rst:77
+msgid "*Needed: replication*"
+msgstr ""
+
+#: ../../issue-labels.rst:76
+msgid ""
+"This label indicates that a bug has been reported, but has not been "
+"successfully replicated by another user or contributor yet."
+msgstr ""
+
+#: ../../issue-labels.rst:80
+msgid "*Operations*"
+msgstr ""
+
+#: ../../issue-labels.rst:80
+msgid "Issues that require changes in the server infrastructure."
+msgstr ""
+
+#: ../../issue-labels.rst:84
+msgid "*PR: work in progress*"
+msgstr ""
+
+#: ../../issue-labels.rst:83
+msgid ""
+"Pull Requests that are not complete yet. A final review is not possible yet,"
+" but every Pull Request is open for discussion."
+msgstr ""
+
+#: ../../issue-labels.rst:88
+msgid "*PR: hotfix*"
+msgstr ""
+
+#: ../../issue-labels.rst:87
+msgid ""
+"Pull request was applied directly to production after a release. These pull "
+"requests still need review to be merged into the next release."
+msgstr ""
+
+#: ../../issue-labels.rst:92
+msgid "*Sprintable*"
+msgstr ""
+
+#: ../../issue-labels.rst:91
+msgid ""
+"Sprintable are all issues that have the right amount of scope to be handled "
+"during a sprint. They are very focused and encapsulated."
+msgstr ""
+
+#: ../../issue-labels.rst:96
+msgid "*Status: blocked*"
+msgstr ""
+
+#: ../../issue-labels.rst:95
+msgid ""
+"The issue cannot be resolved until some other issue has been closed. See the"
+" issue's log for which issue is blocking this issue."
+msgstr ""
+
+#: ../../issue-labels.rst:101
+msgid "*Status: stale*"
+msgstr ""
+
+#: ../../issue-labels.rst:99
+msgid ""
+"A issue is stale if it there has been no activity on it for 90 days. Once a "
+"issue is determined to be stale, it will be closed after 2 weeks unless "
+"there is activity on the issue."
+msgstr ""
+
+#: ../../issue-labels.rst:106
+msgid "*Support*"
+msgstr ""
+
+#: ../../issue-labels.rst:104
+msgid ""
+"Questions that needs answering but do not require code changes or issues "
+"that only require a one time action on the server will have this label. See "
+"the documentation about our :ref:`triage process <triage-support-tickets>` "
+"for more information."
+msgstr ""

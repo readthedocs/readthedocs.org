@@ -2,32 +2,40 @@ language: python
 python:
   - 2.7
   - 3.6
-sudo: false
+env:
+  - ES_VERSION=1.3.9 ES_DOWNLOAD_URL=https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
 matrix:
   include:
-    - python: 2.7
+    - python: 3.6
       env: TOXENV=docs
-    - python: 2.7
+    - python: 3.6
+      env: TOXENV=docs-lint
+    - python: 3.6
       env: TOXENV=lint
-    - python: 2.7
+      script: tox
+    - python: 3.6
       env: TOXENV=eslint
-script:
-  - tox
+    - python: 3.6
+      env: TOXENV=migrations
 cache:
   directories:
     - ~/.cache/pip
     - ~/.nvm/nvm.sh
+    - ~/.npm
+before_install:
+  - sudo apt-get install -y git
 install:
+  - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   - source ~/.nvm/nvm.sh
   - nvm install --lts
   - nvm use --lts
-  - npm install -g bower gulp
+  - npm install -g bower
   - npm install
   - bower install
 script:
-  - tox
+  - ./scripts/travis/run_tests.sh
 notifications:
   slack:
     rooms:
@@ -37,4 +45,6 @@ notifications:
 
 branches:
   only:
-  - master
+  - master 
+  - rel # Community release branch
+  - relcorp # Corporate release branch

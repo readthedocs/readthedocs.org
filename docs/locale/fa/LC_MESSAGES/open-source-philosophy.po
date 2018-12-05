@@ -1,0 +1,113 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: Persian (https://www.transifex.com/readthedocs/teams/2534/fa/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fa\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: ../../open-source-philosophy.rst:2
+msgid "Read the Docs Open Source Philosophy"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:4
+msgid ""
+"Read the Docs is Open Source software. We have `licensed "
+"<https://github.com/rtfd/readthedocs.org/blob/master/LICENSE>`_ the code "
+"base as MIT, which provides almost no restrictions on the use of the code."
+msgstr ""
+
+#: ../../open-source-philosophy.rst:8
+msgid ""
+"However, as a project there are things that we care about more than others. "
+"We built Read the Docs to support documentation in the Open Source "
+"community. The code is open for people to contribute to, so that they may "
+"build features into https://readthedocs.org that they want. We also believe "
+"sharing the code openly is a valuable learning tool, especially for "
+"demonstrating how to collaborate and maintain an enormous website."
+msgstr ""
+
+#: ../../open-source-philosophy.rst:18
+msgid "Official Support"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:20
+msgid ""
+"The time of the core developers of Read the Docs is limited. We provide "
+"official support for the following things:"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:23
+msgid "Local development on the Python code base"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:24
+msgid "Usage of https://readthedocs.org for Open Source projects"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:25
+msgid ""
+"Bug fixes in the code base, as it applies to running it on "
+"https://readthedocs.org"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:28
+msgid "Unsupported"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:30
+msgid ""
+"There are use cases that we don't support, because it doesn't further our "
+"goal of promoting documentation in the Open Source Community."
+msgstr ""
+
+#: ../../open-source-philosophy.rst:33
+msgid "We do not support:"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:35
+msgid "Specific usage of Sphinx and Mkdocs, that don't affect our hosting"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:36
+msgid "Custom installations of Read the Docs at your company"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:37
+msgid "Installation of Read the Docs on other platforms"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:38
+msgid "Any installation issues outside of the Read the Docs Python Code"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:41
+msgid "Rationale"
+msgstr ""
+
+#: ../../open-source-philosophy.rst:43
+msgid ""
+"Read the Docs was founded to improve documentation in the Open Source "
+"Community. We fully recognize and allow the code to be used for internal "
+"installs at companies, but we will not spend our time supporting it. Our "
+"time is limited, and we want to spend it on the mission that we set out to "
+"originally support."
+msgstr ""
+
+#: ../../open-source-philosophy.rst:49
+msgid ""
+"If you feel strongly about installing Read the Docs internal to a company, "
+"we will happily link to third party resources on this topic. Please open an "
+"issue with a proposal if you want to take on this task."
+msgstr ""

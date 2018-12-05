@@ -1,21 +1,35 @@
+# -*- coding: utf-8 -*-
 """Django administration interface for `projects.models`"""
 
-from __future__ import absolute_import
-from django.contrib import admin
-from django.contrib import messages
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
+from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
 
+from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
-from readthedocs.builds.models import Version
-from readthedocs.redirects.models import Redirect
 from readthedocs.notifications.views import SendNotificationView
+from readthedocs.redirects.models import Redirect
 
 from .forms import FeatureForm
-from .models import (Project, ImportedFile, Feature,
-                     ProjectRelationship, EmailHook, WebHook, Domain)
+from .models import (
+    Domain,
+    EmailHook,
+    EnvironmentVariable,
+    Feature,
+    ImportedFile,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from .notifications import ResourceUsageNotification
 from .tasks import remove_dir
 
@@ -102,16 +116,20 @@ class ProjectAdmin(GuardedModelAdmin):
     """Project model admin view."""
 
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'slug', 'repo', 'repo_type', 'allow_comments', 'featured', 'theme')
-    list_filter = ('repo_type', 'allow_comments', 'featured', 'privacy_level',
+    list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
+    list_filter = ('repo_type', 'featured', 'privacy_level',
                    'documentation_type', 'programming_language',
                    ProjectOwnerBannedFilter)
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline,
                VersionInline, DomainInline]
+    readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
     actions = ['send_owner_email', 'ban_owner']
+
+    def feature_flags(self, obj):
+        return ', '.join([str(f.get_feature_display()) for f in obj.features])
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
@@ -173,6 +191,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
     """Admin view for :py:class:`ImportedFile`"""
 
+    raw_id_fields = ('project', 'version')
     list_display = ('path', 'name', 'version')
 
 
@@ -180,7 +199,7 @@ class DomainAdmin(admin.ModelAdmin):
     list_display = ('domain', 'project', 'https', 'count')
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
-    list_filter = ('canonical',)
+    list_filter = ('canonical', 'https')
     model = Domain
 
 
@@ -191,12 +210,20 @@ class FeatureAdmin(admin.ModelAdmin):
     search_fields = ('feature_id',)
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)
+    raw_id_fields = ('projects',)
 
     def project_count(self, feature):
         return feature.projects.count()
 
 
+class EnvironmentVariableAdmin(admin.ModelAdmin):
+    model = EnvironmentVariable
+    list_display = ('name', 'value', 'project', 'created')
+    search_fields = ('name', 'project__slug')
+
+
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(EnvironmentVariable, EnvironmentVariableAdmin)
 admin.site.register(ImportedFile, ImportedFileAdmin)
 admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)

@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Read the Docs 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Francesco Zaia <francesco.zaia@gmail.com>, 2018\n"
+"Language-Team: Italian (https://www.transifex.com/readthedocs/teams/2534/it/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: it\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../embed.rst:2
+msgid "Embed API"
+msgstr "Includi API"
+
+#: ../../embed.rst:4
+msgid ""
+"Read the Docs allow you to embed content from any of the projects we host. "
+"This allows for content re-use across sites, making sure the content is "
+"always up to date."
+msgstr ""
+
+#: ../../embed.rst:9
+msgid "Workflow"
+msgstr ""
+
+#: ../../embed.rst:11
+msgid ""
+"There are many uses of our Embed API. One of our favorites is for inline "
+"help. We have started using this on Read the Docs itself to provide inline "
+"help on our main site pages. This allows us to keep the official "
+"documentation as the single source of truth, while having great inline help "
+"in our application as well."
+msgstr ""
+
+#: ../../embed.rst:17
+msgid ""
+"We recommend you point at **tagged releases** instead of ``latest``. Tags "
+"don't change over time, so you don't have to worry about the content you are"
+" embedding disappearing."
+msgstr ""
+
+#: ../../embed.rst:21
+msgid ""
+"All relative links to pages contained in the remote content will continue to"
+" point at the remote page."
+msgstr ""
+
+#: ../../embed.rst:24
+msgid "How to use it"
+msgstr ""
+
+#: ../../embed.rst:28
+msgid "Sphinx Extension"
+msgstr ""
+
+#: ../../embed.rst:30
+msgid ""
+"You can embed content directly in Sphinx with builds on Read the Docs. We "
+"support default configuration variables for your ``conf.py``:"
+msgstr ""
+
+#: ../../embed.rst:33
+msgid "readthedocs_embed_project"
+msgstr ""
+
+#: ../../embed.rst:34
+msgid "readthedocs_embed_version"
+msgstr ""
+
+#: ../../embed.rst:35
+msgid "readthedocs_embed_doc"
+msgstr ""
+
+#: ../../embed.rst:37
+msgid ""
+"These are overridable per-call as well. Then you simply use the directive:"
+msgstr ""
+
+#: ../../embed.rst:56
+msgid "Javascript"
+msgstr ""
+
+#: ../../embed.rst:58
+msgid ""
+"We provide a Javascript library that you can embed on any site. An example:"
+msgstr ""
+
+#: ../../embed.rst:80
+msgid ""
+"This will provide a pop-out for a user with the ``How we envision versions "
+"working`` section of the ``versions`` page. You can see this in action here:"
+msgstr ""
+
+#: ../../embed.rst:103
+msgid ""
+"All Read the Docs pages already have the library loaded, so you can ignore "
+"the ``link`` and first ``script`` tags on all documentation."
+msgstr ""
+
+#: ../../embed.rst:107
+msgid ""
+"We currently do not provide caching on this API. If the remote source you "
+"are including changes their page structure or deletes the content, your "
+"embed will break."
+msgstr ""
+
+#: ../../embed.rst:111
+msgid ""
+"In Version 2 of this API we will provide a full-formed workflow that will "
+"stop this from happening."
+msgstr ""
+
+#: ../../embed.rst:116
+msgid "Example API Response"
+msgstr ""
+
+#: ../../embed.rst:118
+msgid "Pure API use will return JSON:"
+msgstr ""

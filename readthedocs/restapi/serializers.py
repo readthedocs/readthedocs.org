@@ -55,11 +55,14 @@ class ProjectAdminSerializer(ProjectSerializer):
             'container_time_limit',
             'install_project',
             'use_system_packages',
-            'suffix',
             'skip',
             'requirements_file',
             'python_interpreter',
             'features',
+            'has_valid_clone',
+            'has_valid_webhook',
+            'show_advertising',
+            'environment_variables',
         )
 
 
@@ -100,11 +103,18 @@ class BuildSerializer(serializers.ModelSerializer):
     """Build serializer for user display, doesn't display internal fields."""
 
     commands = BuildCommandSerializer(many=True, read_only=True)
+    project_slug = serializers.ReadOnlyField(source='project.slug')
+    version_slug = serializers.ReadOnlyField(source='version.slug')
+    docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
     state_display = serializers.ReadOnlyField(source='get_state_display')
+    # Jsonfield needs an explicit serializer
+    # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
+    config = serializers.JSONField(required=False)
 
     class Meta(object):
         model = Build
-        exclude = ('builder',)
+        # `_config` should be excluded to avoid conflicts with `config`
+        exclude = ('builder', '_config')
 
 
 class BuildAdminSerializer(BuildSerializer):
@@ -112,7 +122,8 @@ class BuildAdminSerializer(BuildSerializer):
     """Build serializer for display to admin users and build instances."""
 
     class Meta(BuildSerializer.Meta):
-        exclude = ()
+        # `_config` should be excluded to avoid conflicts with `config`
+        exclude = ('_config',)
 
 
 class SearchIndexSerializer(serializers.Serializer):
@@ -157,7 +168,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     def get_matches(self, obj):
         request = self.context['request']
-        if request.user is not None and request.user.is_authenticated():
+        if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
 
 

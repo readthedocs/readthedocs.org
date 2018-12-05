@@ -13,7 +13,7 @@ class ProjectRelationMixin(object):
     Mixin class for constructing model views for project dashboard.
 
     This mixin class is used for model views on models that have a relation
-    to the :py:cls:`Project` model.
+    to the :py:class:`Project` model.
 
     :cvar project_lookup_url_kwarg: URL kwarg to use in project lookup
     :cvar project_lookup_field: Query field for project relation

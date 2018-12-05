@@ -19,7 +19,7 @@ class ProjectQuerySetBase(models.QuerySet):
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
         return queryset.distinct()
@@ -31,8 +31,8 @@ class ProjectQuerySetBase(models.QuerySet):
         queryset = queryset.filter(users__in=[user])
         return queryset
 
-    def for_admin_user(self, user=None):
-        if user.is_authenticated():
+    def for_admin_user(self, user):
+        if user.is_authenticated:
             return self.filter(users__in=[user])
         return self.none()
 
@@ -83,10 +83,10 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
-            pks = [p.pk for p in project_qs]
+            pks = project_qs.values_list('pk', flat=True)
             kwargs = {'%s__pk__in' % self.project_field: pks}
             queryset = self.filter(**kwargs) | queryset
         return queryset.distinct()

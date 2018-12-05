@@ -22,10 +22,19 @@ from readthedocs.core.utils import safe_makedirs
 log = logging.getLogger(__name__)
 
 
-class LocalSyncer(object):
+class BaseSyncer(object):
+
+    """A base object for syncers and pullers"""
 
     @classmethod
-    def copy(cls, path, target, is_file=False, **__):
+    def copy(cls, path, target, is_file=False, **kwargs):
+        raise NotImplementedError
+
+
+class LocalSyncer(BaseSyncer):
+
+    @classmethod
+    def copy(cls, path, target, is_file=False, **kwargs):
         """A copy command that works with files or directories."""
         log.info("Local Copy %s to %s", path, target)
         if is_file:
@@ -41,10 +50,10 @@ class LocalSyncer(object):
             shutil.copytree(path, target)
 
 
-class RemoteSyncer(object):
+class RemoteSyncer(BaseSyncer):
 
     @classmethod
-    def copy(cls, path, target, is_file=False, **__):
+    def copy(cls, path, target, is_file=False, **kwargs):
         """
         A better copy command that works with files or directories.
 
@@ -58,8 +67,7 @@ class RemoteSyncer(object):
                 mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (sync_user, server, target))
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
-                    log.info("COPY ERROR to app servers:")
-                    log.info(mkdir_cmd)
+                    log.debug("Copy error to app servers: cmd=%s", mkdir_cmd)
                 if is_file:
                     slash = ""
                 else:
@@ -75,14 +83,13 @@ class RemoteSyncer(object):
                         target=target))
                 ret = os.system(sync_cmd)
                 if ret != 0:
-                    log.info("COPY ERROR to app servers.")
-                    log.info(sync_cmd)
+                    log.debug("Copy error to app servers: cmd=%s", sync_cmd)
 
 
-class DoubleRemotePuller(object):
+class DoubleRemotePuller(BaseSyncer):
 
     @classmethod
-    def copy(cls, path, target, host, is_file=False, **__):
+    def copy(cls, path, target, host, is_file=False, **kwargs):  # pylint: disable=arguments-differ
         """
         A better copy command that works from the webs.
 
@@ -100,8 +107,7 @@ class DoubleRemotePuller(object):
                 )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
-                    log.info("MKDIR ERROR to app servers:")
-                    log.info(mkdir_cmd)
+                    log.debug("MkDir error to app servers: cmd=%s", mkdir_cmd)
             # Add a slash when copying directories
             sync_cmd = (
                 "ssh {user}@{server} 'rsync -av "
@@ -114,14 +120,13 @@ class DoubleRemotePuller(object):
                     target=target))
             ret = os.system(sync_cmd)
             if ret != 0:
-                log.info("COPY ERROR to app servers.")
-                log.info(sync_cmd)
+                log.debug("Copy error to app servers: cmd=%s", sync_cmd)
 
 
-class RemotePuller(object):
+class RemotePuller(BaseSyncer):
 
     @classmethod
-    def copy(cls, path, target, host, is_file=False, **__):
+    def copy(cls, path, target, host, is_file=False, **kwargs):  # pylint: disable=arguments-differ
         """
         A better copy command that works from the webs.
 
@@ -142,7 +147,11 @@ class RemotePuller(object):
         )
         ret = os.system(sync_cmd)
         if ret != 0:
-            log.error("COPY ERROR to app servers. Command: [{}] Return: [{}]".format(sync_cmd, ret))
+            log.debug(
+                "Copy error to app servers. Command: [%s] Return: [%s]",
+                sync_cmd,
+                ret,
+            )
 
 
 class Syncer(SettingsOverrideObject):

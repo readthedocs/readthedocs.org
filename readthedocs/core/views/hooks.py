@@ -1,20 +1,25 @@
 """Views pertaining to builds."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import json
+import logging
 import re
 
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
-from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
+from readthedocs.core.utils import trigger_build
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project, Feature
-from readthedocs.projects.tasks import SyncRepositoryTask
-
-import logging
+from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.tasks import sync_repository_task
 
 log = logging.getLogger(__name__)
 
@@ -33,37 +38,23 @@ def _build_version(project, slug, already_built=()):
 
     All webhook logic should route here to call ``trigger_build``.
     """
-    default = project.default_branch or (project.vcs_repo().fallback_branch)
     if not project.has_valid_webhook:
         project.has_valid_webhook = True
         project.save()
-    if slug == default and slug not in already_built:
-        # short circuit versions that are default
-        # these will build at "latest", and thus won't be
-        # active
-        latest_version = project.versions.get(slug=LATEST)
-        trigger_build(project=project, version=latest_version, force=True)
-        log.info("(Version build) Building %s:%s",
-                 project.slug, latest_version.slug)
-        if project.versions.exclude(active=False).filter(slug=slug).exists():
-            # Handle the case where we want to build the custom branch too
-            slug_version = project.versions.get(slug=slug)
-            trigger_build(project=project, version=slug_version, force=True)
-            log.info("(Version build) Building %s:%s",
-                     project.slug, slug_version.slug)
-        return LATEST
-    elif project.versions.exclude(active=True).filter(slug=slug).exists():
-        log.info("(Version build) Not Building %s", slug)
-        return None
-    elif slug not in already_built:
-        version = project.versions.get(slug=slug)
+    # Previously we were building the latest version (inactive or active)
+    # when building the default version,
+    # some users may have relied on this to update the version list #4450
+    version = project.versions.filter(active=True, slug=slug).first()
+    if version and slug not in already_built:
+        log.info(
+            "(Version build) Building %s:%s",
+            project.slug, version.slug,
+        )
         trigger_build(project=project, version=version, force=True)
-        log.info("(Version build) Building %s:%s",
-                 project.slug, version.slug)
         return slug
-    else:
-        log.info("(Version build) Not Building %s", slug)
-        return None
+
+    log.info("(Version build) Not Building %s", slug)
+    return None
 
 
 def build_branches(project, branch_list):
@@ -89,10 +80,42 @@ def build_branches(project, branch_list):
     return (to_build, not_building)
 
 
+def sync_versions(project):
+    """
+    Sync the versions of a repo using its latest version.
+
+    This doesn't register a new build,
+    but clones the repo and syncs the versions.
+    Due that `sync_repository_task` is bound to a version,
+    we always pass the default version.
+
+    :returns: The version slug that was used to trigger the clone.
+    :rtype: str
+    """
+    try:
+        version_identifier = project.get_default_branch()
+        version = (
+            project.versions
+            .filter(identifier=version_identifier)
+            .first()
+        )
+        if not version:
+            log.info('Unable to sync from %s version', version_identifier)
+            return None
+        sync_repository_task.delay(version.pk)
+        return version.slug
+    except Exception:
+        log.exception('Unknown sync versions exception')
+    return None
+
+
 def get_project_from_url(url):
+    if not url:
+        return Project.objects.none()
     projects = (
         Project.objects.filter(repo__iendswith=url) |
-        Project.objects.filter(repo__iendswith=url + '.git'))
+        Project.objects.filter(repo__iendswith=url + '.git')
+    )
     return projects
 
 
@@ -123,12 +146,9 @@ def _build_url(url, projects, branches):
     for project in projects:
         (built, not_building) = build_branches(project, branches)
         if not built:
-            # Call SyncRepositoryTask to update tag/branch info
+            # Call sync_repository_task to update tag/branch info
             version = project.versions.get(slug=LATEST)
-            sync_repository = SyncRepositoryTask()
-            sync_repository.apply_async(
-                args=(version.pk,),
-            )
+            sync_repository_task.delay(version.pk)
             msg = '(URL Build) Syncing versions for %s' % project.slug
             log.info(msg)
         all_built[project.slug] = built
@@ -160,7 +180,7 @@ def github_build(request):  # noqa: D205
     GitHub webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GitHubWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.GitHubWebhookView`
         instead of this view function
 
     This will search for projects matching either a stripped down HTTP or SSH
@@ -215,7 +235,7 @@ def gitlab_build(request):  # noqa: D205
     GitLab webhook consumer.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.GitLabWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.GitLabWebhookView`
         instead of this view function
 
     Search project repository URLs using the site URL from GitLab webhook payload.
@@ -233,12 +253,13 @@ def gitlab_build(request):  # noqa: D205
         log.info(
             'GitLab webhook search: url=%s branches=%s',
             search_url,
-            branches
+            branches,
         )
         projects = get_project_from_url(search_url)
         if projects:
             return _build_url(search_url, projects, branches)
-        log.error('Project match not found: url=%s', search_url)
+
+        log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)
 
@@ -249,7 +270,7 @@ def bitbucket_build(request):
     Consume webhooks from multiple versions of Bitbucket's API.
 
     .. warning:: **DEPRECATED**
-        Use :py:cls:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
+        Use :py:class:`readthedocs.restapi.views.integrations.BitbucketWebhookView`
         instead of this view function
 
     New webhooks are set up with v2, but v1 webhooks will still point to this
@@ -277,6 +298,8 @@ def bitbucket_build(request):
                 branches = [commit.get('branch', '')
                             for commit in data['commits']]
                 repository = data['repository']
+                if not repository['absolute_url']:
+                    return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org{0}'.format(
                     repository['absolute_url'].rstrip('/')
                 )
@@ -284,6 +307,8 @@ def bitbucket_build(request):
                 changes = data['push']['changes']
                 branches = [change['new']['name']
                             for change in changes]
+                if not data['repository']['full_name']:
+                    return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org/{0}'.format(
                     data['repository']['full_name']
                 )
@@ -294,20 +319,23 @@ def bitbucket_build(request):
         log.info(
             'Bitbucket webhook search: url=%s branches=%s',
             search_url,
-            branches
+            branches,
         )
         log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
+
         projects = get_project_from_url(search_url)
         if projects and branches:
             return _build_url(search_url, projects, branches)
-        elif not branches:
-            log.error(
+
+        if not branches:
+            log.info(
                 'Commit/branch not found url=%s branches=%s',
                 search_url,
-                branches
+                branches,
             )
             return HttpResponseNotFound('Commit/branch not found')
-        log.error('Project match not found: url=%s', search_url)
+
+        log.info('Project match not found: url=%s', search_url)
         return HttpResponseNotFound('Project match not found')
     return HttpResponse('Method not allowed, POST is required', status=405)
 
@@ -319,7 +347,7 @@ def generic_build(request, project_id_or_slug=None):
 
     .. warning:: **DEPRECATED**
 
-      Use :py:cls:`readthedocs.restapi.views.integrations.GenericWebhookView`
+      Use :py:class:`readthedocs.restapi.views.integrations.GenericWebhookView`
       instead of this view function
     """
     try:

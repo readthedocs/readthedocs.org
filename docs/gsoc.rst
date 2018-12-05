@@ -108,7 +108,7 @@ Currently we have our documentation & website translated on Transifex,
 but we don't have a management process for it.
 This means that translations will often sit for months before making it back into the site and being available to users.
 
-This project would include puting together a workflow for translations:
+This project would include putting together a workflow for translations:
 
 * Communicate with existing translators and see what needs they have
 * Help formalize the process that we have around Transifex to make it easier to contribute to
@@ -119,7 +119,7 @@ Support for additional build steps for linting & testing
 
 Currently we only build documentation on Read the Docs,
 but we'd also like to add additional build steps that lets users perform more actions.
-This would likely take the form of wraping some of the existing `Sphinx builders <http://www.sphinx-doc.org/en/stable/builders.html>`_,
+This would likely take the form of wrapping some of the existing `Sphinx builders <http://www.sphinx-doc.org/en/stable/builders.html>`_,
 and giving folks a nice way to use them inside Read the Docs.
 
 It would be great to have wrappers for the following as a start:

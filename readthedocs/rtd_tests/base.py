@@ -33,8 +33,8 @@ class RTDTestCase(TestCase):
         settings.DOCROOT = self.original_DOCROOT
 
 
-@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
-@patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
+@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
 class MockBuildTestCase(TestCase):
 
     """Mock build triggers for test cases."""
@@ -97,7 +97,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
     wizard_class_slug = None
     wizard_class = None
 
-    @patch('readthedocs.projects.views.private.trigger_build', lambda x, basic: None)
+    @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
     def post_step(self, step, **kwargs):
         """
         Post step form data to `url`, using supplementary `kwargs`
@@ -170,4 +170,4 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         self.assertIn(field, response.context_data['wizard']['form'].errors)
         if match is not None:
             error = response.context_data['wizard']['form'].errors[field]
-            self.assertRegexpMatches(six.text_type(error), match)  # noqa
+            self.assertRegex(six.text_type(error), match)  # noqa

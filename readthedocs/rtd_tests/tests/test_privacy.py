@@ -27,13 +27,16 @@ class PrivacyTests(TestCase):
         self.tester.set_password('test')
         self.tester.save()
 
-        tasks.UpdateDocsTask.delay = mock.Mock()
+        tasks.update_docs_task.delay = mock.Mock()
 
     def _create_kong(self, privacy_level='private',
                      version_privacy_level='private'):
         self.client.login(username='eric', password='test')
-        log.info(("Making kong with privacy: %s and version privacy: %s"
-                  % (privacy_level, version_privacy_level)))
+        log.info(
+            "Making kong with privacy: %s and version privacy: %s",
+            privacy_level,
+            version_privacy_level,
+        )
         # Create project via project form, simulate import wizard without magic
         form = UpdateProjectForm(
             data={'repo_type': 'git',
@@ -51,9 +54,6 @@ class PrivacyTests(TestCase):
         # Update these directly, no form has all the fields we need
         proj.privacy_level = privacy_level
         proj.version_privacy_level = version_privacy_level
-        proj.num_minor = 2
-        proj.num_major = 2
-        proj.num_point = 2
         proj.save()
 
         latest = proj.versions.get(slug='latest')

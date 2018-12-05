@@ -23,7 +23,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['child']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['child'][0],
             r'This field is required.'
         )
@@ -39,7 +39,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['child']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['child'][0],
             r'Select a valid choice.'
         )
@@ -53,6 +53,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subproject.pk},
@@ -61,7 +62,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['child']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['child'][0],
             r'Select a valid choice.'
         )
@@ -76,6 +77,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project, subproject],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subproject.pk},
@@ -102,6 +104,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project, subproject, subsubproject],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subsubproject.pk},
@@ -116,7 +119,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['parent']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['parent'][0],
             r'Subproject nesting is not supported'
         )
@@ -132,6 +135,7 @@ class SubprojectFormTests(TestCase):
             Project.objects.for_admin_user(user),
             [project, subproject],
             transform=lambda n: n,
+            ordered=False,
         )
         form = ProjectRelationshipForm(
             {'child': subproject.pk},
@@ -180,7 +184,6 @@ class ResolverBase(TestCase):
         relation.alias = 'sub_alias'
         relation.save()
         fixture.get(Project, slug='sub_alias', language='ya')
-
 
     @override_settings(
             PRODUCTION_DOMAIN='readthedocs.org',

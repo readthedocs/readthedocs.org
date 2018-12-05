@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from django_dynamic_fixture import get
+from django_dynamic_fixture import get, fixture
 
 from readthedocs.gold.models import GoldUser, LEVEL_CHOICES
 from readthedocs.projects.models import Project
@@ -14,7 +14,7 @@ class GoldViewTests(TestCase):
     def setUp(self):
         self.user = create_user(username='owner', password='test')
 
-        self.project = get(Project, slug='test')
+        self.project = get(Project, slug='test', users=[fixture(), self.user])
 
         self.golduser = get(GoldUser, user=self.user, level=LEVEL_CHOICES[0][0])
 

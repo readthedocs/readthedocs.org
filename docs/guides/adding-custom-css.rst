@@ -22,4 +22,4 @@ The same method can be used to add additional scripts that might override
 previously initialized scripts::
 
     def setup(app):
-        app.add_javascript("js/custom.js")
+        app.add_javascript('js/custom.js')

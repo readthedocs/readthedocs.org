@@ -21,11 +21,13 @@ django.setup()
 
 sys.path.append(os.path.abspath('_ext'))
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinxcontrib.httpdomain',
     'djangodocs',
     'doc_extensions',
+    'sphinx_tabs.tabs',
 ]
 templates_path = ['_templates']
 
@@ -39,14 +41,13 @@ project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = '1.0'
-release = '1.0'
+version = '2.7'
+release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
-pygments_style = 'sphinx'
 intersphinx_mapping = {
     'python': ('http://python.readthedocs.io/en/latest/', None),
-    'django': ('http://django.readthedocs.io/en/1.8.x/', None),
+    'django': ('http://django.readthedocs.io/en/1.9.x/', None),
     'sphinx': ('http://sphinx.readthedocs.io/en/latest/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
@@ -79,6 +80,5 @@ html_theme_options = {
     'display_version': False,
 }
 
-
-def setup(app):
-    app.add_stylesheet('custom.css')
+# Activate autosectionlabel plugin
+autosectionlabel_prefix_document = True

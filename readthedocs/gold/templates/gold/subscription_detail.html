@@ -31,7 +31,7 @@ $(document).ready(function () {
     <h2>{% trans "Gold Subscription" %}</h2>
 
     <p>
-      {% blocktrans %}
+      {% blocktrans trimmed %}
         Thanks for supporting Read the Docs! It really means a lot to us.
       {% endblocktrans %}
     </p>
@@ -43,7 +43,7 @@ $(document).ready(function () {
 
     <p class="subscription-detail subscription-detail-card">
       <label>{% trans "Card" %}:</label>
-      <span>****-{{ golduser.last_4_digits }}</span>
+      <span>****-{{ golduser.last_4_card_digits }}</span>
     </p>
 
     <form method="get" action="{% url "gold_subscription" %}" class="subscription-update">
@@ -56,7 +56,7 @@ $(document).ready(function () {
 
     <h3>{% trans "Projects" %}</h3>
     <p class="subscription-projects">
-      {% blocktrans count projects=golduser.num_supported_projects %}
+      {% blocktrans trimmed count projects=golduser.num_supported_projects %}
         You can adopt one project with your subscription.
       {% plural %}
         You can adopt {{ projects }} projects with your subscription.

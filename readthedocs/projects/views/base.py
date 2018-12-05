@@ -5,12 +5,13 @@ from __future__ import (
 
 import logging
 from builtins import object
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from ..exceptions import ProjectSpamError
 from ..models import Project
@@ -93,22 +94,24 @@ class ProjectSpamMixin(object):
 
     def post(self, request, *args, **kwargs):
         if request.user.profile.banned:
-            log.error(
+            log.info(
                 'Rejecting project POST from shadowbanned user %s',
-                request.user)
+                request.user,
+            )
             return HttpResponseRedirect(self.get_failure_url())
         try:
             return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
         except ProjectSpamError:
-            date_maturity = datetime.now() - timedelta(days=USER_MATURITY_DAYS)
+            date_maturity = timezone.now() - timedelta(days=USER_MATURITY_DAYS)
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()
-                log.error(
+                log.info(
                     'Spam detected from new user, shadowbanned user %s',
-                    request.user)
+                    request.user,
+                )
             else:
-                log.error('Spam detected from user %s', request.user)
+                log.info('Spam detected from user %s', request.user)
             return HttpResponseRedirect(self.get_failure_url())
 
     def get_failure_url(self):

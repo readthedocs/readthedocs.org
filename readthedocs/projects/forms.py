@@ -2,11 +2,15 @@
 """Project forms."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
-from builtins import object
 from random import choice
 
+from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -19,12 +23,20 @@ from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
-    Domain, EmailHook, Feature, Project, ProjectRelationship, WebHook)
+    Domain,
+    EmailHook,
+    Feature,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from readthedocs.redirects.models import Redirect
 
 
@@ -117,6 +129,12 @@ class ProjectBasicsForm(ProjectForm):
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
                     _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
+            if not potential_slug:
+                # Check the generated slug won't be empty
+                raise forms.ValidationError(
+                    _('Invalid project name'),
+                )
+
         return name
 
     def clean_remote_repository(self):
@@ -172,7 +190,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     python_interpreter = forms.ChoiceField(
         choices=constants.PYTHON_CHOICES,
         initial='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'),
     )
 
@@ -186,6 +204,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'conf_py_file',
             'default_branch',
             'default_version',
+            'show_version_warning',
             'enable_pdf_build',
             'enable_epub_build',
             # Privacy
@@ -196,8 +215,24 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'python_interpreter',
             # Fringe
             'analytics_code',
-            # Version Support
-            # 'num_major', 'num_minor', 'num_point',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+
+        default_choice = (None, '-' * 9)
+        all_versions = self.instance.versions.values_list(
+            'slug', 'verbose_name'
+        )
+        self.fields['default_branch'].widget = forms.Select(
+            choices=[default_choice] + list(all_versions)
+        )
+
+        active_versions = self.instance.all_active_versions().values_list(
+            'slug', 'verbose_name'
+        )
+        self.fields['default_version'].widget = forms.Select(
+            choices=active_versions
         )
 
     def clean_conf_py_file(self):
@@ -219,8 +254,6 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'repo',
             'repo_type',
             # Extra
-            # 'allow_comments',
-            # 'comment_moderation',
             'description',
             'documentation_type',
             'language',
@@ -229,8 +262,38 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
             'tags',
         )
 
+    def clean_language(self):
+        language = self.cleaned_data['language']
+        project = self.instance
+        if project:
+            msg = _(
+                'There is already a "{lang}" translation '
+                'for the {proj} project.'
+            )
+            if project.translations.filter(language=language).exists():
+                raise forms.ValidationError(
+                    msg.format(lang=language, proj=project.slug)
+                )
+            main_project = project.main_language_project
+            if main_project:
+                if main_project.language == language:
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+                siblings = (
+                    main_project.translations
+                    .filter(language=language)
+                    .exclude(pk=project.pk)
+                    .exists()
+                )
+                if siblings:
+                    raise forms.ValidationError(
+                        msg.format(lang=language, proj=main_project.slug)
+                    )
+        return language
 
-class ProjectRelationshipForm(forms.ModelForm):
+
+class ProjectRelationshipBaseForm(forms.ModelForm):
 
     """Form to add/update project relationships."""
 
@@ -238,16 +301,16 @@ class ProjectRelationshipForm(forms.ModelForm):
 
     class Meta(object):
         model = ProjectRelationship
-        exclude = []
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
         self.user = kwargs.pop('user')
-        super(ProjectRelationshipForm, self).__init__(*args, **kwargs)
+        super(ProjectRelationshipBaseForm, self).__init__(*args, **kwargs)
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
-            self.fields['child'].disabled = True
+            self.fields['child'].queryset = Project.objects.filter(pk=self.instance.child.pk)
         else:
             self.fields['child'].queryset = self.get_subproject_queryset()
 
@@ -281,6 +344,10 @@ class ProjectRelationshipForm(forms.ModelForm):
         return queryset
 
 
+class ProjectRelationshipForm(SettingsOverrideObject):
+    _default_class = ProjectRelationshipBaseForm
+
+
 class DualCheckboxWidget(forms.CheckboxInput):
 
     """Checkbox with link to the version's built documentation."""
@@ -289,8 +356,8 @@ class DualCheckboxWidget(forms.CheckboxInput):
         super(DualCheckboxWidget, self).__init__(attrs, check_test)
         self.version = version
 
-    def render(self, name, value, attrs=None):
-        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs, renderer)
         icon = self.render_icon()
         return mark_safe('{}{}'.format(checkbox, icon))
 
@@ -461,27 +528,26 @@ class EmailHookForm(forms.Form):
         return self.project
 
 
-class WebHookForm(forms.Form):
+class WebHookForm(forms.ModelForm):
 
     """Project webhook form."""
-
-    url = forms.URLField()
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super(WebHookForm, self).__init__(*args, **kwargs)
 
-    def clean_url(self):
+    def save(self, commit=True):
         self.webhook = WebHook.objects.get_or_create(
             url=self.cleaned_data['url'], project=self.project)[0]
-        return self.webhook
-
-    def save(self):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
+    class Meta:
+        model = WebHook
+        fields = ['url']
 
-class TranslationForm(forms.Form):
+
+class TranslationBaseForm(forms.Form):
 
     """Project translation form."""
 
@@ -490,7 +556,7 @@ class TranslationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
         self.user = kwargs.pop('user')
-        super(TranslationForm, self).__init__(*args, **kwargs)
+        super(TranslationBaseForm, self).__init__(*args, **kwargs)
         self.fields['project'].choices = self.get_choices()
 
     def get_choices(self):
@@ -563,6 +629,10 @@ class TranslationForm(forms.Form):
         return project
 
 
+class TranslationForm(SettingsOverrideObject):
+    _default_class = TranslationBaseForm
+
+
 class RedirectForm(forms.ModelForm):
 
     """Form for project redirects."""
@@ -588,7 +658,7 @@ class RedirectForm(forms.ModelForm):
         return redirect
 
 
-class DomainForm(forms.ModelForm):
+class DomainBaseForm(forms.ModelForm):
 
     """Form to configure a custom domain name for a project."""
 
@@ -596,11 +666,11 @@ class DomainForm(forms.ModelForm):
 
     class Meta(object):
         model = Domain
-        exclude = ['machine', 'cname', 'count', 'https']
+        exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(DomainForm, self).__init__(*args, **kwargs)
+        super(DomainBaseForm, self).__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project
@@ -624,6 +694,10 @@ class DomainForm(forms.ModelForm):
         return canonical
 
 
+class DomainForm(SettingsOverrideObject):
+    _default_class = DomainBaseForm
+
+
 class IntegrationForm(forms.ModelForm):
 
     """
@@ -636,7 +710,7 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta(object):
         model = Integration
-        exclude = ['provider_data', 'exchanges']
+        exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

@@ -36,10 +36,14 @@ TYPE_CHOICES = (
     # ('advanced', _('Advanced')),
 )
 
+# FIXME: this help_text message should be dynamic since "Absolute path" doesn't
+# make sense for "Prefix Redirects" since the from URL is considered after the
+# ``/$lang/$version/`` part. Also, there is a feature for the "Exact
+# Redirects" that should be mentioned here: the usage of ``$rest``
 from_url_helptext = _('Absolute path, excluding the domain. '
                       'Example: <b>/docs/</b>  or <b>/install.html</b>'
                       )
-to_url_helptext = _('Absolute or relative URL. Examples: '
+to_url_helptext = _('Absolute or relative URL. Example: '
                     '<b>/tutorial/install.html</b>'
                     )
 redirect_type_helptext = _('The type of redirect you wish to use.')
@@ -78,13 +82,30 @@ class Redirect(models.Model):
         ordering = ('-update_dt',)
 
     def __str__(self):
-        if self.redirect_type == 'prefix':
-            return ugettext('Prefix Redirect:') + ' %s ->' % self.from_url
-        elif self.redirect_type == 'page':
-            return ugettext('Page Redirect:') + ' %s -> %s' % (
-                self.from_url,
-                self.to_url)
-        return ugettext('Redirect: %s' % self.get_redirect_type_display())
+        redirect_text = '{type}: {from_to_url}'
+        if self.redirect_type in ['prefix', 'page', 'exact']:
+            return redirect_text.format(
+                type=self.get_redirect_type_display(),
+                from_to_url=self.get_from_to_url_display()
+            )
+        return ugettext('Redirect: {}'.format(
+            self.get_redirect_type_display())
+        )
+
+    def get_from_to_url_display(self):
+        if self.redirect_type in ['prefix', 'page', 'exact']:
+            from_url = self.from_url
+            to_url = self.to_url
+            if self.redirect_type == 'prefix':
+                to_url = '/{lang}/{version}/'.format(
+                    lang=self.project.language,
+                    version=self.project.default_version
+                )
+            return '{from_url} -> {to_url}'.format(
+                from_url=from_url,
+                to_url=to_url
+            )
+        return ''
 
     def get_full_path(self, filename, language=None, version_slug=None):
         """
@@ -126,15 +147,19 @@ class Redirect(models.Model):
                 version_slug=version_slug)
             return to
 
-    def redirect_exact(self, path, **__):
-        if path == self.from_url:
+    def redirect_exact(self, path, language=None, version_slug=None):
+        full_path = path
+        if language and version_slug:
+            # reconstruct the full path for an exact redirect
+            full_path = self.get_full_path(path, language, version_slug)
+        if full_path == self.from_url:
             log.debug('Redirecting %s', self)
             return self.to_url
         # Handle full sub-level redirects
         if '$rest' in self.from_url:
             match = self.from_url.split('$rest')[0]
-            if path.startswith(match):
-                cut_path = re.sub('^%s' % match, self.to_url, path)
+            if full_path.startswith(match):
+                cut_path = re.sub('^%s' % match, self.to_url, full_path)
                 return cut_path
 
     def redirect_sphinx_html(self, path, language=None, version_slug=None):

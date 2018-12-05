@@ -15,22 +15,22 @@ from django.core.urlresolvers import NoReverseMatch, reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.core.validators import validate_domain_name, validate_repository_url
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.version_handling import (
-    determine_stable_version, version_windows)
+from readthedocs.projects.validators import validate_domain_name, validate_repository_url
+from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -80,8 +80,9 @@ class Project(models.Model):
     # Generally from conf.py
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
-    name = models.CharField(_('Name'), max_length=255)
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
+    # A DNS label can contain up to 63 characters.
+    name = models.CharField(_('Name'), max_length=63)
+    slug = models.SlugField(_('Slug'), max_length=63, unique=True)
     description = models.TextField(_('Description'), blank=True,
                                    help_text=_('The reStructuredText '
                                                'description of the project'))
@@ -94,18 +95,6 @@ class Project(models.Model):
                                   help_text=_('The project\'s homepage'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
                                     help_text=_('URL that documentation is expected to serve from'))
-    version = models.CharField(_('Version'), max_length=100, blank=True,
-                               help_text=_('Project version these docs apply '
-                                           'to, i.e. 1.0a'))
-    copyright = models.CharField(_('Copyright'), max_length=255, blank=True,
-                                 help_text=_('Project copyright information'))
-    theme = models.CharField(
-        _('Theme'), max_length=20, choices=constants.DEFAULT_THEME_CHOICES,
-        default=constants.THEME_DEFAULT,
-        help_text=(u'<a href="http://sphinx.pocoo.org/theming.html#builtin-'
-                   'themes" target="_blank">%s</a>') % _('Examples'))
-    suffix = models.CharField(_('Suffix'), max_length=10, editable=False,
-                              default='.rst')
     single_version = models.BooleanField(
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your '
@@ -132,14 +121,11 @@ class Project(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'), max_length=20,
         choices=constants.DOCUMENTATION_CHOICES, default='sphinx',
-        help_text=_('Type of documentation you are building. <a href="http://'
-                    'sphinx-doc.org/builders.html#sphinx.builders.html.'
+        help_text=_('Type of documentation you are building. <a href="'
+                    'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
                     'DirectoryHTMLBuilder">More info</a>.'))
 
     # Project features
-    allow_comments = models.BooleanField(_('Allow Comments'), default=False)
-    comment_moderation = models.BooleanField(
-        _('Comment Moderation'), default=False,)
     cdn_enabled = models.BooleanField(_('CDN Enabled'), default=False)
     analytics_code = models.CharField(
         _('Analytics code'), max_length=50, null=True, blank=True,
@@ -159,6 +145,15 @@ class Project(models.Model):
     allow_promos = models.BooleanField(
         _('Allow paid advertising'), default=True, help_text=_(
             'If unchecked, users will still see community ads.'))
+    ad_free = models.BooleanField(
+        _('Ad-free'),
+        default=False,
+        help_text='If checked, do not show advertising for this project',
+    )
+    show_version_warning = models.BooleanField(
+        _('Show version warning'), default=False,
+        help_text=_('Show warning banner in non-stable nor latest versions.')
+    )
 
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
@@ -182,7 +177,6 @@ class Project(models.Model):
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
-    mirror = models.BooleanField(_('Mirror'), default=False)
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_('Install your project inside a virtualenv using <code>setup.py '
@@ -197,7 +191,7 @@ class Project(models.Model):
         max_length=20,
         choices=constants.PYTHON_CHOICES,
         default='python',
-        help_text=_('(Beta) The Python interpreter used to create the virtual '
+        help_text=_('The Python interpreter used to create the virtual '
                     'environment.'))
 
     use_system_packages = models.BooleanField(
@@ -206,18 +200,16 @@ class Project(models.Model):
                     'site-packages dir.'),
         default=False
     )
-    django_packages_url = models.CharField(_('Django Packages URL'),
-                                           max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Level of privacy that you want on the repository. '
+        help_text=_('Level of privacy that you want on the repository. '
                     'Protected means public but not in listings.'))
     version_privacy_level = models.CharField(
         _('Version Privacy Level'), max_length=20,
         choices=constants.PRIVACY_CHOICES, default=getattr(
             settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
-        help_text=_('(Beta) Default level of privacy you want on built '
+        help_text=_('Default level of privacy you want on built '
                     'versions of documentation.'))
 
     # Subprojects
@@ -245,29 +237,6 @@ class Project(models.Model):
                                               on_delete=models.SET_NULL,
                                               blank=True, null=True)
 
-    # Version State
-    num_major = models.IntegerField(
-        _('Number of Major versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X')
-    )
-    num_minor = models.IntegerField(
-        _('Number of Minor versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X')
-    )
-    num_point = models.IntegerField(
-        _('Number of Point versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0')
-    )
-
     has_valid_webhook = models.BooleanField(
         default=False, help_text=_('This project has been built with a webhook')
     )
@@ -290,41 +259,31 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-    def sync_supported_versions(self):
-        supported = self.supported_versions()
-        if supported:
-            self.versions.filter(
-                verbose_name__in=supported).update(supported=True)
-            self.versions.exclude(
-                verbose_name__in=supported).update(supported=False)
-            self.versions.filter(
-                verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
-
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
-            if self.slug == '':
+            if not self.slug:
                 raise Exception(_('Model must have slug'))
+        if self.documentation_type == 'auto':
+            # This used to determine the type and automatically set the
+            # documentation type to Sphinx for rST and Mkdocs for markdown.
+            # It now just forces Sphinx, due to markdown support.
+            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
-            if self.default_branch:
-                latest = self.versions.get(slug=LATEST)
-                if latest.identifier != self.default_branch:
-                    latest.identifier = self.default_branch
-                    latest.save()
+            latest = self.versions.filter(slug=LATEST).first()
+            default_branch = self.get_default_branch()
+            if latest and latest.identifier != default_branch:
+                latest.identifier = default_branch
+                latest.save()
         except Exception:
             log.exception('Failed to update latest identifier')
 
-        # Add exceptions here for safety
-        try:
-            self.sync_supported_versions()
-        except Exception:
-            log.exception('failed to sync supported versions')
         try:
             if not first_save:
                 log.info(
@@ -525,7 +484,8 @@ class Project(models.Model):
         """The path to the build json docs in the project."""
         if 'sphinx' in self.documentation_type:
             return os.path.join(self.conf_dir(version), '_build', 'json')
-        elif 'mkdocs' in self.documentation_type:
+
+        if 'mkdocs' in self.documentation_type:
             return os.path.join(self.checkout_path(version), '_build', 'json')
 
     def full_singlehtml_path(self, version=LATEST):
@@ -545,11 +505,13 @@ class Project(models.Model):
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version), self.conf_py_file,)
+
             if os.path.exists(conf_path):
                 log.info('Inserting conf.py file path from model')
                 return conf_path
-            else:
-                log.warning("Conf file specified on model doesn't exist")
+
+            log.warning("Conf file specified on model doesn't exist")
+
         files = self.find('conf.py', version)
         if not files:
             files = self.full_find('conf.py', version)
@@ -576,16 +538,6 @@ class Project(models.Model):
         conf_file = self.conf_file(version)
         if conf_file:
             return os.path.dirname(conf_file)
-
-    @property
-    def is_type_sphinx(self):
-        """Is project type Sphinx."""
-        return 'sphinx' in self.documentation_type
-
-    @property
-    def is_type_mkdocs(self):
-        """Is project type Mkdocs."""
-        return 'mkdocs' in self.documentation_type
 
     @property
     def is_imported(self):
@@ -643,8 +595,28 @@ class Project(models.Model):
             repo = backend(self, version, environment)
         return repo
 
-    def repo_nonblockinglock(self, version, max_lock_age=5):
-        return NonBlockingLock(project=self, version=version, max_lock_age=max_lock_age)
+    def repo_nonblockinglock(self, version, max_lock_age=None):
+        """
+        Return a ``NonBlockingLock`` to acquire the lock via context manager.
+
+        :param version: project's version that want to get the lock for.
+        :param max_lock_age: time (in seconds) to consider the lock's age is old
+            and grab it anyway. It default to the ``container_time_limit`` of
+            the project or the default ``DOCKER_LIMITS['time']`` or
+            ``REPO_LOCK_SECONDS`` or 30
+        """
+        if max_lock_age is None:
+            max_lock_age = (
+                self.container_time_limit or
+                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
+                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+            )
+
+        return NonBlockingLock(
+            project=self,
+            version=version,
+            max_lock_age=max_lock_age,
+        )
 
     def repo_lock(self, version, timeout=5, polling_interval=5):
         return Lock(self, version, timeout, polling_interval)
@@ -723,23 +695,6 @@ class Project(models.Model):
         """
         return self.versions.filter(active=True)
 
-    def supported_versions(self):
-        """
-        Get the list of supported versions.
-
-        :returns: List of version strings.
-        """
-        if not self.num_major or not self.num_minor or not self.num_point:
-            return []
-        version_identifiers = self.versions.values_list(
-            'verbose_name', flat=True,)
-        return version_windows(
-            version_identifiers,
-            major=self.num_major,
-            minor=self.num_minor,
-            point=self.num_point,
-        )
-
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
 
@@ -779,7 +734,8 @@ class Project(models.Model):
         return (
             self.versions.filter(identifier=branch) |
             self.versions.filter(identifier='remotes/origin/%s' % branch) |
-            self.versions.filter(identifier='origin/%s' % branch)
+            self.versions.filter(identifier='origin/%s' % branch) |
+            self.versions.filter(verbose_name=branch)
         )
 
     def get_default_version(self):
@@ -815,66 +771,6 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
-    def moderation_queue(self):
-        # non-optimal SQL warning.
-        from readthedocs.comments.models import DocumentComment
-        queue = []
-        comments = DocumentComment.objects.filter(node__project=self)
-        for comment in comments:
-            if not comment.has_been_approved_since_most_recent_node_change():
-                queue.append(comment)
-
-        return queue
-
-    def add_node(self, content_hash, page, version, commit):
-        """
-        Add comment node.
-
-        :param content_hash: Hash of node content
-        :param page: Doc page for node
-        :param version: Slug for project version to apply node to
-        :type version: str
-        :param commit: Commit that node was updated in
-        :type commit: str
-        """
-        from readthedocs.comments.models import NodeSnapshot, DocumentNode
-        project_obj = Project.objects.get(slug=self.slug)
-        version_obj = project_obj.versions.get(slug=version)
-        try:
-            NodeSnapshot.objects.get(hash=content_hash, node__project=project_obj,
-                                     node__version=version_obj, node__page=page,
-                                     commit=commit)
-            return False  # ie, no new node was created.
-        except NodeSnapshot.DoesNotExist:
-            DocumentNode.objects.create(
-                hash=content_hash,
-                page=page,
-                project=project_obj,
-                version=version_obj,
-                commit=commit
-            )
-        return True  # ie, it's True that a new node was created.
-
-    def add_comment(self, version_slug, page, content_hash, commit, user, text):
-        """
-        Add comment to node.
-
-        :param version_slug: Version slug to use for node lookup
-        :param page: Page to attach comment to
-        :param content_hash: Hash of content to apply comment to
-        :param commit: Commit that updated comment
-        :param user: :py:class:`User` instance that created comment
-        :param text: Comment text
-        """
-        from readthedocs.comments.models import DocumentNode
-        try:
-            node = self.nodes.from_hash(version_slug, page, content_hash)
-        except DocumentNode.DoesNotExist:
-            version = self.versions.get(slug=version_slug)
-            node = self.nodes.create(version=version, page=page,
-                                     hash=content_hash, commit=commit)
-        return node.comments.create(user=user, text=text)
-
     @property
     def features(self):
         return Feature.objects.for_project(self)
@@ -898,6 +794,32 @@ class Project(models.Model):
         """
         return positive if self.has_feature(feature) else negative
 
+    @property
+    def show_advertising(self):
+        """
+        Whether this project is ad-free
+
+        :returns: ``True`` if advertising should be shown and ``False`` otherwise
+        :rtype: bool
+        """
+        if self.ad_free or self.gold_owners.exists():
+            return False
+
+        return True
+
+    @property
+    def environment_variables(self):
+        """
+        Environment variables to build this particular project.
+
+        :returns: dictionary with all the variables {name: value}
+        :rtype: dict
+        """
+        return {
+            variable.name: variable.value
+            for variable in self.environmentvariable_set.all()
+        }
+
 
 class APIProject(Project):
 
@@ -905,7 +827,7 @@ class APIProject(Project):
     Project proxy model for API data deserialization.
 
     This replaces the pattern where API data was deserialized into a mocked
-    :py:cls:`Project` object. This pattern was confusing, as it was not explicit
+    :py:class:`Project` object. This pattern was confusing, as it was not explicit
     as to what form of object you were working with -- API backed or database
     backed.
 
@@ -921,6 +843,8 @@ class APIProject(Project):
 
     def __init__(self, *args, **kwargs):
         self.features = kwargs.pop('features', [])
+        environment_variables = kwargs.pop('environment_variables', {})
+        ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
@@ -931,11 +855,24 @@ class APIProject(Project):
                 pass
         super(APIProject, self).__init__(*args, **kwargs)
 
+        # Overwrite the database property with the value from the API
+        self.ad_free = ad_free
+        self._environment_variables = environment_variables
+
     def save(self, *args, **kwargs):
         return 0
 
     def has_feature(self, feature_id):
         return feature_id in self.features
+
+    @property
+    def show_advertising(self):
+        """Whether this project is ad-free (don't access the database)"""
+        return not self.ad_free
+
+    @property
+    def environment_variables(self):
+        return self._environment_variables
 
 
 @python_2_unicode_compatible
@@ -957,6 +894,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=255)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
@@ -984,7 +922,7 @@ class EmailHook(Notification):
 
 @python_2_unicode_compatible
 class WebHook(Notification):
-    url = models.URLField(blank=True,
+    url = models.URLField(max_length=600, blank=True,
                           help_text=_('URL to send the webhook to'))
 
     def __str__(self):
@@ -1014,7 +952,7 @@ class Domain(models.Model):
     https = models.BooleanField(
         _('Use HTTPS'),
         default=False,
-        help_text=_('SSL is enabled for this domain')
+        help_text=_('Always use HTTPS for this domain')
     )
     count = models.IntegerField(default=0, help_text=_(
         'Number of times this domain has been hit'),)
@@ -1069,6 +1007,9 @@ class Feature(models.Model):
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
+    DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
+    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
+    MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1076,6 +1017,11 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (DONT_OVERWRITE_SPHINX_CONTEXT, _(
+            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+        (ALLOW_V2_CONFIG_FILE, _(
+            'Allow to use the v2 of the configuration file')),
+        (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
     )
 
     projects = models.ManyToManyField(
@@ -1113,3 +1059,19 @@ class Feature(models.Model):
         implement this behavior.
         """
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
+
+
+class EnvironmentVariable(TimeStampedModel, models.Model):
+    name = models.CharField(
+        max_length=128,
+        help_text=_('Name of the environment variable'),
+    )
+    value = models.CharField(
+        max_length=256,
+        help_text=_('Value of the environment variable'),
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        help_text=_('Project where this variable will be used'),
+    )

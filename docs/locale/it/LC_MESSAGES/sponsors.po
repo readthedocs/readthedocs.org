@@ -1,28 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-02 13:43+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Italian (http://www.transifex.com/projects/p/readthedocs-docs/language/it/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:14+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Italian (http://www.transifex.com/readthedocs/readthedocs-docs/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# bb4aa5fabcd04b60bf18b75f85da2b2d
 #: ../../sponsors.rst:2
 msgid "Sponsors of Read the Docs"
 msgstr ""
 
-# bb3ceee0895c40a2a9b15eb6034993cf
 #: ../../sponsors.rst:4
 msgid ""
 "Running Read the Docs isn't free, and the site wouldn't be where it is today"
@@ -31,55 +29,82 @@ msgid ""
 "started supporting us."
 msgstr ""
 
-# e4acbea4fbcc412c8f16de6115b2a32e
-#: ../../sponsors.rst:7
+#: ../../sponsors.rst:10
 msgid "Current sponsors"
 msgstr ""
 
-# a8dd92b026da49ffac212b5c4e02638c
-#: ../../sponsors.rst:9
-msgid "`Rackspace`_"
-msgstr ""
-
-# 86438b6e1aa641728f862596f690f8e0
-#: ../../sponsors.rst:10
-msgid "You? (Gittip)"
-msgstr ""
-
-# 23d36eeb4aea443c872a16318d2b7e1c
 #: ../../sponsors.rst:12
 msgid ""
-"All of the development of Read the Docs is funded on `Gittip`_. If you "
-"appreciate the service, please consider helping support development on "
-"Gittip."
+"`Microsoft Azure`_ - They cover all of our hosting expenses every month.  "
+"This is a pretty large sum of money, averaging around $3,000/mo, and we are "
+"really grateful to have them as a sponsor."
 msgstr ""
 
-# bb6cb79d95b24fb3bf8d2ef0b27717c3
+#: ../../sponsors.rst:13
+msgid ""
+"`Cloudflare`_ - Cloudflare is providing us with an enterprise plan of their "
+"SSL for SaaS Providers product that enables us to provide SSL certificates "
+"for custom domains."
+msgstr ""
+
+#: ../../sponsors.rst:14
+msgid "You? (Email us at rev@readthedocs.org for more info)"
+msgstr ""
+
 #: ../../sponsors.rst:17
 msgid "Past sponsors"
 msgstr ""
 
-# 9848f2dfda7a4bf3aa20f4d79f01054c
 #: ../../sponsors.rst:19
-msgid "Revsys_"
-msgstr ""
-
-# 32021add13954c96ba8a69bf2dab7c3d
-#: ../../sponsors.rst:20
 msgid "`Python Software Foundation`_"
 msgstr ""
 
-# a1f1a8458abe4cf2a10fd449d970247b
+#: ../../sponsors.rst:20
+msgid "`Revsys`_"
+msgstr ""
+
 #: ../../sponsors.rst:21
 msgid "`Mozilla Web Dev`_"
 msgstr ""
 
-# d6a85c41f4d54c04906d50e0c175a28e
 #: ../../sponsors.rst:22
 msgid "`Django Software Foundation`_"
 msgstr ""
 
-# 3a12e2f469ef4d76824bbb9681583566
 #: ../../sponsors.rst:23
-msgid "Lab305_"
+msgid "`Lab305`_"
+msgstr ""
+
+#: ../../sponsors.rst:24
+msgid "`Twilio`_"
+msgstr ""
+
+#: ../../sponsors.rst:25
+msgid "`Rackspace`_"
+msgstr ""
+
+#: ../../sponsors.rst:26
+msgid "`Mozilla`_"
+msgstr ""
+
+#: ../../sponsors.rst:42
+msgid "Sponsorship Information"
+msgstr ""
+
+#: ../../sponsors.rst:44
+msgid ""
+"As part of increasing sustainability, Read the Docs is testing out promoting"
+" sponsors on documentation pages. We have more information about this in our"
+" `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about "
+"this effort."
+msgstr ""
+
+#: ../../sponsors.rst:49
+msgid "Sponsor Us"
+msgstr ""
+
+#: ../../sponsors.rst:51
+msgid ""
+"Contact us at rev@readthedocs.org for more information on sponsoring Read "
+"the Docs."
 msgstr ""

@@ -16,7 +16,8 @@ TODO: Handle page removal case in Page.
 """
 from __future__ import absolute_import
 from builtins import object
-import datetime
+
+from django.utils import timezone
 
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import bulk_index
@@ -92,7 +93,7 @@ class Index(object):
 
     def timestamped_index(self):
         return '{0}-{1}'.format(
-            self._index, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+            self._index, timezone.now().strftime('%Y%m%d%H%M%S'))
 
     def create_index(self, index=None):
         """
@@ -106,6 +107,10 @@ class Index(object):
             'settings': self.get_settings(),
         }
         self.es.indices.create(index=index, body=body)
+
+    def refresh_index(self, index=None):
+        index = index or self._index
+        self.es.indices.refresh(index=index)
 
     def put_mapping(self, index=None):
         index = index or self._index
@@ -154,6 +159,10 @@ class Index(object):
         if routing:
             kwargs['routing'] = routing
         self.es.index(**kwargs)
+
+    def delete_index(self, index_name):
+
+        self.es.indices.delete(index=index_name)
 
     def delete_document(self, body, index=None, parent=None, routing=None):
         kwargs = {
