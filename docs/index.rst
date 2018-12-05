@@ -127,13 +127,13 @@ to help you create fantastic documentation for your project.
    design
    RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
 
-.. _business-docs:
+.. _commercial-docs:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Business Documentation
+   :caption: Commercial Documentation
 
-   business/index
+   commercial/index
 
 .. _custom-docs:
 

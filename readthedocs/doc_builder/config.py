@@ -65,7 +65,7 @@ def load_yaml_config(version):
         config = load_config(
             path=checkout_path,
             env_config=env_config,
-        )[0]
+        )
     except InvalidConfig:
         # This is a subclass of ConfigError, so has to come first
         raise
@@ -73,8 +73,7 @@ def load_yaml_config(version):
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
-            source_file=path.join(checkout_path, 'empty'),
-            source_position=0,
+            source_file=checkout_path,
         )
         config.validate()
     return config

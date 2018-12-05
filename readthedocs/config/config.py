@@ -5,12 +5,14 @@
 """Build configuration for rtd."""
 from __future__ import division, print_function, unicode_literals
 
+import copy
 import os
 import re
 from contextlib import contextmanager
 
 import six
 
+from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
@@ -47,7 +49,6 @@ __all__ = (
     'ConfigOptionNotSupportedError',
     'InvalidConfig',
     'PIP',
-    'ProjectConfig',
     'SETUPTOOLS',
 )
 
@@ -94,15 +95,6 @@ DOCKER_IMAGE_SETTINGS = {
 }
 
 
-def _list_to_dict(list_):
-    """Transform a list to a dictionary with its indices as keys."""
-    dict_ = {
-        str(i): element
-        for i, element in enumerate(list_)
-    }
-    return dict_
-
-
 class ConfigError(Exception):
 
     """Base error for the rtd configuration file."""
@@ -133,12 +125,10 @@ class InvalidConfig(ConfigError):
 
     message_template = 'Invalid "{key}": {error}'
 
-    def __init__(self, key, code, error_message, source_file=None,
-                 source_position=None):
+    def __init__(self, key, code, error_message, source_file=None):
         self.key = key
         self.code = code
         self.source_file = source_file
-        self.source_position = source_position
         message = self.message_template.format(
             key=key,
             code=code,
@@ -152,38 +142,53 @@ class BuildConfigBase(object):
     """
     Config that handles the build of one particular documentation.
 
-    You need to call ``validate`` before the config is ready to use. Also
-    setting the ``output_base`` is required before using it for a build.
+    .. note::
+
+       You need to call ``validate`` before the config is ready to use.
+
+    :param env_config: A dict that cointains additional information
+                       about the environment.
+    :param raw_config: A dict with all configuration without validation.
+    :param source_file: The file that contains the configuration.
+                        All paths are relative to this file.
+                        If a dir is given, the configuration was loaded
+                        from another source (like the web admin).
     """
 
+    PUBLIC_ATTRIBUTES = [
+        'version', 'formats', 'python',
+        'conda', 'build', 'doctype',
+        'sphinx', 'mkdocs', 'submodules',
+    ]
     version = None
 
-    def __init__(self, env_config, raw_config, source_file, source_position):
+    def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
-        self.raw_config = raw_config
+        self.raw_config = copy.deepcopy(raw_config)
         self.source_file = source_file
-        self.source_position = source_position
-        self.base_path = os.path.dirname(self.source_file)
+        if os.path.isdir(self.source_file):
+            self.base_path = self.source_file
+        else:
+            self.base_path = os.path.dirname(self.source_file)
         self.defaults = self.env_config.get('defaults', {})
 
         self._config = {}
 
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
-        source = '{file} [{pos}]'.format(
-            file=os.path.relpath(self.source_file, self.base_path),
-            pos=self.source_position,
-        )
-        error_message = '{source}: {message}'.format(
-            source=source,
-            message=message,
-        )
+        if not os.path.isdir(self.source_file):
+            source = os.path.relpath(self.source_file, self.base_path)
+            error_message = '{source}: {message}'.format(
+                source=source,
+                message=message,
+            )
+        else:
+            error_message = message
         raise InvalidConfig(
             key=key,
             code=code,
             error_message=error_message,
             source_file=self.source_file,
-            source_position=self.source_position,
         )
 
     @contextmanager
@@ -197,7 +202,6 @@ class BuildConfigBase(object):
                 code=error.code,
                 error_message=str(error),
                 source_file=self.source_file,
-                source_position=self.source_position,
             )
 
     def pop(self, name, container, default, raise_ex):
@@ -255,6 +259,13 @@ class BuildConfigBase(object):
                 if v < ver + 1
             )
         return ver
+
+    def as_dict(self):
+        config = {}
+        for name in self.PUBLIC_ATTRIBUTES:
+            attr = getattr(self, name)
+            config[name] = to_dict(attr)
+        return config
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
@@ -330,10 +341,9 @@ class BuildConfigV1(BuildConfigBase):
         """Validates that ``output_base`` exists and set its absolute path."""
         assert 'output_base' in self.env_config, (
                '"output_base" required in "env_config"')
-        base_path = os.path.dirname(self.source_file)
         output_base = os.path.abspath(
             os.path.join(
-                self.env_config.get('output_base', base_path),
+                self.env_config.get('output_base', self.base_path),
             )
         )
         return output_base
@@ -361,10 +371,9 @@ class BuildConfigV1(BuildConfigBase):
         if 'base' in self.raw_config:
             base = self.raw_config['base']
         else:
-            base = os.path.dirname(self.source_file)
+            base = self.base_path
         with self.catch_validation_error('base'):
-            base_path = os.path.dirname(self.source_file)
-            base = validate_directory(base, base_path)
+            base = validate_directory(base, self.base_path)
         return base
 
     def validate_build(self):
@@ -511,9 +520,8 @@ class BuildConfigV1(BuildConfigBase):
             conda_environment = None
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
-                    base_path = os.path.dirname(self.source_file)
                     conda_environment = validate_file(
-                        raw_conda['file'], base_path
+                        raw_conda['file'], self.base_path
                     )
             conda['environment'] = conda_environment
 
@@ -528,9 +536,10 @@ class BuildConfigV1(BuildConfigBase):
             requirements_file = self.raw_config['requirements_file']
         if not requirements_file:
             return None
-        base_path = os.path.dirname(self.source_file)
         with self.catch_validation_error('requirements_file'):
-            requirements_file = validate_file(requirements_file, base_path)
+            requirements_file = validate_file(
+                requirements_file, self.base_path
+            )
         return requirements_file
 
     def validate_formats(self):
@@ -575,7 +584,7 @@ class BuildConfigV1(BuildConfigBase):
         requirements = self._config['requirements_file']
         python_install = []
 
-        # Alwyas append a `PythonInstallRequirements` option.
+        # Always append a `PythonInstallRequirements` option.
         # If requirements is None, rtd will try to find a requirements file.
         python_install.append(
             PythonInstallRequirements(
@@ -784,7 +793,7 @@ class BuildConfigV2(BuildConfigBase):
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
                 self.raw_config.setdefault('python', {})['install'] = (
-                    _list_to_dict(raw_install)
+                    list_to_dict(raw_install)
                 )
             else:
                 self.pop_config('python.install')
@@ -1167,16 +1176,6 @@ class BuildConfigV2(BuildConfigBase):
         return Submodules(**self._config['submodules'])
 
 
-class ProjectConfig(list):
-
-    """Wrapper for multiple build configs."""
-
-    def validate(self):
-        """Validates each configuration build."""
-        for build in self:
-            build.validate()
-
-
 def load(path, env_config):
     """
     Load a project configuration and the top-most build config for a given path.
@@ -1192,10 +1191,9 @@ def load(path, env_config):
             'No configuration file found',
             code=CONFIG_REQUIRED
         )
-    build_configs = []
     with open(filename, 'r') as configuration_file:
         try:
-            configs = parse(configuration_file.read())
+            config = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
                 'Parse error in {filename}: {message}'.format(
@@ -1204,23 +1202,19 @@ def load(path, env_config):
                 ),
                 code=CONFIG_SYNTAX_INVALID,
             )
-        for i, config in enumerate(configs):
-            allow_v2 = env_config.get('allow_v2')
-            if allow_v2:
-                version = config.get('version', 1)
-            else:
-                version = 1
-            build_config = get_configuration_class(version)(
-                env_config,
-                config,
-                source_file=filename,
-                source_position=i,
-            )
-            build_configs.append(build_config)
+        allow_v2 = env_config.get('allow_v2')
+        if allow_v2:
+            version = config.get('version', 1)
+        else:
+            version = 1
+        build_config = get_configuration_class(version)(
+            env_config,
+            config,
+            source_file=filename,
+        )
 
-    project_config = ProjectConfig(build_configs)
-    project_config.validate()
-    return project_config
+    build_config.validate()
+    return build_config
 
 
 def get_configuration_class(version):

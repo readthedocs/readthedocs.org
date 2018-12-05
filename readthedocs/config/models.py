@@ -2,59 +2,71 @@
 
 from __future__ import division, print_function, unicode_literals
 
-from collections import namedtuple
+from readthedocs.config.utils import to_dict
 
 
-Build = namedtuple('Build', ['image'])
+class Base(object):
 
-Python = namedtuple(
-    'Python',
-    [
-        'version',
-        'install',
-        'use_system_site_packages',
-    ],
-)
+    """
+    Base class for every configuration.
 
-PythonInstallRequirements = namedtuple(
-    'PythonInstallRequirements',
-    [
-        'requirements',
-    ],
-)
+    Each inherited class should define
+    its attibutes in the `__slots__` attribute.
 
-PythonInstall = namedtuple(
-    'PythonInstall',
-    [
-        'path',
-        'method',
-        'extra_requirements',
-    ],
-)
+    We are using `__slots__` so we can't add more attributes by mistake,
+    this is similar to a namedtuple.
+    """
 
-PythonInstallPipfile = namedtuple(
-    'PythonInstallPipfile',
-    [
-        'pipfile',
-        'dev',
-        'ignore_pipfile',
-        'skip_lock',
-    ]
-)
+    def __init__(self, **kwargs):
+        for name in self.__slots__:
+            setattr(self, name, kwargs[name])
 
-Conda = namedtuple('Conda', ['environment'])
+    def as_dict(self):
+        return {
+            name: to_dict(getattr(self, name))
+            for name in self.__slots__
+        }
 
-Sphinx = namedtuple(
-    'Sphinx',
-    ['builder', 'configuration', 'fail_on_warning'],
-)
 
-Mkdocs = namedtuple(
-    'Mkdocs',
-    ['configuration', 'fail_on_warning'],
-)
+class Build(Base):
 
-Submodules = namedtuple(
-    'Submodules',
-    ['include', 'exclude', 'recursive'],
-)
+    __slots__ = ('image',)
+
+
+class Python(Base):
+
+    __slots__ = ('version', 'install', 'use_system_site_packages')
+
+
+class PythonInstallRequirements(Base):
+
+    __slots__ = ('requirements',)
+
+
+class PythonInstall(Base):
+
+    __slots__ = ('path', 'method', 'extra_requirements',)
+
+
+class PythonInstallPipfile(Base):
+    __slots__ = ('pipfile', 'dev', 'ignore_pipfile', 'skip_lock')
+
+
+class Conda(Base):
+
+    __slots__ = ('environment',)
+
+
+class Sphinx(Base):
+
+    __slots__ = ('builder', 'configuration', 'fail_on_warning')
+
+
+class Mkdocs(Base):
+
+    __slots__ = ('configuration', 'fail_on_warning')
+
+
+class Submodules(Base):
+
+    __slots__ = ('include', 'exclude', 'recursive')

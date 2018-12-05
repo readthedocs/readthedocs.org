@@ -45,12 +45,6 @@ class CommunityBaseSettings(Settings):
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
 
-    ADMINS = (
-        ('Eric Holscher', 'eric@readthedocs.org'),
-        ('Anthony Johnson', 'anthony@readthedocs.org'),
-    )
-    MANAGERS = ADMINS
-
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
@@ -126,7 +120,7 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
@@ -215,7 +209,8 @@ class CommunityBaseSettings(Settings):
     CACHE_MIDDLEWARE_SECONDS = 60
 
     # I18n
-    TIME_ZONE = 'America/Chicago'
+    TIME_ZONE = 'UTC'
+    USE_TZ = True
     LANGUAGE_CODE = 'en-us'
     LANGUAGES = (
         ('ca', gettext('Catalan')),
@@ -301,8 +296,8 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '^http://(.+)\.readthedocs\.io$',
-        '^https://(.+)\.readthedocs\.io$'
+        r'^http://(.+)\.readthedocs\.io$',
+        r'^https://(.+)\.readthedocs\.io$',
     )
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
@@ -337,7 +332,6 @@ class CommunityBaseSettings(Settings):
 
     # Guardian Settings
     GUARDIAN_RAISE_403 = True
-    ANONYMOUS_USER_ID = -1
 
     # Stripe
     STRIPE_SECRET = None
@@ -396,6 +390,9 @@ class CommunityBaseSettings(Settings):
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
+            'null': {
+                'class': 'logging.NullHandler',
+            },
         },
         'loggers': {
             '': {  # root logger
@@ -407,6 +404,10 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
                 # Don't double log at the root logger for these.
+                'propagate': False,
+            },
+            'django.security.DisallowedHost': {
+                'handlers': ['null'],
                 'propagate': False,
             },
         },

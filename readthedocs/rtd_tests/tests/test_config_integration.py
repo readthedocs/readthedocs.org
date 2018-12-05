@@ -24,7 +24,6 @@ from readthedocs.config import (
     SETUPTOOLS,
     BuildConfigV1,
     InvalidConfig,
-    ProjectConfig,
 )
 from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.config.tests.utils import apply_fs
@@ -40,9 +39,7 @@ def create_load(config=None):
     """
     Mock out the function of the build load function.
 
-    This will create a ProjectConfig list of BuildConfigV1 objects and validate
-    them. The default load function iterates over files and builds up a list of
-    objects. Instead of mocking all of this, just mock the end result.
+    This will create a BuildConfigV1 object and validate it.
     """
     if config is None:
         config = {}
@@ -54,14 +51,11 @@ def create_load(config=None):
         }
         if env_config is not None:
             env_config_defaults.update(env_config)
-        yaml_config = ProjectConfig([
-            BuildConfigV1(
-                env_config_defaults,
-                config,
-                source_file='readthedocs.yml',
-                source_position=0,
-            ),
-        ])
+        yaml_config = BuildConfigV1(
+            env_config_defaults,
+            config,
+            source_file='readthedocs.yml',
+        )
         yaml_config.validate()
         return yaml_config
 

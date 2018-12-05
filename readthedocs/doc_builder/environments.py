@@ -37,7 +37,7 @@ from .constants import (
 from .exceptions import (
     BuildEnvironmentCreationFailed, BuildEnvironmentError,
     BuildEnvironmentException, BuildEnvironmentWarning, BuildTimeoutError,
-    ProjectBuildsSkippedError, VersionLockedError, YAMLParseError)
+    ProjectBuildsSkippedError, VersionLockedError, YAMLParseError, MkDocsYAMLParseError)
 
 log = logging.getLogger(__name__)
 
@@ -148,7 +148,9 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 self.command,
                 shell=self.shell,
-                cwd=self.cwd,
+                # This is done here for local builds, but not for docker,
+                # as we want docker to expand inside the container
+                cwd=os.path.expandvars(self.cwd),
                 stdin=stdin,
                 stdout=stdout,
                 stderr=stderr,
@@ -438,6 +440,7 @@ class BuildEnvironment(BaseEnvironment):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
+        MkDocsYAMLParseError,
     )
 
     def __init__(self, project=None, version=None, build=None, config=None,
@@ -463,7 +466,7 @@ class BuildEnvironment(BaseEnvironment):
                 project=self.project.slug,
                 version=self.version.slug,
                 msg='Build finished',
-            )
+            ),
         )
         return ret
 
