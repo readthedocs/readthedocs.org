@@ -5,13 +5,14 @@
 """Build configuration for rtd."""
 from __future__ import division, print_function, unicode_literals
 
+import copy
 import os
 import re
 from contextlib import contextmanager
 
 import six
 
-from readthedocs.config.utils import to_dict, list_to_dict
+from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
@@ -162,7 +163,7 @@ class BuildConfigBase(object):
 
     def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
-        self.raw_config = raw_config
+        self.raw_config = copy.deepcopy(raw_config)
         self.source_file = source_file
         if os.path.isdir(self.source_file):
             self.base_path = self.source_file
