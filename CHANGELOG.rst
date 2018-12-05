@@ -1,3 +1,36 @@
+Version 2.8.2
+-------------
+
+:Date: November 28, 2018
+
+* `@stsewd <http://github.com/stsewd>`__: Use .exists in queryset (`#4927 <https://github.com/rtfd/readthedocs.org/pull/4927>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't rmtree symlink (`#4925 <https://github.com/rtfd/readthedocs.org/pull/4925>`__)
+* `@stsewd <http://github.com/stsewd>`__: Delete tags with same commit (`#4915 <https://github.com/rtfd/readthedocs.org/pull/4915>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: Tuning Elasticsearch for search improvements (`#4909 <https://github.com/rtfd/readthedocs.org/pull/4909>`__)
+* `@edmondchuc <http://github.com/edmondchuc>`__: Fixed some typos. (`#4906 <https://github.com/rtfd/readthedocs.org/pull/4906>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade stripe Python package to the latest version (`#4904 <https://github.com/rtfd/readthedocs.org/pull/4904>`__)
+* `@humitos <http://github.com/humitos>`__: Retry on API failure when connecting from builders (`#4902 <https://github.com/rtfd/readthedocs.org/pull/4902>`__)
+* `@stsewd <http://github.com/stsewd>`__: Separate update and checkout steps (`#4901 <https://github.com/rtfd/readthedocs.org/pull/4901>`__)
+* `@humitos <http://github.com/humitos>`__: Expose environment variables from database into build commands (`#4894 <https://github.com/rtfd/readthedocs.org/pull/4894>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Use python to expand the cwd instead of environment variables (`#4882 <https://github.com/rtfd/readthedocs.org/pull/4882>`__)
+* `@humitos <http://github.com/humitos>`__: Call Celery worker properly (`#4881 <https://github.com/rtfd/readthedocs.org/pull/4881>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Disable django.security.DisallowedHost from logging (`#4879 <https://github.com/rtfd/readthedocs.org/pull/4879>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'Sphinx Template Changes' From Docs (`#4878 <https://github.com/rtfd/readthedocs.org/pull/4878>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Unbreak the admin on ImportedFile by using raw_id_fields (`#4874 <https://github.com/rtfd/readthedocs.org/pull/4874>`__)
+* `@stsewd <http://github.com/stsewd>`__: Check if latest exists before updating identifier (`#4873 <https://github.com/rtfd/readthedocs.org/pull/4873>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.8.1 (`#4872 <https://github.com/rtfd/readthedocs.org/pull/4872>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Update django-guardian settings (`#4871 <https://github.com/rtfd/readthedocs.org/pull/4871>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change 'VerisionLockedTimeout' to 'VersionLockedError' in comment. (`#4859 <https://github.com/rtfd/readthedocs.org/pull/4859>`__)
+* `@stsewd <http://github.com/stsewd>`__: Hide "edit on" when the version is a tag (`#4851 <https://github.com/rtfd/readthedocs.org/pull/4851>`__)
+* `@stsewd <http://github.com/stsewd>`__: Delete untracked tags on fetch (`#4811 <https://github.com/rtfd/readthedocs.org/pull/4811>`__)
+* `@humitos <http://github.com/humitos>`__: Appropiate logging when a LockTimeout for VCS is reached (`#4804 <https://github.com/rtfd/readthedocs.org/pull/4804>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove support for multiple configurations in one file (`#4800 <https://github.com/rtfd/readthedocs.org/pull/4800>`__)
+* `@stsewd <http://github.com/stsewd>`__: Pipfile support (schema) (`#4782 <https://github.com/rtfd/readthedocs.org/pull/4782>`__)
+* `@stsewd <http://github.com/stsewd>`__: Save config on build model (`#4749 <https://github.com/rtfd/readthedocs.org/pull/4749>`__)
+* `@invinciblycool <http://github.com/invinciblycool>`__: Redirect to build detail post manual build (`#4622 <https://github.com/rtfd/readthedocs.org/pull/4622>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Enable timezone support and set timezone to UTC (`#4545 <https://github.com/rtfd/readthedocs.org/pull/4545>`__)
+* `@chirathr <http://github.com/chirathr>`__: Webhook notification URL size validation check (`#3680 <https://github.com/rtfd/readthedocs.org/pull/3680>`__)
+
 Version 2.8.1
 -------------
 

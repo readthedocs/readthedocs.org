@@ -1001,7 +1001,7 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(path)
         cmd.run()
         missing_re = re.compile(r'(?:No such file or directory|not found)')
-        self.assertRegexpMatches(cmd.error, missing_re)
+        self.assertRegex(cmd.error, missing_re)
 
     def test_input(self):
         """Test input to command."""
@@ -1091,7 +1091,7 @@ class TestDockerBuildCommand(TestCase):
             cmd.get_wrapped_command(),
             ('/bin/sh -c '
              "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
-             "python /tmp/foo/pip install Django\>1.7'"),
+             r"python /tmp/foo/pip install Django\>1.7'"),
         )
 
     def test_unicode_output(self):
@@ -1193,7 +1193,7 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once()
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1212,7 +1212,7 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once()
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     @patch('readthedocs.projects.models.Project.checkout_path')

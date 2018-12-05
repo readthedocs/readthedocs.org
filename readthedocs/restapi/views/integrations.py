@@ -1,32 +1,44 @@
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import json
 import logging
 import re
 
-from builtins import object
+import six
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
-from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.exceptions import ParseError, NotFound
+from rest_framework.views import APIView
 
-from django.shortcuts import get_object_or_404
-
-from readthedocs.core.views.hooks import build_branches
-from readthedocs.core.signals import (webhook_github, webhook_bitbucket,
-                                      webhook_gitlab)
+from readthedocs.core.signals import (
+    webhook_bitbucket,
+    webhook_github,
+    webhook_gitlab,
+)
+from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
-import six
-
 
 log = logging.getLogger(__name__)
 
+GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_PUSH = 'push'
+GITHUB_CREATE = 'create'
+GITHUB_DELETE = 'delete'
 GITLAB_PUSH = 'push'
+GITLAB_NULL_HASH = '0' * 40
+GITLAB_TAG_PUSH = 'tag_push'
+BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
 BITBUCKET_PUSH = 'repo:push'
 
 
@@ -124,6 +136,14 @@ class WebhookMixin(object):
                 'project': project.slug,
                 'versions': list(to_build)}
 
+    def sync_versions(self, project):
+        version = sync_versions(project)
+        return {
+            'build_triggered': False,
+            'project': project.slug,
+            'versions': [version],
+        }
+
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
@@ -140,6 +160,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
             "ref": "branch-name",
             ...
         }
+
+    See full payload here:
+
+    - https://developer.github.com/v3/activity/events/types/#pushevent
+    - https://developer.github.com/v3/activity/events/types/#createevent
+    - https://developer.github.com/v3/activity/events/types/#deleteevent
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
@@ -154,9 +180,13 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
-        event = self.request.META.get('HTTP_X_GITHUB_EVENT', 'push')
-        webhook_github.send(Project, project=self.project,
-                            data=self.data, event=event)
+        event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
+        webhook_github.send(
+            Project,
+            project=self.project,
+            data=self.data,
+            event=event
+        )
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
             try:
@@ -164,6 +194,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+        if event in (GITHUB_CREATE, GITHUB_DELETE):
+            return self.sync_versions(self.project)
+        return None
 
     def _normalize_ref(self, ref):
         pattern = re.compile(r'^refs/(heads|tags)/')
@@ -180,26 +213,55 @@ class GitLabWebhookView(WebhookMixin, APIView):
     Expects the following JSON::
 
         {
+            "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
+            "after": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
             "object_kind": "push",
             "ref": "branch-name",
             ...
         }
+
+    See full payload here:
+
+    - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#push-events
+    - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#tag-events
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
 
     def handle_webhook(self):
-        # Get event and trigger other webhook events
+        """
+        Handle GitLab events for push and tag_push.
+
+        GitLab doesn't have a separate event for creation/deletion,
+        instead, it sets the before/after field to
+        0000000000000000000000000000000000000000 ('0' * 40)
+        """
         event = self.request.data.get('object_kind', GITLAB_PUSH)
-        webhook_gitlab.send(Project, project=self.project,
-                            data=self.request.data, event=event)
+        webhook_gitlab.send(
+            Project,
+            project=self.project,
+            data=self.request.data,
+            event=event
+        )
         # Handle push events and trigger builds
-        if event == GITLAB_PUSH:
+        if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
+            data = self.request.data
+            before = data['before']
+            after = data['after']
+            # Tag/branch created/deleted
+            if GITLAB_NULL_HASH in (before, after):
+                return self.sync_versions(self.project)
+            # Normal push to master
             try:
-                branches = [self.request.data['ref'].replace('refs/heads/', '')]
+                branches = [self._normalize_ref(data['ref'])]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+        return None
+
+    def _normalize_ref(self, ref):
+        pattern = re.compile(r'^refs/(heads|tags)/')
+        return pattern.sub('', ref)
 
 
 class BitbucketWebhookView(WebhookMixin, APIView):
@@ -218,31 +280,60 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                         "name": "branch-name",
                         ...
                     },
+                    "old" {
+                        "name": "branch-name",
+                        ...
+                    },
                     ...
                 }],
                 ...
             },
             ...
         }
+
+    See full payload here:
+
+    - https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-Push
     """
 
     integration_type = Integration.BITBUCKET_WEBHOOK
 
     def handle_webhook(self):
-        # Get event and trigger other webhook events
-        event = self.request.META.get('HTTP_X_EVENT_KEY', BITBUCKET_PUSH)
-        webhook_bitbucket.send(Project, project=self.project,
-                               data=self.request.data, event=event)
-        # Handle push events and trigger builds
+        """
+        Handle BitBucket events for push.
+
+        BitBucket doesn't have a separate event for creation/deletion,
+        instead it sets the new attribute (null if it is a deletion)
+        and the old attribute (null if it is a creation).
+        """
+        event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
+        webhook_bitbucket.send(
+            Project,
+            project=self.project,
+            data=self.request.data,
+            event=event
+        )
         if event == BITBUCKET_PUSH:
             try:
-                changes = self.request.data['push']['changes']
-                branches = [change['new']['name']
-                            for change in changes
-                            if change.get('new')]
-                return self.get_response_push(self.project, branches)
+                data = self.request.data
+                changes = data['push']['changes']
+                branches = []
+                for change in changes:
+                    old = change['old']
+                    new = change['new']
+                    # Normal push to master
+                    if old is not None and new is not None:
+                        branches.append(new['name'])
+                # BitBuck returns an array of changes rather than
+                # one webhook per change. If we have at least one normal push
+                # we don't trigger the sync versions, because that
+                # will be triggered with the normal push.
+                if branches:
+                    return self.get_response_push(self.project, branches)
+                return self.sync_versions(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
+        return None
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
@@ -283,7 +374,7 @@ class APIWebhookView(WebhookMixin, APIView):
         the integration token to be specified as a POST argument.
         """
         # If the user is not an admin of the project, fall back to token auth
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             try:
                 return (Project.objects
                         .for_admin_user(self.request.user)
@@ -343,4 +434,8 @@ class WebhookView(APIView):
         )
         view_cls = self.VIEW_MAP[integration.integration_type]
         view = view_cls.as_view(integration=integration)
-        return view(request, project_slug)
+        # DRF uses ``rest_framework.request.Request`` and Django expects
+        # ``django.http.HttpRequest``
+        # https://www.django-rest-framework.org/api-guide/requests/
+        # https://github.com/encode/django-rest-framework/pull/5771#issuecomment-362815342
+        return view(request._request, project_slug)
