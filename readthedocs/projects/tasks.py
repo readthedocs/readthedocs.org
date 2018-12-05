@@ -475,6 +475,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
                 self.send_notifications()
+            else:
+                # Done only for the purpose of testing
+                # It will be removed before merging
+                import sys
+                sys.exit(0)
 
             return False
 

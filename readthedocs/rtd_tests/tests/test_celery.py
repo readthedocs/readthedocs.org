@@ -21,6 +21,7 @@ from readthedocs.rtd_tests.utils import (
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
+from readthedocs.doc_builder.exceptions import VersionLockedError
 
 
 class TestCeleryBuilding(RTDTestCase):
@@ -107,6 +108,29 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
+        build = get(Build, project=self.project,
+                    version=self.project.versions.first())
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs_task.delay(
+                self.project.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False)
+        self.assertTrue(result.successful())
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.LocalBuildEnvironment')
+    def test_no_notification_on_version_locked_error(self, mock_cls):
+        x = VersionLockedError
+        y = VersionLockedError()
+        z = None
+
+        mock_cls.handle_exception.return_value = False
+        mock_cls.failure = VersionLockedError()
+        mock_cls.__exit__.side_effect = lambda x, y, z: False
+
         build = get(Build, project=self.project,
                     version=self.project.versions.first())
         with mock_api(self.repo) as mapi:
