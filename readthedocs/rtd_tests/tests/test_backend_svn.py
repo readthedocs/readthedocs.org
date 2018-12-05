@@ -18,9 +18,6 @@ from readthedocs.vcs_support.backends.svn import Backend as SvnBackend
 
 class TestSvnBackend(RTDTestCase):
 
-    def setUp(self):
-        super(TestSvnBackend, self).setUp()
-
     def test_get_url(self):
         project = get(Project)
         version = get(Version, project=project)
