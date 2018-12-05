@@ -267,15 +267,6 @@ def test_use_system_site_packages_repects_default_value(value):
     assert build.python.use_system_site_packages is value
 
 
-def test_python_pip_install_default():
-    build = get_build_config({'python': {}}, get_env_config())
-    build.validate()
-    # Default is False.
-    install = build.python.install
-    assert len(install) == 1
-    assert not isinstance(install[0], PythonInstall)
-
-
 class TestValidatePythonExtraRequirements(object):
 
     def test_it_defaults_to_install_requirements_as_none(self):
@@ -347,7 +338,8 @@ class TestValidateSetupPyInstall(object):
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert not isinstance(install[0], PythonInstall)
+        assert isinstance(install[0], PythonInstallRequirements)
+        assert install[0].requirements is None
 
     def test_it_validates_value(self):
         build = get_build_config(
@@ -1193,12 +1185,13 @@ class TestBuildConfigV2(object):
 
     def test_python_install_requirements_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
+        requirements_file = 'invalid'
         build = self.get_build_config(
             {
                 'python': {
                     'install': [{
                         'path': '.',
-                        'requirements': 'invalid',
+                        'requirements': requirements_file,
                     }],
                 },
             },
@@ -1207,6 +1200,8 @@ class TestBuildConfigV2(object):
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.install.0.requirements'
+        error_msg = 'path {} does not exist'.format(requirements_file)
+        assert error_msg in str(excinfo.value)
 
     def test_python_install_requirements_does_not_allow_null(self, tmpdir):
         build = self.get_build_config(
@@ -1435,7 +1430,7 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'python.install.0.extra_requirements'
 
-    @pytest.mark.parametrize('value', [2, 'invalid', {}])
+    @pytest.mark.parametrize('value', [2, 'invalid', {}, '', None])
     def test_python_install_extra_requirements_check_type(self, value, tmpdir):
         build = self.get_build_config(
             {
