@@ -2,7 +2,11 @@
 """OAuth utility functions."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 from datetime import datetime
@@ -15,6 +19,9 @@ from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
+
+from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 
 log = logging.getLogger(__name__)
 
@@ -211,6 +218,24 @@ class Service(object):
 
     def update_webhook(self, project, integration):
         raise NotImplementedError
+
+    def get_or_create_webhook(self, project, integration_type):
+        """Create a webhook if it doesn't exists, it also sets a new secret."""
+        created = False
+        try:
+            integration = Integration.objects.get(
+                project=project,
+                integration_type=integration_type,
+            )
+        except Integration.DoesNotExist:
+            integration = Integration.objects.create(
+                project=project,
+                integration_type=integration_type,
+            )
+            created = True
+        integration.secret = get_secret()
+        integration.save()
+        return integration, created
 
     @classmethod
     def is_project_service(cls, project):

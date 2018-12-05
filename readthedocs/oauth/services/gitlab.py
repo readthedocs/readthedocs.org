@@ -271,19 +271,10 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        try:
-            integration = Integration.objects.get(
-                project=project,
-                integration_type=Integration.GITLAB_WEBHOOK,
-            )
-        except Integration.DoesNotExist:
-            integration = Integration.objects.create(
-                project=project,
-                integration_type=Integration.GITLAB_WEBHOOK,
-            )
-        integration.secret = get_secret()
-        integration.save()
-
+        integration = self.get_or_create_webhook(
+            project,
+            Integration.GITLAB_WEBHOOK,
+        )
         repo_id = self._get_repo_id(project)
         if repo_id is None:
             return (False, None)
