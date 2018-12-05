@@ -11,7 +11,7 @@ from contextlib import contextmanager
 
 import six
 
-from readthedocs.config.utils import to_dict
+from readthedocs.config.utils import to_dict, list_to_dict
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
@@ -91,15 +91,6 @@ DOCKER_IMAGE_SETTINGS = {
         'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
     },
 }
-
-
-def _list_to_dict(list_):
-    """Transform a list to a dictionary with its indices as keys."""
-    dict_ = {
-        str(i): element
-        for i, element in enumerate(list_)
-    }
-    return dict_
 
 
 class ConfigError(Exception):
@@ -800,7 +791,7 @@ class BuildConfigV2(BuildConfigBase):
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
                 self.raw_config.setdefault('python', {})['install'] = (
-                    _list_to_dict(raw_install)
+                    list_to_dict(raw_install)
                 )
             else:
                 self.pop_config('python.install')
