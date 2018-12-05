@@ -582,7 +582,7 @@ class BuildConfigV1(BuildConfigBase):
         requirements = self._config['requirements_file']
         python_install = []
 
-        # Alwyas append a `PythonInstallRequirements` option.
+        # Always append a `PythonInstallRequirements` option.
         # If requirements is None, rtd will try to find a requirements file.
         python_install.append(
             PythonInstallRequirements(

@@ -70,16 +70,15 @@ class PythonEnvironment(object):
             shutil.rmtree(venv_dir)
 
     def install_requirements(self):
+        """Install all requirements from the config object."""
         for install in self.config.python.install:
-            self._run_install_step(install)
-
-    def _run_install_step(self, install):
-        if isinstance(install, PythonInstallRequirements):
-            return self.install_requirements_file(install)
-        if isinstance(install, PythonInstall):
-            return self.install_package(install)
+            if isinstance(install, PythonInstallRequirements):
+                return self.install_requirements_file(install)
+            if isinstance(install, PythonInstall):
+                return self.install_package(install)
 
     def install_package(self, install):
+        """Install the package using pip or setuptools."""
         rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
@@ -311,6 +310,7 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_requirements_file(self, install):
+        """Install a requirements file using pip."""
         requirements_file_path = install.requirements
         # This only happens when the config file is from v1.
         # We try to find a requirements file.
