@@ -78,7 +78,12 @@ class PythonEnvironment(object):
                 self.install_package(install)
 
     def install_package(self, install):
-        """Install the package using pip or setuptools."""
+        """
+        Install the package using pip or setuptools.
+
+        :param install: A install object from the config module.
+        :type install: readthedocs.config.models.PythonInstall
+        """
         rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
@@ -310,11 +315,16 @@ class Virtualenv(PythonEnvironment):
         )
 
     def install_requirements_file(self, install):
-        """Install a requirements file using pip."""
+        """
+        Install a requirements file using pip.
+
+        :param install: A install object from the config module.
+        :type install: readthedocs.config.models.PythonInstallRequirements
+        """
         requirements_file_path = install.requirements
-        # This only happens when the config file is from v1.
-        # We try to find a requirements file.
         if requirements_file_path is None:
+            # This only happens when the config file is from v1.
+            # We try to find a requirements file.
             builder_class = get_builder_class(self.config.doctype)
             docs_dir = (builder_class(build_env=self.build_env, python_env=self)
                         .docs_dir())
