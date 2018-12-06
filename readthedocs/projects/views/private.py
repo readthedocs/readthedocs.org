@@ -65,6 +65,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.tasks import email_confirm_notification
 
 log = logging.getLogger(__name__)
 
@@ -80,8 +81,23 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
+    def email_notification(self, request):
+        email_qs = request.user.emailaddress_set.filter(primary=True)
+        email = email_qs.first()
+        if email:
+            if not email.verified:
+                email_confirm_notification(user=request.user, success=False)
+        else:
+            email_confirm_notification(user=request.user, success=False)
+
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        super(ProjectDashboard, self).get(request, *args, **kwargs)
+        context = self.get_context_data()
+        self.email_notification(request)
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDashboard, self).get_context_data(**kwargs)
