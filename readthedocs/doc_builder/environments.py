@@ -317,7 +317,7 @@ class BaseEnvironment(object):
         self.environment = environment or {}
         self.commands = []
 
-    def pre_run_command(self, cls, cmd, warn_only, kwargs):
+    def pre_run_command(self, cmd, warn_only, kwargs):
         """
         Method to be called before the command is executed.
 
@@ -347,7 +347,6 @@ class BaseEnvironment(object):
         :param cmd: command (as a list) to execute in this environment
         :param warn_only: don't raise an exception on command failure
         """
-        self.pre_run_command(cls, cmd, warn_only, kwargs)
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
@@ -355,11 +354,11 @@ class BaseEnvironment(object):
         assert 'environment' not in kwargs, "environment can't be passed in via commands."
         kwargs['environment'] = self.environment
 
+        self.pre_run_command(cmd, warn_only, kwargs)
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
         build_cmd.run()
-        self.post_run_command()
 
         # TODO adap this code to the new one
         # We want append this command to the list of commands only if it has
@@ -367,6 +366,7 @@ class BaseEnvironment(object):
         # has to be added after ``self.record_command`` since its
         # ``exit_code`` can be altered because of ``record_as_success``
         self.commands.append(build_cmd)
+        self.post_run_command()
 
         if build_cmd.failed:
             msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
@@ -387,20 +387,23 @@ class BaseEnvironment(object):
 
 class EnvironmentRecordCommandMixin(object):
 
-    # record, warn_only
-    def pre_run_command(self, cls, cmd, warn_only, kwargs):
-        kwargs.update({
-            # TODO: when is this necessary?
-            'build_env': self,
-        })
+    """
+    Allows to save a command to the database.
+
+    It accepts `record` as kwarg. If `record` is True,
+    the command will be saved.
+    If warn_only is True, the command will be recorded as success.
+    """
+
+    def pre_run_command(self, cmd, warn_only, kwargs):
         self.record = kwargs.pop('record', True)
         self.record_as_success = warn_only
 
     def post_run_command(self):
         command = self.commands[-1]
-        if self.record_as_success:
-            command.exit_code = 0
         if self.record:
+            if self.record_as_success:
+                command.exit_code = 0
             command.save()
 
 
@@ -524,6 +527,18 @@ class BuildEnvironment(EnvironmentRecordCommandMixin, BaseEnvironment):
                 },
             )
             return True
+
+    def run(self, *cmd, **kwargs):
+        kwargs.update({
+            'build_env': self,
+        })
+        return super(BuildEnvironment, self).run(*cmd, **kwargs)
+
+    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
+        kwargs.update({
+            'build_env': self,
+        })
+        return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
 
     @property
     def successful(self):
