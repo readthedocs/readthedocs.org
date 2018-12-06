@@ -11,6 +11,7 @@ from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
 from django.utils import timezone
 from django_dynamic_fixture import get, new
+from allauth.account.models import EmailAddress
 
 import six
 
@@ -330,6 +331,10 @@ class TestImportDemoView(MockBuildTestCase):
         project = Project.objects.get(slug='eric-demo')
         project.repo = 'file:///foobar'
         project.save()
+
+        # Setting the primary and verified email of the test user.
+        user = User.objects.get(username='eric')
+        user_email = get(EmailAddress, user=user, primary=True, verified=True)
 
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)

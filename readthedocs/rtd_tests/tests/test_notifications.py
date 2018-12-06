@@ -8,6 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import User, AnonymousUser
 from messages_extends.models import Message as PersistentMessage
+from allauth.account.models import EmailAddress
 
 from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.backends import EmailBackend, SiteBackend
@@ -144,6 +145,9 @@ class NotificationBackendTests(TestCase):
             success_level = INFO_NON_PERSISTENT
 
         user = fixture.get(User)
+        # Setting the primary and verified email address of the user
+        email = fixture.get(EmailAddress, user=user, primary=True, verified=True)
+
         n = TestNotification(user, True)
         backend = SiteBackend(request=None)
 
