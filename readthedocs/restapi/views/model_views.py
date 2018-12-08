@@ -183,6 +183,7 @@ class ProjectViewSet(UserSelectViewSet):
             )
 
         promoted_version = project.update_stable_version()
+        promoted_version = None  # Stop building of stable versions for now
         if promoted_version:
             new_stable = project.get_stable_version()
             log.info(
