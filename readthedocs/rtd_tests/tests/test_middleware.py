@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from django.http import Http404
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import get_urlconf, set_urlconf
+from django.urls.base import get_urlconf, set_urlconf
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
