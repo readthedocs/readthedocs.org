@@ -32,7 +32,7 @@ from rest_framework import status
 from readthedocs.core.fields import default_token
 from readthedocs.projects.models import Project
 
-from .utils import normalize_request_payload
+from .utils import get_secret, normalize_request_payload
 
 
 class HttpExchangeManager(models.Manager):
@@ -273,7 +273,7 @@ class Integration(models.Model):
         max_length=255,
         blank=True,
         null=True,
-        default=None,
+        default=get_secret,
     )
 
     objects = IntegrationQuerySet.as_manager()
