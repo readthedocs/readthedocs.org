@@ -12,12 +12,6 @@
 {% block project_edit_content_header %}{% trans "Environment Variables" %}{% endblock %}
 
 {% block project_edit_content %}
-  <p>
-    {% blocktrans trimmed %}
-      Notice that the values are not escaped when your builds are executed.
-      Special characters (for bash) should be escaped accordingly.
-    {% endblocktrans %}
-  </p>
   <form
       method="post"
       action="{% url 'projects_environmentvariables_create' project_slug=project.slug %}">

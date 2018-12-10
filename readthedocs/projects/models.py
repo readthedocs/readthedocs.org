@@ -8,6 +8,7 @@ import fnmatch
 import logging
 import os
 from builtins import object  # pylint: disable=redefined-builtin
+from six.moves import shlex_quote
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -1064,6 +1065,7 @@ class Feature(models.Model):
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
 
 
+@python_2_unicode_compatible
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,
@@ -1078,3 +1080,10 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
     )
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        self.value = shlex_quote(self.value)
+        return super(EnvironmentVariable, self).save(*args, **kwargs)
