@@ -542,6 +542,14 @@ class WebHookForm(forms.ModelForm):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
+    def clean_url(self):
+        url = self.cleaned_data.get('url')
+        if not url:
+            raise forms.ValidationError(
+                _('This field is required.')
+            )
+        return url
+
     class Meta:
         model = WebHook
         fields = ['url']
