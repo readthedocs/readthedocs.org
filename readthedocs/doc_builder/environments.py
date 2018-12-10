@@ -6,6 +6,7 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
 import logging
+import json
 import os
 import re
 import socket
@@ -186,6 +187,9 @@ class BuildCommand(BuildCommandResultMixin):
                avoid PostgreSQL db to fail:
                https://code.djangoproject.com/ticket/28201
 
+            3. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
+               over the API call request
+
         :param output: stdout/stderr to be sanitized
         :type output: bytes
 
@@ -198,6 +202,18 @@ class BuildCommand(BuildCommandResultMixin):
             sanitized = sanitized.replace('\x00', '')
         except (TypeError, AttributeError):
             sanitized = None
+
+        # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
+        output_length = len(output) if output else 0
+        # Left some extra space for the rest of the request data
+        threshold = 512 * 1024  # 512Kb
+        allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
+        if output_length > allowed_length:
+            sanitized = sanitized[:allowed_length]
+            sanitized += '\n\n\nOutput is too big. Chunked at {} bytes'.format(
+                allowed_length,
+            )
+
         return sanitized
 
     def get_command(self):
