@@ -273,6 +273,7 @@ class Integration(models.Model):
         max_length=255,
         blank=True,
         null=True,
+        default=None,
     )
 
     objects = IntegrationQuerySet.as_manager()

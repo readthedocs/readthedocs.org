@@ -125,7 +125,7 @@ class WebhookMixin(object):
                 integration_type=self.integration_type,
                 # If we didn't create the integration,
                 # we didn't set a secret.
-                secret='',
+                secret=None,
             )
         return integration
 

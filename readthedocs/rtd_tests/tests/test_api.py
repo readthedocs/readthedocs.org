@@ -1054,7 +1054,7 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITHUB_WEBHOOK,
-            secret='',
+            secret=None,
         )
         self.assertFalse(integration.secret)
         headers = {
@@ -1291,7 +1291,7 @@ class IntegrationsTests(TestCase):
         integration = Integration.objects.create(
             project=self.project,
             integration_type=Integration.GITLAB_WEBHOOK,
-            secret='',
+            secret=None,
         )
         self.assertFalse(integration.secret)
         headers = {

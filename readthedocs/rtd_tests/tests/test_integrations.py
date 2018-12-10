@@ -35,7 +35,7 @@ class HttpExchangeTests(TestCase):
             project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
             provider_data='',
-            secret='',
+            secret=None,
         )
         resp = client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
@@ -72,7 +72,7 @@ class HttpExchangeTests(TestCase):
             project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
             provider_data='',
-            secret='',
+            secret=None,
         )
         resp = client.post(
             '/api/v2/webhook/github/{0}/'.format(project.slug),
