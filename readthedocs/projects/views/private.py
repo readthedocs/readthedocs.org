@@ -529,7 +529,6 @@ def project_notifications(request, project_slug):
 
     email_form = EmailHookForm(data=request.POST or None, project=project)
     webhook_form = WebHookForm(data=request.POST or None, project=project)
-
     if request.method == 'POST':
         if email_form.is_valid():
             email_form.save()
@@ -539,7 +538,6 @@ def project_notifications(request, project_slug):
             'projects_notifications',
             args=[project.slug],
         )
-        return HttpResponseRedirect(project_dashboard)
 
     emails = project.emailhook_notifications.all()
     urls = project.webhook_notifications.all()
