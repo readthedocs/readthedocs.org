@@ -177,9 +177,11 @@ class Backend(BaseVCS):
     def branches(self):
         repo = git.Repo(self.working_dir)
         versions = []
+        branches = []
 
         # ``repo.remotes.origin.refs`` returns remote branches
-        branches = repo.remotes.origin.refs
+        if repo.remotes:
+            branches += repo.remotes.origin.refs
 
         for branch in branches:
             verbose_name = branch.name
