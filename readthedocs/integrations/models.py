@@ -269,7 +269,7 @@ class Integration(models.Model):
         related_query_name='integrations',
     )
     secret = models.CharField(
-        help_text='Secret used to validate the payload of the webhook',
+        help_text=_('Secret used to validate the payload of the webhook'),
         max_length=255,
         blank=True,
         null=True,
