@@ -542,4 +542,15 @@ class TestProjectEnvironmentVariablesForm(TestCase):
 
         self.assertEqual(EnvironmentVariable.objects.count(), 1)
         self.assertEqual(EnvironmentVariable.objects.first().name, 'MYTOKEN')
-        self.assertEqual(EnvironmentVariable.objects.first().value, 'string here')
+        self.assertEqual(EnvironmentVariable.objects.first().value, "'string here'")
+
+        data = {
+            'name': 'ESCAPED',
+            'value': r'string escaped here: #$\1[]{}\|',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        form.save()
+
+        self.assertEqual(EnvironmentVariable.objects.count(), 2)
+        self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
+        self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
