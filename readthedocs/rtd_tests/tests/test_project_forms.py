@@ -488,6 +488,17 @@ class TestProjectEnvironmentVariablesForm(TestCase):
 
     def test_use_invalid_names(self):
         data = {
+            'name': 'VARIABLE WITH SPACES',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Variable name can't contain spaces",
+            form.errors['name'],
+        )
+
+        data = {
             'name': 'READTHEDOCS__INVALID',
             'value': 'string here',
         }
@@ -497,6 +508,7 @@ class TestProjectEnvironmentVariablesForm(TestCase):
             "Variable name can't start with READTHEDOCS",
             form.errors['name'],
         )
+
         data = {
             'name': '__INVALID',
             'value': 'string here',

@@ -796,4 +796,8 @@ class EnvironmentVariableForm(forms.ModelForm):
             raise forms.ValidationError(
                 _('There is already a variable with this name for this project'),
             )
+        elif ' ' in name:
+            raise forms.ValidationError(
+                _("Variable name can't contain spaces"),
+            )
         return name
