@@ -198,7 +198,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
         return super(GitHubWebhookView, self).get_data()
 
     def is_payload_valid(self):
-        """See https://developer.github.com/webhooks/securing/"""
+        """
+        GitHub use a HMAC hexdiges hash to sign the payload.
+
+        It is sent in the request's header.
+        See https://developer.github.com/webhooks/securing/
+        """
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
         secret = self.get_integration().secret
         if not secret:
@@ -210,16 +215,22 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if not signature:
             return False
         msg = self.request.raw_body
-        digest = hmac.new(
-            secret.encode(),
-            msg=msg.encode(),
-            digestmod=hashlib.sha1
-        ).hexdigest()
+        digest = GitHubWebhookView.get_digest(secret, msg)
         result = hmac.compare_digest(
             b'sha1=' + digest.encode(),
             signature.encode()
         )
         return result
+
+    @staticmethod
+    def get_digest(secret, msg):
+        """Get a HMAC digest of `msg` using `secret.`"""
+        digest = hmac.new(
+            secret.encode(),
+            msg=msg.encode(),
+            digestmod=hashlib.sha1
+        )
+        return digest.hexdigest()
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
@@ -272,7 +283,12 @@ class GitLabWebhookView(WebhookMixin, APIView):
     integration_type = Integration.GITLAB_WEBHOOK
 
     def is_payload_valid(self):
-        """GitLab only sends back the token."""
+        """
+        GitLab only sends back the token from the webhook.
+
+        It is sent in the request's header.
+        See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token.
+        """
         token = self.request.META.get(GITLAB_TOKEN_HEADER)
         secret = self.get_integration().secret
         if not secret:
@@ -283,8 +299,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             return True
         if not token:
             return False
-        result = token == secret
-        return result
+        return token == secret
 
     def handle_webhook(self):
         """

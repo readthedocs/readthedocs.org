@@ -8,8 +8,6 @@ from __future__ import (
 
 import base64
 import datetime
-import hashlib
-import hmac
 import json
 
 import mock
@@ -1014,11 +1012,10 @@ class IntegrationsTests(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
             secret=get_secret(),
         )
-        digest = hmac.new(
-            integration.secret.encode(),
-            msg=payload.encode(),
-            digestmod=hashlib.sha1
-        ).hexdigest()
+        digest = GitHubWebhookView.get_digest(
+            integration.secret,
+            payload,
+        )
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
             GITHUB_SIGNATURE_HEADER: 'sha1=' + digest,
