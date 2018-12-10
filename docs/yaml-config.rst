@@ -280,7 +280,7 @@ Behind the scene the following Pip command will be run:
 
 .. code-block:: shell
 
-    $ pip install .[tests,docs]
+    $ pip install -e .[tests,docs]
 
 
 .. _issue: https://github.com/rtfd/readthedocs.org/issues
