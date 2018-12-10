@@ -527,17 +527,18 @@ def project_notifications(request, project_slug):
         slug=project_slug,
     )
 
-    email_form = EmailHookForm(data=request.POST or None, project=project)
-    webhook_form = WebHookForm(data=request.POST or None, project=project)
+    email_form = EmailHookForm(data=None, project=project)
+    webhook_form = WebHookForm(data=None, project=project)
+
     if request.method == 'POST':
-        if email_form.is_valid():
-            email_form.save()
-        if webhook_form.is_valid():
-            webhook_form.save()
-        project_dashboard = reverse(
-            'projects_notifications',
-            args=[project.slug],
-        )
+        if 'email' in request.POST.keys():
+            email_form = EmailHookForm(data=request.POST, project=project)
+            if email_form.is_valid():
+                email_form.save()
+        elif 'url' in request.POST.keys():
+            webhook_form = WebHookForm(data=request.POST, project=project)
+            if webhook_form.is_valid():
+                webhook_form.save()
 
     emails = project.emailhook_notifications.all()
     urls = project.webhook_notifications.all()
