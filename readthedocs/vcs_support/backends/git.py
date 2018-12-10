@@ -15,6 +15,7 @@ import re
 import git
 from builtins import str
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from git.exc import BadName
 
 from readthedocs.config import ALL
@@ -177,12 +178,13 @@ class Backend(BaseVCS):
     def branches(self):
         repo = git.Repo(self.working_dir)
         versions = []
+        branches = []
 
-        # ``repo.branches`` returns local branches and
-        branches = repo.branches
         # ``repo.remotes.origin.refs`` returns remote branches
         if repo.remotes:
             branches += repo.remotes.origin.refs
+        if getattr(settings, 'LOCAL_GIT_BRANCHES', False):
+            branches += repo.branches
 
         for branch in branches:
             verbose_name = branch.name
