@@ -29,7 +29,6 @@ from readthedocs.core.signals import (
 from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project
-from readthedocs.restapi.parsers import RawBodyFormParser, RawBodyJSONParser
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +50,6 @@ class WebhookMixin(object):
     """Base class for Webhook mixins."""
 
     permission_classes = (permissions.AllowAny,)
-    parser_classes = (RawBodyJSONParser, RawBodyFormParser)
     renderer_classes = (JSONRenderer,)
     integration = None
     integration_type = None
@@ -59,6 +57,13 @@ class WebhookMixin(object):
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
         self.request = request
+        # WARNING: this is a hack to allow us access to `request.body` later.
+        # Due to a limitation of DRF, we can't access `request.body`
+        # after accessing `request.data`.
+        # By accessing `request.body` we are able to access `request.body` and
+        # `request.data` later without any problem (mostly black magic).
+        # See #4940 for more background.
+        self.request.body  # noqa
         self.project = None
         try:
             self.project = self.get_project(slug=project_slug)
@@ -214,7 +219,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return True
         if not signature:
             return False
-        msg = self.request.raw_body
+        msg = self.request.body.decode()
         digest = GitHubWebhookView.get_digest(secret, msg)
         result = hmac.compare_digest(
             b'sha1=' + digest.encode(),
@@ -500,6 +505,13 @@ class WebhookView(APIView):
 
     def post(self, request, project_slug, integration_pk):
         """Set up webhook post view with request and project objects."""
+        # WARNING: this is a hack to allow us access to `request.body` later.
+        # Due to a limitation of DRF, we can't access `request.body`
+        # after accessing `request.data`.
+        # By accessing `request.body` we are able to access `request.body` and
+        # `request.data` later without any problem (mostly black magic).
+        # See #4940 for more background.
+        request.body  # noqa
         integration = get_object_or_404(
             Integration,
             project__slug=project_slug,
