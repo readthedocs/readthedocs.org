@@ -219,24 +219,6 @@ class Service(object):
     def update_webhook(self, project, integration):
         raise NotImplementedError
 
-    def get_or_create_integration(self, project, integration_type):
-        """Create a webhook if it doesn't exists, it also sets a new secret."""
-        created = False
-        try:
-            integration = Integration.objects.get(
-                project=project,
-                integration_type=integration_type,
-            )
-        except Integration.DoesNotExist:
-            integration = Integration.objects.create(
-                project=project,
-                integration_type=integration_type,
-            )
-            created = True
-        integration.secret = get_secret()
-        integration.save()
-        return integration, created
-
     @classmethod
     def is_project_service(cls, project):
         """

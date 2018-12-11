@@ -281,6 +281,10 @@ class Integration(models.Model):
     # Integration attributes
     has_sync = False
 
+    def recreate_secret(self):
+        self.secret = get_secret()
+        self.save(update_fields=['secret'])
+
     def __str__(self):
         return (
             _('{0} for {1}')

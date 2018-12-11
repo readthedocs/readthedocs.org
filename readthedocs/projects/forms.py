@@ -723,6 +723,9 @@ class IntegrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance = Integration.objects.subclass(self.instance)
+        # We don't set the secret on the integration
+        # when it's created via the form.
+        self.instance.secret = None
         return super(IntegrationForm, self).save(commit)
 
 

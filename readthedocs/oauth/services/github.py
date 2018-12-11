@@ -193,9 +193,9 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        integration, _ = self.get_or_create_integration(
-            project,
-            Integration.GITHUB_WEBHOOK,
+        integration, _ = Integration.objects.get_or_create(
+            project=project,
+            integration_type=Integration.GITHUB_WEBHOOK,
         )
         data = self.get_webhook_data(project, integration)
         resp = None
@@ -249,8 +249,7 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
-        integration.secret = get_secret()
-        integration.save()
+        integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         url = integration.provider_data.get('url')
         resp = None
