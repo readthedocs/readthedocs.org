@@ -25,7 +25,10 @@ from readthedocs.config import (
     BuildConfigV1,
     InvalidConfig,
 )
-from readthedocs.config.models import PythonInstallRequirements
+from readthedocs.config.models import (
+    PythonInstallPipfile,
+    PythonInstallRequirements,
+)
 from readthedocs.config.tests.utils import apply_fs
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
@@ -657,26 +660,15 @@ class TestLoadConfigV2(object):
         assert install[0].method == PIP
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
-    def test_python_install_several_options(self, run, checkout_path, tmpdir):
+    def test_python_install_pipfile(self, run, checkout_path, tmpdir):
         checkout_path.return_value = str(tmpdir)
-        apply_fs(tmpdir, {
-            'one': {},
-            'two': {},
-            'three.txt': '',
-        })
         self.create_config_file(
             tmpdir,
             {
                 'python': {
                     'install': [{
-                        'path': 'one',
-                        'method': 'pip',
-                        'extra_requirements': ['docs'],
-                    }, {
-                        'path': 'two',
-                        'method': 'setuptools',
-                    }, {
-                        'requirements': 'three.txt',
+                        'pipfile': '.',
+                        'dev': True,
                     }],
                 },
             }
@@ -693,8 +685,58 @@ class TestLoadConfigV2(object):
         update_docs.python_env = python_env
         update_docs.python_env.install_requirements()
 
+        args, kwargs = run.call_args
+
+        assert 'PIPENV_PIPFILE=./Pipfile' in args
+        assert 'install' in args
+        assert '--dev' in args
         install = config.python.install
-        assert len(install) == 3
+        assert len(install) == 1
+        assert isinstance(install[0], PythonInstallPipfile)
+
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
+    def test_python_install_several_options(self, run, checkout_path, tmpdir):
+        checkout_path.return_value = str(tmpdir)
+        apply_fs(tmpdir, {
+            'one': {},
+            'two': {},
+            'three.txt': '',
+            'pipfile': {'Pipfile': ''},
+        })
+        self.create_config_file(
+            tmpdir,
+            {
+                'python': {
+                    'install': [{
+                        'path': 'one',
+                        'method': 'pip',
+                        'extra_requirements': ['docs'],
+                    }, {
+                        'path': 'two',
+                        'method': 'setuptools',
+                    }, {
+                        'requirements': 'three.txt',
+                    }, {
+                        'pipfile': 'pipfile',
+                        'dev': True,
+                    }],
+                },
+            },
+        )
+
+        update_docs = self.get_update_docs_task()
+        config = update_docs.config
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=config
+        )
+        update_docs.python_env = python_env
+        update_docs.python_env.install_requirements()
+
+        install = config.python.install
+        assert len(install) == 4
 
         args, kwargs = run.call_args_list[0]
         assert 'install' in args
@@ -710,6 +752,11 @@ class TestLoadConfigV2(object):
         assert 'install' in args
         assert '-r' in args
         assert 'three.txt' in args
+
+        args, kwargs = run.call_args_list[3]
+        assert 'install' in args
+        assert '--dev' in args
+        assert 'PIPENV_PIPFILE=./pipfile/Pipfile' in args
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_system_packages(self, run, checkout_path, tmpdir):
