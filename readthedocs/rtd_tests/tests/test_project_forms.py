@@ -526,7 +526,7 @@ class TestNotificationForm(TestCase):
         }
         form = EmailHookForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
-        _ = form.save()
+        form.save()
         self.assertEqual(self.project.emailhook_notifications.all().count(), 1)
 
     def test_wrong_inputs_in_emailhookform(self):
