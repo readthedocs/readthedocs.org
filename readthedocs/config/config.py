@@ -874,6 +874,12 @@ class BuildConfigV2(BuildConfigBase):
         return python_install
 
     def validate_pipfile(self, key):
+        """
+        Validates the pipfile key.
+
+        :param key: The key in a dotted form
+        :return: The dictionary with valid data
+        """
         python_install = {}
         pipfile_key = key + '.pipfile'
         with self.catch_validation_error(pipfile_key):
