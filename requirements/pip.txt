@@ -98,6 +98,7 @@ dj-pagination==2.4.0
 
 # Docs
 sphinxcontrib-httpdomain==1.7.0
+sphinx-prompt==1.0.0
 
 # commonmark 0.5.5 is the latest version compatible with our docs, the
 # newer ones make `tox -e docs` to fail

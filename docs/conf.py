@@ -28,6 +28,7 @@ extensions = [
     'djangodocs',
     'doc_extensions',
     'sphinx_tabs.tabs',
+    'sphinx-prompt',
 ]
 templates_path = ['_templates']
 

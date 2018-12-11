@@ -33,20 +33,20 @@ Quick start
 
 Assuming you have Python already, `install Sphinx`_:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
     $ pip install sphinx
 
 Create a directory inside your project to hold your docs:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
     $ cd /path/to/project
     $ mkdir docs
 
 Run ``sphinx-quickstart`` in there:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
     $ cd docs
     $ sphinx-quickstart
@@ -59,7 +59,7 @@ Now, edit your ``index.rst`` and add some information about your project.
 Include as much detail as you like (refer to the reStructuredText_ syntax
 or `this template`_ if you need help). Build them to see how they look:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
     $ make html
 
@@ -88,7 +88,7 @@ Using Markdown with Sphinx
 You can use Markdown and reStructuredText in the same Sphinx project.
 We support this natively on Read the Docs, and you can do it locally:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
     $ pip install recommonmark
 
