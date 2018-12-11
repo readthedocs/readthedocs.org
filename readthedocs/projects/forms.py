@@ -9,6 +9,7 @@ from __future__ import (
     unicode_literals,
 )
 
+import re
 from random import choice
 
 from builtins import object
@@ -799,5 +800,9 @@ class EnvironmentVariableForm(forms.ModelForm):
         elif ' ' in name:
             raise forms.ValidationError(
                 _("Variable name can't contain spaces"),
+            )
+        elif not re.fullmatch('[a-zA-Z0-9_]+', name):
+            raise forms.ValidationError(
+                _('Only letters, numbers and underscore are allowed'),
             )
         return name

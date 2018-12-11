@@ -510,6 +510,17 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         )
 
         data = {
+            'name': 'INVALID_CHAR*',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Only letters, numbers and underscore are allowed',
+            form.errors['name'],
+        )
+
+        data = {
             'name': '__INVALID',
             'value': 'string here',
         }
