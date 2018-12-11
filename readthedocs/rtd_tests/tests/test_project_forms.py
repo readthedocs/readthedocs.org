@@ -496,7 +496,7 @@ class TestNotificationForm(TestCase):
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
-        _ = form.save()
+        form.save()
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
 
     def test_wrong_inputs_in_webhookform(self):
