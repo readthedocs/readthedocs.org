@@ -1466,6 +1466,152 @@ class TestBuildConfigV2(object):
         assert len(install) == 1
         assert install[0].extra_requirements == []
 
+    def test_python_install_pipfile_check_valid(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        pipfile = install[0]
+        assert pipfile.pipfile == str(tmpdir)
+        assert pipfile.dev is False
+        assert pipfile.ignore_pipfile is False
+        assert pipfile.skip_lock is True
+
+    def test_python_install_pipfile_check_invalid_path(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': 'nonexisting',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.pipfile'
+
+    @pytest.mark.parametrize('value', [2, [], {}, None])
+    def test_python_install_pipfile_check_type(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': value,
+                    }],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.pipfile'
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_python_install_pipfile_dev_check_valid(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                        'dev': value,
+                    }],
+                },
+            },
+        )
+        build.validate()
+        pipfile = build.python.install[0]
+        assert pipfile.dev is value
+
+    @pytest.mark.parametrize('value', [2, [], {}, None, ''])
+    def test_python_install_pipfile_dev_check_type(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                        'dev': value,
+                    }],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.dev'
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_python_install_pipfile_ignore_pipfile_check_valid(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                        'ignore_pipfile': value,
+                    }],
+                },
+            },
+        )
+        build.validate()
+        pipfile = build.python.install[0]
+        assert pipfile.ignore_pipfile is value
+
+    @pytest.mark.parametrize('value', [2, [], {}, None, ''])
+    def test_python_install_pipfile_ignore_pipfile_check_type(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                        'ignore_pipfile': value,
+                    }],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.ignore_pipfile'
+
+    @pytest.mark.parametrize('value', [True, False])
+    def test_python_install_pipfile_skip_lock_check_valid(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                        'skip_lock': value,
+                    }],
+                },
+            },
+        )
+        build.validate()
+        pipfile = build.python.install[0]
+        assert pipfile.skip_lock is value
+
+    @pytest.mark.parametrize('value', [2, [], {}, None, ''])
+    def test_python_install_pipfile_skip_lock_check_type(self, value):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'pipfile': '.',
+                        'skip_lock': value,
+                    }],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == 'python.install.0.skip_lock'
+
     def test_python_install_several_respects_order(self, tmpdir):
         apply_fs(tmpdir, {
             'one': {},

@@ -864,36 +864,42 @@ class BuildConfigV2(BuildConfigBase):
                     )
                 python_install['extra_requirements'] = extra_requirements
         elif 'pipfile' in raw_install:
-            pipfile_key = key + '.pipfile'
-            with self.catch_validation_error(pipfile_key):
-                python_install['pipfile'] = validate_directory(
-                    self.pop_config(pipfile_key),
-                    self.base_path
-                )
-
-            dev_key = key + '.dev'
-            with self.catch_validation_error(dev_key):
-                python_install['dev'] = validate_bool(
-                    self.pop_config(dev_key, False),
-                )
-
-            ignore_pipfile_key = key + '.ignore_pipfile'
-            with self.catch_validation_error(ignore_pipfile_key):
-                python_install['ignore_pipfile'] = validate_bool(
-                    self.pop_config(ignore_pipfile_key, True),
-                )
-
-            skip_lock_key = key + '.skip_lock'
-            with self.catch_validation_error(skip_lock_key):
-                python_install['skip_lock'] = validate_bool(
-                    self.pop_config(skip_lock_key, False),
-                )
+            python_install.update(self.validate_pipfile(key))
         else:
             self.error(
                 key,
                 '"path" or "requirements" key is required',
                 code=CONFIG_REQUIRED,
             )
+        return python_install
+
+    def validate_pipfile(self, key):
+        python_install = {}
+        pipfile_key = key + '.pipfile'
+        with self.catch_validation_error(pipfile_key):
+            python_install['pipfile'] = validate_directory(
+                self.pop_config(pipfile_key),
+                self.base_path
+            )
+
+        dev_key = key + '.dev'
+        with self.catch_validation_error(dev_key):
+            python_install['dev'] = validate_bool(
+                self.pop_config(dev_key, False),
+            )
+
+        ignore_pipfile_key = key + '.ignore_pipfile'
+        with self.catch_validation_error(ignore_pipfile_key):
+            python_install['ignore_pipfile'] = validate_bool(
+                self.pop_config(ignore_pipfile_key, False),
+            )
+
+        skip_lock_key = key + '.skip_lock'
+        with self.catch_validation_error(skip_lock_key):
+            python_install['skip_lock'] = validate_bool(
+                self.pop_config(skip_lock_key, True),
+            )
+
         return python_install
 
     def get_valid_python_versions(self):
