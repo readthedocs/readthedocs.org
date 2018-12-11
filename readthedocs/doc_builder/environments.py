@@ -209,6 +209,13 @@ class BuildCommand(BuildCommandResultMixin):
         threshold = 512 * 1024  # 512Kb
         allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
         if output_length > allowed_length:
+            log.info(
+                'Command output is too big: project=[%s] version=[%s] build=[%s] command=[%s]',  # noqa
+                self.build_env.project.slug,
+                self.build_env.version.slug,
+                self.build_env.build.get('id'),
+                self.get_command(),
+            )
             sanitized = sanitized[:allowed_length]
             sanitized += '\n\n\nOutput is too big. Chunked at {} bytes'.format(
                 allowed_length,
