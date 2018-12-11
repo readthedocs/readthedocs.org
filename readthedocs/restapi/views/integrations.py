@@ -16,9 +16,10 @@ import re
 import six
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
-from rest_framework.exceptions import AuthenticationFailed, NotFound, ParseError
+from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from readthedocs.core.signals import (
@@ -53,6 +54,7 @@ class WebhookMixin(object):
     renderer_classes = (JSONRenderer,)
     integration = None
     integration_type = None
+    invalid_payload_msg = 'Payload not valid'
 
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
@@ -71,7 +73,10 @@ class WebhookMixin(object):
             raise NotFound('Project not found')
         self.data = self.get_data()
         if not self.is_payload_valid():
-            raise AuthenticationFailed('Payload not valid')
+            return Response(
+                {'detail': self.invalid_payload_msg},
+                status=HTTP_400_BAD_REQUEST
+            )
         resp = self.handle_webhook()
         if resp is None:
             log.info('Unhandled webhook event')
@@ -193,6 +198,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
+    invalid_payload_msg = 'Payload not valid, invalid or missing secret'
 
     def get_data(self):
         if self.request.content_type == 'application/x-www-form-urlencoded':
@@ -286,6 +292,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
+    invalid_payload_msg = 'Payload not valid, invalid or missing token'
 
     def is_payload_valid(self):
         """

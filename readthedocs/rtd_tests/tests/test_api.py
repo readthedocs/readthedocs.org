@@ -24,7 +24,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.integrations.models import GitHubWebhook, Integration
+from readthedocs.integrations.models import Integration
 from readthedocs.integrations.utils import get_secret
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import (
@@ -44,6 +44,7 @@ from readthedocs.restapi.views.integrations import (
     GITLAB_TAG_PUSH,
     GITLAB_TOKEN_HEADER,
     GitHubWebhookView,
+    GitLabWebhookView,
 )
 from readthedocs.restapi.views.task_views import get_status_data
 
@@ -1001,8 +1002,11 @@ class IntegrationsTests(TestCase):
             format='json',
             **headers
         )
-        self.assertEqual(resp.status_code, 403)
-        self.assertEqual(resp.data['detail'], 'Payload not valid')
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitHubWebhookView.invalid_payload_msg
+        )
 
     def test_github_valid_payload(self, trigger_build):
         client = APIClient()
@@ -1045,8 +1049,11 @@ class IntegrationsTests(TestCase):
             format='json',
             **headers
         )
-        self.assertEqual(resp.status_code, 403)
-        self.assertEqual(resp.data['detail'], 'Payload not valid')
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitHubWebhookView.invalid_payload_msg
+        )
 
     def test_github_skip_signature_validation(self, trigger_build):
         client = APIClient()
@@ -1246,8 +1253,11 @@ class IntegrationsTests(TestCase):
             format='json',
             **headers
         )
-        self.assertEqual(resp.status_code, 403)
-        self.assertEqual(resp.data['detail'], 'Payload not valid')
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitLabWebhookView.invalid_payload_msg
+        )
 
     def test_gitlab_valid_payload(self, trigger_build):
         client = APIClient()
@@ -1283,8 +1293,11 @@ class IntegrationsTests(TestCase):
             format='json',
             **headers
         )
-        self.assertEqual(resp.status_code, 403)
-        self.assertEqual(resp.data['detail'], 'Payload not valid')
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitLabWebhookView.invalid_payload_msg
+        )
 
     def test_gitlab_skip_token_validation(self, trigger_build):
         client = APIClient()
