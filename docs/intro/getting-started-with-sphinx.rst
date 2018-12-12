@@ -35,21 +35,21 @@ Assuming you have Python already, `install Sphinx`_:
 
 .. prompt:: bash $
 
-    $ pip install sphinx
+    pip install sphinx
 
 Create a directory inside your project to hold your docs:
 
 .. prompt:: bash $
 
-    $ cd /path/to/project
-    $ mkdir docs
+    cd /path/to/project
+    mkdir docs
 
 Run ``sphinx-quickstart`` in there:
 
 .. prompt:: bash $
 
-    $ cd docs
-    $ sphinx-quickstart
+    cd docs
+    sphinx-quickstart
 
 This quick start will walk you through creating the basic configuration; in most cases, you
 can just accept the defaults. When it's done, you'll have an ``index.rst``, a
@@ -61,7 +61,7 @@ or `this template`_ if you need help). Build them to see how they look:
 
 .. prompt:: bash $
 
-    $ make html
+    make html
 
 Your ``index.rst`` has been built into ``index.html``
 in your documentation output directory (typically ``_build/html/index.html``).
@@ -90,7 +90,7 @@ We support this natively on Read the Docs, and you can do it locally:
 
 .. prompt:: bash $
 
-    $ pip install recommonmark
+    pip install recommonmark
 
 Then in your ``conf.py``:
 
