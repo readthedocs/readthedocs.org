@@ -183,13 +183,12 @@ class ProjectExtraForm(ProjectForm):
     )
 
     def clean_tags(self):
-        tags = self.cleaned_data.get('tags')
-        if tags:
-            for tag in tags:
-                if len(tag) > 100:
-                    raise forms.ValidationError(
-                        _('Length of each tag must be less than or equal to 100 characters.')
-                    )
+        tags = self.cleaned_data.get('tags', [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _('Length of each tag must be less than or equal to 100 characters.')
+                )
         return tags
 
 
