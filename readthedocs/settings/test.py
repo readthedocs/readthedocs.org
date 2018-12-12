@@ -16,6 +16,7 @@ class CommunityTestSettings(CommunityDevSettings):
 
     DEBUG = False
     TEMPLATE_DEBUG = False
+    LOCAL_GIT_BRANCHES = True
 
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
