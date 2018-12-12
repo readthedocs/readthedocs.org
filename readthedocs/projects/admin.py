@@ -12,14 +12,13 @@ from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
-from django.core.management import call_command
-from django.contrib import messages
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
+from readthedocs.projects.tasks import update_search
 
 from .forms import FeatureForm
 from .models import (
@@ -180,14 +179,31 @@ class ProjectAdmin(GuardedModelAdmin):
         return delete_selected(self, request, queryset)
 
     def reindex_active_versions(self, request, queryset):
+        """Reindex all active versions of selected projects"""
         for project in queryset:
-            slug = project.slug
-            try:
-                call_command('reindex_elasticsearch', '-p={}'.format(slug))
-                self.message_user(request, 'Reindexing triggered for project {}'.format(project.name))
-            except Exception as e:
-                fail_msg = 'Reindexing fail for project {}. {}'.format(project.name, e)
-                self.message_user(request, fail_msg, level=messages.ERROR)
+            versions_qs = Version.objects.filter(project__slug=project.slug)
+            if not versions_qs.exists():
+                error_msg = 'No project with slug {}'.format(project.slug)
+                self.message_user(request, error_msg, level=messages.ERROR)
+
+            active_versions = versions_qs.filter(active=True)
+
+            for version in active_versions:
+                try:
+                    commit = version.project.vcs_repo(version.slug).commit
+                except:  # noqa
+                    # An exception can be thrown here in production, but it's not
+                    # documented what the exception here is.
+                    commit = None
+
+                try:
+                    update_search(version.pk, commit,
+                                  delete_non_commit_files=False)
+                    success_msg = 'Reindexing triggered for {}'.format(version)
+                    self.message_user(request, success_msg)
+                except Exception as e:
+                    error_msg = 'Reindexing failed for {}. {}'.format(version, e)
+                    self.message_user(request, error_msg, level=messages.ERROR)
 
     reindex_active_versions.short_description = 'Reindex active versions'
 
