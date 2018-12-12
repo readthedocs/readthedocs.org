@@ -54,6 +54,24 @@ class ProjectQuerySetBase(models.QuerySet):
             return self._add_user_repos(queryset, user)
         return queryset
 
+    def is_active(self, project):
+        """
+        Check if the project is active.
+
+        The check consists on,
+          * the Project shouldn't be marked as skipped.
+
+        :param project: project to be checked
+        :type project: readthedocs.projects.models.Project
+
+        :returns: whether or not the project is active
+        :rtype: bool
+        """
+        if project.skip:
+            return False
+
+        return True
+
     # Aliases
 
     def dashboard(self, user=None):

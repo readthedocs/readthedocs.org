@@ -13,7 +13,7 @@ import re
 
 import six
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -55,11 +55,14 @@ class WebhookMixin(object):
         """Set up webhook post view with request and project objects."""
         self.request = request
         self.project = None
+        self.data = self.get_data()
         try:
             self.project = self.get_project(slug=project_slug)
+            if not Project.objects.is_active(self.project):
+                resp = {'detail': 'This project is currently disabled'}
+                return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
-        self.data = self.get_data()
         resp = self.handle_webhook()
         if resp is None:
             log.info('Unhandled webhook event')

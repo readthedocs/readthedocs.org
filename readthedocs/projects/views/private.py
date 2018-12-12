@@ -287,6 +287,9 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
     def trigger_initial_build(self, project):
         """Trigger initial build."""
         update_docs, build = prepare_build(project)
+        if (update_docs, build) == (None, None):
+            return None
+
         task_promise = chain(
             attach_webhook.si(project.pk, self.request.user.pk),
             update_docs,

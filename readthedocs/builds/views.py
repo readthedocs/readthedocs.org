@@ -12,6 +12,7 @@ from __future__ import (
 import logging
 
 from builtins import object
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import (
@@ -63,7 +64,18 @@ class BuildTriggerMixin(object):
             slug=version_slug,
         )
 
-        _, build = trigger_build(project=project, version=version)
+        update_docs_task, build = trigger_build(project=project, version=version)
+        if (update_docs_task, build) == (None, None):
+            # Build was skipped
+            messages.add_message(
+                request,
+                messages.WARNING,
+                "This project is currently disabled and can't trigger new builds.",
+            )
+            return HttpResponseRedirect(
+                reverse('builds_project_list', args=[project.slug]),
+            )
+
         return HttpResponseRedirect(
             reverse('builds_detail', args=[project.slug, build.pk]),
         )
