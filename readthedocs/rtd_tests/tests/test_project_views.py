@@ -6,7 +6,7 @@ from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
 from django.utils import timezone
