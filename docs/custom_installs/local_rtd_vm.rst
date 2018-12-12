@@ -79,10 +79,10 @@ Configure the RTD Server and Superuser
 
 1. Run the following commands.
 
-.. prompt:: bash $
+    .. prompt:: bash $
 
-    ./manage.py migrate
-    ./manage.py createsuperuser
+        ./manage.py migrate
+        ./manage.py createsuperuser
 
 2. This will prompt you to create a superuser account for Django. Enter appropriate details. For example: ::
 
@@ -127,10 +127,10 @@ Possible Error and Resolution
 
 1. In your machine, navigate to the ``.ssh`` folder.
 
-.. prompt:: bash $
+    .. prompt:: bash $
 
-    cd .ssh/ 
-    cat id_rsa 
+        cd .ssh/ 
+        cat id_rsa 
 
 2. Copy the entire Private Key.
 3. Now, SSH to the VM.
