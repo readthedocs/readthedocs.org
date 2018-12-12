@@ -12,6 +12,8 @@ from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
+from django.core.management import call_command
+from django.contrib import messages
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
@@ -126,7 +128,7 @@ class ProjectAdmin(GuardedModelAdmin):
                VersionInline, DomainInline]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner']
+    actions = ['send_owner_email', 'ban_owner', 'reindex_active_versions']
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])
@@ -176,6 +178,18 @@ class ProjectAdmin(GuardedModelAdmin):
             for project in queryset:
                 broadcast(type='app', task=remove_dir, args=[project.doc_path])
         return delete_selected(self, request, queryset)
+
+    def reindex_active_versions(self, request, queryset):
+        for project in queryset:
+            slug = project.slug
+            try:
+                call_command('reindex_elasticsearch', '-p={}'.format(slug))
+                self.message_user(request, 'Reindexing triggered for project {}'.format(project.name))
+            except Exception as e:
+                fail_msg = 'Reindexing fail for project {}. {}'.format(project.name, e)
+                self.message_user(request, fail_msg, level=messages.ERROR)
+
+    reindex_active_versions.short_description = 'Reindex active versions'
 
     def get_actions(self, request):
         actions = super(ProjectAdmin, self).get_actions(request)
