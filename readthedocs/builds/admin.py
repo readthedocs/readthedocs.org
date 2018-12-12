@@ -1,7 +1,10 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
 from __future__ import absolute_import
+
 from django.contrib import admin, messages
+from readthedocs.projects.tasks import update_search
+
 from readthedocs.builds.models import Build, Version, BuildCommandResult
 from guardian.admin import GuardedModelAdmin
 
@@ -34,10 +37,20 @@ class VersionAdmin(GuardedModelAdmin):
     def reindex(self, request, queryset):
         for version in queryset:
             try:
-                # Reindex version code
-                self.message_user(request, 'Reindexing triggered for {}'.format(version))
+                commit = version.project.vcs_repo(version.slug).commit
+            except:  # noqa
+                # An exception can be thrown here in production, but it's not
+                # documented what the exception here is.
+                commit = None
+
+            try:
+                update_search(version.pk, commit,
+                                delete_non_commit_files=False)
+                success_msg = 'Reindexing triggered for {}'.format(version)
+                self.message_user(request, success_msg)
             except Exception as e:
-                self.message_user(request, 'Reindexing fail for {}'.format(version), level=messages.ERROR)
+                error_msg = 'Reindexing failed for {}. {}'.format(version, e)
+                self.message_user(request, error_msg, level=messages.ERROR)
 
     reindex.short_description = 'Reindex selected versions'
 
