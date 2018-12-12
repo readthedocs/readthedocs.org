@@ -21,6 +21,5 @@ class EmailConfirmNotification(SiteNotification):
 
     failure_level = ERROR_PERSISTENT
     failure_message = _(
-        'Add/Verify your primary email address. '
-        'Click <a href="{% url "account_email" %}">here</a>.'
+        'Please <a href="">add or verify your primary email address</a>.'
     )

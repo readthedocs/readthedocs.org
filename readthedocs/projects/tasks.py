@@ -1406,9 +1406,3 @@ def finish_inactive_builds():
         'Builds marked as "Terminated due inactivity": %s',
         builds_finished,
     )
-
-
-@app.task(queue='web')
-def email_confirm_notification(user, success=False):
-    notification = EmailConfirmNotification(user=user, success=success)
-    notification.send()
