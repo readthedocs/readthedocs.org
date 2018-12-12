@@ -49,7 +49,8 @@ class TestGitBackend(RTDTestCase):
         self.dummy_conf.submodules.include = ALL
         self.dummy_conf.submodules.exclude = []
 
-    def test_git_branches(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_git_branches(self, checkout_path):
         repo_path = self.project.repo
         default_branches = [
             # comes from ``make_test_git`` function
@@ -68,10 +69,13 @@ class TestGitBackend(RTDTestCase):
         for branch in branches:
             create_git_branch(repo_path, branch)
 
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
         repo = self.project.vcs_repo()
-        # We aren't cloning the repo,
-        # so we need to hack the repo path
-        repo.working_dir = repo_path
+        repo.clone()
 
         self.assertEqual(
             set(branches + default_branches),
