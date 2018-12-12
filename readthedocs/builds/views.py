@@ -14,13 +14,13 @@ import logging
 from builtins import object
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
 from django.http import (
     HttpResponseForbidden,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 
@@ -28,6 +28,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 

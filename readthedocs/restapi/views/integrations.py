@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
 from __future__ import (
