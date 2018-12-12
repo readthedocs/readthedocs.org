@@ -44,11 +44,9 @@ def mock_version(repo):
                 {
                     "absolute_url": "/projects/docs/",
                     "analytics_code": "",
-                    "copyright": "",
                     "default_branch": "",
                     "default_version": "latest",
                     "description": "Make docs.readthedocs.org work :D",
-                    "django_packages_url": "",
                     "documentation_type": "sphinx",
                     "id": "2599",
                     "modified_date": "2012-03-12T19:59:09.130773",
@@ -60,13 +58,10 @@ def mock_version(repo):
                     "requirements_file": "",
                     "resource_uri": "/api/v1/project/2599/",
                     "slug": "docs",
-                    "suffix": ".rst",
-                    "theme": "default",
                     "install_project": false,
                     "users": [
                         "/api/v1/user/1/"
-                    ],
-                    "version": ""
+                    ]
                 }""")
             version['project'] = project
             project['repo'] = repo

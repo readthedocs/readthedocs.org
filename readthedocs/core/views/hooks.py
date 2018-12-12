@@ -1,20 +1,25 @@
 """Views pertaining to builds."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import json
+import logging
 import re
 
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 
-from readthedocs.core.utils import trigger_build
 from readthedocs.builds.constants import LATEST
+from readthedocs.core.utils import trigger_build
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
-
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -73,6 +78,35 @@ def build_branches(project, branch_list):
             else:
                 not_building.add(version.slug)
     return (to_build, not_building)
+
+
+def sync_versions(project):
+    """
+    Sync the versions of a repo using its latest version.
+
+    This doesn't register a new build,
+    but clones the repo and syncs the versions.
+    Due that `sync_repository_task` is bound to a version,
+    we always pass the default version.
+
+    :returns: The version slug that was used to trigger the clone.
+    :rtype: str
+    """
+    try:
+        version_identifier = project.get_default_branch()
+        version = (
+            project.versions
+            .filter(identifier=version_identifier)
+            .first()
+        )
+        if not version:
+            log.info('Unable to sync from %s version', version_identifier)
+            return None
+        sync_repository_task.delay(version.pk)
+        return version.slug
+    except Exception:
+        log.exception('Unknown sync versions exception')
+    return None
 
 
 def get_project_from_url(url):

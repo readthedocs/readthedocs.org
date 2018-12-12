@@ -36,26 +36,26 @@ from .views.model_views import (
 )
 
 router = routers.DefaultRouter()
-router.register(r'build', BuildViewSet, base_name='build')
-router.register(r'command', BuildCommandViewSet, base_name='buildcommandresult')
-router.register(r'version', VersionViewSet, base_name='version')
-router.register(r'project', ProjectViewSet, base_name='project')
-router.register(r'notification', NotificationViewSet, base_name='emailhook')
-router.register(r'domain', DomainViewSet, base_name='domain')
+router.register(r'build', BuildViewSet, basename='build')
+router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
+router.register(r'version', VersionViewSet, basename='version')
+router.register(r'project', ProjectViewSet, basename='project')
+router.register(r'notification', NotificationViewSet, basename='emailhook')
+router.register(r'domain', DomainViewSet, basename='domain')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
-    base_name='remoteorganization',
+    basename='remoteorganization',
 )
 router.register(
     r'remote/repo',
     RemoteRepositoryViewSet,
-    base_name='remoterepository',
+    basename='remoterepository',
 )
 router.register(
     r'remote/account',
     SocialAccountViewSet,
-    base_name='remoteaccount',
+    basename='remoteaccount',
 )
 
 urlpatterns = [

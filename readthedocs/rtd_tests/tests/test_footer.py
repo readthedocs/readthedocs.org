@@ -63,26 +63,26 @@ class Testmaker(APITestCase):
             self.assertEqual(r.data['version_compare'], {'MOCKED': True})
 
     def test_pdf_build_mentioned_in_footer(self):
-        with fake_paths_by_regex('\.pdf$'):
+        with fake_paths_by_regex(r'\.pdf$'):
             response = self.render()
         self.assertIn('pdf', response.data['html'])
 
     def test_pdf_not_mentioned_in_footer_when_build_is_disabled(self):
         self.pip.enable_pdf_build = False
         self.pip.save()
-        with fake_paths_by_regex('\.pdf$'):
+        with fake_paths_by_regex(r'\.pdf$'):
             response = self.render()
         self.assertNotIn('pdf', response.data['html'])
 
     def test_epub_build_mentioned_in_footer(self):
-        with fake_paths_by_regex('\.epub$'):
+        with fake_paths_by_regex(r'\.epub$'):
             response = self.render()
         self.assertIn('epub', response.data['html'])
 
     def test_epub_not_mentioned_in_footer_when_build_is_disabled(self):
         self.pip.enable_epub_build = False
         self.pip.save()
-        with fake_paths_by_regex('\.epub$'):
+        with fake_paths_by_regex(r'\.epub$'):
             response = self.render()
         self.assertNotIn('epub', response.data['html'])
 
