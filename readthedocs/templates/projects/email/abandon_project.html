@@ -1,0 +1,19 @@
+{% extends "core/email/common.html" %}
+
+{% block top-right %}
+  {{ proj_name }}
+{% endblock %}
+
+{% block content %}
+  <p>
+    We've had a request from one of our users for the project name {{ proj_name }} on Read the Docs. You are the current owner, and we wanted to reach out to you in accordance with our Abandoned Project policy (<a href="http://docs.readthedocs.io/en/latest/abandoned-projects.html">http://docs.readthedocs.io/en/latest/abandoned-projects.html</a>).
+  </p>
+
+  <p>
+    Since this is a fork of the existing owners project, {{ proj_name }}, you must show us the additional work that has been done in order to keep the new project name, that is different than the existing version of the project.
+  </p>
+
+  <p>
+    Please reply to this email either allowing or disallowing the transfer of the name on Read the Docs within 6 weeks, otherwise we will take the action of *initiating the transfer to a new owner* by default.
+  </p>
+{% endblock %}
