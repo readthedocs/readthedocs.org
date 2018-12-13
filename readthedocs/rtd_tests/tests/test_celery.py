@@ -46,10 +46,10 @@ class TestCeleryBuilding(RTDTestCase):
         shutil.rmtree(self.repo)
         super(TestCeleryBuilding, self).tearDown()
 
-    def test_remove_dir(self):
+    def test_remove_dirs(self):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
-        result = tasks.remove_dir.delay(directory)
+        result = tasks.remove_dirs.delay((directory,))
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 

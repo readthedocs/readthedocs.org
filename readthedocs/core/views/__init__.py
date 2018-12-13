@@ -20,7 +20,7 @@ from django.views.generic import TemplateView
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dir
+from readthedocs.projects.tasks import remove_dirs
 from readthedocs.redirects.utils import get_redirect_response
 
 log = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ def wipe_version(request, project_slug, version_slug):
             os.path.join(version.project.doc_path, 'conda', version.slug),
         ]
         for del_dir in del_dirs:
-            broadcast(type='build', task=remove_dir, args=[del_dir])
+            broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
         return redirect('project_version_list', project_slug)
     return render(
         request,
