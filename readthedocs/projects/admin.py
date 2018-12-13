@@ -183,10 +183,15 @@ class ProjectAdmin(GuardedModelAdmin):
         """
         Marks selected projects as abandoned.
 
-        It adds '-abandoned' to the slug and marks
-        Project.is_abandoned.
+        It adds '-abandoned' to the slug, marks
+        Project.is_abandoned and sends an email to the user
+        notifying the change and link to the new project/docs
+        page.
         """
-        queryset.update(slug=Concat('slug', Value('-abandoned')))
+        queryset.update(
+            slug=Concat('slug', Value('-abandoned')),
+            is_abandoned=True
+        )
 
     mark_as_abandoned.short_description = 'Mark as abandoned'
 
