@@ -20,6 +20,7 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
+from readthedocs.core.utils import send_email
 
 from .forms import FeatureForm
 from .models import (
@@ -128,7 +129,12 @@ class ProjectAdmin(GuardedModelAdmin):
                VersionInline, DomainInline]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner', 'mark_as_abandoned',]
+    actions = [
+        'send_owner_email',
+        'ban_owner',
+        'mark_as_abandoned',
+        'request_namespace',
+    ]
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])
@@ -194,6 +200,24 @@ class ProjectAdmin(GuardedModelAdmin):
         )
 
     mark_as_abandoned.short_description = 'Mark as abandoned'
+
+    def request_namespace(self, request, queryset):
+        """Notify user that their project's namespace has been requested via email"""
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            users = project.users.get_queryset()
+            for user in users:
+                send_email(
+                    recipient=user.email,
+                    subject='Rename request for abandoned project',
+                    template='projects/email/abandon_project.txt',
+                    template_html='projects/email/abandon_project.html',
+                    context={'proj_name': project.name}
+                )
+            success_msg = 'Email sent to {}'.format(user.email)
+            self.message_user(request, success_msg, level=messages.SUCCESS)
+
+    request_namespace.short_description = 'Request namespace'
 
     def get_actions(self, request):
         actions = super(ProjectAdmin, self).get_actions(request)
