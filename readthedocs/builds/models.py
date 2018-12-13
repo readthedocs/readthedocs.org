@@ -213,9 +213,14 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(type='app', task=tasks.clear_artifacts, args=[self.get_artifact_paths()])
         broadcast(
-            type='app', task=tasks.symlink_project, args=[self.project.pk])
+            type='app',
+            task=tasks.remove_dirs,
+            args=[self.get_artifact_paths()],
+        )
+        broadcast(
+            type='app', task=tasks.symlink_project, args=[self.project.pk]
+        )
         super(Version, self).delete(*args, **kwargs)
 
     @property

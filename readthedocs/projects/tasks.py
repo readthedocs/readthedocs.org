@@ -1337,11 +1337,6 @@ def remove_dirs(paths):
         shutil.rmtree(path, ignore_errors=True)
 
 
-@app.task()
-def clear_artifacts(paths):
-    remove_dirs(paths)
-
-
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """

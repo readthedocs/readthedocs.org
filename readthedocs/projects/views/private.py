@@ -192,7 +192,7 @@ def project_version_detail(request, project_slug, version_slug):
                 log.info('Removing files for version %s', version.slug)
                 broadcast(
                     type='app',
-                    task=tasks.clear_artifacts,
+                    task=tasks.remove_dirs,
                     args=[version.get_artifact_paths()],
                 )
                 version.built = False
@@ -705,7 +705,7 @@ def project_version_delete_html(request, project_slug, version_slug):
         version.save()
         broadcast(
             type='app',
-            task=tasks.clear_artifacts,
+            task=tasks.remove_dirs,
             args=[version.get_artifact_paths()],
         )
     else:

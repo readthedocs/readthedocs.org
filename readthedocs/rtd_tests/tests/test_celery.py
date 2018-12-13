@@ -58,14 +58,14 @@ class TestCeleryBuilding(RTDTestCase):
         directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
         directory = version.project.rtd_build_path(version=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
