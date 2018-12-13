@@ -11,6 +11,8 @@ from __future__ import (
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import F, Value
+from django.db.models.functions import Concat
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
@@ -126,7 +128,7 @@ class ProjectAdmin(GuardedModelAdmin):
                VersionInline, DomainInline]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner']
+    actions = ['send_owner_email', 'ban_owner', 'mark_as_abandoned',]
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])
@@ -176,6 +178,17 @@ class ProjectAdmin(GuardedModelAdmin):
             for project in queryset:
                 broadcast(type='app', task=remove_dir, args=[project.doc_path])
         return delete_selected(self, request, queryset)
+
+    def mark_as_abandoned(self, request, queryset):
+        """
+        Marks selected projects as abandoned.
+
+        It adds '-abandoned' to the slug and marks
+        Project.is_abandoned.
+        """
+        queryset.update(slug=Concat('slug', Value('-abandoned')))
+
+    mark_as_abandoned.short_description = 'Mark as abandoned'
 
     def get_actions(self, request):
         actions = super(ProjectAdmin, self).get_actions(request)
