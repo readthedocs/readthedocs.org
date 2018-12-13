@@ -183,8 +183,6 @@ class Backend(BaseVCS):
         # ``repo.remotes.origin.refs`` returns remote branches
         if repo.remotes:
             branches += repo.remotes.origin.refs
-        if getattr(settings, 'LOCAL_GIT_BRANCHES', False):
-            branches += repo.branches
 
         for branch in branches:
             verbose_name = branch.name

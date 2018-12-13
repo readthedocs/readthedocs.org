@@ -13,6 +13,7 @@ from tempfile import mkdtemp
 
 import django_dynamic_fixture as fixture
 import pytest
+import six
 from django.contrib.auth.models import User
 from mock import Mock, patch
 
@@ -49,7 +50,8 @@ class TestGitBackend(RTDTestCase):
         self.dummy_conf.submodules.include = ALL
         self.dummy_conf.submodules.exclude = []
 
-    def test_git_branches(self):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_git_branches(self, checkout_path):
         repo_path = self.project.repo
         default_branches = [
             # comes from ``make_test_git`` function
@@ -63,15 +65,47 @@ class TestGitBackend(RTDTestCase):
             '2.0.X',
             'release/2.0.0',
             'release/foo/bar',
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
+        repo = self.project.vcs_repo()
+        repo.clone()
+
+        self.assertEqual(
+            set(branches + default_branches),
+            {branch.verbose_name for branch in repo.branches},
+        )
+
+    @pytest.mark.skipif(six.PY2, reason='Only for python3')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_git_branches_unicode(self, checkout_path):
+        repo_path = self.project.repo
+        default_branches = [
+            # comes from ``make_test_git`` function
+            'submodule',
+            'relativesubmodule',
+            'invalidsubmodule',
+        ]
+        branches = [
+            'master',
             'release-ünîø∂é',
         ]
         for branch in branches:
             create_git_branch(repo_path, branch)
 
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
         repo = self.project.vcs_repo()
-        # We aren't cloning the repo,
-        # so we need to hack the repo path
-        repo.working_dir = repo_path
+        repo.clone()
 
         self.assertEqual(
             set(branches + default_branches),
