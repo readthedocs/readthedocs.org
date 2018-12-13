@@ -179,6 +179,7 @@ class Project(models.Model):
                     'Leave blank if you want us to find it for you.'))
 
     featured = models.BooleanField(_('Featured'), default=False)
+    is_abandoned = models.BooleanField(_('Is abandoned'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
     install_project = models.BooleanField(
         _('Install Project'),
