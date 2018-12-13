@@ -1010,6 +1010,7 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    API_LARGE_DATA = 'api_large_data'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1022,6 +1023,7 @@ class Feature(models.Model):
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
+        (API_LARGE_DATA, _('Try alternative method of posting large data'))
     )
 
     projects = models.ManyToManyField(
