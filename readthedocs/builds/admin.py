@@ -6,6 +6,7 @@ from django.contrib import admin, messages
 from readthedocs.projects.tasks import update_search
 
 from readthedocs.builds.models import Build, Version, BuildCommandResult
+from readthedocs.search.indexes import PageIndex, SectionIndex
 from guardian.admin import GuardedModelAdmin
 
 
@@ -32,10 +33,12 @@ class VersionAdmin(GuardedModelAdmin):
     list_display = ('slug', 'type', 'project', 'privacy_level', 'active', 'built')
     list_filter = ('type', 'privacy_level', 'active', 'built')
     raw_id_fields = ('project',)
-    actions = ['reindex']
+    actions = ['reindex', 'wipe_index']
 
     def reindex(self, request, queryset):
-        for version in queryset:
+        """Reindex all selected versions"""
+        qs_iterator = queryset.iterator()
+        for version in qs_iterator:
             try:
                 commit = version.project.vcs_repo(version.slug).commit
             except:  # noqa
@@ -45,7 +48,7 @@ class VersionAdmin(GuardedModelAdmin):
 
             try:
                 update_search(version.pk, commit,
-                                delete_non_commit_files=False)
+                              delete_non_commit_files=False)
                 success_msg = 'Reindexing triggered for {}'.format(version)
                 self.message_user(request, success_msg)
             except Exception as e:
@@ -53,6 +56,24 @@ class VersionAdmin(GuardedModelAdmin):
                 self.message_user(request, error_msg, level=messages.ERROR)
 
     reindex.short_description = 'Reindex selected versions'
+
+    def wipe_index(self, request, queryset):
+        """Wipe index of selected versions"""
+        qs_iterator = queryset.iterator()
+        for version in qs_iterator:
+            query = {'query': {'bool': {'must': [{'term': {'version': version.slug}}]}}}
+            page_obj = PageIndex()
+            section_obj = SectionIndex()
+            try:
+                page_obj.delete_document(body=query)
+                section_obj.delete_document(body=query)
+                success_msg = 'Index wiped for version {}'.format(version.slug)
+                self.message_user(request, success_msg, level=messages.SUCCESS)
+            except Exception as e:
+                fail_msg = 'Cannot wipe index for version {}. {}'.format(version, e)
+                self.message_user(request, success_msg, level=messages.ERROR)
+
+    wipe_index.short_description = 'Wipe index of selected versions'
 
 
 admin.site.register(Build, BuildAdmin)
