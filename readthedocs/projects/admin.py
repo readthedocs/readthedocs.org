@@ -19,6 +19,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects.tasks import update_search
+from readthedocs.search.indexes import PageIndex, SectionIndex
 
 from .forms import FeatureForm
 from .models import (
@@ -127,7 +128,12 @@ class ProjectAdmin(GuardedModelAdmin):
                VersionInline, DomainInline]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner', 'reindex_active_versions']
+    actions = [
+        'send_owner_email',
+        'ban_owner',
+        'reindex_active_versions',
+        'wipe_index',
+    ]
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])
@@ -206,6 +212,24 @@ class ProjectAdmin(GuardedModelAdmin):
                     self.message_user(request, error_msg, level=messages.ERROR)
 
     reindex_active_versions.short_description = 'Reindex active versions'
+
+    def wipe_index(self, request, queryset):
+        """Wipe indexes of selected projects"""
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            query = {'query': {'bool': {'must': [{'term': {'project': project.slug}}]}}}
+            page_obj = PageIndex()
+            section_obj = SectionIndex()
+            try:
+                page_obj.delete_document(body=query)
+                section_obj.delete_document(query)
+                success_msg = 'Wiped index for project {}'.format(project.slug)
+                self.message_user(request, success_msg, level=messages.SUCCESS)
+            except Exception as e:
+                fail_msg = 'Unable to wipe index of project {}. {}'.format(project.name, e)
+                self.message_user(request, fail_msg, level=messages.ERROR)
+
+    wipe_index.short_description = 'Wipe indexes of selected projects'
 
     def get_actions(self, request):
         actions = super(ProjectAdmin, self).get_actions(request)
