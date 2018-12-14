@@ -67,11 +67,11 @@ class VersionAdmin(GuardedModelAdmin):
             try:
                 page_obj.delete_document(body=query)
                 section_obj.delete_document(body=query)
-                success_msg = 'Index wiped for version {}'.format(version.slug)
+                success_msg = 'Index wiped for {}'.format(version.slug)
                 self.message_user(request, success_msg, level=messages.SUCCESS)
             except Exception as e:
-                fail_msg = 'Cannot wipe index for version {}. {}'.format(version, e)
-                self.message_user(request, success_msg, level=messages.ERROR)
+                fail_msg = 'Cannot wipe index for {}. {}'.format(version.slug, e)
+                self.message_user(request, fail_msg, level=messages.ERROR)
 
     wipe_index.short_description = 'Wipe index of selected versions'
 
