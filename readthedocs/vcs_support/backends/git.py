@@ -122,11 +122,15 @@ class Backend(BaseVCS):
                 submodules_include[path] = submodules[path]
             submodules = submodules_include
 
+        invalid_submodules = []
         for path, submodule in submodules.items():
             try:
                 validate_submodule_url(submodule.url)
             except ValidationError:
-                return False, []
+                invalid_submodules.append(path)
+
+        if invalid_submodules:
+            return False, invalid_submodules
         return True, submodules.keys()
 
     def fetch(self):
@@ -222,7 +226,9 @@ class Backend(BaseVCS):
             if valid:
                 self.checkout_submodules(submodules, config)
             else:
-                raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
+                raise RepositoryError(
+                    RepositoryError.INVALID_SUBMODULES.format(submodules)
+                )
 
     def checkout_submodules(self, submodules, config):
         """Checkout all repository submodules."""
