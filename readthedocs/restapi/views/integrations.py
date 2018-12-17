@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
 import json
@@ -22,6 +20,8 @@ from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
+
+from ..authentication import CsrfExemptSessionAuthentication
 
 
 log = logging.getLogger(__name__)
@@ -349,7 +349,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
     """
 
     def has_permission(self, request, view):
-        has_perm = (super().has_permission(request, view))
+        has_perm = super().has_permission(request, view)
         return has_perm or 'token' in request.data
 
 
@@ -421,6 +421,11 @@ class WebhookView(APIView):
     views can receive webhooks for unknown webhooks, as all legacy webhooks will
     be.
     """
+
+    # We want to avoid CSRF checking when authenticating by user/password on
+    # this API endpoint so we can make a request like:
+    # curl -X POST -d "branches=branch" -u user:pass -e URL /api/v2/webhook/test-builds/{pk}/
+    authentication_classes = [CsrfExemptSessionAuthentication]
 
     VIEW_MAP = {
         Integration.GITHUB_WEBHOOK: GitHubWebhookView,
