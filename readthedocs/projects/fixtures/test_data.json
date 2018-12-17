@@ -7,7 +7,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/rtfd/readthedocs.org",
-            "version": "0.1",
             "users": [
         1
         ],
@@ -24,7 +23,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/alex/django-taggit",
-            "version": "0.8",
             "users": [
         1
         ],
@@ -41,7 +39,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/pypa/pip",
-            "version": "",
             "users": [
         1
         ],
@@ -58,7 +55,6 @@
             "description": "Awesome forms!",
             "project_url": "",
             "repo": "https://github.com/pydanny/django-uni-form",
-            "version": "0.7",
             "users": [
         1
         ],
@@ -75,7 +71,6 @@
             "description": "OMG API!",
             "project_url": "",
             "repo": "http://github.com/codysoyland/django-tastypie",
-            "version": "0.8.2",
             "users": [
         1
         ],
@@ -92,7 +87,6 @@
             "description": "ZOMG HE'S COMING?!",
             "project_url": "",
             "repo": "https://github.com/ericholscher/django-kong",
-            "version": "0.1",
             "users": [
         1
         ],
@@ -109,7 +103,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/worldcompany/djangoembed",
-            "version": "",
             "users": [
         1
         ],
@@ -126,7 +119,6 @@
             "description": "",
             "project_url": "",
             "repo": "http://github.com/dmishe/django-south",
-            "version": "0.7",
             "users": [
         1
         ],
@@ -143,7 +135,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/fabric/fabric",
-            "version": "0.1.0",
             "users": [
         1
         ],
@@ -160,7 +151,6 @@
             "description": "",
             "project_url": "",
             "repo": "http://github.com/coleifer/cue.git",
-            "version": "0.1.0",
             "users": [
         1
         ],
@@ -177,7 +167,6 @@
             "description": "Awesome",
             "project_url": "",
             "repo": "http://github.com/pinax/pinax",
-            "version": "0.9",
             "users": [
         1
         ],
@@ -194,7 +183,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/ericholscher/django-test-utils",
-            "version": "0.2",
             "users": [
         1
         ],
@@ -294,7 +282,6 @@
             "description": "Awesome docs",
             "project_url": "",
             "repo": "https://github.com/toastdriven/django-haystack",
-            "version": "1.1.0",
             "users": [
         1
         ],
@@ -311,7 +298,6 @@
             "description": "",
             "project_url": "",
             "repo": "https://github.com/bogususer/non-existing-repo",
-            "version": "",
             "pub_date": "2014-09-10T11:58:01+00:00",
             "slug": "test_project",
             "name": "test_project"

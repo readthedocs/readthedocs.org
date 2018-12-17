@@ -124,9 +124,15 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_reserved_version_latest(self, api_v2):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
         sync_repository = tasks.UpdateDocsTaskStep()
@@ -144,9 +150,15 @@ class TestCeleryBuilding(RTDTestCase):
         api_v2.project().sync_versions.post.assert_called()
 
     @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_reserved_version_stable(self, api_v2):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_check_duplicate_reserved_version_stable(self, checkout_path, api_v2):
         create_git_branch(self.repo, 'stable')
         create_git_tag(self.repo, 'stable')
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
         sync_repository = tasks.UpdateDocsTaskStep()
