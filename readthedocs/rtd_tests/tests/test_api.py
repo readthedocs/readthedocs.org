@@ -14,7 +14,7 @@ import mock
 from allauth.socialaccount.models import SocialAccount
 from builtins import str
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import QueryDict
 from django.test import TestCase
 from django.utils import six
@@ -1461,7 +1461,6 @@ class APIVersionTests(TestCase):
                 'show_advertising': True,
                 'skip': False,
                 'slug': 'pip',
-                'suffix': '.rst',
                 'use_system_packages': False,
                 'users': [1],
             },

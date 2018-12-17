@@ -11,8 +11,8 @@ from builtins import object  # pylint: disable=redefined-builtin
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import NoReverseMatch, reverse
 from django.core.files.storage import get_storage_class
+from django.urls import NoReverseMatch, reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -21,7 +21,7 @@ from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import LATEST, LATEST_VERBOSE_NAME, STABLE
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
@@ -31,8 +31,7 @@ from readthedocs.projects.querysets import (
     RelatedProjectQuerySet)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import validate_domain_name, validate_repository_url
-from readthedocs.projects.version_handling import (
-    determine_stable_version, version_windows)
+from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -98,18 +97,6 @@ class Project(models.Model):
                                   help_text=_('The project\'s homepage'))
     canonical_url = models.URLField(_('Canonical URL'), blank=True,
                                     help_text=_('URL that documentation is expected to serve from'))
-    version = models.CharField(_('Version'), max_length=100, blank=True,
-                               help_text=_('Project version these docs apply '
-                                           'to, i.e. 1.0a'))
-    copyright = models.CharField(_('Copyright'), max_length=255, blank=True,
-                                 help_text=_('Project copyright information'))
-    theme = models.CharField(
-        _('Theme'), max_length=20, choices=constants.DEFAULT_THEME_CHOICES,
-        default=constants.THEME_DEFAULT,
-        help_text=(u'<a href="http://sphinx.pocoo.org/theming.html#builtin-'
-                   'themes" target="_blank">%s</a>') % _('Examples'))
-    suffix = models.CharField(_('Suffix'), max_length=10, editable=False,
-                              default='.rst')
     single_version = models.BooleanField(
         _('Single version'), default=False,
         help_text=_('A single version site has no translations and only your '
@@ -153,8 +140,11 @@ class Project(models.Model):
         _('Container memory limit'), max_length=10, null=True, blank=True,
         help_text=_('Memory limit in Docker format '
                     '-- example: <code>512m</code> or <code>1g</code>'))
-    container_time_limit = models.CharField(
-        _('Container time limit'), max_length=10, null=True, blank=True)
+    container_time_limit = models.IntegerField(
+        _('Container time limit in seconds'),
+        null=True,
+        blank=True,
+    )
     build_queue = models.CharField(
         _('Alternate build queue id'), max_length=32, null=True, blank=True)
     allow_promos = models.BooleanField(
@@ -192,7 +182,6 @@ class Project(models.Model):
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)
-    mirror = models.BooleanField(_('Mirror'), default=False)
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_('Install your project inside a virtualenv using <code>setup.py '
@@ -216,8 +205,6 @@ class Project(models.Model):
                     'site-packages dir.'),
         default=False
     )
-    django_packages_url = models.CharField(_('Django Packages URL'),
-                                           max_length=255, blank=True)
     privacy_level = models.CharField(
         _('Privacy Level'), max_length=20, choices=constants.PRIVACY_CHOICES,
         default=getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public'),
@@ -255,29 +242,6 @@ class Project(models.Model):
                                               on_delete=models.SET_NULL,
                                               blank=True, null=True)
 
-    # Version State
-    num_major = models.IntegerField(
-        _('Number of Major versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 3.X.X and 2.X.X, but not 1.X.X')
-    )
-    num_minor = models.IntegerField(
-        _('Number of Minor versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 2.2.X and 2.1.X, but not 2.0.X')
-    )
-    num_point = models.IntegerField(
-        _('Number of Point versions'),
-        default=2,
-        null=True,
-        blank=True,
-        help_text=_('2 means supporting 2.2.2 and 2.2.1, but not 2.2.0')
-    )
-
     has_valid_webhook = models.BooleanField(
         default=False, help_text=_('This project has been built with a webhook')
     )
@@ -299,16 +263,6 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
-
-    def sync_supported_versions(self):
-        supported = self.supported_versions()
-        if supported:
-            self.versions.filter(
-                verbose_name__in=supported).update(supported=True)
-            self.versions.exclude(
-                verbose_name__in=supported).update(supported=False)
-            self.versions.filter(
-                verbose_name=LATEST_VERBOSE_NAME).update(supported=True)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
@@ -335,11 +289,6 @@ class Project(models.Model):
         except Exception:
             log.exception('Failed to update latest identifier')
 
-        # Add exceptions here for safety
-        try:
-            self.sync_supported_versions()
-        except Exception:
-            log.exception('failed to sync supported versions')
         try:
             if not first_save:
                 log.info(
@@ -773,23 +722,6 @@ class Project(models.Model):
         :returns: :py:class:`Version` queryset
         """
         return self.versions.filter(active=True)
-
-    def supported_versions(self):
-        """
-        Get the list of supported versions.
-
-        :returns: List of version strings.
-        """
-        if not self.num_major or not self.num_minor or not self.num_point:
-            return []
-        version_identifiers = self.versions.values_list(
-            'verbose_name', flat=True,)
-        return version_windows(
-            version_identifiers,
-            major=self.num_major,
-            minor=self.num_minor,
-            point=self.num_point,
-        )
 
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()

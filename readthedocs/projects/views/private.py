@@ -16,7 +16,7 @@ from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import (
     Http404,
     HttpResponseBadRequest,
@@ -126,7 +126,6 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
     template_name = 'projects/project_advanced.html'
     lookup_url_kwarg = 'project_slug'
     lookup_field = 'slug'
-    initial = {'num_minor': 2, 'num_major': 2, 'num_point': 2}
 
     def get_queryset(self):
         return self.model.objects.for_admin_user(self.request.user)
