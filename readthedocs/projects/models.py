@@ -11,7 +11,7 @@ from builtins import object  # pylint: disable=redefined-builtin
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -138,8 +138,11 @@ class Project(models.Model):
         _('Container memory limit'), max_length=10, null=True, blank=True,
         help_text=_('Memory limit in Docker format '
                     '-- example: <code>512m</code> or <code>1g</code>'))
-    container_time_limit = models.CharField(
-        _('Container time limit'), max_length=10, null=True, blank=True)
+    container_time_limit = models.IntegerField(
+        _('Container time limit in seconds'),
+        null=True,
+        blank=True,
+    )
     build_queue = models.CharField(
         _('Alternate build queue id'), max_length=32, null=True, blank=True)
     allow_promos = models.BooleanField(
