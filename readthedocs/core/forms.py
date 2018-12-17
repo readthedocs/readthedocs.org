@@ -18,8 +18,8 @@ log = logging.getLogger(__name__)
 
 
 class UserProfileForm(forms.ModelForm):
-    first_name = CharField(label=_('First name'), required=False)
-    last_name = CharField(label=_('Last name'), required=False)
+    first_name = CharField(label=_('First name'), required=False, max_length=30)
+    last_name = CharField(label=_('Last name'), required=False, max_length=30)
 
     class Meta(object):
         model = UserProfile

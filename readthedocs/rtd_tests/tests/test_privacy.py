@@ -54,9 +54,6 @@ class PrivacyTests(TestCase):
         # Update these directly, no form has all the fields we need
         proj.privacy_level = privacy_level
         proj.version_privacy_level = version_privacy_level
-        proj.num_minor = 2
-        proj.num_major = 2
-        proj.num_point = 2
         proj.save()
 
         latest = proj.versions.get(slug='latest')

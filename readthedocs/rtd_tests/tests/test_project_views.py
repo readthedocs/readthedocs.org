@@ -1,13 +1,15 @@
 from __future__ import absolute_import
-from datetime import datetime, timedelta
+from datetime import timedelta
+
 
 from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
+from django.utils import timezone
 from django_dynamic_fixture import get, new
 
 import six
@@ -205,7 +207,7 @@ class TestAdvancedForm(TestBasicsForm):
            create=True)
     def test_form_spam(self, mocked_validator):
         """Don't add project on a spammy description"""
-        self.user.date_joined = datetime.now() - timedelta(days=365)
+        self.user.date_joined = timezone.now() - timedelta(days=365)
         self.user.save()
         mocked_validator.side_effect = ProjectSpamError
 
@@ -227,7 +229,7 @@ class TestAdvancedForm(TestBasicsForm):
            create=True)
     def test_form_spam_ban_user(self, mocked_validator):
         """Don't add spam and ban new user"""
-        self.user.date_joined = datetime.now()
+        self.user.date_joined = timezone.now()
         self.user.save()
         mocked_validator.side_effect = ProjectSpamError
 
@@ -311,8 +313,8 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.SUCCESS)
-        self.assertRegexpMatches(messages[0].message,
-                                 r'already imported')
+        self.assertRegex(messages[0].message,
+                         r'already imported')
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
@@ -337,8 +339,8 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.ERROR)
-        self.assertRegexpMatches(messages[0].message,
-                                 r'There was a problem')
+        self.assertRegex(messages[0].message,
+                         r'There was a problem')
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))

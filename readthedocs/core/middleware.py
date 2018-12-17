@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.core.urlresolvers import get_urlconf, set_urlconf
+from django.urls.base import get_urlconf, set_urlconf
 from django.http import Http404, HttpResponseBadRequest
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import ugettext_lazy as _
@@ -71,6 +71,8 @@ class SubdomainMiddleware(MiddlewareMixin):
                 # Support ports during local dev
                 public_domain in host or public_domain in full_host
             ):
+                if not Project.objects.filter(slug=subdomain).exists():
+                    raise Http404(_('Project not found'))
                 request.subdomain = True
                 request.slug = subdomain
                 request.urlconf = SUBDOMAIN_URLCONF

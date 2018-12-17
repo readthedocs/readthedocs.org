@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from django.http import Http404
 from django.conf import settings
 from django.core.cache import cache
-from django.core.urlresolvers import get_urlconf, set_urlconf
+from django.urls.base import get_urlconf, set_urlconf
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
@@ -46,6 +46,13 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.urlconf, self.urlconf_subdomain)
         self.assertEqual(request.slug, 'pip')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_wrong_subdomain(self):
+        http_host = 'xyz-wrong-sub-domain-xyz.readthedocs.org'
+        request = self.factory.get(self.url, HTTP_HOST=http_host)
+        with self.assertRaises(Http404):
+            self.middleware.process_request(request)
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_restore_urlconf_after_request(self):
@@ -178,21 +185,12 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
 
-    def test_invalid_project(self):
-        request = self.factory.get(
-            self.url,
-            {'project': 'foo'},
-            HTTP_ORIGIN='http://my.valid.domain',
-        )
-        resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
-
     def test_valid_subproject(self):
         self.assertTrue(
             Project.objects.filter(
                 pk=self.project.pk,
-                subprojects__child=self.subproject
-            ).exists()
+                subprojects__child=self.subproject,
+            ).exists(),
         )
         request = self.factory.get(
             self.url,
@@ -201,3 +199,30 @@ class TestCORSMiddleware(TestCase):
         )
         resp = self.middleware.process_response(request, {})
         self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_apiv2_endpoint_allowed(self):
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project__slug': self.project.slug, 'active': True},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+    def test_apiv2_endpoint_not_allowed(self):
+        request = self.factory.get(
+            '/api/v2/version/',
+            {'project__slug': self.project.slug, 'active': True},
+            HTTP_ORIGIN='http://invalid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+        # POST is not allowed
+        request = self.factory.post(
+            '/api/v2/version/',
+            {'project__slug': self.project.slug, 'active': True},
+            HTTP_ORIGIN='http://my.valid.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertNotIn('Access-Control-Allow-Origin', resp)

@@ -5,7 +5,7 @@ from builtins import str
 from builtins import object
 import logging
 
-from stripe.resource import Customer, Charge
+from stripe import Customer, Charge
 from stripe.error import InvalidRequestError
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -70,6 +70,11 @@ class StripeModelForm(forms.ModelForm):
     :cvar cc_expiry: Credit card expiry field, used only by Stripe.js
     :cvar cc_cvv: Credit card security code field, used only by Stripe.js
     """
+
+    business_vat_id = forms.CharField(
+        label=_('VAT ID number'),
+        required=False,
+    )
 
     # Stripe token input from Stripe.js
     stripe_token = forms.CharField(
