@@ -157,7 +157,7 @@ class VersionSlugField(models.CharField):
 
         # increases the number while searching for the next valid slug
         # depending on the given slug, clean-up
-        while not slug or queryset.filter(**kwargs):
+        while not slug or queryset.filter(**kwargs).exists():
             slug = original_slug
             end = self.uniquifying_suffix(count)
             end_len = len(end)

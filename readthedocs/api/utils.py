@@ -52,7 +52,7 @@ class EnhancedModelResource(ModelResource):
 class OwnerAuthorization(Authorization):
     def apply_limits(self, request, object_list):
         if request and hasattr(request, 'user') and request.method != 'GET':
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 object_list = object_list.filter(users__in=[request.user])
             else:
                 object_list = object_list.none()

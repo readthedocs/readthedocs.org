@@ -7,7 +7,7 @@ import json
 import re
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter)

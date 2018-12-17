@@ -68,7 +68,7 @@ class FallbackUniqueStorage(FallbackStorage):
 
     def add(self, level, message, extra_tags='', *args, **kwargs):  # noqa
         user = kwargs.get('user') or self.request.user
-        if not user.is_anonymous():
+        if not user.is_anonymous:
             persist_messages = (PersistentMessage.objects
                                 .filter(message=message,
                                         user=user,
@@ -136,7 +136,7 @@ class NonPersistentStorage(PersistentStorage):
         user = kwargs.get("user") or self.get_user()
 
         try:
-            anonymous = user.is_anonymous()
+            anonymous = user.is_anonymous
         except TypeError:
             anonymous = user.is_anonymous
         if anonymous:

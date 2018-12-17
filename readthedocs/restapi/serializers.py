@@ -43,11 +43,6 @@ class ProjectAdminSerializer(ProjectSerializer):
         slug_field='feature_id',
     )
 
-    show_advertising = serializers.SerializerMethodField()
-
-    def get_show_advertising(self, obj):
-        return obj.show_advertising
-
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
             'enable_epub_build',
@@ -60,7 +55,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             'container_time_limit',
             'install_project',
             'use_system_packages',
-            'suffix',
             'skip',
             'requirements_file',
             'python_interpreter',
@@ -68,6 +62,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_clone',
             'has_valid_webhook',
             'show_advertising',
+            'environment_variables',
         )
 
 
@@ -173,7 +168,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     def get_matches(self, obj):
         request = self.context['request']
-        if request.user is not None and request.user.is_authenticated():
+        if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
 
 

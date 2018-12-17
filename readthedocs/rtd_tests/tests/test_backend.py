@@ -13,6 +13,7 @@ from tempfile import mkdtemp
 
 import django_dynamic_fixture as fixture
 import pytest
+import six
 from django.contrib.auth.models import User
 from mock import Mock, patch
 
@@ -49,34 +50,74 @@ class TestGitBackend(RTDTestCase):
         self.dummy_conf.submodules.include = ALL
         self.dummy_conf.submodules.exclude = []
 
-    def test_parse_branches(self):
-        data = """
-        develop
-        master
-        release/2.0.0
-        origin/2.0.X
-        origin/HEAD -> origin/master
-        origin/master
-        origin/release/2.0.0
-        origin/release/foo/bar
-        """
-
-        expected_ids = [
-            ('develop', 'develop'),
-            ('master', 'master'),
-            ('release/2.0.0', 'release/2.0.0'),
-            ('origin/2.0.X', '2.0.X'),
-            ('origin/master', 'master'),
-            ('origin/release/2.0.0', 'release/2.0.0'),
-            ('origin/release/foo/bar', 'release/foo/bar'),
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_git_branches(self, checkout_path):
+        repo_path = self.project.repo
+        default_branches = [
+            # comes from ``make_test_git`` function
+            'submodule',
+            'relativesubmodule',
+            'invalidsubmodule',
         ]
-        given_ids = [(x.identifier, x.verbose_name) for x in
-                     self.project.vcs_repo().parse_branches(data)]
-        self.assertEqual(expected_ids, given_ids)
+        branches = [
+            'develop',
+            'master',
+            '2.0.X',
+            'release/2.0.0',
+            'release/foo/bar',
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
 
-    def test_git_checkout(self):
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
         repo = self.project.vcs_repo()
-        repo.checkout()
+        repo.clone()
+
+        self.assertEqual(
+            set(branches + default_branches),
+            {branch.verbose_name for branch in repo.branches},
+        )
+
+    @pytest.mark.skipif(six.PY2, reason='Only for python3')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_git_branches_unicode(self, checkout_path):
+        repo_path = self.project.repo
+        default_branches = [
+            # comes from ``make_test_git`` function
+            'submodule',
+            'relativesubmodule',
+            'invalidsubmodule',
+        ]
+        branches = [
+            'master',
+            'release-ünîø∂é',
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
+        repo = self.project.vcs_repo()
+        repo.clone()
+
+        self.assertEqual(
+            set(branches + default_branches),
+            {branch.verbose_name for branch in repo.branches},
+        )
+
+    def test_git_update_and_checkout(self):
+        repo = self.project.vcs_repo()
+        code, _, _ = repo.update()
+        self.assertEqual(code, 0)
+        code, _, _ = repo.checkout()
+        self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
     def test_git_tags(self):
@@ -90,13 +131,13 @@ class TestGitBackend(RTDTestCase):
         repo.working_dir = repo_path
         self.assertEqual(
             set(['v01', 'v02', 'release-ünîø∂é']),
-            set(vcs.verbose_name for vcs in repo.tags)
+            {vcs.verbose_name for vcs in repo.tags},
         )
 
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo()
 
-        repo.checkout()
+        repo.update()
         self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
         # The submodule branch contains one submodule
@@ -105,6 +146,7 @@ class TestGitBackend(RTDTestCase):
 
     def test_skip_submodule_checkout(self):
         repo = self.project.vcs_repo()
+        repo.update()
         repo.checkout('submodule')
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
         feature = fixture.get(
@@ -117,6 +159,7 @@ class TestGitBackend(RTDTestCase):
 
     def test_check_submodule_urls(self):
         repo = self.project.vcs_repo()
+        repo.update()
         repo.checkout('submodule')
         valid, _ = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
@@ -160,7 +203,7 @@ class TestGitBackend(RTDTestCase):
             set(vcs.verbose_name for vcs in repo.branches)
         )
 
-        repo.checkout()
+        repo.update()
 
         # We don't have the eliminated branches and tags in the local repo
         self.assertEqual(
@@ -177,6 +220,7 @@ class TestGitBackend(RTDTestCase):
 
 
 class TestHgBackend(RTDTestCase):
+
     def setUp(self):
         hg_repo = make_test_hg()
         super(TestHgBackend, self).setUp()
@@ -184,9 +228,9 @@ class TestHgBackend(RTDTestCase):
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="hg",
-            #Our top-level checkout
+            name='Test Project',
+            repo_type='hg',
+            # Our top-level checkout
             repo=hg_repo
         )
         self.project.users.add(self.eric)
@@ -202,9 +246,12 @@ class TestHgBackend(RTDTestCase):
                      self.project.vcs_repo().parse_branches(data)]
         self.assertEqual(expected_ids, given_ids)
 
-    def test_checkout(self):
+    def test_update_and_checkout(self):
         repo = self.project.vcs_repo()
-        repo.checkout()
+        code, _, _ = repo.update()
+        self.assertEqual(code, 0)
+        code, _, _ = repo.checkout()
+        self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
     def test_parse_tags(self):

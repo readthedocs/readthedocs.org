@@ -6,7 +6,7 @@ from allauth.socialaccount.models import SocialAccount
 from builtins import object
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django_dynamic_fixture import get
 import mock
 from taggit.models import Tag

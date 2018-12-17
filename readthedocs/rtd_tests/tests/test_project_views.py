@@ -6,7 +6,7 @@ from mock import patch
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http.response import HttpResponseRedirect
 from django.views.generic.base import ContextMixin
 from django.utils import timezone
@@ -313,8 +313,8 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.SUCCESS)
-        self.assertRegexpMatches(messages[0].message,
-                                 r'already imported')
+        self.assertRegex(messages[0].message,
+                         r'already imported')
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
@@ -339,8 +339,8 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.ERROR)
-        self.assertRegexpMatches(messages[0].message,
-                                 r'There was a problem')
+        self.assertRegex(messages[0].message,
+                         r'There was a problem')
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
