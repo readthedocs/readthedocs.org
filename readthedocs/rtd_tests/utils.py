@@ -2,10 +2,15 @@
 """Utility functions for use in tests."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import subprocess
+import textwrap
 from os import chdir, environ, mkdir
 from os.path import abspath
 from os.path import join as pjoin
@@ -55,34 +60,16 @@ def make_test_git():
     # URL are not allowed and using a real URL will require Internet to clone
     # the repo
     check_output(['git', 'checkout', '-b', 'submodule', 'master'], env=env)
-    # https://stackoverflow.com/a/37378302/2187091
-    mkdir(pjoin(directory, 'foobar'))
-    gitmodules_path = pjoin(directory, '.gitmodules')
-    with open(gitmodules_path, 'w') as fh:
-        fh.write('''[submodule "foobar"]\n\tpath = foobar\n\turl = https://foobar.com/git\n''')
-    check_output(
-        [
-            'git', 'update-index', '--add', '--cacheinfo', '160000',
-            '233febf4846d7a0aeb95b6c28962e06e21d13688', 'foobar',
-        ],
-        env=env,
+    add_submodule_without_cloning(
+        directory, 'foobar', 'https://foobar.com/git'
     )
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m"Add submodule"'], env=env)
 
-    # Add a relative submodule URL in the relativesubmodule branch
-    check_output(['git', 'checkout', '-b', 'relativesubmodule', 'master'], env=env)
-    check_output(
-        ['git', 'submodule', 'add', '-b', 'master', './', 'relativesubmodule'],
-        env=env
-    )
-    check_output(['git', 'add', '.'], env=env)
-    check_output(['git', 'commit', '-m"Add relative submodule"'], env=env)
     # Add an invalid submodule URL in the invalidsubmodule branch
     check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'], env=env)
-    check_output(
-        ['git', 'submodule', 'add', '-b', 'master', './', 'invalidsubmodule'],
-        env=env,
+    add_submodule_without_cloning(
+        directory, 'invalid', 'git@github.com:rtfd/readthedocs.org.git'
     )
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m"Add invalid submodule"'], env=env)
@@ -90,6 +77,36 @@ def make_test_git():
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
     return directory
+
+
+@restoring_chdir
+def add_submodule_without_cloning(directory, submodule, url):
+    """
+    Add a submodule without cloning it.
+
+    We write directly to the git index, more details in:
+    https://stackoverflow.com/a/37378302/2187091
+    """
+    env = environ.copy()
+    env['GIT_DIR'] = pjoin(directory, '.git')
+    chdir(directory)
+
+    mkdir(pjoin(directory, submodule))
+    gitmodules_path = pjoin(directory, '.gitmodules')
+    with open(gitmodules_path, 'w+') as fh:
+        content = textwrap.dedent('''
+            [submodule "{submodule}"]
+                path = {submodule}
+                url = {url}
+        ''')
+        fh.write(content.format(submodule=submodule, url=url))
+    check_output(
+        [
+            'git', 'update-index', '--add', '--cacheinfo', '160000',
+            '233febf4846d7a0aeb95b6c28962e06e21d13688', submodule,
+        ],
+        env=env,
+    )
 
 
 @restoring_chdir
