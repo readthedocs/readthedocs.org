@@ -118,6 +118,20 @@ class TestProject(ProjectMixin, TestCase):
                 ProjectConfigurationError.MULTIPLE_CONF_FILES) as cm:
             self.pip.conf_file()
 
+    def test_get_storage_path(self):
+        self.assertEqual(
+            self.pip.get_storage_path('pdf', LATEST),
+            'pdf/pip/latest/pip.pdf',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('epub', LATEST),
+            'epub/pip/latest/pip.epub',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('htmlzip', LATEST),
+            'htmlzip/pip/latest/pip.zip',
+        )
+
 
 class TestProjectTranslations(ProjectMixin, TestCase):
 

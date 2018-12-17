@@ -15,6 +15,7 @@ from django_dynamic_fixture import get, new
 import six
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.constants import LATEST
 from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
                                         RequestFactoryTestMixin)
 from readthedocs.oauth.models import RemoteRepository
@@ -344,6 +345,16 @@ class TestImportDemoView(MockBuildTestCase):
 
         self.assertEqual(project,
                          Project.objects.get(slug='eric-demo'))
+
+
+class TestPublicViews(MockBuildTestCase):
+    def setUp(self):
+        self.pip = get(Project, slug='pip')
+
+    def test_project_download_media(self):
+        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
 
 
 class TestPrivateViews(MockBuildTestCase):
