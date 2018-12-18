@@ -214,8 +214,8 @@ class ProjectAdmin(GuardedModelAdmin):
                     template_html='projects/email/abandon_project.html',
                     context={'proj_name': project.name}
                 )
-            success_msg = 'Email sent to {}'.format(user.email)
-            self.message_user(request, success_msg, level=messages.SUCCESS)
+                success_msg = 'Email sent to {}'.format(user.email)
+                self.message_user(request, success_msg, level=messages.SUCCESS)
 
     request_namespace.short_description = 'Request namespace'
 
