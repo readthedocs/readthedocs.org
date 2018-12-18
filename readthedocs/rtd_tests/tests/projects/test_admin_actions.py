@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django import urls
 from django.test import TestCase
 from django.conf import settings
-from django.urls import reverse
 from django.contrib import messages
 
 from readthedocs.core.models import UserProfile
