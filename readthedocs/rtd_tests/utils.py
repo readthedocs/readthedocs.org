@@ -60,7 +60,7 @@ def make_test_git():
     # URL are not allowed and using a real URL will require Internet to clone
     # the repo
     check_output(['git', 'checkout', '-b', 'submodule', 'master'], env=env)
-    add_submodule_without_cloning(
+    add_git_submodule_without_cloning(
         directory, 'foobar', 'https://foobar.com/git'
     )
     check_output(['git', 'add', '.'], env=env)
@@ -68,7 +68,7 @@ def make_test_git():
 
     # Add an invalid submodule URL in the invalidsubmodule branch
     check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'], env=env)
-    add_submodule_without_cloning(
+    add_git_submodule_without_cloning(
         directory, 'invalid', 'git@github.com:rtfd/readthedocs.org.git'
     )
     check_output(['git', 'add', '.'], env=env)
@@ -80,12 +80,19 @@ def make_test_git():
 
 
 @restoring_chdir
-def add_submodule_without_cloning(directory, submodule, url):
+def add_git_submodule_without_cloning(directory, submodule, url):
     """
     Add a submodule without cloning it.
 
     We write directly to the git index, more details in:
     https://stackoverflow.com/a/37378302/2187091
+
+    :param directory: The directory where the git repo is
+    :type directory: str
+    :param submodule: The name of the submodule to be created
+    :type submodule: str
+    :param url: The url where the submodule points to
+    :type url: str
     """
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
