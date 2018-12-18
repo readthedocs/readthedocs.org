@@ -35,7 +35,7 @@ Using the project admin dashboard
 Once the requirements file has been created;
 
 - Login to Read the Docs and go to the project admin dashboard.
-- Go to ``Admin > Advanced Settings > Requirements file``.
+- Go to **Admin > Advanced Settings > Requirements file**.
 - Specify the path of the requirements file you just created. The path should be relative to the root directory of the documentation project.
 
 Using a conda environment file
