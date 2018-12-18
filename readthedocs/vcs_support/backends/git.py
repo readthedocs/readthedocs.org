@@ -15,8 +15,7 @@ import re
 import git
 from builtins import str
 from django.core.exceptions import ValidationError
-from django.conf import settings
-from git.exc import BadName
+from git.exc import BadName, InvalidGitRepositoryError
 
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
@@ -67,8 +66,11 @@ class Backend(BaseVCS):
         return self.clone()
 
     def repo_exists(self):
-        code, _, _ = self.run('git', 'status', record=False)
-        return code == 0
+        try:
+            git.Repo(self.working_dir)
+        except InvalidGitRepositoryError:
+            return False
+        return True
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -83,8 +85,8 @@ class Backend(BaseVCS):
             return False
 
         # Keep compatibility with previous projects
-        code, out, _ = self.run('git', 'submodule', 'status', record=False)
-        return code == 0 and bool(out)
+        repo = git.Repo(self.working_dir)
+        return bool(repo.submodules)
 
     def validate_submodules(self, config):
         """
