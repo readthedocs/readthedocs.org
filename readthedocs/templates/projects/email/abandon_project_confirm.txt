@@ -1,0 +1,5 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+Your project {{ proj_name }} is marked as abandoned since you did not respond to the email sent earlier.
+Link for the project is now {{ proj_detail_url }}.
+{% endblock %}

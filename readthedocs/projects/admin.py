@@ -13,6 +13,8 @@ from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import F, Value
 from django.db.models.functions import Concat
+from django.conf import settings
+from django.urls import reverse
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
@@ -198,6 +200,26 @@ class ProjectAdmin(GuardedModelAdmin):
             slug=Concat('slug', Value('-abandoned')),
             is_abandoned=True
         )
+
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            users = project.users.get_queryset()
+            for user in users:
+                relative_proj_url = reverse('projects_detail', args=[project.slug])
+                new_proj_url = '{}{}'.format(settings.PRODUCTION_DOMAIN, relative_proj_url)
+                send_email(
+                    recipient=user.email,
+                    subject='Project {} marked as abandoned'.format(project.name),
+                    template='projects/email/abandon_project_confirm.txt',
+                    template_html='projects/email/abandon_project_confirm.html',
+                    context={
+                        'proj_name': project.name,
+                        'proj_slug': project.slug,
+                        'proj_detail_url': new_proj_url,
+                    }
+                )
+            success_msg = 'Project {} is marked as abandoned'.format(project.name)
+            self.message_user(request, success_msg, level=messages.SUCCESS)
 
     mark_as_abandoned.short_description = 'Mark as abandoned'
 

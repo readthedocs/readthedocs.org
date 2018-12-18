@@ -1,0 +1,15 @@
+{% extends "core/email/common.html" %}
+
+{% block top-right %}
+  {{ proj_name }}
+{% endblock %}
+
+{% block content %}
+  <p>
+    Your project {{ proj_name }} is marked as abandoned since you did not respond to the email sent earlier.
+  </p>
+
+  <p>
+    Link for the project is now <a href="{{ proj_detail_url }}">{{ proj_detail_url }}</a>.
+  </p>
+{% endblock %}
