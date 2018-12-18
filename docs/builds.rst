@@ -225,3 +225,8 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 +-------------------------+--------------------------------------------------+----------------------+
 | ``READTHEDOCS_PROJECT`` | The RTD name of the project which is being built | ``myexampleproject`` |
 +-------------------------+--------------------------------------------------+----------------------+
+
+.. tip::
+
+   In case extra environment variables are needed to the build process (like secrets, tokens, etc),
+   you can add them going to **Admin > Environment Variables** in your project.
