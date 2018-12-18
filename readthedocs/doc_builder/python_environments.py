@@ -355,6 +355,7 @@ class Conda(PythonEnvironment):
             'conda',
             'env',
             'create',
+            '--verbose',
             '--name',
             self.version.slug,
             '--file',
