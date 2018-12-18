@@ -4,6 +4,9 @@ from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.models import User
 from django import urls
 from django.test import TestCase
+from django.conf import settings
+from django.urls import reverse
+from django.contrib import messages
 
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
@@ -77,3 +80,64 @@ class ProjectAdminActionsTest(TestCase):
                 type='app', task=remove_dir, args=[self.project.doc_path]
             ),
         ])
+
+    @mock.patch('readthedocs.projects.admin.send_email')
+    def test_request_namespace(self, mock_send_email):
+        """Test the requesting of project's namespace"""
+        action_data = {
+            ACTION_CHECKBOX_NAME: [self.project.pk],
+            'action': 'request_namespace',
+        }
+        resp = self.client.post(
+            urls.reverse('admin:projects_project_changelist'),
+            action_data
+        )
+
+        proj = self.project
+        self.assertEqual(proj.users.get_queryset().count(), 1)
+        user = proj.users.get_queryset().first()
+
+        mock_send_email.assert_called_once_with(
+            recipient=user.email,
+            subject='Rename request for abandoned project', 
+            template='projects/email/abandon_project.txt', 
+            template_html='projects/email/abandon_project.html',
+            context={'proj_name': proj.name} 
+        )
+
+    @mock.patch('readthedocs.projects.admin.send_email')
+    def test_mark_as_abandoned(self, mock_send_email):
+        """Test the marking of project as abandoned"""
+        project = fixture.get(Project, users=[self.admin])
+        action_data = {
+            ACTION_CHECKBOX_NAME: [project.pk],
+            'action': 'mark_as_abandoned',
+        }
+
+        proj_old_slug = project.slug
+        self.assertEqual(project.users.get_queryset().count(), 1)
+        user = project.users.get_queryset().first()
+
+        resp = self.client.post(
+            urls.reverse('admin:projects_project_changelist'),
+            action_data,
+        )
+
+        project.refresh_from_db()
+        proj_new_slug = '{}-abandoned'.format(proj_old_slug)
+        self.assertEqual(project.get_absolute_url(), '/projects/{}/'.format(proj_new_slug))
+        proj_new_url = '{}{}'.format(settings.PRODUCTION_DOMAIN, project.get_absolute_url())
+
+        self.assertTrue(project.is_abandoned, True)
+        self.assertEqual(project.slug, proj_new_slug)
+        mock_send_email.assert_called_once_with(
+            recipient=user.email,
+            subject='Project {} marked as abandoned'.format(project.name),
+            template='projects/email/abandon_project_confirm.txt',
+            template_html='projects/email/abandon_project_confirm.html',
+            context={
+                'proj_name': project.name,
+                'proj_slug': proj_new_slug,
+                'proj_detail_url': proj_new_url,
+            }
+        )
