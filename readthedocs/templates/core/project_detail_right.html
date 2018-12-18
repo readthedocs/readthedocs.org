@@ -4,6 +4,12 @@
 {% load gravatar %}
 {% load projects_tags %}
 
+{% block abandoned %}
+  {% if project.is_abandoned %}
+    <p class="notification">This project is abandoned.</p>
+  {% endif %}
+{% endblock %}
+
 {% block repo %}
   {% if project.repo %}
     <h3>{% trans "Repository" %}</h3>
