@@ -9,8 +9,8 @@ function BuildCommand(data) {
     self.id = ko.observable(data.id);
     self.command = ko.observable(data.command);
     self.output = ko.observable(data.output);
-    self.exit_code = ko.observable(data.exit_code || 0);
-    self.successful = ko.observable(self.exit_code() === 0);
+    self.exit_code = ko.observable(data.exit_code);
+    self.successful = ko.observable(self.exit_code() === null || self.exit_code() === 0);
     self.run_time = ko.observable(data.run_time);
     self.is_showing = ko.observable(!self.successful());
 
@@ -22,6 +22,10 @@ function BuildCommand(data) {
         return self.successful() ?
             'build-command-successful' :
             'build-command-failed';
+    });
+
+    self.is_running = ko.computed(function () {
+        return self.exit_code() !== null && self.run_time() != null;
     });
 }
 
@@ -83,6 +87,10 @@ function BuildDetailView(instance) {
                 );
                 if (!match) {
                     self.commands.push(command);
+                } else {
+                    match.output = command.output;
+                    match.exit_code = command.exit_code;
+                    match.run_time = command.run_time;
                 }
             }
         });

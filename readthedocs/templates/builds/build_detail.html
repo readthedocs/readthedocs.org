@@ -190,11 +190,13 @@ $(document).ready(function () {
           </div>
           <div class="build-command-return"
                data-bind="visible: is_showing">
-            <div class="build-command-output">
+            <div class="build-command-output"
+                 data-bind="visible: is_running">
               <span data-bind="text: output"></span>
             </div>
 
-            <div class="build-command-meta">
+            <div class="build-command-meta"
+                 data-bind="visible: is_running">
               <span class="build-command-time">
                 {% trans "Command time:" %}
                 <span data-bind="text: run_time">0</span>s
