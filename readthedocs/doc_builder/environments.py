@@ -231,6 +231,17 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
+        data = {
+            'build': self.build_env.build.get('id'),
+            'command': self.get_command(),
+            'description': self.description,
+            'start_time': self.start_time,
+        }
+        resp = api_v2.command.post(data)
+        self.command_id = resp['id']
+
+    def update(self):
+        """Update this command and result via the API."""
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
         # in the Build
@@ -239,15 +250,11 @@ class BuildCommand(BuildCommandResultMixin):
             self.exit_code = 0
 
         data = {
-            'build': self.build_env.build.get('id'),
-            'command': self.get_command(),
-            'description': self.description,
             'output': self.output,
             'exit_code': self.exit_code,
-            'start_time': self.start_time,
             'end_time': self.end_time,
         }
-        api_v2.command.post(data)
+        api_v2.command(self.command_id).patch(data)
 
 
 class DockerBuildCommand(BuildCommand):
@@ -344,6 +351,9 @@ class BaseEnvironment(object):
     def record_command(self, command):
         pass
 
+    def update_command(self, command):
+        pass
+
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
@@ -385,13 +395,15 @@ class BaseEnvironment(object):
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
         build_cmd = cls(cmd, **kwargs)
+        if record:
+            self.record_command(build_cmd)
         build_cmd.run()
 
         if record:
             # TODO: I don't like how it's handled this entry point here since
             # this class should know nothing about a BuildCommand (which are the
             # only ones that can be saved/recorded)
-            self.record_command(build_cmd)
+            self.update_command(build_cmd)
 
             # We want append this command to the list of commands only if it has
             # to be recorded in the database (to keep consistency) and also, it
@@ -539,6 +551,9 @@ class BuildEnvironment(BaseEnvironment):
 
     def record_command(self, command):
         command.save()
+
+    def update_command(self, command):
+        command.update()
 
     def run(self, *cmd, **kwargs):
         kwargs.update({
