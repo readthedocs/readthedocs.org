@@ -607,10 +607,14 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     command = models.TextField(_('Command'))
     description = models.TextField(_('Description'), blank=True)
     output = models.TextField(_('Command output'), blank=True)
-    exit_code = models.IntegerField(_('Command exit code'))
+    exit_code = models.IntegerField(
+        _('Command exit code'), null=True, blank=True, default=None
+    )
 
     start_time = models.DateTimeField(_('Start time'))
-    end_time = models.DateTimeField(_('End time'))
+    end_time = models.DateTimeField(
+        _('End time'), null=True, blank=True, default=None
+    )
 
     class Meta(object):
         ordering = ['start_time']
@@ -629,3 +633,4 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         if self.start_time is not None and self.end_time is not None:
             diff = self.end_time - self.start_time
             return diff.seconds
+        return None
