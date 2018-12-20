@@ -48,7 +48,6 @@ class PageSearchAPIView(generics.ListAPIView):
     def get_all_projects_url(self):
         version_slug = self.request.query_params.get('version')
         project_slug = self.request.query_params.get('project')
-        return {project_slug: '/foo/bar/'}
         all_projects = get_project_list_or_404(project_slug=project_slug, user=self.request.user)
         projects_url = {}
 
