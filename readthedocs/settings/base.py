@@ -329,6 +329,7 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
     ES_PAGE_IGNORE_SIGNALS = True
+    ES_PROJECT_IGNORE_SIGNALS = True
 
     # ANALYZER = 'analysis': {
     #     'analyzer': {
