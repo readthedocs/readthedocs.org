@@ -24,7 +24,8 @@ class AbandonedProjectNotification(SiteNotification):
     send_email = True
     failure_level = ERROR_PERSISTENT
     failure_message = _(
-        'Your project {{ proj_name }} is marked as abandoned. Updated link for the project docs is <a href="{{ proj_url }}">{{ proj_url }}</a>.'
+        'Your project {{ proj_name }} is marked as abandoned. Update link '
+        'for the project docs is <a href="{{ proj_url }}">{{ proj_url }}</a>.'
     )
 
     def get_context_data(self):

@@ -1404,7 +1404,5 @@ def finish_inactive_builds():
 
 @app.task()
 def rename_project_dir(old_path, new_path):
-    """
-    Renames the project's directory.
-    """
+    """Renames the project's directory."""
     shutil.move(old_path, new_path)

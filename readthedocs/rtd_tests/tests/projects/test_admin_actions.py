@@ -128,8 +128,15 @@ class ProjectAdminActionsTest(TestCase):
         project.refresh_from_db()
         new_doc_path = project.doc_path
         proj_new_slug = '{}-abandoned'.format(proj_old_slug)
-        self.assertEqual(project.get_absolute_url(), '/projects/{}/'.format(proj_new_slug))
-        proj_new_url = '{}{}'.format(settings.PRODUCTION_DOMAIN, project.get_absolute_url())
+
+        self.assertEqual(
+            project.get_absolute_url(),
+            '/projects/{}/'.format(proj_new_slug)
+        )
+        proj_new_url = '{base}{url}'.format(
+            base=settings.PRODUCTION_DOMAIN,
+            url=project.get_absolute_url()
+        )
 
         self.assertTrue(project.is_abandoned, True)
         self.assertEqual(project.slug, proj_new_slug)
@@ -138,4 +145,3 @@ class ProjectAdminActionsTest(TestCase):
             task=rename_project_dir,
             args=[old_doc_path, new_doc_path]
         )
-

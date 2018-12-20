@@ -214,7 +214,7 @@ class ProjectAdmin(GuardedModelAdmin):
                 args=[old_doc_path, new_doc_path]
             )
             project.slug = new_slug
-            project.is_abandoned=True
+            project.is_abandoned = True
             project.save()
 
             # Sending notification emails
