@@ -84,6 +84,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'django_elasticsearch_dsl',
 
             # our apps
             'readthedocs.projects',
@@ -99,6 +100,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
+            'readthedocs.search',
 
 
             # allauth
@@ -319,8 +321,51 @@ class CommunityBaseSettings(Settings):
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
-    ES_DEFAULT_NUM_REPLICAS = 0
-    ES_DEFAULT_NUM_SHARDS = 5
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': '127.0.0.1:9200'
+        },
+    }
+    # Chunk size for elasticsearch reindex celery tasks
+    ES_TASK_CHUNK_SIZE = 100
+    ES_PAGE_IGNORE_SIGNALS = True
+
+    # ANALYZER = 'analysis': {
+    #     'analyzer': {
+    #         'default_icu': {
+    #             'type': 'custom',
+    #             'tokenizer': 'icu_tokenizer',
+    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
+    #         }
+    #     }
+    # }
+
+    ES_INDEXES = {
+        'project': {
+            'name': 'project_index',
+            # We do not have much data in the project index, therefore only 1 shard with
+            # 1 replica is appropriate project index
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
+                         }
+        },
+        'page': {
+            'name': 'page_index',
+            'settings': {
+                # We have 3 nodes, therefore having 3 shards and each one having 2 replicas
+                # will be good fit for our infrastructure. So all the 9(3*3) shards will be
+                # allocated to 3 nodes. Therefore, if one nodes get failed, the data will be
+                # inside other nodes and Elasticsearch can serve properly.
+                'number_of_shards': 3,
+                'number_of_replicas': 2,
+                "index": {
+                    "sort.field": ["project", "version"]
+                }
+            }
+        },
+    }
+    # Disable auto refresh for increasing index performance
+    ELASTICSEARCH_DSL_AUTO_REFRESH = False
 
     ALLOWED_HOSTS = ['*']
 
