@@ -8,6 +8,8 @@ from __future__ import (
     unicode_literals,
 )
 
+import os
+
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
@@ -35,7 +37,7 @@ from .models import (
     WebHook,
 )
 from .notifications import ResourceUsageNotification, AbandonedProjectNotification
-from .tasks import remove_dir, change_project_slug
+from .tasks import remove_dir, rename_project_dir
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -202,10 +204,16 @@ class ProjectAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
             new_slug = '{}-abandoned'.format(project.slug)
-            broadcast(
-                type='web', task=change_project_slug,
-                args=[project, new_slug]
+            old_doc_path = project.doc_path
+            new_doc_path = os.path.join(
+                os.path.dirname(project.doc_path),
+                new_slug
             )
+            broadcast(
+                type='web', task=rename_project_dir,
+                args=[old_doc_path, new_doc_path]
+            )
+            project.slug = new_slug
             project.is_abandoned=True
             project.save()
 

@@ -104,9 +104,11 @@ class ProjectAdminActionsTest(TestCase):
             context={'proj_name': proj.name} 
         )
 
+    @mock.patch('readthedocs.projects.admin.broadcast')
     @mock.patch('readthedocs.projects.admin.send_email')
-    def test_mark_as_abandoned(self, mock_send_email):
+    def test_mark_as_abandoned(self, mock_send_email, mock_broadcast):
         """Test the marking of project as abandoned"""
+        from readthedocs.projects.tasks import rename_project_dir
         project = fixture.get(Project, users=[self.admin])
         action_data = {
             ACTION_CHECKBOX_NAME: [project.pk],
@@ -114,6 +116,7 @@ class ProjectAdminActionsTest(TestCase):
         }
 
         proj_old_slug = project.slug
+        old_doc_path = project.doc_path
         self.assertEqual(project.users.get_queryset().count(), 1)
         user = project.users.get_queryset().first()
 
@@ -123,20 +126,16 @@ class ProjectAdminActionsTest(TestCase):
         )
 
         project.refresh_from_db()
+        new_doc_path = project.doc_path
         proj_new_slug = '{}-abandoned'.format(proj_old_slug)
         self.assertEqual(project.get_absolute_url(), '/projects/{}/'.format(proj_new_slug))
         proj_new_url = '{}{}'.format(settings.PRODUCTION_DOMAIN, project.get_absolute_url())
 
         self.assertTrue(project.is_abandoned, True)
         self.assertEqual(project.slug, proj_new_slug)
-        mock_send_email.assert_called_once_with(
-            recipient=user.email,
-            subject='Project {} marked as abandoned'.format(project.name),
-            template='projects/email/abandon_project_confirm.txt',
-            template_html='projects/email/abandon_project_confirm.html',
-            context={
-                'proj_name': project.name,
-                'proj_slug': proj_new_slug,
-                'proj_detail_url': proj_new_url,
-            }
+        mock_broadcast.assert_called_once_with(
+            type='web',
+            task=rename_project_dir,
+            args=[old_doc_path, new_doc_path]
         )
+

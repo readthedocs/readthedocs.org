@@ -1403,13 +1403,8 @@ def finish_inactive_builds():
 
 
 @app.task()
-def change_project_slug(project, new_slug):
+def rename_project_dir(old_path, new_path):
     """
-    Changes the slug of the project and renames the project's directory.
+    Renames the project's directory.
     """
-    path = project.doc_path
-    dirname = os.path.dirname(path)
-    new_path = os.path.join(dirname, new_slug)
-    shutil.move(path, new_path)
-    project.slug = new_slug
-    project.save()
+    shutil.move(old_path, new_path)
