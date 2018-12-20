@@ -204,3 +204,15 @@ class TestCeleryBuilding(RTDTestCase):
             'public_data': {},
             'error': 'Something bad happened',
         })
+
+    def test_rename_proj_dir(self):
+        directory = mkdtemp()
+        self.assertTrue(exists(directory))
+        new_dir = os.path.join(
+            os.path.dirname(directory),
+            'NewDirNameHere',
+        )
+        self.assertFalse(exists(new_dir))
+        tasks.rename_project_dir.delay(directory, new_dir)
+        self.assertFalse(exists(directory))
+        self.assertTrue(exists(new_dir))
