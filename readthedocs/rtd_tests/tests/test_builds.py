@@ -44,6 +44,10 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.configure_mock('api', {
             'get.return_value': {'downloads': "no_url_here"}
         })
+        self.mocks.configure_mock('api_versions', {'return_value': [version]})
+        self.mocks.configure_mock(
+            'api_v2.command', {'post.return_value': {'id': 1}}
+        )
         self.mocks.patches['html_build'].stop()
 
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
@@ -146,6 +150,9 @@ class BuildEnvironmentTests(TestCase):
         load_config.side_effect = create_load()
         self.mocks.patches['html_build'].stop()
         self.mocks.patches['pdf_build'].stop()
+        self.mocks.configure_mock(
+            'api_v2.command', {'post.return_value': {'id': 1}}
+        )
 
         project = get(Project,
                       slug='project-1',
@@ -190,6 +197,9 @@ class BuildEnvironmentTests(TestCase):
         load_config.side_effect = create_load()
         self.mocks.patches['html_build'].stop()
         self.mocks.patches['pdf_build'].stop()
+        self.mocks.configure_mock(
+            'api_v2.command', {'post.return_value': {'id': 1}}
+        )
 
         project = get(Project,
                       slug='project-2',
