@@ -34,8 +34,8 @@ from .models import (
     ProjectRelationship,
     WebHook,
 )
-from .notifications import ResourceUsageNotification
-from .tasks import remove_dir
+from .notifications import ResourceUsageNotification, AbandonedProjectNotification
+from .tasks import remove_dir, change_project_slug
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -190,36 +190,40 @@ class ProjectAdmin(GuardedModelAdmin):
         """
         Marks selected projects as abandoned.
 
-        It adds '-abandoned' to the slug, marks
-        Project.is_abandoned and sends an email to the user
-        notifying the change and link to the new project/docs
-        page.
+        It performs the following sub-tasks:
+            * Adds '-abandoned' to the slug.
+            * Updates the project's directory name to
+              match the new slug.
+            * Sets Project.is_abandoned=True.
+            * Adds a persistent error notification for the
+              user notifying the changes.
+            * Notify user via email.
         """
-        # Change project's slug and mark it as abandoned.
-        queryset.update(
-            slug=Concat('slug', Value('-abandoned')),
-            is_abandoned=True
-        )
-
-        # Notifying users via email.
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
+            new_slug = '{}-abandoned'.format(project.slug)
+            broadcast(
+                type='web', task=change_project_slug,
+                args=[project, new_slug]
+            )
+            project.is_abandoned=True
+            project.save()
+
+            # Sending notification emails
             users = project.users.get_queryset()
             for user in users:
-                new_proj_url = '{}{}'.format(settings.PRODUCTION_DOMAIN, project.get_absolute_url())
-                send_email(
-                    recipient=user.email,
-                    subject='Project {} marked as abandoned'.format(project.name),
-                    template='projects/email/abandon_project_confirm.txt',
-                    template_html='projects/email/abandon_project_confirm.html',
-                    context={
-                        'proj_name': project.name,
-                        'proj_slug': project.slug,
-                        'proj_detail_url': new_proj_url,
-                    }
+                notification = AbandonedProjectNotification(
+                    user=user,
+                    success=False,
+                    extra_context={'project': project}
                 )
-            success_msg = 'Project {} is marked as abandoned'.format(project.name)
-            self.message_user(request, success_msg, level=messages.SUCCESS)
+                notification.send()
+
+            self.message_user(
+                request,
+                '{} is marked as abandoned.'.format(project.name),
+                level=messages.SUCCESS
+            )
 
     mark_as_abandoned.short_description = 'Mark as abandoned'
 

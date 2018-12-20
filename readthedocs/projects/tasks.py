@@ -1400,3 +1400,16 @@ def finish_inactive_builds():
         'Builds marked as "Terminated due inactivity": %s',
         builds_finished,
     )
+
+
+@app.task()
+def change_project_slug(project, new_slug):
+    """
+    Changes the slug of the project and renames the project's directory.
+    """
+    path = project.doc_path
+    dirname = os.path.dirname(path)
+    new_path = os.path.join(dirname, new_slug)
+    shutil.move(path, new_path)
+    project.slug = new_slug
+    project.save()
