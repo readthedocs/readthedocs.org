@@ -79,6 +79,7 @@ class BuildCommand(BuildCommandResultMixin):
     def __init__(self, command, cwd=None, shell=False, environment=None,
                  combine_output=True, input_data=None, build_env=None,
                  bin_path=None, description=None, record_as_success=False):
+        self.command_id = None
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -231,6 +232,7 @@ class BuildCommand(BuildCommandResultMixin):
 
     def save(self):
         """Save this command and result via the API."""
+        self.start_time = self.start_time or datetime.utcnow()
         data = {
             'build': self.build_env.build.get('id'),
             'command': self.get_command(),
