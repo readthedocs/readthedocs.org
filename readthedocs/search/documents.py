@@ -21,6 +21,7 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
     class Meta(object):
         model = Project
         fields = ('name', 'slug', 'description')
+        ignore_signals = settings.ES_PROJECT_IGNORE_SIGNALS
 
     url = fields.TextField(attr='get_absolute_url')
     users = fields.NestedField(properties={
