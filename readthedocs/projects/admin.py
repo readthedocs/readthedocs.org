@@ -13,9 +13,6 @@ import os
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
-from django.db.models import F, Value
-from django.db.models.functions import Concat
-from django.conf import settings
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
