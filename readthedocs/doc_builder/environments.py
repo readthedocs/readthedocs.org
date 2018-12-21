@@ -78,7 +78,8 @@ class BuildCommand(BuildCommandResultMixin):
 
     def __init__(self, command, cwd=None, shell=False, environment=None,
                  combine_output=True, input_data=None, build_env=None,
-                 bin_path=None, description=None, record_as_success=False):
+                 bin_path=None, description=None, record=False,
+                 record_as_success=False):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -101,6 +102,7 @@ class BuildCommand(BuildCommandResultMixin):
         self.description = ''
         if description is not None:
             self.description = description
+        self.record = record
         self.record_as_success = record_as_success
         self.exit_code = None
 
@@ -176,6 +178,8 @@ class BuildCommand(BuildCommandResultMixin):
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
+            if self.record:
+                self.save()
 
     def sanitize_output(self, output):
         r"""
@@ -303,6 +307,8 @@ class DockerBuildCommand(BuildCommand):
                 self.output = _('Command exited abnormally')
         finally:
             self.end_time = datetime.utcnow()
+            if self.record:
+                self.save()
 
     def get_wrapped_command(self):
         """
@@ -341,9 +347,6 @@ class BaseEnvironment(object):
         self.environment = environment or {}
         self.commands = []
 
-    def record_command(self, command):
-        pass
-
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
@@ -381,6 +384,7 @@ class BaseEnvironment(object):
             kwargs['bin_path'] = env_path
         assert 'environment' not in kwargs, "environment can't be passed in via commands."
         kwargs['environment'] = self.environment
+        kwargs['record'] = record
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
@@ -388,14 +392,9 @@ class BaseEnvironment(object):
         build_cmd.run()
 
         if record:
-            # TODO: I don't like how it's handled this entry point here since
-            # this class should know nothing about a BuildCommand (which are the
-            # only ones that can be saved/recorded)
-            self.record_command(build_cmd)
-
             # We want append this command to the list of commands only if it has
             # to be recorded in the database (to keep consistency) and also, it
-            # has to be added after ``self.record_command`` since its
+            # has to be added after ``build_cmd.run()`` since its
             # ``exit_code`` can be altered because of ``record_as_success``
             self.commands.append(build_cmd)
 
@@ -536,9 +535,6 @@ class BuildEnvironment(BaseEnvironment):
                 },
             )
             return True
-
-    def record_command(self, command):
-        command.save()
 
     def run(self, *cmd, **kwargs):
         kwargs.update({
