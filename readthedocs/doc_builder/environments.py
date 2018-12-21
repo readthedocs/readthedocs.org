@@ -314,7 +314,7 @@ class DockerBuildCommand(BuildCommand):
             killed_in_output = 'Killed' in '\n'.join(self.output.splitlines()[-15:])
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
                 self.output += str(_(
-                    'Command killed due to excessive memory consumption\n'
+                    '\n\nCommand killed due to excessive memory consumption\n'
                 ))
         except DockerAPIError:
             self.exit_code = -1
