@@ -174,6 +174,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-1',
             active=True,
             privacy_level=PUBLIC,
+            identifier='public-1',
         )
         get(
             Version,
@@ -181,6 +182,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-2',
             active=True,
             privacy_level=PUBLIC,
+            identifier='public-2',
         )
         get(
             Version,
@@ -188,6 +190,15 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-3',
             active=False,
             privacy_level=PROTECTED,
+            identifier='public-3',
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-4',
+            active=False,
+            privacy_level=PUBLIC,
+            identifier='public/4'
         )
         get(
             Version,
@@ -195,6 +206,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='private',
             active=True,
             privacy_level=PRIVATE,
+            identifier='private',
         )
         get(
             Version,
@@ -202,6 +214,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='protected',
             active=True,
             privacy_level=PROTECTED,
+            identifier='protected',
         )
 
     def test_list_only_active_versions_on_default_version(self):
@@ -222,12 +235,12 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
         self.assertEqual(
             set(
-                slug
-                for slug, _ in form.fields['default_branch'].widget.choices
+                identifier
+                for identifier, _ in form.fields['default_branch'].widget.choices
             ),
             {
-                None, 'latest', 'public-1', 'public-2',
-                'public-3', 'protected', 'private'
+                None, 'master', 'public-1', 'public-2',
+                'public-3', 'public/4', 'protected', 'private'
             },
         )
 
