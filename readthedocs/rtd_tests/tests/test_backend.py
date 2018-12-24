@@ -265,6 +265,17 @@ class TestHgBackend(RTDTestCase):
         self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
+    def test_git_checkout_invalid_revision(self):
+        repo = self.project.vcs_repo()
+        repo.update()
+        version = 'invalid-revision'
+        with self.assertRaises(RepositoryError) as e:
+            repo.checkout(version)
+        self.assertEqual(
+            str(e.exception),
+            RepositoryError.FAILED_TO_CHECKOUT.format(version)
+        )
+
     def test_parse_tags(self):
         data = """\
         tip                            13575:8e94a1b4e9a4
