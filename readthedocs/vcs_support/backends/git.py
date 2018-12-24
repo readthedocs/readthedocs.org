@@ -129,11 +129,26 @@ class Backend(BaseVCS):
                 return False, []
         return True, submodules.keys()
 
+    def use_shallow_clone(self):
+        """
+        Test whether shallow clone should be performed.
+
+        .. note::
+
+            Temporarily, we support skipping this option as builds that rely on
+            git history can fail if using shallow clones. This should
+            eventually be configurable via the web UI.
+        """
+        from readthedocs.projects.models import Feature
+        return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
+
     def fetch(self):
-        code, stdout, stderr = self.run(
-            'git', 'fetch', '--depth', str(self.repo_depth),
-            '--tags', '--prune', '--prune-tags',
-        )
+        cmd = ['git', 'fetch', '--tags', '--prune', '--prune-tags']
+
+        if self.use_shallow_clone():
+            cmd.extend(['--depth', str(self.repo_depth)])
+
+        code, stdout, stderr = self.run(*cmd)
         if code != 0:
             raise RepositoryError
         return code, stdout, stderr
@@ -150,10 +165,14 @@ class Backend(BaseVCS):
 
     def clone(self):
         """Clones the repository."""
-        code, stdout, stderr = self.run(
-            'git', 'clone', '--depth', str(self.repo_depth),
-            '--no-single-branch', self.repo_url, '.'
-        )
+        cmd = ['git', 'clone', '--no-single-branch']
+
+        if self.use_shallow_clone():
+            cmd.extend(['--depth', str(self.repo_depth)])
+
+        cmd.extend([self.repo_url, '.'])
+
+        code, stdout, stderr = self.run(*cmd)
         if code != 0:
             raise RepositoryError
         return code, stdout, stderr
