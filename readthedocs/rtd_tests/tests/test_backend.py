@@ -120,6 +120,17 @@ class TestGitBackend(RTDTestCase):
         self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
+    def test_git_checkout_invalid_revision(self):
+        repo = self.project.vcs_repo()
+        repo.update()
+        version = 'invalid-revision'
+        with self.assertRaises(RepositoryError) as e:
+            repo.checkout(version)
+        self.assertEqual(
+            str(e.exception),
+            RepositoryError.FAILED_TO_CHECKOUT.format(version)
+        )
+
     def test_git_tags(self):
         repo_path = self.project.repo
         create_git_tag(repo_path, 'v01')
