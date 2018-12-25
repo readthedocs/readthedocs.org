@@ -23,6 +23,7 @@ class AbandonedProjectNotification(SiteNotification):
     level = REQUIREMENT
     send_email = True
     failure_level = ERROR_PERSISTENT
+    subject = 'Abandoned project {{ proj_name }}'
     failure_message = _(
         'Your project {{ proj_name }} is marked as abandoned. Update link '
         'for the project docs is <a href="{{ proj_url }}">{{ proj_url }}</a>.'

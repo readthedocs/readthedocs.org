@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+
 import mock
 import django_dynamic_fixture as fixture
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 from django import urls
 from django.test import TestCase
 from django.conf import settings
+from messages_extends.models import Message as PersistentMessage
 
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
@@ -104,43 +108,66 @@ class ProjectAdminActionsTest(TestCase):
         )
 
     @mock.patch('readthedocs.projects.admin.broadcast')
-    @mock.patch('readthedocs.projects.admin.send_email')
+    @mock.patch('readthedocs.notifications.backends.send_email')
     def test_mark_as_abandoned(self, mock_send_email, mock_broadcast):
-        """Test the marking of project as abandoned"""
+        """Test the marking of project as abandoned."""
         from readthedocs.projects.tasks import rename_project_dir
+
         project = fixture.get(Project, users=[self.admin])
         action_data = {
             ACTION_CHECKBOX_NAME: [project.pk],
             'action': 'mark_as_abandoned',
         }
 
-        proj_old_slug = project.slug
-        old_doc_path = project.doc_path
+        # before marking project as abandoned.
+        current_slug = project.slug
+        current_doc_path = project.doc_path
         self.assertEqual(project.users.get_queryset().count(), 1)
         user = project.users.get_queryset().first()
 
+        self.assertEqual(PersistentMessage.objects.count(), 0)
+     
         resp = self.client.post(
             urls.reverse('admin:projects_project_changelist'),
             action_data,
         )
 
         project.refresh_from_db()
+
+        # after marking the project as abandoned.
         new_doc_path = project.doc_path
-        proj_new_slug = '{}-abandoned'.format(proj_old_slug)
+        new_slug = '{}-abandoned'.format(current_slug)
 
         self.assertEqual(
             project.get_absolute_url(),
-            '/projects/{}/'.format(proj_new_slug)
+            '/projects/{}/'.format(new_slug)
         )
-        proj_new_url = '{base}{url}'.format(
+        new_url = '{base}{url}'.format(
             base=settings.PRODUCTION_DOMAIN,
             url=project.get_absolute_url()
         )
 
         self.assertTrue(project.is_abandoned, True)
-        self.assertEqual(project.slug, proj_new_slug)
+        self.assertEqual(project.slug, new_slug)
         mock_broadcast.assert_called_once_with(
             type='web',
             task=rename_project_dir,
-            args=[old_doc_path, new_doc_path]
+            args=[current_doc_path, new_doc_path]
         )
+        failure_message = _(
+            'Your project {name} is marked as abandoned. Update link '
+            'for the project docs is <a href="{url}">{url}</a>.'
+        )
+        # user must have to notified via email.
+        mock_send_email.assert_has_calls([
+            mock.call(
+                template='core/email/common.txt',
+                context={'content': failure_message.format(name=project.name, url=new_url)},
+                subject=u'Abandoned project {}'.format(project.name),
+                template_html='core/email/common.html',
+                recipient=user.email,
+                request=None
+            )
+        ])
+        # Persistent error msg is added to notify user.
+        self.assertEqual(PersistentMessage.objects.filter(read=False).count(), 1)
