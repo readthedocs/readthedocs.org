@@ -98,13 +98,16 @@ class Backend(BaseVCS):
 
         :returns: tuple(bool, list)
 
-        Returns true if all required submodules URLs are valid.
+        Returns `True` if all required submodules URLs are valid.
         Returns a list of all required submodules:
         - Include is `ALL`, returns all submodules avaliable.
         - Include is a list, returns just those.
         - Exclude is `ALL` - this should never happen.
         - Exlude is a list, returns all avaliable submodules
           but those from the list.
+
+        Returns `False` if at least one submodule is invalid.
+        Returns the list of invalid submodules.
         """
         repo = git.Repo(self.working_dir)
         submodules = {
@@ -124,11 +127,15 @@ class Backend(BaseVCS):
                 submodules_include[path] = submodules[path]
             submodules = submodules_include
 
+        invalid_submodules = []
         for path, submodule in submodules.items():
             try:
                 validate_submodule_url(submodule.url)
             except ValidationError:
-                return False, []
+                invalid_submodules.append(path)
+
+        if invalid_submodules:
+            return False, invalid_submodules
         return True, submodules.keys()
 
     def use_shallow_clone(self):
@@ -243,7 +250,9 @@ class Backend(BaseVCS):
             if valid:
                 self.checkout_submodules(submodules, config)
             else:
-                raise RepositoryError(RepositoryError.INVALID_SUBMODULES)
+                raise RepositoryError(
+                    RepositoryError.INVALID_SUBMODULES.format(submodules)
+                )
 
     def checkout_submodules(self, submodules, config):
         """Checkout all repository submodules."""
