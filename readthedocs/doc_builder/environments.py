@@ -43,7 +43,6 @@ from .constants import (
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
     MKDOCS_TEMPLATE_DIR,
-    SPHINX_TEMPLATE_DIR,
 )
 from .exceptions import (
     BuildEnvironmentCreationFailed,
@@ -866,10 +865,6 @@ class DockerBuildEnvironment(BuildEnvironment):
         ``client.create_container``.
         """
         binds = {
-            SPHINX_TEMPLATE_DIR: {
-                'bind': SPHINX_TEMPLATE_DIR,
-                'mode': 'ro',
-            },
             MKDOCS_TEMPLATE_DIR: {
                 'bind': MKDOCS_TEMPLATE_DIR,
                 'mode': 'ro',

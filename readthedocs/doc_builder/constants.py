@@ -12,12 +12,6 @@ from django.conf import settings
 
 log = logging.getLogger(__name__)
 
-SPHINX_TEMPLATE_DIR = os.path.join(
-    settings.SITE_ROOT,
-    'readthedocs',
-    'templates',
-    'sphinx',
-)
 MKDOCS_TEMPLATE_DIR = os.path.join(
     settings.SITE_ROOT,
     'readthedocs',
