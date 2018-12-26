@@ -265,7 +265,7 @@ class TestHgBackend(RTDTestCase):
         self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
 
-    def test_git_checkout_invalid_revision(self):
+    def test_checkout_invalid_revision(self):
         repo = self.project.vcs_repo()
         repo.update()
         version = 'invalid-revision'
