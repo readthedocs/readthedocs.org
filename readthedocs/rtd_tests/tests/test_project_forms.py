@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
-from textclassifier.validators import ClassifierValidator
+from textclassifier.validators import TextClassificationValidator
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
@@ -36,7 +36,7 @@ from readthedocs.projects.models import Project
 
 class TestProjectForms(TestCase):
 
-    @mock.patch.object(ClassifierValidator, '__call__')
+    @mock.patch.object(TextClassificationValidator, '__call__')
     def test_form_spam(self, mocked_validator):
         """Form description field fails spam validation."""
         mocked_validator.side_effect = ProjectSpamError
