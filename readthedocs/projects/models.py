@@ -1013,6 +1013,7 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1021,10 +1022,12 @@ class Feature(models.Model):
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (DONT_OVERWRITE_SPHINX_CONTEXT, _(
-            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+            'Do not overwrite context vars in conf.py with Read the Docs context')),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
+        (DONT_SHALLOW_CLONE, _(
+            'Do not shallow clone when cloning git repos')),
     )
 
     projects = models.ManyToManyField(
