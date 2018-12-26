@@ -163,6 +163,26 @@ class TestProjectForms(TestCase):
         latest.refresh_from_db()
         self.assertEqual(latest.identifier, 'custom')
 
+    def test_length_of_tags(self):
+        data = {
+            'documentation_type': 'sphinx',
+            'language': 'en'
+        }
+        data['tags'] = '{},{}'.format('a'*50, 'b'*99)
+        form = ProjectExtraForm(data)
+        self.assertTrue(form.is_valid())
+
+        data['tags'] = '{},{}'.format('a'*90, 'b'*100)
+        form = ProjectExtraForm(data)
+        self.assertTrue(form.is_valid())
+        
+        data['tags'] = '{},{}'.format('a'*99, 'b'*101)
+        form = ProjectExtraForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.has_error('tags'))
+        error_msg = 'Length of each tag must be less than or equal to 100 characters.'
+        self.assertDictEqual(form.errors, {'tags': [error_msg]})
+
 
 class TestProjectAdvancedForm(TestCase):
 
