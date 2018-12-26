@@ -127,7 +127,13 @@ class ProjectAdmin(GuardedModelAdmin):
                VersionInline, DomainInline]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner', classify_as_valid, classify_as_spam, classify_as_spam_and_delete]
+    actions = [
+        'send_owner_email',
+        'ban_owner',
+        classify_as_valid,
+        classify_as_spam,
+        classify_as_spam_and_delete,
+    ]
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])
