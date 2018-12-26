@@ -19,12 +19,13 @@ from django_extensions.db.models import TimeStampedModel
 from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
+from textclassifier.validators import TextClassificationValidator
 
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
-from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.exceptions import ProjectConfigurationError, ProjectSpamError
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
     RelatedProjectQuerySet)
@@ -81,11 +82,32 @@ class Project(models.Model):
     users = models.ManyToManyField(User, verbose_name=_('User'),
                                    related_name='projects')
     # A DNS label can contain up to 63 characters.
-    name = models.CharField(_('Name'), max_length=63)
+    name = models.CharField(
+        _('Name'),
+        max_length=63,
+        validators=[
+            TextClassificationValidator(
+                app_label='projects',
+                model='project',
+                field_name='name',
+                raises=ProjectSpamError,
+            ),
+        ],
+    )
     slug = models.SlugField(_('Slug'), max_length=63, unique=True)
-    description = models.TextField(_('Description'), blank=True,
-                                   help_text=_('The reStructuredText '
-                                               'description of the project'))
+    description = models.TextField(
+        _('Description'),
+        blank=True,
+        help_text=_('The reStructuredText description of the project'),
+        validators=[
+            TextClassificationValidator(
+                app_label='projects',
+                model='project',
+                field_name='description',
+                raises=ProjectSpamError,
+            ),
+        ],
+    )
     repo = models.CharField(_('Repository URL'), max_length=255,
                             validators=[validate_repository_url],
                             help_text=_('Hosted documentation repository URL'))

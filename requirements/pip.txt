@@ -89,7 +89,9 @@ django-formtools==2.1
 # https://github.com/rtfd/readthedocs.org/issues/3999
 docker==3.1.3
 
-django-textclassifier==1.0
+# We want v2.0 but it's not released yet
+# django-textclassifier==2.0
+git+https://github.com/humitos/django-textclassifier.git@admin-action-on-validator#egg=django-textclassifier
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2

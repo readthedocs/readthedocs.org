@@ -12,6 +12,7 @@ from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
 from guardian.admin import GuardedModelAdmin
+from textclassifier.admin import classify_as_valid, classify_as_spam, classify_as_spam_and_delete
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
@@ -126,7 +127,7 @@ class ProjectAdmin(GuardedModelAdmin):
                VersionInline, DomainInline]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner']
+    actions = ['send_owner_email', 'ban_owner', classify_as_valid, classify_as_spam, classify_as_spam_and_delete]
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])

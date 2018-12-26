@@ -19,7 +19,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from future.backports.urllib.parse import urlparse
 from guardian.shortcuts import assign
-from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
@@ -27,8 +26,6 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
-from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
@@ -175,12 +172,6 @@ class ProjectExtraForm(ProjectForm):
             'tags',
             'project_url',
         )
-
-    description = forms.CharField(
-        validators=[ClassifierValidator(raises=ProjectSpamError)],
-        required=False,
-        widget=forms.Textarea,
-    )
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
