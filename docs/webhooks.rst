@@ -36,6 +36,8 @@ As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/
 
 Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
 
+.. _webhook-integration-github:
+
 GitHub
 ~~~~~~
 
@@ -53,6 +55,8 @@ For a 403 error, it's likely that the Payload URL is incorrect.
 
 .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
+.. _webhook-integration-bitbucket:
+
 Bitbucket
 ~~~~~~~~~
 
@@ -63,6 +67,8 @@ Bitbucket
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
+.. _webhook-integration-gitlab:
+
 GitLab
 ~~~~~~
 
@@ -72,6 +78,8 @@ GitLab
   **Dashboard** > **Admin** > **Integrations** page
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
+
+.. _webhook-integration-generic:
 
 Using the generic API integration
 ---------------------------------
@@ -136,3 +144,37 @@ Resyncing webhooks
 It might be necessary to re-establish a webhook if you are noticing problems.
 To resync a webhook from Read the Docs, visit the integration detail page and
 follow the directions for re-syncing your repository webhook.
+
+Troubleshooting
+---------------
+
+My project isn't automatically building
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your project isn't automatically building, you can check your integration on
+Read the Docs to see the payload sent to our servers. If there is no recent
+activity on your Read the Docs project webhook integration, then it's likely
+that your VCS provider is not configured correctly. If there is payload
+information on your Read the Docs project, you might need to verify that your
+versions are configured to build correctly.
+
+Either way, it may help to either resync your webhook intergration (see
+`Resyncing webhooks`_ for information on this process), or set up an entirely
+new webhook intergration.
+
+.. _webhook-github-services:
+
+Should I use GitHub Services?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Effective Jan 31st, GitHub Services will stop sending notifications to Read the
+Docs. Your project has been configured on Read the Docs for a long time, you are
+most likely using a GitHub Service to automatically build your project on Read
+the Docs.
+
+In order for your project to continue automatically building, you will need to
+configure your GitHub repository with a new webhook. You can use either a
+connected GitHub account and a :ref:`GitHub webhook integration <webhook-integration-github>`
+on your Read the Docs project, or you can use a
+:ref:`generic webhook integraiton <webhook-integration-generic>` without a connected
+account.
