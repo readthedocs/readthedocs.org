@@ -5,7 +5,7 @@ Assumptions and Prerequisites
 -----------------------------
 
 * Debian VM provisioned with python 2.7.x
-* All python dependencies and setup tools are installed
+* All python dependencies and setup tools are installed:
 
 .. prompt:: bash $
 
@@ -15,7 +15,7 @@ Assumptions and Prerequisites
   sudo apt-get install libevent-dev
   sudo easy_install pip 
 
-* Git
+* Git:
 
 .. prompt:: bash $
 
@@ -23,7 +23,7 @@ Assumptions and Prerequisites
   
 * Git repo is ``git.corp.company.com:git/docs/documentation.git``
 * Source documents are in ``../docs/source``
-* Sphinx
+* Sphinx:
 
 .. prompt:: bash $
 
@@ -37,7 +37,7 @@ Local RTD Setup
 Install RTD
 ~~~~~~~~~~~
 
-To host your documentation on a local RTD installation, set it up in your VM.
+To host your documentation on a local RTD installation, set it up in your VM:
 
 .. prompt:: bash $
 
@@ -52,7 +52,7 @@ Possible Error and Resolution
 
 **Error**: ``error: command 'gcc' failed with exit status 1``
 
-**Resolution**: Run the following commands.
+**Resolution**: Run the following commands:
 
 .. prompt:: bash $
 
@@ -60,7 +60,7 @@ Possible Error and Resolution
     sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-devel libxslt-devel
     sudo apt-get build-dep python-imaging --fix-missing 
 
-On Debian 8 (jessie) the command is slightly different
+On Debian 8 (jessie) the command is slightly different:
 
 .. prompt:: bash $
 
@@ -77,7 +77,7 @@ Also don't forget to re-run the dependency installation
 Configure the RTD Server and Superuser
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Run the following commands.
+1. Run the following commands:
 
     .. prompt:: bash $
 
@@ -93,7 +93,7 @@ Configure the RTD Server and Superuser
 RTD Server Administration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Navigate to the ``../checkouts/readthedocs.org`` folder in your VM and run the following command.
+Navigate to the ``../checkouts/readthedocs.org`` folder in your VM and run the following command:
 
 .. prompt:: bash $
 
@@ -108,7 +108,7 @@ Go to the dashboard at  ``http://[VM IP ADDRESS]:8000/dashboard`` and follow the
    Example: ``git.corp.company.com:/git/docs/documentation.git``.
 2. Clone the documentation sources from Git in the VM.
 3. Navigate to the root path for documentation.
-4. Run the following Sphinx commands.
+4. Run the following Sphinx commands:
 
 .. prompt:: bash $
 
@@ -125,7 +125,7 @@ Possible Error and Resolution
 
 **Workaround-1**
 
-1. In your machine, navigate to the ``.ssh`` folder.
+1. In your machine, navigate to the ``.ssh`` folder:
 
     .. prompt:: bash $
 
@@ -134,7 +134,7 @@ Possible Error and Resolution
 
 2. Copy the entire Private Key.
 3. Now, SSH to the VM.
-4. Open the ``id_rsa`` file in the VM.
+4. Open the ``id_rsa`` file in the VM:
 
 .. prompt:: bash $
 
@@ -144,7 +144,7 @@ Possible Error and Resolution
 
 **Workaround 2** 
 
-SSH to the VM using the ``-A`` directive.
+SSH to the VM using the ``-A`` directive:
 
 .. prompt:: bash $
 
