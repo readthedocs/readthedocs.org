@@ -2,7 +2,7 @@ Webhooks
 ========
 
 The primary method that Read the Docs uses to detect changes to your
-documentation is through the use of *webhooks*. Webhooks are configured with
+documentation and versions is through the use of *webhooks*. Webhooks are configured with
 your repository provider, such as GitHub, Bitbucket or GitLab, and with each commit,
 merge, or other change to your repository, Read the Docs is notified. When we
 receive a webhook notification, we determine if the change is related to an
@@ -41,11 +41,12 @@ GitHub
 
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
-* For **Payload URL**, use the URL of the integration on Read the Docs, found on
-  the the project's **Integrations** Admin dashboard page
+* For **Payload URL**, use the URL of the integration on Read the Docs,
+  found on the project's **Integrations** Admin dashboard page
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
-* Select **Just the push event**
+* Select **Let me select individual events**,
+  and mark **Pushes**, **Branch or tag creation**, and **Branch or tag deletion** events
 * Finish by clicking **Add webhook**
 
 You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**. If you see a Response 200, then the webhook is correctly configured.
@@ -58,8 +59,8 @@ Bitbucket
 
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
-* For **URL**, use the URL of the integration on Read the Docs, found on the
-  **Dashboard** > **Admin** > **Integrations** page
+* For **URL**, use the URL of the integration on Read the Docs,
+  found on the **Dashboard** > **Admin** > **Integrations** page
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
@@ -68,8 +69,8 @@ GitLab
 
 * Go to the **Settings** page for your project
 * Click **Integrations**
-* For **URL**, use the URL of the integration on Read the Docs, found on the
-  **Dashboard** > **Admin** > **Integrations** page
+* For **URL**, use the URL of the integration on Read the Docs,
+  found on the **Dashboard** > **Admin** > **Integrations** page
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
