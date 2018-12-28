@@ -6,8 +6,8 @@ Read the Docs now has support for configuring builds with a YAML file.
 .. warning:: This feature is in a beta state.
              Please file an `issue`_ if you find anything wrong.
 
-The file must be in the root directory of your project, **not** in the `./docs` folder.
-and have the name ``readthedocs.yml`` or, if you prefer to have it be a dot file, ``.readthedocs.yml`` .
+The file should have the name ``readthedocs.yml`` or, if you prefer to have it be a dot file, ``.readthedocs.yml``. 
+It must be in the root directory of your project, **not** in the `./docs` folder.
 
 .. code:: none
 
