@@ -70,7 +70,7 @@ My project requires different settings than that are available under Admin
 Read the Docs offers additional flag settings. To enable these settings, please open an
 request issue on our `github`_ and we will change the settings for the project. Read more about
 these flag settings
-:ref:`here <guides/feature-flags`.
+:ref:`here <guides/feature-flags>`.
 
 .. _github: https://github.com/rtfd/readthedocs.org
 
