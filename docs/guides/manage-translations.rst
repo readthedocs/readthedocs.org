@@ -202,9 +202,9 @@ Once you have done changes in your documentation, you may want to make these add
       sphinx-build -b gettext . _build/gettext
 
 
-  .. For the manual workflow, we need to run this command
+   .. For the manual workflow, we need to run this command
 
-    $ sphinx-intl update -p _build/gettext -l es_AR -l pt_BR
+     $ sphinx-intl update -p _build/gettext -l es_AR -l pt_BR
 
 
 #. Push new files to Transifex
