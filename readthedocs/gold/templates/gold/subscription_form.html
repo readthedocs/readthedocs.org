@@ -43,22 +43,22 @@ $(document).ready(function () {
       product.
     {% endblocktrans %}
   </p>
-    <p>
-    {% blocktrans trimmed %}
-      If you are an individual,
-      feel free to give whatever feels right for the value you get out of Read the Docs.
-    {% endblocktrans %}
-    </p>
-    <p>
-    {% blocktrans trimmed %}
-      If you are a company using Read the Docs,
-      please consider getting a <a href="https://readthedocs.com/services/#open-source-support">commercial support contract</a>.
-      This will help us cover our costs,
-      and provide you with a better experience on the site.
-      If you aren't able to do that,
-      we suggest giving at least $20/month to help cover our support and operations costs.
-    {% endblocktrans %}
-    </p>
+  <p>
+  {% blocktrans trimmed %}
+    If you are an individual,
+    feel free to give whatever feels right for the value you get out of Read the Docs.
+  {% endblocktrans %}
+  </p>
+  <p>
+  {% blocktrans trimmed %}
+    If you are a company using Read the Docs,
+    please consider getting a <a href="https://readthedocs.com/services/#open-source-support">commercial support contract</a>.
+    This will help us cover our costs,
+    and provide you with a better experience on the site.
+    If you aren't able to do that,
+    we suggest giving at least $20/month to help cover our support and operations costs.
+  {% endblocktrans %}
+  </p>
 
   <p>{% trans 'Becoming a Gold Member also makes Read the Docs ad-free for as long as you are logged-in.' %}</p>
 
@@ -69,7 +69,7 @@ $(document).ready(function () {
   </p>
 
   {% if domains.count %}
-  <h3>Domains</h2>
+  <h3>Domains</h3>
   <p>
     {% blocktrans trimmed %}
     We ask that folks who use custom Domains give Read the Docs $5 per domain they are using.
@@ -141,4 +141,5 @@ $(document).ready(function () {
 
     <em>{% trans "All information is submitted directly to Stripe." %}</em>
   </form>
+</div>
 {% endblock %}
