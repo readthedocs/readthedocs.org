@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-09-17 17:55-0600\n"
-"PO-Revision-Date: 2018-06-06 15:44+0000\n"
+"PO-Revision-Date: 2019-01-02 01:50+0300\n"
 "Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Russian (http://www.transifex.com/readthedocs/readthedocs/"
 "language/ru/)\n"
@@ -27,6 +27,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Poedit 2.2\n"
 
 #: api/utils.py:47
 #, python-format
@@ -1743,7 +1744,7 @@ msgstr ""
 
 #: templates/base.html:142
 msgid "Subscribe"
-msgstr ""
+msgstr "Подписаться"
 
 #: templates/base.html:150
 msgid "Get Involved"
@@ -2149,7 +2150,7 @@ msgstr ""
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
 msgid "Let's do this."
-msgstr "Начать поиск."
+msgstr "Найти"
 
 #: templates/flagging/flag_confirm.html:6
 #: templates/flagging/flag_confirm.html:11
@@ -2204,13 +2205,15 @@ msgstr "Начало"
 
 #: templates/homepage.html:46
 msgid "Technical documentation lives here"
-msgstr ""
+msgstr "Здесь живет техническая документация"
 
 #: templates/homepage.html:48
 msgid ""
 "Read the Docs simplifies software documentation by automating building, "
 "versioning, and hosting of your docs for you."
 msgstr ""
+"Read the Docs облегчает написание технической документации при помощи "
+"удобной системы контроля версий и хостинга документации"
 
 #: templates/homepage.html:61
 #, python-format
@@ -2218,6 +2221,9 @@ msgid ""
 "We will host your documentation for free forever. There are no tricks. We "
 "help %(projects_count_intcomma)s open source projects share their docs."
 msgstr ""
+"Мы всегда обеспечим хостинг твоей документации бесплатно. Подвоха нет. Мы "
+"помогает %(projects_count_intcomma)s open source проектам создавать "
+"документацию."
 
 #: templates/homepage.html:72
 msgid ""
@@ -2242,11 +2248,11 @@ msgstr ""
 
 #: templates/homepage.html:110
 msgid "Getting started guide"
-msgstr ""
+msgstr "Быстрый старт"
 
 #: templates/homepage.html:124
 msgid "Featured Projects"
-msgstr "Известные проекты"
+msgstr "Популярные проекты"
 
 #: templates/homepage.html:139
 msgid "Read the Docs is funded by the community"
