@@ -269,6 +269,8 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_IMAGE = 'readthedocs/build:2.0'
+
+    # Settings for config object
     CONFIG_DOCKER_IMAGE_SETTINGS = {
         'readthedocs/build:1.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.4]},
