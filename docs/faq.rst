@@ -64,12 +64,12 @@ environment, and will be set to ``True`` when building on RTD::
     Woo
     {% endif %}
 
-My project requires different settings than that are available under Admin
+My project requires different settings than those available under Admin
 --------------------------------------------------------------------------
 
-Read the Docs offers additional flag settings. To enable these settings, please open an
-request issue on our `github`_ and we will change the settings for the project. Read more about
-these flag settings :doc:`here <guides/feature-flags>`.
+Read the Docs offers additional flag settings. To enable these settings,
+please open a request issue on our `github`_ and we will change the settings for the project.
+Read more about these flag settings :doc:`here <guides/feature-flags>`.
 
 .. _github: https://github.com/rtfd/readthedocs.org
 
