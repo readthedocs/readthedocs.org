@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
 from __future__ import (
@@ -15,7 +16,7 @@ import re
 
 import six
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -67,16 +68,19 @@ class WebhookMixin(object):
         # See #4940 for more background.
         self.request.body  # noqa
         self.project = None
-        try:
-            self.project = self.get_project(slug=project_slug)
-        except Project.DoesNotExist:
-            raise NotFound('Project not found')
         self.data = self.get_data()
         if not self.is_payload_valid():
             return Response(
                 {'detail': self.invalid_payload_msg},
                 status=HTTP_400_BAD_REQUEST
             )
+        try:
+            self.project = self.get_project(slug=project_slug)
+            if not Project.objects.is_active(self.project):
+                resp = {'detail': 'This project is currently disabled'}
+                return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
+        except Project.DoesNotExist:
+            raise NotFound('Project not found')
         resp = self.handle_webhook()
         if resp is None:
             log.info('Unhandled webhook event')

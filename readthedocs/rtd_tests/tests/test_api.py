@@ -14,7 +14,7 @@ import mock
 from allauth.socialaccount.models import SocialAccount
 from builtins import str
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import QueryDict
 from django.test import TestCase
 from django.utils import six
@@ -866,6 +866,22 @@ class IntegrationsTests(TestCase):
                 }],
             },
         }
+
+    def test_webhook_skipped_project(self, trigger_build):
+        client = APIClient()
+        self.project.skip = True
+        self.project.save()
+
+        response = client.post(
+            '/api/v2/webhook/github/{0}/'.format(
+                self.project.slug,
+            ),
+            self.github_payload,
+            format='json',
+        )
+        self.assertDictEqual(response.data, {'detail': 'This project is currently disabled'})
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertFalse(trigger_build.called)
 
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""

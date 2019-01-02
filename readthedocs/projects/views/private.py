@@ -16,7 +16,6 @@ from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.http import (
     Http404,
     HttpResponseBadRequest,
@@ -25,6 +24,7 @@ from django.http import (
 )
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
@@ -287,6 +287,9 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
     def trigger_initial_build(self, project):
         """Trigger initial build."""
         update_docs, build = prepare_build(project)
+        if (update_docs, build) == (None, None):
+            return None
+
         task_promise = chain(
             attach_webhook.si(project.pk, self.request.user.pk),
             update_docs,

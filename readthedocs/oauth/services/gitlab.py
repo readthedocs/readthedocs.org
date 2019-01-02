@@ -9,7 +9,7 @@ import re
 
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from requests.exceptions import RequestException
 
 from readthedocs.builds.utils import get_gitlab_username_repo

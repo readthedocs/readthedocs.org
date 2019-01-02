@@ -182,6 +182,15 @@ class ProjectExtraForm(ProjectForm):
         widget=forms.Textarea,
     )
 
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags', [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _('Length of each tag must be less than or equal to 100 characters.')
+                )
+        return tags
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
@@ -222,7 +231,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
-            'slug', 'verbose_name'
+            'identifier', 'verbose_name'
         )
         self.fields['default_branch'].widget = forms.Select(
             choices=[default_choice] + list(all_versions)
