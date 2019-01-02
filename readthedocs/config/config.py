@@ -56,8 +56,8 @@ SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
 
-DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-DOCKER_DEFAULT_VERSION = '2.0'
+DOCKER_DEFAULT_IMAGE = getattr(settings, 'DOCKER_DEFAULT_IMAGE', 'readthedocs/build')
+DOCKER_DEFAULT_VERSION = getattr(settings, 'DOCKER_DEFAULT_VERSION', '2.0')
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
