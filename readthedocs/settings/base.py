@@ -296,8 +296,8 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '^http://(.+)\.readthedocs\.io$',
-        '^https://(.+)\.readthedocs\.io$'
+        r'^http://(.+)\.readthedocs\.io$',
+        r'^https://(.+)\.readthedocs\.io$',
     )
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
@@ -365,7 +365,7 @@ class CommunityBaseSettings(Settings):
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }
-    SILENCED_SYSTEM_CHECKS = ['fields.W342']
+    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
 
     # Logging
     LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'

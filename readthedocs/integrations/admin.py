@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 from django.contrib import admin
-from django.core import urlresolvers
+from django import urls
 from django.utils.safestring import mark_safe
 from pygments.formatters import HtmlFormatter
 
@@ -96,7 +96,7 @@ class IntegrationAdmin(admin.ModelAdmin):
         JSONField doesn't do well with fieldsets for whatever reason. This is
         just to link to the exchanges.
         """
-        url = urlresolvers.reverse('admin:{0}_{1}_changelist'.format(
+        url = urls.reverse('admin:{0}_{1}_changelist'.format(
             HttpExchange._meta.app_label,  # pylint: disable=protected-access
             HttpExchange._meta.model_name,  # pylint: disable=protected-access
         ))

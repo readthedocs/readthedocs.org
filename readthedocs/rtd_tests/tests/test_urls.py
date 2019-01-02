@@ -1,6 +1,6 @@
 from __future__ import absolute_import
-from django.core.urlresolvers import reverse
-from django.core.urlresolvers import NoReverseMatch
+
+from django.urls import reverse, NoReverseMatch
 from django.test import TestCase
 
 

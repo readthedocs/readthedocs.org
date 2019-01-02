@@ -6,7 +6,11 @@ Things to know:
 * the Command wrappers encapsulate the bytes and expose unicode
 """
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import json
 import os
@@ -27,14 +31,18 @@ from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
-    BuildCommand, DockerBuildCommand, DockerBuildEnvironment,
-    LocalBuildEnvironment)
+    BuildCommand,
+    DockerBuildCommand,
+    DockerBuildEnvironment,
+    LocalBuildEnvironment,
+)
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
+
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = u'HérÉ îß sömê ünïçó∂é'
@@ -1001,7 +1009,7 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(path)
         cmd.run()
         missing_re = re.compile(r'(?:No such file or directory|not found)')
-        self.assertRegexpMatches(cmd.error, missing_re)
+        self.assertRegex(cmd.error, missing_re)
 
     def test_input(self):
         """Test input to command."""
@@ -1091,7 +1099,7 @@ class TestDockerBuildCommand(TestCase):
             cmd.get_wrapped_command(),
             ('/bin/sh -c '
              "'cd /tmp/foobar && PATH=/tmp/foo:$PATH "
-             "python /tmp/foo/pip install Django\>1.7'"),
+             r"python /tmp/foo/pip install Django\>1.7'"),
         )
 
     def test_unicode_output(self):
@@ -1127,9 +1135,10 @@ class TestDockerBuildCommand(TestCase):
         cmd.build_env.get_client.return_value = self.mocks.docker_client
         type(cmd.build_env).container_id = PropertyMock(return_value='foo')
         cmd.run()
-        self.assertEqual(
-            str(cmd.output),
-            u'Command killed due to excessive memory consumption\n')
+        self.assertIn(
+            'Command killed due to excessive memory consumption\n',
+            str(cmd.output)
+        )
 
 
 class TestPythonEnvironment(TestCase):
@@ -1193,7 +1202,7 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once()
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1212,7 +1221,7 @@ class TestPythonEnvironment(TestCase):
         ]
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
-        self.build_env_mock.run.assert_called_once()
+        self.assertEqual(self.build_env_mock.run.call_count, 2)
         self.assertArgsStartsWith(args, self.build_env_mock.run)
 
     @patch('readthedocs.projects.models.Project.checkout_path')

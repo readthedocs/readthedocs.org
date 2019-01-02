@@ -23,7 +23,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['child']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['child'][0],
             r'This field is required.'
         )
@@ -39,7 +39,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['child']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['child'][0],
             r'Select a valid choice.'
         )
@@ -62,7 +62,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['child']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['child'][0],
             r'Select a valid choice.'
         )
@@ -119,7 +119,7 @@ class SubprojectFormTests(TestCase):
         )
         form.full_clean()
         self.assertEqual(len(form.errors['parent']), 1)
-        self.assertRegexpMatches(
+        self.assertRegex(
             form.errors['parent'][0],
             r'Subproject nesting is not supported'
         )

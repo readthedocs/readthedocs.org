@@ -16,7 +16,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.cache import never_cache
@@ -221,7 +221,7 @@ def elastic_project_search(request, project_slug):
     query = request.GET.get('q', None)
     if query:
         user = ''
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             user = request.user
         log.info(
             LOG_TEMPLATE.format(

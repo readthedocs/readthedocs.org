@@ -7,7 +7,7 @@ import json
 import re
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -172,7 +172,7 @@ class GitHubService(Service):
                 ),
                 'content_type': 'json',
             },
-            'events': ['push', 'pull_request'],
+            'events': ['push', 'pull_request', 'create', 'delete'],
         })
 
     def setup_webhook(self, project):

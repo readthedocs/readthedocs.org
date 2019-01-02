@@ -78,7 +78,7 @@ Edit your files and rebuild until you like what you see, then commit your change
 Once you have Sphinx documentation in a public repository, you can start using Read the Docs
 by :doc:`importing your docs </intro/import-guide>`.
 
-.. _install Sphinx: http://sphinx-doc.org/latest/install.html
+.. _install Sphinx: http://sphinx-doc.org/install.html
 .. _reStructuredText: http://sphinx-doc.org/rest.html
 .. _this template: https://www.writethedocs.org/guide/writing/beginners-guide-to-docs/#id1
 
