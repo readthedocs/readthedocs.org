@@ -10,6 +10,7 @@ import re
 from contextlib import contextmanager
 
 import six
+from django.conf import settings
 
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
@@ -59,24 +60,13 @@ DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
 DOCKER_DEFAULT_VERSION = '2.0'
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
-DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-DOCKER_IMAGE_SETTINGS = {
-    'readthedocs/build:1.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-    },
-    'readthedocs/build:2.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-    },
-    'readthedocs/build:3.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-    'readthedocs/build:stable': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-    'readthedocs/build:latest': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-}
+DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
+
+old_config = getattr(settings, 'DOCKER_BUILD_IMAGES', None) 
+if old_config: 
+    log.warning('Old config detected, DOCKER_BUILD_IMAGES->DOCKER_IMAGE_SETTINGS') 
+    DOCKER_IMAGE_SETTINGS.update(old_config) 
 
 
 class ConfigError(Exception):
