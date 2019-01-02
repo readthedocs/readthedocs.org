@@ -30,6 +30,13 @@ class ProjectQuerySetTests(TestCase):
             'ManagerFromParentRelatedProjectQuerySetBase'
         )
 
+    def test_is_active(self):
+        project = fixture.get(Project, skip=False)
+        self.assertTrue(Project.objects.is_active(project))
+
+        project = fixture.get(Project, skip=True)
+        self.assertFalse(Project.objects.is_active(project))
+
 
 class FeatureQuerySetTests(TestCase):
 

@@ -14,7 +14,6 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
 from readthedocs.builds.models import Version
@@ -72,7 +71,6 @@ def random_page(request, project_slug=None):  # pylint: disable=unused-argument
     return HttpResponseRedirect(url)
 
 
-@csrf_exempt
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
         Version,

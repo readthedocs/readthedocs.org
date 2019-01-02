@@ -163,6 +163,26 @@ class TestProjectForms(TestCase):
         latest.refresh_from_db()
         self.assertEqual(latest.identifier, 'custom')
 
+    def test_length_of_tags(self):
+        data = {
+            'documentation_type': 'sphinx',
+            'language': 'en'
+        }
+        data['tags'] = '{},{}'.format('a'*50, 'b'*99)
+        form = ProjectExtraForm(data)
+        self.assertTrue(form.is_valid())
+
+        data['tags'] = '{},{}'.format('a'*90, 'b'*100)
+        form = ProjectExtraForm(data)
+        self.assertTrue(form.is_valid())
+        
+        data['tags'] = '{},{}'.format('a'*99, 'b'*101)
+        form = ProjectExtraForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.has_error('tags'))
+        error_msg = 'Length of each tag must be less than or equal to 100 characters.'
+        self.assertDictEqual(form.errors, {'tags': [error_msg]})
+
 
 class TestProjectAdvancedForm(TestCase):
 
@@ -174,6 +194,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-1',
             active=True,
             privacy_level=PUBLIC,
+            identifier='public-1',
         )
         get(
             Version,
@@ -181,6 +202,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-2',
             active=True,
             privacy_level=PUBLIC,
+            identifier='public-2',
         )
         get(
             Version,
@@ -188,6 +210,15 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-3',
             active=False,
             privacy_level=PROTECTED,
+            identifier='public-3',
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-4',
+            active=False,
+            privacy_level=PUBLIC,
+            identifier='public/4'
         )
         get(
             Version,
@@ -195,6 +226,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='private',
             active=True,
             privacy_level=PRIVATE,
+            identifier='private',
         )
         get(
             Version,
@@ -202,6 +234,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='protected',
             active=True,
             privacy_level=PROTECTED,
+            identifier='protected',
         )
 
     def test_list_only_active_versions_on_default_version(self):
@@ -222,12 +255,12 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
         self.assertEqual(
             set(
-                slug
-                for slug, _ in form.fields['default_branch'].widget.choices
+                identifier
+                for identifier, _ in form.fields['default_branch'].widget.choices
             ),
             {
-                None, 'latest', 'public-1', 'public-2',
-                'public-3', 'protected', 'private'
+                None, 'master', 'public-1', 'public-2',
+                'public-3', 'public/4', 'protected', 'private'
             },
         )
 
