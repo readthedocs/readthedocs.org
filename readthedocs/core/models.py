@@ -10,6 +10,7 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
+from django.urls import reverse
 
 STANDARD_EMAIL = 'anonymous@readthedocs.org'
 
@@ -43,9 +44,7 @@ class UserProfile(models.Model):
             {'username': self.user.username})
 
     def get_absolute_url(self):
-        return ('profiles_profile_detail', (), {'username': self.user.username})
-
-    get_absolute_url = models.permalink(get_absolute_url)
+        return reverse('profiles_profile_detail',  kwargs={'username': self.user.username})
 
     def get_contribution_details(self):
         """

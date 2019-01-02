@@ -3,10 +3,13 @@
 """Documentation Builder Environments."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
-import json
 import os
 import re
 import socket
@@ -32,13 +35,28 @@ from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
 
 from .constants import (
-    DOCKER_HOSTNAME_MAX_LEN, DOCKER_IMAGE, DOCKER_LIMITS, DOCKER_OOM_EXIT_CODE,
-    DOCKER_SOCKET, DOCKER_TIMEOUT_EXIT_CODE, DOCKER_VERSION,
-    MKDOCS_TEMPLATE_DIR, SPHINX_TEMPLATE_DIR)
+    DOCKER_HOSTNAME_MAX_LEN,
+    DOCKER_IMAGE,
+    DOCKER_LIMITS,
+    DOCKER_OOM_EXIT_CODE,
+    DOCKER_SOCKET,
+    DOCKER_TIMEOUT_EXIT_CODE,
+    DOCKER_VERSION,
+    MKDOCS_TEMPLATE_DIR,
+    SPHINX_TEMPLATE_DIR,
+)
 from .exceptions import (
-    BuildEnvironmentCreationFailed, BuildEnvironmentError,
-    BuildEnvironmentException, BuildEnvironmentWarning, BuildTimeoutError,
-    ProjectBuildsSkippedError, VersionLockedError, YAMLParseError, MkDocsYAMLParseError)
+    BuildEnvironmentCreationFailed,
+    BuildEnvironmentError,
+    BuildEnvironmentException,
+    BuildEnvironmentWarning,
+    BuildTimeoutError,
+    MkDocsYAMLParseError,
+    ProjectBuildsSkippedError,
+    VersionLockedError,
+    YAMLParseError,
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -304,8 +322,9 @@ class DockerBuildCommand(BuildCommand):
             # is in the last 15 lines of the command's output
             killed_in_output = 'Killed' in '\n'.join(self.output.splitlines()[-15:])
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
-                self.output = _('Command killed due to excessive memory '
-                                'consumption\n')
+                self.output += str(_(
+                    '\n\nCommand killed due to excessive memory consumption\n'
+                ))
         except DockerAPIError:
             self.exit_code = -1
             if self.output is None or not self.output:

@@ -53,8 +53,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
@@ -79,8 +81,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         task.build_docs()
 
@@ -89,6 +93,40 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.pdf_build.assert_called_once_with()
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.epub_build.called)
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_dont_localmedia_build_pdf_epub_search_in_mkdocs(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='mkdocs',
+            enable_pdf_build=True,
+            enable_epub_build=True,
+            versions=[fixture()]
+        )
+        version = project.versions.all().first()
+
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        config = load_yaml_config(version)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
+
+        task.build_docs()
+
+        # Only html for mkdocs was built
+        self.mocks.html_build_mkdocs.assert_called_once()
+        self.mocks.html_build.assert_not_called()
+        self.mocks.localmedia_build.assert_not_called()
+        self.mocks.pdf_build.assert_not_called()
+        self.mocks.epub_build.assert_not_called()
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_epub_flag(self, load_config):
@@ -106,8 +144,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # The HTML and the Epub format were built.
@@ -133,8 +173,10 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
 
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # The HTML and the Epub format were built.
@@ -167,8 +209,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
@@ -214,8 +258,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
