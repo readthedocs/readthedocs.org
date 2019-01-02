@@ -7,7 +7,6 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import re
-import logging
 from contextlib import contextmanager
 
 import six
@@ -40,8 +39,6 @@ __all__ = (
     'InvalidConfig',
 )
 
-log = logging.getLogger(__name__)
-
 ALL = 'all'
 CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
@@ -64,12 +61,7 @@ DOCKER_DEFAULT_VERSION = '2.0'
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
-DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
-
-old_config = getattr(settings, 'DOCKER_BUILD_IMAGES', None) 
-if old_config: 
-    log.warning('Old config detected, DOCKER_BUILD_IMAGES->DOCKER_IMAGE_SETTINGS') 
-    DOCKER_IMAGE_SETTINGS.update(old_config) 
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'CONFIG_DOCKER_IMAGE_SETTINGS', {})
 
 
 class ConfigError(Exception):
