@@ -7,6 +7,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import re
+import logging
 from contextlib import contextmanager
 
 import six
@@ -38,6 +39,8 @@ __all__ = (
     'ConfigOptionNotSupportedError',
     'InvalidConfig',
 )
+
+log = logging.getLogger(__name__)
 
 ALL = 'all'
 CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
