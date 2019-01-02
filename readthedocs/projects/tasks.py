@@ -60,6 +60,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
+    BuildEnvironmentWarning,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
@@ -272,7 +273,18 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
-@app.task(bind=True, max_retries=5, default_retry_delay=7 * 60)
+@app.task(
+    bind=True,
+    max_retries=5,
+    default_retry_delay=7 * 60,
+    throws=(
+        VersionLockedError,
+        ProjectBuildsSkippedError,
+        YAMLParseError,
+        BuildTimeoutError,
+        ProjectBuildsSkippedError
+    )
+)
 def update_docs_task(self, project_id, *args, **kwargs):
     step = UpdateDocsTaskStep(task=self)
     return step.run(project_id, *args, **kwargs)
@@ -1022,7 +1034,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     )
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -1030,7 +1042,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_domain(project_pk, domain_pk, delete=False):
     project = Project.objects.get(pk=project_pk)
     domain = Domain.objects.get(pk=domain_pk)
@@ -1070,7 +1082,7 @@ def broadcast_remove_orphan_symlinks():
     broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
