@@ -9,7 +9,18 @@ from __future__ import (
     unicode_literals,
 )
 
-import re
+try:
+    # TODO: remove this when we deprecate Python2
+    # re.fullmatch is >= Py3.4 only
+    from re import fullmatch
+except ImportError:
+    # https://stackoverflow.com/questions/30212413/backport-python-3-4s-regular-expression-fullmatch-to-python-2
+    import re
+
+    def fullmatch(regex, string, flags=0):
+        """Emulate python-3.4 re.fullmatch()."""  # noqa
+        return re.match("(?:" + regex + r")\Z", string, flags=flags)
+
 from random import choice
 
 from builtins import object
@@ -801,7 +812,7 @@ class EnvironmentVariableForm(forms.ModelForm):
             raise forms.ValidationError(
                 _("Variable name can't contain spaces"),
             )
-        elif not re.fullmatch('[a-zA-Z0-9_]+', name):
+        elif not fullmatch('[a-zA-Z0-9_]+', name):
             raise forms.ValidationError(
                 _('Only letters, numbers and underscore are allowed'),
             )
