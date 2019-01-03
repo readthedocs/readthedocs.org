@@ -61,7 +61,7 @@ DOCKER_DEFAULT_VERSION = getattr(settings, 'DOCKER_DEFAULT_VERSION', '2.0')
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = getattr(settings, 'DOCKER_IMAGE', 'readthedocs/build:2.0')
-DOCKER_IMAGE_SETTINGS = getattr(settings, 'CONFIG_DOCKER_IMAGE_SETTINGS', {})
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
 
 
 class ConfigError(Exception):
