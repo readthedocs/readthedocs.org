@@ -8,7 +8,7 @@ import mock
 # Mock tastypi API.
 
 
-class ProjectData(object):
+class ProjectData:
     def get(self):
         return dict()
 
@@ -18,7 +18,7 @@ class ProjectData(object):
 
 def mock_version(repo):
     """Construct and return a class implementing the Version interface."""
-    class MockVersion(object):
+    class MockVersion:
         def __init__(self, x=None):
             pass
 
@@ -71,7 +71,7 @@ def mock_version(repo):
     return MockVersion
 
 
-class MockApi(object):
+class MockApi:
     def __init__(self, repo):
         self.version = mock_version(repo)
 

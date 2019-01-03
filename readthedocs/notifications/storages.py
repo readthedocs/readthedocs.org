@@ -49,7 +49,7 @@ class FallbackUniqueStorage(FallbackStorage):
     def _get(self, *args, **kwargs):
         # The database backend for persistent messages doesn't support setting
         # messages with ``mark_safe``, therefore, we need to do it broadly here.
-        messages, all_ret = (super(FallbackUniqueStorage, self)
+        messages, all_ret = (super()
                              ._get(self, *args, **kwargs))
 
         safe_messages = []
@@ -75,7 +75,7 @@ class FallbackUniqueStorage(FallbackStorage):
                                         read=False))
             if persist_messages.exists():
                 return
-        super(FallbackUniqueStorage, self).add(level, message, extra_tags,
+        super().add(level, message, extra_tags,
                                                *args, **kwargs)
 
 

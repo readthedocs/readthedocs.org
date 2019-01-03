@@ -19,7 +19,7 @@ from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = u"(Middleware) {msg} [{host}{path}]"
+LOG_TEMPLATE = "(Middleware) {msg} [{host}{path}]"
 SUBDOMAIN_URLCONF = getattr(
     settings,
     'SUBDOMAIN_URLCONF',
@@ -112,7 +112,7 @@ class SubdomainMiddleware(MiddlewareMixin):
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
                         log.info(LOG_TEMPLATE.format(
-                            msg='CNAME cached: %s->%s' % (slug, host),
+                            msg='CNAME cached: {}->{}'.format(slug, host),
                             **log_kwargs))
                     request.slug = slug
                     request.urlconf = SUBDOMAIN_URLCONF
@@ -240,11 +240,11 @@ class FooterNoSessionMiddleware(SessionMiddleware):
                 # Hack request.session otherwise the Authentication middleware complains.
                 request.session = {}
                 return
-        super(FooterNoSessionMiddleware, self).process_request(request)
+        super().process_request(request)
 
     def process_response(self, request, response):
         for url in self.IGNORE_URLS:
             if (request.path_info.startswith(url) and
                     settings.SESSION_COOKIE_NAME not in request.COOKIES):
                 return response
-        return super(FooterNoSessionMiddleware, self).process_response(request, response)
+        return super().process_response(request, response)

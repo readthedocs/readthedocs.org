@@ -7,7 +7,7 @@ from readthedocs.core.utils.extend import (SettingsOverrideObject,
 
 
 # Top level to ensure module name is correct
-class FooBase(object):
+class FooBase:
     def bar(self):
         return 1
 

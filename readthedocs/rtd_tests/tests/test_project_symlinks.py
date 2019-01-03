@@ -97,7 +97,7 @@ class TempSiteRootTestCase(TestCase):
                 new_callable=mock.PropertyMock
             ),
         }
-        self.patches = dict((key, mock.start()) for (key, mock) in list(self.mocks.items()))
+        self.patches = {key: mock.start() for (key, mock) in list(self.mocks.items())}
         self.patches['PublicSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
             settings.SITE_ROOT, 'public_cname_root'
         )
@@ -127,10 +127,10 @@ class TempSiteRootTestCase(TestCase):
         self.assertEqual(filesystem, get_filesystem(settings.SITE_ROOT))
 
 
-class BaseSymlinkCnames(object):
+class BaseSymlinkCnames:
 
     def setUp(self):
-        super(BaseSymlinkCnames, self).setUp()
+        super().setUp()
         self.project = get(Project, slug='kong', privacy_level=self.privacy,
                            main_language_project=None)
         self.project.versions.update(privacy_level=self.privacy)
@@ -303,10 +303,10 @@ class TestPrivateSymlinkCnames(BaseSymlinkCnames, TempSiteRootTestCase):
     symlink_class = PrivateSymlink
 
 
-class BaseSubprojects(object):
+class BaseSubprojects:
 
     def setUp(self):
-        super(BaseSubprojects, self).setUp()
+        super().setUp()
         self.project = get(Project, slug='kong', privacy_level=self.privacy,
                            main_language_project=None)
         self.project.versions.update(privacy_level=self.privacy)
@@ -514,10 +514,10 @@ class TestPrivateSubprojects(BaseSubprojects, TempSiteRootTestCase):
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkTranslations(object):
+class BaseSymlinkTranslations:
 
     def setUp(self):
-        super(BaseSymlinkTranslations, self).setUp()
+        super().setUp()
         self.project = get(Project, slug='kong', privacy_level=self.privacy,
                            main_language_project=None)
         self.project.versions.update(privacy_level=self.privacy)
@@ -766,10 +766,10 @@ class TestPrivateSymlinkTranslations(BaseSymlinkTranslations, TempSiteRootTestCa
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkSingleVersion(object):
+class BaseSymlinkSingleVersion:
 
     def setUp(self):
-        super(BaseSymlinkSingleVersion, self).setUp()
+        super().setUp()
         self.project = get(Project, slug='kong', privacy_level=self.privacy,
                            main_language_project=None)
         self.project.versions.update(privacy_level=self.privacy)
@@ -841,10 +841,10 @@ class TestPublicSymlinkSingleVersion(BaseSymlinkSingleVersion, TempSiteRootTestC
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkVersions(object):
+class BaseSymlinkVersions:
 
     def setUp(self):
-        super(BaseSymlinkVersions, self).setUp()
+        super().setUp()
         self.project = get(Project, slug='kong', privacy_level=self.privacy,
                            main_language_project=None)
         self.project.versions.update(privacy_level=self.privacy)
@@ -970,11 +970,11 @@ class TestPrivateSymlinkVersions(BaseSymlinkVersions, TempSiteRootTestCase):
 class TestPublicSymlinkUnicode(TempSiteRootTestCase):
 
     def setUp(self):
-        super(TestPublicSymlinkUnicode, self).setUp()
-        self.project = get(Project, slug='kong', name=u'foo-∫',
+        super().setUp()
+        self.project = get(Project, slug='kong', name='foo-∫',
                            main_language_project=None)
         self.project.save()
-        self.stable = get(Version, slug='foo-a', verbose_name=u'foo-∂',
+        self.stable = get(Version, slug='foo-a', verbose_name='foo-∂',
                           active=True, project=self.project)
         self.symlink = PublicSymlink(self.project)
 
@@ -1035,7 +1035,7 @@ class TestPublicSymlinkUnicode(TempSiteRootTestCase):
 class TestPublicPrivateSymlink(TempSiteRootTestCase):
 
     def setUp(self):
-        super(TestPublicPrivateSymlink, self).setUp()
+        super().setUp()
         from django.contrib.auth.models import User
 
         self.user = get(User)

@@ -17,7 +17,7 @@ from readthedocs.core.utils import trigger_build
 
 class VersionForm(forms.ModelForm):
 
-    class Meta(object):
+    class Meta:
         model = Version
         fields = ['active', 'privacy_level', 'tags']
 
@@ -38,7 +38,7 @@ class VersionForm(forms.ModelForm):
         return project.default_version == self.instance.slug
 
     def save(self, commit=True):
-        obj = super(VersionForm, self).save(commit=commit)
+        obj = super().save(commit=commit)
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
         return obj

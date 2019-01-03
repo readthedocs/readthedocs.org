@@ -26,7 +26,7 @@ def restoring_chdir(fn):
     return decorator
 
 
-class BaseBuilder(object):
+class BaseBuilder:
 
     """
     The Base for all Builders. Defines the API for subclasses.

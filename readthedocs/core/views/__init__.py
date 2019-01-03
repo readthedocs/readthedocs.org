@@ -35,7 +35,7 @@ class HomepageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
-        context = super(HomepageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
         context['projects_count'] = Project.objects.count()
         return context
@@ -45,7 +45,7 @@ class SupportView(TemplateView):
     template_name = 'support.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SupportView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         support_email = getattr(settings, 'SUPPORT_EMAIL', None)
         if not support_email:
             support_email = 'support@{domain}'.format(

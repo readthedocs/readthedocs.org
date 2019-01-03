@@ -39,7 +39,7 @@ def send_notification(request, notification):
             backend.send(notification)
 
 
-class Backend(object):
+class Backend:
 
     def __init__(self, request):
         self.request = request

@@ -43,16 +43,16 @@ class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin,
     def get_form(self, data=None, files=None, **kwargs):
         """Pass in copy of POST data to avoid read only QueryDicts."""
         kwargs['customer'] = self.request.user
-        return super(GoldSubscriptionMixin, self).get_form(data, files, **kwargs)
+        return super().get_form(data, files, **kwargs)
 
     def get_success_url(self, **__):
         return reverse_lazy('gold_detail')
 
     def get_template_names(self):
-        return ('gold/subscription{0}.html'.format(self.template_name_suffix))
+        return ('gold/subscription{}.html'.format(self.template_name_suffix))
 
     def get_context_data(self, **kwargs):
-        context = super(GoldSubscriptionMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         domains = Domain.objects.filter(project__users=self.request.user)
         context['domains'] = domains
         return context
@@ -70,7 +70,7 @@ class DetailGoldSubscription(GoldSubscriptionMixin, DetailView):
         If there is a gold subscription instance, then we show the normal detail
         page, otherwise show the registration form
         """
-        resp = super(DetailGoldSubscription, self).get(request, *args, **kwargs)
+        resp = super().get(request, *args, **kwargs)
         if self.object is None:
             return HttpResponseRedirect(reverse('gold_subscription'))
         return resp
@@ -94,7 +94,7 @@ class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         """Add success message to delete post."""
-        resp = super(DeleteGoldSubscription, self).post(request, *args, **kwargs)
+        resp = super().post(request, *args, **kwargs)
         success_message = self.get_success_message({})
         if success_message:
             messages.success(self.request, success_message)

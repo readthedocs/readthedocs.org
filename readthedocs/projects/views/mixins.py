@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from readthedocs.projects.models import Project
 
 
-class ProjectRelationMixin(object):
+class ProjectRelationMixin:
 
     """
     Mixin class for constructing model views for project dashboard.
@@ -41,6 +41,6 @@ class ProjectRelationMixin(object):
         )
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectRelationMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context[self.project_context_object_name] = self.get_project()
         return context

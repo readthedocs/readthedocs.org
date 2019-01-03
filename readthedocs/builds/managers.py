@@ -32,7 +32,7 @@ class VersionManagerBase(models.Manager):
             VersionQuerySet,
             VersionQuerySet._default_class  # pylint: disable=protected-access
         )
-        return super(VersionManagerBase, cls).from_queryset(queryset_class, class_name)
+        return super().from_queryset(queryset_class, class_name)
 
     def create_stable(self, **kwargs):
         defaults = {

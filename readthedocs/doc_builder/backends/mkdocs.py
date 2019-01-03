@@ -44,7 +44,7 @@ class BaseMkdocs(BaseBuilder):
     DEFAULT_THEME_NAME = 'mkdocs'
 
     def __init__(self, *args, **kwargs):
-        super(BaseMkdocs, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.old_artifact_path = os.path.join(
             self.version.project.checkout_path(self.version.slug),
             self.build_dir)

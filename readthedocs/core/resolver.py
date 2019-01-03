@@ -10,7 +10,7 @@ from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
-class ResolverBase(object):
+class ResolverBase:
 
     """
     Read the Docs URL Resolver.
@@ -59,17 +59,17 @@ class ResolverBase(object):
         # the path should always have a subdomain or CNAME domain
         # pylint: disable=unused-argument
         if subdomain or cname or (self._use_subdomain()):
-            url = u'/'
+            url = '/'
         else:
-            url = u'/docs/{project_slug}/'
+            url = '/docs/{project_slug}/'
 
         if subproject_slug:
-            url += u'projects/{subproject_slug}/'
+            url += 'projects/{subproject_slug}/'
 
         if single_version:
-            url += u'{filename}'
+            url += '{filename}'
         else:
-            url += u'{language}/{version_slug}/{filename}'
+            url += '{language}/{version_slug}/{filename}'
 
         return url.format(
             project_slug=project_slug, filename=filename,
@@ -212,7 +212,7 @@ class ResolverBase(object):
         if self._use_subdomain():
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
-            return "%s.%s" % (subdomain_slug, public_domain)
+            return "{}.{}".format(subdomain_slug, public_domain)
 
     def _get_project_custom_domain(self, project):
         return project.domains.filter(canonical=True).first()

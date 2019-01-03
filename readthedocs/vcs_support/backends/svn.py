@@ -25,7 +25,7 @@ class Backend(BaseVCS):
     fallback_branch = '/trunk/'
 
     def __init__(self, *args, **kwargs):
-        super(Backend, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.repo_url[-1] != '/':
             self.base_url = self.repo_url
             self.repo_url += '/'
@@ -36,7 +36,7 @@ class Backend(BaseVCS):
             self.base_url = self.repo_url
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
         retcode, _, _ = self.run('svn', 'info', record=False)
@@ -102,7 +102,7 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
+        super().checkout()
         return self.co(identifier)
 
     def get_url(self, base_url, identifier):

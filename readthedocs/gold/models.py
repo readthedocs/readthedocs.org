@@ -62,7 +62,7 @@ class GoldUser(models.Model):
     business_vat_id = models.CharField(max_length=128, null=True, blank=True)
 
     def __str__(self):
-        return 'Gold Level %s for %s' % (self.level, self.user)
+        return 'Gold Level {} for {}'.format(self.level, self.user)
 
     @property
     def num_supported_projects(self):

@@ -26,7 +26,7 @@ class Backend(BaseVCS):
     fallback_branch = ''
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
         retcode = self.run('bzr', 'status', record=False)[0]
         if retcode == 0:
             return self.up()
@@ -90,7 +90,7 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
+        super().checkout()
         if not identifier:
             return self.up()
         return self.run('bzr', 'switch', identifier)

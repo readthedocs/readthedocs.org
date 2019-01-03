@@ -8,7 +8,7 @@ from readthedocs.projects.models import Project
 
 
 @pytest.mark.django_db
-class TestProjectOrganizationSignal(object):
+class TestProjectOrganizationSignal:
 
     @pytest.mark.parametrize('model_class', [Project, RemoteOrganization])
     def test_project_organization_get_deleted_upon_user_delete(self, model_class):

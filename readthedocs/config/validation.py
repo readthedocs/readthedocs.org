@@ -41,12 +41,12 @@ class ValidationError(Exception):
         if format_kwargs is not None:
             defaults.update(format_kwargs)
         message = self.messages[code].format(**defaults)
-        super(ValidationError, self).__init__(message)
+        super().__init__(message)
 
 
 def validate_list(value):
     """Check if ``value`` is an iterable."""
-    if isinstance(value, (dict, string_types)):
+    if isinstance(value, (dict, (str,))):
         raise ValidationError(value, INVALID_LIST)
     if not hasattr(value, '__iter__'):
         raise ValidationError(value, INVALID_LIST)
@@ -113,6 +113,6 @@ def validate_path(value, base_path):
 
 def validate_string(value):
     """Check that ``value`` is a string type."""
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise ValidationError(value, INVALID_STRING)
-    return text_type(value)
+    return str(value)

@@ -143,9 +143,9 @@ def forwards_move_repos(apps, schema_editor):
             new_repo.private = data.get('is_private', False)
             new_repo.json = json.dumps(data)
 
-            clone_urls = dict((location['name'], location['href'])
+            clone_urls = {location['name']: location['href']
                               for location
-                              in data.get('links', {}).get('clone', {}))
+                              in data.get('links', {}).get('clone', {})}
             if new_repo.private:
                 new_repo.clone_url = clone_urls.get('ssh', project.git_url)
             else:

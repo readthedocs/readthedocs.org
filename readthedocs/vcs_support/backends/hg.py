@@ -20,7 +20,7 @@ class Backend(BaseVCS):
     fallback_branch = 'default'
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
         retcode = self.run('hg', 'status', record=False)[0]
         if retcode == 0:
             return self.pull()
@@ -107,7 +107,7 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
+        super().checkout()
         if not identifier:
             identifier = 'tip'
         return self.run('hg', 'update', '--clean', identifier)

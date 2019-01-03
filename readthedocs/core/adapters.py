@@ -26,7 +26,7 @@ class AccountAdapter(DefaultAccountAdapter):
 
     def send_mail(self, template_prefix, email, context):
         subject = render_to_string(
-            '{0}_subject.txt'.format(template_prefix), context
+            '{}_subject.txt'.format(template_prefix), context
         )
         subject = " ".join(subject.splitlines()).strip()
         subject = self.format_email_subject(subject)
@@ -47,7 +47,7 @@ class AccountAdapter(DefaultAccountAdapter):
         send_email(
             recipient=email,
             subject=subject,
-            template='{0}_message.txt'.format(template_prefix),
-            template_html='{0}_message.html'.format(template_prefix),
+            template='{}_message.txt'.format(template_prefix),
+            template_html='{}_message.html'.format(template_prefix),
             context=context
         )

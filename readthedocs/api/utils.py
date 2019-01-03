@@ -18,7 +18,7 @@ class PostAuthentication(BasicAuthentication):
     """Require HTTP Basic authentication for any method other than GET."""
 
     def is_authenticated(self, request, **kwargs):
-        val = super(PostAuthentication, self).is_authenticated(request,
+        val = super().is_authenticated(request,
                                                                **kwargs)
         if request.method == "GET":
             return True

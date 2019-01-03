@@ -15,7 +15,7 @@ from readthedocs.projects.models import Project, Domain
 class ProjectSerializer(serializers.ModelSerializer):
     canonical_url = serializers.ReadOnlyField(source='get_docs_url')
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = (
             'id',
@@ -70,7 +70,7 @@ class VersionSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
     downloads = serializers.DictField(source='get_downloads', read_only=True)
 
-    class Meta(object):
+    class Meta:
         model = Version
         fields = (
             'id',
@@ -93,7 +93,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     run_time = serializers.ReadOnlyField()
 
-    class Meta(object):
+    class Meta:
         model = BuildCommandResult
         exclude = ('')
 
@@ -111,7 +111,7 @@ class BuildSerializer(serializers.ModelSerializer):
     # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
     config = serializers.JSONField(required=False)
 
-    class Meta(object):
+    class Meta:
         model = Build
         # `_config` should be excluded to avoid conflicts with `config`
         exclude = ('builder', '_config')
@@ -136,7 +136,7 @@ class SearchIndexSerializer(serializers.Serializer):
 class DomainSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
 
-    class Meta(object):
+    class Meta:
         model = Domain
         fields = (
             'id',
@@ -150,7 +150,7 @@ class DomainSerializer(serializers.ModelSerializer):
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
-    class Meta(object):
+    class Meta:
         model = RemoteOrganization
         exclude = ('json', 'email', 'users')
 
@@ -162,7 +162,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
     organization = RemoteOrganizationSerializer()
     matches = serializers.SerializerMethodField()
 
-    class Meta(object):
+    class Meta:
         model = RemoteRepository
         exclude = ('json', 'users')
 
@@ -184,7 +184,7 @@ class SocialAccountSerializer(serializers.ModelSerializer):
     avatar_url = serializers.URLField(source='get_avatar_url')
     provider = ProviderSerializer(source='get_provider')
 
-    class Meta(object):
+    class Meta:
         model = SocialAccount
         exclude = ('extra_data',)
 

@@ -85,7 +85,7 @@ class ConfigError(Exception):
 
     def __init__(self, message, code):
         self.code = code
-        super(ConfigError, self).__init__(message)
+        super().__init__(message)
 
 
 class ConfigOptionNotSupportedError(ConfigError):
@@ -97,7 +97,7 @@ class ConfigOptionNotSupportedError(ConfigError):
         template = (
             'The "{}" configuration option is not supported in this version'
         )
-        super(ConfigOptionNotSupportedError, self).__init__(
+        super().__init__(
             template.format(self.configuration),
             CONFIG_NOT_SUPPORTED
         )
@@ -118,10 +118,10 @@ class InvalidConfig(ConfigError):
             code=code,
             error=error_message,
         )
-        super(InvalidConfig, self).__init__(message, code=code)
+        super().__init__(message, code=code)
 
 
-class BuildConfigBase(object):
+class BuildConfigBase:
 
     """
     Config that handles the build of one particular documentation.
@@ -229,7 +229,7 @@ class BuildConfigBase(object):
     @property
     def python_interpreter(self):
         ver = self.python_full_version
-        return 'python{0}'.format(ver)
+        return 'python{}'.format(ver)
 
     @property
     def python_full_version(self):
@@ -481,7 +481,7 @@ class BuildConfigV1(BuildConfigBase):
                     # Try to convert strings to an int first, to catch '2', then
                     # a float, to catch '2.7'
                     version = raw_python['version']
-                    if isinstance(version, six.string_types):
+                    if isinstance(version, str):
                         try:
                             version = int(version)
                         except ValueError:
@@ -729,7 +729,7 @@ class BuildConfigV2(BuildConfigBase):
         python = {}
         with self.catch_validation_error('python.version'):
             version = self.pop_config('python.version', 3)
-            if isinstance(version, six.string_types):
+            if isinstance(version, str):
                 try:
                     version = int(version)
                 except ValueError:

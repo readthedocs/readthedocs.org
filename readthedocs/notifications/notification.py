@@ -17,7 +17,7 @@ from . import constants
 log = logging.getLogger(__name__)
 
 
-class Notification(object):
+class Notification:
 
     """
     An unsent notification linked to an object.
@@ -134,10 +134,10 @@ class SiteNotification(Notification):
         self.success = success
         self.reason = reason
         self.extra_context = extra_context or {}
-        super(SiteNotification, self).__init__(context_object, request, user)
+        super().__init__(context_object, request, user)
 
     def get_context_data(self):
-        context = super(SiteNotification, self).get_context_data()
+        context = super().get_context_data()
         context.update(self.extra_context)
         return context
 

@@ -29,7 +29,7 @@ from readthedocs.projects.models import Feature
 log = logging.getLogger(__name__)
 
 
-class PythonEnvironment(object):
+class PythonEnvironment:
 
     """An isolated environment into which Python packages can be installed."""
 
@@ -73,7 +73,7 @@ class PythonEnvironment(object):
                 getattr(settings, 'USE_PIP_INSTALL', False)):
             extra_req_param = ''
             if self.config.python.extra_requirements:
-                extra_req_param = '[{0}]'.format(
+                extra_req_param = '[{}]'.format(
                     ','.join(self.config.python.extra_requirements)
                 )
             self.build_env.run(
@@ -83,7 +83,7 @@ class PythonEnvironment(object):
                 '--ignore-installed',
                 '--cache-dir',
                 self.project.pip_cache_path,
-                '.{0}'.format(extra_req_param),
+                '.{}'.format(extra_req_param),
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
@@ -195,7 +195,7 @@ class PythonEnvironment(object):
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
             # unicode but ``json.dumps`` returns str in Py2.
-            fpath.write(six.text_type(json.dumps(data)))
+            fpath.write(str(json.dumps(data)))
 
 
 class Virtualenv(PythonEnvironment):

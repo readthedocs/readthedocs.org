@@ -19,7 +19,7 @@ from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
 from readthedocs.rtd_tests.utils import create_user
 
 
-class URLAccessMixin(object):
+class URLAccessMixin:
 
     default_kwargs = {}
     response_data = {}
@@ -93,10 +93,10 @@ class URLAccessMixin(object):
             for not_obj in self.context_data:
                 if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
                     self.assertNotIn(not_obj, obj)
-                    print("%s not in %s" % (not_obj, obj))
+                    print("{} not in {}".format(not_obj, obj))
                 else:
                     self.assertNotEqual(not_obj, obj)
-                    print("%s is not %s" % (not_obj, obj))
+                    print("{} is not {}".format(not_obj, obj))
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
@@ -134,7 +134,7 @@ class URLAccessMixin(object):
 class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
-        super(ProjectMixin, self).setUp()
+        super().setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
         self.subproject = get(Project, slug='sub', language='ja',
@@ -307,7 +307,7 @@ class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
 class APIMixin(URLAccessMixin):
 
     def setUp(self):
-        super(APIMixin, self).setUp()
+        super().setUp()
         self.build = get(Build, project=self.pip)
         self.build_command_result = get(BuildCommandResult, project=self.pip)
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)

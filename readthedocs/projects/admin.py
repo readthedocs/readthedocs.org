@@ -156,12 +156,12 @@ class ProjectAdmin(GuardedModelAdmin):
                 total += count
             else:
                 messages.add_message(request, messages.ERROR,
-                                     'Project has multiple owners: {0}'.format(project))
+                                     'Project has multiple owners: {}'.format(project))
         if total == 0:
             messages.add_message(request, messages.ERROR, 'No users banned')
         else:
             messages.add_message(request, messages.INFO,
-                                 'Banned {0} user(s)'.format(total))
+                                 'Banned {} user(s)'.format(total))
 
     ban_owner.short_description = 'Ban project owner'
 
@@ -178,7 +178,7 @@ class ProjectAdmin(GuardedModelAdmin):
         return delete_selected(self, request, queryset)
 
     def get_actions(self, request):
-        actions = super(ProjectAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         actions['delete_selected'] = (
             self.__class__.delete_selected_and_artifacts,
             'delete_selected',

@@ -24,10 +24,10 @@ def migrate_url(apps, schema_editor):
         try:
             domain.domain = domain_string
             domain.save()
-            print(u"Added {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print("Added {domain} from {url}".format(url=domain.url, domain=domain_string))
         except Exception as e:
             print(e)
-            print(u"Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
+            print("Failed {domain} from {url}".format(url=domain.url, domain=domain_string))
 
         dms = Domain.objects.filter(domain=domain_string).order_by('-count')
         if dms.count() > 1:

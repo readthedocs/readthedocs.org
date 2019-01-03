@@ -221,7 +221,7 @@ def slugify(value, *args, **kwargs):
     return value
 
 
-slugify = allow_lazy(slugify, six.text_type, SafeText)
+slugify = allow_lazy(slugify, str, SafeText)
 
 
 def safe_makedirs(directory_name):

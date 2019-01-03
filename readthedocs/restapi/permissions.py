@@ -51,11 +51,11 @@ class APIPermission(permissions.IsAuthenticatedOrReadOnly):
     """
 
     def has_permission(self, request, view):
-        has_perm = super(APIPermission, self).has_permission(request, view)
+        has_perm = super().has_permission(request, view)
         return has_perm or (request.user and request.user.is_staff)
 
     def has_object_permission(self, request, view, obj):
-        has_perm = super(APIPermission, self).has_object_permission(
+        has_perm = super().has_object_permission(
             request, view, obj)
         return has_perm or (request.user and request.user.is_staff)
 

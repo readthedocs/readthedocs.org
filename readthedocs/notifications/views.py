@@ -35,7 +35,7 @@ class SendNotificationView(FormView):
         The admin posts to this view initially, so detect the send button on
         form post variables. Drop additional fields if we see the send button.
         """
-        kwargs = super(SendNotificationView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['notification_classes'] = self.notification_classes
         if 'send' not in self.request.POST:
             kwargs.pop('data', None)
@@ -44,7 +44,7 @@ class SendNotificationView(FormView):
 
     def get_initial(self):
         """Add selected ids to initial form data."""
-        initial = super(SendNotificationView, self).get_initial()
+        initial = super().get_initial()
         initial['_selected_action'] = self.request.POST.getlist(
             admin.ACTION_CHECKBOX_NAME)
         return initial
@@ -63,7 +63,7 @@ class SendNotificationView(FormView):
         if count == 0:
             self.message_user("No recipients to send to", level=messages.ERROR)
         else:
-            self.message_user("Queued {0} messages".format(count))
+            self.message_user("Queued {} messages".format(count))
         return HttpResponseRedirect(self.request.get_full_path())
 
     def get_object_recipients(self, obj):
@@ -89,7 +89,7 @@ class SendNotificationView(FormView):
 
     def get_context_data(self, **kwargs):
         """Return queryset in context."""
-        context = super(SendNotificationView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         recipients = []
         for obj in self.get_queryset().all():
             recipients.extend(self.get_object_recipients(obj))

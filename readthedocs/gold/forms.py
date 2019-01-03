@@ -24,7 +24,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
     :py:class:`StripeResourceMixin` for common operations against the Stripe API.
     """
 
-    class Meta(object):
+    class Meta:
         model = GoldUser
         fields = ['last_4_card_digits', 'level']
 
@@ -44,7 +44,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     def clean(self):
         self.instance.user = self.customer
-        return super(GoldSubscriptionForm, self).clean()
+        return super().clean()
 
     def validate_stripe(self):
         subscription = self.get_subscription()
@@ -97,7 +97,7 @@ class GoldProjectForm(forms.Form):
     def __init__(self, active_user, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.projects = kwargs.pop('projects', None)
-        super(GoldProjectForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['project'].choices = self.generate_choices(active_user)
 
     def generate_choices(self, active_user):
@@ -114,7 +114,7 @@ class GoldProjectForm(forms.Form):
             return project_slug
 
     def clean(self):
-        cleaned_data = super(GoldProjectForm, self).clean()
+        cleaned_data = super().clean()
         if self.projects.count() < self.user.num_supported_projects:
             return cleaned_data
 

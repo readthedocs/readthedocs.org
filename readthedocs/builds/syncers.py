@@ -22,7 +22,7 @@ from readthedocs.core.utils import safe_makedirs
 log = logging.getLogger(__name__)
 
 
-class BaseSyncer(object):
+class BaseSyncer:
 
     """A base object for syncers and pullers"""
 
@@ -64,7 +64,7 @@ class RemoteSyncer(BaseSyncer):
         if app_servers:
             log.info("Remote Copy %s to %s on %s", path, target, app_servers)
             for server in app_servers:
-                mkdir_cmd = ("ssh %s@%s mkdir -p %s" % (sync_user, server, target))
+                mkdir_cmd = ("ssh {}@{} mkdir -p {}".format(sync_user, server, target))
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
                     log.debug("Copy error to app servers: cmd=%s", mkdir_cmd)

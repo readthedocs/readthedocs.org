@@ -14,7 +14,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.search import lib as search_lib
 
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
+LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
 
 UserInput = collections.namedtuple(
     'UserInput',

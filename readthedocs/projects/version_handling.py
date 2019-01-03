@@ -25,7 +25,7 @@ def parse_version_failsafe(version_string):
 
     :rtype: packaging.version.Version
     """
-    if not isinstance(version_string, six.text_type):
+    if not isinstance(version_string, str):
         uni_version = version_string.decode('utf-8')
     else:
         uni_version = version_string

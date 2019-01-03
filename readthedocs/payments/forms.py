@@ -15,7 +15,7 @@ from .utils import stripe
 log = logging.getLogger(__name__)
 
 
-class StripeResourceMixin(object):
+class StripeResourceMixin:
 
     """Stripe actions for resources, available as a Form mixin class."""
 
@@ -117,7 +117,7 @@ class StripeModelForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.customer = kwargs.pop('customer', None)
-        super(StripeModelForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def validate_stripe(self):
         """
@@ -147,7 +147,7 @@ class StripeModelForm(forms.ModelForm):
         raise any issues as validation errors.  This is required because part of
         Stripe's validation happens on the API call to establish a subscription.
         """
-        cleaned_data = super(StripeModelForm, self).clean()
+        cleaned_data = super().clean()
 
         # Form isn't valid, no need to try to associate a card now
         if not self.is_valid():

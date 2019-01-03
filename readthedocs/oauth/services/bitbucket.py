@@ -119,8 +119,8 @@ class BitbucketService(Service):
             repo.private = fields['is_private']
 
             # Default to HTTPS, use SSH for private repositories
-            clone_urls = dict((u['name'], u['href'])
-                              for u in fields['links']['clone'])
+            clone_urls = {u['name']: u['href']
+                              for u in fields['links']['clone']}
             repo.clone_url = self.https_url_pattern.sub(
                 'https://bitbucket.org/',
                 clone_urls.get('https')

@@ -141,7 +141,7 @@ class RemoteRepository(models.Model):
 
     objects = RemoteRepositoryQuerySet.as_manager()
 
-    class Meta(object):
+    class Meta:
         ordering = ['organization__name', 'name']
         verbose_name_plural = 'remote repositories'
 

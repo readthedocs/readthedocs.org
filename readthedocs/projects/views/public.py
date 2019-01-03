@@ -62,7 +62,7 @@ class ProjectIndex(ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectIndex, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['person'] = self.user
         context['tag'] = self.tag
         return context
@@ -82,7 +82,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         return Project.objects.protected(self.request.user)
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         project = self.get_object()
         context['versions'] = Version.objects.public(
@@ -94,7 +94,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
         version_slug = project.get_default_version()
 
-        context['badge_url'] = '%s://%s%s?version=%s' % (
+        context['badge_url'] = '{}://{}{}?version={}'.format(
             protocol,
             settings.PRODUCTION_DOMAIN,
             reverse('project_badge', args=[project.slug]),
@@ -192,7 +192,7 @@ def project_download_media(request, project_slug, type_, version_slug):
     if privacy_level == 'public' or settings.DEBUG:
         path = os.path.join(
             settings.MEDIA_URL, type_, project_slug, version_slug,
-            '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')))
+            '{}.{}'.format(project_slug, type_.replace('htmlzip', 'zip')))
         return HttpResponseRedirect(path)
 
     # Get relative media path
@@ -207,7 +207,7 @@ def project_download_media(request, project_slug, type_, version_slug):
         response['Content-Encoding'] = encoding
     response['X-Accel-Redirect'] = path
     # Include version in filename; this fixes a long-standing bug
-    filename = '%s-%s.%s' % (
+    filename = '{}-{}.{}'.format(
         project_slug, version_slug, path.split('.')[-1])
     response['Content-Disposition'] = 'filename=%s' % filename
     return response

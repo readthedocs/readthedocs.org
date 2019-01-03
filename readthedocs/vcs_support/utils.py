@@ -16,7 +16,7 @@ class LockTimeout(Exception):
     pass
 
 
-class Lock(object):
+class Lock:
 
     """
     A simple file based lock with timeout
@@ -69,7 +69,7 @@ class Lock(object):
                 )
 
 
-class NonBlockingLock(object):
+class NonBlockingLock:
 
     """
     Acquire a lock in a non-blocking manner.

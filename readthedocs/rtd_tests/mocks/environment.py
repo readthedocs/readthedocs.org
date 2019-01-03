@@ -4,7 +4,7 @@ from builtins import object
 import mock
 
 
-class EnvironmentMockGroup(object):
+class EnvironmentMockGroup:
 
     """Mock out necessary environment pieces"""
 

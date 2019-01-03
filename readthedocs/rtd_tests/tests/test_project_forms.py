@@ -242,10 +242,10 @@ class TestProjectAdvancedForm(TestCase):
         # This version is created automatically by the project on save
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
         self.assertEqual(
-            set(
+            {
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
-            ),
+            },
             {'latest', 'public-1', 'public-2', 'private', 'protected'},
         )
 
@@ -254,10 +254,10 @@ class TestProjectAdvancedForm(TestCase):
         # This version is created automatically by the project on save
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
         self.assertEqual(
-            set(
+            {
                 identifier
                 for identifier, _ in form.fields['default_branch'].widget.choices
-            ),
+            },
             {
                 None, 'master', 'public-1', 'public-2',
                 'public-3', 'public/4', 'protected', 'private'

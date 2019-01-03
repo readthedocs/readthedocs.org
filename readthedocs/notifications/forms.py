@@ -29,12 +29,12 @@ class SendNotificationForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.notification_classes = kwargs.pop('notification_classes', [])
-        super(SendNotificationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['source'].choices = [(cls.name, cls.name) for cls
                                          in self.notification_classes]
 
     def clean_source(self):
         """Get the source class from the class name."""
         source = self.cleaned_data['source']
-        classes = dict((cls.name, cls) for cls in self.notification_classes)
+        classes = {cls.name: cls for cls in self.notification_classes}
         return classes.get(source, None)

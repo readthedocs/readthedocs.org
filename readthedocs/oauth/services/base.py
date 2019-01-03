@@ -19,7 +19,7 @@ from requests_oauthlib import OAuth2Session
 log = logging.getLogger(__name__)
 
 
-class Service(object):
+class Service:
 
     """
     Service mapping for local accounts.

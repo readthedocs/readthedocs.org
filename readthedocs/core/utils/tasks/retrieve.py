@@ -16,7 +16,7 @@ __all__ = ('TaskNotFound', 'get_task_data')
 class TaskNotFound(Exception):
     def __init__(self, task_id, *args, **kwargs):
         message = 'No public task found with id {id}'.format(id=task_id)
-        super(TaskNotFound, self).__init__(message, *args, **kwargs)
+        super().__init__(message, *args, **kwargs)
 
 
 def get_task_data(task_id):

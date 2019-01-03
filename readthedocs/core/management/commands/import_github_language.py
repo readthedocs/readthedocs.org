@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 print('No GitHub repo for %s' % repo_url)
                 continue
 
-            cache_key = '%s-%s' % (user, repo)
+            cache_key = '{}-{}'.format(user, repo)
             top_lang = cache.get(cache_key, None)
             if not top_lang:
                 url = 'https://api.github.com/repos/{user}/{repo}/languages'.format(
@@ -73,7 +73,7 @@ class Command(BaseCommand):
                 print('Cached top_lang: %s' % top_lang)
             if top_lang in PL_DICT:
                 slug = PL_DICT[top_lang]
-                print('Setting %s to %s' % (repo_url, slug))
+                print('Setting {} to {}'.format(repo_url, slug))
                 Project.objects.filter(pk=project.pk).update(programming_language=slug)
             else:
                 print('Language unknown: %s' % top_lang)

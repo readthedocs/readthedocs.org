@@ -268,7 +268,7 @@ def test_python_pip_install_default():
     assert build.python.install_with_pip is False
 
 
-class TestValidatePythonExtraRequirements(object):
+class TestValidatePythonExtraRequirements:
 
     def test_it_defaults_to_list(self):
         build = get_build_config({'python': {}}, get_env_config())
@@ -302,7 +302,7 @@ class TestValidatePythonExtraRequirements(object):
         validate_string.assert_any_call('tests')
 
 
-class TestValidateUseSystemSitePackages(object):
+class TestValidateUseSystemSitePackages:
 
     def test_it_defaults_to_false(self):
         build = get_build_config({'python': {}}, get_env_config())
@@ -330,7 +330,7 @@ class TestValidateUseSystemSitePackages(object):
         validate_bool.assert_any_call('to-validate')
 
 
-class TestValidateSetupPyInstall(object):
+class TestValidateSetupPyInstall:
 
     def test_it_defaults_to_false(self):
         build = get_build_config({'python': {}}, get_env_config())
@@ -358,7 +358,7 @@ class TestValidateSetupPyInstall(object):
         validate_bool.assert_any_call('to-validate')
 
 
-class TestValidatePythonVersion(object):
+class TestValidatePythonVersion:
 
     def test_it_defaults_to_a_valid_version(self):
         build = get_build_config({'python': {}}, get_env_config())
@@ -458,7 +458,7 @@ class TestValidatePythonVersion(object):
         assert build.python.version == value
 
 
-class TestValidateFormats(object):
+class TestValidateFormats:
 
     def test_it_defaults_to_empty(self):
         build = get_build_config({}, get_env_config())
@@ -537,7 +537,7 @@ def test_valid_build_config():
     assert build.output_base
 
 
-class TestValidateBase(object):
+class TestValidateBase:
 
     def test_it_validates_to_abspath(self, tmpdir):
         apply_fs(tmpdir, {'configs': minimal_config, 'docs': {}})
@@ -586,7 +586,7 @@ class TestValidateBase(object):
         assert excinfo.value.code == INVALID_PATH
 
 
-class TestValidateBuild(object):
+class TestValidateBuild:
 
     def test_it_fails_if_build_is_invalid_option(self, tmpdir):
         apply_fs(tmpdir, minimal_config)
@@ -842,7 +842,7 @@ def test_as_dict(tmpdir):
     assert build.as_dict() == expected_dict
 
 
-class TestBuildConfigV2(object):
+class TestBuildConfigV2:
 
     def get_build_config(
             self, config, env_config=None, source_file='readthedocs.yml'):

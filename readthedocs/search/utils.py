@@ -207,7 +207,7 @@ def parse_sphinx_sections(content):
     h1_section = body('.section > h1')
     if h1_section:
         div = h1_section.parent()
-        h1_title = h1_section.text().replace(u'¶', '').strip()
+        h1_title = h1_section.text().replace('¶', '').strip()
         h1_id = div.attr('id')
         h1_content = ""
         next_p = next(body('h1'))  # pylint: disable=stop-iteration-return
@@ -229,7 +229,7 @@ def parse_sphinx_sections(content):
     for num in range(len(section_list)):
         div = section_list.eq(num).parent()
         header = section_list.eq(num)
-        title = header.text().replace(u'¶', '').strip()
+        title = header.text().replace('¶', '').strip()
         section_id = div.attr('id')
         content = div.html()
         yield {

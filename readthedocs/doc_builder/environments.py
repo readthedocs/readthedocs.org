@@ -123,7 +123,7 @@ class BuildCommand(BuildCommandResultMixin):
 
     def __str__(self):
         # TODO do we want to expose the full command here?
-        output = u''
+        output = ''
         if self.output is not None:
             output = self.output.encode('utf-8')
         return '\n'.join([self.get_command(), output])
@@ -178,7 +178,7 @@ class BuildCommand(BuildCommandResultMixin):
             if self.input_data is not None:
                 cmd_input = self.input_data
 
-            if isinstance(cmd_input, six.string_types):
+            if isinstance(cmd_input, str):
                 cmd_input_bytes = cmd_input.encode('utf-8')
             else:
                 cmd_input_bytes = cmd_input
@@ -336,7 +336,7 @@ class DockerBuildCommand(BuildCommand):
                                     r"\[\\\]\^\`\{\|\}\~])")
         prefix = ''
         if self.bin_path:
-            prefix += 'PATH={0}:$PATH '.format(self.bin_path)
+            prefix += 'PATH={}:$PATH '.format(self.bin_path)
         return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
                 .format(
                     cwd=self.cwd,
@@ -345,7 +345,7 @@ class DockerBuildCommand(BuildCommand):
                                    for part in self.command]))))
 
 
-class BaseEnvironment(object):
+class BaseEnvironment:
 
     """
     Base environment class.
@@ -418,10 +418,10 @@ class BaseEnvironment(object):
             self.commands.append(build_cmd)
 
         if build_cmd.failed:
-            msg = u'Command {cmd} failed'.format(cmd=build_cmd.get_command())
+            msg = 'Command {cmd} failed'.format(cmd=build_cmd.get_command())
 
             if build_cmd.output:
-                msg += u':\n{out}'.format(out=build_cmd.output)
+                msg += ':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
                 log.warning(LOG_TEMPLATE.format(
@@ -486,7 +486,7 @@ class BuildEnvironment(BaseEnvironment):
 
     def __init__(self, project=None, version=None, build=None, config=None,
                  record=True, environment=None, update_on_success=True):
-        super(BuildEnvironment, self).__init__(project, environment)
+        super().__init__(project, environment)
         self.version = version
         self.build = build
         self.config = config
@@ -562,13 +562,13 @@ class BuildEnvironment(BaseEnvironment):
         kwargs.update({
             'build_env': self,
         })
-        return super(BuildEnvironment, self).run(*cmd, **kwargs)
+        return super().run(*cmd, **kwargs)
 
     def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
         kwargs.update({
             'build_env': self,
         })
-        return super(BuildEnvironment, self).run_command_class(*cmd, **kwargs)
+        return super().run_command_class(*cmd, **kwargs)
 
     @property
     def successful(self):
@@ -662,7 +662,7 @@ class BuildEnvironment(BaseEnvironment):
 
         # Attempt to stop unicode errors on build reporting
         for key, val in list(self.build.items()):
-            if isinstance(val, six.binary_type):
+            if isinstance(val, bytes):
                 self.build[key] = val.decode('utf-8', 'ignore')
 
         # We are selective about when we update the build object here
@@ -716,7 +716,7 @@ class DockerBuildEnvironment(BuildEnvironment):
 
     def __init__(self, *args, **kwargs):
         self.docker_socket = kwargs.pop('docker_socket', DOCKER_SOCKET)
-        super(DockerBuildEnvironment, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = slugify(
@@ -760,7 +760,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                             project=self.project.slug,
                             version=self.version.slug,
                             msg=(
-                                'Removing stale container {0}'
+                                'Removing stale container {}'
                                 .format(self.container_id)
                             ),
                         )
@@ -824,7 +824,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             if not all([exc_type, exc_value, tb]):
                 exc_type, exc_value, tb = sys.exc_info()
 
-        return super(DockerBuildEnvironment, self).__exit__(exc_type, exc_value, tb)
+        return super().__exit__(exc_type, exc_value, tb)
 
     def get_client(self):
         """Create Docker client connection."""

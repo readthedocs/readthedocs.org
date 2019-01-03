@@ -37,8 +37,8 @@ def get_version_compare_data(project, base_version=None):
     highest_version_obj, highest_version_comparable = highest_version(
         versions_qs)
     ret_val = {
-        'project': six.text_type(highest_version_obj),
-        'version': six.text_type(highest_version_comparable),
+        'project': str(highest_version_obj),
+        'version': str(highest_version_comparable),
         'is_highest': True,
     }
     if highest_version_obj:

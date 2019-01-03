@@ -36,7 +36,7 @@ class Backend(BaseVCS):
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
-        super(Backend, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.token = kwargs.get('token', None)
         self.repo_url = self._get_clone_url()
 
@@ -46,7 +46,7 @@ class Backend(BaseVCS):
             hacked_url = re.sub('.git$', '', hacked_url)
             clone_url = 'https://%s' % hacked_url
             if self.token:
-                clone_url = 'https://%s@%s' % (self.token, hacked_url)
+                clone_url = 'https://{}@{}'.format(self.token, hacked_url)
                 return clone_url
             # Don't edit URL because all hosts aren't the same
             # else:
@@ -58,7 +58,7 @@ class Backend(BaseVCS):
 
     def update(self):
         """Clone or update the repository."""
-        super(Backend, self).update()
+        super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
             return self.fetch()
@@ -228,7 +228,7 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
-        super(Backend, self).checkout()
+        super().checkout()
         # Find proper identifier
         if not identifier:
             identifier = self.default_branch or self.fallback_branch
@@ -291,7 +291,7 @@ class Backend(BaseVCS):
 
     @property
     def env(self):
-        env = super(Backend, self).env
+        env = super().env
         env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
         # Don't prompt for username, this requires Git 2.3+
         env['GIT_TERMINAL_PROMPT'] = '0'

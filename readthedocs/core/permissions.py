@@ -5,7 +5,7 @@ from __future__ import absolute_import
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
-class AdminPermissionBase(object):
+class AdminPermissionBase:
 
     @classmethod
     def is_admin(cls, user, project):

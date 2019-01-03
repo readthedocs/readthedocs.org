@@ -33,7 +33,7 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 
-class BuildBase(object):
+class BuildBase:
     model = Build
 
     def get_queryset(self):
@@ -49,7 +49,7 @@ class BuildBase(object):
         return queryset
 
 
-class BuildTriggerMixin(object):
+class BuildTriggerMixin:
 
     @method_decorator(login_required)
     def post(self, request, project_slug):
@@ -85,7 +85,7 @@ class BuildTriggerMixin(object):
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
     def get_context_data(self, **kwargs):
-        context = super(BuildList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         active_builds = self.get_queryset().exclude(state='finished'
                                                     ).values('id')
@@ -104,7 +104,7 @@ class BuildDetail(BuildBase, DetailView):
     pk_url_kwarg = 'build_pk'
 
     def get_context_data(self, **kwargs):
-        context = super(BuildDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['project'] = self.project
         return context
 

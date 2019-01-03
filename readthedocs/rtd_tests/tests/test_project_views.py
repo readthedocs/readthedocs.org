@@ -32,7 +32,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
     url = '/dashboard/import/manual/'
 
     def setUp(self):
-        super(TestProfileMiddleware, self).setUp()
+        super().setUp()
         data = {
             'basics': {
                 'name': 'foobar',
@@ -47,9 +47,9 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         }
         self.data = {}
         for key in data:
-            self.data.update({('{0}-{1}'.format(key, k), v)
+            self.data.update({('{}-{}'.format(key, k), v)
                               for (k, v) in list(data[key].items())})
-        self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
+        self.data['{}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
     def test_profile_middleware_no_profile(self):
         """User without profile and isn't banned"""
@@ -101,7 +101,7 @@ class TestBasicsForm(WizardTestCase):
 
     def request(self, *args, **kwargs):
         kwargs['user'] = self.user
-        return super(TestBasicsForm, self).request(*args, **kwargs)
+        return super().request(*args, **kwargs)
 
     def test_form_pass(self):
         """Only submit the basics"""
@@ -146,7 +146,7 @@ class TestBasicsForm(WizardTestCase):
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
-        super(TestAdvancedForm, self).setUp()
+        super().setUp()
         self.step_data['basics']['advanced'] = True
         self.step_data['extra'] = {
             'description': 'Describe foobar',
@@ -169,10 +169,9 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         del self.step_data['extra']['tags']
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [tag.name for tag in proj.tags.all()],
-            [u'bar', u'baz', u'foo'])
+            ['bar', 'baz', 'foo'])
         data.update(self.step_data['extra'])
         for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)

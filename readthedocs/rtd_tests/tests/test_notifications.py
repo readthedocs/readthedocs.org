@@ -43,7 +43,7 @@ class NotificationTests(TestCase):
         self.assertEqual(notify.get_template_names('site'),
                          ['builds/notifications/foo_site.html'])
         self.assertEqual(notify.get_subject(),
-                         'This is {0}'.format(build.id))
+                         'This is {}'.format(build.id))
         self.assertEqual(notify.get_context_data(),
                          {'foo': build,
                           'production_uri': 'https://readthedocs.org',
@@ -82,7 +82,7 @@ class NotificationBackendTests(TestCase):
                 request=mock.ANY,
                 template='core/email/common.txt',
                 context={'content': 'Test'},
-                subject=u'This is {}'.format(build.id),
+                subject='This is {}'.format(build.id),
                 template_html='core/email/common.html',
                 recipient=user.email,
             )

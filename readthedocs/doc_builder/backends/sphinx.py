@@ -40,7 +40,7 @@ class BaseSphinx(BaseBuilder):
     """The parent for most sphinx builders."""
 
     def __init__(self, *args, **kwargs):
-        super(BaseSphinx, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.config_file = self.config.sphinx.configuration
         try:
             if not self.config_file:
@@ -172,13 +172,9 @@ class BaseSphinx(BaseBuilder):
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
-            six.reraise(
-                ProjectConfigurationError,
-                ProjectConfigurationError(
+            raise ProjectConfigurationError(
                     ProjectConfigurationError.NOT_FOUND
-                ),
-                trace
-            )
+                ).with_traceback(trace)
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -234,11 +230,11 @@ class HtmlBuilder(BaseSphinx):
     sphinx_build_dir = '_build/html'
 
     def __init__(self, *args, **kwargs):
-        super(HtmlBuilder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
 
     def move(self, **__):
-        super(HtmlBuilder, self).move()
+        super().move()
         # Copy JSON artifacts to its own directory
         # to keep compatibility with the older builder.
         json_path = os.path.abspath(
@@ -265,7 +261,7 @@ class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
 
     def __init__(self, *args, **kwargs):
-        super(HtmlDirBuilder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocsdirhtml'
 
 
@@ -273,7 +269,7 @@ class SingleHtmlBuilder(HtmlBuilder):
     type = 'sphinx_singlehtml'
 
     def __init__(self, *args, **kwargs):
-        super(SingleHtmlBuilder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
 
 
@@ -338,7 +334,7 @@ class LatexBuildCommand(BuildCommand):
     """Ignore LaTeX exit code if there was file output."""
 
     def run(self):
-        super(LatexBuildCommand, self).run()
+        super().run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
@@ -350,7 +346,7 @@ class DockerLatexBuildCommand(DockerBuildCommand):
     """Ignore LaTeX exit code if there was file output."""
 
     def run(self):
-        super(DockerLatexBuildCommand, self).run()
+        super().run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
@@ -395,7 +391,7 @@ class PdfBuilder(BaseSphinx):
             ['pdflatex', '-interaction=nonstopmode', tex_file]
             for tex_file in tex_files]  # yapf: disable
         makeindex_cmds = [
-            ['makeindex', '-s', 'python.ist', '{0}.idx'.format(
+            ['makeindex', '-s', 'python.ist', '{}.idx'.format(
                 os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
             for tex_file in tex_files]  # yapf: disable
 

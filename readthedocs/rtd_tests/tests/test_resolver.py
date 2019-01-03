@@ -627,7 +627,7 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'http://pip.readthedocs.io/en/latest/')
 
 
-class ResolverAltSetUp(object):
+class ResolverAltSetUp:
 
     def setUp(self):
         with mock.patch('readthedocs.projects.models.broadcast'):

@@ -12,7 +12,7 @@ from builtins import object
 log = logging.getLogger(__name__)
 
 
-class VCSVersion(object):
+class VCSVersion:
 
     """
     Represents a Version (tag or branch) in a VCS.
@@ -29,11 +29,11 @@ class VCSVersion(object):
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return '<VCSVersion: %s:%s' % (
+        return '<VCSVersion: {}:{}'.format(
             self.repository.repo_url, self.verbose_name)
 
 
-class BaseVCS(object):
+class BaseVCS:
 
     """
     Base for VCS Classes.

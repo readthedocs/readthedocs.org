@@ -14,7 +14,7 @@ from readthedocs.config.validation import (
     validate_path, validate_string)
 
 
-class TestValidateBool(object):
+class TestValidateBool:
     def test_it_accepts_true(self):
         assert validate_bool(True) is True
 
@@ -33,7 +33,7 @@ class TestValidateBool(object):
         assert excinfo.value.code == INVALID_BOOL
 
 
-class TestValidateChoice(object):
+class TestValidateChoice:
 
     def test_it_accepts_valid_choice(self):
         result = validate_choice('choice', ('choice', 'another_choice'))
@@ -49,7 +49,7 @@ class TestValidateChoice(object):
         assert excinfo.value.code == INVALID_CHOICE
 
 
-class TestValidateList(object):
+class TestValidateList:
 
     def test_it_accepts_list_types(self):
         result = validate_list(['choice', 'another_choice'])
@@ -74,12 +74,12 @@ class TestValidateList(object):
         assert excinfo.value.code == INVALID_LIST
 
 
-class TestValidateDirectory(object):
+class TestValidateDirectory:
 
     def test_it_uses_validate_path(self, tmpdir):
         patcher = patch('readthedocs.config.validation.validate_path')
         with patcher as validate_path:
-            path = text_type(tmpdir.mkdir('a directory'))
+            path = str(tmpdir.mkdir('a directory'))
             validate_path.return_value = path
             validate_directory(path, str(tmpdir))
             validate_path.assert_called_with(path, str(tmpdir))
@@ -91,7 +91,7 @@ class TestValidateDirectory(object):
         assert excinfo.value.code == INVALID_DIRECTORY
 
 
-class TestValidateFile(object):
+class TestValidateFile:
 
     def test_it_uses_validate_path(self, tmpdir):
         patcher = patch('readthedocs.config.validation.validate_path')
@@ -110,7 +110,7 @@ class TestValidateFile(object):
         assert excinfo.value.code == INVALID_FILE
 
 
-class TestValidatePath(object):
+class TestValidatePath:
 
     def test_it_accepts_relative_path(self, tmpdir):
         tmpdir.mkdir('a directory')
@@ -140,15 +140,15 @@ class TestValidatePath(object):
         assert excinfo.value.code == INVALID_PATH
 
 
-class TestValidateString(object):
+class TestValidateString:
 
     def test_it_accepts_unicode(self):
-        result = validate_string(u'Unicöde')
-        assert isinstance(result, text_type)
+        result = validate_string('Unicöde')
+        assert isinstance(result, str)
 
     def test_it_accepts_nonunicode(self):
         result = validate_string('Unicode')
-        assert isinstance(result, text_type)
+        assert isinstance(result, str)
 
     def test_it_rejects_float(self):
         with raises(ValidationError) as excinfo:

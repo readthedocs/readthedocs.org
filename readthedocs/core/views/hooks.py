@@ -156,14 +156,14 @@ def _build_url(url, projects, branches):
 
     for project_slug, built in list(all_built.items()):
         if built:
-            msg = '(URL Build) Build Started: %s [%s]' % (
+            msg = '(URL Build) Build Started: {} [{}]'.format(
                 url, ' '.join(built))
             log_info(project_slug, msg=msg)
             ret += msg
 
     for project_slug, not_building in list(all_not_building.items()):
         if not_building:
-            msg = '(URL Build) Not Building: %s [%s]' % (
+            msg = '(URL Build) Not Building: {} [{}]'.format(
                 url, ' '.join(not_building))
             log_info(project_slug, msg=msg)
             ret += msg
@@ -300,7 +300,7 @@ def bitbucket_build(request):
                 repository = data['repository']
                 if not repository['absolute_url']:
                     return HttpResponse('Invalid request', status=400)
-                search_url = 'bitbucket.org{0}'.format(
+                search_url = 'bitbucket.org{}'.format(
                     repository['absolute_url'].rstrip('/')
                 )
             elif version == 2:
@@ -309,7 +309,7 @@ def bitbucket_build(request):
                             for change in changes]
                 if not data['repository']['full_name']:
                     return HttpResponse('Invalid request', status=400)
-                search_url = 'bitbucket.org/{0}'.format(
+                search_url = 'bitbucket.org/{}'.format(
                     data['repository']['full_name']
                 )
         except (TypeError, ValueError, KeyError):

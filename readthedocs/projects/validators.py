@@ -28,13 +28,13 @@ class DomainNameValidator(RegexValidator):
     def __init__(self, accept_idna=True, **kwargs):
         message = kwargs.get('message')
         self.accept_idna = accept_idna
-        super(DomainNameValidator, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if not self.accept_idna and message is None:
             self.message = _('Enter a valid domain name value')
 
     def __call__(self, value):
         try:
-            super(DomainNameValidator, self).__call__(value)
+            super().__call__(value)
         except ValidationError as exc:
             if not self.accept_idna:
                 raise
@@ -44,14 +44,14 @@ class DomainNameValidator(RegexValidator):
                 idnavalue = value.encode('idna')
             except UnicodeError:
                 raise exc
-            super(DomainNameValidator, self).__call__(idnavalue)
+            super().__call__(idnavalue)
 
 
 validate_domain_name = DomainNameValidator()
 
 
 @deconstructible
-class RepositoryURLValidator(object):
+class RepositoryURLValidator:
 
     disallow_relative_url = True
 

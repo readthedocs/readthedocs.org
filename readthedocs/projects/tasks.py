@@ -85,7 +85,7 @@ from .signals import (
 log = logging.getLogger(__name__)
 
 
-class SyncRepositoryMixin(object):
+class SyncRepositoryMixin:
 
     """Mixin that handles the VCS sync/update."""
 
@@ -1217,11 +1217,11 @@ def email_notification(version, build, email):
             'pk': build.pk,
             'error': build.error,
         },
-        'build_url': 'https://{0}{1}'.format(
+        'build_url': 'https://{}{}'.format(
             getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
             build.get_absolute_url(),
         ),
-        'unsub_url': 'https://{0}{1}'.format(
+        'unsub_url': 'https://{}{}'.format(
             getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
             reverse('projects_notifications', args=[version.project.slug]),
         ),
@@ -1320,7 +1320,7 @@ def update_static_metadata(project_pk, path=None):
             LOG_TEMPLATE.format(
                 project=project.slug,
                 version='',
-                msg='Cannot write to metadata.json: {0}'.format(e),
+                msg='Cannot write to metadata.json: {}'.format(e),
             )
         )
 
@@ -1396,7 +1396,7 @@ def finish_inactive_builds():
         build.error = _(
             'This build was terminated due to inactivity. If you '
             'continue to encounter this error, file a support '
-            'request with and reference this build id ({0}).'.format(build.pk),
+            'request with and reference this build id ({}).'.format(build.pk),
         )
         build.save()
         builds_finished += 1

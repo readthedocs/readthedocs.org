@@ -22,7 +22,7 @@ class AttachWebhookNotification(SiteNotification):
     }
 
     def get_context_data(self):
-        context = super(AttachWebhookNotification, self).get_context_data()
+        context = super().get_context_data()
         project = self.extra_context.get('project')
         context.update({
             'url_connect_account': reverse(
@@ -44,7 +44,7 @@ class InvalidProjectWebhookNotification(SiteNotification):
         "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.") # noqa
 
     def get_context_data(self):
-        context = super(InvalidProjectWebhookNotification, self).get_context_data()
+        context = super().get_context_data()
         context.update({
             'url_integrations': reverse(
                 'projects_integrations',

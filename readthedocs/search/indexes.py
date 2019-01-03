@@ -25,7 +25,7 @@ from elasticsearch.helpers import bulk_index
 from django.conf import settings
 
 
-class Index(object):
+class Index:
 
     """Base class to define some common methods across indexes."""
 
@@ -92,7 +92,7 @@ class Index(object):
         }
 
     def timestamped_index(self):
-        return '{0}-{1}'.format(
+        return '{}-{}'.format(
             self._index, timezone.now().strftime('%Y%m%d%H%M%S'))
 
     def create_index(self, index=None):

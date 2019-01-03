@@ -52,17 +52,17 @@ class ProjectForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
-        super(ProjectForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        project = super(ProjectForm, self).save(commit)
+        project = super().save(commit)
         if commit:
             if self.user and not project.users.filter(pk=self.user.pk).exists():
                 project.users.add(self.user)
         return project
 
 
-class ProjectTriggerBuildMixin(object):
+class ProjectTriggerBuildMixin:
 
     """
     Mixin to trigger build on form save.
@@ -73,7 +73,7 @@ class ProjectTriggerBuildMixin(object):
 
     def save(self, commit=True):
         """Trigger build on commit save."""
-        project = super(ProjectTriggerBuildMixin, self).save(commit)
+        project = super().save(commit)
         if commit:
             trigger_build(project=project)
         return project
@@ -90,7 +90,7 @@ class ProjectBasicsForm(ProjectForm):
 
     """Form for basic project fields."""
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = ('name', 'repo', 'repo_type')
 
@@ -101,7 +101,7 @@ class ProjectBasicsForm(ProjectForm):
 
     def __init__(self, *args, **kwargs):
         show_advanced = kwargs.pop('show_advanced', False)
-        super(ProjectBasicsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if show_advanced:
             self.fields['advanced'] = forms.BooleanField(
                 required=False,
@@ -112,7 +112,7 @@ class ProjectBasicsForm(ProjectForm):
 
     def save(self, commit=True):
         """Add remote repository relationship to the project instance."""
-        instance = super(ProjectBasicsForm, self).save(commit)
+        instance = super().save(commit)
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if remote_repo:
             if commit:
@@ -165,7 +165,7 @@ class ProjectExtraForm(ProjectForm):
 
     """Additional project information form."""
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = (
             'description',
@@ -203,7 +203,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                     'environment.'),
     )
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = (
             # Standard build edits
@@ -227,7 +227,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
     def __init__(self, *args, **kwargs):
-        super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
@@ -255,7 +255,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
 class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
                         ProjectExtraForm):
-    class Meta(object):
+    class Meta:
         model = Project
         fields = (
             # Basics
@@ -308,14 +308,14 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
 
     parent = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta(object):
+    class Meta:
         model = ProjectRelationship
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
         self.user = kwargs.pop('user')
-        super(ProjectRelationshipBaseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Don't display the update form with an editable child, as it will be
         # filtered out from the queryset anyways.
         if hasattr(self, 'instance') and self.instance.pk is not None:
@@ -362,11 +362,11 @@ class DualCheckboxWidget(forms.CheckboxInput):
     """Checkbox with link to the version's built documentation."""
 
     def __init__(self, version, attrs=None, check_test=bool):
-        super(DualCheckboxWidget, self).__init__(attrs, check_test)
+        super().__init__(attrs, check_test)
         self.version = version
 
     def render(self, name, value, attrs=None, renderer=None):
-        checkbox = super(DualCheckboxWidget, self).render(name, value, attrs, renderer)
+        checkbox = super().render(name, value, attrs, renderer)
         icon = self.render_icon()
         return mark_safe('{}{}'.format(checkbox, icon))
 
@@ -459,7 +459,7 @@ class BaseUploadHTMLForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
-        super(BaseUploadHTMLForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         version_slug = self.cleaned_data['version']
@@ -499,7 +499,7 @@ class UserForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(UserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_user(self):
         name = self.cleaned_data['user']
@@ -525,7 +525,7 @@ class EmailHookForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(EmailHookForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_email(self):
         self.email = EmailHook.objects.get_or_create(
@@ -543,7 +543,7 @@ class WebHookForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(WebHookForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
         self.webhook = WebHook.objects.get_or_create(
@@ -565,7 +565,7 @@ class TranslationBaseForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.parent = kwargs.pop('parent', None)
         self.user = kwargs.pop('user')
-        super(TranslationBaseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['project'].choices = self.get_choices()
 
     def get_choices(self):
@@ -646,13 +646,13 @@ class RedirectForm(forms.ModelForm):
 
     """Form for project redirects."""
 
-    class Meta(object):
+    class Meta:
         model = Redirect
         fields = ['redirect_type', 'from_url', 'to_url']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(RedirectForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, **_):  # pylint: disable=arguments-differ
         # TODO this should respect the unused argument `commit`. It's not clear
@@ -673,13 +673,13 @@ class DomainBaseForm(forms.ModelForm):
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta(object):
+    class Meta:
         model = Domain
         exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(DomainBaseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project
@@ -717,13 +717,13 @@ class IntegrationForm(forms.ModelForm):
 
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    class Meta(object):
+    class Meta:
         model = Integration
         exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(IntegrationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Alter the integration type choices to only provider webhooks
         self.fields['integration_type'].choices = Integration.WEBHOOK_INTEGRATIONS  # yapf: disable  # noqa
 
@@ -732,20 +732,20 @@ class IntegrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance = Integration.objects.subclass(self.instance)
-        return super(IntegrationForm, self).save(commit)
+        return super().save(commit)
 
 
 class ProjectAdvertisingForm(forms.ModelForm):
 
     """Project promotion opt-out form."""
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = ['allow_promos']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
-        super(ProjectAdvertisingForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class FeatureForm(forms.ModelForm):
@@ -760,10 +760,10 @@ class FeatureForm(forms.ModelForm):
 
     feature_id = forms.ChoiceField()
 
-    class Meta(object):
+    class Meta:
         model = Feature
         fields = ['projects', 'feature_id', 'default_true']
 
     def __init__(self, *args, **kwargs):
-        super(FeatureForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['feature_id'].choices = Feature.FEATURES

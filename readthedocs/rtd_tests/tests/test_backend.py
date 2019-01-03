@@ -34,7 +34,7 @@ from readthedocs.rtd_tests.utils import (
 class TestGitBackend(RTDTestCase):
     def setUp(self):
         git_repo = make_test_git()
-        super(TestGitBackend, self).setUp()
+        super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()
@@ -128,7 +128,7 @@ class TestGitBackend(RTDTestCase):
         # so we need to hack the repo path
         repo.working_dir = repo_path
         self.assertEqual(
-            set(['v01', 'v02', 'release-ünîø∂é']),
+            {'v01', 'v02', 'release-ünîø∂é'},
             {vcs.verbose_name for vcs in repo.tags},
         )
 
@@ -207,28 +207,28 @@ class TestGitBackend(RTDTestCase):
 
         # We still have all branches and tags in the local repo
         self.assertEqual(
-            set(['v01', 'v02']),
-            set(vcs.verbose_name for vcs in repo.tags)
+            {'v01', 'v02'},
+            {vcs.verbose_name for vcs in repo.tags}
         )
         self.assertEqual(
-            set([
+            {
                 'invalidsubmodule', 'master', 'submodule', 'newbranch',
-            ]),
-            set(vcs.verbose_name for vcs in repo.branches)
+            },
+            {vcs.verbose_name for vcs in repo.branches}
         )
 
         repo.update()
 
         # We don't have the eliminated branches and tags in the local repo
         self.assertEqual(
-            set(['v01']),
-            set(vcs.verbose_name for vcs in repo.tags)
+            {'v01'},
+            {vcs.verbose_name for vcs in repo.tags}
         )
         self.assertEqual(
-            set([
+            {
                 'invalidsubmodule', 'master', 'submodule'
-            ]),
-            set(vcs.verbose_name for vcs in repo.branches)
+            },
+            {vcs.verbose_name for vcs in repo.branches}
         )
 
 
@@ -236,7 +236,7 @@ class TestHgBackend(RTDTestCase):
 
     def setUp(self):
         hg_repo = make_test_hg()
-        super(TestHgBackend, self).setUp()
+        super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()

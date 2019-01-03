@@ -18,7 +18,7 @@ def pretty_json_field(field, description, include_styles=False):
         if include_styles:
             formatter = HtmlFormatter(style='colorful')
             styles = '<style>' + formatter.get_style_defs() + '</style>'
-        return mark_safe('<div style="{0}">{1}</div>{2}'.format(
+        return mark_safe('<div style="{}">{}</div>{}'.format(
             'float: left;',
             obj.formatted_json(field),
             styles,
@@ -96,11 +96,11 @@ class IntegrationAdmin(admin.ModelAdmin):
         JSONField doesn't do well with fieldsets for whatever reason. This is
         just to link to the exchanges.
         """
-        url = urls.reverse('admin:{0}_{1}_changelist'.format(
+        url = urls.reverse('admin:{}_{}_changelist'.format(
             HttpExchange._meta.app_label,  # pylint: disable=protected-access
             HttpExchange._meta.model_name,  # pylint: disable=protected-access
         ))
-        return mark_safe('<a href="{0}?{1}={2}">{3} HTTP transactions</a>'.format(
+        return mark_safe('<a href="{}?{}={}">{} HTTP transactions</a>'.format(
             url,
             'integrations',
             obj.pk,

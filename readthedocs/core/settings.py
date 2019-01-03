@@ -6,7 +6,7 @@ import inspect
 import sys
 
 
-class Settings(object):
+class Settings:
 
     """Class-based settings wrapper."""
 

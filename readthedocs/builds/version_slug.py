@@ -72,7 +72,7 @@ class VersionSlugField(models.CharField):
             raise ValueError("missing 'populate_from' argument")
         else:
             self._populate_from = populate_from
-        super(VersionSlugField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
         # pylint: disable=protected-access
@@ -180,6 +180,6 @@ class VersionSlugField(models.CharField):
         return value
 
     def deconstruct(self):
-        name, path, args, kwargs = super(VersionSlugField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         kwargs['populate_from'] = self._populate_from
         return name, path, args, kwargs

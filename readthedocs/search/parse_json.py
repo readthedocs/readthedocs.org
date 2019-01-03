@@ -57,7 +57,7 @@ def generate_sections_from_pyquery(body):
     h1_section = body('.section > h1')
     if h1_section:
         div = h1_section.parent()
-        h1_title = h1_section.text().replace(u'¶', '').strip()
+        h1_title = h1_section.text().replace('¶', '').strip()
         h1_id = div.attr('id')
         h1_content = ""
         next_p = body('h1').next()
@@ -79,7 +79,7 @@ def generate_sections_from_pyquery(body):
     for num in range(len(section_list)):
         div = section_list.eq(num).parent()
         header = section_list.eq(num)
-        title = header.text().replace(u'¶', '').strip()
+        title = header.text().replace('¶', '').strip()
         section_id = div.attr('id')
         content = div.html()
         yield {
@@ -108,7 +108,7 @@ def process_file(filename):
         return None
     if 'body' in data and data['body']:
         body = PyQuery(data['body'])
-        body_content = body.text().replace(u'¶', '')
+        body_content = body.text().replace('¶', '')
         sections.extend(generate_sections_from_pyquery(body))
     else:
         log.info('Unable to index content for: %s', filename)

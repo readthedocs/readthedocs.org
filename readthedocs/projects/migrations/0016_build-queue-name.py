@@ -11,7 +11,7 @@ def update_build_queue(apps, schema):
     for project in Project.objects.all():
         if project.build_queue is not None:
             if not project.build_queue.startswith('build-'):
-                project.build_queue = 'build-{0}'.format(project.build_queue)
+                project.build_queue = 'build-{}'.format(project.build_queue)
                 project.save()
 
 

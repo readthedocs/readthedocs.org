@@ -288,7 +288,7 @@ class LoadConfigTests(TestCase):
 
 @pytest.mark.django_db
 @mock.patch('readthedocs.projects.models.Project.checkout_path')
-class TestLoadConfigV2(object):
+class TestLoadConfigV2:
 
     @pytest.fixture(autouse=True)
     def create_project(self):

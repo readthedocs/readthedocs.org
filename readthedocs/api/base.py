@@ -34,7 +34,7 @@ class ProjectResource(ModelResource):
 
     users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
 
-    class Meta(object):
+    class Meta:
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.api()
@@ -48,7 +48,7 @@ class ProjectResource(ModelResource):
 
     def get_object_list(self, request):
         self._meta.queryset = Project.objects.api(user=request.user)
-        return super(ProjectResource, self).get_object_list(request)
+        return super().get_object_list(request)
 
     def dehydrate(self, bundle):
         bundle.data['downloads'] = bundle.obj.get_downloads()
@@ -98,7 +98,7 @@ class VersionResource(ModelResource):
 
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta(object):
+    class Meta:
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.api()
@@ -112,7 +112,7 @@ class VersionResource(ModelResource):
 
     def get_object_list(self, request):
         self._meta.queryset = Version.objects.api(user=request.user)
-        return super(VersionResource, self).get_object_list(request)
+        return super().get_object_list(request)
 
     def build_version(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
@@ -145,7 +145,7 @@ class FileResource(ModelResource):
 
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta(object):
+    class Meta:
         allowed_methods = ['get', 'post']
         queryset = ImportedFile.objects.all()
         excludes = ['md5', 'slug']
@@ -190,7 +190,7 @@ class UserResource(ModelResource):
 
     """Read-only API resource for User model."""
 
-    class Meta(object):
+    class Meta:
         allowed_methods = ['get']
         queryset = User.objects.all()
         fields = ['username', 'id']

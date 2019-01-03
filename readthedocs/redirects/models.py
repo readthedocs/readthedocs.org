@@ -76,7 +76,7 @@ class Redirect(models.Model):
 
     objects = RedirectManager()
 
-    class Meta(object):
+    class Meta:
         verbose_name = _('redirect')
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)

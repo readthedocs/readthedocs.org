@@ -43,7 +43,7 @@ BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
 BITBUCKET_PUSH = 'repo:push'
 
 
-class WebhookMixin(object):
+class WebhookMixin:
 
     """Base class for Webhook mixins."""
 
@@ -75,7 +75,7 @@ class WebhookMixin(object):
 
     def finalize_response(self, req, *args, **kwargs):
         """If the project was set on POST, store an HTTP exchange."""
-        resp = super(WebhookMixin, self).finalize_response(req, *args, **kwargs)
+        resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, 'project') and self.project:
             HttpExchange.objects.from_exchange(
                 req,
@@ -180,7 +180,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return json.loads(self.request.data['payload'])
             except (ValueError, KeyError):
                 pass
-        return super(GitHubWebhookView, self).get_data()
+        return super().get_data()
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
@@ -350,7 +350,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
     """
 
     def has_permission(self, request, view):
-        has_perm = (super(IsAuthenticatedOrHasToken, self)
+        has_perm = (super()
                     .has_permission(request, view))
         return has_perm or 'token' in request.data
 
@@ -404,7 +404,7 @@ class APIWebhookView(WebhookMixin, APIView):
                 'branches',
                 [self.project.get_default_branch()]
             )
-            if isinstance(branches, six.string_types):
+            if isinstance(branches, str):
                 branches = [branches]
             return self.get_response_push(self.project, branches)
         except TypeError:

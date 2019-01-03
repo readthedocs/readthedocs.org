@@ -28,7 +28,7 @@ class PathValidator(Validator):
     configuration_file = '.'
 
     def _is_valid(self, value):
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             file_ = path.join(
                 path.dirname(self.configuration_file),
                 value

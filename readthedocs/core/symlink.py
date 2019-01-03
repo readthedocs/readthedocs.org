@@ -77,7 +77,7 @@ from readthedocs.projects.models import Domain
 log = logging.getLogger(__name__)
 
 
-class Symlink(object):
+class Symlink:
 
     """Base class for symlinking of projects."""
 
@@ -177,7 +177,7 @@ class Symlink(object):
 
     def remove_symlink_cname(self, domain):
         """Remove CNAME symlink."""
-        log_msg = "Removing symlink for CNAME {0}".format(domain.domain)
+        log_msg = "Removing symlink for CNAME {}".format(domain.domain)
         log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
                                                version='', msg=log_msg))
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
@@ -205,7 +205,7 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
-                log_msg = "Symlinking subproject: {0} -> {1}".format(from_slug, to_slug)
+                log_msg = "Symlinking subproject: {} -> {}".format(from_slug, to_slug)
                 log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
                                                        version='', msg=log_msg))
                 symlink = os.path.join(self.subproject_root, from_slug)
