@@ -13,7 +13,7 @@ source_parsers = {
             '.md': CommonMarkParser,
         }
 master_doc = 'index'
-project = 'Pip'
+project = u'Pip'
 copyright = str(datetime.now().year)
 version = '0.8.1'
 release = '0.8.1'
