@@ -9,8 +9,6 @@ import os
 import re
 from contextlib import contextmanager
 
-import six
-
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one

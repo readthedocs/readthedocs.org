@@ -3,8 +3,6 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 
-from six import string_types, text_type
-
 INVALID_BOOL = 'invalid-bool'
 INVALID_CHOICE = 'invalid-choice'
 INVALID_LIST = 'invalid-list'
