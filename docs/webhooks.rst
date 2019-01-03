@@ -164,13 +164,14 @@ new webhook intergration.
 
 .. _webhook-github-services:
 
-Should I use GitHub Services?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I was warned I shouldn't use GitHub Services
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Effective Jan 31st, GitHub Services will stop sending notifications to Read the
-Docs. Your project has been configured on Read the Docs for a long time, you are
-most likely using a GitHub Service to automatically build your project on Read
-the Docs.
+Last year, GitHub announced that effective Jan 31st, GitHub Services will stop
+working [1]_. This means GitHub will stop sending notifications to Read the Docs
+for projects configured with the ``ReadTheDocs`` GitHub Service. If your project
+has been configured on Read the Docs for a long time, you are most likely still
+using this service to automatically build your project on Read the Docs.
 
 In order for your project to continue automatically building, you will need to
 configure your GitHub repository with a new webhook. You can use either a
@@ -178,3 +179,5 @@ connected GitHub account and a :ref:`GitHub webhook integration <webhook-integra
 on your Read the Docs project, or you can use a
 :ref:`generic webhook integraiton <webhook-integration-generic>` without a connected
 account.
+
+.. [1] https://developer.github.com/changes/2018-04-25-github-services-deprecation/
