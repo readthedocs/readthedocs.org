@@ -65,11 +65,12 @@ environment, and will be set to ``True`` when building on RTD::
     {% endif %}
 
 My project requires different settings than those available under Admin
---------------------------------------------------------------------------
+-----------------------------------------------------------------------
 
-Read the Docs offers additional flag settings. To enable these settings,
+Read the Docs offers some settings which can be used for a variety of purposes,
+such as to use the latest version of sphinx or pip. To enable these settings,
 please open a request issue on our `github`_ and we will change the settings for the project.
-Read more about these flag settings :doc:`here <guides/feature-flags>`.
+Read more about these settings :doc:`here <guides/feature-flags>`.
 
 .. _github: https://github.com/rtfd/readthedocs.org
 
