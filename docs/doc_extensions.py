@@ -29,12 +29,13 @@ def feature_flags_role(typ, rawtext, text, lineno, inliner, options=None,
     features_dict = {}
     for feature in Feature.FEATURES:
         features_dict[feature[0].upper()] = feature[1].capitalize()
-    dl = nodes.definition_list()
+    dli_list = []
     for feature, desc in features_dict.items():
-        term = nodes.term(text=feature)
-        definition = nodes.definition(text=desc)
-        dli = nodes.definition_list_item(term=term, definition=definition)
-        dl.append(dli)
+        term = nodes.term(text=nodes.Text(feature))
+        definition = nodes.definition('', nodes.paragraph(text=desc))
+        dli = nodes.definition_list_item('', term, definition)
+        dli_list.append(dli)
+    dl = nodes.definition_list('', *dli_list)
     return [dl], []
 
 
