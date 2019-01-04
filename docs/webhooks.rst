@@ -167,7 +167,7 @@ new webhook intergration.
 I was warned I shouldn't use GitHub Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Last year, GitHub announced that effective Jan 31st, GitHub Services will stop
+Last year, GitHub announced that effective Jan 31st, 2019, GitHub Services will stop
 working [1]_. This means GitHub will stop sending notifications to Read the Docs
 for projects configured with the ``ReadTheDocs`` GitHub Service. If your project
 has been configured on Read the Docs for a long time, you are most likely still
