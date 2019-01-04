@@ -65,6 +65,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from ..tasks import retry_domain_verification
 
 log = logging.getLogger(__name__)
 
@@ -726,7 +727,14 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class DomainList(DomainMixin, ListViewWithForm):
-    pass
+    def get_context_data(self, **kwargs):
+        ctx = super(DomainList, self).get_context_data(**kwargs)
+
+        # Retry validation on all domains if applicable
+        for domain in ctx['domain_list']:
+            retry_domain_verification.delay(domain_pk=domain.pk)
+
+        return ctx
 
 
 class DomainCreate(DomainMixin, CreateView):
