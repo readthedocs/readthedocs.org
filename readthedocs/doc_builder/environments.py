@@ -49,11 +49,6 @@ from .exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentException,
     BuildEnvironmentWarning,
-    BuildTimeoutError,
-    MkDocsYAMLParseError,
-    ProjectBuildsSkippedError,
-    VersionLockedError,
-    YAMLParseError,
 )
 
 
@@ -455,8 +450,7 @@ class BuildEnvironment(BaseEnvironment):
     and :py:meth:`update_build`. If the exception is a subclass of
     :py:class:`BuildEnvironmentError`, then this error message is added to the
     build object and is shown to the user as the top-level failure reason for
-    why the build failed. Other exceptions raise a general failure warning on
-    the build.
+    why the build failed.
 
     We only update the build through the API in one of three cases:
 
@@ -472,17 +466,6 @@ class BuildEnvironment(BaseEnvironment):
     :param update_on_success: update the build object via API if the build was
                               successful
     """
-
-    # Exceptions considered ERROR from a Build perspective but as a WARNING for
-    # the application itself. These exception are logged as warning and not sent
-    # to Sentry.
-    WARNING_EXCEPTIONS = (
-        VersionLockedError,
-        ProjectBuildsSkippedError,
-        YAMLParseError,
-        BuildTimeoutError,
-        MkDocsYAMLParseError,
-    )
 
     def __init__(self, project=None, version=None, build=None, config=None,
                  record=True, environment=None, update_on_success=True):
@@ -515,44 +498,14 @@ class BuildEnvironment(BaseEnvironment):
         """
         Exception handling for __enter__ and __exit__.
 
-        This reports on the exception we're handling and special cases
-        subclasses of BuildEnvironmentException. For
-        :py:class:`BuildEnvironmentWarning`, exit this context gracefully, but
-        don't mark the build as a failure. For all other exception classes,
+        If the exception's type is :py:class:`BuildEnvironmentWarning`,
+        exit this context gracefully. For all other exception classes,
         including :py:class:`BuildEnvironmentError`, the build will be marked as
         a failure and the context will be gracefully exited.
-
-        If the exception's type is :py:class:`BuildEnvironmentWarning` or it's
-        an exception marked as ``WARNING_EXCEPTIONS`` we log the problem as a
-        WARNING, otherwise we log it as an ERROR.
         """
         if exc_type is not None:
-            log_level_function = None
-            if issubclass(exc_type, BuildEnvironmentWarning):
-                log_level_function = log.warning
-            elif exc_type in self.WARNING_EXCEPTIONS:
-                log_level_function = log.warning
+            if not issubclass(exc_type, BuildEnvironmentWarning):
                 self.failure = exc_value
-            else:
-                log_level_function = log.error
-                self.failure = exc_value
-
-            log_level_function(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=exc_value,
-                ),
-                exc_info=True,
-                extra={
-                    'stack': True,
-                    'tags': {
-                        'build': self.build.get('id'),
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                    },
-                },
-            )
             return True
 
     def record_command(self, command):
