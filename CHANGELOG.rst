@@ -1,3 +1,172 @@
+Version 2.8.4
+-------------
+
+:Date: December 17, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`__: Tweak sidebar ad priority (`#5005 <https://github.com/rtfd/readthedocs.org/pull/5005>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Backport jquery 2432 to Read the Docs (`#5001 <https://github.com/rtfd/readthedocs.org/pull/5001>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove codecov comments and project coverage CI status (`#4996 <https://github.com/rtfd/readthedocs.org/pull/4996>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove `LOCAL_GIT_BRANCHES` from settings (`#4993 <https://github.com/rtfd/readthedocs.org/pull/4993>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Link update on FAQ page (`#4988 <https://github.com/rtfd/readthedocs.org/pull/4988>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Only use remote branches for our syncing. (`#4984 <https://github.com/rtfd/readthedocs.org/pull/4984>`__)
+* `@humitos <http://github.com/humitos>`__: Sanitize output and chunk it at DATA_UPLOAD_MAX_MEMORY_SIZE (`#4982 <https://github.com/rtfd/readthedocs.org/pull/4982>`__)
+* `@humitos <http://github.com/humitos>`__: Modify DB field for container_time_limit to be an integer (`#4979 <https://github.com/rtfd/readthedocs.org/pull/4979>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove deprecated imports from "urlresolvers" (`#4976 <https://github.com/rtfd/readthedocs.org/pull/4976>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Workaround for a django-storages bug (`#4963 <https://github.com/rtfd/readthedocs.org/pull/4963>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.8.3 (`#4961 <https://github.com/rtfd/readthedocs.org/pull/4961>`__)
+* `@monsij <http://github.com/monsij>`__: Remove -e option (`#4960 <https://github.com/rtfd/readthedocs.org/pull/4960>`__)
+* `@nutann3 <http://github.com/nutann3>`__: Update "install Sphinx" URL (`#4959 <https://github.com/rtfd/readthedocs.org/pull/4959>`__)
+* `@stsewd <http://github.com/stsewd>`__: Shallow git clone (`#4939 <https://github.com/rtfd/readthedocs.org/pull/4939>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Validate profile form fields (`#4910 <https://github.com/rtfd/readthedocs.org/pull/4910>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Calculate actual ad views (`#4885 <https://github.com/rtfd/readthedocs.org/pull/4885>`__)
+* `@humitos <http://github.com/humitos>`__: Allow all /api/v2/ CORS if the Domain is known (`#4880 <https://github.com/rtfd/readthedocs.org/pull/4880>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Disable django.security.DisallowedHost from logging (`#4879 <https://github.com/rtfd/readthedocs.org/pull/4879>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'Sphinx Template Changes' From Docs (`#4878 <https://github.com/rtfd/readthedocs.org/pull/4878>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Make form for adopting project a choice field (`#4841 <https://github.com/rtfd/readthedocs.org/pull/4841>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add 'Branding' under the 'Business Info' section and 'Guidelines' on 'Design Docs' (`#4830 <https://github.com/rtfd/readthedocs.org/pull/4830>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Raise 404 at SubdomainMiddleware if the project does not exist. (`#4795 <https://github.com/rtfd/readthedocs.org/pull/4795>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add help_text in the form for adopting a project (`#4781 <https://github.com/rtfd/readthedocs.org/pull/4781>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove /embed API endpoint (`#4771 <https://github.com/rtfd/readthedocs.org/pull/4771>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Improve unexpected error message when build fails (`#4754 <https://github.com/rtfd/readthedocs.org/pull/4754>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change the way of using login_required decorator (`#4723 <https://github.com/rtfd/readthedocs.org/pull/4723>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix the form for adopting a project (`#4721 <https://github.com/rtfd/readthedocs.org/pull/4721>`__)
+
+Version 2.8.3
+-------------
+
+:Date: December 05, 2018
+
+* `@nutann3 <http://github.com/nutann3>`__: Update "install Sphinx" URL (`#4959 <https://github.com/rtfd/readthedocs.org/pull/4959>`__)
+* `@humitos <http://github.com/humitos>`__: Pin redis to the current stable and compatible version (`#4956 <https://github.com/rtfd/readthedocs.org/pull/4956>`__)
+* `@humitos <http://github.com/humitos>`__: Properly set LANG environment variables (`#4954 <https://github.com/rtfd/readthedocs.org/pull/4954>`__)
+* `@humitos <http://github.com/humitos>`__: Adapt code to remove and ignore warnings (`#4953 <https://github.com/rtfd/readthedocs.org/pull/4953>`__)
+* `@stsewd <http://github.com/stsewd>`__: Shallow git clone (`#4939 <https://github.com/rtfd/readthedocs.org/pull/4939>`__)
+* `@stsewd <http://github.com/stsewd>`__: Install latest version of pip (`#4938 <https://github.com/rtfd/readthedocs.org/pull/4938>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix svn update (`#4933 <https://github.com/rtfd/readthedocs.org/pull/4933>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.8.2 (`#4931 <https://github.com/rtfd/readthedocs.org/pull/4931>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove repeated and dead code (`#4929 <https://github.com/rtfd/readthedocs.org/pull/4929>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove deprecated sudo from travis (`#4919 <https://github.com/rtfd/readthedocs.org/pull/4919>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Validate profile form fields (`#4910 <https://github.com/rtfd/readthedocs.org/pull/4910>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Calculate actual ad views (`#4885 <https://github.com/rtfd/readthedocs.org/pull/4885>`__)
+* `@stsewd <http://github.com/stsewd>`__: Sync versions when creating/deleting versions (`#4876 <https://github.com/rtfd/readthedocs.org/pull/4876>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove unused project model fields (`#4870 <https://github.com/rtfd/readthedocs.org/pull/4870>`__)
+* `@humitos <http://github.com/humitos>`__: All package updates (`#4792 <https://github.com/rtfd/readthedocs.org/pull/4792>`__)
+* `@humitos <http://github.com/humitos>`__: Support git unicode branches (`#4433 <https://github.com/rtfd/readthedocs.org/pull/4433>`__)
+
+Version 2.8.2
+-------------
+
+:Date: November 28, 2018
+
+* `@stsewd <http://github.com/stsewd>`__: Use .exists in queryset (`#4927 <https://github.com/rtfd/readthedocs.org/pull/4927>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't rmtree symlink (`#4925 <https://github.com/rtfd/readthedocs.org/pull/4925>`__)
+* `@stsewd <http://github.com/stsewd>`__: Delete tags with same commit (`#4915 <https://github.com/rtfd/readthedocs.org/pull/4915>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: Tuning Elasticsearch for search improvements (`#4909 <https://github.com/rtfd/readthedocs.org/pull/4909>`__)
+* `@edmondchuc <http://github.com/edmondchuc>`__: Fixed some typos. (`#4906 <https://github.com/rtfd/readthedocs.org/pull/4906>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade stripe Python package to the latest version (`#4904 <https://github.com/rtfd/readthedocs.org/pull/4904>`__)
+* `@humitos <http://github.com/humitos>`__: Retry on API failure when connecting from builders (`#4902 <https://github.com/rtfd/readthedocs.org/pull/4902>`__)
+* `@stsewd <http://github.com/stsewd>`__: Separate update and checkout steps (`#4901 <https://github.com/rtfd/readthedocs.org/pull/4901>`__)
+* `@humitos <http://github.com/humitos>`__: Expose environment variables from database into build commands (`#4894 <https://github.com/rtfd/readthedocs.org/pull/4894>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Use python to expand the cwd instead of environment variables (`#4882 <https://github.com/rtfd/readthedocs.org/pull/4882>`__)
+* `@humitos <http://github.com/humitos>`__: Call Celery worker properly (`#4881 <https://github.com/rtfd/readthedocs.org/pull/4881>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Disable django.security.DisallowedHost from logging (`#4879 <https://github.com/rtfd/readthedocs.org/pull/4879>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'Sphinx Template Changes' From Docs (`#4878 <https://github.com/rtfd/readthedocs.org/pull/4878>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Unbreak the admin on ImportedFile by using raw_id_fields (`#4874 <https://github.com/rtfd/readthedocs.org/pull/4874>`__)
+* `@stsewd <http://github.com/stsewd>`__: Check if latest exists before updating identifier (`#4873 <https://github.com/rtfd/readthedocs.org/pull/4873>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.8.1 (`#4872 <https://github.com/rtfd/readthedocs.org/pull/4872>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Update django-guardian settings (`#4871 <https://github.com/rtfd/readthedocs.org/pull/4871>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change 'VerisionLockedTimeout' to 'VersionLockedError' in comment. (`#4859 <https://github.com/rtfd/readthedocs.org/pull/4859>`__)
+* `@stsewd <http://github.com/stsewd>`__: Hide "edit on" when the version is a tag (`#4851 <https://github.com/rtfd/readthedocs.org/pull/4851>`__)
+* `@stsewd <http://github.com/stsewd>`__: Delete untracked tags on fetch (`#4811 <https://github.com/rtfd/readthedocs.org/pull/4811>`__)
+* `@humitos <http://github.com/humitos>`__: Appropiate logging when a LockTimeout for VCS is reached (`#4804 <https://github.com/rtfd/readthedocs.org/pull/4804>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove support for multiple configurations in one file (`#4800 <https://github.com/rtfd/readthedocs.org/pull/4800>`__)
+* `@stsewd <http://github.com/stsewd>`__: Pipfile support (schema) (`#4782 <https://github.com/rtfd/readthedocs.org/pull/4782>`__)
+* `@stsewd <http://github.com/stsewd>`__: Save config on build model (`#4749 <https://github.com/rtfd/readthedocs.org/pull/4749>`__)
+* `@invinciblycool <http://github.com/invinciblycool>`__: Redirect to build detail post manual build (`#4622 <https://github.com/rtfd/readthedocs.org/pull/4622>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Enable timezone support and set timezone to UTC (`#4545 <https://github.com/rtfd/readthedocs.org/pull/4545>`__)
+* `@chirathr <http://github.com/chirathr>`__: Webhook notification URL size validation check (`#3680 <https://github.com/rtfd/readthedocs.org/pull/3680>`__)
+
+Version 2.8.1
+-------------
+
+:Date: November 06, 2018
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix migration name on modified date migration (`#4867 <https://github.com/rtfd/readthedocs.org/pull/4867>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change 'VerisionLockedTimeout' to 'VersionLockedError' in comment. (`#4859 <https://github.com/rtfd/readthedocs.org/pull/4859>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix rtd config file (`#4857 <https://github.com/rtfd/readthedocs.org/pull/4857>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Shorten project name to match slug length (`#4856 <https://github.com/rtfd/readthedocs.org/pull/4856>`__)
+* `@stsewd <http://github.com/stsewd>`__: Generic message for parser error of config file (`#4853 <https://github.com/rtfd/readthedocs.org/pull/4853>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use $HOME as CWD for virtualenv creation (`#4852 <https://github.com/rtfd/readthedocs.org/pull/4852>`__)
+* `@stsewd <http://github.com/stsewd>`__: Hide "edit on" when the version is a tag (`#4851 <https://github.com/rtfd/readthedocs.org/pull/4851>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add modified_date to ImportedFile. (`#4850 <https://github.com/rtfd/readthedocs.org/pull/4850>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Use raw_id_fields so that the Feature admin loads (`#4849 <https://github.com/rtfd/readthedocs.org/pull/4849>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow to change project's VCS (`#4845 <https://github.com/rtfd/readthedocs.org/pull/4845>`__)
+* `@benjaoming <http://github.com/benjaoming>`__: Version compare warning text (`#4842 <https://github.com/rtfd/readthedocs.org/pull/4842>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Make form for adopting project a choice field (`#4841 <https://github.com/rtfd/readthedocs.org/pull/4841>`__)
+* `@humitos <http://github.com/humitos>`__: Do not send notification on VersionLockedError (`#4839 <https://github.com/rtfd/readthedocs.org/pull/4839>`__)
+* `@stsewd <http://github.com/stsewd>`__: Start testing config v2 on our project (`#4838 <https://github.com/rtfd/readthedocs.org/pull/4838>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add all migrations that are missing from model changes (`#4837 <https://github.com/rtfd/readthedocs.org/pull/4837>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add docstring to DrfJsonSerializer so we know why it's there (`#4836 <https://github.com/rtfd/readthedocs.org/pull/4836>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Show the project's slug in the dashboard (`#4834 <https://github.com/rtfd/readthedocs.org/pull/4834>`__)
+* `@humitos <http://github.com/humitos>`__: Avoid infinite redirection (`#4833 <https://github.com/rtfd/readthedocs.org/pull/4833>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Allow filtering builds by commit. (`#4831 <https://github.com/rtfd/readthedocs.org/pull/4831>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add 'Branding' under the 'Business Info' section and 'Guidelines' on 'Design Docs' (`#4830 <https://github.com/rtfd/readthedocs.org/pull/4830>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Migrate old passwords without "set_unusable_password" (`#4829 <https://github.com/rtfd/readthedocs.org/pull/4829>`__)
+* `@humitos <http://github.com/humitos>`__: Do not import the Celery worker when running the Django app (`#4824 <https://github.com/rtfd/readthedocs.org/pull/4824>`__)
+* `@damianz5 <http://github.com/damianz5>`__: Fix for jQuery in doc-embed call (`#4819 <https://github.com/rtfd/readthedocs.org/pull/4819>`__)
+* `@invinciblycool <http://github.com/invinciblycool>`__: Add MkDocsYAMLParseError (`#4814 <https://github.com/rtfd/readthedocs.org/pull/4814>`__)
+* `@stsewd <http://github.com/stsewd>`__: Delete untracked tags on fetch (`#4811 <https://github.com/rtfd/readthedocs.org/pull/4811>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't activate version on build (`#4810 <https://github.com/rtfd/readthedocs.org/pull/4810>`__)
+* `@humitos <http://github.com/humitos>`__: Feature flag to make `readthedocs` theme default on MkDocs docs (`#4802 <https://github.com/rtfd/readthedocs.org/pull/4802>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Allow use of `file://` urls in repos during development. (`#4801 <https://github.com/rtfd/readthedocs.org/pull/4801>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.2 (`#4796 <https://github.com/rtfd/readthedocs.org/pull/4796>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Raise 404 at SubdomainMiddleware if the project does not exist. (`#4795 <https://github.com/rtfd/readthedocs.org/pull/4795>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add help_text in the form for adopting a project (`#4781 <https://github.com/rtfd/readthedocs.org/pull/4781>`__)
+* `@humitos <http://github.com/humitos>`__: Add VAT ID field for Gold User (`#4776 <https://github.com/rtfd/readthedocs.org/pull/4776>`__)
+* `@sriks123 <http://github.com/sriks123>`__: Remove logic around finding config file inside directories (`#4755 <https://github.com/rtfd/readthedocs.org/pull/4755>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Improve unexpected error message when build fails (`#4754 <https://github.com/rtfd/readthedocs.org/pull/4754>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't build latest on webhook if it is deactivated (`#4733 <https://github.com/rtfd/readthedocs.org/pull/4733>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change the way of using login_required decorator (`#4723 <https://github.com/rtfd/readthedocs.org/pull/4723>`__)
+* `@invinciblycool <http://github.com/invinciblycool>`__: Remove unused views and their translations. (`#4632 <https://github.com/rtfd/readthedocs.org/pull/4632>`__)
+* `@invinciblycool <http://github.com/invinciblycool>`__: Redirect to build detail post manual build (`#4622 <https://github.com/rtfd/readthedocs.org/pull/4622>`__)
+* `@anubhavsinha98 <http://github.com/anubhavsinha98>`__: Issue #4551 Changed mock docks to use sphinx (`#4569 <https://github.com/rtfd/readthedocs.org/pull/4569>`__)
+* `@xrmx <http://github.com/xrmx>`__: search: mark more strings for translation (`#4438 <https://github.com/rtfd/readthedocs.org/pull/4438>`__)
+* `@Alig1493 <http://github.com/Alig1493>`__: Fix for issue #4092: Remove unused field from Project model (`#4431 <https://github.com/rtfd/readthedocs.org/pull/4431>`__)
+* `@mashrikt <http://github.com/mashrikt>`__: Remove pytest _describe (`#4429 <https://github.com/rtfd/readthedocs.org/pull/4429>`__)
+* `@xrmx <http://github.com/xrmx>`__: static: use modern getJSON callbacks (`#4382 <https://github.com/rtfd/readthedocs.org/pull/4382>`__)
+* `@jaraco <http://github.com/jaraco>`__: Script for creating a project (`#4370 <https://github.com/rtfd/readthedocs.org/pull/4370>`__)
+* `@xrmx <http://github.com/xrmx>`__: make it easier to use a different default theme (`#4278 <https://github.com/rtfd/readthedocs.org/pull/4278>`__)
+* `@humitos <http://github.com/humitos>`__: Document alternate domains for business site (`#4271 <https://github.com/rtfd/readthedocs.org/pull/4271>`__)
+* `@xrmx <http://github.com/xrmx>`__: restapi/client: don't use DRF parser for parsing (`#4160 <https://github.com/rtfd/readthedocs.org/pull/4160>`__)
+* `@julienmalard <http://github.com/julienmalard>`__: New languages (`#3759 <https://github.com/rtfd/readthedocs.org/pull/3759>`__)
+* `@stsewd <http://github.com/stsewd>`__: Improve installation guide (`#3631 <https://github.com/rtfd/readthedocs.org/pull/3631>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow to hide version warning (`#3595 <https://github.com/rtfd/readthedocs.org/pull/3595>`__)
+* `@Alig1493 <http://github.com/Alig1493>`__: [Fixed #872] Filter Builds according to commit (`#3544 <https://github.com/rtfd/readthedocs.org/pull/3544>`__)
+* `@stsewd <http://github.com/stsewd>`__: Make slug field a valid DNS label (`#3464 <https://github.com/rtfd/readthedocs.org/pull/3464>`__)
+
+Version 2.8.0
+-------------
+
+:Date: October 30, 2018
+
+Major change is an upgrade to Django 1.11. 
+
+* `@humitos <http://github.com/humitos>`__: Cleanup old code (remove old_div) (`#4817 <https://github.com/rtfd/readthedocs.org/pull/4817>`__)
+* `@humitos <http://github.com/humitos>`__: Remove unnecessary migration (`#4806 <https://github.com/rtfd/readthedocs.org/pull/4806>`__)
+* `@humitos <http://github.com/humitos>`__: Feature flag to make `readthedocs` theme default on MkDocs docs (`#4802 <https://github.com/rtfd/readthedocs.org/pull/4802>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add codecov badge (`#4799 <https://github.com/rtfd/readthedocs.org/pull/4799>`__)
+* `@humitos <http://github.com/humitos>`__: Pin missing dependency for the MkDocs guide compatibility (`#4798 <https://github.com/rtfd/readthedocs.org/pull/4798>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.7.2 (`#4796 <https://github.com/rtfd/readthedocs.org/pull/4796>`__)
+* `@humitos <http://github.com/humitos>`__: Do not log as error a webhook with an invalid branch name (`#4779 <https://github.com/rtfd/readthedocs.org/pull/4779>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Run travis on release branches (`#4763 <https://github.com/rtfd/readthedocs.org/pull/4763>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove Eric & Anthony from ADMINS & MANAGERS settings (`#4762 <https://github.com/rtfd/readthedocs.org/pull/4762>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't use RequestsContext (`#4759 <https://github.com/rtfd/readthedocs.org/pull/4759>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Django 1.11 upgrade (`#4750 <https://github.com/rtfd/readthedocs.org/pull/4750>`__)
+* `@stsewd <http://github.com/stsewd>`__: Dropdown to select Advanced Settings (`#4710 <https://github.com/rtfd/readthedocs.org/pull/4710>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove hardcoded constant from config module (`#4704 <https://github.com/rtfd/readthedocs.org/pull/4704>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update tastypie (`#4325 <https://github.com/rtfd/readthedocs.org/pull/4325>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update to Django 1.10 (`#4319 <https://github.com/rtfd/readthedocs.org/pull/4319>`__)
+
 Version 2.7.2
 -------------
 

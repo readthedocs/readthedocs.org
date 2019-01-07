@@ -1,22 +1,31 @@
+# -*- coding: utf-8 -*-
+
 """Views for builds app."""
 
-from __future__ import absolute_import
-from builtins import object
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 import logging
 
-from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
+from builtins import object
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponseForbidden,
     HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
-from django.contrib.auth.decorators import login_required
-from readthedocs.core.permissions import AdminPermission
-from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.generic import DetailView, ListView
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 
@@ -31,9 +40,11 @@ class BuildBase(object):
         self.project_slug = self.kwargs.get('project_slug', None)
         self.project = get_object_or_404(
             Project.objects.protected(self.request.user),
-            slug=self.project_slug
+            slug=self.project_slug,
         )
-        queryset = Build.objects.public(user=self.request.user, project=self.project)
+        queryset = Build.objects.public(
+            user=self.request.user, project=self.project
+        )
 
         return queryset
 
@@ -54,8 +65,21 @@ class BuildTriggerMixin(object):
             slug=version_slug,
         )
 
-        trigger_build(project=project, version=version)
-        return HttpResponseRedirect(reverse('builds_project_list', args=[project.slug]))
+        update_docs_task, build = trigger_build(project=project, version=version)
+        if (update_docs_task, build) == (None, None):
+            # Build was skipped
+            messages.add_message(
+                request,
+                messages.WARNING,
+                "This project is currently disabled and can't trigger new builds.",
+            )
+            return HttpResponseRedirect(
+                reverse('builds_project_list', args=[project.slug]),
+            )
+
+        return HttpResponseRedirect(
+            reverse('builds_detail', args=[project.slug, build.pk]),
+        )
 
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
@@ -63,11 +87,14 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(BuildList, self).get_context_data(**kwargs)
 
-        active_builds = self.get_queryset().exclude(state="finished").values('id')
+        active_builds = self.get_queryset().exclude(state='finished'
+                                                    ).values('id')
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.objects.public(user=self.request.user, project=self.project)
+        context['versions'] = Version.objects.public(
+            user=self.request.user, project=self.project
+        )
         context['build_qs'] = self.get_queryset()
 
         return context
@@ -84,9 +111,14 @@ class BuildDetail(BuildBase, DetailView):
 
 # Old build view redirects
 
+
 def builds_redirect_list(request, project_slug):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(reverse('builds_project_list', args=[project_slug]))
+    return HttpResponsePermanentRedirect(
+        reverse('builds_project_list', args=[project_slug])
+    )
 
 
 def builds_redirect_detail(request, project_slug, pk):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(reverse('builds_detail', args=[project_slug, pk]))
+    return HttpResponsePermanentRedirect(
+        reverse('builds_detail', args=[project_slug, pk])
+    )

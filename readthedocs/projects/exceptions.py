@@ -40,7 +40,7 @@ class RepositoryError(BuildEnvironmentError):
     )
 
     INVALID_SUBMODULES = _(
-        'One or more submodule URLs are not valid.'
+        'One or more submodule URLs are not valid: {}.'
     )
 
     DUPLICATED_RESERVED_VERSIONS = _(

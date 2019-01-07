@@ -3,7 +3,11 @@
 """Documentation Builder Environments."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import os
@@ -31,13 +35,27 @@ from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.restapi.client import api as api_v2
 
 from .constants import (
-    DOCKER_HOSTNAME_MAX_LEN, DOCKER_IMAGE, DOCKER_LIMITS, DOCKER_OOM_EXIT_CODE,
-    DOCKER_SOCKET, DOCKER_TIMEOUT_EXIT_CODE, DOCKER_VERSION,
-    MKDOCS_TEMPLATE_DIR, SPHINX_TEMPLATE_DIR)
+    DOCKER_HOSTNAME_MAX_LEN,
+    DOCKER_IMAGE,
+    DOCKER_LIMITS,
+    DOCKER_OOM_EXIT_CODE,
+    DOCKER_SOCKET,
+    DOCKER_TIMEOUT_EXIT_CODE,
+    DOCKER_VERSION,
+    MKDOCS_TEMPLATE_DIR,
+)
 from .exceptions import (
-    BuildEnvironmentCreationFailed, BuildEnvironmentError,
-    BuildEnvironmentException, BuildEnvironmentWarning, BuildTimeoutError,
-    ProjectBuildsSkippedError, VersionLockedError, YAMLParseError)
+    BuildEnvironmentCreationFailed,
+    BuildEnvironmentError,
+    BuildEnvironmentException,
+    BuildEnvironmentWarning,
+    BuildTimeoutError,
+    MkDocsYAMLParseError,
+    ProjectBuildsSkippedError,
+    VersionLockedError,
+    YAMLParseError,
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -148,7 +166,9 @@ class BuildCommand(BuildCommandResultMixin):
             proc = subprocess.Popen(
                 self.command,
                 shell=self.shell,
-                cwd=self.cwd,
+                # This is done here for local builds, but not for docker,
+                # as we want docker to expand inside the container
+                cwd=os.path.expandvars(self.cwd),
                 stdin=stdin,
                 stdout=stdout,
                 stderr=stderr,
@@ -184,6 +204,9 @@ class BuildCommand(BuildCommandResultMixin):
                avoid PostgreSQL db to fail:
                https://code.djangoproject.com/ticket/28201
 
+            3. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
+               over the API call request
+
         :param output: stdout/stderr to be sanitized
         :type output: bytes
 
@@ -196,6 +219,25 @@ class BuildCommand(BuildCommandResultMixin):
             sanitized = sanitized.replace('\x00', '')
         except (TypeError, AttributeError):
             sanitized = None
+
+        # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
+        output_length = len(output) if output else 0
+        # Left some extra space for the rest of the request data
+        threshold = 512 * 1024  # 512Kb
+        allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
+        if output_length > allowed_length:
+            log.info(
+                'Command output is too big: project=[%s] version=[%s] build=[%s] command=[%s]',  # noqa
+                self.build_env.project.slug,
+                self.build_env.version.slug,
+                self.build_env.build.get('id'),
+                self.get_command(),
+            )
+            sanitized = sanitized[:allowed_length]
+            sanitized += '\n\n\nOutput is too big. Chunked at {} bytes'.format(
+                allowed_length,
+            )
+
         return sanitized
 
     def get_command(self):
@@ -270,8 +312,9 @@ class DockerBuildCommand(BuildCommand):
             # is in the last 15 lines of the command's output
             killed_in_output = 'Killed' in '\n'.join(self.output.splitlines()[-15:])
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
-                self.output = _('Command killed due to excessive memory '
-                                'consumption\n')
+                self.output += str(_(
+                    '\n\nCommand killed due to excessive memory consumption\n'
+                ))
         except DockerAPIError:
             self.exit_code = -1
             if self.output is None or not self.output:
@@ -438,6 +481,7 @@ class BuildEnvironment(BaseEnvironment):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
+        MkDocsYAMLParseError,
     )
 
     def __init__(self, project=None, version=None, build=None, config=None,
@@ -463,7 +507,7 @@ class BuildEnvironment(BaseEnvironment):
                 project=self.project.slug,
                 version=self.version.slug,
                 msg='Build finished',
-            )
+            ),
         )
         return ret
 
@@ -821,10 +865,6 @@ class DockerBuildEnvironment(BuildEnvironment):
         ``client.create_container``.
         """
         binds = {
-            SPHINX_TEMPLATE_DIR: {
-                'bind': SPHINX_TEMPLATE_DIR,
-                'mode': 'ro',
-            },
             MKDOCS_TEMPLATE_DIR: {
                 'bind': MKDOCS_TEMPLATE_DIR,
                 'mode': 'ro',

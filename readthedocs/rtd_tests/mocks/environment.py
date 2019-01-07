@@ -34,6 +34,10 @@ class EnvironmentMockGroup(object):
                 'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build'),
             'html_move': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.move'),
+            'localmedia_build': mock.patch(
+                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.build'),
+            'localmedia_move': mock.patch(
+                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.move'),
             'pdf_build': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.PdfBuilder.build'),
             'pdf_move': mock.patch(
@@ -42,6 +46,12 @@ class EnvironmentMockGroup(object):
                 'readthedocs.doc_builder.backends.sphinx.EpubBuilder.build'),
             'epub_move': mock.patch(
                 'readthedocs.doc_builder.backends.sphinx.EpubBuilder.move'),
+            'move_mkdocs': mock.patch(
+                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move'),
+            'append_conf_mkdocs': mock.patch(
+                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf'),
+            'html_build_mkdocs': mock.patch(
+                'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.build'),
             'glob': mock.patch('readthedocs.doc_builder.backends.sphinx.glob'),
 
             'docker': mock.patch('readthedocs.doc_builder.environments.APIClient'),

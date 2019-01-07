@@ -27,7 +27,7 @@ from readthedocs.restapi.client import api
 from readthedocs.projects.models import Feature
 
 from ..base import BaseBuilder, restoring_chdir
-from ..constants import PDF_RE, SPHINX_STATIC_DIR, SPHINX_TEMPLATE_DIR
+from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
@@ -63,7 +63,6 @@ class BaseSphinx(BaseBuilder):
             'sphinx/conf.py.conf', {
                 'project': self.project,
                 'version': self.version,
-                'template_dir': SPHINX_TEMPLATE_DIR,
                 'master_doc': master_doc,
             })
         conf_file = os.path.join(docs_dir, 'conf.py')
@@ -108,12 +107,12 @@ class BaseSphinx(BaseBuilder):
             downloads = api.version(self.version.pk).get()['downloads']
 
         data = {
+            'html_theme': 'sphinx_rtd_theme',
+            'html_theme_import': 'sphinx_rtd_theme',
             'current_version': self.version.verbose_name,
             'project': self.project,
             'version': self.version,
             'settings': settings,
-            'static_path': SPHINX_STATIC_DIR,
-            'template_path': SPHINX_TEMPLATE_DIR,
             'conf_py_path': conf_py_path,
             'api_host': getattr(
                 settings,

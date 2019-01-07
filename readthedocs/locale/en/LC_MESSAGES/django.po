@@ -2375,24 +2375,10 @@ msgstr ""
 msgid "%(user)s's profile"
 msgstr ""
 
-#: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
-msgid "Project Alias"
-msgstr ""
-
-#: templates/projects/alias_edit.html:12
-msgid "Add an alias for a project version."
-msgstr ""
-
-#: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:19
 msgid "Create"
 msgstr ""
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr ""
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr ""

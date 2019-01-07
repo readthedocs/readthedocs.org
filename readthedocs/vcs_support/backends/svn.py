@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 """Subversion-related utilities."""
 
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import csv
 
@@ -34,11 +39,10 @@ class Backend(BaseVCS):
         super(Backend, self).update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
-        retcode = self.run('svn', 'info', record_as_success=True)[0]
+        retcode, _, _ = self.run('svn', 'info', record=False)
         if retcode == 0:
-            self.up()
-        else:
-            self.co()
+            return self.up()
+        return self.co()
 
     def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]
@@ -54,7 +58,7 @@ class Backend(BaseVCS):
     def co(self, identifier=None):
         self.make_clean_working_dir()
         if identifier:
-            url = self.base_url + identifier
+            url = self.get_url(self.base_url, identifier)
         else:
             url = self.repo_url
         retcode, out, err = self.run('svn', 'checkout', url, '.')
@@ -99,10 +103,10 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
-        retcode = self.run('svn', 'info', record=False)[0]
-        if retcode == 0:
-            result = self.up()
-        else:
-            result = self.co(identifier)
-        # result is (return_code, stdout, stderr)
-        return result
+        return self.co(identifier)
+
+    def get_url(self, base_url, identifier):
+        base = base_url.rstrip('/')
+        tag = identifier.lstrip('/')
+        url = '{}/{}'.format(base, tag)
+        return url

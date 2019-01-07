@@ -25,6 +25,7 @@ To make your project continue using this version you will need to create a ``req
      mkdocs==0.15.0
      mkdocs-bootstrap==0.1.1
      mkdocs-bootswatch==0.1.0
+     markdown>=2.3.1,<2.5
 
 .. note::
 

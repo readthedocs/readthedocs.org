@@ -2,7 +2,11 @@
 """Project forms."""
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 from random import choice
 
@@ -23,9 +27,16 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
-    Domain, EmailHook, Feature, Project, ProjectRelationship, WebHook)
+    Domain,
+    EmailHook,
+    Feature,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from readthedocs.redirects.models import Redirect
 
 
@@ -171,6 +182,15 @@ class ProjectExtraForm(ProjectForm):
         widget=forms.Textarea,
     )
 
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags', [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _('Length of each tag must be less than or equal to 100 characters.')
+                )
+        return tags
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
@@ -204,8 +224,24 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'python_interpreter',
             # Fringe
             'analytics_code',
-            # Version Support
-            # 'num_major', 'num_minor', 'num_point',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super(ProjectAdvancedForm, self).__init__(*args, **kwargs)
+
+        default_choice = (None, '-' * 9)
+        all_versions = self.instance.versions.values_list(
+            'identifier', 'verbose_name'
+        )
+        self.fields['default_branch'].widget = forms.Select(
+            choices=[default_choice] + list(all_versions)
+        )
+
+        active_versions = self.instance.all_active_versions().values_list(
+            'slug', 'verbose_name'
+        )
+        self.fields['default_version'].widget = forms.Select(
+            choices=active_versions
         )
 
     def clean_conf_py_file(self):
@@ -501,24 +537,23 @@ class EmailHookForm(forms.Form):
         return self.project
 
 
-class WebHookForm(forms.Form):
+class WebHookForm(forms.ModelForm):
 
     """Project webhook form."""
-
-    url = forms.URLField()
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super(WebHookForm, self).__init__(*args, **kwargs)
 
-    def clean_url(self):
+    def save(self, commit=True):
         self.webhook = WebHook.objects.get_or_create(
             url=self.cleaned_data['url'], project=self.project)[0]
-        return self.webhook
-
-    def save(self):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
+
+    class Meta:
+        model = WebHook
+        fields = ['url']
 
 
 class TranslationBaseForm(forms.Form):

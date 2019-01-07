@@ -2,7 +2,7 @@
 
 import pytest
 from django.core.management import call_command
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django_dynamic_fixture import G
 from pyquery import PyQuery as pq
 

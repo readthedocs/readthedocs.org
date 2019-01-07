@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
 from django_dynamic_fixture import get
+from django.utils import timezone
 from mock import patch
 from rest_framework.reverse import reverse
 
@@ -32,13 +33,6 @@ class ProjectMixin(object):
 
 class TestProject(ProjectMixin, TestCase):
 
-    def test_valid_versions(self):
-        r = self.client.get('/api/v2/project/6/valid_versions/', {})
-        resp = json.loads(r.content)
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['flat'][0], '0.8')
-        self.assertEqual(resp['flat'][1], '0.8.1')
-
     def test_subprojects(self):
         r = self.client.get('/api/v2/project/6/subprojects/', {})
         resp = json.loads(r.content)
@@ -53,32 +47,32 @@ class TestProject(ProjectMixin, TestCase):
 
     def test_has_pdf(self):
         # The project has a pdf if the PDF file exists on disk.
-        with fake_paths_by_regex('\.pdf$'):
+        with fake_paths_by_regex(r'\.pdf$'):
             self.assertTrue(self.pip.has_pdf(LATEST))
 
         # The project has no pdf if there is no file on disk.
-        with fake_paths_by_regex('\.pdf$', exists=False):
+        with fake_paths_by_regex(r'\.pdf$', exists=False):
             self.assertFalse(self.pip.has_pdf(LATEST))
 
     def test_has_pdf_with_pdf_build_disabled(self):
         # The project has NO pdf if pdf builds are disabled
         self.pip.enable_pdf_build = False
-        with fake_paths_by_regex('\.pdf$'):
+        with fake_paths_by_regex(r'\.pdf$'):
             self.assertFalse(self.pip.has_pdf(LATEST))
 
     def test_has_epub(self):
         # The project has a epub if the PDF file exists on disk.
-        with fake_paths_by_regex('\.epub$'):
+        with fake_paths_by_regex(r'\.epub$'):
             self.assertTrue(self.pip.has_epub(LATEST))
 
         # The project has no epub if there is no file on disk.
-        with fake_paths_by_regex('\.epub$', exists=False):
+        with fake_paths_by_regex(r'\.epub$', exists=False):
             self.assertFalse(self.pip.has_epub(LATEST))
 
     def test_has_epub_with_epub_build_disabled(self):
         # The project has NO epub if epub builds are disabled
         self.pip.enable_epub_build = False
-        with fake_paths_by_regex('\.epub$'):
+        with fake_paths_by_regex(r'\.epub$'):
             self.assertFalse(self.pip.has_epub(LATEST))
 
     @patch('readthedocs.projects.models.Project.find')
@@ -435,7 +429,7 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_2.date = (
-            datetime.datetime.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1))
         self.build_2.save()
 
         # Build started an hour ago with custom time (2 hours)
@@ -445,7 +439,7 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_3.date = (
-            datetime.datetime.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1))
         self.build_3.save()
 
     def test_finish_inactive_builds_task(self):

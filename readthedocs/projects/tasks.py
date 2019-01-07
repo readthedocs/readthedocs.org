@@ -7,7 +7,11 @@ rebuilding documentation.
 """
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import datetime
 import hashlib
@@ -22,28 +26,42 @@ import requests
 from builtins import str
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_BUILDING, BUILD_STATE_CLONING, BUILD_STATE_FINISHED,
-    BUILD_STATE_INSTALLING, LATEST, LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME)
+    BUILD_STATE_BUILDING,
+    BUILD_STATE_CLONING,
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_INSTALLING,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+)
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-from readthedocs.core.utils import send_email, broadcast, safe_unlink
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.core.utils import broadcast, safe_unlink, send_email
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
-    DockerBuildEnvironment, LocalBuildEnvironment)
+    DockerBuildEnvironment,
+    LocalBuildEnvironment,
+)
 from readthedocs.doc_builder.exceptions import (
-    BuildEnvironmentError, BuildTimeoutError, ProjectBuildsSkippedError,
-    VersionLockedError, YAMLParseError)
+    BuildEnvironmentError,
+    BuildTimeoutError,
+    ProjectBuildsSkippedError,
+    VersionLockedError,
+    YAMLParseError,
+    BuildEnvironmentWarning,
+)
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject
@@ -55,13 +73,16 @@ from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, Feature, ImportedFile, Project
+from .models import Domain, ImportedFile, Project
 from .signals import (
-    after_build, after_vcs, before_build, before_vcs, files_changed)
+    after_build,
+    after_vcs,
+    before_build,
+    before_vcs,
+    files_changed,
+)
 
 log = logging.getLogger(__name__)
-
-HTML_ONLY = getattr(settings, 'HTML_ONLY_PROJECTS', ())
 
 
 class SyncRepositoryMixin(object):
@@ -127,37 +148,49 @@ class SyncRepositoryMixin(object):
                     msg=msg,
                 ))
                 version_repo = self.get_vcs_repo()
+                version_repo.update()
+                self.sync_versions(version_repo)
                 version_repo.checkout(self.version.identifier)
             finally:
                 after_vcs.send(sender=self.version)
 
-            # Update tags/version
-            version_post_data = {'repo': version_repo.repo_url}
+    def sync_versions(self, version_repo):
+        """
+        Update tags/branches hitting the API.
 
-            if version_repo.supports_tags:
-                version_post_data['tags'] = [
-                    {'identifier': v.identifier,
-                     'verbose_name': v.verbose_name,
-                     } for v in version_repo.tags
-                ]
+        It may trigger a new build to the stable version
+        when hittig the ``sync_versions`` endpoint.
+        """
+        version_post_data = {'repo': version_repo.repo_url}
 
-            if version_repo.supports_branches:
-                version_post_data['branches'] = [
-                    {'identifier': v.identifier,
-                     'verbose_name': v.verbose_name,
-                     } for v in version_repo.branches
-                ]
+        if version_repo.supports_tags:
+            version_post_data['tags'] = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in version_repo.tags
+            ]
 
-            self.validate_duplicate_reserved_versions(version_post_data)
+        if version_repo.supports_branches:
+            version_post_data['branches'] = [
+                {
+                    'identifier': v.identifier,
+                    'verbose_name': v.verbose_name,
+                }
+                for v in version_repo.branches
+            ]
 
-            try:
-                # Hit the API ``sync_versions`` which may trigger a new build
-                # for the stable version
-                api_v2.project(self.project.pk).sync_versions.post(version_post_data)
-            except HttpClientError:
-                log.exception('Sync Versions Exception')
-            except Exception:
-                log.exception('Unknown Sync Versions Exception')
+        self.validate_duplicate_reserved_versions(version_post_data)
+
+        try:
+            api_v2.project(self.project.pk).sync_versions.post(
+                version_post_data
+            )
+        except HttpClientError:
+            log.exception('Sync Versions Exception')
+        except Exception:
+            log.exception('Unknown Sync Versions Exception')
 
     def validate_duplicate_reserved_versions(self, data):
         """
@@ -218,15 +251,40 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         except RepositoryError:
             # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
+        except vcs_support_utils.LockTimeout:
+            log.info(
+                'Lock still active: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
                 'An unhandled exception was raised during VCS syncing',
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
+
             )
         return False
 
 
-@app.task(bind=True, max_retries=5, default_retry_delay=7 * 60)
+@app.task(
+    bind=True,
+    max_retries=5,
+    default_retry_delay=7 * 60,
+    throws=(
+        VersionLockedError,
+        ProjectBuildsSkippedError,
+        YAMLParseError,
+        BuildTimeoutError,
+        ProjectBuildsSkippedError
+    )
+)
 def update_docs_task(self, project_id, *args, **kwargs):
     step = UpdateDocsTaskStep(task=self)
     return step.run(project_id, *args, **kwargs)
@@ -251,13 +309,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     """
 
     def __init__(self, build_env=None, python_env=None, config=None,
-                 force=False, search=True, localmedia=True,
-                 build=None, project=None, version=None, task=None):
+                 force=False, build=None, project=None,
+                 version=None, task=None):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
-        self.build_search = search
-        self.build_localmedia = localmedia
         self.build = {}
         if build is not None:
             self.build = build
@@ -274,7 +330,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=None, search=True, force=False, localmedia=True, **__):
+            docker=None, force=False, **__):
         """
         Run a documentation sync n' build.
 
@@ -297,9 +353,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
             ``settings.DOCKER_ENABLE`` is used)
-        :param search bool: update search
         :param force bool: force Sphinx build
-        :param localmedia bool: update localmedia
 
         :returns: whether build was successful or not
 
@@ -312,8 +366,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
-            self.build_search = search
-            self.build_localmedia = localmedia
             self.build_force = force
             self.config = None
 
@@ -405,8 +457,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 raise YAMLParseError(
                     YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
                         exception=str(e),
-                    ))
+                    )
+                )
 
+            self.save_build_config()
             self.additional_vcs_operations()
 
         if self.setup_env.failure or self.config is None:
@@ -419,10 +473,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 msg=msg,
             ))
 
-            # Send notification to users only if the build didn't fail because of
-            # LockTimeout: this exception occurs when a build is triggered before the previous
-            # one has finished (e.g. two webhooks, one after the other)
-            if not isinstance(self.setup_env.failure, vcs_support_utils.LockTimeout):
+            # Send notification to users only if the build didn't fail because
+            # of VersionLockedError: this exception occurs when a build is
+            # triggered before the previous one has finished (e.g. two webhooks,
+            # one after the other)
+            if not isinstance(self.setup_env.failure, VersionLockedError):
                 self.send_notifications()
 
             return False
@@ -529,9 +584,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         build = {}
         if build_pk:
             build = api_v2.build(build_pk).get()
-        return dict((key, val) for (key, val) in list(build.items())
-                    if key not in ['project', 'version', 'resource_uri',
-                                   'absolute_uri'])
+        private_keys = [
+            'project', 'version', 'resource_uri', 'absolute_uri',
+        ]
+        return {
+            key: val
+            for key, val in build.items()
+            if key not in private_keys
+        }
 
     def setup_vcs(self):
         """
@@ -548,7 +608,31 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             version=self.version.slug,
             msg='Updating docs from VCS',
         ))
-        self.sync_repo()
+        try:
+            self.sync_repo()
+        except RepositoryError:
+            # Do not log as ERROR handled exceptions
+            log.warning('There was an error with the repository', exc_info=True)
+        except vcs_support_utils.LockTimeout:
+            log.info(
+                'Lock still active: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
+        except Exception:
+            # Catch unhandled errors when syncing
+            log.exception(
+                'An unhandled exception was raised during VCS syncing',
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'build': self.build['id'],
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
+            )
+
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
@@ -558,7 +642,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         env = {
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug
+            'READTHEDOCS_PROJECT': self.project.slug,
         }
 
         if self.config.conda is not None:
@@ -569,7 +653,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.project.doc_path,
                     'conda',
                     self.version.slug,
-                    'bin'
+                    'bin',
                 ),
             })
         else:
@@ -578,9 +662,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.project.doc_path,
                     'envs',
                     self.version.slug,
-                    'bin'
+                    'bin',
                 ),
             })
+
+        # Update environment from Project's specific environment variables
+        env.update(self.project.environment_variables)
 
         return env
 
@@ -591,6 +678,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         api_v2.project(self.project.pk).put(project_data)
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
+
+    def save_build_config(self):
+        """Save config in the build object."""
+        pk = self.build['id']
+        config = self.config.as_dict()
+        api_v2.build(pk).patch({
+            'config': config,
+        })
+        self.build['config'] = config
 
     def update_app_instances(self, html=False, localmedia=False, search=False,
                              pdf=False, epub=False):
@@ -605,7 +701,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
-                    'active': True,
                     'built': True,
                 })
         except HttpClientError:
@@ -714,37 +809,38 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_search(self):
         """Build search data."""
-        # TODO rely on config parameter here when Project.documentation_type is
-        # removed in #4638. Mkdocs has no search currently
-        if self.project.documentation_type == 'mkdocs':
-            return False
-        return self.build_search
+        # Search is always run in sphinx using the rtd-sphinx-extension.
+        # Mkdocs has no search currently.
+        if self.is_type_sphinx():
+            return True
+        return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
         if 'htmlzip' not in self.config.formats:
             return False
-
-        if self.build_localmedia:
-            if self.is_type_sphinx():
-                return self.build_docs_class('sphinx_singlehtmllocalmedia')
+        # We don't generate a zip for mkdocs currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class('sphinx_singlehtmllocalmedia')
         return False
 
     def build_docs_pdf(self):
         """Build PDF docs."""
-        if ('pdf' not in self.config.formats or
-                self.project.slug in HTML_ONLY or
-                not self.is_type_sphinx()):
+        if 'pdf' not in self.config.formats:
             return False
-        return self.build_docs_class('sphinx_pdf')
+        # Mkdocs has no pdf generation currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class('sphinx_pdf')
+        return False
 
     def build_docs_epub(self):
         """Build ePub docs."""
-        if ('epub' not in self.config.formats or
-            self.project.slug in HTML_ONLY or
-                not self.is_type_sphinx()):
+        if 'epub' not in self.config.formats:
             return False
-        return self.build_docs_class('sphinx_epub')
+        # Mkdocs has no epub generation currently.
+        if self.is_type_sphinx():
+            return self.build_docs_class('sphinx_epub')
+        return False
 
     def build_docs_class(self, builder_class):
         """
@@ -938,7 +1034,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     )
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -946,7 +1042,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_domain(project_pk, domain_pk, delete=False):
     project = Project.objects.get(pk=project_pk)
     domain = Domain.objects.get(pk=domain_pk)
@@ -986,7 +1082,7 @@ def broadcast_remove_orphan_symlinks():
     broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -1280,7 +1376,7 @@ def finish_inactive_builds():
     time_limit = int(DOCKER_LIMITS['time'] * 1.2)
     delta = datetime.timedelta(seconds=time_limit)
     query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=datetime.datetime.now() - delta))
+             Q(date__lte=timezone.now() - delta))
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
@@ -1290,7 +1386,7 @@ def finish_inactive_builds():
             custom_delta = datetime.timedelta(
                 seconds=int(build.project.container_time_limit),
             )
-            if build.date + custom_delta > datetime.datetime.now():
+            if build.date + custom_delta > timezone.now():
                 # Do not mark as FINISHED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
                 continue
