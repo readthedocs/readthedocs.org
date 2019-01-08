@@ -1,14 +1,13 @@
-from __future__ import absolute_import
-
 from datetime import timedelta
 
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 
-from readthedocs.projects.models import Project, ProjectRelationship, Feature
-from readthedocs.projects.querysets import (ParentRelatedProjectQuerySet,
-                                            ChildRelatedProjectQuerySet)
-
+from readthedocs.projects.models import Feature, Project, ProjectRelationship
+from readthedocs.projects.querysets import (
+    ChildRelatedProjectQuerySet,
+    ParentRelatedProjectQuerySet,
+)
 
 class ProjectQuerySetTests(TestCase):
 

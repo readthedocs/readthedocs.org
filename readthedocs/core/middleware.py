@@ -1,21 +1,19 @@
 """Middleware for core app."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.urls.base import get_urlconf, set_urlconf
 from django.http import Http404, HttpResponseBadRequest
+from django.urls.base import get_urlconf, set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.utils import cname_to_slug
 from readthedocs.projects.models import Domain, Project
+
 
 log = logging.getLogger(__name__)
 

@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """An abstraction over virtualenv and Conda environments."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import copy
 import itertools
 import json
@@ -15,8 +8,6 @@ import logging
 import os
 import shutil
 
-import six
-from builtins import object, open
 from django.conf import settings
 
 from readthedocs.doc_builder.config import load_yaml_config
@@ -25,6 +16,7 @@ from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
+
 
 log = logging.getLogger(__name__)
 

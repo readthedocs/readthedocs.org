@@ -7,10 +7,10 @@ with it in the database, and generating a redirect response.
 These are not used directly as views; they are instead included into 404
 handlers, so that redirects only take effect if no other view matches.
 """
-from __future__ import absolute_import
-from django.http import HttpResponseRedirect
 import logging
 import re
+
+from django.http import HttpResponseRedirect
 
 from readthedocs.constants import LANGUAGES_REGEX
 from readthedocs.projects.models import Project

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Project signals"""
 
-from __future__ import absolute_import
 import django.dispatch
 
 

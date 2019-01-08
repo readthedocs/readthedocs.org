@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """An API to load config from a readthedocs.yml file."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 from os import path
 
 from readthedocs.config import BuildConfigV1, ConfigError, InvalidConfig

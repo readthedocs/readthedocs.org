@@ -1,10 +1,7 @@
 """Template tags for core app."""
 
-from __future__ import absolute_import
-
 import hashlib
 
-from builtins import str  # pylint: disable=redefined-builtin
 from django import template
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text

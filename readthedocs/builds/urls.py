@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """URL configuration for builds app."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 from django.conf.urls import url
 
 from .views import builds_redirect_detail, builds_redirect_list
+
 
 urlpatterns = [
     url(

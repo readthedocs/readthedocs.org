@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import os
 import tempfile
 from collections import namedtuple
@@ -21,7 +18,6 @@ from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
-
 
 class SphinxBuilderTest(TestCase):
 

@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import os
 from os.path import exists
 from tempfile import mkdtemp
 
 import django_dynamic_fixture as fixture
 import pytest
-import six
 from django.contrib.auth.models import User
 from mock import Mock, patch
 
@@ -29,7 +21,6 @@ from readthedocs.rtd_tests.utils import (
     make_test_git,
     make_test_hg,
 )
-
 
 class TestGitBackend(RTDTestCase):
     def setUp(self):

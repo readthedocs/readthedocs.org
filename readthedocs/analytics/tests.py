@@ -1,9 +1,6 @@
-from __future__ import absolute_import, unicode_literals
-
 from django.test import TestCase
 
 from .utils import anonymize_ip_address, anonymize_user_agent
-
 
 class UtilsTests(TestCase):
     def test_anonymize_ip(self):
@@ -29,4 +26,3 @@ class UtilsTests(TestCase):
             anonymize_user_agent('Some rare user agent'),
             'Rare user agent',
         )
-

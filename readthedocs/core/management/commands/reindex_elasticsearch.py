@@ -1,16 +1,15 @@
 """Reindex Elastic Search indexes"""
 
-from __future__ import absolute_import
 import logging
 from optparse import make_option
 
-from django.core.management.base import BaseCommand
-from django.core.management.base import CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.tasks import update_search
+
 
 log = logging.getLogger(__name__)
 

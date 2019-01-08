@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, print_function, unicode_literals
-
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -9,7 +7,6 @@ from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project
-
 
 class TestVersionForm(TestCase):
 

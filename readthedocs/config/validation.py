@@ -1,7 +1,6 @@
 """Validations for the RTD configuration file."""
-from __future__ import division, print_function, unicode_literals
-
 import os
+
 
 INVALID_BOOL = 'invalid-bool'
 INVALID_CHOICE = 'invalid-choice'

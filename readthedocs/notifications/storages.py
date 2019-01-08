@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 """Customised storage for notifications."""
 
-from __future__ import absolute_import
 from django.contrib.messages.storage.base import Message
 from django.db.models import Q
 from django.utils.safestring import mark_safe
-from messages_extends.storages import FallbackStorage, PersistentStorage
-from messages_extends.models import Message as PersistentMessage
 from messages_extends.constants import PERSISTENT_MESSAGE_LEVELS
+from messages_extends.models import Message as PersistentMessage
+from messages_extends.storages import FallbackStorage, PersistentStorage
+
+from .constants import NON_PERSISTENT_MESSAGE_LEVELS
+
 
 try:
     from django.utils import timezone
 except ImportError:
     from datetime import datetime as timezone
 
-from .constants import NON_PERSISTENT_MESSAGE_LEVELS
 
 
 class FallbackUniqueStorage(FallbackStorage):

@@ -1,10 +1,7 @@
-from __future__ import division, print_function, unicode_literals
-
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django_dynamic_fixture import get
-
 
 class ProfileViewsTest(TestCase):
 

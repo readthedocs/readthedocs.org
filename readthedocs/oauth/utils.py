@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """Support code for OAuth, including webhook support."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 
 from django.contrib import messages
@@ -11,8 +8,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.services import (
-    BitbucketService, GitHubService, GitLabService, registry)
+    BitbucketService,
+    GitHubService,
+    GitLabService,
+    registry,
+)
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 

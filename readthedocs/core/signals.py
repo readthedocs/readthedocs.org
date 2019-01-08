@@ -2,21 +2,19 @@
 
 """Signal handling for core app."""
 
-from __future__ import absolute_import
-
 import logging
 
 from corsheaders import signals
 from django.conf import settings
+from django.db.models import Count, Q
 from django.db.models.signals import pre_delete
-from django.dispatch import Signal
-from django.db.models import Q, Count
-from django.dispatch import receiver
+from django.dispatch import Signal, receiver
 from future.backports.urllib.parse import urlparse
 from rest_framework.permissions import SAFE_METHODS
 
 from readthedocs.oauth.models import RemoteOrganization
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
+
 
 log = logging.getLogger(__name__)
 

@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 """Notifications sent after build is completed."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import django_dynamic_fixture as fixture
 from django.core import mail
 from django.test import TestCase
 from mock import patch
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Project, EmailHook, WebHook
-from readthedocs.projects.tasks import send_notifications
 from readthedocs.projects.forms import WebHookForm
-
+from readthedocs.projects.models import EmailHook, Project, WebHook
+from readthedocs.projects.tasks import send_notifications
 
 class BuildNotificationsTests(TestCase):
     def setUp(self):

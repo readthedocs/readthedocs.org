@@ -2,13 +2,6 @@
 
 """Project views for authenticated users."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 
 from allauth.socialaccount.models import SocialAccount
@@ -65,6 +58,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+
 
 log = logging.getLogger(__name__)
 

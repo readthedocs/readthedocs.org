@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 """Mix-in classes for project views."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
-from builtins import object
 from datetime import timedelta
 
 from django.conf import settings
-from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 
 from ..exceptions import ProjectSpamError
 from ..models import Project
+
 
 log = logging.getLogger(__name__)
 

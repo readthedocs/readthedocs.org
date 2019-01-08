@@ -1,13 +1,11 @@
 """Utility classes for api module"""
-from __future__ import absolute_import
 import logging
 
 from django.utils.translation import ugettext
-
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
-from tastypie.resources import ModelResource
 from tastypie.exceptions import NotFound
+from tastypie.resources import ModelResource
 
 
 log = logging.getLogger(__name__)

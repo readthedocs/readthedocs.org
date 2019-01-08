@@ -1,22 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-from builtins import object
 import os
 import shutil
 import tempfile
 
 import mock
 from django.conf import settings
-from django.urls import reverse
 from django.test import TestCase, override_settings
+from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.tasks import broadcast_remove_orphan_symlinks, remove_orphan_symlinks, symlink_project
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
-
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.tasks import (
+    broadcast_remove_orphan_symlinks,
+    remove_orphan_symlinks,
+    symlink_project,
+)
 
 def get_filesystem(path, top_level_path=None):
     """Recurse into path, return dictionary mapping of path and files

@@ -7,10 +7,6 @@ Django settings. For example, they might be e-mailed to users as well as
 displayed on the site.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
-from builtins import object
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.module_loading import import_string

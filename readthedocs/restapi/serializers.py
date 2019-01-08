@@ -1,15 +1,11 @@
 """Defines serializers for each of our models."""
 
-from __future__ import absolute_import
-
-from builtins import object
-
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):

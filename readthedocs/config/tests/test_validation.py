@@ -1,18 +1,26 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
-
 import os
 
 from mock import patch
 from pytest import raises
-from six import text_type
 
 from readthedocs.config.validation import (
-    INVALID_BOOL, INVALID_CHOICE, INVALID_DIRECTORY, INVALID_FILE, INVALID_LIST,
-    INVALID_PATH, INVALID_STRING, ValidationError, validate_bool,
-    validate_choice, validate_directory, validate_file, validate_list,
-    validate_path, validate_string)
-
+    INVALID_BOOL,
+    INVALID_CHOICE,
+    INVALID_DIRECTORY,
+    INVALID_FILE,
+    INVALID_LIST,
+    INVALID_PATH,
+    INVALID_STRING,
+    ValidationError,
+    validate_bool,
+    validate_choice,
+    validate_directory,
+    validate_file,
+    validate_list,
+    validate_path,
+    validate_string,
+)
 
 class TestValidateBool:
     def test_it_accepts_true(self):

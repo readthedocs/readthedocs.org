@@ -17,8 +17,6 @@ slug. This is used since using numbers in tags is too common and appending
 another number would be confusing.
 """
 
-from __future__ import absolute_import
-
 import math
 import re
 import string
@@ -26,7 +24,6 @@ from operator import truediv
 
 from django.db import models
 from django.utils.encoding import force_text
-from builtins import range
 
 
 def get_fields_with_model(cls):

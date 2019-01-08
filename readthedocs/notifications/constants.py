@@ -1,6 +1,5 @@
 """Notification constants"""
 
-from __future__ import absolute_import
 from messages_extends import constants as message_constants
 
 

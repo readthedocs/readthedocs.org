@@ -1,10 +1,9 @@
-from __future__ import absolute_import
 from functools import partial
-from mock import Mock
 from unittest import TestCase
 
-from readthedocs.restapi.permissions import APIRestrictedPermission
+from mock import Mock
 
+from readthedocs.restapi.permissions import APIRestrictedPermission
 
 class APIRestrictedPermissionTests(TestCase):
     def get_request(self, method, is_admin):

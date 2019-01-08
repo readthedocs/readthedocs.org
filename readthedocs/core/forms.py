@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 """Forms for core app."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
-from builtins import object
 
 from django import forms
 from django.contrib.auth.models import User
@@ -13,6 +9,7 @@ from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _
 
 from .models import UserProfile
+
 
 log = logging.getLogger(__name__)
 

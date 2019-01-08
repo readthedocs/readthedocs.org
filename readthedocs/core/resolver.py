@@ -1,13 +1,11 @@
 """URL resolver for documentation."""
 
-from __future__ import absolute_import
-from builtins import object
 import re
 
 from django.conf import settings
 
-from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 
 
 class ResolverBase:

@@ -1,11 +1,9 @@
-import pytest
 import django_dynamic_fixture
-
+import pytest
 from django.contrib.auth.models import User
 
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Project
-
 
 @pytest.mark.django_db
 class TestProjectOrganizationSignal:

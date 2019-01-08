@@ -52,19 +52,11 @@ Example layout
         fabric -> rtd-builds/fabric/en/latest/ # single version
 """
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import os
 import shutil
 from collections import OrderedDict
 
-from builtins import object
 from django.conf import settings
 
 from readthedocs.builds.models import Version
@@ -73,6 +65,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.doc_builder.environments import LocalEnvironment
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
+
 
 log = logging.getLogger(__name__)
 

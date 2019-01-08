@@ -1,14 +1,13 @@
 """Rebuild documentation for all projects"""
 
-from __future__ import absolute_import
-from __future__ import print_function
-from glob import glob
-import os
 import logging
+import os
+from glob import glob
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import loader as template_loader
+
 
 log = logging.getLogger(__name__)
 

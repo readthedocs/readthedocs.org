@@ -6,13 +6,6 @@ This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import datetime
 import hashlib
 import json
@@ -23,11 +16,10 @@ import socket
 from collections import Counter, defaultdict
 
 import requests
-from builtins import str
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
-from django.urls import reverse
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
@@ -56,11 +48,11 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
+    BuildEnvironmentWarning,
     BuildTimeoutError,
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
-    BuildEnvironmentWarning,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
@@ -81,6 +73,7 @@ from .signals import (
     before_vcs,
     files_changed,
 )
+
 
 log = logging.getLogger(__name__)
 

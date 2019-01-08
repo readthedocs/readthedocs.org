@@ -1,16 +1,15 @@
 """OAuth utility functions."""
 
-from __future__ import absolute_import
-from builtins import str
-import logging
 import json
+import logging
 import re
 
+from allauth.socialaccount.providers.bitbucket_oauth2.views import (
+    BitbucketOAuth2Adapter,
+)
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
-from allauth.socialaccount.providers.bitbucket_oauth2.views import (
-    BitbucketOAuth2Adapter)
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration

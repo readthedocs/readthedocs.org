@@ -1,17 +1,14 @@
 """Utility endpoints relating to canonical urls, embedded content, etc."""
 
-from __future__ import absolute_import
-
+from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from django.shortcuts import get_object_or_404
-
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
 from readthedocs.core.templatetags.core_tags import make_document_url
+from readthedocs.projects.models import Project
 
 
 @decorators.api_view(['GET'])

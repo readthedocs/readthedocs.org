@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import django_dynamic_fixture as fixture
 import mock
 from django.test import TestCase, override_settings
 
 from readthedocs.core.resolver import (
-    Resolver, resolve, resolve_domain, resolve_path
+    Resolver,
+    resolve,
+    resolve_domain,
+    resolve_path,
 )
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
-
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):

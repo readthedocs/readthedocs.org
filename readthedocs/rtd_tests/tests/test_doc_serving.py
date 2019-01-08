@@ -1,18 +1,15 @@
-from __future__ import absolute_import
-import mock
 import django_dynamic_fixture as fixture
-
+import mock
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.http import Http404
-from django.conf import settings
 
-from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.core.views.serve import _serve_symlink_docs
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
-from readthedocs.core.views.serve import _serve_symlink_docs
-
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
 @override_settings(
     USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False

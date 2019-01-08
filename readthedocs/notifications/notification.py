@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """Support for templating of notifications."""
 
-from __future__ import absolute_import
-from builtins import object
 import logging
+
 from django.conf import settings
-from django.template import Template, Context
-from django.template.loader import render_to_string
 from django.db import models
 from django.http import HttpRequest
+from django.template import Context, Template
+from django.template.loader import render_to_string
 
-from .backends import send_notification
 from . import constants
+from .backends import send_notification
 
 
 log = logging.getLogger(__name__)

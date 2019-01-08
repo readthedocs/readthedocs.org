@@ -3,8 +3,6 @@
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
-from __future__ import division, print_function, unicode_literals
-
 import os
 import re
 from contextlib import contextmanager
@@ -25,6 +23,7 @@ from .validation import (
     validate_list,
     validate_string,
 )
+
 
 __all__ = (
     'ALL',

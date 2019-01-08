@@ -1,10 +1,9 @@
 """Email backends for core app."""
 
-from __future__ import absolute_import
 import smtplib
 
-from django.core.mail.utils import DNS_NAME
 from django.core.mail.backends.smtp import EmailBackend
+from django.core.mail.utils import DNS_NAME
 
 
 class SSLEmailBackend(EmailBackend):

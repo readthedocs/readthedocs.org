@@ -1,7 +1,5 @@
 """Build and Version QuerySet classes"""
 
-from __future__ import absolute_import
-
 from django.db import models
 from guardian.shortcuts import get_objects_for_user
 

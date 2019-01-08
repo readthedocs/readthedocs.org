@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 """Project models."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import fnmatch
 import logging
 import os
-from builtins import object  # pylint: disable=redefined-builtin
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import NoReverseMatch, reverse
 from django.db import models
+from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -26,14 +22,21 @@ from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.querysets import (
-    ChildRelatedProjectQuerySet, FeatureQuerySet, ProjectQuerySet,
-    RelatedProjectQuerySet)
+    ChildRelatedProjectQuerySet,
+    FeatureQuerySet,
+    ProjectQuerySet,
+    RelatedProjectQuerySet,
+)
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.validators import validate_domain_name, validate_repository_url
+from readthedocs.projects.validators import (
+    validate_domain_name,
+    validate_repository_url,
+)
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.restapi.client import api
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
+
 
 log = logging.getLogger(__name__)
 

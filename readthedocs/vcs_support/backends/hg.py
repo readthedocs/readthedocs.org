@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """Mercurial-related utilities."""
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 

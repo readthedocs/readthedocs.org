@@ -1,7 +1,5 @@
 """Managers for OAuth models"""
 
-from __future__ import absolute_import
-
 from django.db import models
 
 from readthedocs.core.utils.extend import SettingsOverrideObject

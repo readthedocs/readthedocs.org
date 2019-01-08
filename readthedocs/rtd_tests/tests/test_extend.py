@@ -1,10 +1,9 @@
-from __future__ import absolute_import
-from builtins import object
 from django.test import TestCase, override_settings
 
-from readthedocs.core.utils.extend import (SettingsOverrideObject,
-                                           get_override_class)
-
+from readthedocs.core.utils.extend import (
+    SettingsOverrideObject,
+    get_override_class,
+)
 
 # Top level to ensure module name is correct
 class FooBase:

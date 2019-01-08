@@ -1,14 +1,10 @@
-from __future__ import absolute_import
-
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
+from django_dynamic_fixture import fixture, get
 
-from django_dynamic_fixture import get, fixture
-
-from readthedocs.gold.models import GoldUser, LEVEL_CHOICES
+from readthedocs.gold.models import LEVEL_CHOICES, GoldUser
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_user
-
 
 class GoldViewTests(TestCase):
 

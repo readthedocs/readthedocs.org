@@ -14,15 +14,10 @@ Django settings that should be defined:
 TODO: Handle page removal case in Page.
 
 """
-from __future__ import absolute_import
-from builtins import object
-
+from django.conf import settings
 from django.utils import timezone
-
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import bulk_index
-
-from django.conf import settings
 
 
 class Index:

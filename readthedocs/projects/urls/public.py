@@ -1,13 +1,11 @@
 """Project URLS for public users"""
 
-from __future__ import absolute_import
 from django.conf.urls import url
-
-from readthedocs.projects.views import public
-from readthedocs.projects.views.public import ProjectIndex, ProjectDetailView
 
 from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
+from readthedocs.projects.views import public
+from readthedocs.projects.views.public import ProjectDetailView, ProjectIndex
 
 
 urlpatterns = [

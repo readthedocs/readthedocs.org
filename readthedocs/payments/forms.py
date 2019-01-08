@@ -1,16 +1,14 @@
 """Payment forms."""
 
-from __future__ import absolute_import
-from builtins import str
-from builtins import object
 import logging
 
-from stripe import Customer, Charge
-from stripe.error import InvalidRequestError
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from stripe import Charge, Customer
+from stripe.error import InvalidRequestError
 
 from .utils import stripe
+
 
 log = logging.getLogger(__name__)
 

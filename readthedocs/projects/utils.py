@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 """Utility functions used by projects."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import os
 
-from builtins import open
 from django.conf import settings
+
 
 log = logging.getLogger(__name__)
 

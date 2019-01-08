@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
 import json
 
 from django.core.cache import cache
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-
 from django_dynamic_fixture import get
 
 from readthedocs.core.middleware import SubdomainMiddleware
-from readthedocs.projects.models import Project, Domain
 from readthedocs.projects.forms import DomainForm
-
+from readthedocs.projects.models import Domain, Project
 
 class MiddlewareTests(TestCase):
 

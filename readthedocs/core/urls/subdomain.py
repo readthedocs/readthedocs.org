@@ -1,22 +1,19 @@
 """URL configurations for subdomains."""
-from __future__ import absolute_import
-
 from functools import reduce
 from operator import add
 
-from django.conf.urls import url
 from django.conf import settings
+from django.conf.urls import url
 from django.conf.urls.static import static
 
+from readthedocs.constants import pattern_opts
+from readthedocs.core.views import server_error_404, server_error_500
 from readthedocs.core.views.serve import (
     redirect_page_with_filename,
-    redirect_project_slug, serve_docs
+    redirect_project_slug,
+    serve_docs,
 )
-from readthedocs.core.views import (
-    server_error_500,
-    server_error_404,
-)
-from readthedocs.constants import pattern_opts
+
 
 handler500 = server_error_500
 handler404 = server_error_404

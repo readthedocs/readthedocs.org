@@ -1,11 +1,16 @@
 """Provision Elastic Search"""
 
-from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand
 
-from readthedocs.search.indexes import Index, PageIndex, ProjectIndex, SectionIndex
+from readthedocs.search.indexes import (
+    Index,
+    PageIndex,
+    ProjectIndex,
+    SectionIndex,
+)
+
 
 log = logging.getLogger(__name__)
 

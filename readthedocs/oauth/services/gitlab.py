@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """OAuth utility functions."""
 
-from __future__ import division, print_function, unicode_literals
-
 import json
 import logging
 import re
@@ -18,6 +16,7 @@ from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service
+
 
 try:
     from urlparse import urljoin, urlparse

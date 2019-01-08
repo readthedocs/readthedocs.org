@@ -1,8 +1,7 @@
 """Clean up stable build paths per project version"""
 
-from __future__ import absolute_import
-from datetime import timedelta
 import logging
+from datetime import timedelta
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
@@ -10,6 +9,7 @@ from django.db.models import Max
 from django.utils import timezone
 
 from readthedocs.builds.models import Build, Version
+
 
 log = logging.getLogger(__name__)
 

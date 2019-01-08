@@ -1,12 +1,9 @@
 """Locking utilities."""
-from __future__ import absolute_import
-
 import errno
 import logging
 import os
 import stat
 import time
-from builtins import object
 
 
 log = logging.getLogger(__name__)

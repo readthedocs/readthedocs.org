@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """Search views."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import collections
 import logging
 from pprint import pprint
@@ -12,6 +9,7 @@ from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.search import lib as search_lib
+
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'

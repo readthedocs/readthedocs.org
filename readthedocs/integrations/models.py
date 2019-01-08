@@ -2,18 +2,10 @@
 
 """Integration models for external services."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import json
 import re
 import uuid
 
-from builtins import object, str
 from django.contrib.contenttypes.fields import (
     GenericForeignKey,
     GenericRelation,

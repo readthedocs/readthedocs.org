@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import datetime
 import json
 
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
-from django_dynamic_fixture import get
 from django.utils import timezone
+from django_dynamic_fixture import get
 from mock import patch
 from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_CLONING, BUILD_STATE_FINISHED, BUILD_STATE_TRIGGERED, LATEST)
+    BUILD_STATE_CLONING,
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    LATEST,
+)
 from readthedocs.builds.models import Build
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
-
 
 class ProjectMixin:
 

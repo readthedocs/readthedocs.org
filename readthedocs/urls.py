@@ -1,26 +1,28 @@
 # pylint: disable=missing-docstring
-from __future__ import absolute_import
-
 import os
 from functools import reduce
 from operator import add
 
-from django.conf.urls import url, include
-from django.contrib import admin
 from django.conf import settings
+from django.conf.urls import include, url
 from django.conf.urls.static import static
-from django.views.generic.base import TemplateView, RedirectView
+from django.contrib import admin
+from django.views.generic.base import RedirectView, TemplateView
 from tastypie.api import Api
 
-from readthedocs.api.base import (ProjectResource, UserResource,
-                                  VersionResource, FileResource)
-from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
+from readthedocs.api.base import (
+    FileResource,
+    ProjectResource,
+    UserResource,
+    VersionResource,
+)
+from readthedocs.core.urls import core_urls, deprecated_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
     SupportView,
+    do_not_track,
     server_error_404,
     server_error_500,
-    do_not_track,
 )
 from readthedocs.search import views as search_views
 

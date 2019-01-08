@@ -1,12 +1,10 @@
-from __future__ import division, print_function, unicode_literals
-
 from os import path
 
 import pytest
-import six
 import yamale
-from readthedocs.config.tests import utils
 from yamale.validators import DefaultValidators, Validator
+
+from readthedocs.config.tests import utils
 
 V2_SCHEMA = path.join(
     path.dirname(__file__),

@@ -1,14 +1,21 @@
 """Build and Version class model Managers"""
 
-from __future__ import absolute_import
-
 from django.db import models
 
-from .constants import (BRANCH, TAG, LATEST, LATEST_VERBOSE_NAME, STABLE,
-                        STABLE_VERBOSE_NAME)
+from readthedocs.core.utils.extend import (
+    SettingsOverrideObject,
+    get_override_class,
+)
+
+from .constants import (
+    BRANCH,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from .querysets import VersionQuerySet
-from readthedocs.core.utils.extend import (SettingsOverrideObject,
-                                           get_override_class)
 
 
 __all__ = ['VersionManager']

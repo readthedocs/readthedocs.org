@@ -1,12 +1,5 @@
 """Views pertaining to builds."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import json
 import logging
 import re
@@ -20,6 +13,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.projects import constants
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
+
 
 log = logging.getLogger(__name__)
 

@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
 """Project forms."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from random import choice
 
-from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User

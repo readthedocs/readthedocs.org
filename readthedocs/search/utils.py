@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """Utilities related to reading and generating indexable search content."""
 
-from __future__ import absolute_import
-
-import os
-import fnmatch
-import re
 import codecs
-import logging
+import fnmatch
 import json
+import logging
+import os
+import re
 
-from builtins import next, range
 from pyquery import PyQuery
 
 

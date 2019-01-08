@@ -1,19 +1,16 @@
 """Base classes and mixins for unit tests."""
-from __future__ import absolute_import
-from builtins import object
+import logging
 import os
 import shutil
-import logging
 import tempfile
 from collections import OrderedDict
 
-from mock import patch
 from django.conf import settings
-from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
-import six
+from django.test import RequestFactory, TestCase
+from mock import patch
 
 log = logging.getLogger(__name__)
 

@@ -1,5 +1,3 @@
-from __future__ import division, print_function, unicode_literals
-
 
 def apply_fs(tmpdir, contents):
     """

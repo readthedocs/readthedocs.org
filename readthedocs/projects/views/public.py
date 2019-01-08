@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 """Public project views."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import json
 import logging
 import mimetypes
@@ -16,9 +13,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
@@ -31,6 +28,7 @@ from readthedocs.search.indexes import PageIndex
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
+
 
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')

@@ -1,17 +1,10 @@
-from __future__ import absolute_import
 from django.test import TestCase
-from django_dynamic_fixture import get
-from django_dynamic_fixture import new
+from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.constants import STABLE
-from readthedocs.builds.constants import TAG
+from readthedocs.builds.constants import BRANCH, LATEST, STABLE, TAG
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import REPO_TYPE_GIT
-from readthedocs.projects.constants import REPO_TYPE_HG
+from readthedocs.projects.constants import REPO_TYPE_GIT, REPO_TYPE_HG
 from readthedocs.projects.models import Project
-
 
 class VersionCommitNameTests(TestCase):
     def test_branch_name_unicode_non_ascii(self):

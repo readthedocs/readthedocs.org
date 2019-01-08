@@ -1,6 +1,5 @@
 """Django app config for the analytics app."""
 
-from __future__ import absolute_import
 from django.apps import AppConfig
 
 

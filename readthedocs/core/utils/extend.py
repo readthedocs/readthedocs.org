@@ -1,11 +1,9 @@
 """Patterns for extending Read the Docs."""
 
-from __future__ import absolute_import
 import inspect
 
 from django.conf import settings
 from django.utils.module_loading import import_string
-import six
 
 
 def get_override_class(proxy_class, default_class=None):

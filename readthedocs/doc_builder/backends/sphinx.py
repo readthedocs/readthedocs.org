@@ -4,33 +4,30 @@ Sphinx_ backend for building docs.
 
 .. _Sphinx: http://www.sphinx-doc.org/
 """
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import codecs
-import shutil
 import logging
 import os
+import shutil
 import sys
 import zipfile
 from glob import glob
 
-import six
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
 
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
 from readthedocs.restapi.client import api
-from readthedocs.projects.models import Feature
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
+
 
 log = logging.getLogger(__name__)
 

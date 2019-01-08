@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Django models for recurring donations aka Gold Membership."""
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import math
 
 from django.db import models
@@ -15,6 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Project
+
 
 #: The membership options that are currently available
 LEVEL_CHOICES = (

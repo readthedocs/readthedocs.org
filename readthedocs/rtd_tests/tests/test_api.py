@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import base64
 import datetime
 import json
 
 import mock
 from allauth.socialaccount.models import SocialAccount
-from builtins import str
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.http import QueryDict
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import six
 from django_dynamic_fixture import get
 from rest_framework import status

@@ -1,12 +1,10 @@
-from __future__ import division, print_function, unicode_literals
-
 import os
+
 import pytest
-import six
+
 from readthedocs.config.find import find_one
 
 from .utils import apply_fs
-
 
 def test_find_no_files(tmpdir):
     with tmpdir.as_cwd():

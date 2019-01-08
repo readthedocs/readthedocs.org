@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Exceptions raised when building documentation."""
 
-from __future__ import division, print_function, unicode_literals
-
 from django.utils.translation import ugettext_noop
 
 

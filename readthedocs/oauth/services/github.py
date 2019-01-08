@@ -1,16 +1,14 @@
 """OAuth utility functions."""
 
-from __future__ import absolute_import
-from builtins import str
-import logging
 import json
+import logging
 import re
 
+from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
-from allauth.socialaccount.models import SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
@@ -18,6 +16,7 @@ from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service
+
 
 log = logging.getLogger(__name__)
 

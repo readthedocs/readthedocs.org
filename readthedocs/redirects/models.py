@@ -1,16 +1,16 @@
 """Django models for the redirects app."""
 
-from __future__ import absolute_import
-from builtins import object
+import logging
+import re
+
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
-import logging
-import re
 
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
+
 from .managers import RedirectManager
 
 

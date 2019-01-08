@@ -1,12 +1,11 @@
 """Basic tasks."""
 
-from __future__ import absolute_import
 import logging
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
 from django.utils import timezone
 from messages_extends.models import Message as PersistentMessage
 

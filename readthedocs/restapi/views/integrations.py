@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import json
 import logging
 import re
 
-import six
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -29,6 +21,7 @@ from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 

@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """Test core util functions"""
 
-from __future__ import absolute_import
 import mock
-
-from django_dynamic_fixture import get
 from django.test import TestCase
+from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Project
 from readthedocs.builds.models import Version
-from readthedocs.core.utils import trigger_build, slugify
-
+from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.projects.models import Project
 
 class CoreUtilTests(TestCase):
 

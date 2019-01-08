@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """Utility functions that are used by both views and celery tasks."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import hashlib
 import logging
 
@@ -24,6 +17,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Version
 from readthedocs.search.indexes import PageIndex, ProjectIndex, SectionIndex
+
 
 log = logging.getLogger(__name__)
 

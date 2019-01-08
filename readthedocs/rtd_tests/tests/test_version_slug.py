@@ -1,12 +1,10 @@
-from __future__ import absolute_import
 import re
+
 from django.test import TestCase
 
 from readthedocs.builds.models import Version
-from readthedocs.builds.version_slug import VersionSlugField
-from readthedocs.builds.version_slug import VERSION_SLUG_REGEX
+from readthedocs.builds.version_slug import VERSION_SLUG_REGEX, VersionSlugField
 from readthedocs.projects.models import Project
-
 
 class VersionSlugPatternTests(TestCase):
     pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))

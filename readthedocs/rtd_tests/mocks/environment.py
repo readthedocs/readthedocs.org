@@ -1,8 +1,5 @@
 # pylint: disable=missing-docstring
-from __future__ import absolute_import
-from builtins import object
 import mock
-
 
 class EnvironmentMockGroup:
 

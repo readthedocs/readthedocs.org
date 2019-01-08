@@ -1,6 +1,5 @@
 """Allauth overrides"""
 
-from __future__ import absolute_import
 import json
 import logging
 
@@ -8,6 +7,7 @@ from allauth.account.adapter import DefaultAccountAdapter
 from django.template.loader import render_to_string
 
 from readthedocs.core.utils import send_email
+
 
 try:
     from django.utils.encoding import force_text

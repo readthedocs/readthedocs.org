@@ -1,8 +1,5 @@
-from __future__ import absolute_import
-
-from django.urls import reverse, NoReverseMatch
 from django.test import TestCase
-
+from django.urls import NoReverseMatch, reverse
 
 class WipeUrlTests(TestCase):
 

@@ -2,13 +2,6 @@
 
 """Documentation Builder Environments."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import os
 import re
@@ -18,8 +11,6 @@ import sys
 import traceback
 from datetime import datetime
 
-import six
-from builtins import object, str
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from docker import APIClient

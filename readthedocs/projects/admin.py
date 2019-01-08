@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """Django administration interface for `projects.models`"""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _

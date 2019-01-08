@@ -1,12 +1,5 @@
 """Endpoints relating to task/job status, etc."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 
 from django.urls import reverse
@@ -17,6 +10,7 @@ from rest_framework.response import Response
 
 from readthedocs.core.utils.tasks import TaskNoPermission, get_public_task_data
 from readthedocs.oauth import tasks
+
 
 log = logging.getLogger(__name__)
 

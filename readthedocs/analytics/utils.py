@@ -1,14 +1,14 @@
 """Utilities related to analytics"""
 
-from __future__ import absolute_import, unicode_literals
 import hashlib
 import logging
 
-from django.conf import settings
-from django.utils.encoding import force_text, force_bytes
-from django.utils.crypto import get_random_string
 import requests
+from django.conf import settings
+from django.utils.crypto import get_random_string
+from django.utils.encoding import force_bytes, force_text
 from user_agents import parse
+
 
 try:
     # Python 3.3+ only

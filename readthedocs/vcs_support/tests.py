@@ -1,10 +1,8 @@
-from __future__ import absolute_import
 import os
 import shutil
 import unittest
 
 import mock
-
 from django.conf import settings
 
 from readthedocs.vcs_support import utils
@@ -64,5 +62,3 @@ class TestNonBlockingLock(unittest.TestCase):
                     pass
             except utils.LockTimeout:
                 raise AssertionError('Should have thrown LockTimeout')
-
-

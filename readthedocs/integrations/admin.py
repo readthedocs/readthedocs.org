@@ -1,12 +1,11 @@
 """Integration admin models."""
 
-from __future__ import absolute_import
-from django.contrib import admin
 from django import urls
+from django.contrib import admin
 from django.utils.safestring import mark_safe
 from pygments.formatters import HtmlFormatter
 
-from .models import Integration, HttpExchange
+from .models import HttpExchange, Integration
 
 
 def pretty_json_field(field, description, include_styles=False):

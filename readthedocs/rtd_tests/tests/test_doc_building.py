@@ -5,13 +5,6 @@ Things to know:
 * raw subprocess calls like .communicate expects bytes
 * the Command wrappers encapsulate the bytes and expose unicode
 """
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import json
 import os
 import re
@@ -20,7 +13,6 @@ import uuid
 
 import mock
 import pytest
-from builtins import str
 from django.test import TestCase
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
@@ -42,7 +34,6 @@ from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
-
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = 'HérÉ îß sömê ünïçó∂é'

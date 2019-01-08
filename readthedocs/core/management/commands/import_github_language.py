@@ -8,16 +8,15 @@ Requires a ``GITHUB_AUTH_TOKEN`` to be set in the environment,
 which should contain a proper GitHub Oauth Token for rate limiting.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
 import os
+
 import requests
-
-from django.core.management.base import BaseCommand
 from django.core.cache import cache
+from django.core.management.base import BaseCommand
 
-from readthedocs.projects.models import Project
 from readthedocs.projects.constants import GITHUB_REGEXS, PROGRAMMING_LANGUAGES
+from readthedocs.projects.models import Project
+
 
 PL_DICT = {}
 

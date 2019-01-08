@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """API resources."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
-from builtins import object
 
 import redis
 from django.conf.urls import url
@@ -24,6 +20,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import ImportedFile, Project
 
 from .utils import PostAuthentication
+
 
 log = logging.getLogger(__name__)
 

@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 """OAuth service models."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import json
-from builtins import object
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 

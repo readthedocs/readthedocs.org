@@ -1,13 +1,12 @@
-import mock
 import django_dynamic_fixture as fixture
+import mock
+from django import urls
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.models import User
-from django import urls
 from django.test import TestCase
 
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
-
 
 class ProjectAdminActionsTest(TestCase):
 

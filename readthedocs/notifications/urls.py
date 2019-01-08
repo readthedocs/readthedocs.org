@@ -1,9 +1,7 @@
 """Renames for messages_extends URLs"""
 
-from __future__ import absolute_import
 from django.conf.urls import url
-
-from messages_extends.views import message_mark_read, message_mark_all_read
+from messages_extends.views import message_mark_all_read, message_mark_read
 
 
 urlpatterns = [

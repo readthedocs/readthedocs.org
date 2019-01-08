@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 """Notification tests"""
 
-from __future__ import absolute_import
-import mock
 import django_dynamic_fixture as fixture
+import mock
+from django.contrib.auth.models import AnonymousUser, User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.auth.models import User, AnonymousUser
 from messages_extends.models import Message as PersistentMessage
 
+from readthedocs.builds.models import Build
 from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.backends import EmailBackend, SiteBackend
-from readthedocs.notifications.constants import ERROR, INFO_NON_PERSISTENT, WARNING_NON_PERSISTENT
-from readthedocs.builds.models import Build
-
+from readthedocs.notifications.constants import (
+    ERROR,
+    INFO_NON_PERSISTENT,
+    WARNING_NON_PERSISTENT,
+)
 
 @override_settings(
     NOTIFICATION_BACKENDS=[

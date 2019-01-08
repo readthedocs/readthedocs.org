@@ -1,23 +1,19 @@
-from __future__ import absolute_import
-from __future__ import print_function
 import re
 
+import mock
 from allauth.socialaccount.models import SocialAccount
-from builtins import object
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
-import mock
 from taggit.models import Tag
 
 from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project, Domain
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.projects.models import Domain, Project
 from readthedocs.rtd_tests.utils import create_user
-
 
 class URLAccessMixin:
 

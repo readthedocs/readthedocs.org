@@ -1,14 +1,8 @@
 """Utilities for retrieving task data."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from celery import states
 from celery.result import AsyncResult
+
 
 __all__ = ('TaskNotFound', 'get_task_data')
 

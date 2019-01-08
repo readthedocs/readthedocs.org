@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import mock
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,10 +7,12 @@ from django.test.utils import override_settings
 
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
-    BitbucketService, GitHubService, GitLabService)
+    BitbucketService,
+    GitHubService,
+    GitLabService,
+)
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
-
 
 class GitHubOAuthTests(TestCase):
 

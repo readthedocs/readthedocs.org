@@ -5,18 +5,15 @@ Classes to copy files between build and web servers.
 local machine.
 """
 
-from __future__ import absolute_import
-
 import getpass
 import logging
 import os
 import shutil
 
-from builtins import object
 from django.conf import settings
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils import safe_makedirs
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
 log = logging.getLogger(__name__)

@@ -1,21 +1,14 @@
 # -*- coding: utf-8 -*-
 """Models for the builds app."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import os.path
 import re
 from shutil import rmtree
 
-from builtins import object
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
@@ -23,7 +16,6 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from jsonfield import JSONField
 from taggit.managers import TaggableManager
-from django.urls import reverse
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
@@ -54,6 +46,7 @@ from .utils import (
     get_gitlab_username_repo,
 )
 from .version_slug import VersionSlugField
+
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
     settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')

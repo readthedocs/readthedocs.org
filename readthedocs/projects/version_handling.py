@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """Project version handling."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import unicodedata
 
-import six
 from packaging.version import InvalidVersion, Version
 
 from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG)
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 
 
 def parse_version_failsafe(version_string):

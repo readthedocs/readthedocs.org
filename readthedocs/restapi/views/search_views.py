@@ -1,6 +1,5 @@
 """Endpoints related to searching through projects, sections, etc."""
 
-from __future__ import absolute_import
 import logging
 
 from rest_framework import decorators, permissions, status
@@ -10,8 +9,8 @@ from rest_framework.response import Response
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, ProjectRelationship
-from readthedocs.search.lib import search_file, search_project, search_section
 from readthedocs.restapi import utils
+from readthedocs.search.lib import search_file, search_project, search_section
 
 
 log = logging.getLogger(__name__)

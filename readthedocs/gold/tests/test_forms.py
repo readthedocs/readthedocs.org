@@ -1,14 +1,12 @@
-from __future__ import absolute_import
-import mock
 import django_dynamic_fixture as fixture
-from django.test import TestCase
+import mock
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 from readthedocs.projects.models import Project
 
-from ..models import GoldUser
 from ..forms import GoldSubscriptionForm
-
+from ..models import GoldUser
 
 class GoldSubscriptionFormTests(TestCase):
 

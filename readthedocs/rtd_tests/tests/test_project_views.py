@@ -1,29 +1,27 @@
-from __future__ import absolute_import
 from datetime import timedelta
 
-
-from mock import patch
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
-from django.urls import reverse
 from django.http.response import HttpResponseRedirect
-from django.views.generic.base import ContextMixin
+from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
+from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-
-import six
+from mock import patch
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
-                                        RequestFactoryTestMixin)
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.views.private import ImportWizardView
-from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects import tasks
-
+from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects.views.private import ImportWizardView
+from readthedocs.rtd_tests.base import (
+    MockBuildTestCase,
+    RequestFactoryTestMixin,
+    WizardTestCase,
+)
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
 class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):

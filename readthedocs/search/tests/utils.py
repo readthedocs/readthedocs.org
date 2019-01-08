@@ -1,6 +1,5 @@
 from readthedocs.search.tests.dummy_data import DUMMY_PAGE_JSON
 
-
 def get_search_query_from_project_file(project_slug, page_num=0, data_type='title'):
     """Return search query from the project's page file.
        Query is generated from the value of `data_type`

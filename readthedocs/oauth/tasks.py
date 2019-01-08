@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """Tasks for OAuth services."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 
 from allauth.socialaccount.providers import registry as allauth_registry
@@ -22,6 +15,7 @@ from readthedocs.projects.models import Project
 from readthedocs.worker import app
 
 from .services import registry
+
 
 log = logging.getLogger(__name__)
 

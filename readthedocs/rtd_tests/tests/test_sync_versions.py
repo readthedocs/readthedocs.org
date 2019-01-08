@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals
-)
-
 import json
 
+import pytest
 from django.test import TestCase
 from django.urls import reverse
-import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-
 
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']

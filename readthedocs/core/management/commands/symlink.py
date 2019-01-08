@@ -1,13 +1,12 @@
 """Update symlinks for projects"""
 
-from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand
 
 from readthedocs.projects import tasks
-
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 

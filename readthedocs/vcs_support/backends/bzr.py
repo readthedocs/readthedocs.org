@@ -1,18 +1,8 @@
 # -*- coding: utf-8 -*-
 """Bazaar-related utilities."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import csv
 import re
-
-from builtins import str  # pylint: disable=redefined-builtin
-from six import StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion

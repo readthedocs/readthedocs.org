@@ -3,9 +3,6 @@ MkDocs_ backend for building docs.
 
 .. _MkDocs: http://www.mkdocs.org/
 """
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import json
 import logging
 import os
@@ -17,6 +14,7 @@ from django.template import loader as template_loader
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
+
 
 log = logging.getLogger(__name__)
 

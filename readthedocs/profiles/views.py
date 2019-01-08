@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm

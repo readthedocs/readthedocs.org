@@ -1,17 +1,16 @@
-from __future__ import absolute_import
-import logging
 import json
-import mock
+import logging
 
+import mock
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.auth.models import User
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version, Build
-from readthedocs.projects.models import Project
-from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.builds.models import Build, Version
 from readthedocs.projects import tasks
+from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.projects.models import Project
 
 log = logging.getLogger(__name__)
 

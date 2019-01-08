@@ -1,17 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subversion-related utilities."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import csv
-
-from builtins import str
-from six import StringIO  # noqa
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion

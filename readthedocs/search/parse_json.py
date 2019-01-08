@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 """Functions related to converting content into dict/JSON structures."""
 
-from __future__ import absolute_import
-
-import logging
 import codecs
 import fnmatch
 import json
+import logging
 import os
 
-from builtins import next, range  # pylint: disable=redefined-builtin
 from pyquery import PyQuery
+
 
 log = logging.getLogger(__name__)
 

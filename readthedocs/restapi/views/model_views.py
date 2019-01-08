@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 
 from allauth.socialaccount.models import SocialAccount
-from builtins import str
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -25,12 +21,25 @@ from readthedocs.projects.version_handling import determine_stable_version
 
 from .. import utils as api_utils
 from ..permissions import (
-    APIPermission, APIRestrictedPermission, IsOwner, RelatedProjectIsOwner)
+    APIPermission,
+    APIRestrictedPermission,
+    IsOwner,
+    RelatedProjectIsOwner,
+)
 from ..serializers import (
-    BuildAdminSerializer, BuildCommandSerializer, BuildSerializer,
-    DomainSerializer, ProjectAdminSerializer, ProjectSerializer,
-    RemoteOrganizationSerializer, RemoteRepositorySerializer,
-    SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
+    BuildAdminSerializer,
+    BuildCommandSerializer,
+    BuildSerializer,
+    DomainSerializer,
+    ProjectAdminSerializer,
+    ProjectSerializer,
+    RemoteOrganizationSerializer,
+    RemoteRepositorySerializer,
+    SocialAccountSerializer,
+    VersionAdminSerializer,
+    VersionSerializer,
+)
+
 
 log = logging.getLogger(__name__)
 

@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import tempfile
 from os import path
 
@@ -21,7 +18,6 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
-
 
 def create_load(config=None):
     """

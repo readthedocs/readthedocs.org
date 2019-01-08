@@ -6,12 +6,10 @@ Default values and other various configuration for projects, including available
 theme names and repository types.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import re
 
 from django.utils.translation import ugettext_lazy as _
+
 
 DOCUMENTATION_CHOICES = (
     ('auto', _('Automatically Choose')),

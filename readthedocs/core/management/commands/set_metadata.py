@@ -1,13 +1,13 @@
 """Generate metadata for all projects"""
 
-from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand
 
+from readthedocs.core.utils import broadcast
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
-from readthedocs.core.utils import broadcast
+
 
 log = logging.getLogger(__name__)
 

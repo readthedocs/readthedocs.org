@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import json
 import logging
 
@@ -9,8 +7,7 @@ from django_dynamic_fixture import get
 from future.backports.urllib.parse import urlencode
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project, Feature
-
+from readthedocs.projects.models import Feature, Project
 
 log = logging.getLogger(__name__)
 

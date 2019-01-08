@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """Endpoint to generate footer HTML."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
-import six
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.template import loader as template_loader
@@ -17,7 +13,9 @@ from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
-    highest_version, parse_version_failsafe)
+    highest_version,
+    parse_version_failsafe,
+)
 from readthedocs.restapi.signals import footer_response
 
 

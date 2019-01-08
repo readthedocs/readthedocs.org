@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Project model QuerySet classes."""
 
-from __future__ import absolute_import
-
 from django.db import models
 from django.db.models import Q
 from guardian.shortcuts import get_objects_for_user

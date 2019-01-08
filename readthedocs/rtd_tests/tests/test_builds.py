@@ -1,12 +1,6 @@
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+import os
 
 import mock
-import os
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 
@@ -14,12 +8,11 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import EnvironmentVariable, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
-
 
 class BuildEnvironmentTests(TestCase):
 

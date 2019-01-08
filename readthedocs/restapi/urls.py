@@ -2,13 +2,6 @@
 
 """Define routes between URL paths and views/endpoints."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from django.conf import settings
 from django.conf.urls import include, url
 from rest_framework import routers
@@ -34,6 +27,7 @@ from .views.model_views import (
     SocialAccountViewSet,
     VersionViewSet,
 )
+
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, basename='build')

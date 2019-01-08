@@ -1,11 +1,8 @@
-from __future__ import division, print_function, unicode_literals
-
 from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
-
 
 class VersionConfigTests(TestCase):
 
