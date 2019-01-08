@@ -11,7 +11,6 @@ import os
 import re
 
 from django.conf import settings
-from django.utils import six
 from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base

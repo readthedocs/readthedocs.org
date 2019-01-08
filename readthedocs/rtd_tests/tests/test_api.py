@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import six
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
