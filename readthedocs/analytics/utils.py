@@ -1,6 +1,7 @@
 """Utilities related to analytics"""
 
 import hashlib
+import ipaddress
 import logging
 
 import requests
@@ -9,12 +10,6 @@ from django.utils.crypto import get_random_string
 from django.utils.encoding import force_bytes, force_text
 from user_agents import parse
 
-
-try:
-    # Python 3.3+ only
-    import ipaddress
-except ImportError:
-    from .vendor import ipaddress
 
 log = logging.getLogger(__name__)   # noqa
 
