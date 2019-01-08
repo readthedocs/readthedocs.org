@@ -39,7 +39,7 @@ class SettingsOverrideMeta(type):
         return getattr(proxy_class, attr)
 
 
-class SettingsOverrideObject(six.with_metaclass(SettingsOverrideMeta, object)):
+class SettingsOverrideObject(metaclass=SettingsOverrideMeta):
 
     """
     Base class for creating class that can be overridden.

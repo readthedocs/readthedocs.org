@@ -3,8 +3,8 @@ import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.six.moves.urllib.parse import urlsplit
 from django_dynamic_fixture import get, new
+from urllib.parse import urlsplit
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
