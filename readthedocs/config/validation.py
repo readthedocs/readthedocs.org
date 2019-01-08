@@ -43,7 +43,7 @@ class ValidationError(Exception):
 
 def validate_list(value):
     """Check if ``value`` is an iterable."""
-    if isinstance(value, (dict, (str,))):
+    if isinstance(value, (dict, str)):
         raise ValidationError(value, INVALID_LIST)
     if not hasattr(value, '__iter__'):
         raise ValidationError(value, INVALID_LIST)
