@@ -37,7 +37,7 @@ class DeprecatedWebhookEndpointNotification(Notification):
 
     name = 'deprecated_webhook_endpoint'
     context_object_name = 'project'
-    subject = 'Project {{ project.name }} is using a deprecated webhook'
+    subject = '{{ project.name }} project webhook needs to be updated'
     send_email = False
     email_period = timedelta(days=7)
     level = REQUIREMENT

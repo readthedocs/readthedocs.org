@@ -1,7 +1,8 @@
-<p>Just a heads up, your project {{ project.name }} has configured a <em>DEPRECATED</em> webhook to trigger new builds and should be upgraded. Projects hitting these deprecated webhook will stop building on Jan 1, 2019. Please, update it soon!</p>
+<p>Your project, {{ project.name }}, is currently using GitHub Services to trigger builds on Read the Docs. Effective January 31, 2019, GitHub will no longer process requests using the Services feature, and so Read the Docs will not receive notifications on updates to your repository.</p>
 
-<p>To update the webhook your project is hitting, you need to go to the project's settings under your VCS service (GitHub, Bitbucket or GitLab) and remove the Read the Docs webhook from there.</p>
+<p>To continue building your Read the Docs project on changes to your repository, you will need to add a new webhook on your GitHub repository. You can either connect your GitHub account and configure a GitHub webhook integration, or you can add a generic webhook integration.</p>
 
-<p>Once you have done that, you need to go to your <a href="{% url "projects_integrations" project.slug %}">project's Integrations</a> under Read the Docs project's Admin, click integration and then in "Resync webhook" button.</p>
+<p>You can find more information on our webhook intergrations in our documentation, at:</p>
 
-<p>Thanks!</p>
+{% comment %}Plain text link because of text version of email{% endcomment %}
+<p><a href="https://docs.readthedocs.io/en/latest/webhooks.html">https://docs.readthedocs.io/en/latest/webhooks.html</a></p>
