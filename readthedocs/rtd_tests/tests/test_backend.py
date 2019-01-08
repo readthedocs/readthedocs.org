@@ -5,7 +5,6 @@ from os.path import exists
 from tempfile import mkdtemp
 
 import django_dynamic_fixture as fixture
-import pytest
 from django.contrib.auth.models import User
 from mock import Mock, patch
 
@@ -72,7 +71,6 @@ class TestGitBackend(RTDTestCase):
             {branch.verbose_name for branch in repo.branches},
         )
 
-    @pytest.mark.skipif(six.PY2, reason='Only for python3')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_git_branches_unicode(self, checkout_path):
         repo_path = self.project.repo
