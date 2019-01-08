@@ -1,4 +1,5 @@
-"""Update symlinks for projects"""
+# -*- coding: utf-8 -*-
+"""Update symlinks for projects."""
 
 import logging
 
@@ -23,7 +24,8 @@ class Command(BaseCommand):
         if 'all' in projects:
             pks = Project.objects.values_list('pk', flat=True)
         else:
-            pks = Project.objects.filter(slug__in=projects).values_list('pk', flat=True)
+            pks = Project.objects.filter(slug__in=projects
+                                         ).values_list('pk', flat=True)
         for proj in pks:
             try:
                 tasks.symlink_project(project_pk=proj)

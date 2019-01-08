@@ -95,26 +95,30 @@ task_urls = [
 
 integration_urls = [
     url(
-        r'webhook/github/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/github/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.GitHubWebhookView.as_view(),
         name='api_webhook_github',
     ),
     url(
-        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.GitLabWebhookView.as_view(),
         name='api_webhook_gitlab',
     ),
     url(
-        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.BitbucketWebhookView.as_view(),
         name='api_webhook_bitbucket',
     ),
     url(
-        r'webhook/generic/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/generic/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.APIWebhookView.as_view(),
         name='api_webhook_generic',
     ),

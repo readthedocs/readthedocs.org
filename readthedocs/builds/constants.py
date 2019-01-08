@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Constants for the builds app."""
 
 from django.conf import settings

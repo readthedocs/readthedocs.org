@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """OAuth utility functions."""
 
 import json
@@ -40,7 +41,8 @@ class GitLabService(Service):
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_base_url).netloc))
+        re.escape(urlparse(adapter.provider_base_url).netloc),
+    )
 
     def _get_repo_id(self, project):
         # The ID or URL-encoded path of the project
@@ -93,7 +95,8 @@ class GitLabService(Service):
             log.exception('Error syncing GitLab repositories')
             raise Exception(
                 'Could not sync your GitLab repositories, try reconnecting '
-                'your account')
+                'your account',
+            )
 
     def sync_organizations(self):
         orgs = self.paginate(
@@ -123,7 +126,8 @@ class GitLabService(Service):
             log.exception('Error syncing GitLab organizations')
             raise Exception(
                 'Could not sync your GitLab organization, try reconnecting '
-                'your account')
+                'your account',
+            )
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id
@@ -348,7 +352,9 @@ class GitLabService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitLab webhook update successful for project: %s', project)
+                    'GitLab webhook update successful for project: %s',
+                    project,
+                )
                 return (True, resp)
 
             # GitLab returns 404 when the webhook doesn't exist. In this case,
@@ -359,7 +365,9 @@ class GitLabService(Service):
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitLab webhook update failed for project: %s', project)
+                'GitLab webhook update failed for project: %s',
+                project,
+            )
         else:
             log.error(
                 'GitLab webhook update failed for project: %s',

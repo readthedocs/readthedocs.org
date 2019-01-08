@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Tasks related to projects.
 
@@ -98,9 +99,9 @@ class SyncRepositoryMixin:
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
-            version_data = (api_v2
-                            .version(project.slug)
-                            .get(slug=LATEST)['objects'][0])
+            version_data = (
+                api_v2.version(project.slug).get(slug=LATEST)['objects'][0]
+            )
         return APIVersion(**version_data)
 
     def get_vcs_repo(self):
@@ -135,11 +136,13 @@ class SyncRepositoryMixin:
                     slug=self.version.slug,
                     identifier=self.version.identifier,
                 )
-                log.info(LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=msg,
-                ))
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=self.project.slug,
+                        version=self.version.slug,
+                        msg=msg,
+                    )
+                )
                 version_repo = self.get_vcs_repo()
                 version_repo.update()
                 self.sync_versions(version_repo)
@@ -151,34 +154,28 @@ class SyncRepositoryMixin:
         """
         Update tags/branches hitting the API.
 
-        It may trigger a new build to the stable version
-        when hittig the ``sync_versions`` endpoint.
+        It may trigger a new build to the stable version when hittig the
+        ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
 
         if version_repo.supports_tags:
-            version_post_data['tags'] = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                }
-                for v in version_repo.tags
-            ]
+            version_post_data['tags'] = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in version_repo.tags]
 
         if version_repo.supports_branches:
-            version_post_data['branches'] = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                }
-                for v in version_repo.branches
-            ]
+            version_post_data['branches'] = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in version_repo.branches]
 
         self.validate_duplicate_reserved_versions(version_post_data)
 
         try:
             api_v2.project(self.project.pk).sync_versions.post(
-                version_post_data
+                version_post_data,
             )
         except HttpClientError:
             log.exception('Sync Versions Exception')
@@ -203,7 +200,7 @@ class SyncRepositoryMixin:
         for reserved_name in [STABLE_VERBOSE_NAME, LATEST_VERBOSE_NAME]:
             if counter[reserved_name] > 1:
                 raise RepositoryError(
-                    RepositoryError.DUPLICATED_RESERVED_VERSIONS
+                    RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
 
@@ -261,7 +258,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                         'version': self.version.slug,
                     },
                 },
-
             )
         return False
 
@@ -275,8 +271,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
-        ProjectBuildsSkippedError
-    )
+        ProjectBuildsSkippedError,
+    ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
     step = UpdateDocsTaskStep(task=self)
@@ -298,12 +294,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         underlying task. Previously, we were using a custom ``celery.Task`` for
         this, but this class is only instantiated once -- on startup. The effect
         was that this instance shared state between workers.
-
     """
 
-    def __init__(self, build_env=None, python_env=None, config=None,
-                 force=False, build=None, project=None,
-                 version=None, task=None):
+    def __init__(
+            self,
+            build_env=None,
+            python_env=None,
+            config=None,
+            force=False,
+            build=None,
+            project=None,
+            version=None,
+            task=None,
+    ):
         self.build_env = build_env
         self.python_env = python_env
         self.build_force = force
@@ -322,8 +325,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.setup_env = None
 
     # pylint: disable=arguments-differ
-    def run(self, pk, version_pk=None, build_pk=None, record=True,
-            docker=None, force=False, **__):
+    def run(
+            self, pk, version_pk=None, build_pk=None, record=True, docker=None,
+            force=False, **__
+    ):
         """
         Run a documentation sync n' build.
 
@@ -383,7 +388,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=build_pk,
-                    )
+                    ),
                 )
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
@@ -411,7 +416,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.build_env.failure = BuildEnvironmentError(
                         BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                             build_id=build_pk,
-                        )
+                        ),
                     )
                     self.build_env.update_build(BUILD_STATE_FINISHED)
 
@@ -450,7 +455,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 raise YAMLParseError(
                     YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
                         exception=str(e),
-                    )
+                    ),
                 )
 
             self.save_build_config()
@@ -458,13 +463,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         if self.setup_env.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
-                self.setup_env.failure
+                self.setup_env.failure,
             )
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg=msg,
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg=msg,
+                )
+            )
 
             # Send notification to users only if the build didn't fail because
             # of VersionLockedError: this exception occurs when a build is
@@ -519,11 +526,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         with self.build_env:
             python_env_cls = Virtualenv
             if self.config.conda is not None:
-                log.info(LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Using conda',
-                ))
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=self.project.slug,
+                        version=self.version.slug,
+                        msg='Using conda',
+                    )
+                )
                 python_env_cls = Conda
             self.python_env = python_env_cls(
                 version=self.version,
@@ -578,12 +587,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if build_pk:
             build = api_v2.build(build_pk).get()
         private_keys = [
-            'project', 'version', 'resource_uri', 'absolute_uri',
+            'project',
+            'version',
+            'resource_uri',
+            'absolute_uri',
         ]
         return {
             key: val
-            for key, val in build.items()
-            if key not in private_keys
+            for key, val in build.items() if key not in private_keys
         }
 
     def setup_vcs(self):
@@ -596,11 +607,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
-        log.info(LOG_TEMPLATE.format(
-            project=self.project.slug,
-            version=self.version.slug,
-            msg='Updating docs from VCS',
-        ))
+        log.info(
+            LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version=self.version.slug,
+                msg='Updating docs from VCS',
+            )
+        )
         try:
             self.sync_repo()
         except RepositoryError:
@@ -681,8 +694,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         })
         self.build['config'] = config
 
-    def update_app_instances(self, html=False, localmedia=False, search=False,
-                             pdf=False, epub=False):
+    def update_app_instances(
+            self,
+            html=False,
+            localmedia=False,
+            search=False,
+            pdf=False,
+            epub=False,
+    ):
         """
         Update application instances with build artifacts.
 
@@ -793,7 +812,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 type='app',
                 task=move_files,
                 args=[self.version.pk, socket.gethostname()],
-                kwargs=dict(html=True)
+                kwargs=dict(html=True),
             )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
@@ -845,7 +864,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         builder = get_builder_class(builder_class)(
             self.build_env,
-            python_env=self.python_env
+            python_env=self.python_env,
         )
         success = builder.build()
         builder.move()
@@ -862,8 +881,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
 # Web tasks
 @app.task(queue='web')
-def sync_files(project_pk, version_pk, hostname=None, html=False,
-               localmedia=False, search=False, pdf=False, epub=False):
+def sync_files(
+        project_pk,
+        version_pk,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
+):
     """
     Sync build artifacts to application instances.
 
@@ -906,8 +933,15 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
 
 
 @app.task(queue='web')
-def move_files(version_pk, hostname, html=False, localmedia=False,
-               search=False, pdf=False, epub=False):
+def move_files(
+        version_pk,
+        hostname,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
+):
     """
     Task to move built documentation to web servers.
 
@@ -930,7 +964,7 @@ def move_files(version_pk, hostname, html=False, localmedia=False,
             project=version.project.slug,
             version=version.slug,
             msg='Moving files',
-        )
+        ),
     )
 
     if html:
@@ -1007,13 +1041,16 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     else:
         log.debug(
             'Unknown documentation type: %s',
-            version.project.documentation_type
+            version.project.documentation_type,
         )
         return
 
     log_msg = ' '.join([page['path'] for page in page_list])
-    log.info("(Search Index) Sending Data: %s [%s]", version.project.slug,
-             log_msg)
+    log.info(
+        '(Search Index) Sending Data: %s [%s]',
+        version.project.slug,
+        log_msg,
+    )
     index_search_request(
         version=version,
         page_list=page_list,
@@ -1057,7 +1094,9 @@ def remove_orphan_symlinks():
     """
     for symlink in [PublicSymlink, PrivateSymlink]:
         for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
-            valid_cnames = set(Domain.objects.all().values_list('domain', flat=True))
+            valid_cnames = set(
+                Domain.objects.all().values_list('domain', flat=True)
+            )
             orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
             for cname in orphan_cnames:
                 orphan_domain_path = os.path.join(domain_path, cname)
@@ -1102,7 +1141,7 @@ def fileify(version_pk, commit):
                     'Imported File not being built because no commit '
                     'information'
                 ),
-            )
+            ),
         )
         return
 
@@ -1113,7 +1152,7 @@ def fileify(version_pk, commit):
                 project=version.project.slug,
                 version=version.slug,
                 msg='Creating ImportedFiles',
-            )
+            ),
         )
         _manage_imported_files(version, path, commit)
     else:
@@ -1122,7 +1161,7 @@ def fileify(version_pk, commit):
                 project=project.slug,
                 version=version.slug,
                 msg='No ImportedFile files',
-            )
+            ),
         )
 
 
@@ -1137,8 +1176,10 @@ def _manage_imported_files(version, path, commit):
     changed_files = set()
     for root, __, filenames in os.walk(path):
         for filename in filenames:
-            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                   filename.lstrip('/'))
+            dirpath = os.path.join(
+                root.replace(path, '').lstrip('/'),
+                filename.lstrip('/'),
+            )
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
@@ -1158,16 +1199,22 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
     # Delete ImportedFiles from previous versions
-    ImportedFile.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
+    ImportedFile.objects.filter(
+        project=version.project,
+        version=version,
+    ).exclude(commit=commit).delete()
     changed_files = [
         resolve_path(
-            version.project, filename=file, version_slug=version.slug,
+            version.project,
+            filename=file,
+            version_slug=version.slug,
         ) for file in changed_files
     ]
-    files_changed.send(sender=Project, project=version.project,
-                       files=changed_files)
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        files=changed_files,
+    )
 
 
 @app.task(queue='web')
@@ -1177,7 +1224,8 @@ def send_notifications(version_pk, build_pk):
 
     for hook in version.project.webhook_notifications.all():
         webhook_notification(version, build, hook.url)
-    for email in version.project.emailhook_notifications.all().values_list('email', flat=True):
+    for email in version.project.emailhook_notifications.all().values_list('email',
+                                                                           flat=True):
         email_notification(version, build, email)
 
 
@@ -1194,7 +1242,7 @@ def email_notification(version, build, email):
             project=version.project.slug,
             version=version.slug,
             msg='sending email to: %s' % email,
-        )
+        ),
     )
 
     # We send only what we need from the Django model objects here to avoid
@@ -1221,9 +1269,12 @@ def email_notification(version, build, email):
     }
 
     if build.commit:
-        title = _('Failed: {project[name]} ({commit})').format(commit=build.commit[:8], **context)
+        title = _('Failed: {project[name]} ({commit})'
+                  ).format(commit=build.commit[:8], **context)
     else:
-        title = _('Failed: {project[name]} ({version[verbose_name]})').format(**context)
+        title = _('Failed: {project[name]} ({version[verbose_name]})').format(
+            **context
+        )
 
     send_email(
         email,
@@ -1258,7 +1309,7 @@ def webhook_notification(version, build, hook_url):
             project=project.slug,
             version='',
             msg='sending notification to: %s' % hook_url,
-        )
+        ),
     )
     try:
         requests.post(hook_url, data=data)
@@ -1291,7 +1342,7 @@ def update_static_metadata(project_pk, path=None):
             project=project.slug,
             version='',
             msg='Updating static metadata',
-        )
+        ),
     )
     translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
@@ -1314,7 +1365,7 @@ def update_static_metadata(project_pk, path=None):
                 project=project.slug,
                 version='',
                 msg='Cannot write to metadata.json: {}'.format(e),
-            )
+            ),
         )
 
 
@@ -1368,8 +1419,9 @@ def finish_inactive_builds():
     """
     time_limit = int(DOCKER_LIMITS['time'] * 1.2)
     delta = datetime.timedelta(seconds=time_limit)
-    query = (~Q(state=BUILD_STATE_FINISHED) &
-             Q(date__lte=timezone.now() - delta))
+    query = (
+        ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
+    )
 
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]

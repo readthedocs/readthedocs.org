@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Gold subscription forms."""
 
 from django import forms
@@ -28,9 +29,11 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
         required=True,
         min_length=4,
         max_length=4,
-        widget=forms.HiddenInput(attrs={
-            'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
-        })
+        widget=forms.HiddenInput(
+            attrs={
+                'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
+            }
+        ),
     )
 
     level = forms.ChoiceField(
@@ -50,7 +53,8 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     def get_customer_kwargs(self):
         data = {
-            'description': self.customer.get_full_name() or self.customer.username,
+            'description': self.customer.get_full_name() or
+            self.customer.username,
             'email': self.customer.email,
             'id': self.instance.stripe_id or None,
         }
@@ -78,7 +82,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
             # Add a new subscription
             subscription = customer.subscriptions.create(
                 plan=self.cleaned_data['level'],
-                source=self.cleaned_data['stripe_token']
+                source=self.cleaned_data['stripe_token'],
             )
 
         return subscription
@@ -87,7 +91,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 class GoldProjectForm(forms.Form):
     project = forms.ChoiceField(
         required=True,
-        help_text='Select a project.'
+        help_text='Select a project.',
     )
 
     def __init__(self, active_user, *args, **kwargs):
@@ -114,4 +118,6 @@ class GoldProjectForm(forms.Form):
         if self.projects.count() < self.user.num_supported_projects:
             return cleaned_data
 
-        self.add_error(None, 'You already have the max number of supported projects.')
+        self.add_error(
+            None, 'You already have the max number of supported projects.'
+        )

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Utility functions used by projects."""
 
 import logging

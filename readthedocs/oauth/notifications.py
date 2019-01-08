@@ -15,8 +15,12 @@ class AttachWebhookNotification(SiteNotification):
     context_object_name = 'provider'
     success_message = _('Webhook successfully added.')
     failure_message = {
-        NO_PERMISSIONS: _('Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.'),  # noqa
-        NO_ACCOUNTS: _('Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.'),  # noqa
+        NO_PERMISSIONS: _(
+            'Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.'
+        ),  # noqa
+        NO_ACCOUNTS: _(
+            'Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.'
+        ),  # noqa
     }
 
     def get_context_data(self):
@@ -39,7 +43,8 @@ class InvalidProjectWebhookNotification(SiteNotification):
     failure_message = _(
         "The project {{ project.name }} doesn't have a valid webhook set up, "
         "commits won't trigger new builds for this project. "
-        "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.") # noqa
+        "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.",
+    )  # noqa
 
     def get_context_data(self):
         context = super().get_context_data()

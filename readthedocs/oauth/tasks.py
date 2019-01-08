@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Tasks for OAuth services."""
 
 import logging

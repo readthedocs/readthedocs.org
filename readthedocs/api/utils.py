@@ -1,4 +1,5 @@
-"""Utility classes for api module"""
+# -*- coding: utf-8 -*-
+"""Utility classes for api module."""
 import logging
 
 from django.utils.translation import ugettext
@@ -16,14 +17,14 @@ class PostAuthentication(BasicAuthentication):
     """Require HTTP Basic authentication for any method other than GET."""
 
     def is_authenticated(self, request, **kwargs):
-        val = super().is_authenticated(request,
-                                                               **kwargs)
-        if request.method == "GET":
+        val = super().is_authenticated(request, **kwargs)
+        if request.method == 'GET':
             return True
         return val
 
 
 class EnhancedModelResource(ModelResource):
+
     def obj_get_list(self, request=None, *_, **kwargs):  # noqa
         """
         A ORM-specific implementation of ``obj_get_list``.
@@ -42,12 +43,16 @@ class EnhancedModelResource(ModelResource):
         try:
             return self.get_object_list(request).filter(**applicable_filters)
         except ValueError as e:
-            raise NotFound(ugettext("Invalid resource lookup data provided "
-                                    "(mismatched type).: %(error)s")
-                           % {'error': e})
+            raise NotFound(
+                ugettext(
+                    'Invalid resource lookup data provided '
+                    '(mismatched type).: %(error)s',
+                ) % {'error': e}
+            )
 
 
 class OwnerAuthorization(Authorization):
+
     def apply_limits(self, request, object_list):
         if request and hasattr(request, 'user') and request.method != 'GET':
             if request.user.is_authenticated:

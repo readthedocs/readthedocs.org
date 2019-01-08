@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Contains logic for handling version slugs.
 
@@ -34,12 +35,10 @@ def get_fields_with_model(cls):
     prescrived in the Django docs.
     https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
     """
-    return [
-        (f, f.model if f.model != cls else None)
-        for f in cls._meta.get_fields()
-        if not f.is_relation or f.one_to_one or
-        (f.many_to_one and f.related_model)
-    ]
+    return [(f, f.model if f.model != cls else None)
+            for f in cls._meta.get_fields()
+            if not f.is_relation or f.one_to_one or
+            (f.many_to_one and f.related_model)]
 
 
 # Regex breakdown:
@@ -165,7 +164,8 @@ class VersionSlugField(models.CharField):
             count += 1
 
         assert self.test_pattern.match(slug), (
-            'Invalid generated slug: {slug}'.format(slug=slug))
+            'Invalid generated slug: {slug}'.format(slug=slug)
+        )
         return slug
 
     def pre_save(self, model_instance, add):

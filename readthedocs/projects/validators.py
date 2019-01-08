@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Validators for projects app."""
 
 import re
@@ -97,7 +98,7 @@ class RepositoryURLValidator:
 class SubmoduleURLValidator(RepositoryURLValidator):
 
     """
-    A URL validator for repository submodules
+    A URL validator for repository submodules.
 
     If a repository has a relative submodule, the URL path is effectively the
     supermodule's remote ``origin`` URL with the relative path applied.

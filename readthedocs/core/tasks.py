@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Basic tasks."""
 
 import logging
@@ -18,8 +19,10 @@ EMAIL_TIME_LIMIT = 30
 
 
 @app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
-def send_email_task(recipient, subject, template, template_html,
-                    context=None, from_email=None, **kwargs):
+def send_email_task(
+        recipient, subject, template, template_html, context=None,
+        from_email=None, **kwargs
+):
     """
     Send multipart email.
 
@@ -43,14 +46,15 @@ def send_email_task(recipient, subject, template, template_html,
     """
     msg = EmailMultiAlternatives(
         subject,
-        get_template(template).render(context),
-        from_email or settings.DEFAULT_FROM_EMAIL,
-        [recipient],
-        **kwargs
+        get_template(template).render(context), from_email or
+        settings.DEFAULT_FROM_EMAIL,
+        [recipient], **kwargs
     )
     try:
-        msg.attach_alternative(get_template(template_html).render(context),
-                               'text/html')
+        msg.attach_alternative(
+            get_template(template_html).render(context),
+            'text/html',
+        )
     except TemplateDoesNotExist:
         pass
     msg.send()
@@ -61,5 +65,7 @@ def send_email_task(recipient, subject, template, template_html,
 def clear_persistent_messages():
     # Delete all expired message_extend's messages
     log.info("Deleting all expired message_extend's messages")
-    expired_messages = PersistentMessage.objects.filter(expires__lt=timezone.now())
+    expired_messages = PersistentMessage.objects.filter(
+        expires__lt=timezone.now()
+    )
     expired_messages.delete()

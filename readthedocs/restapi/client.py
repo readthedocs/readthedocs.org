@@ -22,7 +22,7 @@ PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
 
 class DrfJsonSerializer(serialize.JsonSerializer):
 
-    """Additional serialization help from the DRF renderer"""
+    """Additional serialization help from the DRF renderer."""
 
     key = 'json-drf'
 

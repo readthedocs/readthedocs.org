@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Endpoint to generate footer HTML."""
 
 from django.conf import settings
@@ -33,7 +34,8 @@ def get_version_compare_data(project, base_version=None):
         versions_qs = versions_qs.filter(type=TAG)
 
     highest_version_obj, highest_version_comparable = highest_version(
-        versions_qs)
+        versions_qs,
+    )
     ret_val = {
         'project': str(highest_version_obj),
         'version': str(highest_version_comparable),
@@ -45,12 +47,14 @@ def get_version_compare_data(project, base_version=None):
     if base_version and base_version.slug != LATEST:
         try:
             base_version_comparable = parse_version_failsafe(
-                base_version.verbose_name)
+                base_version.verbose_name,
+            )
             if base_version_comparable:
                 # This is only place where is_highest can get set. All error
                 # cases will be set to True, for non- standard versions.
                 ret_val['is_highest'] = (
-                    base_version_comparable >= highest_version_comparable)
+                    base_version_comparable >= highest_version_comparable
+                )
             else:
                 ret_val['is_highest'] = True
         except (Version.DoesNotExist, TypeError):
@@ -82,8 +86,12 @@ def footer_html(request):
     project = get_object_or_404(Project, slug=project_slug)
     version = get_object_or_404(
         Version.objects.public(
-            request.user, project=project, only_active=False),
-        slug__iexact=version_slug)
+            request.user,
+            project=project,
+            only_active=False,
+        ),
+        slug__iexact=version_slug,
+    )
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != 'index':

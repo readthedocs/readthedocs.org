@@ -1,4 +1,5 @@
-"""Objects for User permission checks"""
+# -*- coding: utf-8 -*-
+"""Objects for User permission checks."""
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 

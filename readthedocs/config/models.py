@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Models for the response of the configuration object."""
 
 from collections import namedtuple

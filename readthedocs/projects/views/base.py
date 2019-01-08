@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Mix-in classes for project views."""
 import logging
 from datetime import timedelta
@@ -71,7 +72,8 @@ class ProjectAdminMixin:
             return None
         return get_object_or_404(
             Project.objects.for_admin_user(user=self.request.user),
-            slug=self.kwargs[self.project_url_field])
+            slug=self.kwargs[self.project_url_field],
+        )
 
     def get_context_data(self, **kwargs):
         """Add project to context data."""

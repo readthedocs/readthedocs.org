@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Validations for the RTD configuration file."""
 import os
 
@@ -26,7 +27,7 @@ class ValidationError(Exception):
         INVALID_PATH: 'path {value} does not exist',
         INVALID_STRING: 'expected string',
         INVALID_LIST: 'expected list',
-        VALUE_NOT_FOUND: '{value} not found'
+        VALUE_NOT_FOUND: '{value} not found',
     }
 
     def __init__(self, value, code, format_kwargs=None):
@@ -60,9 +61,13 @@ def validate_choice(value, choices):
     """Check that ``value`` is in ``choices``."""
     choices = validate_list(choices)
     if value not in choices:
-        raise ValidationError(value, INVALID_CHOICE, {
-            'choices': ', '.join(map(str, choices))
-        })
+        raise ValidationError(
+            value,
+            INVALID_CHOICE,
+            {
+                'choices': ', '.join(map(str, choices)),
+            },
+        )
     return value
 
 

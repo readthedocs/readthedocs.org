@@ -1,4 +1,5 @@
-"""Rebuild documentation for all projects"""
+# -*- coding: utf-8 -*-
+"""Rebuild documentation for all projects."""
 
 from django.core.management.base import BaseCommand
 
@@ -16,5 +17,5 @@ class Command(BaseCommand):
             update_docs_task(
                 version.project_id,
                 record=False,
-                version_pk=version.pk
+                version_pk=version.pk,
             )

@@ -90,15 +90,17 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
     # https://github.com/rtfd/readthedocs.org/pull/4577
     # https://docs.djangoproject.com/en/2.1/topics/db/aggregation/#order-of-annotate-and-filter-clauses # noqa
     projects = (
-        Project.objects.annotate(num_users=Count('users'))
-        .filter(users=instance.id).exclude(num_users__gt=1)
+        Project.objects.annotate(num_users=Count('users')
+                                 ).filter(users=instance.id
+                                          ).exclude(num_users__gt=1)
     )
 
     # Here we count the users list from the organization that the user belong
     # Then exclude the organizations where there are more than one user
     oauth_organizations = (
-        RemoteOrganization.objects.annotate(num_users=Count('users'))
-        .filter(users=instance.id).exclude(num_users__gt=1)
+        RemoteOrganization.objects.annotate(num_users=Count('users')
+                                            ).filter(users=instance.id
+                                                     ).exclude(num_users__gt=1)
     )
 
     projects.delete()

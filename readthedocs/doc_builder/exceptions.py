@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import ugettext_noop
@@ -9,7 +10,9 @@ class BuildEnvironmentException(Exception):
     status_code = None
 
     def __init__(self, message=None, **kwargs):
-        self.status_code = kwargs.pop('status_code', None) or self.status_code or 1
+        self.status_code = kwargs.pop(
+            'status_code', None
+        ) or self.status_code or 1
         message = message or self.get_default_message()
         super().__init__(message, **kwargs)
 

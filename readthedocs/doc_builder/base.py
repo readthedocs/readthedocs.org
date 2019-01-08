@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Base classes for Builders."""
 
 import logging
@@ -46,7 +47,9 @@ class BaseBuilder:
         self.config = python_env.config if python_env else None
         self._force = force
         self.target = self.project.artifact_path(
-            version=self.version.slug, type_=self.type)
+            version=self.version.slug,
+            type_=self.type,
+        )
 
     def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
@@ -67,7 +70,7 @@ class BaseBuilder:
             shutil.copytree(
                 self.old_artifact_path,
                 self.target,
-                ignore=shutil.ignore_patterns(*self.ignore_patterns)
+                ignore=shutil.ignore_patterns(*self.ignore_patterns),
             )
         else:
             log.warning('Not moving docs, because the build dir is unknown.')
@@ -96,10 +99,14 @@ class BaseBuilder:
         docs_dir = self.docs_dir()
 
         index_filename = os.path.join(
-            docs_dir, 'index.{ext}'.format(ext=extension))
+            docs_dir,
+            'index.{ext}'.format(ext=extension),
+        )
         if not os.path.exists(index_filename):
             readme_filename = os.path.join(
-                docs_dir, 'README.{ext}'.format(ext=extension))
+                docs_dir,
+                'README.{ext}'.format(ext=extension),
+            )
             if os.path.exists(readme_filename):
                 return 'README'
 

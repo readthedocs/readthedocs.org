@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """URL configuration for builds app."""
 from django.conf.urls import url
 

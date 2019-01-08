@@ -1,4 +1,5 @@
-"""Build signals"""
+# -*- coding: utf-8 -*-
+"""Build signals."""
 
 import django.dispatch
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Gold subscription views."""
 
 from django.conf import settings
@@ -19,8 +20,11 @@ from .forms import GoldProjectForm, GoldSubscriptionForm
 from .models import GoldUser
 
 
-class GoldSubscriptionMixin(SuccessMessageMixin, StripeMixin,
-                            LoginRequiredMixin):
+class GoldSubscriptionMixin(
+        SuccessMessageMixin,
+        StripeMixin,
+        LoginRequiredMixin,
+):
 
     """Gold subscription mixin for view classes."""
 
@@ -101,7 +105,11 @@ def projects(request):
 
     if request.method == 'POST':
         form = GoldProjectForm(
-            active_user=request.user, data=request.POST, user=gold_user, projects=gold_projects)
+            active_user=request.user,
+            data=request.POST,
+            user=gold_user,
+            projects=gold_projects,
+        )
         if form.is_valid():
             to_add = Project.objects.get(slug=form.cleaned_data['project'])
             gold_user.projects.add(to_add)
@@ -114,13 +122,16 @@ def projects(request):
         form = GoldProjectForm(active_user=request.user)
 
     return render(
-        request, 'gold/projects.html', {
+        request,
+        'gold/projects.html',
+        {
             'form': form,
             'gold_user': gold_user,
             'publishable': settings.STRIPE_PUBLISHABLE,
             'user': request.user,
             'projects': gold_projects,
-        })
+        },
+    )
 
 
 @login_required

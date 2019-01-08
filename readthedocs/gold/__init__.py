@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 A Django app for Gold Membership.
 

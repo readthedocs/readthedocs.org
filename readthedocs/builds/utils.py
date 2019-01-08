@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Utilities for the builds app."""
 
 from readthedocs.projects.constants import (

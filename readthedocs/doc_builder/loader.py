@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Lookup tables for builders and backends."""
 from importlib import import_module
 
@@ -6,11 +7,19 @@ from django.conf import settings
 
 # Managers
 mkdocs = import_module(
-    getattr(settings, 'MKDOCS_BACKEND',
-            'readthedocs.doc_builder.backends.mkdocs'))
+    getattr(
+        settings,
+        'MKDOCS_BACKEND',
+        'readthedocs.doc_builder.backends.mkdocs',
+    ),
+)
 sphinx = import_module(
-    getattr(settings, 'SPHINX_BACKEND',
-            'readthedocs.doc_builder.backends.sphinx'))
+    getattr(
+        settings,
+        'SPHINX_BACKEND',
+        'readthedocs.doc_builder.backends.sphinx',
+    ),
+)
 
 BUILDER_BY_NAME = {
     # Possible HTML Builders

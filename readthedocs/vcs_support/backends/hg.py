@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Mercurial-related utilities."""
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -38,7 +39,11 @@ class Backend(BaseVCS):
     @property
     def branches(self):
         retcode, stdout = self.run(
-            'hg', 'branches', '--quiet', record_as_success=True)[:2]
+            'hg',
+            'branches',
+            '--quiet',
+            record_as_success=True,
+        )[:2]
         # error (or no tags found)
         if retcode != 0:
             return []

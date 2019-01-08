@@ -1,7 +1,7 @@
-"""Reindex Elastic Search indexes"""
+# -*- coding: utf-8 -*-
+"""Reindex Elastic Search indexes."""
 
 import logging
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -23,11 +23,11 @@ class Command(BaseCommand):
             '-p',
             dest='project',
             default='',
-            help='Project to index'
+            help='Project to index',
         )
 
     def handle(self, *args, **options):
-        """Build/index all versions or a single project's version"""
+        """Build/index all versions or a single project's version."""
         project = options['project']
 
         queryset = Version.objects.all()
@@ -36,13 +36,14 @@ class Command(BaseCommand):
             queryset = queryset.filter(project__slug=project)
             if not queryset.exists():
                 raise CommandError(
-                    'No project with slug: {slug}'.format(slug=project))
-            log.info("Building all versions for %s", project)
+                    'No project with slug: {slug}'.format(slug=project),
+                )
+            log.info('Building all versions for %s', project)
         elif getattr(settings, 'INDEX_ONLY_LATEST', True):
             queryset = queryset.filter(slug=LATEST)
 
         for version in queryset:
-            log.info("Reindexing %s", version)
+            log.info('Reindexing %s', version)
             try:
                 commit = version.project.vcs_repo(version.slug).commit
             except:  # noqa
@@ -51,7 +52,10 @@ class Command(BaseCommand):
                 commit = None
 
             try:
-                update_search(version.pk, commit,
-                              delete_non_commit_files=False)
+                update_search(
+                    version.pk,
+                    commit,
+                    delete_non_commit_files=False,
+                )
             except Exception as e:
                 log.exception('Reindex failed for %s, %s', version, e)

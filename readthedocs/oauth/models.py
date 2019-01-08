@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+
 """OAuth service models."""
 
 import json
 
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
@@ -33,10 +33,17 @@ class RemoteOrganization(models.Model):
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     users = models.ManyToManyField(
-        User, verbose_name=_('Users'), related_name='oauth_organizations')
+        User,
+        verbose_name=_('Users'),
+        related_name='oauth_organizations',
+    )
     account = models.ForeignKey(
-        SocialAccount, verbose_name=_('Connected account'),
-        related_name='remote_organizations', null=True, blank=True)
+        SocialAccount,
+        verbose_name=_('Connected account'),
+        related_name='remote_organizations',
+        null=True,
+        blank=True,
+    )
     active = models.BooleanField(_('Active'), default=False)
 
     slug = models.CharField(_('Slug'), max_length=255)
@@ -44,7 +51,11 @@ class RemoteOrganization(models.Model):
     email = models.EmailField(_('Email'), max_length=255, null=True, blank=True)
     avatar_url = models.URLField(_('Avatar image URL'), null=True, blank=True)
     url = models.URLField(
-        _('URL to organization page'), max_length=200, null=True, blank=True)
+        _('URL to organization page'),
+        max_length=200,
+        null=True,
+        blank=True,
+    )
 
     json = models.TextField(_('Serialized API response'))
 
@@ -78,13 +89,24 @@ class RemoteRepository(models.Model):
 
     # This should now be a OneToOne
     users = models.ManyToManyField(
-        User, verbose_name=_('Users'), related_name='oauth_repositories')
+        User,
+        verbose_name=_('Users'),
+        related_name='oauth_repositories',
+    )
     account = models.ForeignKey(
-        SocialAccount, verbose_name=_('Connected account'),
-        related_name='remote_repositories', null=True, blank=True)
+        SocialAccount,
+        verbose_name=_('Connected account'),
+        related_name='remote_repositories',
+        null=True,
+        blank=True,
+    )
     organization = models.ForeignKey(
-        RemoteOrganization, verbose_name=_('Organization'),
-        related_name='repositories', null=True, blank=True)
+        RemoteOrganization,
+        verbose_name=_('Organization'),
+        related_name='repositories',
+        null=True,
+        blank=True,
+    )
     active = models.BooleanField(_('Active'), default=False)
 
     project = models.OneToOneField(
@@ -119,7 +141,7 @@ class RemoteRepository(models.Model):
         max_length=512,
         blank=True,
         validators=[
-            URLValidator(schemes=['http', 'https', 'ssh', 'git', 'svn'])
+            URLValidator(schemes=['http', 'https', 'ssh', 'git', 'svn']),
         ],
     )
     html_url = models.URLField(_('HTML URL'), null=True, blank=True)
@@ -156,7 +178,6 @@ class RemoteRepository(models.Model):
     @property
     def clone_fuzzy_url(self):
         """Try to match against several permutations of project URL."""
-        pass
 
     def matches(self, user):
         """Projects that exist with repository URL already."""

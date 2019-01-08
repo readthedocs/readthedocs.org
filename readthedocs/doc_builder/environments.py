@@ -84,9 +84,19 @@ class BuildCommand(BuildCommandResultMixin):
     :param description: a more grokable description of the command being run
     """
 
-    def __init__(self, command, cwd=None, shell=False, environment=None,
-                 combine_output=True, input_data=None, build_env=None,
-                 bin_path=None, description=None, record_as_success=False):
+    def __init__(
+            self,
+            command,
+            cwd=None,
+            shell=False,
+            environment=None,
+            combine_output=True,
+            input_data=None,
+            build_env=None,
+            bin_path=None,
+            description=None,
+            record_as_success=False,
+    ):
         self.command = command
         self.shell = shell
         if cwd is None:
@@ -301,11 +311,16 @@ class DockerBuildCommand(BuildCommand):
             # nicer. Sometimes the kernel kills the command and Docker doesn't
             # not use the specific exit code, so we check if the word `Killed`
             # is in the last 15 lines of the command's output
-            killed_in_output = 'Killed' in '\n'.join(self.output.splitlines()[-15:])
-            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and killed_in_output):
-                self.output += str(_(
-                    '\n\nCommand killed due to excessive memory consumption\n'
-                ))
+            killed_in_output = 'Killed' in '\n'.join(
+                self.output.splitlines()[-15:]
+            )
+            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and
+                                                          killed_in_output):
+                self.output += str(
+                    _(
+                        '\n\nCommand killed due to excessive memory consumption\n',
+                    )
+                )
         except DockerAPIError:
             self.exit_code = -1
             if self.output is None or not self.output:
@@ -323,17 +338,25 @@ class DockerBuildCommand(BuildCommand):
         install requests<0.8``. This escapes a good majority of those
         characters.
         """
-        bash_escape_re = re.compile(r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
-                                    r"\[\\\]\^\`\{\|\}\~])")
+        bash_escape_re = re.compile(
+            r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
+            r'\[\\\]\^\`\{\|\}\~])',
+        )
         prefix = ''
         if self.bin_path:
             prefix += 'PATH={}:$PATH '.format(self.bin_path)
-        return ("/bin/sh -c 'cd {cwd} && {prefix}{cmd}'"
-                .format(
-                    cwd=self.cwd,
-                    prefix=prefix,
-                    cmd=(' '.join([bash_escape_re.sub(r'\\\1', part)
-                                   for part in self.command]))))
+        return (
+            "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
+                cwd=self.cwd,
+                prefix=prefix,
+                cmd=(
+                    ' '.join([
+                        bash_escape_re.sub(r'\\\1', part)
+                        for part in self.command
+                    ])
+                ),
+            )
+        )
 
 
 class BaseEnvironment:
@@ -359,7 +382,8 @@ class BaseEnvironment:
 
     def run_command_class(
             self, cls, cmd, record=None, warn_only=False,
-            record_as_success=False, **kwargs):
+            record_as_success=False, **kwargs
+    ):
         """
         Run command from this environment.
 
@@ -415,11 +439,13 @@ class BaseEnvironment:
                 msg += ':\n{out}'.format(out=build_cmd.output)
 
             if warn_only:
-                log.warning(LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version='latest',
-                    msg=msg,
-                ))
+                log.warning(
+                    LOG_TEMPLATE.format(
+                        project=self.project.slug,
+                        version='latest',
+                        msg=msg,
+                    )
+                )
             else:
                 raise BuildEnvironmentWarning(msg)
         return build_cmd
@@ -475,8 +501,16 @@ class BuildEnvironment(BaseEnvironment):
         MkDocsYAMLParseError,
     )
 
-    def __init__(self, project=None, version=None, build=None, config=None,
-                 record=True, environment=None, update_on_success=True):
+    def __init__(
+            self,
+            project=None,
+            version=None,
+            build=None,
+            config=None,
+            record=True,
+            environment=None,
+            update_on_success=True,
+    ):
         super().__init__(project, environment)
         self.version = version
         self.build = build
@@ -563,23 +597,30 @@ class BuildEnvironment(BaseEnvironment):
 
     @property
     def successful(self):
-        """Is build completed, without top level failures or failing commands."""  # noqa
-        return (self.done and self.failure is None and
-                all(cmd.successful for cmd in self.commands))
+        """Is build completed, without top level failures or failing
+        commands."""  # noqa
+        return (
+            self.done and self.failure is None and
+            all(cmd.successful for cmd in self.commands)
+        )
 
     @property
     def failed(self):
         """Is build completed, but has top level failure or failing commands."""
-        return (self.done and (
-            self.failure is not None or
-            any(cmd.failed for cmd in self.commands)
-        ))
+        return (
+            self.done and (
+                self.failure is not None or
+                any(cmd.failed for cmd in self.commands)
+            )
+        )
 
     @property
     def done(self):
         """Is build in finished state."""
-        return (self.build is not None and
-                self.build['state'] == BUILD_STATE_FINISHED)
+        return (
+            self.build is not None and
+            self.build['state'] == BUILD_STATE_FINISHED
+        )
 
     def update_build(self, state=None):
         """
@@ -627,10 +668,10 @@ class BuildEnvironment(BaseEnvironment):
             # BuildEnvironmentError
             if not isinstance(
                     self.failure,
-                    (
-                        BuildEnvironmentException,
-                        BuildEnvironmentWarning,
-                    ),
+                (
+                    BuildEnvironmentException,
+                    BuildEnvironmentWarning,
+                ),
             ):
                 log.error(
                     'Build failed with unhandled exception: %s',
@@ -668,7 +709,7 @@ class BuildEnvironment(BaseEnvironment):
         if update_build:
             try:
                 api_v2.build(self.build['id']).put(self.build)
-            except HttpClientError as e:
+            except HttpClientError:
                 log.exception(
                     'Unable to update build: id=%d',
                     self.build['id'],
@@ -751,10 +792,11 @@ class DockerBuildEnvironment(BuildEnvironment):
                             project=self.project.slug,
                             version=self.version.slug,
                             msg=(
-                                'Removing stale container {}'
-                                .format(self.container_id)
+                                'Removing stale container {}'.format(
+                                    self.container_id
+                                )
                             ),
-                        )
+                        ),
                     )
                     client = self.get_client()
                     client.remove_container(self.container_id)
@@ -826,7 +868,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                     version=DOCKER_VERSION,
                 )
             return self.client
-        except DockerException as e:
+        except DockerException:
             log.exception(
                 LOG_TEMPLATE.format(
                     project=self.project.slug,
@@ -924,10 +966,10 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
             elif state.get('Error'):
                 self.failure = BuildEnvironmentError((
-                    _('Build exited due to unknown error: {0}')
-                    .format(state.get('Error'))
-                ),
-                )
+                    _('Build exited due to unknown error: {0}').format(
+                        state.get('Error')
+                    )
+                ),)
 
     def create_container(self):
         """Create docker container."""
@@ -952,7 +994,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 environment=self.environment,
             )
             client.start(container=self.container_id)
-        except ConnectionError as e:
+        except ConnectionError:
             log.exception(
                 LOG_TEMPLATE.format(
                     project=self.project.slug,

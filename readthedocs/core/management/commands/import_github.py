@@ -1,4 +1,5 @@
-"""Resync GitHub project for user"""
+# -*- coding: utf-8 -*-
+"""Resync GitHub project for user."""
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -13,7 +14,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if args:
             for slug in args:
-                for service in GitHubService.for_user(
-                    User.objects.get(username=slug)
-                ):
+                for service in GitHubService.for_user(User.objects.get(username=slug
+                                                                       ),):
                     service.sync()

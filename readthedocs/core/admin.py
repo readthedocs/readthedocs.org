@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Django admin interface for core models."""
 
 from datetime import timedelta
@@ -58,8 +59,14 @@ class UserAdminExtra(UserAdmin):
 
     """Admin configuration for User."""
 
-    list_display = ('username', 'email', 'first_name',
-                    'last_name', 'is_staff', 'is_banned')
+    list_display = (
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'is_staff',
+        'is_banned',
+    )
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
     actions = ['ban_user']
     inlines = [UserProjectInline]

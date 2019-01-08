@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Patterns for extending Read the Docs."""
 
 import inspect
@@ -19,7 +20,7 @@ def get_override_class(proxy_class, default_class=None):
         default_class = getattr(proxy_class, '_default_class')
     class_id = '.'.join([
         inspect.getmodule(proxy_class).__name__,
-        proxy_class.__name__
+        proxy_class.__name__,
     ])
     class_path = getattr(settings, 'CLASS_OVERRIDES', {}).get(class_id)
     # pylint: disable=protected-access
@@ -32,7 +33,8 @@ def get_override_class(proxy_class, default_class=None):
 
 class SettingsOverrideMeta(type):
 
-    """Meta class for passing along classmethod class to the underlying class."""  # noqa
+    """Meta class for passing along classmethod class to the underlying
+    class."""  # noqa
 
     def __getattr__(cls, attr):  # noqa: pep8 false positive
         proxy_class = get_override_class(cls, getattr(cls, '_default_class'))

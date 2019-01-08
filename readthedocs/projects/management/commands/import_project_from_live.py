@@ -1,4 +1,5 @@
-"""Import project command"""
+# -*- coding: utf-8 -*-
+"""Import project command."""
 
 import json
 
@@ -13,7 +14,7 @@ from ...models import Project
 class Command(BaseCommand):
 
     """
-    Import project from production API
+    Import project from production API.
 
     This is a helper to debug issues with projects on the server more easily
     locally. It allows you to import projects based on the data that the public
@@ -22,8 +23,8 @@ class Command(BaseCommand):
 
     help = (
         "Retrieves the data of a project from readthedocs.org's API and puts "
-        "it into the local database. This is mostly useful for debugging "
-        "issues with projects on the live site."
+        'it into the local database. This is mostly useful for debugging '
+        'issues with projects on the live site.'
     )
 
     def add_arguments(self, parser):
@@ -41,10 +42,11 @@ class Command(BaseCommand):
                 project_data = project_data['objects'][0]
             except (KeyError, IndexError):
                 self.stderr.write(
-                    'Cannot find {slug} in API. Response was:\n{response}'
-                    .format(
+                    'Cannot find {slug} in API. Response was:\n{response}'.format(
                         slug=slug,
-                        response=json.dumps(project_data)))
+                        response=json.dumps(project_data),
+                    ),
+                )
 
             try:
                 project = Project.objects.get(slug=slug)

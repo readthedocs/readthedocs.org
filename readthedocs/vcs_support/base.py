@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Base classes for VCS backends."""
 import logging
 import os
@@ -26,7 +27,9 @@ class VCSVersion:
 
     def __repr__(self):
         return '<VCSVersion: {}:{}'.format(
-            self.repository.repo_url, self.verbose_name)
+            self.repository.repo_url,
+            self.verbose_name,
+        )
 
 
 class BaseVCS:

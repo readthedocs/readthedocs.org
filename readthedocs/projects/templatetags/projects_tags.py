@@ -1,4 +1,5 @@
-"""Project template tags and filters"""
+# -*- coding: utf-8 -*-
+"""Project template tags and filters."""
 
 from django import template
 
@@ -10,14 +11,15 @@ register = template.Library()
 
 @register.filter
 def sort_version_aware(versions):
-    """Takes a list of versions objects and sort them using version schemes"""
+    """Takes a list of versions objects and sort them using version schemes."""
     return sorted(
         versions,
         key=lambda version: comparable_version(version.verbose_name),
-        reverse=True)
+        reverse=True,
+    )
 
 
 @register.filter
 def is_project_user(user, project):
-    """Return if user is a member of project.users"""
+    """Return if user is a member of project.users."""
     return user in project.users.all()

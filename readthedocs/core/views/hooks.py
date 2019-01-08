@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Views pertaining to builds."""
 
 import json
@@ -41,13 +42,14 @@ def _build_version(project, slug, already_built=()):
     version = project.versions.filter(active=True, slug=slug).first()
     if version and slug not in already_built:
         log.info(
-            "(Version build) Building %s:%s",
-            project.slug, version.slug,
+            '(Version build) Building %s:%s',
+            project.slug,
+            version.slug,
         )
         trigger_build(project=project, version=version, force=True)
         return slug
 
-    log.info("(Version build) Not Building %s", slug)
+    log.info('(Version build) Not Building %s', slug)
     return None
 
 
@@ -64,8 +66,11 @@ def build_branches(project, branch_list):
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
         for version in versions:
-            log.info("(Branch Build) Processing %s:%s",
-                     project.slug, version.slug)
+            log.info(
+                '(Branch Build) Processing %s:%s',
+                project.slug,
+                version.slug,
+            )
             ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
                 to_build.add(ret)
@@ -89,9 +94,7 @@ def sync_versions(project):
     try:
         version_identifier = project.get_default_branch()
         version = (
-            project.versions
-            .filter(identifier=version_identifier)
-            .first()
+            project.versions.filter(identifier=version_identifier).first()
         )
         if not version:
             log.info('Unable to sync from %s version', version_identifier)
@@ -114,10 +117,13 @@ def get_project_from_url(url):
 
 
 def log_info(project, msg):
-    log.info(constants.LOG_TEMPLATE
-             .format(project=project,
-                     version='',
-                     msg=msg))
+    log.info(
+        constants.LOG_TEMPLATE.format(
+            project=project,
+            version='',
+            msg=msg,
+        )
+    )
 
 
 def _build_url(url, projects, branches):
@@ -127,7 +133,7 @@ def _build_url(url, projects, branches):
     Check each of the ``branches`` to see if they are active and should be
     built.
     """
-    ret = ""
+    ret = ''
     all_built = {}
     all_not_building = {}
 
@@ -151,14 +157,18 @@ def _build_url(url, projects, branches):
     for project_slug, built in list(all_built.items()):
         if built:
             msg = '(URL Build) Build Started: {} [{}]'.format(
-                url, ' '.join(built))
+                url,
+                ' '.join(built),
+            )
             log_info(project_slug, msg=msg)
             ret += msg
 
     for project_slug, not_building in list(all_not_building.items()):
         if not_building:
             msg = '(URL Build) Not Building: {} [{}]'.format(
-                url, ' '.join(not_building))
+                url,
+                ' '.join(not_building),
+            )
             log_info(project_slug, msg=msg)
             ret += msg
 
@@ -192,7 +202,8 @@ def github_build(request):  # noqa: D205
             else:
                 data = json.loads(request.body)
             http_url = data['repository']['url']
-            http_search_url = http_url.replace('http://', '').replace('https://', '')
+            http_search_url = http_url.replace('http://',
+                                               '').replace('https://', '')
             ssh_url = data['repository']['ssh_url']
             ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
             branches = [data['ref'].replace('refs/heads/', '')]
@@ -205,14 +216,14 @@ def github_build(request):  # noqa: D205
                 log.info(
                     'GitHub webhook search: url=%s branches=%s',
                     http_search_url,
-                    branches
+                    branches,
                 )
             ssh_projects = get_project_from_url(ssh_search_url)
             if ssh_projects:
                 log.info(
                     'GitHub webhook search: url=%s branches=%s',
                     ssh_search_url,
-                    branches
+                    branches,
                 )
             projects = repo_projects | ssh_projects
             return _build_url(http_search_url, projects, branches)
@@ -287,24 +298,26 @@ def bitbucket_build(request):
             else:
                 data = json.loads(request.body)
 
-            version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1
+            version = 2 if request.META.get(
+                'HTTP_USER_AGENT'
+            ) == 'Bitbucket-Webhooks/2.0' else 1
             if version == 1:
-                branches = [commit.get('branch', '')
-                            for commit in data['commits']]
+                branches = [
+                    commit.get('branch', '') for commit in data['commits']
+                ]
                 repository = data['repository']
                 if not repository['absolute_url']:
                     return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org{}'.format(
-                    repository['absolute_url'].rstrip('/')
+                    repository['absolute_url'].rstrip('/'),
                 )
             elif version == 2:
                 changes = data['push']['changes']
-                branches = [change['new']['name']
-                            for change in changes]
+                branches = [change['new']['name'] for change in changes]
                 if not data['repository']['full_name']:
                     return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org/{}'.format(
-                    data['repository']['full_name']
+                    data['repository']['full_name'],
                 )
         except (TypeError, ValueError, KeyError):
             log.exception('Invalid Bitbucket webhook payload')
@@ -352,10 +365,12 @@ def generic_build(request, project_id_or_slug=None):
             project = Project.objects.get(slug=project_id_or_slug)
         except (Project.DoesNotExist, ValueError):
             log.exception(
-                "(Incoming Generic Build) Repo not found:  %s",
-                project_id_or_slug)
+                '(Incoming Generic Build) Repo not found:  %s',
+                project_id_or_slug,
+            )
             return HttpResponseNotFound(
-                'Repo not found: %s' % project_id_or_slug)
+                'Repo not found: %s' % project_id_or_slug,
+            )
     # This endpoint doesn't require authorization, we shouldn't allow builds to
     # be triggered from this any longer. Deprecation plan is to selectively
     # allow access to this endpoint for now.
@@ -364,8 +379,11 @@ def generic_build(request, project_id_or_slug=None):
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(
-            "(Incoming Generic Build) %s [%s]", project.slug, slug)
+            '(Incoming Generic Build) %s [%s]',
+            project.slug,
+            slug,
+        )
         _build_version(project, slug)
     else:
-        return HttpResponse("You must POST to this resource.")
+        return HttpResponse('You must POST to this resource.')
     return redirect('builds_project_list', project.slug)

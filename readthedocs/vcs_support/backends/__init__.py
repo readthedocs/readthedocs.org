@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Listing of all the VCS backends."""
 from __future__ import absolute_import
 from . import bzr, hg, git, svn

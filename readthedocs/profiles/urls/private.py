@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """URL patterns for views to modify user profiles."""
 
 from django.conf.urls import url
@@ -8,12 +9,13 @@ from readthedocs.profiles import views
 
 urlpatterns = [
     url(
-        r'^edit/', views.edit_profile,
+        r'^edit/',
+        views.edit_profile,
         {
             'form_class': UserProfileForm,
             'template_name': 'profiles/private/edit_profile.html',
         },
-        name='profiles_profile_edit'
+        name='profiles_profile_edit',
     ),
     url(r'^delete/', views.delete_account, name='delete_account'),
     url(

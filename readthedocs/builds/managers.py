@@ -1,4 +1,5 @@
-"""Build and Version class model Managers"""
+# -*- coding: utf-8 -*-
+"""Build and Version class model Managers."""
 
 from django.db import models
 
@@ -37,7 +38,7 @@ class VersionManagerBase(models.Manager):
         # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
-            VersionQuerySet._default_class  # pylint: disable=protected-access
+            VersionQuerySet._default_class,  # pylint: disable=protected-access
         )
         return super().from_queryset(queryset_class, class_name)
 

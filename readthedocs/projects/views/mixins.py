@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Mixin classes for project views."""
 
 from django.shortcuts import get_object_or_404
@@ -30,7 +31,7 @@ class ProjectRelationMixin:
             return None
         return get_object_or_404(
             self.get_project_queryset(),
-            slug=self.kwargs[self.project_lookup_url_kwarg]
+            slug=self.kwargs[self.project_lookup_url_kwarg],
         )
 
     def get_queryset(self):

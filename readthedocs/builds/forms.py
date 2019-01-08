@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Django forms for the builds app."""
 
 from django import forms
@@ -18,10 +19,10 @@ class VersionForm(forms.ModelForm):
         if self._is_default_version() and not active:
             msg = _(
                 '{version} is the default version of the project, '
-                'it should be active.'
+                'it should be active.',
             )
             raise forms.ValidationError(
-                msg.format(version=self.instance.verbose_name)
+                msg.format(version=self.instance.verbose_name),
             )
         return active
 

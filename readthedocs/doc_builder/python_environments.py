@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
@@ -40,24 +41,29 @@ class PythonEnvironment:
         # Handle deleting old build dir
         build_dir = os.path.join(
             self.venv_path(),
-            'build')
+            'build',
+        )
         if os.path.exists(build_dir):
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Removing existing build directory',
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Removing existing build directory',
+                )
+            )
             shutil.rmtree(build_dir)
 
     def delete_existing_venv_dir(self):
         venv_dir = self.venv_path()
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Removing existing venv directory',
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Removing existing venv directory',
+                )
+            )
             shutil.rmtree(venv_dir)
 
     def install_package(self):
@@ -66,7 +72,7 @@ class PythonEnvironment:
             extra_req_param = ''
             if self.config.python.extra_requirements:
                 extra_req_param = '[{}]'.format(
-                    ','.join(self.config.python.extra_requirements)
+                    ','.join(self.config.python.extra_requirements),
                 )
             self.build_env.run(
                 'python',
@@ -134,7 +140,9 @@ class PythonEnvironment:
             with open(self.environment_json_path(), 'r') as fpath:
                 environment_conf = json.load(fpath)
         except (IOError, TypeError, KeyError, ValueError):
-            log.warning('Unable to read/parse readthedocs-environment.json file')
+            log.warning(
+                'Unable to read/parse readthedocs-environment.json file'
+            )
             # We remove the JSON file here to avoid cycling over time with a
             # corrupted file.
             os.remove(self.environment_json_path())
@@ -168,7 +176,8 @@ class PythonEnvironment:
         ])
 
     def save_environment_json(self):
-        """Save on disk Python and build image versions used to create the venv."""
+        """Save on disk Python and build image versions used to create the
+        venv."""
         data = {
             'python': {
                 'version': self.config.python_full_version,
@@ -233,9 +242,7 @@ class Virtualenv(PythonEnvironment):
         # so it is used when installing the other requirements.
         cmd = pip_install_cmd + ['pip']
         self.build_env.run(
-            *cmd,
-            bin_path=self.venv_bin(),
-            cwd=self.checkout_path
+            *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
@@ -267,7 +274,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<1.8',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.6'
+                'readthedocs-sphinx-ext<0.6',
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -288,8 +295,10 @@ class Virtualenv(PythonEnvironment):
         requirements_file_path = self.config.python.requirements
         if not requirements_file_path and requirements_file_path != '':
             builder_class = get_builder_class(self.config.doctype)
-            docs_dir = (builder_class(build_env=self.build_env, python_env=self)
-                        .docs_dir())
+            docs_dir = (
+                builder_class(build_env=self.build_env,
+                              python_env=self).docs_dir()
+            )
             paths = [docs_dir, '']
             req_files = ['pip_requirements.txt', 'requirements.txt']
             for path, req_file in itertools.product(paths, req_files):
@@ -337,11 +346,13 @@ class Conda(PythonEnvironment):
 
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Removing existing conda directory',
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Removing existing conda directory',
+                )
+            )
             shutil.rmtree(version_path)
         self.build_env.run(
             'conda',

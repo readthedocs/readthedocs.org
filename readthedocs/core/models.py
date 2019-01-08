@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Models for the core app."""
 import logging
 
@@ -21,7 +22,10 @@ class UserProfile(models.Model):
     """Additional information about a User."""
 
     user = AutoOneToOneField(
-        'auth.User', verbose_name=_('User'), related_name='profile')
+        'auth.User',
+        verbose_name=_('User'),
+        related_name='profile',
+    )
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     banned = models.BooleanField(_('Banned'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
@@ -39,10 +43,13 @@ class UserProfile(models.Model):
     def __str__(self):
         return (
             ugettext("%(username)s's profile") %
-            {'username': self.user.username})
+            {'username': self.user.username}
+        )
 
     def get_absolute_url(self):
-        return reverse('profiles_profile_detail',  kwargs={'username': self.user.username})
+        return reverse(
+            'profiles_profile_detail', kwargs={'username': self.user.username}
+        )
 
     def get_contribution_details(self):
         """

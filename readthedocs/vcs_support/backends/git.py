@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Git-related utilities."""
 
 import logging
@@ -70,8 +71,7 @@ class Backend(BaseVCS):
         # TODO remove this after users migrate to a config file
         from readthedocs.projects.models import Feature
         submodules_in_config = (
-            config.submodules.exclude != ALL or
-            config.submodules.include
+            config.submodules.exclude != ALL or config.submodules.include
         )
         if (self.project.has_feature(Feature.SKIP_SUBMODULES) or
                 not submodules_in_config):
@@ -103,10 +103,7 @@ class Backend(BaseVCS):
         Returns the list of invalid submodules.
         """
         repo = git.Repo(self.working_dir)
-        submodules = {
-            sub.path: sub
-            for sub in repo.submodules
-        }
+        submodules = {sub.path: sub for sub in repo.submodules}
 
         for sub_path in config.submodules.exclude:
             path = sub_path.rstrip('/')
@@ -186,7 +183,7 @@ class Backend(BaseVCS):
         for tag in repo.tags:
             try:
                 versions.append(VCSVersion(self, str(tag.commit), str(tag)))
-            except ValueError as e:
+            except ValueError:
                 # ValueError: Cannot resolve commit as tag TAGNAME points to a
                 # blob object - use the `.object` property instead to access it
                 # This is not a real tag for us, so we skip it
@@ -244,7 +241,7 @@ class Backend(BaseVCS):
                 self.checkout_submodules(submodules, config)
             else:
                 raise RepositoryError(
-                    RepositoryError.INVALID_SUBMODULES.format(submodules)
+                    RepositoryError.INVALID_SUBMODULES.format(submodules),
                 )
 
     def checkout_submodules(self, submodules, config):

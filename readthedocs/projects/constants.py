@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Project constants.
 
@@ -310,10 +311,13 @@ GITLAB_REGEXS = [
 ]
 GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}')
+    '{action}/{version}{docroot}{path}{source_suffix}'
+)
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
-    'src/{version}{docroot}{path}{source_suffix}')
+    'src/{version}{docroot}{path}{source_suffix}'
+)
 GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}')
+    '{action}/{version}{docroot}{path}{source_suffix}'
+)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project exceptions."""
 
 from django.conf import settings
@@ -13,13 +14,13 @@ class ProjectConfigurationError(BuildEnvironmentError):
 
     NOT_FOUND = _(
         'A configuration file was not found. '
-        'Make sure you have a conf.py file in your repository.'
+        'Make sure you have a conf.py file in your repository.',
     )
 
     MULTIPLE_CONF_FILES = _(
         'We found more than one conf.py and are not sure which one to use. '
         'Please, specify the correct file under the Advanced settings tab '
-        "in the project's Admin."
+        "in the project's Admin.",
     )
 
 
@@ -29,20 +30,18 @@ class RepositoryError(BuildEnvironmentError):
 
     PRIVATE_ALLOWED = _(
         'There was a problem connecting to your repository, '
-        'ensure that your repository URL is correct.'
+        'ensure that your repository URL is correct.',
     )
     PRIVATE_NOT_ALLOWED = _(
         'There was a problem connecting to your repository, '
         'ensure that your repository URL is correct and your repository is public. '
-        'Private repositories are not supported.'
+        'Private repositories are not supported.',
     )
 
-    INVALID_SUBMODULES = _(
-        'One or more submodule URLs are not valid: {}.'
-    )
+    INVALID_SUBMODULES = _('One or more submodule URLs are not valid: {}.',)
 
     DUPLICATED_RESERVED_VERSIONS = _(
-        'You can not have two versions with the name latest or stable.'
+        'You can not have two versions with the name latest or stable.',
     )
 
     def get_default_message(self):
@@ -59,5 +58,3 @@ class ProjectSpamError(Exception):
     This error is not raised to users, we use this for banning users in the
     background.
     """
-
-    pass

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Support for templating of notifications."""
 
 import logging
@@ -51,7 +52,8 @@ class Notification:
             self.context_object_name: self.object,
             'request': self.request,
             'production_uri': '{scheme}://{host}'.format(
-                scheme='https', host=settings.PRODUCTION_DOMAIN,
+                scheme='https',
+                host=settings.PRODUCTION_DOMAIN,
             ),
         }
 
@@ -60,13 +62,13 @@ class Notification:
         if self.object and isinstance(self.object, models.Model):
             meta = self.object._meta  # pylint: disable=protected-access
             names.append(
-                '{app}/notifications/{name}_{backend}.{source_format}'
-                .format(
+                '{app}/notifications/{name}_{backend}.{source_format}'.format(
                     app=meta.app_label,
                     name=self.name or meta.model_name,
                     backend=backend_name,
                     source_format=source_format,
-                ))
+                ),
+            )
             return names
 
         raise AttributeError()
@@ -120,8 +122,14 @@ class SiteNotification(Notification):
     failure_level = constants.ERROR_NON_PERSISTENT
 
     def __init__(
-            self, user, success, reason=None, context_object=None,
-            request=None, extra_context=None):
+            self,
+            user,
+            success,
+            reason=None,
+            context_object=None,
+            request=None,
+            extra_context=None,
+    ):
         self.object = context_object
 
         self.user = user or request.user

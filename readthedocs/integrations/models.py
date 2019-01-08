@@ -269,7 +269,8 @@ class Integration(models.Model):
     def __str__(self):
         return (
             _('{0} for {1}')
-            .format(self.get_integration_type_display(), self.project.name))
+            .format(self.get_integration_type_display(), self.project.name)
+        )
 
 
 class GitHubWebhook(Integration):

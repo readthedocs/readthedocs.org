@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Forms for core app."""
 
 import logging
@@ -63,6 +64,7 @@ class UserDeleteForm(forms.ModelForm):
 
 
 class UserAdvertisingForm(forms.ModelForm):
+
     class Meta:
         model = UserProfile
         fields = ['allow_ads']

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Middleware for core app."""
 
 import logging
@@ -7,7 +8,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.cache import cache
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import Http404, HttpResponseBadRequest
-from django.urls.base import get_urlconf, set_urlconf
+from django.urls.base import set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import ugettext_lazy as _
 
@@ -17,16 +18,16 @@ from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = "(Middleware) {msg} [{host}{path}]"
+LOG_TEMPLATE = '(Middleware) {msg} [{host}{path}]'
 SUBDOMAIN_URLCONF = getattr(
     settings,
     'SUBDOMAIN_URLCONF',
-    'readthedocs.core.urls.subdomain'
+    'readthedocs.core.urls.subdomain',
 )
 SINGLE_VERSION_URLCONF = getattr(
     settings,
     'SINGLE_VERSION_URLCONF',
-    'readthedocs.core.urls.single_version'
+    'readthedocs.core.urls.single_version',
 )
 
 
@@ -52,7 +53,7 @@ class SubdomainMiddleware(MiddlewareMixin):
         production_domain = getattr(
             settings,
             'PRODUCTION_DOMAIN',
-            'readthedocs.org'
+            'readthedocs.org',
         )
 
         if public_domain is None:
@@ -65,10 +66,8 @@ class SubdomainMiddleware(MiddlewareMixin):
         if len(domain_parts) == len(public_domain.split('.')) + 1:
             subdomain = domain_parts[0]
             is_www = subdomain.lower() == 'www'
-            if not is_www and (
-                # Support ports during local dev
-                public_domain in host or public_domain in full_host
-            ):
+            if not is_www and (  # Support ports during local dev
+                    public_domain in host or public_domain in full_host):
                 if not Project.objects.filter(slug=subdomain).exists():
                     raise Http404(_('Project not found'))
                 request.subdomain = True
@@ -77,10 +76,8 @@ class SubdomainMiddleware(MiddlewareMixin):
                 return None
 
         # Serve CNAMEs
-        if (public_domain not in host and
-                production_domain not in host and
-                'localhost' not in host and
-                'testserver' not in host):
+        if (public_domain not in host and production_domain not in host and
+                'localhost' not in host and 'testserver' not in host):
             request.cname = True
             domains = Domain.objects.filter(domain=host)
             if domains.count():
@@ -89,18 +86,24 @@ class SubdomainMiddleware(MiddlewareMixin):
                         request.slug = domain.project.slug
                         request.urlconf = SUBDOMAIN_URLCONF
                         request.domain_object = True
-                        log.debug(LOG_TEMPLATE.format(
-                            msg='Domain Object Detected: %s' % domain.domain,
-                            **log_kwargs))
+                        log.debug(
+                            LOG_TEMPLATE.format(
+                                msg='Domain Object Detected: %s' % domain.domain,
+                                **log_kwargs
+                            )
+                        )
                         break
             if (not hasattr(request, 'domain_object') and
                     'HTTP_X_RTD_SLUG' in request.META):
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = SUBDOMAIN_URLCONF
                 request.rtdheader = True
-                log.debug(LOG_TEMPLATE.format(
-                    msg='X-RTD-Slug header detected: %s' % request.slug,
-                    **log_kwargs))
+                log.debug(
+                    LOG_TEMPLATE.format(
+                        msg='X-RTD-Slug header detected: %s' % request.slug,
+                        **log_kwargs
+                    )
+                )
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
                 try:
@@ -109,26 +112,39 @@ class SubdomainMiddleware(MiddlewareMixin):
                         slug = cname_to_slug(host)
                         cache.set(host, slug, 60 * 60)
                         # Cache the slug -> host mapping permanently.
-                        log.info(LOG_TEMPLATE.format(
-                            msg='CNAME cached: {}->{}'.format(slug, host),
-                            **log_kwargs))
+                        log.info(
+                            LOG_TEMPLATE.format(
+                                msg='CNAME cached: {}->{}'.format(slug, host),
+                                **log_kwargs
+                            )
+                        )
                     request.slug = slug
                     request.urlconf = SUBDOMAIN_URLCONF
-                    log.warning(LOG_TEMPLATE.format(
-                        msg='CNAME detected: %s' % request.slug,
-                        **log_kwargs))
+                    log.warning(
+                        LOG_TEMPLATE.format(
+                            msg='CNAME detected: %s' % request.slug,
+                            **log_kwargs
+                        )
+                    )
                 except:  # noqa
                     # Some crazy person is CNAMEing to us. 404.
-                    log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                    log.warning(
+                        LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs)
+                    )
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
-                log.debug(LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs))
+                log.debug(
+                    LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs)
+                )
                 return HttpResponseBadRequest(_('Invalid hostname'))
-            log.debug(LOG_TEMPLATE.format(msg='Allowing long domain name', **log_kwargs))
+            log.debug(
+                LOG_TEMPLATE
+                .format(msg='Allowing long domain name', **log_kwargs)
+            )
             # raise Http404(_('Invalid hostname'))
         # Normal request.
         return None
@@ -186,8 +202,9 @@ class SingleVersionMiddleware(MiddlewareMixin):
                 host = request.get_host()
                 path = request.get_full_path()
                 log_kwargs = dict(host=host, path=path)
-                log.debug(LOG_TEMPLATE.format(
-                    msg='Handling single_version request', **log_kwargs)
+                log.debug(
+                    LOG_TEMPLATE.
+                    format(msg='Handling single_version request', **log_kwargs),
                 )
 
         return None
@@ -217,7 +234,7 @@ class ProxyMiddleware(MiddlewareMixin):
         else:
             # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs. The
             # client's IP will be the first one.
-            real_ip = real_ip.split(",")[0].strip()
+            real_ip = real_ip.split(',')[0].strip()
             request.META['REMOTE_ADDR'] = real_ip
 
 
@@ -229,7 +246,9 @@ class FooterNoSessionMiddleware(SessionMiddleware):
     This will reduce the size of our session table drastically.
     """
 
-    IGNORE_URLS = ['/api/v2/footer_html', '/sustainability/view', '/sustainability/click']
+    IGNORE_URLS = [
+        '/api/v2/footer_html', '/sustainability/view', '/sustainability/click'
+    ]
 
     def process_request(self, request):
         for url in self.IGNORE_URLS:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Defines serializers for each of our models."""
 
 from allauth.socialaccount.models import SocialAccount
@@ -15,9 +16,15 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = (
             'id',
-            'name', 'slug', 'description', 'language',
-            'programming_language', 'repo', 'repo_type',
-            'default_version', 'default_branch',
+            'name',
+            'slug',
+            'description',
+            'language',
+            'programming_language',
+            'repo',
+            'repo_type',
+            'default_version',
+            'default_branch',
             'documentation_type',
             'users',
             'canonical_url',
@@ -70,9 +77,12 @@ class VersionSerializer(serializers.ModelSerializer):
         model = Version
         fields = (
             'id',
-            'project', 'slug',
-            'identifier', 'verbose_name',
-            'active', 'built',
+            'project',
+            'slug',
+            'identifier',
+            'verbose_name',
+            'active',
+            'built',
             'downloads',
             'type',
         )
@@ -186,7 +196,6 @@ class SocialAccountSerializer(serializers.ModelSerializer):
 
     def get_username(self, obj):
         return (
-            obj.extra_data.get('username') or
-            obj.extra_data.get('login')
+            obj.extra_data.get('username') or obj.extra_data.get('login')
             # FIXME: which one is GitLab?
         )

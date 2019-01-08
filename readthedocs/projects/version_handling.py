@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project version handling."""
 import unicodedata
 
@@ -88,7 +89,8 @@ def sort_versions(version_list):
             versions,
             key=lambda version_info: version_info[1],
             reverse=True,
-        ))
+        ),
+    )
 
 
 def highest_version(version_list):

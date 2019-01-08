@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Payment forms."""
 
 import logging
@@ -36,23 +37,29 @@ class StripeResourceMixin:
         raise NotImplementedError
 
     def get_customer(self):
-        return self.ensure_stripe_resource(resource=Customer,
-                                           attrs=self.get_customer_kwargs())
+        return self.ensure_stripe_resource(
+            resource=Customer,
+            attrs=self.get_customer_kwargs(),
+        )
 
     def get_subscription_kwargs(self):
         raise NotImplementedError
 
     def get_subscription(self):
         customer = self.get_customer()
-        return self.ensure_stripe_resource(resource=customer.subscriptions,
-                                           attrs=self.get_subscription_kwargs())
+        return self.ensure_stripe_resource(
+            resource=customer.subscriptions,
+            attrs=self.get_subscription_kwargs(),
+        )
 
     def get_charge_kwargs(self):
         raise NotImplementedError
 
     def get_charge(self):
-        return self.ensure_stripe_resource(resource=Charge,
-                                           attrs=self.get_charge_kwargs())
+        return self.ensure_stripe_resource(
+            resource=Charge,
+            attrs=self.get_charge_kwargs(),
+        )
 
 
 class StripeModelForm(forms.ModelForm):
@@ -77,41 +84,58 @@ class StripeModelForm(forms.ModelForm):
     # Stripe token input from Stripe.js
     stripe_token = forms.CharField(
         required=False,
-        widget=forms.HiddenInput(attrs={
-            'data-bind': 'valueInit: stripe_token',
-        })
+        widget=forms.HiddenInput(
+            attrs={
+                'data-bind': 'valueInit: stripe_token',
+            }
+        ),
     )
 
     # Fields used for fetching token with javascript, listed as form fields so
     # that data can survive validation errors
     cc_number = forms.CharField(
         label=_('Card number'),
-        widget=forms.TextInput(attrs={
-            'data-bind': ('valueInit: cc_number, '
-                          'textInput: cc_number, '
-                          '''css: {'field-error': error_cc_number() != null}''')
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'data-bind': (
+                    'valueInit: cc_number, '
+                    'textInput: cc_number, '
+                    '''css: {'field-error': error_cc_number() != null}'''
+                ),
+            }
+        ),
         max_length=25,
-        required=False)
+        required=False,
+    )
     cc_expiry = forms.CharField(
         label=_('Card expiration'),
-        widget=forms.TextInput(attrs={
-            'data-bind': ('valueInit: cc_expiry, '
-                          'textInput: cc_expiry, '
-                          '''css: {'field-error': error_cc_expiry() != null}''')
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'data-bind': (
+                    'valueInit: cc_expiry, '
+                    'textInput: cc_expiry, '
+                    '''css: {'field-error': error_cc_expiry() != null}'''
+                ),
+            }
+        ),
         max_length=10,
-        required=False)
+        required=False,
+    )
     cc_cvv = forms.CharField(
         label=_('Card CVV'),
-        widget=forms.TextInput(attrs={
-            'data-bind': ('valueInit: cc_cvv, '
-                          'textInput: cc_cvv, '
-                          '''css: {'field-error': error_cc_cvv() != null}'''),
-            'autocomplete': 'off',
-        }),
+        widget=forms.TextInput(
+            attrs={
+                'data-bind': (
+                    'valueInit: cc_cvv, '
+                    'textInput: cc_cvv, '
+                    '''css: {'field-error': error_cc_cvv() != null}'''
+                ),
+                'autocomplete': 'off',
+            }
+        ),
         max_length=8,
-        required=False)
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         self.customer = kwargs.pop('customer', None)
@@ -171,7 +195,8 @@ class StripeModelForm(forms.ModelForm):
         except stripe.error.StripeError as e:
             log.exception('There was a problem communicating with Stripe')
             raise forms.ValidationError(
-                _('There was a problem communicating with Stripe'))
+                _('There was a problem communicating with Stripe'),
+            )
         return cleaned_data
 
     def clear_card_data(self):
@@ -184,12 +209,14 @@ class StripeModelForm(forms.ModelForm):
         try:
             self.data['stripe_token'] = None
         except AttributeError:
-            raise AttributeError('Form was passed immutable QueryDict POST data')
+            raise AttributeError(
+                'Form was passed immutable QueryDict POST data'
+            )
 
     def fields_with_cc_group(self):
         group = {
             'is_cc_group': True,
-            'fields': []
+            'fields': [],
         }
         for field in self:
             if field.name in ['cc_number', 'cc_expiry', 'cc_cvv']:

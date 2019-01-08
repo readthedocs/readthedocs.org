@@ -1,4 +1,5 @@
-"""Generate metadata for all projects"""
+# -*- coding: utf-8 -*-
+"""Generate metadata for all projects."""
 
 import logging
 
@@ -19,8 +20,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         queryset = Project.objects.all()
         for p in queryset:
-            log.info("Generating metadata for %s", p)
+            log.info('Generating metadata for %s', p)
             try:
-                broadcast(type='app', task=tasks.update_static_metadata, args=[p.pk])
+                broadcast(
+                    type='app', task=tasks.update_static_metadata, args=[p.pk]
+                )
             except Exception:
                 log.exception('Build failed for %s', p)

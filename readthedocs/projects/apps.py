@@ -1,4 +1,5 @@
-"""Project app config"""
+# -*- coding: utf-8 -*-
+"""Project app config."""
 
 from django.apps import AppConfig
 

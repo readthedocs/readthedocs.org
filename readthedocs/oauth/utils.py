@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Support code for OAuth, including webhook support."""
 
 import logging
@@ -54,7 +55,9 @@ def update_webhook(project, integration, request=None):
         request,
         _(
             'Webhook activation failed. '
-            'Make sure you have the necessary permissions.'))
+            'Make sure you have the necessary permissions.',
+        ),
+    )
     project.has_valid_webhook = False
     project.save()
     return False

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Sphinx_ backend for building docs.
 
@@ -44,7 +45,7 @@ class BaseSphinx(BaseBuilder):
                 self.config_file = self.project.conf_file(self.version.slug)
             self.old_artifact_path = os.path.join(
                 os.path.dirname(self.config_file),
-                self.sphinx_build_dir
+                self.sphinx_build_dir,
             )
         except ProjectConfigurationError:
             docs_dir = self.docs_dir()
@@ -57,11 +58,13 @@ class BaseSphinx(BaseBuilder):
         """Create ``conf.py`` if it doesn't exist."""
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
-            'sphinx/conf.py.conf', {
+            'sphinx/conf.py.conf',
+            {
                 'project': self.project,
                 'version': self.version,
                 'master_doc': master_doc,
-            })
+            },
+        )
         conf_file = os.path.join(docs_dir, 'conf.py')
         safe_write(conf_file, conf_template)
 
@@ -73,25 +76,28 @@ class BaseSphinx(BaseBuilder):
             os.path.dirname(
                 os.path.relpath(
                     self.config_file,
-                    self.project.checkout_path(self.version.slug)
-                )
+                    self.project.checkout_path(self.version.slug),
+                ),
             ),
             '',
         )
         remote_version = self.version.commit_name
 
         github_user, github_repo = version_utils.get_github_username_repo(
-            url=self.project.repo)
+            url=self.project.repo,
+        )
         github_version_is_editable = (self.version.type == 'branch')
         display_github = github_user is not None
 
         bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(  # noqa
-            url=self.project.repo)
+            url=self.project.repo,
+        )
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
         gitlab_user, gitlab_repo = version_utils.get_gitlab_username_repo(
-            url=self.project.repo)
+            url=self.project.repo,
+        )
         gitlab_version_is_editable = (self.version.type == 'branch')
         display_gitlab = gitlab_user is not None
 
@@ -143,7 +149,7 @@ class BaseSphinx(BaseBuilder):
 
             # Features
             'dont_overwrite_sphinx_context': self.project.has_feature(
-                Feature.DONT_OVERWRITE_SPHINX_CONTEXT
+                Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
         }
 
@@ -156,22 +162,22 @@ class BaseSphinx(BaseBuilder):
         return data
 
     def append_conf(self, **__):
-        """Find or create a ``conf.py`` with a rendered ``doc_builder/conf.py.tmpl`` appended"""
+        """Find or create a ``conf.py`` with a rendered
+        ``doc_builder/conf.py.tmpl`` appended."""
         if self.config_file is None:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
         try:
             self.config_file = (
-                self.config_file or
-                self.project.conf_file(self.version.slug)
+                self.config_file or self.project.conf_file(self.version.slug)
             )
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
             raise ProjectConfigurationError(
-                    ProjectConfigurationError.NOT_FOUND
-                ).with_traceback(trace)
+                ProjectConfigurationError.NOT_FOUND,
+            ).with_traceback(trace)
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -215,8 +221,7 @@ class BaseSphinx(BaseBuilder):
             self.sphinx_build_dir,
         ])
         cmd_ret = self.run(
-            *build_command,
-            cwd=os.path.dirname(self.config_file),
+            *build_command, cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
@@ -235,10 +240,11 @@ class HtmlBuilder(BaseSphinx):
         # Copy JSON artifacts to its own directory
         # to keep compatibility with the older builder.
         json_path = os.path.abspath(
-            os.path.join(self.old_artifact_path, '..', 'json')
+            os.path.join(self.old_artifact_path, '..', 'json'),
         )
         json_path_target = self.project.artifact_path(
-            version=self.version.slug, type_='sphinx_search'
+            version=self.version.slug,
+            type_='sphinx_search',
         )
         if os.path.exists(json_path):
             if os.path.exists(json_path_target):
@@ -246,12 +252,10 @@ class HtmlBuilder(BaseSphinx):
             log.info('Copying json on the local filesystem')
             shutil.copytree(
                 json_path,
-                json_path_target
+                json_path_target,
             )
         else:
-            log.warning(
-                'Not moving json because the build dir is unknown.'
-            )
+            log.warning('Not moving json because the build dir is unknown.',)
 
 
 class HtmlDirBuilder(HtmlBuilder):
@@ -297,7 +301,8 @@ class LocalMediaBuilder(BaseSphinx):
                     filename=to_write,
                     arcname=os.path.join(
                         '{}-{}'.format(self.project.slug, self.version.slug),
-                        to_write),
+                        to_write,
+                    ),
                 )
         archive.close()
 
@@ -386,11 +391,16 @@ class PdfBuilder(BaseSphinx):
         # Run LaTeX -> PDF conversions
         pdflatex_cmds = [
             ['pdflatex', '-interaction=nonstopmode', tex_file]
-            for tex_file in tex_files]  # yapf: disable
+            for tex_file in tex_files
+        ]  # yapf: disable
         makeindex_cmds = [
-            ['makeindex', '-s', 'python.ist', '{}.idx'.format(
-                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
-            for tex_file in tex_files]  # yapf: disable
+            [
+                'makeindex', '-s', 'python.ist', '{}.idx'.format(
+                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
+                ),
+            ]
+            for tex_file in tex_files
+        ]  # yapf: disable
 
         if self.build_env.command_class == DockerBuildCommand:
             latex_class = DockerLatexBuildCommand
@@ -399,15 +409,27 @@ class PdfBuilder(BaseSphinx):
         pdf_commands = []
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class,
+                cmd=cmd,
+                cwd=latex_cwd,
+                warn_only=True,
+            )
             pdf_commands.append(cmd_ret)
         for cmd in makeindex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class,
+                cmd=cmd,
+                cwd=latex_cwd,
+                warn_only=True,
+            )
             pdf_commands.append(cmd_ret)
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class,
+                cmd=cmd,
+                cwd=latex_cwd,
+                warn_only=True,
+            )
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
                 self.pdf_file_name = pdf_match.group(1).strip()
@@ -441,7 +463,9 @@ class PdfBuilder(BaseSphinx):
                 from_file = None
         if from_file:
             to_file = os.path.join(
-                self.target, '{}.pdf'.format(self.project.slug))
+                self.target,
+                '{}.pdf'.format(self.project.slug),
+            )
             self.run(
                 'mv',
                 '-f',

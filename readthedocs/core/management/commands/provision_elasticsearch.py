@@ -1,4 +1,5 @@
-"""Provision Elastic Search"""
+# -*- coding: utf-8 -*-
+"""Provision Elastic Search."""
 
 import logging
 
@@ -20,19 +21,19 @@ class Command(BaseCommand):
     help = __doc__
 
     def handle(self, *args, **options):
-        """Provision new ES instance"""
+        """Provision new ES instance."""
         index = Index()
         index_name = index.timestamped_index()
 
-        log.info("Creating indexes..")
+        log.info('Creating indexes..')
         index.create_index(index_name)
         index.update_aliases(index_name)
 
-        log.info("Updating mappings..")
+        log.info('Updating mappings..')
         proj = ProjectIndex()
         proj.put_mapping()
         page = PageIndex()
         page.put_mapping()
         sec = SectionIndex()
         sec.put_mapping()
-        log.info("Done!")
+        log.info('Done!')
