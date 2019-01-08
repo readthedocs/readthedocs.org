@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division, print_function, unicode_literals
 from datetime import datetime
 
 from recommonmark.parser import CommonMarkParser
