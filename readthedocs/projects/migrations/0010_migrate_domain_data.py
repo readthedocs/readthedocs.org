@@ -2,8 +2,7 @@
 from __future__ import (absolute_import, print_function, unicode_literals)
 
 from django.db import models, migrations
-from future.backports.urllib.parse import urlparse
-
+from urllib.parse import urlparse
 import readthedocs.projects.validators
 
 

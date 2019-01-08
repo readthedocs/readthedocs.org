@@ -4,6 +4,7 @@
 import fnmatch
 import logging
 import os
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -12,7 +13,6 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from future.backports.urllib.parse import urlparse  # noqa
 from guardian.shortcuts import assign
 from taggit.managers import TaggableManager
 

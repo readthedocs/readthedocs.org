@@ -1,13 +1,13 @@
 """Validators for projects app."""
 
 import re
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import ugettext_lazy as _
-from future.backports.urllib.parse import urlparse
 
 
 domain_regex = (

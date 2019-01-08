@@ -3,13 +3,13 @@
 """Signal handling for core app."""
 
 import logging
+from urllib.parse import urlparse
 
 from corsheaders import signals
 from django.conf import settings
 from django.db.models import Count, Q
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
-from future.backports.urllib.parse import urlparse
 from rest_framework.permissions import SAFE_METHODS
 
 from readthedocs.oauth.models import RemoteOrganization

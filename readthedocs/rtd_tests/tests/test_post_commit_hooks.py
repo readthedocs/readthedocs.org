@@ -4,7 +4,7 @@ import logging
 import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
-from future.backports.urllib.parse import urlencode
+from urllib.parse import urlparse
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project

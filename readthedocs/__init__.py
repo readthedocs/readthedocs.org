@@ -3,7 +3,7 @@
 
 import os.path
 
-from future.moves.configparser import RawConfigParser
+from configparser import RawConfigParser
 
 
 def get_version(setupcfg_path):

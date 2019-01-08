@@ -1,12 +1,12 @@
 """Template tags for core app."""
 
 import hashlib
+from urllib.parse import urlparse
 
 from django import template
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
-from future.backports.urllib.parse import urlencode
 
 from readthedocs import __version__
 from readthedocs.core.resolver import resolve
