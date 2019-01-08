@@ -1,7 +1,7 @@
 """Template tags for core app."""
 
 import hashlib
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
 
 from django import template
 from django.conf import settings

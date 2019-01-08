@@ -2,6 +2,7 @@
 """Subversion-related utilities."""
 
 import csv
+from io import StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
