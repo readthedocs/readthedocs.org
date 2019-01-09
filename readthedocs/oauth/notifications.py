@@ -16,10 +16,10 @@ class AttachWebhookNotification(SiteNotification):
     success_message = _('Webhook successfully added.')
     failure_message = {
         NO_PERMISSIONS: _(
-            'Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.'  # noqa
+            'Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.',  # noqa
         ),
         NO_ACCOUNTS: _(
-            'Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.'  # noqa
+            'Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.',  # noqa
         ),
     }
 

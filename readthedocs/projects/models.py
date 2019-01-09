@@ -62,7 +62,11 @@ class ProjectRelationship(models.Model):
         related_name='superprojects',
     )
     alias = models.SlugField(
-        _('Alias'), max_length=255, null=True, blank=True, db_index=False
+        _('Alias'),
+        max_length=255,
+        null=True,
+        blank=True,
+        db_index=False,
     )
 
     objects = ChildRelatedProjectQuerySet.as_manager()
@@ -476,8 +480,10 @@ class Project(models.Model):
         Always use http for now, to avoid content warnings.
         """
         return resolve(
-            project=self, version_slug=version_slug, language=lang_slug,
-            private=private
+            project=self,
+            version_slug=version_slug,
+            language=lang_slug,
+            private=private,
         )
 
     def get_builds_url(self):
@@ -730,7 +736,7 @@ class Project(models.Model):
             self.get_production_media_path(
                 type_='pdf',
                 version_slug=version_slug,
-            )
+            ),
         )
 
     def has_epub(self, version_slug=LATEST):
@@ -740,7 +746,7 @@ class Project(models.Model):
             self.get_production_media_path(
                 type_='epub',
                 version_slug=version_slug,
-            )
+            ),
         )
 
     def has_htmlzip(self, version_slug=LATEST):
@@ -748,7 +754,7 @@ class Project(models.Model):
             self.get_production_media_path(
                 type_='htmlzip',
                 version_slug=version_slug,
-            )
+            ),
         )
 
     @property
@@ -841,8 +847,7 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk
-                                        ).active_versions.get()['versions']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1103,8 +1108,9 @@ class ImportedFile(models.Model):
 
     def get_absolute_url(self):
         return resolve(
-            project=self.project, version_slug=self.version.slug,
-            filename=self.path
+            project=self.project,
+            version_slug=self.version.slug,
+            filename=self.path,
         )
 
     def __str__(self):
@@ -1188,7 +1194,8 @@ class Domain(models.Model):
 
     def __str__(self):
         return '{domain} pointed at {project}'.format(
-            domain=self.domain, project=self.project.name
+            domain=self.domain,
+            project=self.project.name,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -1264,7 +1271,7 @@ class Feature(models.Model):
         ),
         (
             MKDOCS_THEME_RTD,
-            _('Use Read the Docs theme for MkDocs as default theme')
+            _('Use Read the Docs theme for MkDocs as default theme'),
         ),
         (
             DONT_SHALLOW_CLONE,

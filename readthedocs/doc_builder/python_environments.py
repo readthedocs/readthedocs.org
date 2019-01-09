@@ -49,7 +49,7 @@ class PythonEnvironment:
                     project=self.project.slug,
                     version=self.version.slug,
                     msg='Removing existing build directory',
-                )
+                ),
             )
             shutil.rmtree(build_dir)
 
@@ -62,7 +62,7 @@ class PythonEnvironment:
                     project=self.project.slug,
                     version=self.version.slug,
                     msg='Removing existing venv directory',
-                )
+                ),
             )
             shutil.rmtree(venv_dir)
 
@@ -360,7 +360,7 @@ class Conda(PythonEnvironment):
                     project=self.project.slug,
                     version=self.version.slug,
                     msg='Removing existing conda directory',
-                )
+                ),
             )
             shutil.rmtree(version_path)
         self.build_env.run(

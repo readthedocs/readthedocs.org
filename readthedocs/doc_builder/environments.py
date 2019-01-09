@@ -312,14 +312,14 @@ class DockerBuildCommand(BuildCommand):
             # not use the specific exit code, so we check if the word `Killed`
             # is in the last 15 lines of the command's output
             killed_in_output = 'Killed' in '\n'.join(
-                self.output.splitlines()[-15:]
+                self.output.splitlines()[-15:],
             )
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and
                                                           killed_in_output):
                 self.output += str(
                     _(
                         '\n\nCommand killed due to excessive memory consumption\n',
-                    )
+                    ),
                 )
         except DockerAPIError:
             self.exit_code = -1
@@ -444,7 +444,7 @@ class BaseEnvironment:
                         project=self.project.slug,
                         version='latest',
                         msg=msg,
-                    )
+                    ),
                 )
             else:
                 raise BuildEnvironmentWarning(msg)
@@ -792,7 +792,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                             version=self.version.slug,
                             msg=(
                                 'Removing stale container {}'.format(
-                                    self.container_id
+                                    self.container_id,
                                 )
                             ),
                         ),
@@ -966,7 +966,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             elif state.get('Error'):
                 self.failure = BuildEnvironmentError((
                     _('Build exited due to unknown error: {0}').format(
-                        state.get('Error')
+                        state.get('Error'),
                     )
                 ),)
 

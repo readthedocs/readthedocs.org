@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Django views for the notifications app."""
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
@@ -106,7 +107,8 @@ class SendNotificationView(FormView):
             fail_silently=False,
     ):
         """
-        Implementation of
+        Implementation of.
+
         :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
 
         Send message through messages framework
