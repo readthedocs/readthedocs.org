@@ -26,17 +26,21 @@ SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
 
 import logging
 import mimetypes
 import os
 from functools import wraps
+from urllib.parse import urlparse
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -45,6 +49,7 @@ from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ProjectRelationship
+
 
 log = logging.getLogger(__name__)
 
@@ -102,15 +107,23 @@ def map_project_slug(view_func):
 @map_subproject_slug
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
-    return HttpResponseRedirect(resolve(subproject or project))
+    urlparse_result = urlparse(request.get_full_path())
+    return HttpResponseRedirect(resolve(
+        subproject or project,
+        query_params=urlparse_result.query,
+    ))
 
 
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
-    return HttpResponseRedirect(
-        resolve(subproject or project, filename=filename))
+    urlparse_result = urlparse(request.get_full_path())
+    return HttpResponseRedirect(resolve(
+        subproject or project,
+        filename=filename,
+        query_params=urlparse_result.query,
+    ))
 
 
 def _serve_401(request, project):

@@ -1,13 +1,15 @@
 """URL resolver for documentation."""
 
 from __future__ import absolute_import
-from builtins import object
-import re
 
+import re
+from urllib.parse import urlunparse
+
+from builtins import object
 from django.conf import settings
 
-from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 
 
 class ResolverBase(object):
@@ -138,8 +140,8 @@ class ResolverBase(object):
 
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, require_https=False, filename='', private=None,
-                **kwargs):
+    def resolve(self, project, require_https=False, filename='',
+                query_params='', private=None, **kwargs):
         if private is None:
             version_slug = kwargs.get('version_slug')
             if version_slug is None:
@@ -170,12 +172,10 @@ class ResolverBase(object):
         ])
         protocol = 'https' if use_https_protocol else 'http'
 
-        return '{protocol}://{domain}{path}'.format(
-            protocol=protocol,
-            domain=domain,
-            path=self.resolve_path(project, filename=filename, private=private,
-                                   **kwargs),
+        path = self.resolve_path(
+            project, filename=filename, private=private, **kwargs
         )
+        return urlunparse((protocol, domain, path, '', query_params, ''))
 
     def _get_canonical_project(self, project, projects=None):
         """
