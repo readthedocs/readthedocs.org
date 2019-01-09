@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import
 
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
 
@@ -21,5 +22,11 @@ class EmailConfirmNotification(SiteNotification):
 
     failure_level = ERROR_PERSISTENT
     failure_message = _(
-        'Please <a href="">add or verify your primary email address</a>.'
+        'You primary email address is not verified. '
+        'Please <a href="{{account_email_url}}">verify it here</a>.',
     )
+
+    def get_context_data(self):
+        context = super(EmailConfirmNotification, self).get_context_data()
+        context.update({'account_email_url': reverse('account_email')})
+        return context
