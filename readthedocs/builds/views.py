@@ -115,6 +115,9 @@ class BuildDetail(BuildBase, DetailView):
             '&body={body}'
         )
 
+        # TODO: we could use ``.github/ISSUE_TEMPLATE.md`` here, but we would
+        # need to add some variables to it which could impact in the UX when
+        # filling an issue from the web
         body = """
         ## Details:
 
