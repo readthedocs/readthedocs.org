@@ -114,7 +114,7 @@ class BaseMkdocs(BaseBuilder):
         # Handle custom docs dirs
         user_docs_dir = user_config.get('docs_dir')
         docs_dir = self.docs_dir(docs_dir=user_docs_dir)
-        self.create_index(extension='md')
+        self.create_index(extension='md', force_index=True)
         user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values

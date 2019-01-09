@@ -5,17 +5,21 @@ from __future__ import (
     unicode_literals,
 )
 
-import mock
 import os
+
+import mock
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
+from readthedocs.doc_builder.backends.sphinx import HtmlBuilder as SphinxHTML
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import EnvironmentVariable, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
+from readthedocs.rtd_tests.mocks.paths import fake_paths_by_endswith
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
@@ -60,6 +64,165 @@ class BuildEnvironmentTests(TestCase):
         cmd = self.mocks.popen.call_args_list[2][0]
         self.assertRegex(cmd[0][0], r'python')
         self.assertRegex(cmd[0][1], r'sphinx-build')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_generate_index_file_force(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='mkdocs',
+            conf_py_file='',
+            enable_pdf_build=False,
+            enable_epub_build=False,
+            versions=[fixture()]
+        )
+        version = project.versions.all()[0]
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        base_builder = MkdocsHTML(build_env, python_env)
+
+        paths = {
+            'README.md': True,
+            'index.md': False,
+        }
+
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
+            result = base_builder.create_index(extension='md', force_index=True)
+            mock_open.assert_called_once_with(
+                os.path.join(base_builder.docs_dir(), 'index.md'), 'w+'
+            )
+            self.assertEqual(result, 'index')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_get_index_file_force(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='mkdocs',
+            conf_py_file='',
+            enable_pdf_build=False,
+            enable_epub_build=False,
+            versions=[fixture()]
+        )
+        version = project.versions.all()[0]
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        base_builder = MkdocsHTML(build_env, python_env)
+
+        paths = {
+            'README.md': True,
+            'index.md': True,
+        }
+
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
+            result = base_builder.create_index(extension='md', force_index=True)
+            self.assertEqual(len(mock_open.mock_calls), 0)
+            self.assertEqual(result, 'index')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_build_generate_index_file(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='sphinx',
+            conf_py_file='',
+            enable_pdf_build=False,
+            enable_epub_build=False,
+            versions=[fixture()]
+        )
+        version = project.versions.all()[0]
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        base_builder = SphinxHTML(build_env, python_env)
+
+        paths = {
+            'README.md': False,
+            'index,md': False,
+        }
+
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
+            result = base_builder.create_index(extension='md')
+            mock_open.assert_called_once_with(
+                os.path.join(base_builder.docs_dir(), 'index.md'), 'w+'
+            )
+            self.assertEqual(result, 'index')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_get_readme_file(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='sphinx',
+            conf_py_file='',
+            enable_pdf_build=False,
+            enable_epub_build=False,
+            versions=[fixture()]
+        )
+        version = project.versions.all()[0]
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        base_builder = SphinxHTML(build_env, python_env)
+
+        paths = {
+            'README.md': True,
+            'index.md': False,
+        }
+
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
+            result = base_builder.create_index(extension='md')
+            self.assertEqual(len(mock_open.mock_calls), 0)
+            self.assertEqual(result, 'README')
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_get_index_file(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='sphinx',
+            conf_py_file='',
+            enable_pdf_build=False,
+            enable_epub_build=False,
+            versions=[fixture()]
+        )
+        version = project.versions.all()[0]
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        base_builder = SphinxHTML(build_env, python_env)
+
+        paths = {
+            'README.md': False,
+            'index.md': True,
+        }
+
+        with mock.patch('readthedocs.doc_builder.base.open', mock.mock_open()) as mock_open, fake_paths_by_endswith(paths):
+            result = base_builder.create_index(extension='md')
+            self.assertEqual(len(mock_open.mock_calls), 0)
+            self.assertEqual(result, 'index')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):
