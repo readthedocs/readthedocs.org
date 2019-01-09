@@ -70,7 +70,6 @@ from readthedocs.restapi.utils import index_search_request
 from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
-from readthedocs.projects.notifications import EmailConfirmNotification
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
