@@ -27,6 +27,7 @@ from django.views.generic import DetailView, ListView
 from requests.utils import quote
 from urllib.parse import urlparse
 
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
@@ -108,6 +109,12 @@ class BuildDetail(BuildBase, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(BuildDetail, self).get_context_data(**kwargs)
+
+        build = self.get_object()
+        if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
+            # Do not suggest to open an issue if the error is not generic
+            return context
+
         context['project'] = self.project
         scheme = (
             'https://github.com/rtfd/readthedocs.org/issues/new'

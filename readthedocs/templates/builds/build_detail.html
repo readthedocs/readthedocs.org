@@ -179,9 +179,11 @@ $(document).ready(function () {
         </p>
         <p>
           {% block github_issue_link %}
-            {% blocktrans with url=issue_url %}
-             <a href="{{ url }}">Report any build issues here</a>.
-            {% endblocktrans %}
+            {% if issue_url %}
+              {% blocktrans trimmed with url=issue_url %}
+                <a href="{{ url }}">Report any build issues here</a>.
+              {% endblocktrans %}
+            {% endif %}
           {% endblock %}
         </p>
       </div>
