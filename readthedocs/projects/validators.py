@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Validators for projects app."""
 
 import re

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Payment forms."""
 
 import logging

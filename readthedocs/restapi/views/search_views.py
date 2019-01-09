@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Endpoints related to searching through projects, sections, etc."""
 
 import logging

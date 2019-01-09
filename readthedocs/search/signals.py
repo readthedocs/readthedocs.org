@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """We define custom Django signals to trigger before executing searches."""
 import django.dispatch
 

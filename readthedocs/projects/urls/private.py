@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project URLs for authenticated users."""
 
 from django.conf.urls import url

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Extensions to Django messages to support notifications to users.
 

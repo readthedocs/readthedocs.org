@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Gold subscription URLs."""
 
 from django.conf.urls import url

@@ -847,7 +847,7 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:  # yapf: disable
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1044,14 +1044,16 @@ class APIProject(Project):
         ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
+        # yapf: disable
         for key in [
-                'users',
-                'resource_uri',
-                'absolute_url',
-                'downloads',
-                'main_language_project',
-                'related_projects',
+            'users',
+            'resource_uri',
+            'absolute_url',
+            'downloads',
+            'main_language_project',
+            'related_projects',
         ]:
+            # yapf: enable
             try:
                 del kwargs[key]
             except KeyError:

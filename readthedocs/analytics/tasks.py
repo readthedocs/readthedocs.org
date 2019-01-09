@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Tasks for Read the Docs' analytics."""
 
 from django.conf import settings

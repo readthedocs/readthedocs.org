@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Validations for the RTD configuration file."""
 import os
 

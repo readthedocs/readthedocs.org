@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 MkDocs_ backend for building docs.
 

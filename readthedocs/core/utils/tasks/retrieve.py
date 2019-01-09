@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Utilities for retrieving task data."""
 
 from celery import states

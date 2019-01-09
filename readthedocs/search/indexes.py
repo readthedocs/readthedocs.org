@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Search indexing classes to index into Elasticsearch.
 

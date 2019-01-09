@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """HTML forms for sending notifications."""
 from django import forms
 from django.utils.translation import ugettext_lazy as _

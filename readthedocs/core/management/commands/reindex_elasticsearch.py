@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Reindex Elastic Search indexes."""
 
 import logging

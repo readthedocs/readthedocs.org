@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project RSS feeds."""
 
 from django.contrib.syndication.views import Feed

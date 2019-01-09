@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """URL configuration for core app."""
 
 from __future__ import absolute_import

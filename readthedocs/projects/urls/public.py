@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project URLS for public users."""
 
 from django.conf.urls import url

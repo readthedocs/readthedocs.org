@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Middleware for core app."""
 
 import logging

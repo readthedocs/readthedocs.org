@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Defines serializers for each of our models."""
 
 from allauth.socialaccount.models import SocialAccount

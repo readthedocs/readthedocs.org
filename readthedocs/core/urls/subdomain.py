@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """URL configurations for subdomains."""
 from functools import reduce
 from operator import add

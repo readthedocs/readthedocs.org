@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Allauth overrides."""
 
 import json

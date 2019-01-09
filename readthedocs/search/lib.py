@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Utilities related to searching Elastic."""
 from pprint import pprint
 

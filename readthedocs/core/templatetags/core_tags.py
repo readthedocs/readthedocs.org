@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Template tags for core app."""
 
 import hashlib

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """OAuth utility functions."""
 
 import json

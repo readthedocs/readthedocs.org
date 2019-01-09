@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Build documentation using the API and not hitting a database.
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Resync GitHub project for user."""
 
 from django.contrib.auth.models import User

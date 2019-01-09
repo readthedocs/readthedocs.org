@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Django models for the redirects app."""
 
 import logging

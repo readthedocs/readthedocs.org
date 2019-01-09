@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Trigger build for project slug."""
 
 import logging

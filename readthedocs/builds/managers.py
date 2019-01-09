@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Build and Version class model Managers."""
 
 from django.db import models

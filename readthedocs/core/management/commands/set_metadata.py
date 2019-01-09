@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Generate metadata for all projects."""
 
 import logging

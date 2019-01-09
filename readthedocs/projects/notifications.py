@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project notifications."""
 
 from readthedocs.notifications import Notification

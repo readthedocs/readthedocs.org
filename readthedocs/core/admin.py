@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Django admin interface for core models."""
 
 from datetime import timedelta

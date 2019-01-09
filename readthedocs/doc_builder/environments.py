@@ -665,6 +665,7 @@ class BuildEnvironment(BaseEnvironment):
         if self.failure is not None:
             # Surface a generic error if the class is not a
             # BuildEnvironmentError
+            # yapf: disable
             if not isinstance(
                 self.failure,
                 (
@@ -672,6 +673,7 @@ class BuildEnvironment(BaseEnvironment):
                     BuildEnvironmentWarning,
                 ),
             ):
+                # yapf: enable
                 log.error(
                     'Build failed with unhandled exception: %s',
                     str(self.failure),

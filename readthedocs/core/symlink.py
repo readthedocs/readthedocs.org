@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 A class that manages the symlinks for nginx to serve public files.
 
@@ -297,8 +298,9 @@ class Symlink:
         """
         Symlink project single version.
 
-        Link from $WEB_ROOT/<project> ->
-        HOME/user_builds/<project>/rtd-builds/latest/
+        Link from:
+
+        $WEB_ROOT/<project> -> HOME/user_builds/<project>/rtd-builds/latest/
         """
         version = self.get_default_version()
 

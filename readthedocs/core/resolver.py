@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """URL resolver for documentation."""
 
 import re

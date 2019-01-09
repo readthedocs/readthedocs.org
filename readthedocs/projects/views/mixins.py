@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Mixin classes for project views."""
 
 from django.shortcuts import get_object_or_404

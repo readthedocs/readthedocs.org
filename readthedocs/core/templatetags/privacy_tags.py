@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Template tags to query projects by privacy."""
 
 from django import template

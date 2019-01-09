@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Gold model signals."""
 
 from django.db.models.signals import pre_delete

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Common mixin classes for views."""
 
 from django.contrib.auth.decorators import login_required

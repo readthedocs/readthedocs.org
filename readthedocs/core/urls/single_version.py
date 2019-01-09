@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """URL configuration for a single version."""
 from functools import reduce
 from operator import add

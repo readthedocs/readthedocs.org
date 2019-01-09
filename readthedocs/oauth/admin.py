@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Admin configuration for the OAuth app."""
 
 from django.contrib import admin

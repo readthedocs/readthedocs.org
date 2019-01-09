@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Payment view mixin classes."""
 
 from django.conf import settings

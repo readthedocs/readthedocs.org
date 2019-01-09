@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Clean up stable build paths per project version."""
 
 import logging

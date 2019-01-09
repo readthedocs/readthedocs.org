@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Provision Elastic Search."""
 
 import logging

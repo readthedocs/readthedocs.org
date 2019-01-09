@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Defines access permissions for the API."""
 
 from rest_framework import permissions

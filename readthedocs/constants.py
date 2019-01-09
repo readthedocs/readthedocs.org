@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Common constants."""
 
 from readthedocs.builds.version_slug import VERSION_SLUG_REGEX

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Contains logic for handling version slugs.
 

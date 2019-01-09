@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Update symlinks for projects."""
 
 import logging

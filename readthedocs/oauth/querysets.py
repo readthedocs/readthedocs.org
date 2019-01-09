@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Managers for OAuth models."""
 
 from django.db import models

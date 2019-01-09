@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Notification constants."""
 
 from messages_extends import constants as message_constants

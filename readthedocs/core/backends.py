@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Email backends for core app."""
 
 import smtplib

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Utility endpoints relating to canonical urls, embedded content, etc."""
 
 from django.shortcuts import get_object_or_404

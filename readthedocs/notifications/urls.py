@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Renames for messages_extends URLs."""
 
 from django.conf.urls import url

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Rebuild documentation for all projects."""
 
 import logging
