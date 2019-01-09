@@ -114,11 +114,11 @@ class BuildDetail(BuildBase, DetailView):
                   "&body={body}")
 
         body = """
-        # Details:
+        ## Details:
 
-        *Project URL: https://readthedocs.org/projects/{projname}/
-        *Build URL(if applicable): https://readthedocs.org{build_path}
-        *Read the Docs username(if applicable): {uname}
+        * Project URL: https://readthedocs.org/projects/{projname}/
+        * Build URL(if applicable): https://readthedocs.org{build_path}
+        * Read the Docs username(if applicable): {uname}
 
         ## Expected Result
 
