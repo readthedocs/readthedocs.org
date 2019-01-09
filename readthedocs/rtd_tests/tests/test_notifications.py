@@ -17,7 +17,7 @@ from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.backends import EmailBackend, SiteBackend
 from readthedocs.notifications.constants import ERROR, INFO_NON_PERSISTENT, WARNING_NON_PERSISTENT
 from readthedocs.projects.models import Project
-from readthedocs.projects.notifications import DeprecatedWebhookEndpointNotification
+from readthedocs.projects.notifications import DeprecatedViewNotification
 from readthedocs.builds.models import Build
 
 
@@ -239,7 +239,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         self.user = fixture.get(User)
         self.request = HttpRequest()
 
-        self.notification = DeprecatedWebhookEndpointNotification(
+        self.notification = DeprecatedViewNotification(
             self.project,
             self.request,
             self.user,
@@ -248,13 +248,13 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
     def test_deduplication(self):
         self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 1)
         for x in range(5):
-            DeprecatedWebhookEndpointNotification(
+            DeprecatedViewNotification(
                 self.project,
                 self.request,
                 self.user,
             )
         self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 1)
-        DeprecatedWebhookEndpointNotification(
+        DeprecatedViewNotification(
             self.project,
             self.request,
             fixture.get(User),
@@ -262,7 +262,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         self.assertEqual(PersistentMessage.objects.count(), 2)
         self.notification.message.extra_tags = 'email_sent'
         self.notification.message.save()
-        DeprecatedWebhookEndpointNotification(
+        DeprecatedViewNotification(
             self.project,
             self.request,
             self.user,
@@ -285,7 +285,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
 
         # Hit the endpoint twice
         for x in range(2):
-            notification = DeprecatedWebhookEndpointNotification(
+            notification = DeprecatedViewNotification(
                 self.project,
                 self.request,
                 self.user,
@@ -294,7 +294,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         # the message also to be sure that no new notification was created
         self.assertEqual(PersistentMessage.objects.filter(
             user=self.user,
-            message__startswith=DeprecatedWebhookEndpointNotification.name).count(),
+            message__startswith=DeprecatedViewNotification.name).count(),
             1,
         )
         self.assertFalse(notification.send_email)  # second notification
@@ -313,7 +313,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         # A new Message object is created
         self.assertEqual(PersistentMessage.objects.filter(
             user=self.user,
-            message__startswith=DeprecatedWebhookEndpointNotification.name).count(),
+            message__startswith=DeprecatedViewNotification.name).count(),
             2,
         )
         self.assertEqual(PersistentMessage.objects.last().extra_tags, 'email_delayed')

@@ -17,9 +17,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.core.utils import trigger_build
-from readthedocs.notifications.decorators import notify_deprecated_endpoint
 from readthedocs.projects import constants
 from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.notifications import (
+    DeprecatedBuildWebhookNotification,
+    DeprecatedGitHubWebhookNotification,
+)
 from readthedocs.projects.tasks import sync_repository_task
 
 log = logging.getLogger(__name__)
@@ -127,7 +130,6 @@ def log_info(project, msg):
                      msg=msg))
 
 
-@notify_deprecated_endpoint
 def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
@@ -223,6 +225,9 @@ def github_build(request):  # noqa: D205
                     branches
                 )
             projects = repo_projects | ssh_projects
+            # TODO remove _build_url call and replace with a 4xx response after
+            # Jan 31st.
+            DeprecatedGitHubWebhookNotification.for_project_users(projects)
             return _build_url(http_search_url, projects, branches)
         except NoProjectException:
             log.exception('Project match not found: url=%s', http_search_url)
@@ -259,6 +264,9 @@ def gitlab_build(request):  # noqa: D205
         )
         projects = get_project_from_url(search_url)
         if projects:
+            # TODO remove _build_url call and replace with a 4xx response after
+            # Mar 1st.
+            DeprecatedBuildWebhookNotification.for_project_users(projects)
             return _build_url(search_url, projects, branches)
 
         log.info('Project match not found: url=%s', search_url)
@@ -327,6 +335,9 @@ def bitbucket_build(request):
 
         projects = get_project_from_url(search_url)
         if projects and branches:
+            # TODO remove _build_url call and replace with a 4xx response after
+            # Mar 1st.
+            DeprecatedBuildWebhookNotification.for_project_users(projects)
             return _build_url(search_url, projects, branches)
 
         if not branches:
@@ -343,7 +354,6 @@ def bitbucket_build(request):
 
 
 @csrf_exempt
-@notify_deprecated_endpoint
 def generic_build(request, project_id_or_slug=None):
     """
     Generic webhook build endpoint.
@@ -373,7 +383,13 @@ def generic_build(request, project_id_or_slug=None):
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(
-            "(Incoming Generic Build) %s [%s]", project.slug, slug)
+            "(Incoming Generic Build) %s [%s]",
+            project.slug,
+            slug,
+        )
+        # TODO remove _build_url call and replace with a 4xx response after
+        # Mar 1st.
+        DeprecatedBuildWebhookNotification.for_project_users([project])
         _build_version(project, slug)
     else:
         return HttpResponse("You must POST to this resource.")

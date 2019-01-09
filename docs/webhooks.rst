@@ -20,6 +20,8 @@ details and a list of HTTP exchanges that have taken place for the integration.
 You need this information for the URL, webhook, or Payload URL needed by the
 repository provider such as GitHub, GitLab, or Bitbucket.
 
+.. _webhook-creation:
+
 Webhook Creation
 ----------------
 
@@ -181,3 +183,32 @@ on your Read the Docs project, or you can use a
 account.
 
 .. [1] https://developer.github.com/changes/2018-04-25-github-services-deprecation/
+
+.. _webhook-deprecated-endpoints:
+
+I was warned that my project won't automatically build after Mar 1st
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to :ref:`no longer supporting GitHub Services <webhook-github-services>`,
+we have decided to no longer support several other legacy incoming webhook
+endpoints that were used before we introduced project webhook integrations. When
+we introduced our webhook integrations, we added several features and improved
+security for incoming webhooks and these features were not added to our leagcy
+incoming webhooks. New projects have not been able to use our legacy incoming
+webhooks since, however if you have a project that has been established for a
+while, you may still be using these endpoints.
+
+After March 1st, 2019, we will stop accepting incoming webhook notifications for
+these legacy incoming webhooks. Your project will need to be reconfigured and
+have a webhook integration configured, pointing to a new webhook with your VCS
+provider.
+
+In particular, the incoming webhook URLs that will be removed are:
+
+* ``https://readthedocs.org/build``
+* ``https://readthedocs.org/bitbucket``
+* ``https://readthedocs.org/github`` (as noted :ref:`above <webhook-github-services>`)
+* ``https://readthedocs.org/gitlab``
+
+In order to establish a new project webhook integration, :ref:`follow
+the directions for your VCS provider <webhook-creation>`
