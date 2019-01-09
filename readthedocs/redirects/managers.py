@@ -12,6 +12,7 @@ class RedirectQuerySet(QuerySet):
                 path=path, language=language, version_slug=version_slug)
             if new_path:
                 return new_path
+        return None
 
 
 RedirectManager = Manager.from_queryset(RedirectQuerySet)
