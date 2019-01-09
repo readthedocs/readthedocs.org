@@ -57,9 +57,9 @@ def map_subproject_slug(view_func):
     """
 
     @wraps(view_func)
-    def inner_view(
+    def inner_view(  # noqa
             request, subproject=None, subproject_slug=None, *args, **kwargs
-    ):  # noqa
+    ):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
@@ -87,9 +87,9 @@ def map_project_slug(view_func):
     """
 
     @wraps(view_func)
-    def inner_view(
+    def inner_view(  # noqa
             request, project=None, project_slug=None, *args, **kwargs
-    ):  # noqa
+    ):
         if project is None:
             if not project_slug:
                 project_slug = request.slug
@@ -160,8 +160,7 @@ def serve_docs(
         version_slug=None,
         filename='',
 ):
-    """Exists to map existing proj, lang, version, filename views to the file
-    format."""
+    """Map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:

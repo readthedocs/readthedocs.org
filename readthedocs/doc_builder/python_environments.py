@@ -141,7 +141,7 @@ class PythonEnvironment:
                 environment_conf = json.load(fpath)
         except (IOError, TypeError, KeyError, ValueError):
             log.warning(
-                'Unable to read/parse readthedocs-environment.json file'
+                'Unable to read/parse readthedocs-environment.json file',
             )
             # We remove the JSON file here to avoid cycling over time with a
             # corrupted file.
@@ -176,8 +176,15 @@ class PythonEnvironment:
         ])
 
     def save_environment_json(self):
-        """Save on disk Python and build image versions used to create the
-        venv."""
+        """
+        Save on builders disk data about the environment used to build docs.
+
+        The data is saved as a ``.json`` file with this information on it:
+
+        - python.version
+        - build.image
+        - build.hash
+        """
         data = {
             'python': {
                 'version': self.config.python_full_version,
@@ -296,8 +303,10 @@ class Virtualenv(PythonEnvironment):
         if not requirements_file_path and requirements_file_path != '':
             builder_class = get_builder_class(self.config.doctype)
             docs_dir = (
-                builder_class(build_env=self.build_env,
-                              python_env=self).docs_dir()
+                builder_class(
+                    build_env=self.build_env,
+                    python_env=self,
+                ).docs_dir()
             )
             paths = [docs_dir, '']
             req_files = ['pip_requirements.txt', 'requirements.txt']

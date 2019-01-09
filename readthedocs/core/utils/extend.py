@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Patterns for extending Read the Docs."""
 
 import inspect
@@ -33,8 +34,11 @@ def get_override_class(proxy_class, default_class=None):
 
 class SettingsOverrideMeta(type):
 
-    """Meta class for passing along classmethod class to the underlying
-    class."""  # noqa
+    """
+    Meta class to manage our Setting configurations.
+
+    Meta class for passing along classmethod class to the underlying class.
+    """
 
     def __getattr__(cls, attr):  # noqa: pep8 false positive
         proxy_class = get_override_class(cls, getattr(cls, '_default_class'))

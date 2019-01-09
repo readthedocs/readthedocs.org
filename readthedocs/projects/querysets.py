@@ -92,10 +92,11 @@ class ProjectQuerySet(SettingsOverrideObject):
 class RelatedProjectQuerySetBase(models.QuerySet):
 
     """
-    A manager for things that relate to Project and need to get their perms from
-    the project.
+    Useful for objects that relate to Project and its permissions.
 
-    This shouldn't be used as a subclass.
+    Objects get the permissions from the project itself.
+
+    ..note:: This shouldn't be used as a subclass.
     """
 
     use_for_related_fields = True

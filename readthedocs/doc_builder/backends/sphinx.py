@@ -162,8 +162,11 @@ class BaseSphinx(BaseBuilder):
         return data
 
     def append_conf(self, **__):
-        """Find or create a ``conf.py`` with a rendered
-        ``doc_builder/conf.py.tmpl`` appended."""
+        """
+        Find or create a ``conf.py`` and appends default content.
+
+        The default content is rendered from ``doc_builder/conf.py.tmpl``.
+        """
         if self.config_file is None:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)

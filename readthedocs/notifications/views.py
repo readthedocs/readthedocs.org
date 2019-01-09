@@ -14,13 +14,11 @@ class SendNotificationView(FormView):
 
     Accepts the following additional parameters:
 
-    queryset
-        The queryset to use to determine the users to send emails to
-
-    :cvar action_name: Name of the action to pass to the form template,
-                       determines the action to pass back to the admin view
-    :cvar notification_classes: List of :py:class:`Notification` classes to
-                                display in the form
+    :param queryset: Queryset to use to determine the users to send emails to
+    :param action_name: Name of the action to pass to the form template,
+        determines the action to pass back to the admin view
+    :param notification_classes: List of :py:class:`Notification` classes to
+        display in the form
     """
 
     form_class = SendNotificationForm

@@ -597,8 +597,7 @@ class BuildEnvironment(BaseEnvironment):
 
     @property
     def successful(self):
-        """Is build completed, without top level failures or failing
-        commands."""  # noqa
+        """Build completed, without top level failures or failing commands."""
         return (
             self.done and self.failure is None and
             all(cmd.successful for cmd in self.commands)
@@ -667,7 +666,7 @@ class BuildEnvironment(BaseEnvironment):
             # Surface a generic error if the class is not a
             # BuildEnvironmentError
             if not isinstance(
-                    self.failure,
+                self.failure,
                 (
                     BuildEnvironmentException,
                     BuildEnvironmentWarning,
