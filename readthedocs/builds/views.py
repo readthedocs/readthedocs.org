@@ -109,16 +109,18 @@ class BuildDetail(BuildBase, DetailView):
     def get_context_data(self, **kwargs):
         context = super(BuildDetail, self).get_context_data(**kwargs)
         context['project'] = self.project
-        scheme = ("https://github.com/rtfd/readthedocs.org/issues/new"
-                  "?title={title}{build_id}"
-                  "&body={body}")
+        scheme = (
+            'https://github.com/rtfd/readthedocs.org/issues/new'
+            '?title={title}{build_id}'
+            '&body={body}'
+        )
 
         body = """
         ## Details:
 
-        * Project URL: https://readthedocs.org/projects/{projname}/
+        * Project URL: https://readthedocs.org/projects/{project_slug}/
         * Build URL(if applicable): https://readthedocs.org{build_path}
-        * Read the Docs username(if applicable): {uname}
+        * Read the Docs username(if applicable): {username}
 
         ## Expected Result
 
@@ -127,12 +129,16 @@ class BuildDetail(BuildBase, DetailView):
         ## Actual Result
 
         *A description of what actually happened*""".format(
-            projname=self.project, build_path=self.request.path,
-            uname=self.request.user)
+            project_slug=self.project,
+            build_path=self.request.path,
+            username=self.request.user,
+        )
 
-        scheme_dict = {'title': quote("Build error with build id #"),
-                       'build_id': context['build'].id,
-                       'body': quote(textwrap.dedent(body))}
+        scheme_dict = {
+            'title': quote('Build error with build id #'),
+            'build_id': context['build'].id,
+            'body': quote(textwrap.dedent(body)),
+        }
 
         issue_url = scheme.format(**scheme_dict)
         issue_url = urlparse(issue_url).geturl()
