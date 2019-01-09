@@ -1,18 +1,17 @@
 from __future__ import absolute_import
+
+import logging
+
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
-
-from django_dynamic_fixture import get
-from django_dynamic_fixture import fixture
+from django_dynamic_fixture import fixture, get
 from mock import patch
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
-
-import logging
 
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False, APPEND_SLASH=False)
@@ -99,6 +98,15 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/')
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_root_redirect_with_query_params(self):
+        r = self.client.get('/?foo=bar', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.readthedocs.org/en/latest/?foo=bar'
+        )
 
     # Specific Page Redirects
     @override_settings(USE_SUBDOMAIN=True)
