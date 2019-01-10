@@ -37,6 +37,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -134,10 +135,17 @@ def _serve_file(request, filename, basepath):
     if encoding:
         response['Content-Encoding'] = encoding
     try:
-        response['X-Accel-Redirect'] = os.path.join(
+        iri_path = os.path.join(
             basepath[len(settings.SITE_ROOT):],
             filename,
         )
+        # NGINX does not support non-ASCII characters in the header, so we
+        # convert the IRI path to URI so it's compatible with what NGINX expects
+        # as the header value.
+        # https://github.com/benoitc/gunicorn/issues/1448
+        # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
+        x_accel_redirect = iri_to_uri(iri_path)
+        response['X-Accel-Redirect'] = x_accel_redirect
     except UnicodeEncodeError:
         raise Http404
 
