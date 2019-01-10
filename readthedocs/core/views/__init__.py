@@ -124,9 +124,31 @@ def server_error_404(request, exception=None, template_name='404.html'):  # pyli
             )
         else:
             return response
-    r = render(request, template_name)
+    r = render(request, template_name, context=_get_404_context(request))
     r.status_code = 404
     return r
+
+
+def _get_404_context(request):
+    from readthedocs.redirects.utils import project_and_path_from_request, language_and_version_from_path
+    project = None
+    language = None
+    version_slug = None
+
+    full_path = request.get_full_path()
+    project, path = project_and_path_from_request(request, full_path)
+    if project and not project.single_version:
+        language, version_slug, path = language_and_version_from_path(path)
+
+    context = {
+        'default_docs_url': project.get_docs_url(),
+        'version_docs_url': project.get_docs_url(
+            version_slug=version_slug,
+            lang_slug=language,
+        ),
+        'full_path': full_path,
+    }
+    return context
 
 
 def do_not_track(request):

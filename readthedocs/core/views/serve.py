@@ -150,6 +150,11 @@ def serve_docs(
         request, project, subproject, lang_slug=None, version_slug=None,
         filename=''):
     """Exists to map existing proj, lang, version, filename views to the file format."""
+
+    # TODO: remove this, it's only for debugging purposes
+    # from readthedocs.core.views import server_error_404
+    # return server_error_404(request)
+
     if not version_slug:
         version_slug = project.get_default_version()
     try:
