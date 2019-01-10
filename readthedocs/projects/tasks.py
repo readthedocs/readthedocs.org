@@ -1317,13 +1317,12 @@ def update_static_metadata(project_pk, path=None):
 @app.task()
 def remove_dirs(paths):
     """
-    Remove artifacts from the web servers.
+    Remove artifacts from servers.
 
-    This is mainly a wrapper around shutil.rmtree so that app servers can kill
-    things on the build server.
+    This is mainly a wrapper around shutil.rmtree so that we can remove things across
+    every instance of a type of server (eg. all builds or all webs).
 
-    :param paths: list containing PATHs where production media is on disk
-        (usually ``Version.get_artifact_paths``)
+    :param paths: list containing PATHs where file is on disk
     """
     for path in paths:
         log.info('Removing %s', path)
