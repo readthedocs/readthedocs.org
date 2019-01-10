@@ -30,12 +30,20 @@ from .models import (
     ProjectRelationship,
     WebHook,
 )
-from .notifications import ResourceUsageNotification
+from .notifications import (
+    ResourceUsageNotification,
+    DeprecatedBuildWebhookNotification,
+    DeprecatedGitHubWebhookNotification,
+)
 from .tasks import remove_dir
 
 
 class ProjectSendNotificationView(SendNotificationView):
-    notification_classes = [ResourceUsageNotification]
+    notification_classes = [
+        ResourceUsageNotification,
+        DeprecatedBuildWebhookNotification,
+        DeprecatedGitHubWebhookNotification,
+    ]
 
     def get_object_recipients(self, obj):
         for owner in obj.users.all():
