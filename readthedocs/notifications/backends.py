@@ -51,6 +51,9 @@ class EmailBackend(Backend):
 
     The content body is first rendered from an on-disk template, then passed
     into the standard email templates as a string.
+
+    If the notification is set to ``send_email=False``, this backend will exit
+    early from :py:meth:`send`.
     """
 
     name = 'email'
