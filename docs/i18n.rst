@@ -269,9 +269,11 @@ Compiling to MO
 Gettext doesn't parse any text files, it reads a binary format for faster
 performance. To compile the latest PO files in the repository, Django provides
 the ``compilemessages`` management command. For example, to compile all the
-available localizations, just run::
+available localizations, just run:
 
-    $ python manage.py compilemessages -a
+.. prompt:: bash $
+
+    python manage.py compilemessages -a
 
 You will need to do this every time you want to push updated translations to
 the live site.
@@ -304,12 +306,12 @@ help pages <http://help.transifex.com/features/client/>`_.
 
    #. Update files and push sources (English) to Transifex:
 
-      .. code-block:: console
+      .. prompt:: bash $
 
-         $ fab i18n_push_source
+         fab i18n_push_source
 
    #. Pull changes (new translations) from Transifex:
 
-      .. code-block:: console
+      .. prompt:: bash $
 
-         $ fab i18n_pull
+         fab i18n_pull
