@@ -17,7 +17,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.core.utils import trigger_build
-from readthedocs.notifications.decorators import notify_deprecated_endpoint
 from readthedocs.projects import constants
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
@@ -127,7 +126,6 @@ def log_info(project, msg):
                      msg=msg))
 
 
-@notify_deprecated_endpoint
 def _build_url(url, projects, branches):
     """
     Map a URL onto specific projects to build that are linked to that URL.
@@ -343,7 +341,6 @@ def bitbucket_build(request):
 
 
 @csrf_exempt
-@notify_deprecated_endpoint
 def generic_build(request, project_id_or_slug=None):
     """
     Generic webhook build endpoint.
@@ -373,7 +370,10 @@ def generic_build(request, project_id_or_slug=None):
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(
-            "(Incoming Generic Build) %s [%s]", project.slug, slug)
+            "(Incoming Generic Build) %s [%s]",
+            project.slug,
+            slug,
+        )
         _build_version(project, slug)
     else:
         return HttpResponse("You must POST to this resource.")
