@@ -127,7 +127,7 @@ class ProjectAdmin(GuardedModelAdmin):
     list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
     list_filter = ('repo_type', 'featured', 'privacy_level',
                    'documentation_type', 'programming_language',
-                   ProjectOwnerBannedFilter)
+                   'feature__feature_id', ProjectOwnerBannedFilter)
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline,
