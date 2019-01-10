@@ -1396,7 +1396,7 @@ def finish_inactive_builds():
     )
 
 
-@app.task
+@app.task(queue='web')
 def retry_domain_verification(domain_pk):
     """
     Trigger domain verification on a domain
