@@ -223,3 +223,38 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     raise Http404(
         'File not found. Tried these files: %s' % ','.join(files_tried))
+
+
+@map_project_slug
+def robots_txt(request, project):
+    """
+    Serve custom user's defined ``/robots.txt``.
+
+    If the user added a ``robots.txt`` in the "default version" of the project,
+    we serve it directly.
+    """
+    if project.privacy_level == constants.PRIVATE:
+        # If project is private, there is nothing to communicate to the bots.
+        raise Http404()
+
+    # Use the ``robots.txt`` file from the default version configured
+    version_slug = project.get_default_version()
+
+    filename = resolve_path(
+        project,
+        version_slug=version_slug,
+        filename='robots.txt',
+        subdomain=True,  # subdomain will make it a "full" path without a URL prefix
+    )
+
+    # This breaks path joining, by ignoring the root when given an "absolute" path
+    if filename[0] == '/':
+        filename = filename[1:]
+
+    basepath = PublicSymlink(project).project_root
+    fullpath = os.path.join(basepath, filename)
+
+    if os.path.exists(fullpath):
+        return HttpResponse(open(fullpath).read(), content_type='text/plain')
+
+    raise Http404()
