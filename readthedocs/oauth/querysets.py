@@ -13,7 +13,7 @@ class RelatedUserQuerySetBase(models.QuerySet):
 
     def api(self, user=None):
         """Return objects for user"""
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return self.none()
         return self.filter(users=user)
 

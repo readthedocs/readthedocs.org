@@ -103,7 +103,7 @@ def parse_path_from_file(file_path):
     #   "path/index.html" => "path/index"
     #   "/path/index" => "path/index"
     path = re.sub('/$', '/index', path)
-    path = re.sub('\.html$', '', path)
+    path = re.sub(r'\.html$', '', path)
     path = re.sub('^/', '', path)
 
     return path

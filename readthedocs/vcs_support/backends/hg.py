@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 """Mercurial-related utilities."""
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals,
+)
+
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
@@ -104,9 +110,11 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         if not identifier:
             identifier = 'tip'
-        retcode = self.run('hg', 'status', record=False)[0]
-        if retcode == 0:
-            self.run('hg', 'pull')
-        else:
-            self.clone()
-        return self.run('hg', 'update', '--clean', identifier)
+        exit_code, stdout, stderr = self.run(
+            'hg', 'update', '--clean', identifier
+        )
+        if exit_code != 0:
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(identifier)
+            )
+        return exit_code, stdout, stderr

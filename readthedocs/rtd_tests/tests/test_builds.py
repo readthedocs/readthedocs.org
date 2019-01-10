@@ -6,6 +6,7 @@ from __future__ import (
 )
 
 import mock
+import os
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 
@@ -13,7 +14,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
@@ -48,15 +49,17 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
         self.assertEqual(self.mocks.popen.call_count, 3)
         cmd = self.mocks.popen.call_args_list[2][0]
-        self.assertRegexpMatches(cmd[0][0], r'python')
-        self.assertRegexpMatches(cmd[0][1], r'sphinx-build')
+        self.assertRegex(cmd[0][0], r'python')
+        self.assertRegex(cmd[0][1], r'sphinx-build')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):
@@ -74,8 +77,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         task.build_docs()
 
@@ -84,6 +89,40 @@ class BuildEnvironmentTests(TestCase):
         self.mocks.pdf_build.assert_called_once_with()
         # PDF however was disabled and therefore not built.
         self.assertFalse(self.mocks.epub_build.called)
+
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_dont_localmedia_build_pdf_epub_search_in_mkdocs(self, load_config):
+        load_config.side_effect = create_load()
+        project = get(
+            Project,
+            slug='project-1',
+            documentation_type='mkdocs',
+            enable_pdf_build=True,
+            enable_epub_build=True,
+            versions=[fixture()]
+        )
+        version = project.versions.all().first()
+
+        build_env = LocalBuildEnvironment(
+            project=project,
+            version=version,
+            build={}
+        )
+        python_env = Virtualenv(version=version, build_env=build_env)
+        config = load_yaml_config(version)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
+
+        task.build_docs()
+
+        # Only html for mkdocs was built
+        self.mocks.html_build_mkdocs.assert_called_once()
+        self.mocks.html_build.assert_not_called()
+        self.mocks.localmedia_build.assert_not_called()
+        self.mocks.pdf_build.assert_not_called()
+        self.mocks.epub_build.assert_not_called()
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_epub_flag(self, load_config):
@@ -101,8 +140,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # The HTML and the Epub format were built.
@@ -128,8 +169,10 @@ class BuildEnvironmentTests(TestCase):
         python_env = Virtualenv(version=version, build_env=build_env)
 
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
         task.build_docs()
 
         # The HTML and the Epub format were built.
@@ -159,8 +202,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
@@ -203,8 +248,10 @@ class BuildEnvironmentTests(TestCase):
         build_env = LocalBuildEnvironment(project=project, version=version, build={})
         python_env = Virtualenv(version=version, build_env=build_env)
         config = load_yaml_config(version)
-        task = UpdateDocsTaskStep(build_env=build_env, project=project, python_env=python_env,
-                              version=version, search=False, localmedia=False, config=config)
+        task = UpdateDocsTaskStep(
+            build_env=build_env, project=project, python_env=python_env,
+            version=version, config=config
+        )
 
         # Mock out the separate calls to Popen using an iterable side_effect
         returns = [
@@ -249,6 +296,55 @@ class BuildEnvironmentTests(TestCase):
         assert build_config['version'] == '1'
         assert 'sphinx' in build_config
         assert build_config['doctype'] == 'sphinx'
+
+    def test_get_env_vars(self):
+        project = get(
+            Project,
+            slug='project',
+            documentation_type='sphinx',
+        )
+        get(
+            EnvironmentVariable,
+            name='TOKEN',
+            value='a1b2c3',
+            project=project,
+        )
+        build = get(Build)
+        version = get(Version, slug='1.8', project=project)
+        task = UpdateDocsTaskStep(
+            project=project, version=version, build={'id': build.pk},
+        )
+
+        # mock this object to make sure that we are NOT in a conda env
+        task.config = mock.Mock(conda=None)
+
+        env = {
+            'READTHEDOCS': True,
+            'READTHEDOCS_VERSION': version.slug,
+            'READTHEDOCS_PROJECT': project.slug,
+            'BIN_PATH': os.path.join(
+                project.doc_path,
+                'envs',
+                version.slug,
+                'bin',
+            ),
+            'TOKEN': 'a1b2c3',
+        }
+        self.assertEqual(task.get_env_vars(), env)
+
+        # mock this object to make sure that we are in a conda env
+        task.config = mock.Mock(conda=True)
+        env.update({
+            'CONDA_ENVS_PATH': os.path.join(project.doc_path, 'conda'),
+            'CONDA_DEFAULT_ENV': version.slug,
+            'BIN_PATH': os.path.join(
+                project.doc_path,
+                'conda',
+                version.slug,
+                'bin',
+            ),
+        })
+        self.assertEqual(task.get_env_vars(), env)
 
 
 class BuildModelTests(TestCase):
