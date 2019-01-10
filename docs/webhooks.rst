@@ -186,8 +186,8 @@ account.
 
 .. _webhook-deprecated-endpoints:
 
-I was warned that my project won't automatically build after Mar 1st
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I was warned that my project won't automatically build after March 1st
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to :ref:`no longer supporting GitHub Services <webhook-github-services>`,
 we have decided to no longer support several other legacy incoming webhook
