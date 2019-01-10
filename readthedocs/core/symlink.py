@@ -154,7 +154,7 @@ class Symlink(object):
             domains = Domain.objects.filter(project=self.project).values_list('domain', flat=True)
         for dom in domains:
             log_msg = 'Symlinking CNAME: {} -> {}'.format(
-                dom.domain, self.project.slug
+                dom, self.project.slug
             )
             log.info(
                 constants.LOG_TEMPLATE.format(
@@ -164,12 +164,12 @@ class Symlink(object):
             )
 
             # CNAME to doc root
-            symlink = os.path.join(self.CNAME_ROOT, dom.domain)
+            symlink = os.path.join(self.CNAME_ROOT, dom)
             self.environment.run('ln', '-nsf', self.project_root, symlink)
 
             # Project symlink
             project_cname_symlink = os.path.join(
-                self.PROJECT_CNAME_ROOT, dom.domain
+                self.PROJECT_CNAME_ROOT, dom
             )
             self.environment.run(
                 'ln', '-nsf', self.project.doc_path, project_cname_symlink
