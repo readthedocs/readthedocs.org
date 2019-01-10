@@ -83,3 +83,7 @@ html_theme_options = {
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+
+def setup(app):
+    app.add_stylesheet('css/sphinx_prompt_css.css')
