@@ -32,11 +32,7 @@ def send_notification(request, notification):
     backends = getattr(settings, 'NOTIFICATION_BACKENDS', [])
     for cls_name in backends:
         backend = import_string(cls_name)(request)
-        # Do not send email notification if defined explicitly
-        if backend.name == EmailBackend.name and not notification.send_email:
-            pass
-        else:
-            backend.send(notification)
+        backend.send(notification)
 
 
 class Backend(object):
@@ -60,6 +56,8 @@ class EmailBackend(Backend):
     name = 'email'
 
     def send(self, notification):
+        if not notification.send_email:
+            return
         # FIXME: if the level is an ERROR an email is received and sometimes
         # it's not necessary. This behavior should be clearly documented in the
         # code
@@ -114,6 +112,6 @@ class SiteBackend(Backend):
                 backend_name=self.name,
                 source_format=HTML,
             ),
-            extra_tags='',
+            extra_tags=notification.extra_tags,
             user=notification.user,
         )

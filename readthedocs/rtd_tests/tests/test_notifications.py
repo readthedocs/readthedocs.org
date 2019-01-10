@@ -17,7 +17,10 @@ from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.backends import EmailBackend, SiteBackend
 from readthedocs.notifications.constants import ERROR, INFO_NON_PERSISTENT, WARNING_NON_PERSISTENT
 from readthedocs.projects.models import Project
-from readthedocs.projects.notifications import DeprecatedViewNotification
+from readthedocs.projects.notifications import (
+    DeprecatedGitHubWebhookNotification,
+    DeprecatedBuildWebhookNotification,
+)
 from readthedocs.builds.models import Build
 
 
@@ -235,26 +238,38 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
     def setUp(self):
         PersistentMessage.objects.all().delete()
 
-        self.project = fixture.get(Project)
         self.user = fixture.get(User)
+        self.project = fixture.get(Project, users=[self.user])
         self.request = HttpRequest()
 
-        self.notification = DeprecatedViewNotification(
+        self.notification = DeprecatedBuildWebhookNotification(
             self.project,
             self.request,
             self.user,
         )
 
+    def test_classmethod_for_project_users(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, main_language_project=None)
+        project.users.add(user)
+        project.refresh_from_db()
+        self.assertEqual(project.users.count(), 1)
+        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 0)
+        DeprecatedGitHubWebhookNotification.notify_project_users([project])
+        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 1)
+        DeprecatedGitHubWebhookNotification.notify_project_users([project])
+        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 1)
+
     def test_deduplication(self):
         self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 1)
         for x in range(5):
-            DeprecatedViewNotification(
+            DeprecatedBuildWebhookNotification(
                 self.project,
                 self.request,
                 self.user,
             )
         self.assertEqual(PersistentMessage.objects.filter(user=self.user).count(), 1)
-        DeprecatedViewNotification(
+        DeprecatedBuildWebhookNotification(
             self.project,
             self.request,
             fixture.get(User),
@@ -262,7 +277,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         self.assertEqual(PersistentMessage.objects.count(), 2)
         self.notification.message.extra_tags = 'email_sent'
         self.notification.message.save()
-        DeprecatedViewNotification(
+        DeprecatedBuildWebhookNotification(
             self.project,
             self.request,
             self.user,
@@ -285,7 +300,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
 
         # Hit the endpoint twice
         for x in range(2):
-            notification = DeprecatedViewNotification(
+            notification = DeprecatedBuildWebhookNotification(
                 self.project,
                 self.request,
                 self.user,
@@ -294,7 +309,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         # the message also to be sure that no new notification was created
         self.assertEqual(PersistentMessage.objects.filter(
             user=self.user,
-            message__startswith=DeprecatedViewNotification.name).count(),
+            message__startswith=DeprecatedBuildWebhookNotification.name).count(),
             1,
         )
         self.assertFalse(notification.send_email)  # second notification
@@ -313,7 +328,7 @@ class DeprecatedWebhookEndpointNotificationTests(TestCase):
         # A new Message object is created
         self.assertEqual(PersistentMessage.objects.filter(
             user=self.user,
-            message__startswith=DeprecatedViewNotification.name).count(),
+            message__startswith=DeprecatedBuildWebhookNotification.name).count(),
             2,
         )
         self.assertEqual(PersistentMessage.objects.last().extra_tags, 'email_delayed')
