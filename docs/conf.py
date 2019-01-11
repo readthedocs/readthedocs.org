@@ -28,6 +28,7 @@ extensions = [
     'djangodocs',
     'doc_extensions',
     'sphinx_tabs.tabs',
+    'sphinx-prompt',
 ]
 templates_path = ['_templates']
 
@@ -82,3 +83,7 @@ html_theme_options = {
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+
+def setup(app):
+    app.add_stylesheet('css/sphinx_prompt_css.css')
