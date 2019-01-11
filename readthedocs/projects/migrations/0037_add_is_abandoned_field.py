@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0035_container_time_limit_as_integer'),
+        ('projects', '0036_remove-auto-doctype'),
     ]
 
     operations = [
