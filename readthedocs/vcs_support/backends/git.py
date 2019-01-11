@@ -169,7 +169,9 @@ class Backend(BaseVCS):
 
         code, out, err = self.run('git', 'checkout', '--force', revision)
         if code != 0:
-            log.warning("Failed to checkout revision '%s': %s", revision, code)
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(revision)
+            )
         return [code, out, err]
 
     def clone(self):
