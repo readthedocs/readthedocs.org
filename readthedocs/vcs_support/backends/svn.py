@@ -58,7 +58,7 @@ class Backend(BaseVCS):
     def co(self, identifier=None):
         self.make_clean_working_dir()
         if identifier:
-            url = self.base_url + identifier
+            url = self.get_url(self.base_url, identifier)
         else:
             url = self.repo_url
         retcode, out, err = self.run('svn', 'checkout', url, '.')
@@ -104,3 +104,9 @@ class Backend(BaseVCS):
     def checkout(self, identifier=None):
         super(Backend, self).checkout()
         return self.co(identifier)
+
+    def get_url(self, base_url, identifier):
+        base = base_url.rstrip('/')
+        tag = identifier.lstrip('/')
+        url = '{}/{}'.format(base, tag)
+        return url

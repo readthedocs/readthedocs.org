@@ -1,3 +1,36 @@
+Version 2.8.4
+-------------
+
+:Date: December 17, 2018
+
+* `@davidfischer <http://github.com/davidfischer>`__: Tweak sidebar ad priority (`#5005 <https://github.com/rtfd/readthedocs.org/pull/5005>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Backport jquery 2432 to Read the Docs (`#5001 <https://github.com/rtfd/readthedocs.org/pull/5001>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove codecov comments and project coverage CI status (`#4996 <https://github.com/rtfd/readthedocs.org/pull/4996>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove `LOCAL_GIT_BRANCHES` from settings (`#4993 <https://github.com/rtfd/readthedocs.org/pull/4993>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Link update on FAQ page (`#4988 <https://github.com/rtfd/readthedocs.org/pull/4988>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Only use remote branches for our syncing. (`#4984 <https://github.com/rtfd/readthedocs.org/pull/4984>`__)
+* `@humitos <http://github.com/humitos>`__: Sanitize output and chunk it at DATA_UPLOAD_MAX_MEMORY_SIZE (`#4982 <https://github.com/rtfd/readthedocs.org/pull/4982>`__)
+* `@humitos <http://github.com/humitos>`__: Modify DB field for container_time_limit to be an integer (`#4979 <https://github.com/rtfd/readthedocs.org/pull/4979>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove deprecated imports from "urlresolvers" (`#4976 <https://github.com/rtfd/readthedocs.org/pull/4976>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Workaround for a django-storages bug (`#4963 <https://github.com/rtfd/readthedocs.org/pull/4963>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 2.8.3 (`#4961 <https://github.com/rtfd/readthedocs.org/pull/4961>`__)
+* `@monsij <http://github.com/monsij>`__: Remove -e option (`#4960 <https://github.com/rtfd/readthedocs.org/pull/4960>`__)
+* `@nutann3 <http://github.com/nutann3>`__: Update "install Sphinx" URL (`#4959 <https://github.com/rtfd/readthedocs.org/pull/4959>`__)
+* `@stsewd <http://github.com/stsewd>`__: Shallow git clone (`#4939 <https://github.com/rtfd/readthedocs.org/pull/4939>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Validate profile form fields (`#4910 <https://github.com/rtfd/readthedocs.org/pull/4910>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Calculate actual ad views (`#4885 <https://github.com/rtfd/readthedocs.org/pull/4885>`__)
+* `@humitos <http://github.com/humitos>`__: Allow all /api/v2/ CORS if the Domain is known (`#4880 <https://github.com/rtfd/readthedocs.org/pull/4880>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Disable django.security.DisallowedHost from logging (`#4879 <https://github.com/rtfd/readthedocs.org/pull/4879>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'Sphinx Template Changes' From Docs (`#4878 <https://github.com/rtfd/readthedocs.org/pull/4878>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Make form for adopting project a choice field (`#4841 <https://github.com/rtfd/readthedocs.org/pull/4841>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add 'Branding' under the 'Business Info' section and 'Guidelines' on 'Design Docs' (`#4830 <https://github.com/rtfd/readthedocs.org/pull/4830>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Raise 404 at SubdomainMiddleware if the project does not exist. (`#4795 <https://github.com/rtfd/readthedocs.org/pull/4795>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add help_text in the form for adopting a project (`#4781 <https://github.com/rtfd/readthedocs.org/pull/4781>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove /embed API endpoint (`#4771 <https://github.com/rtfd/readthedocs.org/pull/4771>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Improve unexpected error message when build fails (`#4754 <https://github.com/rtfd/readthedocs.org/pull/4754>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change the way of using login_required decorator (`#4723 <https://github.com/rtfd/readthedocs.org/pull/4723>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix the form for adopting a project (`#4721 <https://github.com/rtfd/readthedocs.org/pull/4721>`__)
+
 Version 2.8.3
 -------------
 

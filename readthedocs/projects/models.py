@@ -271,11 +271,6 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if not self.slug:
                 raise Exception(_('Model must have slug'))
-        if self.documentation_type == 'auto':
-            # This used to determine the type and automatically set the
-            # documentation type to Sphinx for rST and Mkdocs for markdown.
-            # It now just forces Sphinx, due to markdown support.
-            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
@@ -1014,6 +1009,7 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1022,10 +1018,12 @@ class Feature(models.Model):
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (DONT_OVERWRITE_SPHINX_CONTEXT, _(
-            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+            'Do not overwrite context vars in conf.py with Read the Docs context')),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
+        (DONT_SHALLOW_CLONE, _(
+            'Do not shallow clone when cloning git repos')),
     )
 
     projects = models.ManyToManyField(
