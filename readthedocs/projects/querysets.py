@@ -1,4 +1,5 @@
-"""Project model QuerySet classes"""
+# -*- coding: utf-8 -*-
+"""Project model QuerySet classes."""
 
 from __future__ import absolute_import
 
@@ -6,8 +7,9 @@ from django.db import models
 from django.db.models import Q
 from guardian.shortcuts import get_objects_for_user
 
-from . import constants
 from readthedocs.core.utils.extend import SettingsOverrideObject
+
+from . import constants
 
 
 class ProjectQuerySetBase(models.QuerySet):
@@ -53,6 +55,24 @@ class ProjectQuerySetBase(models.QuerySet):
         if user:
             return self._add_user_repos(queryset, user)
         return queryset
+
+    def is_active(self, project):
+        """
+        Check if the project is active.
+
+        The check consists on,
+          * the Project shouldn't be marked as skipped.
+
+        :param project: project to be checked
+        :type project: readthedocs.projects.models.Project
+
+        :returns: whether or not the project is active
+        :rtype: bool
+        """
+        if project.skip:
+            return False
+
+        return True
 
     # Aliases
 
