@@ -17,7 +17,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.urls import reverse
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
@@ -26,7 +26,7 @@ from taggit.models import Tag
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
-from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.models import Project
 from readthedocs.search.indexes import PageIndex
 from readthedocs.search.views import LOG_TEMPLATE
 
@@ -66,9 +66,6 @@ class ProjectIndex(ListView):
         context['person'] = self.user
         context['tag'] = self.tag
         return context
-
-
-project_index = ProjectIndex.as_view()
 
 
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
