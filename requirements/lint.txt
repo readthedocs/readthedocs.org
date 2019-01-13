@@ -1,5 +1,4 @@
 -r pip.txt
--r local-docs-build.txt
 # We need these special cases of Python < 3 because we run tests with
 # Python 2 still
 # prospector 1.1.6.2 is not compatible with 2.1.0

@@ -1,8 +1,0 @@
--r pip.txt
--r local-docs-build.txt
-gunicorn
-#For resizing images
-pillow
-python-memcached
-whoosh
-django-redis
