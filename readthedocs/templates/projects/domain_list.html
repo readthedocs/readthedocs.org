@@ -20,18 +20,30 @@
   </p>
 
   {% if object_list %}
-  <h3> {% trans "Existing Domains" %} </h3>
-  <p>
-    <ul>
-    {% for domain in object_list %}
-        <li class="{% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}" >
-        {{ domain.domain }}
-        (<a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a>)
-        (<a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a>)
-        </li>
-    {% endfor %}
-    </ul>
-  </p>
+    <div class="module">
+      <div class="module-wrapper">
+        <div class="module-header">
+          <h3>{% trans "Existing Domains" %}</h3>
+        </div>
+        <div class="module-list">
+          <div class="module-list-wrapper">
+            <ul>
+              {% for domain in object_list %}
+                <li class="module-item">
+                <span class="module-item-title">
+                  {{ domain.domain }}
+                </span>
+                <ul class="module-item-menu">
+                  <li><a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a></li>
+                  <li><a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a></li>
+                </ul>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   {% endif %}
   
   <h3> {% trans "Add new Domain" %} </h3>
