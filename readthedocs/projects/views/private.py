@@ -737,8 +737,12 @@ class DomainUpdate(DomainMixin, UpdateView):
     pass
 
 
-class DomainDelete(DomainMixin, DeleteView):
-    pass
+class DomainDelete(DomainMixin, View):
+    
+    def get(self, request, *args, **kwargs):
+        domain = get_object_or_404(Domain, pk=kwargs.get('domain_pk'))
+        domain.delete()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
