@@ -103,6 +103,15 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'example2.com')
 
+    def test_domain_not_available(self):
+        form = DomainForm({'domain': 'example.com'}, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        form = DomainForm({'domain': 'example.com',}, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'domain': ['This domain is not available.']})
+
 
 class TestAPI(TestCase):
 
