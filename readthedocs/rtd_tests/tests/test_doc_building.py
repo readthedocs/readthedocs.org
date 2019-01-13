@@ -1341,6 +1341,7 @@ class TestPythonEnvironment(TestCase):
             'conda',
             'install',
             '--yes',
+            '--quiet',
             '--name',
             self.version_sphinx.slug,
         ]
@@ -1379,6 +1380,7 @@ class TestPythonEnvironment(TestCase):
         args_conda = [
             'conda',
             'install',
+            '--quiet',
             '--yes',
             '--name',
             self.version_mkdocs.slug,
