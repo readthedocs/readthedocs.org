@@ -690,6 +690,11 @@ class DomainBaseForm(forms.ModelForm):
             domain_string = parsed.netloc
         else:
             domain_string = parsed.path
+
+        if Domain.objects.filter(domain=domain_string).exists():
+            raise forms.ValidationError(
+                _('This domain is not available.')
+            )
         return domain_string
 
     def clean_canonical(self):
