@@ -16,6 +16,13 @@
 {% endblock %}
 
 {% block project_edit_content %}
+
+  <p>
+    {% blocktrans trimmed %}
+      The value of the environment variable is not shown here for sercurity purposes.
+    {% endblocktrans %}
+  </p>
+
   <form method="post" action="{% url 'projects_environmentvariables_delete' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
     {% csrf_token %}
     <input type="submit" value="{% trans "Delete" %}">
