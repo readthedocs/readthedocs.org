@@ -11,13 +11,3 @@ Pygments==2.3.1
 
 mkdocs==1.0.4
 Markdown==3.0.1
-
-# Docs
-sphinxcontrib-httpdomain==1.7.0
-sphinx-prompt==1.0.0
-
-# commonmark 0.5.5 is the latest version compatible with our docs, the
-# newer ones make `tox -e docs` to fail
-commonmark==0.5.5
-
-recommonmark==0.4.0
