@@ -120,7 +120,7 @@ class WebhookMixin(object):
 
     def is_payload_valid(self):
         """Validates the webhook's payload using the integration's secret."""
-        return True
+        return False
 
     def get_integration(self):
         """
@@ -433,6 +433,10 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 raise ParseError('Invalid request')
         return None
 
+    def is_payload_valid(self):
+        """BitBucket doesn't have an option for payload validation."""
+        return True
+
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
@@ -503,6 +507,14 @@ class APIWebhookView(WebhookMixin, APIView):
             return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')
+
+    def is_payload_valid(self):
+        """We can't have payload validation in the generic webhook.
+
+        Since we don't know the system that would trigger the webhook.
+        We have a token for authentication.
+        """
+        return True
 
 
 class WebhookView(APIView):
