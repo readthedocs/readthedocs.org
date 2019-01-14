@@ -21,6 +21,7 @@ from readthedocs.rtd_tests.utils import (
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
+from readthedocs.doc_builder.exceptions import VersionLockedError
 
 
 class TestCeleryBuilding(RTDTestCase):
@@ -115,6 +116,25 @@ class TestCeleryBuilding(RTDTestCase):
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False)
+        self.assertTrue(result.successful())
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.send_notifications')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
+    def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
+        mock_setup_vcs.side_effect = VersionLockedError()
+
+        build = get(Build, project=self.project,
+                    version=self.project.versions.first())
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs_task.delay(
+                self.project.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False)
+
+        mock_send_notifications.assert_not_called()
         self.assertTrue(result.successful())
 
     def test_sync_repository(self):

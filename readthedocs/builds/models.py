@@ -218,10 +218,13 @@ class Version(models.Model):
             task=tasks.remove_dirs,
             args=[self.get_artifact_paths()],
         )
-        broadcast(
-            type='app', task=tasks.symlink_project, args=[self.project.pk]
-        )
+        project_pk = self.project.pk
         super(Version, self).delete(*args, **kwargs)
+        broadcast(
+            type='app',
+            task=tasks.symlink_project,
+            args=[project_pk],
+        )
 
     @property
     def identifier_friendly(self):
