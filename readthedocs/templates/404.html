@@ -16,24 +16,6 @@
 {% block language-select-form %}{% endblock %}
 
 {% block content %}
-    {% if suggestion %}
-      <div class="suggestions">
-          <h1>You've found something that doesn't exist.</h1>
-          <p>{{ suggestion.message }}</p>
-          {% ifequal suggestion.type 'top' %}
-          <p>
-              <a href="{{ suggestion.href }}">Go to the top of the documentation.</a>
-          </p>
-          {% endifequal %}
-          {% ifequal suggestion.type 'list' %}
-          <ul>
-            {% for item in suggestion.list %}
-              <li><a href="{% doc_url item.project item.version_slug item.pagename %}">{{ item.label }}</a></li>
-            {% endfor %}
-          </ul>
-          {% endifequal %}
-      </div>
-    {% endif %}
 <pre style="line-height: 1.25; white-space: pre;">
 
         \          SORRY            /

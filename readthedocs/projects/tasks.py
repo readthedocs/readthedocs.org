@@ -60,6 +60,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
+    BuildEnvironmentWarning,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
@@ -272,7 +273,18 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
-@app.task(bind=True, max_retries=5, default_retry_delay=7 * 60)
+@app.task(
+    bind=True,
+    max_retries=5,
+    default_retry_delay=7 * 60,
+    throws=(
+        VersionLockedError,
+        ProjectBuildsSkippedError,
+        YAMLParseError,
+        BuildTimeoutError,
+        ProjectBuildsSkippedError
+    )
+)
 def update_docs_task(self, project_id, *args, **kwargs):
     step = UpdateDocsTaskStep(task=self)
     return step.run(project_id, *args, **kwargs)
@@ -868,19 +880,19 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
     # Clean up unused artifacts
     version = Version.objects.get(pk=version_pk)
     if not pdf:
-        remove_dir(
+        remove_dirs([
             version.project.get_production_media_path(
                 type_='pdf',
                 version_slug=version.slug,
             ),
-        )
+        ])
     if not epub:
-        remove_dir(
+        remove_dirs([
             version.project.get_production_media_path(
                 type_='epub',
                 version_slug=version.slug,
             ),
-        )
+        ])
 
     # Sync files to the web servers
     move_files(
@@ -1022,7 +1034,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     )
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -1030,7 +1042,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_domain(project_pk, domain_pk, delete=False):
     project = Project.objects.get(pk=project_pk)
     domain = Domain.objects.get(pk=domain_pk)
@@ -1070,7 +1082,7 @@ def broadcast_remove_orphan_symlinks():
     broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -1315,27 +1327,18 @@ def update_static_metadata(project_pk, path=None):
 
 # Random Tasks
 @app.task()
-def remove_dir(path):
+def remove_dirs(paths):
     """
-    Remove a directory on the build/celery server.
+    Remove artifacts from servers.
 
-    This is mainly a wrapper around shutil.rmtree so that app servers can kill
-    things on the build server.
-    """
-    log.info('Removing %s', path)
-    shutil.rmtree(path, ignore_errors=True)
+    This is mainly a wrapper around shutil.rmtree so that we can remove things across
+    every instance of a type of server (eg. all builds or all webs).
 
-
-@app.task()
-def clear_artifacts(paths):
-    """
-    Remove artifacts from the web servers.
-
-    :param paths: list containing PATHs where production media is on disk
-        (usually ``Version.get_artifact_paths``)
+    :param paths: list containing PATHs where file is on disk
     """
     for path in paths:
-        remove_dir(path)
+        log.info('Removing %s', path)
+        shutil.rmtree(path, ignore_errors=True)
 
 
 @app.task(queue='web')

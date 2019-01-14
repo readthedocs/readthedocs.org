@@ -379,8 +379,8 @@ class TestPrivateViews(MockBuildTestCase):
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             broadcast.assert_called_with(
                 type='app',
-                task=tasks.remove_dir,
-                args=[project.doc_path])
+                task=tasks.remove_dirs,
+                args=[(project.doc_path,)])
 
     def test_subproject_create(self):
         project = get(Project, slug='pip', users=[self.user])
