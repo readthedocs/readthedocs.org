@@ -77,6 +77,10 @@ class WebhookMixin(object):
         except Project.DoesNotExist:
             raise NotFound('Project not found')
         if not self.is_payload_valid():
+            log.warning(
+                'Invalid payload for project: %s and integration: %s',
+                project_slug, self.integration_type
+            )
             return Response(
                 {'detail': self.invalid_payload_msg},
                 status=HTTP_400_BAD_REQUEST
