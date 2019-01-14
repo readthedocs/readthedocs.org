@@ -107,6 +107,11 @@ class WebhookMixin(object):
         return resp
 
     def get_data(self):
+        """
+        Normalize posted data.
+
+        This can be overriden to support multiples content types.
+        """
         return self.request.data
 
     def handle_webhook(self):
