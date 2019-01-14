@@ -234,8 +234,8 @@ def robots_txt(request, project):
     we serve it directly.
     """
     if project.privacy_level == constants.PRIVATE:
-        # If project is private, there is nothing to communicate to the bots.
-        raise Http404()
+        # If project is private, we disallow the whole site
+        raise HttpResponse('User-agent: *\nDisallow: /\n')
 
     # Use the ``robots.txt`` file from the default version configured
     version_slug = project.get_default_version()
@@ -257,4 +257,4 @@ def robots_txt(request, project):
     if os.path.exists(fullpath):
         return HttpResponse(open(fullpath).read(), content_type='text/plain')
 
-    raise Http404()
+    raise HttpResponse('User-agent: *\nAllow: /\n')
