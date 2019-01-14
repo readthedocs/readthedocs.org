@@ -20,8 +20,6 @@ from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
-from readthedocs.integrations.models import Integration
-from readthedocs.integrations.utils import get_secret
 
 log = logging.getLogger(__name__)
 
