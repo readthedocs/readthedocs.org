@@ -1011,7 +1011,10 @@ class IntegrationsTests(TestCase):
             GITHUB_SIGNATURE_HEADER: wrong_signature,
         }
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
             self.github_payload,
             format='json',
             **headers
@@ -1038,7 +1041,10 @@ class IntegrationsTests(TestCase):
             GITHUB_SIGNATURE_HEADER: 'sha1=' + digest,
         }
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
             json.loads(payload),
             format='json',
             **headers
@@ -1056,7 +1062,10 @@ class IntegrationsTests(TestCase):
             integration_type=Integration.GITHUB_WEBHOOK,
         )
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
             self.github_payload,
             format='json',
             **headers
@@ -1081,7 +1090,10 @@ class IntegrationsTests(TestCase):
             GITHUB_SIGNATURE_HEADER: 'skipped',
         }
         resp = client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
             json.loads(payload),
             format='json',
             **headers
@@ -1259,7 +1271,10 @@ class IntegrationsTests(TestCase):
             GITLAB_TOKEN_HEADER: wrong_secret,
         }
         resp = client.post(
-            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
             self.gitlab_payload,
             format='json',
             **headers
@@ -1280,7 +1295,10 @@ class IntegrationsTests(TestCase):
             GITLAB_TOKEN_HEADER: integration.secret,
         }
         resp = client.post(
-            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
             {'object_kind': 'pull_request'},
             format='json',
             **headers
@@ -1297,7 +1315,10 @@ class IntegrationsTests(TestCase):
             GITLAB_TOKEN_HEADER: '',
         }
         resp = client.post(
-            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
             {'object_kind': 'pull_request'},
             format='json',
             **headers
@@ -1320,7 +1341,10 @@ class IntegrationsTests(TestCase):
             GITLAB_TOKEN_HEADER: 'skipped',
         }
         resp = client.post(
-            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
             {'object_kind': 'pull_request'},
             format='json',
             **headers
