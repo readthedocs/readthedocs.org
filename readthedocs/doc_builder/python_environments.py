@@ -355,6 +355,7 @@ class Conda(PythonEnvironment):
             'conda',
             'env',
             'create',
+            '--quiet',
             '--name',
             self.version.slug,
             '--file',
@@ -386,6 +387,7 @@ class Conda(PythonEnvironment):
             'conda',
             'install',
             '--yes',
+            '--quiet',
             '--name',
             self.version.slug,
         ]
