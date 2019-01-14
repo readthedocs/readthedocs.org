@@ -232,7 +232,7 @@ What commit of Read the Docs is in production?
 We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/rtfd/readthedocs.org/commits/rel
 
 
-How can I avoid bot crawlers to show a deprecated version of my docs?
+How can I avoid search results having a deprecated version of my docs?
 ---------------------------------------------------------------------
 
 If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
