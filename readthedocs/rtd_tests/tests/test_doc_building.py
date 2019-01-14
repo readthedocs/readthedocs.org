@@ -1380,8 +1380,8 @@ class TestPythonEnvironment(TestCase):
         args_conda = [
             'conda',
             'install',
-            '--quiet',
             '--yes',
+            '--quiet',
             '--name',
             self.version_mkdocs.slug,
         ]
