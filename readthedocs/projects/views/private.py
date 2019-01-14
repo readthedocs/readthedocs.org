@@ -192,7 +192,7 @@ def project_version_detail(request, project_slug, version_slug):
                 log.info('Removing files for version %s', version.slug)
                 broadcast(
                     type='app',
-                    task=tasks.clear_artifacts,
+                    task=tasks.remove_dirs,
                     args=[version.get_artifact_paths()],
                 )
                 version.built = False
@@ -221,7 +221,11 @@ def project_delete(request, project_slug):
     )
 
     if request.method == 'POST':
-        broadcast(type='app', task=tasks.remove_dir, args=[project.doc_path])
+        broadcast(
+            type='app',
+            task=tasks.remove_dirs,
+            args=[(project.doc_path,)]
+        )
         project.delete()
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
@@ -704,7 +708,7 @@ def project_version_delete_html(request, project_slug, version_slug):
         version.save()
         broadcast(
             type='app',
-            task=tasks.clear_artifacts,
+            task=tasks.remove_dirs,
             args=[version.get_artifact_paths()],
         )
     else:
