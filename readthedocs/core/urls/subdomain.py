@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """URL configurations for subdomains."""
 from __future__ import absolute_import
 
@@ -22,9 +24,7 @@ handler500 = server_error_500
 handler404 = server_error_404
 
 subdomain_urls = [
-    url((r'robots.txt$'.format(**pattern_opts)),
-         robots_txt,
-         name='robots_txt'),
+    url(r'robots.txt$', robots_txt, name='robots_txt'),
 
     url(r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
