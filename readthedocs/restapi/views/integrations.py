@@ -509,7 +509,8 @@ class APIWebhookView(WebhookMixin, APIView):
             raise ParseError('Invalid request')
 
     def is_payload_valid(self):
-        """We can't have payload validation in the generic webhook.
+        """
+        We can't have payload validation in the generic webhook.
 
         Since we don't know the system that would trigger the webhook.
         We have a token for authentication.
