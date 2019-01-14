@@ -257,4 +257,4 @@ def robots_txt(request, project):
     if os.path.exists(fullpath):
         return HttpResponse(open(fullpath).read(), content_type='text/plain')
 
-    raise HttpResponse('User-agent: *\nAllow: /\n')
+    return HttpResponse('User-agent: *\nAllow: /\n')
