@@ -27,7 +27,7 @@ class EmailConfirmNotification(SiteNotification):
 
     failure_level = ERROR_PERSISTENT
     failure_message = _(
-        'You primary email address is not verified. '
+        'Your primary email address is not verified. '
         'Please <a href="{{account_email_url}}">verify it here</a>.',
     )
 
