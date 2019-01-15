@@ -1330,8 +1330,9 @@ class TestPythonEnvironment(TestCase):
         ]
 
         args_pip = [
-            'python',
-            mock.ANY,  # pip path
+            mock.ANY,  # python path
+            '-m',
+            'pip',
             'install',
             '-U',
             '--cache-dir',
@@ -1370,8 +1371,9 @@ class TestPythonEnvironment(TestCase):
         ]
 
         args_pip = [
-            'python',
-            mock.ANY,  # pip path
+            mock.ANY,  # python path
+            '-m',
+            'pip',
             'install',
             '-U',
             '--cache-dir',
