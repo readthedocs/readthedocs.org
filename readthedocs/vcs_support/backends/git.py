@@ -225,8 +225,10 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
-        return stdout.strip()
+        if self.repo_exists():
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            return stdout.strip()
+        return None
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
