@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project forms."""
 
 from __future__ import (
@@ -7,6 +8,18 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
+
+try:
+    # TODO: remove this when we deprecate Python2
+    # re.fullmatch is >= Py3.4 only
+    from re import fullmatch
+except ImportError:
+    # https://stackoverflow.com/questions/30212413/backport-python-3-4s-regular-expression-fullmatch-to-python-2
+    import re
+
+    def fullmatch(regex, string, flags=0):
+        """Emulate python-3.4 re.fullmatch()."""  # noqa
+        return re.match("(?:" + regex + r")\Z", string, flags=flags)
 
 from random import choice
 
@@ -27,11 +40,11 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
+    EnvironmentVariable,
     Feature,
     Project,
     ProjectRelationship,
@@ -182,6 +195,15 @@ class ProjectExtraForm(ProjectForm):
         widget=forms.Textarea,
     )
 
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags', [])
+        for tag in tags:
+            if len(tag) > 100:
+                raise forms.ValidationError(
+                    _('Length of each tag must be less than or equal to 100 characters.')
+                )
+        return tags
+
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
@@ -222,7 +244,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
-            'slug', 'verbose_name'
+            'identifier', 'verbose_name'
         )
         self.fields['default_branch'].widget = forms.Select(
             choices=[default_choice] + list(all_versions)
@@ -758,3 +780,49 @@ class FeatureForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FeatureForm, self).__init__(*args, **kwargs)
         self.fields['feature_id'].choices = Feature.FEATURES
+
+
+class EnvironmentVariableForm(forms.ModelForm):
+
+    """
+    Form to add an EnvironmentVariable to a Project.
+
+    This limits the name of the variable.
+    """
+
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta(object):
+        model = EnvironmentVariable
+        fields = ('name', 'value', 'project')
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super(EnvironmentVariableForm, self).__init__(*args, **kwargs)
+
+    def clean_project(self):
+        return self.project
+
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if name.startswith('__'):
+            raise forms.ValidationError(
+                _("Variable name can't start with __ (double underscore)"),
+            )
+        elif name.startswith('READTHEDOCS'):
+            raise forms.ValidationError(
+                _("Variable name can't start with READTHEDOCS"),
+            )
+        elif self.project.environmentvariable_set.filter(name=name).exists():
+            raise forms.ValidationError(
+                _('There is already a variable with this name for this project'),
+            )
+        elif ' ' in name:
+            raise forms.ValidationError(
+                _("Variable name can't contain spaces"),
+            )
+        elif not fullmatch('[a-zA-Z0-9_]+', name):
+            raise forms.ValidationError(
+                _('Only letters, numbers and underscore are allowed'),
+            )
+        return name

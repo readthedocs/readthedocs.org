@@ -7,7 +7,7 @@ import json
 import re
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from requests.exceptions import RequestException
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -207,6 +207,14 @@ class GitHubService(Service):
                 log.info('GitHub webhook creation successful for project: %s',
                          project)
                 return (True, resp)
+
+            if resp.status_code in [401, 403, 404]:
+                log.info(
+                    'GitHub project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return (False, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(

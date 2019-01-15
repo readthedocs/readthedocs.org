@@ -153,7 +153,7 @@ We think that our theme is badass, and better than the default for many reasons.
 I want to use the Read the Docs theme locally
 ---------------------------------------------
 
-There is a repository for that: https://github.com/snide/sphinx_rtd_theme.
+There is a repository for that: https://github.com/rtfd/sphinx_rtd_theme.
 Simply follow the instructions in the README.
 
 Image scaling doesn't work in my documentation
