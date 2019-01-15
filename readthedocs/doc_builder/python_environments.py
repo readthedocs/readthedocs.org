@@ -77,8 +77,9 @@ class PythonEnvironment(object):
                     ','.join(self.config.python.extra_requirements)
                 )
             self.build_env.run(
-                'python',
-                self.venv_bin(filename='pip'),
+                self.venv_bin(filename='python'),
+                '-m',
+                'pip',
                 'install',
                 '--ignore-installed',
                 '--cache-dir',
@@ -89,7 +90,7 @@ class PythonEnvironment(object):
             )
         elif self.config.python.install_with_setup:
             self.build_env.run(
-                'python',
+                self.venv_bin(filename='python'),
                 'setup.py',
                 'install',
                 '--force',
@@ -229,8 +230,9 @@ class Virtualenv(PythonEnvironment):
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""
         pip_install_cmd = [
-            'python',
-            self.venv_bin(filename='pip'),
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
             'install',
             '--upgrade',
             '--cache-dir',
@@ -308,8 +310,9 @@ class Virtualenv(PythonEnvironment):
 
         if requirements_file_path:
             args = [
-                'python',
-                self.venv_bin(filename='pip'),
+                self.venv_bin(filename='python'),
+                '-m',
+                'pip',
                 'install',
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
