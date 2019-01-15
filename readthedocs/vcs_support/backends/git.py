@@ -228,8 +228,7 @@ class Backend(BaseVCS):
         if self.repo_exists():
             _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
             return stdout.strip()
-        else:
-            return None
+        return None
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
