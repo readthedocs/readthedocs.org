@@ -80,6 +80,7 @@ from .signals import (
     before_build,
     before_vcs,
     files_changed,
+    domain_verify,
 )
 
 log = logging.getLogger(__name__)
@@ -1395,4 +1396,18 @@ def finish_inactive_builds():
     log.info(
         'Builds marked as "Terminated due inactivity": %s',
         builds_finished,
+    )
+
+
+@app.task(queue='web')
+def retry_domain_verification(domain_pk):
+    """
+    Trigger domain verification on a domain
+
+    :param domain_pk: a `Domain` pk to verify
+    """
+    domain = Domain.objects.get(pk=domain_pk)
+    domain_verify.send(
+        sender=domain.__class__,
+        domain=domain,
     )
