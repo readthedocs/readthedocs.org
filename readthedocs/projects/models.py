@@ -8,6 +8,7 @@ import fnmatch
 import logging
 import os
 from builtins import object  # pylint: disable=redefined-builtin
+from six.moves import shlex_quote
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -1009,6 +1010,7 @@ class Feature(models.Model):
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
+    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1023,6 +1025,8 @@ class Feature(models.Model):
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
         (DONT_SHALLOW_CLONE, _(
             'Do not shallow clone when cloning git repos')),
+        (USE_TESTING_BUILD_IMAGE, _(
+            'Use Docker image labelled as `testing` to build the docs')),
     )
 
     projects = models.ManyToManyField(
@@ -1062,6 +1066,7 @@ class Feature(models.Model):
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
 
 
+@python_2_unicode_compatible
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,
@@ -1076,3 +1081,10 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
     )
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        self.value = shlex_quote(self.value)
+        return super(EnvironmentVariable, self).save(*args, **kwargs)
