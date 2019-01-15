@@ -1009,6 +1009,7 @@ class Feature(models.Model):
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
+    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1023,6 +1024,8 @@ class Feature(models.Model):
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
         (DONT_SHALLOW_CLONE, _(
             'Do not shallow clone when cloning git repos')),
+        (USE_TESTING_BUILD_IMAGE, _(
+            'Use Docker image labelled as `testing` to build the docs')),
     )
 
     projects = models.ManyToManyField(
