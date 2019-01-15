@@ -21,6 +21,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
+from doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):
@@ -75,8 +76,6 @@ class LoadConfigTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_default_image_1_0(self, load_config):
-        from doc_builder.constants import DOCKER_IMAGE_SETTINGS
-
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:1.0'
         self.project.enable_epub_build = True
