@@ -11,6 +11,8 @@ from __future__ import (
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
@@ -19,7 +21,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 
-from .forms import FeatureForm
+from .forms import FeatureForm, RandomProjectsInputForm
 from .models import (
     Domain,
     EmailHook,
@@ -223,6 +225,41 @@ class FeatureAdmin(admin.ModelAdmin):
     filter_horizontal = ('projects',)
     readonly_fields = ('add_date',)
     raw_id_fields = ('projects',)
+    actions = ['assign_to_sampled_random_projects']
+
+    def assign_to_sampled_random_projects(self, request, queryset):
+        """
+        Assign features to sampled random projects.
+
+        It asks for an integer, N, and then assigns the
+        feature to those number of random projects.
+        """
+        random_projects = None
+        if 'apply' in request.POST:
+            form = RandomProjectsInputForm(request.POST)
+            if form.is_valid():
+                n = form.cleaned_data.get('number')
+                # Getting the first'n' random projects
+                random_projects = Project.objects.order_by('?')[:n]
+                ids_list = list(random_projects.values_list('pk', flat=True))
+                context_dict = {}
+                for feature in queryset:
+                    list_of_projects = context_dict.setdefault(str(feature), [])
+                    context_dict[str(feature)] = list_of_projects + [random_projects]
+                    feature.projects.add(*ids_list)
+                return render(
+                    request,
+                    'projects/admin/show_sampled_random_projects.html',
+                    context={'features': context_dict}
+                )
+        form = RandomProjectsInputForm()
+        return render(
+            request,
+            'projects/admin/sampled_random_projects_input.html',
+            context={'queryset': queryset, 'form': form, 'projects': random_projects}
+        )
+
+    assign_to_sampled_random_projects.short_description = 'Assign To Sampled Random Projects'
 
     def project_count(self, feature):
         return feature.projects.count()

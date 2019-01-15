@@ -767,3 +767,21 @@ class FeatureForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FeatureForm, self).__init__(*args, **kwargs)
         self.fields['feature_id'].choices = Feature.FEATURES
+
+
+class RandomProjectsInputForm(forms.Form):
+
+    """Takes a positive input N for sampled random projects."""
+
+    number = forms.IntegerField()
+
+    def __init__(self, *args, **kwargs):
+        super(RandomProjectsInputForm, self).__init__(*args, **kwargs)
+        self.fields['number'] = forms.IntegerField(
+            max_value=self.get_max_value(),
+            min_value=1,
+        )
+
+    def get_max_value(self):
+        total_projects = Project.objects.all().count()
+        return total_projects
