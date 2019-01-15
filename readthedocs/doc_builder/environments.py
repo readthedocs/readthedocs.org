@@ -729,15 +729,15 @@ class DockerBuildEnvironment(BuildEnvironment):
         )
 
         # Decide what Docker image to use, based on priorities:
-        # Use the Docker image set by user or,
-        if self.config and self.config.build.image:
-            self.container_image = self.config.build.image
-        # the image overridden by the project (manually set by an admin) or,
-        if self.project.container_image:
-            self.container_image = self.project.container_image
-        # ``testing`` image if the project has this feature flag
+        # Use the Docker image set by our feature flag: ``testing`` or,
         if self.project.has_feature(Feature.USE_TESTING_BUILD_IMAGE):
             self.container_image = 'readthedocs/build:testing'
+        # the image set by user or,
+        if self.config and self.config.build.image:
+            self.container_image = self.config.build.image
+        # the image overridden by the project (manually set by an admin).
+        if self.project.container_image:
+            self.container_image = self.project.container_image
 
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
