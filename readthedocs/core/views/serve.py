@@ -237,7 +237,7 @@ def robots_txt(request, project):
     version_slug = project.get_default_version()
     version = project.versions.get(slug=version_slug)
 
-    no_serve_robots_txt = any(
+    no_serve_robots_txt = any([
         # If project is private or,
         project.privacy_level == constants.PRIVATE,
         # default version is private or,
@@ -246,7 +246,7 @@ def robots_txt(request, project):
         not version.active,
         # default version is not built
         not version.built,
-    )
+    ])
     if no_serve_robots_txt:
         # ... we do return a 404
         raise Http404()
