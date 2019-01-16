@@ -43,6 +43,7 @@ from readthedocs.projects import tasks
 from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
+    EnvironmentVariableForm,
     IntegrationForm,
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
@@ -59,12 +60,14 @@ from readthedocs.projects.forms import (
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
+    EnvironmentVariable,
     Project,
     ProjectRelationship,
     WebHook,
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from ..tasks import retry_domain_verification
 
 log = logging.getLogger(__name__)
 
@@ -192,7 +195,7 @@ def project_version_detail(request, project_slug, version_slug):
                 log.info('Removing files for version %s', version.slug)
                 broadcast(
                     type='app',
-                    task=tasks.clear_artifacts,
+                    task=tasks.remove_dirs,
                     args=[version.get_artifact_paths()],
                 )
                 version.built = False
@@ -221,7 +224,11 @@ def project_delete(request, project_slug):
     )
 
     if request.method == 'POST':
-        broadcast(type='app', task=tasks.remove_dir, args=[project.doc_path])
+        broadcast(
+            type='app',
+            task=tasks.remove_dirs,
+            args=[(project.doc_path,)]
+        )
         project.delete()
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
@@ -704,7 +711,7 @@ def project_version_delete_html(request, project_slug, version_slug):
         version.save()
         broadcast(
             type='app',
-            task=tasks.clear_artifacts,
+            task=tasks.remove_dirs,
             args=[version.get_artifact_paths()],
         )
     else:
@@ -726,7 +733,14 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class DomainList(DomainMixin, ListViewWithForm):
-    pass
+    def get_context_data(self, **kwargs):
+        ctx = super(DomainList, self).get_context_data(**kwargs)
+
+        # Retry validation on all domains if applicable
+        for domain in ctx['domain_list']:
+            retry_domain_verification.delay(domain_pk=domain.pk)
+
+        return ctx
 
 
 class DomainCreate(DomainMixin, CreateView):
@@ -875,3 +889,37 @@ class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_advertising', args=[self.object.slug])
+
+
+class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    """Environment Variables to be added when building the Project."""
+
+    model = EnvironmentVariable
+    form_class = EnvironmentVariableForm
+    lookup_url_kwarg = 'environmentvariable_pk'
+
+    def get_success_url(self):
+        return reverse(
+            'projects_environmentvariables',
+            args=[self.get_project().slug],
+        )
+
+
+class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
+    pass
+
+
+class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
+    pass
+
+
+class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
+    pass
+
+
+class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
+
+    # This removes the delete confirmation
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)
