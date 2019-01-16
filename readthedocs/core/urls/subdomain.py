@@ -15,6 +15,7 @@ from readthedocs.core.views.serve import (
     redirect_project_slug,
     robots_txt,
     serve_docs,
+    sitemap_xml,
 )
 
 
@@ -23,6 +24,8 @@ handler404 = server_error_404
 
 subdomain_urls = [
     url(r'robots.txt$', robots_txt, name='robots_txt'),
+    url(r'sitemap.xml$', sitemap_xml, name='sitemap.xml'),
+
     url(
         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),

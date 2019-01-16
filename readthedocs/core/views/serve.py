@@ -36,6 +36,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import iri_to_uri
+from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -43,7 +44,9 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects import constants
+from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project, ProjectRelationship
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
 
 log = logging.getLogger(__name__)
@@ -310,3 +313,74 @@ def robots_txt(request, project):
         return HttpResponse(open(fullpath).read(), content_type='text/plain')
 
     return HttpResponse('User-agent: *\nAllow: /\n', content_type='text/plain')
+
+
+@map_project_slug
+# TODO: make this cache dependent on the project's slug
+@cache_page(60 * 60 * 24 * 3)  # 3 days
+def sitemap_xml(request, project):
+
+    def priorities_generator():
+        """
+        Generator returning ``priority`` needed by sitemap.xml.
+
+        It generates values from 1 to 0.1 by decreasing in 0.1 on each
+        iteration. After 0.1 is reached, it will keep returning 0.1.
+        """
+        priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+        for p in priorities:
+            yield p
+
+        while True:
+            yield 0.1
+
+    def changefreqs_generator():
+        """
+        Generator returning ``changefreq`` needed by sitemap.xml.
+
+        It returns ``daily`` on first iteration, then ``weekly`` and then it
+        will return always ``monthly``.
+        """
+        changefreqs = ['daily', 'weekly']
+        for c in changefreqs:
+            yield c
+
+        while True:
+            yield 'monthly'
+
+    sorted_versions = sort_version_aware(project.versions.filter(active=True))
+
+    versions = []
+    for version, priority, changefreq in zip(
+            sorted_versions, priorities_generator(), changefreqs_generator()):
+        element = {
+            'loc': version.get_subdomain_url(),
+            'lastmod': version.builds.order_by('-date').first().date.isoformat(),
+            'priority': priority,
+            'changefreq': changefreq,
+            'languages': [],
+        }
+        if project.translations.exists():
+            for translation in project.translations.all():
+                href = project.get_docs_url(
+                    version_slug=version.slug,
+                    lang_slug=translation.language,
+                    private=version.privacy_level == PRIVATE,
+                )
+                element['languages'].append({
+                    'hreflang': translation.language,
+                    'href': href,
+                })
+
+            # add itself also as protocol requires
+            element['languages'].append({
+                'hreflang': project.language,
+                'href': element['loc'],
+            })
+
+        versions.append(element)
+
+    context = {
+        'versions': versions,
+    }
+    return render(request, 'sitemap.xml', context, content_type='application/xml')
