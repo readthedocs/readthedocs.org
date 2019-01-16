@@ -62,6 +62,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
         The check consists on,
           * the Project shouldn't be marked as skipped.
+          * any of the project's owners is banned.
 
         :param project: project to be checked
         :type project: readthedocs.projects.models.Project
@@ -69,7 +70,8 @@ class ProjectQuerySetBase(models.QuerySet):
         :returns: whether or not the project is active
         :rtype: bool
         """
-        if project.skip:
+        any_owner_banned = any(u.profile.banned for u in project.users.all())
+        if project.skip or any_owner_banned:
             return False
 
         return True
