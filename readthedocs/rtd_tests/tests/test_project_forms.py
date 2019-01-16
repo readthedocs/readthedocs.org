@@ -31,6 +31,7 @@ from readthedocs.projects.forms import (
     ProjectExtraForm,
     TranslationForm,
     UpdateProjectForm,
+    RandomProjectsInputForm,
 )
 from readthedocs.projects.models import Project, EnvironmentVariable
 
@@ -598,3 +599,24 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
         self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
         self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
+
+
+class TestProjectAdminForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_random_projects_input_form(self):
+        data = {
+            'number': 0
+        }
+        form = RandomProjectsInputForm(data)
+        self.assertFalse(form.is_valid())
+
+        data['number'] = 1
+        form = RandomProjectsInputForm(data)
+        self.assertTrue(form.is_valid())
+
+        data['number'] = 10
+        form = RandomProjectsInputForm(data)
+        self.assertFalse(form.is_valid())
