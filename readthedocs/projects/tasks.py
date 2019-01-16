@@ -626,14 +626,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             self.sync_repo()
         except RepositoryError:
-            # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
+            # Re raise the exception to stop the build at this point
+            raise
         except vcs_support_utils.LockTimeout:
             log.info(
                 'Lock still active: project=%s version=%s',
                 self.project.slug,
                 self.version.slug,
             )
+            # Raise the proper exception (won't be sent to Sentry)
+            raise VersionLockedError
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
@@ -647,6 +650,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
+            # Re raise the exception to stop the build at this point
+            raise
 
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
