@@ -6,22 +6,26 @@
 
 {% block content %}
 
-    <h1>Effected Projects:</h1>
-    {% for feature, effected_projects in features.items %}
+  <h1>Effected Projects:</h1>
+  {% for feature, effected_projects in features.items %}
+    <ul>
+      <li>
         <h2>{{ feature }}</h2>
         {% for projects in effected_projects %}
-            <ul>
-                {% for project in projects %}
-                    <li>
-                        <p><a href="{% get_project_admin_url project.pk %}">{{ project }}</a></p>
-                    </li>
-                {% endfor %}
-            </ul>
+          <ul>
+            {% for project in projects %}
+              <li>
+                <p><a href="{% get_project_admin_url project.pk %}">{{ project }}</a></p>
+              </li>
+            {% endfor %}
+          </ul>
         {% endfor %}
-    {% endfor %}
-
-    <form action="/admin" method="get">
-        <input type="submit" value="Go to Admin Home">
-    </form>
+      </li>
+    </ul>
+  {% endfor %}
+    
+  <form action="/admin" method="get">
+      <input type="submit" value="Go to Admin Home">
+  </form>
 
 {% endblock %}

@@ -256,7 +256,7 @@ class FeatureAdmin(admin.ModelAdmin):
         return render(
             request,
             'projects/admin/sampled_random_projects_input.html',
-            context={'queryset': queryset, 'form': form, 'projects': random_projects}
+            context={'queryset': queryset, 'form': form}
         )
 
     assign_to_sampled_random_projects.short_description = 'Assign To Sampled Random Projects'
