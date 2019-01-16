@@ -64,7 +64,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import RepositoryError
+from .exceptions import ProjectConfigurationError, RepositoryError
 from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
@@ -327,7 +327,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.version = version
         self.project = {}
         if project is not None:
-        s    self.project = project
+            self.project = project
         if config is not None:
             self.config = config
         self.task = task
