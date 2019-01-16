@@ -601,22 +601,31 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
 
 
-class TestProjectAdminForm(TestCase):
+class TestRandomProjectsInputForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
 
-    def test_random_projects_input_form(self):
+    def test_get_max_value(self):
+        self.assertEqual(RandomProjectsInputForm().get_max_value(), 2)
+    
+    def test_input_less_than_1(self):
         data = {
             'number': 0
         }
         form = RandomProjectsInputForm(data)
         self.assertFalse(form.is_valid())
-
-        data['number'] = 1
-        form = RandomProjectsInputForm(data)
+    
+    def test_input_1(self):
+        data = {
+            'number': 1
+        }
+        form =RandomProjectsInputForm(data)
         self.assertTrue(form.is_valid())
 
-        data['number'] = 10
+    def test_input_greater_than_maximum(self):
+        data = {
+            'number': 10
+        }
         form = RandomProjectsInputForm(data)
         self.assertFalse(form.is_valid())
