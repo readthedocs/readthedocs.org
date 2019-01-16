@@ -264,6 +264,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
+# Exceptions under ``throws`` argument are considered ERROR from a Build
+# perspective but as a WARNING for the application itself. These exception are
+# logged as ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
@@ -273,7 +276,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
+        BuildEnvironmentWarning,
+        RepositoryError,
+        ProjectConfigurationError,
         ProjectBuildsSkippedError,
+        MkDocsYAMLParseError,
     ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
@@ -320,7 +327,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.version = version
         self.project = {}
         if project is not None:
-            self.project = project
+        s    self.project = project
         if config is not None:
             self.config = config
         self.task = task
