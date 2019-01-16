@@ -611,8 +611,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         Update the checkout of the repo to make sure it's the latest.
 
         This also syncs versions in the DB.
-
-        :param build_env: Build environment
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
