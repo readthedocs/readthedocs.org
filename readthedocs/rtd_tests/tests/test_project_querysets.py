@@ -1,11 +1,11 @@
-from __future__ import absolute_import
-
+# -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 from datetime import timedelta
 
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 
-from readthedocs.projects.models import Project, ProjectRelationship, Feature
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.querysets import (ParentRelatedProjectQuerySet,
                                             ChildRelatedProjectQuerySet)
 
@@ -29,6 +29,19 @@ class ProjectQuerySetTests(TestCase):
             mgr.__class__.__name__,
             'ManagerFromParentRelatedProjectQuerySetBase'
         )
+
+    def test_is_active(self):
+        project = fixture.get(Project, skip=False)
+        self.assertTrue(Project.objects.is_active(project))
+
+        project = fixture.get(Project, skip=True)
+        self.assertFalse(Project.objects.is_active(project))
+
+        user = fixture.get(User)
+        user.profile.banned = True
+        user.profile.save()
+        project = fixture.get(Project, skip=False, users=[user])
+        self.assertFalse(Project.objects.is_active(project))
 
 
 class FeatureQuerySetTests(TestCase):

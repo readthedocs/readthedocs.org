@@ -93,4 +93,9 @@ class Backend(BaseVCS):
         super(Backend, self).checkout()
         if not identifier:
             return self.up()
-        return self.run('bzr', 'switch', identifier)
+        exit_code, stdout, stderr = self.run('bzr', 'switch', identifier)
+        if exit_code != 0:
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(identifier)
+            )
+        return exit_code, stdout, stderr

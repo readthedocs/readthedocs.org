@@ -26,6 +26,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
+    EnvironmentVariableForm,
     ProjectAdvancedForm,
     ProjectBasicsForm,
     ProjectExtraForm,
@@ -34,7 +35,7 @@ from readthedocs.projects.forms import (
     WebHookForm,
     EmailHookForm
 )
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 
 
 class TestProjectForms(TestCase):
@@ -166,6 +167,26 @@ class TestProjectForms(TestCase):
         latest.refresh_from_db()
         self.assertEqual(latest.identifier, 'custom')
 
+    def test_length_of_tags(self):
+        data = {
+            'documentation_type': 'sphinx',
+            'language': 'en'
+        }
+        data['tags'] = '{},{}'.format('a'*50, 'b'*99)
+        form = ProjectExtraForm(data)
+        self.assertTrue(form.is_valid())
+
+        data['tags'] = '{},{}'.format('a'*90, 'b'*100)
+        form = ProjectExtraForm(data)
+        self.assertTrue(form.is_valid())
+        
+        data['tags'] = '{},{}'.format('a'*99, 'b'*101)
+        form = ProjectExtraForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.has_error('tags'))
+        error_msg = 'Length of each tag must be less than or equal to 100 characters.'
+        self.assertDictEqual(form.errors, {'tags': [error_msg]})
+
 
 class TestProjectAdvancedForm(TestCase):
 
@@ -177,6 +198,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-1',
             active=True,
             privacy_level=PUBLIC,
+            identifier='public-1',
         )
         get(
             Version,
@@ -184,6 +206,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-2',
             active=True,
             privacy_level=PUBLIC,
+            identifier='public-2',
         )
         get(
             Version,
@@ -191,6 +214,15 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-3',
             active=False,
             privacy_level=PROTECTED,
+            identifier='public-3',
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-4',
+            active=False,
+            privacy_level=PUBLIC,
+            identifier='public/4'
         )
         get(
             Version,
@@ -198,6 +230,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='private',
             active=True,
             privacy_level=PRIVATE,
+            identifier='private',
         )
         get(
             Version,
@@ -205,6 +238,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='protected',
             active=True,
             privacy_level=PROTECTED,
+            identifier='protected',
         )
 
     def test_list_only_active_versions_on_default_version(self):
@@ -225,12 +259,12 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
         self.assertEqual(
             set(
-                slug
-                for slug, _ in form.fields['default_branch'].widget.choices
+                identifier
+                for identifier, _ in form.fields['default_branch'].widget.choices
             ),
             {
-                None, 'latest', 'public-1', 'public-2',
-                'public-3', 'protected', 'private'
+                None, 'master', 'public-1', 'public-2',
+                'public-3', 'public/4', 'protected', 'private'
             },
         )
 
@@ -487,7 +521,7 @@ class TestNotificationForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-
+        
     def test_webhookform(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
@@ -547,3 +581,89 @@ class TestNotificationForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form.errors, {'email': ['This field is required.']})
         self.assertEqual(self.project.emailhook_notifications.all().count(), 0)
+
+
+class TestProjectEnvironmentVariablesForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+
+    def test_use_invalid_names(self):
+        data = {
+            'name': 'VARIABLE WITH SPACES',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Variable name can't contain spaces",
+            form.errors['name'],
+        )
+
+        data = {
+            'name': 'READTHEDOCS__INVALID',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Variable name can't start with READTHEDOCS",
+            form.errors['name'],
+        )
+
+        data = {
+            'name': 'INVALID_CHAR*',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Only letters, numbers and underscore are allowed',
+            form.errors['name'],
+        )
+
+        data = {
+            'name': '__INVALID',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Variable name can't start with __ (double underscore)",
+            form.errors['name'],
+        )
+
+        get(EnvironmentVariable, name='EXISTENT_VAR', project=self.project)
+        data = {
+            'name': 'EXISTENT_VAR',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'There is already a variable with this name for this project',
+            form.errors['name'],
+        )
+
+    def test_create(self):
+        data = {
+            'name': 'MYTOKEN',
+            'value': 'string here',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        form.save()
+
+        self.assertEqual(EnvironmentVariable.objects.count(), 1)
+        self.assertEqual(EnvironmentVariable.objects.first().name, 'MYTOKEN')
+        self.assertEqual(EnvironmentVariable.objects.first().value, "'string here'")
+
+        data = {
+            'name': 'ESCAPED',
+            'value': r'string escaped here: #$\1[]{}\|',
+        }
+        form = EnvironmentVariableForm(data, project=self.project)
+        form.save()
+
+        self.assertEqual(EnvironmentVariable.objects.count(), 2)
+        self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
+        self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")

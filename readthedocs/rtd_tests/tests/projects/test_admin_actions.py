@@ -2,7 +2,7 @@ import mock
 import django_dynamic_fixture as fixture
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.models import User
-from django.core import urlresolvers
+from django import urls
 from django.test import TestCase
 
 from readthedocs.core.models import UserProfile
@@ -33,7 +33,7 @@ class ProjectAdminActionsTest(TestCase):
             'index': 0,
         }
         resp = self.client.post(
-            urlresolvers.reverse('admin:projects_project_changelist'),
+            urls.reverse('admin:projects_project_changelist'),
             action_data
         )
         self.assertTrue(self.project.users.filter(profile__banned=True).exists())
@@ -51,7 +51,7 @@ class ProjectAdminActionsTest(TestCase):
             'index': 0,
         }
         resp = self.client.post(
-            urlresolvers.reverse('admin:projects_project_changelist'),
+            urls.reverse('admin:projects_project_changelist'),
             action_data
         )
         self.assertFalse(self.project.users.filter(profile__banned=True).exists())
@@ -60,7 +60,7 @@ class ProjectAdminActionsTest(TestCase):
     @mock.patch('readthedocs.projects.admin.broadcast')
     def test_project_delete(self, broadcast):
         """Test project and artifacts are removed"""
-        from readthedocs.projects.tasks import remove_dir
+        from readthedocs.projects.tasks import remove_dirs
         action_data = {
             ACTION_CHECKBOX_NAME: [self.project.pk],
             'action': 'delete_selected',
@@ -68,12 +68,12 @@ class ProjectAdminActionsTest(TestCase):
             'post': 'yes',
         }
         resp = self.client.post(
-            urlresolvers.reverse('admin:projects_project_changelist'),
+            urls.reverse('admin:projects_project_changelist'),
             action_data
         )
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
         broadcast.assert_has_calls([
             mock.call(
-                type='app', task=remove_dir, args=[self.project.doc_path]
+                type='app', task=remove_dirs, args=[(self.project.doc_path,)]
             ),
         ])

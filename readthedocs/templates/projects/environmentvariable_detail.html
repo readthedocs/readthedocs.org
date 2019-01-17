@@ -1,0 +1,30 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Environment Variables" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-environment-variables %}class="active"{% endblock %}
+
+{% block project-environment-variables-active %}active{% endblock %}
+{% block project_edit_content_header %}
+  {% blocktrans trimmed with name=environmentvariable.name %}
+    Environment Variable: {{ name }}
+  {% endblocktrans %}
+{% endblock %}
+
+{% block project_edit_content %}
+
+  <p>
+    {% blocktrans trimmed %}
+      The value of the environment variable is not shown here for sercurity purposes.
+    {% endblocktrans %}
+  </p>
+
+  <form method="post" action="{% url 'projects_environmentvariables_delete' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
+    {% csrf_token %}
+    <input type="submit" value="{% trans "Delete" %}">
+  </form>
+{% endblock %}

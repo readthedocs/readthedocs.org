@@ -19,6 +19,18 @@ class CoreUtilTests(TestCase):
         self.version = get(Version, project=self.project)
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_trigger_skipped_project(self, update_docs_task):
+        self.project.skip = True
+        self.project.save()
+        result = trigger_build(
+            project=self.project,
+            version=self.version,
+        )
+        self.assertEqual(result, (None, None))
+        self.assertFalse(update_docs_task.signature.called)
+        self.assertFalse(update_docs_task.signature().apply_async.called)
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_custom_queue(self, update_docs):
         """Use a custom queue when routing the task"""
         self.project.build_queue = 'build03'
