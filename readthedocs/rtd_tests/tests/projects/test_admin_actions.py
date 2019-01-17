@@ -6,7 +6,7 @@ from django import urls
 from django.test import TestCase
 
 from readthedocs.core.models import UserProfile
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 
 class ProjectAdminActionsTest(TestCase):
@@ -77,3 +77,42 @@ class ProjectAdminActionsTest(TestCase):
                 type='app', task=remove_dirs, args=[(self.project.doc_path,)]
             ),
         ])
+
+    def test_assign_to_sampled_random_projects(self):
+        """Test the assigning of random projects to a particular feature."""
+        feature_qs = Feature.objects.all()
+        self.assertEqual(feature_qs.count(), 1)
+        feature = feature_qs.first()
+        self.assertEqual(feature.projects.all().count(), 0)
+
+        action_data = {
+            ACTION_CHECKBOX_NAME: [feature.pk],
+            'action': 'assign_to_sampled_random_projects',
+            'index': 0,
+        }
+        number_input_data = {
+            ACTION_CHECKBOX_NAME: [feature.pk],
+            'action': 'assign_to_sampled_random_projects',
+            'number': 1,
+            'apply': True,
+        }
+
+        number_input_resp = self.client.post(
+            urls.reverse('admin:projects_feature_changelist'),
+            action_data
+        )
+        self.assertContains(
+            number_input_resp,
+            '<h3>Enter the number of projects</h3>'
+        )
+        self.assertContains(
+            number_input_resp,
+            ACTION_CHECKBOX_NAME,
+            count=1
+        )
+
+        self.client.post(
+            urls.reverse('admin:projects_feature_changelist'),
+            number_input_data
+        )
+        self.assertEqual(feature.projects.all().count(), 1)

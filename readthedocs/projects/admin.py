@@ -239,10 +239,16 @@ class FeatureAdmin(admin.ModelAdmin):
             form = RandomProjectsInputForm(request.POST)
             if form.is_valid():
                 n = form.cleaned_data.get('number')
-                # Getting the first'n' random projects
+
+                # Getting the first'n' random projects.
                 random_projects = Project.objects.order_by('?')[:n]
-                ids_list = list(random_projects.values_list('pk', flat=True))
+                ids_list = random_projects.values_list('pk', flat=True)
+                ids_list = list(ids_list)
+
+                # This dictionary will contains feature as keys and
+                # the list of projects assigned to the feature as values.
                 context_dict = {}
+
                 for feature in queryset:
                     list_of_projects = context_dict.setdefault(str(feature), [])
                     context_dict[str(feature)] = list_of_projects + [random_projects]

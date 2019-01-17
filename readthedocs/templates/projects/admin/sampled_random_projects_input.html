@@ -1,18 +1,20 @@
 {% extends "admin/base_site.html" %}
 
+{% load i18n %}
+
 {% block title %}Form for sampled random projects{% endblock %}
 
 {% block content %}
 
-    <h3>Enter the number of projects</h3>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        {% for obj in queryset %}
-            <input type="hidden" name="_selected_action" value={{ obj.pk }} />
-        {% endfor %}
-        <input type="hidden" name="action" value="assign_to_sampled_random_projects" />
-        <input type="submit" name="apply" value="Submit" />
-    </form>
+  <h3>{% trans "Enter the number of projects" %}</h3>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% for obj in queryset %}
+      <input type="hidden" name="_selected_action" value={{ obj.pk }} />
+    {% endfor %}
+    <input type="hidden" name="action" value="assign_to_sampled_random_projects" />
+    <input type="submit" name="apply" value="Submit" />
+  </form>
 
 {% endblock %}
