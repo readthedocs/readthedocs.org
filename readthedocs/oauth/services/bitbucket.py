@@ -1,22 +1,23 @@
 """OAuth utility functions."""
 
 from __future__ import absolute_import
-from builtins import str
-import logging
+
 import json
+import logging
 import re
 
+from allauth.socialaccount.providers.bitbucket_oauth2.views import (
+    BitbucketOAuth2Adapter,
+)
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
-from allauth.socialaccount.providers.bitbucket_oauth2.views import (
-    BitbucketOAuth2Adapter)
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
 
 
 log = logging.getLogger(__name__)
@@ -44,10 +45,12 @@ class BitbucketService(Service):
                 'https://bitbucket.org/api/2.0/repositories/?role=member')
             for repo in repos:
                 self.create_repository(repo)
-        except (TypeError, ValueError) as e:
-            log.exception('Error syncing Bitbucket repositories')
-            raise Exception('Could not sync your Bitbucket repositories, '
-                            'try reconnecting your account')
+        except (TypeError, ValueError):
+            log.warning('Error syncing Bitbucket repositories')
+            raise SyncServiceError(
+                'Could not sync your Bitbucket repositories, '
+                'try reconnecting your account'
+            )
 
         # Because privileges aren't returned with repository data, run query
         # again for repositories that user has admin role for, and update
@@ -78,10 +81,12 @@ class BitbucketService(Service):
                 repos = self.paginate(team['links']['repositories']['href'])
                 for repo in repos:
                     self.create_repository(repo, organization=org)
-        except ValueError as e:
-            log.exception('Error syncing Bitbucket organizations')
-            raise Exception('Could not sync your Bitbucket team repositories, '
-                            'try reconnecting your account')
+        except ValueError:
+            log.warning('Error syncing Bitbucket organizations')
+            raise SyncServiceError(
+                'Could not sync your Bitbucket team repositories, '
+                'try reconnecting your account'
+            )
 
     def create_repository(self, fields, privacy=None, organization=None):
         """

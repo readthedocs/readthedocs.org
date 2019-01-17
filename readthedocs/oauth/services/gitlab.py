@@ -17,7 +17,8 @@ from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
+
 
 try:
     from urlparse import urljoin, urlparse
@@ -91,10 +92,11 @@ class GitLabService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitLab repositories')
-            raise Exception(
-                'Could not sync your GitLab repositories, try reconnecting '
-                'your account')
+            log.warning('Error syncing GitLab repositories')
+            raise SyncServiceError(
+                'Could not sync your GitLab repositories, '
+                'try reconnecting your account'
+            )
 
     def sync_organizations(self):
         orgs = self.paginate(
@@ -121,10 +123,11 @@ class GitLabService(Service):
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitLab organizations')
-            raise Exception(
-                'Could not sync your GitLab organization, try reconnecting '
-                'your account')
+            log.warning('Error syncing GitLab organizations')
+            raise SyncServiceError(
+                'Could not sync your GitLab organization, '
+                'try reconnecting your account'
+            )
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id

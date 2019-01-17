@@ -1,23 +1,24 @@
 """OAuth utility functions."""
 
 from __future__ import absolute_import
-from builtins import str
-import logging
+
 import json
+import logging
 import re
 
+from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
-from allauth.socialaccount.models import SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
+
 
 log = logging.getLogger(__name__)
 
@@ -41,10 +42,12 @@ class GitHubService(Service):
         try:
             for repo in repos:
                 self.create_repository(repo)
-        except (TypeError, ValueError) as e:
-            log.exception('Error syncing GitHub repositories')
-            raise Exception('Could not sync your GitHub repositories, '
-                            'try reconnecting your account')
+        except (TypeError, ValueError):
+            log.warning('Error syncing GitHub repositories')
+            raise SyncServiceError(
+                'Could not sync your GitHub repositories, '
+                'try reconnecting your account'
+            )
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
@@ -60,10 +63,12 @@ class GitHubService(Service):
                 )
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
-        except (TypeError, ValueError) as e:
-            log.exception('Error syncing GitHub organizations')
-            raise Exception('Could not sync your GitHub organizations, '
-                            'try reconnecting your account')
+        except (TypeError, ValueError):
+            log.warning('Error syncing GitHub organizations')
+            raise SyncServiceError(
+                'Could not sync your GitHub organizations, '
+                'try reconnecting your account'
+            )
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
