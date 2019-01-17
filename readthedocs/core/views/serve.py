@@ -45,7 +45,6 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects import constants
-from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project, ProjectRelationship
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
@@ -320,6 +319,28 @@ def robots_txt(request, project):
 # TODO: make this cache dependent on the project's slug
 @cache_page(60 * 60 * 24 * 3)  # 3 days
 def sitemap_xml(request, project):
+    """
+    Generate and serve a ``sitemap.xml`` for a particular ``project``.
+
+    The sitemap is generated from all the ``active`` and public versions of
+    ``project``. These versions are sorted by using semantic versioning
+    prepending ``latest`` and ``stable`` (if they are enabled) at the beginning.
+
+    Following this order, the versions are assigned priorities change change
+    frequency. Starting from 1 and decreasing by 0.1 for priorities and starting
+    from daily, weekly to monthly for change frequency.
+
+    If the project is private, the view raises ``Http404``. On the other hand,
+    if the project is public but a version is private, this one i not included
+    in the sitemap.
+
+    :param request: Django request object
+    :param project: Project instance to generate the sitemap
+
+    :returns: response with the ``sitemap.xml`` template rendered
+
+    :rtype: django.http.HttpResponse
+    """
 
     def priorities_generator():
         """
@@ -345,7 +366,15 @@ def sitemap_xml(request, project):
         changefreqs = ['daily', 'weekly']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
-    sorted_versions = sort_version_aware(project.versions.filter(active=True))
+    if project.privacy_level == constants.PRIVATE:
+        raise Http404
+
+    sorted_versions = sort_version_aware(
+        project.versions.filter(
+            active=True,
+            privacy_level=constants.PUBLIC,
+        ),
+    )
 
     versions = []
     for version, priority, changefreq in zip(
@@ -362,7 +391,7 @@ def sitemap_xml(request, project):
                 href = project.get_docs_url(
                     version_slug=version.slug,
                     lang_slug=translation.language,
-                    private=version.privacy_level == PRIVATE,
+                    private=version.privacy_level == constants.PRIVATE,
                 )
                 element['languages'].append({
                     'hreflang': translation.language,
