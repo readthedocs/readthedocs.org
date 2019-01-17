@@ -228,25 +228,22 @@ class FeatureAdmin(admin.ModelAdmin):
     actions = ['assign_to_sampled_random_projects']
 
     def assign_to_sampled_random_projects(self, request, queryset):
-        """
-        Assign features to sampled random projects.
 
-        It asks for an integer, N, and then assigns the
-        feature to those number of random projects.
-        """
+        """Assign features to 'N' sampled random projects."""
+
         random_projects = None
         if 'apply' in request.POST:
             form = RandomProjectsInputForm(request.POST)
             if form.is_valid():
                 n = form.cleaned_data.get('number')
 
-                # Getting the first'n' random projects.
+                # Taking first 'n' random projects.
                 random_projects = Project.objects.order_by('?')[:n]
                 ids_list = random_projects.values_list('pk', flat=True)
                 ids_list = list(ids_list)
 
-                # This dictionary will contains feature as keys and
-                # the list of projects assigned to the feature as values.
+                # This dictionary will contain FEATURE as keys and
+                # the list of projects assigned to that FEATURE as values.
                 context_dict = {}
 
                 for feature in queryset:
