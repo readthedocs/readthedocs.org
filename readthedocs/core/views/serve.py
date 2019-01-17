@@ -381,11 +381,17 @@ def sitemap_xml(request, project):
             sorted_versions, priorities_generator(), changefreqs_generator()):
         element = {
             'loc': version.get_subdomain_url(),
-            'lastmod': version.builds.order_by('-date').first().date.isoformat(),
             'priority': priority,
             'changefreq': changefreq,
             'languages': [],
         }
+
+        # Version can be enabled, but not ``built`` yet. We want to show the
+        # link without a ``lastmod`` attribute
+        last_build = version.builds.order_by('-date').first()
+        if last_build:
+            element['lastmod'] = last_build.date.isoformat(),
+
         if project.translations.exists():
             for translation in project.translations.all():
                 href = project.get_docs_url(
@@ -398,7 +404,7 @@ def sitemap_xml(request, project):
                     'href': href,
                 })
 
-            # add itself also as protocol requires
+            # Add itself also as protocol requires
             element['languages'].append({
                 'hreflang': project.language,
                 'href': element['loc'],

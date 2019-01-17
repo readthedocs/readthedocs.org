@@ -10,7 +10,9 @@
         hreflang="{{ language.hreflang }}"
         href="{{ language.href }}"/>
     {% endfor %}
+    {% if version.lastmod %}
     <lastmod>{{ version.lastmod }}</lastmod>
+    {% endif %}
     <changefreq>{{ version.changefreq }}</changefreq>
     <priority>{{ version.priority }}</priority>
   </url>
