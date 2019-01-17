@@ -229,6 +229,8 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/': {'status_code': 302},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
         '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
+        # URL name is provided
+        'projects_domains_delete': {'status_code': 302},
 
         # This depends on an inactive project
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
