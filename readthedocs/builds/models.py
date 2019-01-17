@@ -215,7 +215,7 @@ class Version(models.Model):
         log.info('Removing files for version %s', self.slug)
         broadcast(
             type='app',
-            task=tasks.clear_artifacts,
+            task=tasks.remove_dirs,
             args=[self.get_artifact_paths()],
         )
         project_pk = self.project.pk

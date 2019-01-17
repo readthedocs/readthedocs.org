@@ -2,13 +2,17 @@
 
 from __future__ import absolute_import, unicode_literals, division, print_function
 import mock
+from mock import patch, mock_open
 import django_dynamic_fixture as fixture
+import pytest
+import six
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.http import Http404
 from django.conf import settings
+from django.urls import reverse
 
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.projects import constants
@@ -77,6 +81,28 @@ class TestPrivateDocs(BaseDocServing):
         self.assertTrue('private_web_root' in str(exc.exception))
         self.assertTrue('public_web_root' not in str(exc.exception))
 
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    def test_robots_txt(self):
+        self.public.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='private.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        self.client.force_login(self.eric)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='private.readthedocs.io',
+        )
+        # Private projects/versions always return 404 for robots.txt
+        self.assertEqual(response.status_code, 404)
+
 
 @override_settings(SERVE_DOCS=[constants.PRIVATE, constants.PUBLIC])
 class TestPublicDocs(BaseDocServing):
@@ -110,3 +136,41 @@ class TestPublicDocs(BaseDocServing):
             _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='public')
         self.assertTrue('private_web_root' not in str(exc.exception))
         self.assertTrue('public_web_root' in str(exc.exception))
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    def test_default_robots_txt(self):
+        self.public.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='public.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'User-agent: *\nAllow: /\n')
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    @patch(
+        'builtins.open',
+        new_callable=mock_open,
+        read_data='My own robots.txt',
+    )
+    @patch('readthedocs.core.views.serve.os')
+    @pytest.mark.skipif(six.PY2, reason='In Python2 the mock is __builtins__.open')
+    def test_custom_robots_txt(self, os_mock, open_mock):
+        os_mock.path.exists.return_value = True
+        self.public.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='public.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'My own robots.txt')
