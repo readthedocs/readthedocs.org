@@ -341,7 +341,6 @@ def sitemap_xml(request, project):
 
     :rtype: django.http.HttpResponse
     """
-
     def priorities_generator():
         """
         Generator returning ``priority`` needed by sitemap.xml.
@@ -390,7 +389,7 @@ def sitemap_xml(request, project):
         # link without a ``lastmod`` attribute
         last_build = version.builds.order_by('-date').first()
         if last_build:
-            element['lastmod'] = last_build.date.isoformat(),
+            element['lastmod'] = last_build.date.isoformat()
 
         if project.translations.exists():
             for translation in project.translations.all():
