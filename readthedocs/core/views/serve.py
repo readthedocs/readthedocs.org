@@ -337,6 +337,10 @@ def sitemap_xml(request, project):
 
         It returns ``daily`` on first iteration, then ``weekly`` and then it
         will return always ``monthly``.
+
+        We are using ``monthly`` as last value because ``never`` is too
+        aggressive. If the tag is removed and a branch is created with the same
+        name, we will want bots to revisit this.
         """
         changefreqs = ['daily', 'weekly']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
