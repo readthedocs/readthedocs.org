@@ -228,9 +228,7 @@ class FeatureAdmin(admin.ModelAdmin):
     actions = ['assign_to_sampled_random_projects']
 
     def assign_to_sampled_random_projects(self, request, queryset):
-
         """Assign features to 'N' sampled random projects."""
-
         random_projects = None
         if 'apply' in request.POST:
             form = RandomProjectsInputForm(request.POST)
