@@ -26,6 +26,7 @@ PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
+import itertools
 import logging
 import mimetypes
 import os
@@ -328,11 +329,7 @@ def sitemap_xml(request, project):
         iteration. After 0.1 is reached, it will keep returning 0.1.
         """
         priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
-        for p in priorities:
-            yield p
-
-        while True:
-            yield 0.1
+        yield from itertools.chain(priorities, itertools.repeat(0.1))
 
     def changefreqs_generator():
         """
@@ -342,11 +339,7 @@ def sitemap_xml(request, project):
         will return always ``monthly``.
         """
         changefreqs = ['daily', 'weekly']
-        for c in changefreqs:
-            yield c
-
-        while True:
-            yield 'monthly'
+        yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
     sorted_versions = sort_version_aware(project.versions.filter(active=True))
 
