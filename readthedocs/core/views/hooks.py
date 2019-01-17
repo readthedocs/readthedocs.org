@@ -370,7 +370,10 @@ def generic_build(request, project_id_or_slug=None):
     if request.method == 'POST':
         slug = request.POST.get('version_slug', project.default_version)
         log.info(
-            "(Incoming Generic Build) %s [%s]", project.slug, slug)
+            "(Incoming Generic Build) %s [%s]",
+            project.slug,
+            slug,
+        )
         _build_version(project, slug)
     else:
         return HttpResponse("You must POST to this resource.")

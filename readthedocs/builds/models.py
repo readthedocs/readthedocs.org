@@ -15,7 +15,6 @@ from shutil import rmtree
 
 from builtins import object
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
@@ -24,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from jsonfield import JSONField
 from taggit.managers import TaggableManager
+from django.urls import reverse
 
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
@@ -213,10 +213,18 @@ class Version(models.Model):
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(type='app', task=tasks.clear_artifacts, args=[self.get_artifact_paths()])
         broadcast(
-            type='app', task=tasks.symlink_project, args=[self.project.pk])
+            type='app',
+            task=tasks.remove_dirs,
+            args=[self.get_artifact_paths()],
+        )
+        project_pk = self.project.pk
         super(Version, self).delete(*args, **kwargs)
+        broadcast(
+            type='app',
+            task=tasks.symlink_project,
+            args=[project_pk],
+        )
 
     @property
     def identifier_friendly(self):
@@ -562,9 +570,8 @@ class Build(models.Model):
                 pk=self.pk,
             ))
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('builds_detail', [self.project.slug, self.pk])
+        return reverse('builds_detail', args=[self.project.slug, self.pk])
 
     @property
     def finished(self):

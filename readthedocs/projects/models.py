@@ -8,10 +8,11 @@ import fnmatch
 import logging
 import os
 from builtins import object  # pylint: disable=redefined-builtin
+from six.moves import shlex_quote
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -138,8 +139,11 @@ class Project(models.Model):
         _('Container memory limit'), max_length=10, null=True, blank=True,
         help_text=_('Memory limit in Docker format '
                     '-- example: <code>512m</code> or <code>1g</code>'))
-    container_time_limit = models.CharField(
-        _('Container time limit'), max_length=10, null=True, blank=True)
+    container_time_limit = models.IntegerField(
+        _('Container time limit in seconds'),
+        null=True,
+        blank=True,
+    )
     build_queue = models.CharField(
         _('Alternate build queue id'), max_length=32, null=True, blank=True)
     allow_promos = models.BooleanField(
@@ -267,11 +271,6 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if not self.slug:
                 raise Exception(_('Model must have slug'))
-        if self.documentation_type == 'auto':
-            # This used to determine the type and automatically set the
-            # documentation type to Sphinx for rST and Mkdocs for markdown.
-            # It now just forces Sphinx, due to markdown support.
-            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
@@ -1010,6 +1009,8 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
+    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1018,10 +1019,14 @@ class Feature(models.Model):
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (DONT_OVERWRITE_SPHINX_CONTEXT, _(
-            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+            'Do not overwrite context vars in conf.py with Read the Docs context')),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
+        (DONT_SHALLOW_CLONE, _(
+            'Do not shallow clone when cloning git repos')),
+        (USE_TESTING_BUILD_IMAGE, _(
+            'Use Docker image labelled as `testing` to build the docs')),
     )
 
     projects = models.ManyToManyField(
@@ -1061,6 +1066,7 @@ class Feature(models.Model):
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
 
 
+@python_2_unicode_compatible
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,
@@ -1075,3 +1081,10 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
     )
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        self.value = shlex_quote(self.value)
+        return super(EnvironmentVariable, self).save(*args, **kwargs)

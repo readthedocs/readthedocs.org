@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals
+)
 
 import json
 
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import pytest
 
 from readthedocs.builds.constants import BRANCH, STABLE, TAG
