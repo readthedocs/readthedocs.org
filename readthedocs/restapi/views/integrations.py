@@ -211,7 +211,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
-    invalid_payload_msg = 'Payload not valid, invalid or missing secret'
+    invalid_payload_msg = 'Payload not valid, invalid or missing signature'
 
     def get_data(self):
         if self.request.content_type == 'application/x-www-form-urlencoded':
@@ -223,7 +223,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def is_payload_valid(self):
         """
-        GitHub use a HMAC hexdiges hash to sign the payload.
+        GitHub use a HMAC hexdigest hash to sign the payload.
 
         It is sent in the request's header.
         See https://developer.github.com/webhooks/securing/
