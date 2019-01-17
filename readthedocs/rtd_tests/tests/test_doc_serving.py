@@ -14,7 +14,8 @@ from mock import mock_open, patch
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
 from readthedocs.core.views.serve import _serve_symlink_docs
-from readthedocs.projects import constants
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.models import Versionfrom readthedocs.projects import constants
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
@@ -249,6 +250,39 @@ class TestPublicDocs(BaseDocServing):
             self.public.get_docs_url(
                 version_slug=stable.slug,
                 lang_slug=self.project.language,
+                private=True,
+            ),
+        )
+
+    def test_sitemap_xml(self):
+        self.public.versions.update(active=True)
+        private_version = fixture.get(
+            Version,
+            privacy_level=constants.PRIVATE,
+            project=self.public,
+        )
+        response = self.client.get(
+            reverse('sitemap_xml'),
+            HTTP_HOST='public.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/xml')
+        for version in self.public.versions.filter(privacy_level=constants.PUBLIC):
+            self.assertContains(
+                response,
+                self.public.get_docs_url(
+                    version_slug=version.slug,
+                    lang_slug=self.public.language,
+                    private=False,
+                ),
+            )
+
+        # stable is marked as PRIVATE and should not appear here
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=private_version.slug,
+                lang_slug=self.public.language,
                 private=True,
             ),
         )
