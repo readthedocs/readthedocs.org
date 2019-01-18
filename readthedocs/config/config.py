@@ -394,12 +394,6 @@ class BuildConfigV1(BuildConfigBase):
             self.env_config.update(
                 DOCKER_IMAGE_SETTINGS[build['image']]
             )
-        # Update docker settings from user config
-        if 'DOCKER_IMAGE_SETTINGS' in self.env_config and \
-                build['image'] in self.env_config['DOCKER_IMAGE_SETTINGS']:
-            self.env_config.update(
-                self.env_config['DOCKER_IMAGE_SETTINGS'][build['image']]
-            )
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')

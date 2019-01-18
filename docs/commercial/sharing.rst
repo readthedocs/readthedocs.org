@@ -4,7 +4,7 @@ Sharing
 .. note:: This feature only exists on our Business offering at `readthedocs.com <https://readthedocs.com/>`_.
 
 You can share your project with users outside of your company.
-There are two way to do this:
+There are two ways to do this:
 
 * by sending them a *secret link*,
 * by giving them a *password*.

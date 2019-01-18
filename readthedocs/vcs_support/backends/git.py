@@ -169,7 +169,9 @@ class Backend(BaseVCS):
 
         code, out, err = self.run('git', 'checkout', '--force', revision)
         if code != 0:
-            log.warning("Failed to checkout revision '%s': %s", revision, code)
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(revision)
+            )
         return [code, out, err]
 
     def clone(self):
@@ -223,8 +225,10 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
-        return stdout.strip()
+        if self.repo_exists():
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            return stdout.strip()
+        return None
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""

@@ -266,6 +266,9 @@ class CommunityBaseSettings(Settings):
         },
     }
 
+    # Sentry
+    SENTRY_CELERY_IGNORE_EXPECTED = True
+
     # Docker
     DOCKER_ENABLE = False
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'

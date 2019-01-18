@@ -32,6 +32,7 @@ from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
+from readthedocs.projects.models import Feature
 from readthedocs.restapi.client import api as api_v2
 
 from .constants import (
@@ -43,7 +44,6 @@ from .constants import (
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
     MKDOCS_TEMPLATE_DIR,
-    SPHINX_TEMPLATE_DIR,
 )
 from .exceptions import (
     BuildEnvironmentCreationFailed,
@@ -727,10 +727,18 @@ class DockerBuildEnvironment(BuildEnvironment):
                 project_name=self.project.slug,
             )[:DOCKER_HOSTNAME_MAX_LEN],
         )
+
+        # Decide what Docker image to use, based on priorities:
+        # Use the Docker image set by our feature flag: ``testing`` or,
+        if self.project.has_feature(Feature.USE_TESTING_BUILD_IMAGE):
+            self.container_image = 'readthedocs/build:testing'
+        # the image set by user or,
         if self.config and self.config.build.image:
             self.container_image = self.config.build.image
+        # the image overridden by the project (manually set by an admin).
         if self.project.container_image:
             self.container_image = self.project.container_image
+
         if self.project.container_mem_limit:
             self.container_mem_limit = self.project.container_mem_limit
         if self.project.container_time_limit:
@@ -866,10 +874,6 @@ class DockerBuildEnvironment(BuildEnvironment):
         ``client.create_container``.
         """
         binds = {
-            SPHINX_TEMPLATE_DIR: {
-                'bind': SPHINX_TEMPLATE_DIR,
-                'mode': 'ro',
-            },
             MKDOCS_TEMPLATE_DIR: {
                 'bind': MKDOCS_TEMPLATE_DIR,
                 'mode': 'ro',
