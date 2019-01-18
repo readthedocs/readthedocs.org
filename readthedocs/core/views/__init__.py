@@ -14,13 +14,12 @@ import logging
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dir
+from readthedocs.projects.tasks import remove_dirs
 from readthedocs.redirects.utils import get_redirect_response
 
 log = logging.getLogger(__name__)
@@ -72,7 +71,6 @@ def random_page(request, project_slug=None):  # pylint: disable=unused-argument
     return HttpResponseRedirect(url)
 
 
-@csrf_exempt
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
         Version,
@@ -91,7 +89,7 @@ def wipe_version(request, project_slug, version_slug):
             os.path.join(version.project.doc_path, 'conda', version.slug),
         ]
         for del_dir in del_dirs:
-            broadcast(type='build', task=remove_dir, args=[del_dir])
+            broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
         return redirect('project_version_list', project_slug)
     return render(
         request,

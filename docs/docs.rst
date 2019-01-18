@@ -36,4 +36,6 @@ Content
   but rather break them on semantic meaning (e.g. periods or commas).
   Read more about this `here <http://rhodesmill.org/brandon/2012/one-sentence-per-line/>`_.
 * If you are cross-referencing to a different page within our website,
-  use the ``doc`` directive and not a hyperlink.
+  use the ``doc`` role and not a hyperlink.
+* If you are cross-referencing to a section within our website,
+  use the ``ref`` role with the label from the `autosectionlabel extension <http://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html>`__.

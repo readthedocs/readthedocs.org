@@ -1,6 +1,4 @@
-"""
-Read the Docs tasks
-"""
+"""Read the Docs tasks."""
 
 from __future__ import division, print_function, unicode_literals
 
@@ -14,15 +12,28 @@ import common.tasks
 ROOT_PATH = os.path.dirname(__file__)
 
 
-# TODO make these tasks namespaced
-# release = Collection(common.tasks.prepare, common.tasks.release)
-
-namespace = Collection(
-    common.tasks.prepare,
-    common.tasks.release,
-    #release=release,
+namespace = Collection()
+namespace.add_collection(
+    Collection(
+        common.tasks.prepare,
+        common.tasks.release,
+    ),
+    name='deploy',
 )
 
+namespace.add_collection(
+    Collection(
+        common.tasks.setup_labels,
+    ),
+    name='github',
+)
+
+namespace.add_collection(
+    Collection(
+        common.tasks.upgrade_all_packages,
+    ),
+    name='packages',
+)
 
 # Localization tasks
 @task

@@ -21,6 +21,7 @@ from readthedocs.rtd_tests.utils import (
 from readthedocs.rtd_tests.utils import make_test_git
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
+from readthedocs.doc_builder.exceptions import VersionLockedError
 
 
 class TestCeleryBuilding(RTDTestCase):
@@ -46,10 +47,10 @@ class TestCeleryBuilding(RTDTestCase):
         shutil.rmtree(self.repo)
         super(TestCeleryBuilding, self).tearDown()
 
-    def test_remove_dir(self):
+    def test_remove_dirs(self):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
-        result = tasks.remove_dir.delay(directory)
+        result = tasks.remove_dirs.delay((directory,))
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -58,14 +59,14 @@ class TestCeleryBuilding(RTDTestCase):
         directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
         directory = version.project.rtd_build_path(version=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -117,6 +118,25 @@ class TestCeleryBuilding(RTDTestCase):
                 intersphinx=False)
         self.assertTrue(result.successful())
 
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.send_notifications')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
+    def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
+        mock_setup_vcs.side_effect = VersionLockedError()
+
+        build = get(Build, project=self.project,
+                    version=self.project.versions.first())
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs_task.delay(
+                self.project.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False)
+
+        mock_send_notifications.assert_not_called()
+        self.assertTrue(result.successful())
+
     def test_sync_repository(self):
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
@@ -126,9 +146,13 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
-        checkout_path.return_value = self.project.repo
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
         sync_repository = tasks.UpdateDocsTaskStep()
@@ -148,9 +172,13 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_check_duplicate_reserved_version_stable(self, checkout_path, api_v2):
-        checkout_path.return_value = self.project.repo
         create_git_branch(self.repo, 'stable')
         create_git_tag(self.repo, 'stable')
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
         sync_repository = tasks.UpdateDocsTaskStep()
