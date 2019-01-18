@@ -80,6 +80,7 @@ from .signals import (
     before_build,
     before_vcs,
     files_changed,
+    domain_verify,
 )
 
 log = logging.getLogger(__name__)
@@ -880,19 +881,19 @@ def sync_files(project_pk, version_pk, hostname=None, html=False,
     # Clean up unused artifacts
     version = Version.objects.get(pk=version_pk)
     if not pdf:
-        remove_dir(
+        remove_dirs([
             version.project.get_production_media_path(
                 type_='pdf',
                 version_slug=version.slug,
             ),
-        )
+        ])
     if not epub:
-        remove_dir(
+        remove_dirs([
             version.project.get_production_media_path(
                 type_='epub',
                 version_slug=version.slug,
             ),
-        )
+        ])
 
     # Sync files to the web servers
     move_files(
@@ -1327,27 +1328,18 @@ def update_static_metadata(project_pk, path=None):
 
 # Random Tasks
 @app.task()
-def remove_dir(path):
+def remove_dirs(paths):
     """
-    Remove a directory on the build/celery server.
+    Remove artifacts from servers.
 
-    This is mainly a wrapper around shutil.rmtree so that app servers can kill
-    things on the build server.
-    """
-    log.info('Removing %s', path)
-    shutil.rmtree(path, ignore_errors=True)
+    This is mainly a wrapper around shutil.rmtree so that we can remove things across
+    every instance of a type of server (eg. all builds or all webs).
 
-
-@app.task()
-def clear_artifacts(paths):
-    """
-    Remove artifacts from the web servers.
-
-    :param paths: list containing PATHs where production media is on disk
-        (usually ``Version.get_artifact_paths``)
+    :param paths: list containing PATHs where file is on disk
     """
     for path in paths:
-        remove_dir(path)
+        log.info('Removing %s', path)
+        shutil.rmtree(path, ignore_errors=True)
 
 
 @app.task(queue='web')
@@ -1412,3 +1404,17 @@ def rename_project_dir(old_path, new_path):
     """Renames the project's directory."""
     log.info('Moving %s to %s', old_path, new_path)
     shutil.move(old_path, new_path)
+
+
+@app.task(queue='web')
+def retry_domain_verification(domain_pk):
+    """
+    Trigger domain verification on a domain
+
+    :param domain_pk: a `Domain` pk to verify
+    """
+    domain = Domain.objects.get(pk=domain_pk)
+    domain_verify.send(
+        sender=domain.__class__,
+        domain=domain,
+    )
