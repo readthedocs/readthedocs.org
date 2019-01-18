@@ -26,17 +26,12 @@ def django_setting_role(typ, rawtext, text, lineno, inliner, options=None,
 def feature_flags_role(typ, rawtext, text, lineno, inliner, options=None,
                         content=None):
     """Up to date feature flags from the application."""
-    features_dict = {}
-    for feature in Feature.FEATURES:
-        features_dict[feature[0].upper()] = feature[1].capitalize()
-    dli_list = []
-    for feature, desc in features_dict.items():
-        term = nodes.term(text=nodes.Text(feature))
-        definition = nodes.definition('', nodes.paragraph(text=desc))
-        dli = nodes.definition_list_item('', term, definition)
-        dli_list.append(dli)
-    dl = nodes.definition_list('', *dli_list)
-    return [dl], []
+    all_features = Feature.FEATURES
+    requested_feature = utils.unescape(text)
+    for feature in all_features:
+        if text.lower() == feature[0].lower():
+            desc = nodes.Text(feature[1], feature[1])
+    return [desc], []
 
 
 def setup(_):
