@@ -29,7 +29,7 @@ def feature_flags_role(typ, rawtext, text, lineno, inliner, options=None,
     all_features = Feature.FEATURES
     requested_feature = utils.unescape(text)
     for feature in all_features:
-        if text.lower() == feature[0].lower():
+        if requested_feature.lower() == feature[0].lower():
             desc = nodes.Text(feature[1], feature[1])
     return [desc], []
 
