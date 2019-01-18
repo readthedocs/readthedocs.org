@@ -107,7 +107,6 @@ class LoadConfigTests(TestCase):
         img_settings = DOCKER_IMAGE_SETTINGS.get(self.project.container_image, None)
         if img_settings:
             expected_env_config.update(img_settings)
-            expected_env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
         load_config.assert_called_once_with(
                 path=mock.ANY,
