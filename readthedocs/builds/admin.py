@@ -7,6 +7,7 @@ from readthedocs.projects.tasks import update_search
 
 from readthedocs.builds.models import Build, Version, BuildCommandResult
 from readthedocs.search.indexes import PageIndex, SectionIndex
+from readthedocs.restapi.utils import get_delete_query
 from guardian.admin import GuardedModelAdmin
 
 
@@ -61,7 +62,7 @@ class VersionAdmin(GuardedModelAdmin):
         """Wipe index of selected versions"""
         qs_iterator = queryset.iterator()
         for version in qs_iterator:
-            query = {'query': {'bool': {'must': [{'term': {'version': version.slug}}]}}}
+            query = get_delete_query(version_slug=version.slug)
             page_obj = PageIndex()
             section_obj = SectionIndex()
             try:
