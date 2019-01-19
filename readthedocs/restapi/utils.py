@@ -174,6 +174,28 @@ def delete_versions(project, version_data):
     return set()
 
 
+def get_delete_query(project_slug=None, version_slug=None, commit=None):
+    """Returns the delete query for given parameters."""
+    query = {
+        'query': {
+            'bool': {
+                'must': [],
+            },
+        },
+    }
+
+    if project_slug:
+        query['query']['bool']['must'].append({'term': {'project': project_slug}})
+
+    if version_slug:
+        query['query']['bool']['must'].append({'term': {'version': version_slug}})
+
+    if commit:
+        query['query']['bool'].update({'must_not': {'term': {'commit': commit}}})
+
+    return query
+
+
 def index_search_request(
         version, page_list, commit, project_scale, page_scale, section=True,
         delete=True):
@@ -261,29 +283,7 @@ def index_search_request(
     if delete:
         log.info('Deleting files not in commit: %s', commit)
         # TODO: AK Make sure this works
-        delete_query = {
-            'query': {
-                'bool': {
-                    'must': [
-                        {
-                            'term': {
-                                'project': project.slug,
-                            },
-                        },
-                        {
-                            'term': {
-                                'version': version.slug,
-                            },
-                        },
-                    ],
-                    'must_not': {
-                        'term': {
-                            'commit': commit,
-                        },
-                    },
-                },
-            },
-        }
+        delete_query = get_delete_query(project.slug, version.slug, commit)
         page_obj.delete_document(body=delete_query)
 
 

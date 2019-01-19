@@ -20,6 +20,7 @@ from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 from readthedocs.projects.tasks import update_search
 from readthedocs.search.indexes import PageIndex, SectionIndex
+from readthedocs.restapi.utils import get_delete_query
 
 from .forms import FeatureForm
 from .models import (
@@ -229,7 +230,7 @@ class ProjectAdmin(GuardedModelAdmin):
         """Wipe indexes of selected projects"""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            query = {'query': {'bool': {'must': [{'term': {'project': project.slug}}]}}}
+            query = get_delete_query(project_slug=project.slug)
             page_obj = PageIndex()
             section_obj = SectionIndex()
             try:
