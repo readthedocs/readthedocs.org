@@ -13,6 +13,9 @@ import json
 from builtins import next, range
 from pyquery import PyQuery
 
+from readthedocs.search.indexes import PageIndex, SectionIndex
+from readthedocs.projects.tasks import update_search
+
 
 log = logging.getLogger(__name__)
 
@@ -306,3 +309,45 @@ def parse_sections(documentation_type, content):
             return ''
 
     return sections
+
+
+def reindex_version(version):
+    """
+    Reindexes the given version.
+
+    :param version: Version to be reindexed
+    :type version: builds.models.Version
+    :returns: True with no msg if success else returns False with error
+    :rtype: tuple
+    """
+    try:
+        commit = version.project.vcs_repo(version.slug).commit
+    except:  # noqa
+        # An exception can be thrown here in production, but it's not
+        # documented what the exception here is.
+        commit = None
+
+    try:
+        update_search(version.pk, commit, delete_non_commit_files=False)
+        return True, None
+    except Exception as e:
+        return False, e
+
+
+def unindex_version(delete_query):
+    """
+    Delete indexes for given query.
+
+    :param delete_query: Query for wiping index
+    :type delete_query: dict
+    :returns: True with no msg if success else returns False with error
+    :rtype: tuple
+    """
+    page_obj = PageIndex()
+    section_obj = SectionIndex()
+    try:
+        page_obj.delete_document(body=delete_query)
+        section_obj.delete_document(body=delete_query)
+        return True, None
+    except Exception as e:
+        return False, e

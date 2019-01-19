@@ -18,9 +18,8 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
-from readthedocs.projects.tasks import update_search
-from readthedocs.search.indexes import PageIndex, SectionIndex
 from readthedocs.restapi.utils import get_delete_query
+from readthedocs.search.utils import reindex_version, unindex_version
 
 from .forms import FeatureForm
 from .models import (
@@ -202,27 +201,28 @@ class ProjectAdmin(GuardedModelAdmin):
         for project in queryset:
             versions_qs = Version.objects.filter(project__slug=project.slug)
             if not versions_qs.exists():
-                error_msg = 'No project with slug {}'.format(project.slug)
-                self.message_user(request, error_msg, level=messages.ERROR)
+                self.message_user(
+                    request,
+                    'No project with slug {}'.format(project.slug),
+                    level=messages.ERROR
+                )
 
             active_versions = versions_qs.filter(active=True)
 
             for version in active_versions:
-                try:
-                    commit = version.project.vcs_repo(version.slug).commit
-                except:  # noqa
-                    # An exception can be thrown here in production, but it's not
-                    # documented what the exception here is.
-                    commit = None
-
-                try:
-                    update_search(version.pk, commit,
-                                  delete_non_commit_files=False)
-                    success_msg = 'Reindexing triggered for {}'.format(version)
-                    self.message_user(request, success_msg)
-                except Exception as e:
-                    error_msg = 'Reindexing failed for {}. {}'.format(version, e)
-                    self.message_user(request, error_msg, level=messages.ERROR)
+                success, err_msg = reindex_version(version)
+                if success:
+                    self.message_user(
+                        request,
+                        'Reindexing triggered for {}'.format(version.slug),
+                        level=messages.SUCCESS
+                    )
+                else:
+                    self.message_user(
+                        request,
+                        'Reindexing failed for {}. {}'.format(version.slug, err_msg),
+                        level=messages.ERROR
+                    )
 
     reindex_active_versions.short_description = 'Reindex active versions'
 
@@ -231,16 +231,19 @@ class ProjectAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
             query = get_delete_query(project_slug=project.slug)
-            page_obj = PageIndex()
-            section_obj = SectionIndex()
-            try:
-                page_obj.delete_document(body=query)
-                section_obj.delete_document(query)
-                success_msg = 'Wiped index for project {}'.format(project.slug)
-                self.message_user(request, success_msg, level=messages.SUCCESS)
-            except Exception as e:
-                fail_msg = 'Unable to wipe index of project {}. {}'.format(project.name, e)
-                self.message_user(request, fail_msg, level=messages.ERROR)
+            success, err_msg = unindex_version(query)
+            if success:
+                self.message_user(
+                    request,
+                    'Wiped index for project {}'.format(project.slug),
+                    level=messages.SUCCESS
+                )
+            else:
+                self.message_user(
+                    request,
+                    'Unable to wipe index for project {}. {}'.format(project.slug, err_msg),
+                    level=messages.ERROR
+                )
 
     wipe_index.short_description = 'Wipe indexes of selected projects'
 

@@ -3,11 +3,10 @@
 from __future__ import absolute_import
 
 from django.contrib import admin, messages
-from readthedocs.projects.tasks import update_search
 
 from readthedocs.builds.models import Build, Version, BuildCommandResult
-from readthedocs.search.indexes import PageIndex, SectionIndex
 from readthedocs.restapi.utils import get_delete_query
+from readthedocs.search.utils import reindex_version, unindex_version
 from guardian.admin import GuardedModelAdmin
 
 
@@ -40,21 +39,19 @@ class VersionAdmin(GuardedModelAdmin):
         """Reindex all selected versions"""
         qs_iterator = queryset.iterator()
         for version in qs_iterator:
-            try:
-                commit = version.project.vcs_repo(version.slug).commit
-            except:  # noqa
-                # An exception can be thrown here in production, but it's not
-                # documented what the exception here is.
-                commit = None
-
-            try:
-                update_search(version.pk, commit,
-                              delete_non_commit_files=False)
-                success_msg = 'Reindexing triggered for {}'.format(version)
-                self.message_user(request, success_msg)
-            except Exception as e:
-                error_msg = 'Reindexing failed for {}. {}'.format(version, e)
-                self.message_user(request, error_msg, level=messages.ERROR)
+            success, err_msg = reindex_version(version)
+            if success:
+                self.message_user(
+                    request,
+                    'Reindexing triggered for {}'.format(version.slug),
+                    level=messages.SUCCESS
+                )
+            else:
+                self.message_user(
+                    request,
+                    'Reindexing failed for {}. {}'.format(version.slug, err_msg),
+                    level=messages.ERROR
+                )
 
     reindex.short_description = 'Reindex selected versions'
 
@@ -63,16 +60,19 @@ class VersionAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for version in qs_iterator:
             query = get_delete_query(version_slug=version.slug)
-            page_obj = PageIndex()
-            section_obj = SectionIndex()
-            try:
-                page_obj.delete_document(body=query)
-                section_obj.delete_document(body=query)
-                success_msg = 'Index wiped for {}'.format(version.slug)
-                self.message_user(request, success_msg, level=messages.SUCCESS)
-            except Exception as e:
-                fail_msg = 'Cannot wipe index for {}. {}'.format(version.slug, e)
-                self.message_user(request, fail_msg, level=messages.ERROR)
+            success, err_msg = unindex_version(query)
+            if success:
+                self.message_user(
+                    request,
+                    'Index wiped for {}'.format(version.slug),
+                    level=messages.SUCCESS
+                )
+            else:
+                self.message_user(
+                    request,
+                    'Error in wiping index for {}. {}'.format(version.slug, err_msg),
+                    level=messages.ERROR
+                )
 
     wipe_index.short_description = 'Wipe index of selected versions'
 
