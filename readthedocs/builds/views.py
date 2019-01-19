@@ -109,13 +109,13 @@ class BuildDetail(BuildBase, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(BuildDetail, self).get_context_data(**kwargs)
+        context['project'] = self.project
 
         build = self.get_object()
         if build.error != BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
             # Do not suggest to open an issue if the error is not generic
             return context
 
-        context['project'] = self.project
         scheme = (
             'https://github.com/rtfd/readthedocs.org/issues/new'
             '?title={title}{build_id}'
