@@ -20,4 +20,9 @@ sphinx-prompt==1.0.0
 # newer ones make `tox -e docs` to fail
 commonmark==0.5.5
 
+# recommonmark 0.4.0 is the latest version compatible with our docs, the
+# newer ones make `tox -e docs` to fail
+#   File "/home/travis/build/rtfd/readthedocs.org/.tox/docs/lib/python3.6/site-packages/recommonmark/parser.py", line 9, in <module>
+#     from commonmark import Parser
+# ModuleNotFoundError: No module named 'commonmark'
 recommonmark==0.4.0
