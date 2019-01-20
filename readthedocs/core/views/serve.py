@@ -326,12 +326,12 @@ def sitemap_xml(request, project):
     ``project``. These versions are sorted by using semantic versioning
     prepending ``latest`` and ``stable`` (if they are enabled) at the beginning.
 
-    Following this order, the versions are assigned priorities change change
+    Following this order, the versions are assigned priorities and change
     frequency. Starting from 1 and decreasing by 0.1 for priorities and starting
     from daily, weekly to monthly for change frequency.
 
     If the project is private, the view raises ``Http404``. On the other hand,
-    if the project is public but a version is private, this one i not included
+    if the project is public but a version is private, this one is not included
     in the sitemap.
 
     :param request: Django request object
