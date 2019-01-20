@@ -80,3 +80,4 @@ class TestRestApiUtils(TestCase):
                 },
             },
         }
+        self.assertDictEqual(expected_query, returned_query)
