@@ -6,7 +6,7 @@ from django.contrib import admin, messages
 
 from readthedocs.builds.models import Build, Version, BuildCommandResult
 from readthedocs.restapi.utils import get_delete_query
-from readthedocs.search.utils import reindex_version, unindex_version
+from readthedocs.search.utils import reindex_version, unindex_via_query
 from guardian.admin import GuardedModelAdmin
 
 
@@ -60,7 +60,7 @@ class VersionAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for version in qs_iterator:
             query = get_delete_query(version_slug=version.slug)
-            success, err_msg = unindex_version(query)
+            success, err_msg = unindex_via_query(query)
             if success:
                 self.message_user(
                     request,

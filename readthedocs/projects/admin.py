@@ -19,7 +19,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 from readthedocs.restapi.utils import get_delete_query
-from readthedocs.search.utils import reindex_version, unindex_version
+from readthedocs.search.utils import reindex_version, unindex_via_query
 
 from .forms import FeatureForm
 from .models import (
@@ -231,7 +231,7 @@ class ProjectAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
             query = get_delete_query(project_slug=project.slug)
-            success, err_msg = unindex_version(query)
+            success, err_msg = unindex_via_query(query)
             if success:
                 self.message_user(
                     request,

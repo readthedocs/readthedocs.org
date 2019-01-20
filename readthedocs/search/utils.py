@@ -334,7 +334,7 @@ def reindex_version(version):
         return False, e
 
 
-def unindex_version(delete_query):
+def unindex_via_query(delete_query):
     """
     Delete indexes for given query.
 
