@@ -2,28 +2,9 @@
 
 """Project forms."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
-try:
-    # TODO: remove this when we deprecate Python2
-    # re.fullmatch is >= Py3.4 only
-    from re import fullmatch
-except ImportError:
-    # https://stackoverflow.com/questions/30212413/backport-python-3-4s-regular-expression-fullmatch-to-python-2
-    import re
-
-    def fullmatch(regex, string, flags=0):
-        """Emulate python-3.4 re.fullmatch()."""  # noqa
-        return re.match("(?:" + regex + r")\Z", string, flags=flags)
-
 from random import choice
+from re import fullmatch
 
-from builtins import object
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User

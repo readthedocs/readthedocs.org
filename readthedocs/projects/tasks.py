@@ -72,8 +72,8 @@ from .signals import (
     after_vcs,
     before_build,
     before_vcs,
-    files_changed,
     domain_verify,
+    files_changed,
 )
 
 

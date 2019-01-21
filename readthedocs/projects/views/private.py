@@ -60,6 +60,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+
 from ..tasks import retry_domain_verification
 
 

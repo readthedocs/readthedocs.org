@@ -1,12 +1,5 @@
 """Project URLs for authenticated users."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
@@ -19,8 +12,8 @@ from readthedocs.projects.views.private import (
     DomainUpdate,
     EnvironmentVariableCreate,
     EnvironmentVariableDelete,
-    EnvironmentVariableList,
     EnvironmentVariableDetail,
+    EnvironmentVariableList,
     ImportView,
     IntegrationCreate,
     IntegrationDelete,
@@ -33,6 +26,7 @@ from readthedocs.projects.views.private import (
     ProjectDashboard,
     ProjectUpdate,
 )
+
 
 urlpatterns = [
     url(r'^$',
