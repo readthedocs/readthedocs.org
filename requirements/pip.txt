@@ -29,6 +29,8 @@ requests-toolbelt==0.8.0
 slumber==0.7.1
 lxml==4.2.5
 defusedxml==0.5.0
+pyyaml==3.13
+Pygments==2.3.1
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
