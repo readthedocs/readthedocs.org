@@ -6,9 +6,7 @@ Core views, including the main homepage,
 documentation and header rendering, and server errors.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-import os
+from __future__ import absolute_import, division
 import logging
 
 from django.conf import settings
@@ -17,10 +15,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils import broadcast
 from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dirs
 from readthedocs.redirects.utils import get_redirect_response
+from readthedocs.core.utils.general import wipe_version_via_slug
 
 log = logging.getLogger(__name__)
 
@@ -83,13 +80,7 @@ def wipe_version(request, project_slug, version_slug):
         raise Http404('You must own this project to wipe it.')
 
     if request.method == 'POST':
-        del_dirs = [
-            os.path.join(version.project.doc_path, 'checkouts', version.slug),
-            os.path.join(version.project.doc_path, 'envs', version.slug),
-            os.path.join(version.project.doc_path, 'conda', version.slug),
-        ]
-        for del_dir in del_dirs:
-            broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
+        wipe_version_via_slug(version)
         return redirect('project_version_list', project_slug)
     return render(
         request,

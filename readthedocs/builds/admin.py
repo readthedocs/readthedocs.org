@@ -1,8 +1,9 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
 from __future__ import absolute_import
-from django.contrib import admin
+from django.contrib import admin, messages
 from readthedocs.builds.models import Build, Version, BuildCommandResult
+from readthedocs.core.utils.general import wipe_version_via_slug
 from guardian.admin import GuardedModelAdmin
 
 
@@ -29,6 +30,19 @@ class VersionAdmin(GuardedModelAdmin):
     list_display = ('slug', 'type', 'project', 'privacy_level', 'active', 'built')
     list_filter = ('type', 'privacy_level', 'active', 'built')
     raw_id_fields = ('project',)
+    actions = ['wipe_selected_versions']
+
+    def wipe_selected_versions(self, request, queryset):
+        """Wipes the selected versions."""
+        for version in queryset:
+            wipe_version_via_slug(version.slug)
+            self.message_user(
+                request,
+                'Wiped {}.'.format(version.slug),
+                level=messages.SUCCESS
+            )
+
+    wipe_selected_versions.short_description = 'Wipe selected versions'
 
 
 admin.site.register(Build, BuildAdmin)

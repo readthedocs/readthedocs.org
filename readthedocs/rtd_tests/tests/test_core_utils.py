@@ -2,14 +2,19 @@
 """Test core util functions"""
 
 from __future__ import absolute_import
+import os
 import mock
 
+from mock import call
 from django_dynamic_fixture import get
 from django.test import TestCase
+from django.http import Http404
 
 from readthedocs.projects.models import Project
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build, slugify
+from readthedocs.core.utils.general import wipe_version_via_slug
+from readthedocs.projects.tasks import remove_dirs
 
 
 class CoreUtilTests(TestCase):
@@ -145,3 +150,29 @@ class CoreUtilTests(TestCase):
                          'a-title-with-separated-parts')
         self.assertEqual(slugify('A title_-_with separated parts', dns_safe=False),
                          'a-title_-_with-separated-parts')
+
+    @mock.patch('readthedocs.core.utils.general.broadcast')
+    def test_wipe_version_via_slug(self, mock_broadcast):
+        wipe_version_via_slug(self.version.slug)
+        expected_del_dirs = [
+            os.path.join(self.version.project.doc_path, 'checkouts', self.version.slug),
+            os.path.join(self.version.project.doc_path, 'envs', self.version.slug),
+            os.path.join(self.version.project.doc_path, 'conda', self.version.slug),
+        ]
+
+        mock_broadcast.assert_has_calls(
+            [
+                call(type='build', task=remove_dirs, args=[(expected_del_dirs[0],)]),
+                call(type='build', task=remove_dirs, args=[(expected_del_dirs[1],)]),
+                call(type='build', task=remove_dirs, args=[(expected_del_dirs[2],)]),
+            ],
+            any_order=False
+        )
+
+    @mock.patch('readthedocs.core.utils.general.broadcast')
+    def test_wipe_version_via_slug_wrong_param(self, mock_broadcast):
+        self.assertFalse(Version.objects.filter(slug='wrong-slug').exists())
+
+        with self.assertRaises(Http404):
+            wipe_version_via_slug('wrong-slug')
+        mock_broadcast.assert_not_called()
