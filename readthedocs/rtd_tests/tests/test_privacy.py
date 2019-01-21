@@ -12,6 +12,7 @@ from readthedocs.projects import tasks
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Project
 
+
 log = logging.getLogger(__name__)
 
 

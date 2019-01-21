@@ -34,6 +34,7 @@ from readthedocs.restapi.views.integrations import (
 )
 from readthedocs.restapi.views.task_views import get_status_data
 
+
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
 

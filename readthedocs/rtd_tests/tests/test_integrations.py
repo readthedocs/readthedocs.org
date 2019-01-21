@@ -11,6 +11,7 @@ from readthedocs.integrations.models import (
 )
 from readthedocs.projects.models import Project
 
+
 class HttpExchangeTests(TestCase):
 
     """Test HttpExchange model by using existing views

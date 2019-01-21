@@ -25,7 +25,8 @@ from readthedocs.projects.forms import (
     TranslationForm,
     UpdateProjectForm,
 )
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import EnvironmentVariable, Project
+
 
 class TestProjectForms(TestCase):
 

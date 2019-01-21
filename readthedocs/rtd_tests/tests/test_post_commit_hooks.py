@@ -1,13 +1,14 @@
 import json
 import logging
+from urllib.parse import urlencode, urlparse
 
 import mock
 from django.test import TestCase
 from django_dynamic_fixture import get
-from urllib.parse import urlparse, urlencode
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project
+
 
 log = logging.getLogger(__name__)
 

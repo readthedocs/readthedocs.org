@@ -15,6 +15,7 @@ from readthedocs.search.indexes import (
 
 from .dummy_data import ALL_PROJECTS, DUMMY_PAGE_JSON
 
+
 @pytest.fixture(autouse=True)
 def mock_elastic_index(mocker):
     index_name = ''.join([random.choice(string.ascii_letters) for _ in range(5)])

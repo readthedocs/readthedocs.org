@@ -9,6 +9,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.core.templatetags import core_tags
 from readthedocs.projects.models import Project
 
+
 @override_settings(USE_SUBDOMAIN=False, PRODUCTION_DOMAIN='readthedocs.org')
 class CoreTagsTests(TestCase):
     fixtures = ["eric", "test_data"]

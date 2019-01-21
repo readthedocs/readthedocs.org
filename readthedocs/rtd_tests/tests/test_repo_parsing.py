@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from readthedocs.projects.models import Project
 
+
 class TestRepoParsing(TestCase):
     fixtures = ['eric', 'test_data']
 

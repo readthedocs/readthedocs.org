@@ -12,6 +12,7 @@ from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.models import Domain, Project
 
+
 class MiddlewareTests(TestCase):
 
     def setUp(self):

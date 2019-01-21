@@ -21,6 +21,7 @@ from readthedocs.rtd_tests.utils import (
     make_test_hg,
 )
 
+
 class TestGitBackend(RTDTestCase):
     def setUp(self):
         git_repo = make_test_git()

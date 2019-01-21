@@ -11,6 +11,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
+
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False, APPEND_SLASH=False)
 class RedirectTests(TestCase):
     fixtures = ["eric", "test_data"]

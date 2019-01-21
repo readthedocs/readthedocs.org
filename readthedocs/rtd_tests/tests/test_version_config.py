@@ -4,6 +4,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 
+
 class VersionConfigTests(TestCase):
 
     def setUp(self):

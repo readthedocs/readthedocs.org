@@ -14,6 +14,7 @@ from readthedocs.oauth.services import (
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
+
 class GitHubOAuthTests(TestCase):
 
     fixtures = ['eric', 'test_data']

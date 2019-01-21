@@ -20,6 +20,7 @@ from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 
+
 class SphinxBuilderTest(TestCase):
 
     fixtures = ['test_data']

@@ -10,6 +10,7 @@ from readthedocs.builds.constants import BRANCH, STABLE, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
+
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 

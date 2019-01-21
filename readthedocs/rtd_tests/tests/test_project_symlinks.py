@@ -19,6 +19,7 @@ from readthedocs.projects.tasks import (
     symlink_project,
 )
 
+
 def get_filesystem(path, top_level_path=None):
     """Recurse into path, return dictionary mapping of path and files
 

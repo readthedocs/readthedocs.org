@@ -4,6 +4,7 @@ from django.test.utils import override_settings
 
 from readthedocs.projects.models import Project
 
+
 @override_settings(
     USE_SUBDOMAIN=True, PUBLIC_DOMAIN='public.readthedocs.org', SERVE_PUBLIC_DOCS=True
 )

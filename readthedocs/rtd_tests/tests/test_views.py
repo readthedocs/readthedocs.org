@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
+from urllib.parse import urlsplit
+
 import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
-from urllib.parse import urlsplit
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import ImportedFile, Project
+
 
 class Testmaker(TestCase):
 

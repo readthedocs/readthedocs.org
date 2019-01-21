@@ -12,6 +12,7 @@ from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from mock import patch
 
+
 log = logging.getLogger(__name__)
 
 

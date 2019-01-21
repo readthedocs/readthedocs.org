@@ -13,6 +13,7 @@ from readthedocs.restapi.views.footer_views import (
 )
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
+
 class Testmaker(APITestCase):
     fixtures = ['test_data']
     url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'

@@ -5,6 +5,7 @@ from mock import Mock
 
 from readthedocs.restapi.permissions import APIRestrictedPermission
 
+
 class APIRestrictedPermissionTests(TestCase):
     def get_request(self, method, is_admin):
         request = Mock()

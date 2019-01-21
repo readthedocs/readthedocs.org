@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
-
 import os
 import re
 import textwrap
@@ -37,6 +35,7 @@ from readthedocs.config.validation import (
 )
 
 from .utils import apply_fs
+
 
 yaml_config_dir = {
     'readthedocs.yml': textwrap.dedent(

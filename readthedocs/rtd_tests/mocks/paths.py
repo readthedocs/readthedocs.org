@@ -4,6 +4,7 @@ import re
 
 import mock
 
+
 def fake_paths(check):
     """
     Usage:

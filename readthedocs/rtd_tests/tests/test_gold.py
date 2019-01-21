@@ -6,6 +6,7 @@ from readthedocs.gold.models import LEVEL_CHOICES, GoldUser
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_user
 
+
 class GoldViewTests(TestCase):
 
     def setUp(self):

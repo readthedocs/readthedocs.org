@@ -8,6 +8,7 @@ from django.test import TestCase
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
 
+
 class ProjectAdminActionsTest(TestCase):
 
     @classmethod

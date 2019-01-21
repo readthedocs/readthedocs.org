@@ -5,6 +5,7 @@ from readthedocs.core.utils.extend import (
     get_override_class,
 )
 
+
 # Top level to ensure module name is correct
 class FooBase:
     def bar(self):

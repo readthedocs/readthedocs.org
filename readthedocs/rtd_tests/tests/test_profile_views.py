@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
 
+
 class ProfileViewsTest(TestCase):
 
     def setUp(self):

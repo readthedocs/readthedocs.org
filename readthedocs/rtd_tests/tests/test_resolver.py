@@ -13,6 +13,7 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
+
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):
 

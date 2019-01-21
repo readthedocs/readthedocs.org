@@ -1,5 +1,6 @@
 from .utils import apply_fs
 
+
 def test_apply_fs_with_empty_contents(tmpdir):
     # Doesn't do anything if second parameter is empty.
     apply_fs(tmpdir, {})

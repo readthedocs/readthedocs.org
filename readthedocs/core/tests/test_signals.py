@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Project
 
+
 @pytest.mark.django_db
 class TestProjectOrganizationSignal:
 

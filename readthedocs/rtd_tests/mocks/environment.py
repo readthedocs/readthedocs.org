@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 import mock
 
+
 class EnvironmentMockGroup:
 
     """Mock out necessary environment pieces"""

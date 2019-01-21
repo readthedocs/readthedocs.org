@@ -8,6 +8,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Project
 
+
 class TestVersionForm(TestCase):
 
     def setUp(self):

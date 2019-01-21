@@ -4,6 +4,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.restapi.views.footer_views import get_version_compare_data
 
+
 class VersionCompareTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 

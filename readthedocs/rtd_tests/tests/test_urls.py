@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import NoReverseMatch, reverse
 
+
 class WipeUrlTests(TestCase):
 
     def test_wipe_no_params(self):

@@ -22,6 +22,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
+
 class ProjectMixin:
 
     fixtures = ['eric', 'test_data']

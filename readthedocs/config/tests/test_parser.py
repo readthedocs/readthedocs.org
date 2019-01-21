@@ -4,6 +4,7 @@ from pytest import raises
 
 from readthedocs.config.parser import ParseError, parse
 
+
 def test_parse_empty_config_file():
     buf = StringIO('')
     with raises(ParseError):

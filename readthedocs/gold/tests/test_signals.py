@@ -9,6 +9,7 @@ from readthedocs.projects.models import Project
 from ..models import GoldUser
 from ..signals import delete_customer
 
+
 class GoldSignalTests(TestCase):
 
     def setUp(self):

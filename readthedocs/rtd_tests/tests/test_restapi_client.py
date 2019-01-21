@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from readthedocs.restapi.client import DrfJsonSerializer
 
+
 class TestDrfJsonSerializer(TestCase):
     data = {
        'proper': 'json'

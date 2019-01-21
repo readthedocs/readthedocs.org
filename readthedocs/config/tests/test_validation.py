@@ -22,6 +22,7 @@ from readthedocs.config.validation import (
     validate_string,
 )
 
+
 class TestValidateBool:
     def test_it_accepts_true(self):
         assert validate_bool(True) is True

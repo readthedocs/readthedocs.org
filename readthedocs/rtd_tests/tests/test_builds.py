@@ -14,6 +14,7 @@ from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 from ..mocks.environment import EnvironmentMockGroup
 
+
 class BuildEnvironmentTests(TestCase):
 
     def setUp(self):

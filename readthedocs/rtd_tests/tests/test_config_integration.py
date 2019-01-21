@@ -19,6 +19,7 @@ from readthedocs.projects import tasks
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
 
+
 def create_load(config=None):
     """
     Mock out the function of the build load function.

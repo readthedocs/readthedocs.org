@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from .utils import anonymize_ip_address, anonymize_user_agent
 
+
 class UtilsTests(TestCase):
     def test_anonymize_ip(self):
         self.assertEqual(anonymize_ip_address('127.0.0.1'), '127.0.0.0')

@@ -11,6 +11,7 @@ from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import EmailHook, Project, WebHook
 from readthedocs.projects.tasks import send_notifications
 
+
 class BuildNotificationsTests(TestCase):
     def setUp(self):
         self.project = fixture.get(Project)

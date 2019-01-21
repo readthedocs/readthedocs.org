@@ -15,6 +15,7 @@ from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
+
 @override_settings(USE_SUBDOMAIN=True)
 class MiddlewareTests(TestCase):
 

@@ -4,6 +4,7 @@ from readthedocs.config.find import find_one
 
 from .utils import apply_fs
 
+
 def test_find_no_files(tmpdir):
     with tmpdir.as_cwd():
         path = find_one(os.getcwd(), r'readthedocs.yml')

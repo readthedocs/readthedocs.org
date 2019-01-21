@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from readthedocs.search.parse_json import process_file
 
+
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 class TestHacks(TestCase):

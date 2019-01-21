@@ -11,6 +11,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
+
 @pytest.mark.django_db
 @pytest.mark.search
 class TestElasticSearch:

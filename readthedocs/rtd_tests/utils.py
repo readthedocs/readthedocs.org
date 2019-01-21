@@ -15,6 +15,7 @@ from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
 
+
 log = logging.getLogger(__name__)
 
 

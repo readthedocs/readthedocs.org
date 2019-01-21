@@ -9,6 +9,7 @@ from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.vcs_support.backends.svn import Backend as SvnBackend
 
+
 class TestSvnBackend(RTDTestCase):
 
     def test_get_url(self):

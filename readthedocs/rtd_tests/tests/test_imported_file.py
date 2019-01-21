@@ -5,6 +5,7 @@ from django.test import TestCase
 from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.projects.tasks import _manage_imported_files
 
+
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 

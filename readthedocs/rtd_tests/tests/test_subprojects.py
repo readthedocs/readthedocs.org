@@ -8,6 +8,7 @@ from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.models import Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
+
 class SubprojectFormTests(TestCase):
 
     def test_empty_child(self):

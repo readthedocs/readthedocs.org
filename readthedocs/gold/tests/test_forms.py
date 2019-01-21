@@ -8,6 +8,7 @@ from readthedocs.projects.models import Project
 from ..forms import GoldSubscriptionForm
 from ..models import GoldUser
 
+
 class GoldSubscriptionFormTests(TestCase):
 
     def setUp(self):

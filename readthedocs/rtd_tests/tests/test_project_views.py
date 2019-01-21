@@ -23,6 +23,7 @@ from readthedocs.rtd_tests.base import (
     WizardTestCase,
 )
 
+
 @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
 class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 

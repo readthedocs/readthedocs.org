@@ -9,6 +9,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.projects.models import Project
 
+
 class CoreUtilTests(TestCase):
 
     def setUp(self):
