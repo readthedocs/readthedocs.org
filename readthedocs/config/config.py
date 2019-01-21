@@ -32,6 +32,7 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
+    validate_directory,
     validate_file,
     validate_list,
     validate_string,
