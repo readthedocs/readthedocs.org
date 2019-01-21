@@ -434,8 +434,9 @@ class Conda(PythonEnvironment):
         )
 
         pip_cmd = [
-            'python',
-            self.venv_bin(filename='pip'),
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
             'install',
             '-U',
             '--cache-dir',

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """URL configurations for subdomains."""
 from __future__ import absolute_import
 
@@ -10,7 +12,7 @@ from django.conf.urls.static import static
 
 from readthedocs.core.views.serve import (
     redirect_page_with_filename,
-    redirect_project_slug, serve_docs
+    redirect_project_slug, serve_docs, robots_txt,
 )
 from readthedocs.core.views import (
     server_error_500,
@@ -22,6 +24,8 @@ handler500 = server_error_500
 handler404 = server_error_404
 
 subdomain_urls = [
+    url(r'robots.txt$', robots_txt, name='robots_txt'),
+
     url(r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
         redirect_page_with_filename,
