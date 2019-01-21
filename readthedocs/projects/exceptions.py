@@ -40,11 +40,15 @@ class RepositoryError(BuildEnvironmentError):
     )
 
     INVALID_SUBMODULES = _(
-        'One or more submodule URLs are not valid.'
+        'One or more submodule URLs are not valid: {}.'
     )
 
     DUPLICATED_RESERVED_VERSIONS = _(
         'You can not have two versions with the name latest or stable.'
+    )
+
+    FAILED_TO_CHECKOUT = _(
+        'Failed to checkout revision: {}'
     )
 
     def get_default_message(self):
