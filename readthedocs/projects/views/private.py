@@ -725,7 +725,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class DomainList(DomainMixin, ListViewWithForm):
     def get_context_data(self, **kwargs):
-        ctx = super(DomainList, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
 
         # Retry validation on all domains if applicable
         for domain in ctx['domain_list']:

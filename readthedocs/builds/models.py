@@ -114,7 +114,7 @@ class Version(models.Model):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
 
-    class Meta(object):
+    class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
@@ -203,7 +203,7 @@ class Version(models.Model):
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
-        obj = super(Version, self).save(*args, **kwargs)
+        obj = super().save(*args, **kwargs)
         for owner in self.project.users.all():
             assign('view_version', owner, self)
         broadcast(
@@ -219,7 +219,7 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
         project_pk = self.project.pk
-        super(Version, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
         broadcast(
             type='app',
             task=tasks.symlink_project,
@@ -442,7 +442,7 @@ class APIVersion(Version):
                 del kwargs[key]
             except KeyError:
                 pass
-        super(APIVersion, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         return 0
@@ -487,13 +487,13 @@ class Build(models.Model):
 
     CONFIG_KEY = '__config'
 
-    class Meta(object):
+    class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [['version', 'state', 'type']]
 
     def __init__(self, *args, **kwargs):
-        super(Build, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._config_changed = False
 
     @property
@@ -557,7 +557,7 @@ class Build(models.Model):
                     self._config and self._config == previous.config):
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
-        super(Build, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self._config_changed = False
 
     def __str__(self):
@@ -579,7 +579,7 @@ class Build(models.Model):
         return self.state == BUILD_STATE_FINISHED
 
 
-class BuildCommandResultMixin(object):
+class BuildCommandResultMixin:
 
     """
     Mixin for common command result methods/properties.
@@ -619,7 +619,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     start_time = models.DateTimeField(_('Start time'))
     end_time = models.DateTimeField(_('End time'))
 
-    class Meta(object):
+    class Meta:
         ordering = ['start_time']
         get_latest_by = 'start_time'
 

@@ -57,12 +57,12 @@ class ProjectRelationship(models.Model):
     objects = ChildRelatedProjectQuerySet.as_manager()
 
     def __str__(self):
-        return '%s -> %s' % (self.parent, self.child)
+        return '{} -> {}'.format(self.parent, self.child)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.alias:
             self.alias = self.child.slug
-        super(ProjectRelationship, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     # HACK
     def get_absolute_url(self):
@@ -252,7 +252,7 @@ class Project(models.Model):
     objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
 
-    class Meta(object):
+    class Meta:
         ordering = ('slug',)
         permissions = (
             # Translators: Permission around whether a user can view the
@@ -271,7 +271,7 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if not self.slug:
                 raise Exception(_('Model must have slug'))
-        super(Project, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
         try:
@@ -375,7 +375,7 @@ class Project(models.Model):
                 settings.PRODUCTION_MEDIA_ARTIFACTS, type_, self.slug, version_slug)
         if include_file:
             path = os.path.join(
-                path, '%s.%s' % (self.slug, type_.replace('htmlzip', 'zip')))
+                path, '{}.{}'.format(self.slug, type_.replace('htmlzip', 'zip')))
         return path
 
     def get_production_media_url(self, type_, version_slug, full_path=True):
@@ -389,7 +389,7 @@ class Project(models.Model):
         except NoReverseMatch:
             return ''
         if full_path:
-            path = '//%s%s' % (settings.PRODUCTION_DOMAIN, path)
+            path = '//{}{}'.format(settings.PRODUCTION_DOMAIN, path)
         return path
 
     def subdomain(self):
@@ -852,7 +852,7 @@ class APIProject(Project):
                 del kwargs[key]
             except KeyError:
                 pass
-        super(APIProject, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Overwrite the database property with the value from the API
         self.ad_free = ad_free
@@ -899,7 +899,7 @@ class ImportedFile(models.Model):
         return resolve(project=self.project, version_slug=self.version.slug, filename=self.path)
 
     def __str__(self):
-        return '%s: %s' % (self.name, self.project)
+        return '{}: {}'.format(self.name, self.project)
 
 
 class Notification(models.Model):
@@ -907,7 +907,7 @@ class Notification(models.Model):
                                 related_name='%(class)s_notifications')
     objects = RelatedProjectQuerySet.as_manager()
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -958,7 +958,7 @@ class Domain(models.Model):
 
     objects = RelatedProjectQuerySet.as_manager()
 
-    class Meta(object):
+    class Meta:
         ordering = ('-canonical', '-machine', 'domain')
 
     def __str__(self):
@@ -971,7 +971,7 @@ class Domain(models.Model):
             self.domain = parsed.netloc
         else:
             self.domain = parsed.path
-        super(Domain, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         broadcast(type='app', task=tasks.symlink_domain,
                   args=[self.project.pk, self.pk],)
 
@@ -979,7 +979,7 @@ class Domain(models.Model):
         from readthedocs.projects import tasks
         broadcast(type='app', task=tasks.symlink_domain,
                   args=[self.project.pk, self.pk, True],)
-        super(Domain, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
 
 
 @python_2_unicode_compatible
@@ -1052,7 +1052,7 @@ class Feature(models.Model):
     objects = FeatureQuerySet.as_manager()
 
     def __str__(self):
-        return '{0} feature'.format(
+        return '{} feature'.format(
             self.get_feature_display(),
         )
 
@@ -1087,4 +1087,4 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self.value = shlex_quote(self.value)
-        return super(EnvironmentVariable, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

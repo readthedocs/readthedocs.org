@@ -31,7 +31,7 @@ class TestCeleryBuilding(RTDTestCase):
     def setUp(self):
         repo = make_test_git()
         self.repo = repo
-        super(TestCeleryBuilding, self).setUp()
+        super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()
@@ -45,7 +45,7 @@ class TestCeleryBuilding(RTDTestCase):
 
     def tearDown(self):
         shutil.rmtree(self.repo)
-        super(TestCeleryBuilding, self).tearDown()
+        super().tearDown()
 
     def test_remove_dirs(self):
         directory = mkdtemp()
