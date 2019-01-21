@@ -161,7 +161,6 @@ class TestPublicDocs(BaseDocServing):
         read_data='My own robots.txt',
     )
     @patch('readthedocs.core.views.serve.os')
-    @pytest.mark.skipif(six.PY2, reason='In Python2 the mock is __builtins__.open')
     def test_custom_robots_txt(self, os_mock, open_mock):
         os_mock.path.exists.return_value = True
         self.public.versions.update(active=True, built=True)
