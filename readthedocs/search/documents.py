@@ -105,7 +105,9 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         # Need to search for both 'AND' and 'OR' operations
         # The score of AND should be higher as it satisfies both OR and AND
-        for operator in ['AND', 'OR']:
+        for operator in ['OR']:
+            # TODO: readd this, testing removal for performance
+            # for operator in ['AND', 'OR']:
             query_string = SimpleQueryString(query=query, fields=cls.search_fields,
                                              default_operator=operator)
             all_queries.append(query_string)
