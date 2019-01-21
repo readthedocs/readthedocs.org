@@ -160,7 +160,7 @@ class TestProjectForms(TestCase):
     def test_length_of_tags(self):
         data = {
             'documentation_type': 'sphinx',
-            'language': 'en'
+            'language': 'en',
         }
         data['tags'] = '{},{}'.format('a'*50, 'b'*99)
         form = ProjectExtraForm(data)
@@ -212,7 +212,7 @@ class TestProjectAdvancedForm(TestCase):
             slug='public-4',
             active=False,
             privacy_level=PUBLIC,
-            identifier='public/4'
+            identifier='public/4',
         )
         get(
             Version,
@@ -254,7 +254,7 @@ class TestProjectAdvancedForm(TestCase):
             },
             {
                 None, 'master', 'public-1', 'public-2',
-                'public-3', 'public/4', 'protected', 'private'
+                'public-3', 'public/4', 'protected', 'private',
             },
         )
 
@@ -275,7 +275,7 @@ class TestTranslationForms(TestCase):
 
         self.project_s_fr = self.get_project(
             lang='fr',
-            users=[self.user_b, self.user_a]
+            users=[self.user_b, self.user_a],
         )
 
     def get_project(self, lang, users, **kwargs):
@@ -300,7 +300,7 @@ class TestTranslationForms(TestCase):
         ]
         self.assertEqual(
             {proj_slug for proj_slug, _ in form.fields['project'].choices},
-            {project.slug for project in expected_projects}
+            {project.slug for project in expected_projects},
         )
 
         form = TranslationForm(
@@ -315,7 +315,7 @@ class TestTranslationForms(TestCase):
         ]
         self.assertEqual(
             {proj_slug for proj_slug, _ in form.fields['project'].choices},
-            {project.slug for project in expected_projects}
+            {project.slug for project in expected_projects},
         )
 
     def test_excludes_existing_translations(self):
@@ -336,7 +336,7 @@ class TestTranslationForms(TestCase):
         ]
         self.assertEqual(
             {proj_slug for proj_slug, _ in form.fields['project'].choices},
-            {project.slug for project in expected_projects}
+            {project.slug for project in expected_projects},
         )
 
     def test_user_cant_add_other_user_project(self):
@@ -348,11 +348,11 @@ class TestTranslationForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'Select a valid choice',
-            ''.join(form.errors['project'])
+            ''.join(form.errors['project']),
         )
         self.assertNotIn(
             self.project_f_ar,
-            [proj_slug for proj_slug, _ in form.fields['project'].choices]
+            [proj_slug for proj_slug, _ in form.fields['project'].choices],
         )
 
     def test_user_cant_add_project_with_same_lang(self):
@@ -364,7 +364,7 @@ class TestTranslationForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'Both projects can not have the same language (English).',
-            ''.join(form.errors['project'])
+            ''.join(form.errors['project']),
         )
 
     def test_user_cant_add_project_with_same_lang_of_other_translation(self):
@@ -379,7 +379,7 @@ class TestTranslationForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'This project already has a translation for English.',
-            ''.join(form.errors['project'])
+            ''.join(form.errors['project']),
         )
 
     def test_no_nesting_translation(self):
@@ -394,7 +394,7 @@ class TestTranslationForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'Select a valid choice',
-            ''.join(form.errors['project'])
+            ''.join(form.errors['project']),
         )
 
     def test_no_nesting_translation_case_2(self):
@@ -409,7 +409,7 @@ class TestTranslationForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'A project with existing translations can not',
-            ''.join(form.errors['project'])
+            ''.join(form.errors['project']),
         )
 
     def test_not_already_translation(self):
@@ -424,7 +424,7 @@ class TestTranslationForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn(
             'is already a translation',
-            ''.join(form.errors['project'])
+            ''.join(form.errors['project']),
         )
 
     def test_cant_change_language_to_translation_lang(self):
@@ -438,12 +438,12 @@ class TestTranslationForms(TestCase):
                 'documentation_type': 'sphinx',
                 'language': 'en',
             },
-            instance=self.project_a_es
+            instance=self.project_a_es,
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
             'There is already a "en" translation',
-            ''.join(form.errors['language'])
+            ''.join(form.errors['language']),
         )
 
         # Translation tries to change lang
@@ -452,12 +452,12 @@ class TestTranslationForms(TestCase):
                 'documentation_type': 'sphinx',
                 'language': 'es',
             },
-            instance=self.project_b_en
+            instance=self.project_b_en,
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
             'There is already a "es" translation',
-            ''.join(form.errors['language'])
+            ''.join(form.errors['language']),
         )
 
         # Translation tries to change lang
@@ -467,12 +467,12 @@ class TestTranslationForms(TestCase):
                 'documentation_type': 'sphinx',
                 'language': 'br',
             },
-            instance=self.project_b_en
+            instance=self.project_b_en,
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
             'There is already a "br" translation',
-            ''.join(form.errors['language'])
+            ''.join(form.errors['language']),
         )
 
     def test_can_change_language_to_self_lang(self):
@@ -489,7 +489,7 @@ class TestTranslationForms(TestCase):
                 'documentation_type': 'sphinx',
                 'language': 'es',
             },
-            instance=self.project_a_es
+            instance=self.project_a_es,
         )
         self.assertTrue(form.is_valid())
 
@@ -502,7 +502,7 @@ class TestTranslationForms(TestCase):
                 'documentation_type': 'sphinx',
                 'language': 'en',
             },
-            instance=self.project_b_en
+            instance=self.project_b_en,
         )
         self.assertTrue(form.is_valid())
 

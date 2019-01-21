@@ -33,6 +33,7 @@ class Command(BaseCommand):
             'doc_index': doc_index,
             'MEDIA_URL': settings.MEDIA_URL,
         }
-        html = template_loader.get_template('archive/index.html'
-                                            ).render(context)
+        html = template_loader.get_template(
+            'archive/index.html',
+        ).render(context)
         print(html)

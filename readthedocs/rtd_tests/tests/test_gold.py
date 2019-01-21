@@ -34,7 +34,7 @@ class GoldViewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         resp = self.client.post(reverse('gold_projects'), data={'project': self.project2.slug})
         self.assertFormError(
-            resp, form='form', field=None, errors='You already have the max number of supported projects.'
+            resp, form='form', field=None, errors='You already have the max number of supported projects.',
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(self.golduser.projects.count(), 1)

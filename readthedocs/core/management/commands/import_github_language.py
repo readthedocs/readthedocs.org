@@ -37,8 +37,11 @@ class Command(BaseCommand):
             print('Invalid GitHub token, exiting')
             return
 
-        for project in Project.objects.filter(programming_language__in=[
-                'none', '', 'words'],).filter(repo__contains='github',):
+        for project in Project.objects.filter(
+            programming_language__in=[
+            'none', '', 'words',
+            ],
+        ).filter(repo__contains='github',):
             user = repo = ''
             repo_url = project.repo
             for regex in GITHUB_REGEXS:
@@ -65,7 +68,7 @@ class Command(BaseCommand):
                 if not languages:
                     continue
                 sorted_langs = sorted(
-                    list(languages.items()), key=lambda x: x[1], reverse=True
+                    list(languages.items()), key=lambda x: x[1], reverse=True,
                 )
                 print('Sorted langs: %s ' % sorted_langs)
                 top_lang = sorted_langs[0][0]
@@ -74,8 +77,9 @@ class Command(BaseCommand):
             if top_lang in PL_DICT:
                 slug = PL_DICT[top_lang]
                 print('Setting {} to {}'.format(repo_url, slug))
-                Project.objects.filter(pk=project.pk
-                                       ).update(programming_language=slug)
+                Project.objects.filter(
+                    pk=project.pk,
+                ).update(programming_language=slug)
             else:
                 print('Language unknown: %s' % top_lang)
             cache.set(cache_key, top_lang, 60 * 600)

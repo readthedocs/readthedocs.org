@@ -33,7 +33,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
         widget=forms.HiddenInput(
             attrs={
                 'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
-            }
+            },
         ),
     )
 
@@ -120,5 +120,5 @@ class GoldProjectForm(forms.Form):
             return cleaned_data
 
         self.add_error(
-            None, 'You already have the max number of supported projects.'
+            None, 'You already have the max number of supported projects.',
         )

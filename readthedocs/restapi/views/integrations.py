@@ -379,8 +379,9 @@ class APIWebhookView(WebhookMixin, APIView):
         if self.request.user.is_authenticated:
             try:
                 return (
-                    Project.objects.for_admin_user(self.request.user
-                                                   ).get(**kwargs)
+                    Project.objects.for_admin_user(
+                        self.request.user,
+                    ).get(**kwargs)
                 )
             except Project.DoesNotExist:
                 pass

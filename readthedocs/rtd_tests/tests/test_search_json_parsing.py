@@ -15,7 +15,7 @@ class TestHacks(TestCase):
             os.path.join(
                 base_dir,
                 'files/api.fjson',
-            )
+            ),
         )
         self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
         # Only capture h2's after the first section

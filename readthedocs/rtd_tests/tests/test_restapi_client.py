@@ -6,7 +6,7 @@ from readthedocs.restapi.client import DrfJsonSerializer
 
 class TestDrfJsonSerializer(TestCase):
     data = {
-       'proper': 'json'
+       'proper': 'json',
     }
     serialized_data = '{"proper":"json"}'
 

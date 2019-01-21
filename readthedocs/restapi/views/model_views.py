@@ -80,8 +80,10 @@ class UserSelectViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         try:
-            if (self.request.user.is_staff and
-                    self.admin_serializer_class is not None):
+            if (
+                self.request.user.is_staff and
+                self.admin_serializer_class is not None
+            ):
                 return self.admin_serializer_class
         except AttributeError:
             pass
@@ -136,7 +138,7 @@ class ProjectViewSet(UserSelectViewSet):
         })
 
     @decorators.action(
-        detail=True, permission_classes=[permissions.IsAdminUser]
+        detail=True, permission_classes=[permissions.IsAdminUser],
     )
     def token(self, request, **kwargs):
         project = get_object_or_404(
@@ -225,8 +227,10 @@ class ProjectViewSet(UserSelectViewSet):
 
             # Marking the tag that is considered the new stable version as
             # active and building it if it was just added.
-            if (activate_new_stable and
-                    promoted_version.slug in added_versions):
+            if (
+                activate_new_stable and
+                promoted_version.slug in added_versions
+            ):
                 promoted_version.active = True
                 promoted_version.save()
                 trigger_build(project=project, version=promoted_version)

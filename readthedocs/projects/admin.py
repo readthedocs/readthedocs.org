@@ -135,7 +135,7 @@ class ProjectAdmin(GuardedModelAdmin):
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
-            action_name='send_owner_email'
+            action_name='send_owner_email',
         )
         return view(request, queryset=queryset)
 

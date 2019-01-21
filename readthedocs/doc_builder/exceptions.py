@@ -11,7 +11,7 @@ class BuildEnvironmentException(Exception):
 
     def __init__(self, message=None, **kwargs):
         self.status_code = kwargs.pop(
-            'status_code', None
+            'status_code', None,
         ) or self.status_code or 1
         message = message or self.get_default_message()
         super().__init__(message, **kwargs)

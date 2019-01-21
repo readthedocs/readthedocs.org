@@ -67,6 +67,6 @@ def clear_persistent_messages():
     # Delete all expired message_extend's messages
     log.info("Deleting all expired message_extend's messages")
     expired_messages = PersistentMessage.objects.filter(
-        expires__lt=timezone.now()
+        expires__lt=timezone.now(),
     )
     expired_messages.delete()

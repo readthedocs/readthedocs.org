@@ -97,7 +97,7 @@ class BaseMkdocs(BaseBuilder):
             if hasattr(exc, 'problem_mark'):
                 mark = exc.problem_mark
                 note = ' (line %d, column %d)' % (
-                    mark.line + 1, mark.column + 1
+                    mark.line + 1, mark.column + 1,
                 )
             raise MkDocsYAMLParseError(
                 'Your mkdocs.yml could not be loaded, '
@@ -209,12 +209,12 @@ class BaseMkdocs(BaseBuilder):
             'docroot': docs_dir,
             'source_suffix': '.md',
             'api_host': getattr(
-                settings, 'PUBLIC_API_URL', 'https://readthedocs.org'
+                settings, 'PUBLIC_API_URL', 'https://readthedocs.org',
             ),
             'ad_free': not self.project.show_advertising,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
             'global_analytics_code': getattr(
-                settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1'
+                settings, 'GLOBAL_ANALYTICS_CODE', 'UA-17997319-1',
             ),
             'user_analytics_code': analytics_code,
         }

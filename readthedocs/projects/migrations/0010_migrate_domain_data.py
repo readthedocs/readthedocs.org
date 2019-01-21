@@ -12,7 +12,8 @@ def migrate_url(apps, schema_editor):
     for domain in Domain.objects.all():
         if domain.project.superprojects.count() or domain.project.main_language_project:
             print('{project} is a subproject or translation. Deleting domain.'.format(
-                project=domain.project.slug))
+                project=domain.project.slug,
+            ))
             domain.delete()
             continue
         parsed = urlparse(domain.url)

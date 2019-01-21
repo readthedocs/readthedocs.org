@@ -171,7 +171,8 @@ class TestAdvancedForm(TestBasicsForm):
         del self.step_data['extra']['tags']
         self.assertCountEqual(
             [tag.name for tag in proj.tags.all()],
-            ['bar', 'baz', 'foo'])
+            ['bar', 'baz', 'foo'],
+        )
         data.update(self.step_data['extra'])
         for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)
@@ -202,8 +203,10 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
-    @patch('readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-           create=True)
+    @patch(
+        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
+        create=True,
+    )
     def test_form_spam(self, mocked_validator):
         """Don't add project on a spammy description."""
         self.user.date_joined = timezone.now() - timedelta(days=365)
@@ -224,8 +227,10 @@ class TestAdvancedForm(TestBasicsForm):
             proj = Project.objects.get(name='foobar')
         self.assertFalse(self.user.profile.banned)
 
-    @patch('readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-           create=True)
+    @patch(
+        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
+        create=True,
+    )
     def test_form_spam_ban_user(self, mocked_validator):
         """Don't add spam and ban new user."""
         self.user.date_joined = timezone.now()
@@ -278,8 +283,10 @@ class TestImportDemoView(MockBuildTestCase):
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.SUCCESS)
 
-        self.assertEqual(project,
-                         Project.objects.get(slug='eric-demo'))
+        self.assertEqual(
+            project,
+            Project.objects.get(slug='eric-demo'),
+        )
 
     def test_import_demo_another_user_imported(self):
         """Import demo project after another user, expect success."""
@@ -312,11 +319,15 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.SUCCESS)
-        self.assertRegex(messages[0].message,
-                         r'already imported')
+        self.assertRegex(
+            messages[0].message,
+            r'already imported',
+        )
 
-        self.assertEqual(project,
-                         Project.objects.get(slug='eric-demo'))
+        self.assertEqual(
+            project,
+            Project.objects.get(slug='eric-demo'),
+        )
 
     def test_import_demo_imported_duplicate(self):
         """
@@ -339,11 +350,15 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.ERROR)
-        self.assertRegex(messages[0].message,
-                         r'There was a problem')
+        self.assertRegex(
+            messages[0].message,
+            r'There was a problem',
+        )
 
-        self.assertEqual(project,
-                         Project.objects.get(slug='eric-demo'))
+        self.assertEqual(
+            project,
+            Project.objects.get(slug='eric-demo'),
+        )
 
 
 class TestPrivateViews(MockBuildTestCase):
@@ -380,7 +395,8 @@ class TestPrivateViews(MockBuildTestCase):
             broadcast.assert_called_with(
                 type='app',
                 task=tasks.remove_dirs,
-                args=[(project.doc_path,)])
+                args=[(project.doc_path,)],
+            )
 
     def test_subproject_create(self):
         project = get(Project, slug='pip', users=[self.user])
@@ -395,7 +411,8 @@ class TestPrivateViews(MockBuildTestCase):
             broadcast.assert_called_with(
                 type='app',
                 task=tasks.symlink_subproject,
-                args=[project.pk])
+                args=[project.pk],
+            )
 
 
 class TestPrivateMixins(MockBuildTestCase):

@@ -24,7 +24,7 @@ def pretty_json_field(field, description, include_styles=False):
                 'float: left;',
                 obj.formatted_json(field),
                 styles,
-            )
+            ),
         )
 
     inner.short_description = description
@@ -103,7 +103,7 @@ class IntegrationAdmin(admin.ModelAdmin):
             'admin:{}_{}_changelist'.format(
                 HttpExchange._meta.app_label,  # pylint: disable=protected-access
                 HttpExchange._meta.model_name,  # pylint: disable=protected-access
-            )
+            ),
         )
         return mark_safe(
             '<a href="{}?{}={}">{} HTTP transactions</a>'.format(
@@ -111,7 +111,7 @@ class IntegrationAdmin(admin.ModelAdmin):
                 'integrations',
                 obj.pk,
                 obj.exchanges.count(),
-            )
+            ),
         )
 
     exchanges.short_description = 'HTTP exchanges'

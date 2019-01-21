@@ -48,7 +48,7 @@ class EnhancedModelResource(ModelResource):
                 ugettext(
                     'Invalid resource lookup data provided '
                     '(mismatched type).: %(error)s',
-                ) % {'error': e}
+                ) % {'error': e},
             )
 
 

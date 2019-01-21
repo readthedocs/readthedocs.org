@@ -7,8 +7,10 @@ def forwards_remove_content_types(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     ContentType.objects.using(db).filter(
         app_label='oauth',
-        model__in=['githubproject', 'githuborganization',
-                   'bitbucketproject', 'bitbucketteam']
+        model__in=[
+            'githubproject', 'githuborganization',
+            'bitbucketproject', 'bitbucketteam',
+        ],
     ).delete()
 
 

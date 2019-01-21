@@ -48,7 +48,7 @@ class UserProfile(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            'profiles_profile_detail', kwargs={'username': self.user.username}
+            'profiles_profile_detail', kwargs={'username': self.user.username},
         )
 
     def get_contribution_details(self):

@@ -48,21 +48,33 @@ class NotificationTests(TestCase):
         req = mock.MagicMock()
         notify = TestNotification(context_object=build, request=req)
 
-        self.assertEqual(notify.get_template_names('email'),
-                         ['builds/notifications/foo_email.html'])
-        self.assertEqual(notify.get_template_names('site'),
-                         ['builds/notifications/foo_site.html'])
-        self.assertEqual(notify.get_subject(),
-                         'This is {}'.format(build.id))
-        self.assertEqual(notify.get_context_data(),
-                         {'foo': build,
-                          'production_uri': 'https://readthedocs.org',
-                          'request': req})
+        self.assertEqual(
+            notify.get_template_names('email'),
+            ['builds/notifications/foo_email.html'],
+        )
+        self.assertEqual(
+            notify.get_template_names('site'),
+            ['builds/notifications/foo_site.html'],
+        )
+        self.assertEqual(
+            notify.get_subject(),
+            'This is {}'.format(build.id),
+        )
+        self.assertEqual(
+            notify.get_context_data(),
+            {
+                'foo': build,
+                'production_uri': 'https://readthedocs.org',
+                'request': req,
+            },
+        )
 
         notify.render('site')
         render_to_string.assert_has_calls([
-            mock.call(context=mock.ANY,
-                      template_name=['builds/notifications/foo_site.html'])
+            mock.call(
+                context=mock.ANY,
+                template_name=['builds/notifications/foo_site.html'],
+            ),
         ])
 
 
@@ -95,7 +107,7 @@ class NotificationBackendTests(TestCase):
                 subject='This is {}'.format(build.id),
                 template_html='core/email/common.html',
                 recipient=user.email,
-            )
+            ),
         ])
 
     def test_message_backend(self, render_to_string):

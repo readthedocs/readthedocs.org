@@ -103,8 +103,10 @@ def search(request):
 def project_search(request):
     query = request.GET.get('q', None)
     if query is None:
-        return Response({'error': 'Need project and q'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Need project and q'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     log.debug('(API Project Search) %s', (query))
     results = search_project(request=request, query=query)
     return Response({'results': results})

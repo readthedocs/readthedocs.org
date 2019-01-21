@@ -33,7 +33,7 @@ class TestGitBackend(RTDTestCase):
             name='Test Project',
             repo_type='git',
             #Our top-level checkout
-            repo=git_repo
+            repo=git_repo,
         )
         self.project.users.add(self.eric)
         self.dummy_conf = Mock()
@@ -116,7 +116,7 @@ class TestGitBackend(RTDTestCase):
             repo.checkout(version)
         self.assertEqual(
             str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version)
+            RepositoryError.FAILED_TO_CHECKOUT.format(version),
         )
 
     def test_git_tags(self):
@@ -186,7 +186,7 @@ class TestGitBackend(RTDTestCase):
         # it's a url in ssh form.
         self.assertEqual(
             str(e.exception),
-            RepositoryError.INVALID_SUBMODULES.format(['invalid'])
+            RepositoryError.INVALID_SUBMODULES.format(['invalid']),
         )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -209,13 +209,13 @@ class TestGitBackend(RTDTestCase):
         # We still have all branches and tags in the local repo
         self.assertEqual(
             {'v01', 'v02'},
-            {vcs.verbose_name for vcs in repo.tags}
+            {vcs.verbose_name for vcs in repo.tags},
         )
         self.assertEqual(
             {
                 'invalidsubmodule', 'master', 'submodule', 'newbranch',
             },
-            {vcs.verbose_name for vcs in repo.branches}
+            {vcs.verbose_name for vcs in repo.branches},
         )
 
         repo.update()
@@ -223,13 +223,13 @@ class TestGitBackend(RTDTestCase):
         # We don't have the eliminated branches and tags in the local repo
         self.assertEqual(
             {'v01'},
-            {vcs.verbose_name for vcs in repo.tags}
+            {vcs.verbose_name for vcs in repo.tags},
         )
         self.assertEqual(
             {
-                'invalidsubmodule', 'master', 'submodule'
+                'invalidsubmodule', 'master', 'submodule',
             },
-            {vcs.verbose_name for vcs in repo.branches}
+            {vcs.verbose_name for vcs in repo.branches},
         )
 
 
@@ -245,7 +245,7 @@ class TestHgBackend(RTDTestCase):
             name='Test Project',
             repo_type='hg',
             # Our top-level checkout
-            repo=hg_repo
+            repo=hg_repo,
         )
         self.project.users.add(self.eric)
 
@@ -276,7 +276,7 @@ class TestHgBackend(RTDTestCase):
             repo.checkout(version)
         self.assertEqual(
             str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version)
+            RepositoryError.FAILED_TO_CHECKOUT.format(version),
         )
 
     def test_parse_tags(self):

@@ -15,6 +15,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if args:
             for slug in args:
-                for service in GitHubService.for_user(User.objects.get(username=slug
-                                                                       ),):
+                for service in GitHubService.for_user(
+                    User.objects.get(
+                        username=slug,
+                    ),
+                ):
                     service.sync()

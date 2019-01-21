@@ -28,5 +28,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forward_add_feature, reverse_add_feature)
+        migrations.RunPython(forward_add_feature, reverse_add_feature),
     ]

@@ -16,7 +16,7 @@ def migrate_canonical(apps, schema_editor):
             except Exception as e:
                 print(e)
                 print('Failed adding {url} to {project}'.format(
-                    url=project.canonical_url, project=project.name
+                    url=project.canonical_url, project=project.name,
                 ))
 
 
@@ -27,5 +27,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(migrate_canonical)
+        migrations.RunPython(migrate_canonical),
     ]

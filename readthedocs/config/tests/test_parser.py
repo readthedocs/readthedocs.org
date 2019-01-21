@@ -64,6 +64,7 @@ base: other_path
 name: second
 nested:
     works: true
-        ''')
+        '''
+    )
     with raises(ParseError):
         parse(buf)

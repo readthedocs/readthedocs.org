@@ -16,13 +16,13 @@ urlpatterns = [
         name='gold_subscription',
     ),
     url(
-        r'^cancel/$', views.DeleteGoldSubscription.as_view(), name='gold_cancel'
+        r'^cancel/$', views.DeleteGoldSubscription.as_view(), name='gold_cancel',
     ),
     url(r'^projects/$', views.projects, name='gold_projects'),
     url(
         (
             r'^projects/remove/(?P<project_slug>{project_slug})/$'.format(
-                project_slug=PROJECT_SLUG_REGEX
+                project_slug=PROJECT_SLUG_REGEX,
             )
         ),
         views.projects_remove,

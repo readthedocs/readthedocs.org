@@ -147,7 +147,7 @@ class TestCORSMiddleware(TestCase):
         self.project = get(
             Project, slug='pip',
             users=[self.owner], privacy_level='public',
-            mail_language_project=None
+            mail_language_project=None,
         )
         self.subproject = get(
             Project,
@@ -158,7 +158,7 @@ class TestCORSMiddleware(TestCase):
         self.relationship = get(
             ProjectRelationship,
             parent=self.project,
-            child=self.subproject
+            child=self.subproject,
         )
         self.domain = get(Domain, domain='my.valid.domain', project=self.project)
 

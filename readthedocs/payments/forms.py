@@ -88,7 +88,7 @@ class StripeModelForm(forms.ModelForm):
         widget=forms.HiddenInput(
             attrs={
                 'data-bind': 'valueInit: stripe_token',
-            }
+            },
         ),
     )
 
@@ -103,7 +103,7 @@ class StripeModelForm(forms.ModelForm):
                     'textInput: cc_number, '
                     '''css: {'field-error': error_cc_number() != null}'''
                 ),
-            }
+            },
         ),
         max_length=25,
         required=False,
@@ -117,7 +117,7 @@ class StripeModelForm(forms.ModelForm):
                     'textInput: cc_expiry, '
                     '''css: {'field-error': error_cc_expiry() != null}'''
                 ),
-            }
+            },
         ),
         max_length=10,
         required=False,
@@ -132,7 +132,7 @@ class StripeModelForm(forms.ModelForm):
                     '''css: {'field-error': error_cc_cvv() != null}'''
                 ),
                 'autocomplete': 'off',
-            }
+            },
         ),
         max_length=8,
         required=False,
@@ -211,7 +211,7 @@ class StripeModelForm(forms.ModelForm):
             self.data['stripe_token'] = None
         except AttributeError:
             raise AttributeError(
-                'Form was passed immutable QueryDict POST data'
+                'Form was passed immutable QueryDict POST data',
             )
 
     def fields_with_cc_group(self):

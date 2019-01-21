@@ -190,7 +190,7 @@ class BitbucketService(Service):
         """Get webhook JSON data to post to the API."""
         return json.dumps({
             'description': 'Read the Docs ({domain})'.format(
-                domain=settings.PRODUCTION_DOMAIN
+                domain=settings.PRODUCTION_DOMAIN,
             ),
             'url': 'https://{domain}{path}'.format(
                 domain=settings.PRODUCTION_DOMAIN,

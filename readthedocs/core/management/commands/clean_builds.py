@@ -40,7 +40,7 @@ class Command(BaseCommand):
         max_date = timezone.now() - timedelta(days=options['days'])
         queryset = (
             Build.objects.values('project', 'version').annotate(
-                max_date=Max('date')
+                max_date=Max('date'),
             ).filter(max_date__lt=max_date).order_by('-max_date')
         )
         for build in queryset:

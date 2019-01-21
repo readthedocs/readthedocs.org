@@ -17,7 +17,7 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
 
 @override_settings(
-    USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False
+    USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False,
 )
 class BaseDocServing(RequestFactoryTestMixin, TestCase):
 
@@ -46,7 +46,7 @@ class TestPrivateDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/private_web_root/private'
+                    settings.SITE_ROOT + '/private_web_root/private',
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -56,7 +56,7 @@ class TestPrivateDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -66,7 +66,7 @@ class TestPrivateDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/úñíčódé.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html'
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -112,7 +112,7 @@ class TestPublicDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/public_web_root/public'
+                    settings.SITE_ROOT + '/public_web_root/public',
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -122,7 +122,7 @@ class TestPublicDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html', privacy_level='public')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
+                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)

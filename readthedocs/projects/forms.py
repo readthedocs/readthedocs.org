@@ -122,7 +122,8 @@ class ProjectBasicsForm(ProjectForm):
             potential_slug = slugify(name)
             if Project.objects.filter(slug=potential_slug).exists():
                 raise forms.ValidationError(
-                    _('Invalid project name, a project already exists with that name'))  # yapf: disable # noqa
+                    _('Invalid project name, a project already exists with that name'),
+                )  # yapf: disable # noqa
             if not potential_slug:
                 # Check the generated slug won't be empty
                 raise forms.ValidationError(_('Invalid project name'),)
@@ -180,8 +181,8 @@ class ProjectExtraForm(ProjectForm):
             if len(tag) > 100:
                 raise forms.ValidationError(
                     _(
-                        'Length of each tag must be less than or equal to 100 characters.'
-                    )
+                        'Length of each tag must be less than or equal to 100 characters.',
+                    ),
                 )
         return tags
 
@@ -195,7 +196,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         initial='python',
         help_text=_(
             'The Python interpreter used to create the virtual '
-            'environment.'
+            'environment.',
         ),
     )
 
@@ -227,28 +228,33 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
-            'identifier', 'verbose_name'
+            'identifier', 'verbose_name',
         )
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + list(all_versions)
+            choices=[default_choice] + list(all_versions),
         )
 
         active_versions = self.instance.all_active_versions().values_list('slug', 'verbose_name')  # yapf: disabled
         self.fields['default_version'].widget = forms.Select(
-            choices=active_versions
+            choices=active_versions,
         )
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
         if filename and 'conf.py' not in filename:
             raise forms.ValidationError(
-                _('Your configuration file is invalid, make sure it contains '
-                  'conf.py in it.'))  # yapf: disable
+                _(
+                    'Your configuration file is invalid, make sure it contains '
+                    'conf.py in it.',
+                ),
+            )  # yapf: disable
         return filename
 
 
-class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
-                        ProjectExtraForm):
+class UpdateProjectForm(
+    ProjectTriggerBuildMixin, ProjectBasicsForm,
+    ProjectExtraForm,
+):
 
     class Meta:
         model = Project
@@ -272,17 +278,17 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
         if project:
             msg = _(
                 'There is already a "{lang}" translation '
-                'for the {proj} project.'
+                'for the {proj} project.',
             )
             if project.translations.filter(language=language).exists():
                 raise forms.ValidationError(
-                    msg.format(lang=language, proj=project.slug)
+                    msg.format(lang=language, proj=project.slug),
                 )
             main_project = project.main_language_project
             if main_project:
                 if main_project.language == language:
                     raise forms.ValidationError(
-                        msg.format(lang=language, proj=main_project.slug)
+                        msg.format(lang=language, proj=main_project.slug),
                     )
                 siblings = (
                     main_project.translations
@@ -292,7 +298,7 @@ class UpdateProjectForm(ProjectTriggerBuildMixin, ProjectBasicsForm,
                 )
                 if siblings:
                     raise forms.ValidationError(
-                        msg.format(lang=language, proj=main_project.slug)
+                        msg.format(lang=language, proj=main_project.slug),
                     )
         return language
 
@@ -323,7 +329,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
             # This validation error is mostly for testing, users shouldn't see
             # this in normal circumstances
             raise forms.ValidationError(
-                _('Subproject nesting is not supported')
+                _('Subproject nesting is not supported'),
             )
         return self.project
 
@@ -331,7 +337,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         child = self.cleaned_data['child']
         if child == self.project:
             raise forms.ValidationError(
-                _('A project can not be a subproject of itself')
+                _('A project can not be a subproject of itself'),
             )
         return child
 
@@ -346,7 +352,8 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
             Project.objects.for_admin_user(self.user)
             .exclude(subprojects__isnull=False)
             .exclude(superprojects__isnull=False)
-            .exclude(pk=self.project.pk))
+            .exclude(pk=self.project.pk)
+        )
         return queryset
 
 
@@ -452,7 +459,7 @@ def build_versions_form(project):
 class BaseUploadHTMLForm(forms.Form):
     content = forms.FileField(label=_('Zip file of HTML'))
     overwrite = forms.BooleanField(
-        required=False, label=_('Overwrite existing HTML?')
+        required=False, label=_('Overwrite existing HTML?'),
     )
 
     def __init__(self, *args, **kwargs):
@@ -504,7 +511,7 @@ class UserForm(forms.Form):
         user_qs = User.objects.filter(username=name)
         if not user_qs.exists():
             raise forms.ValidationError(
-                _('User {name} does not exist').format(name=name)
+                _('User {name} does not exist').format(name=name),
             )
         self.user = user_qs[0]
         return name
@@ -528,7 +535,7 @@ class EmailHookForm(forms.Form):
 
     def clean_email(self):
         self.email = EmailHook.objects.get_or_create(
-            email=self.cleaned_data['email'], project=self.project
+            email=self.cleaned_data['email'], project=self.project,
         )[0]
         return self.email
 
@@ -547,7 +554,7 @@ class WebHookForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.webhook = WebHook.objects.get_or_create(
-            url=self.cleaned_data['url'], project=self.project
+            url=self.cleaned_data['url'], project=self.project,
         )[0]
         self.project.webhook_notifications.add(self.webhook)
         return self.project
@@ -571,8 +578,11 @@ class TranslationBaseForm(forms.Form):
 
     def get_choices(self):
         return [
-            (project.slug, '{project} ({lang})'.format(
-                project=project.slug, lang=project.get_language_display()))
+            (
+                project.slug, '{project} ({lang})'.format(
+                project=project.slug, lang=project.get_language_display(),
+                ),
+            )
             for project in self.get_translation_queryset().all()
         ]
 
@@ -583,22 +593,22 @@ class TranslationBaseForm(forms.Form):
         if self.parent.main_language_project is not None:
             msg = 'Project "{project}" is already a translation'
             raise forms.ValidationError(
-                (_(msg).format(project=self.parent.slug))
+                (_(msg).format(project=self.parent.slug)),
             )
 
         project_translation_qs = self.get_translation_queryset().filter(
-            slug=translation_project_slug
+            slug=translation_project_slug,
         )
         if not project_translation_qs.exists():
             msg = 'Project "{project}" does not exist.'
             raise forms.ValidationError(
-                (_(msg).format(project=translation_project_slug))
+                (_(msg).format(project=translation_project_slug)),
             )
         self.translation = project_translation_qs.first()
         if self.translation.language == self.parent.language:
             msg = ('Both projects can not have the same language ({lang}).')
             raise forms.ValidationError(
-                _(msg).format(lang=self.parent.get_language_display())
+                _(msg).format(lang=self.parent.get_language_display()),
             )
         exists_translation = (
             self.parent.translations.filter(language=self.translation.language).exists()  # yapf: disabled
@@ -606,7 +616,7 @@ class TranslationBaseForm(forms.Form):
         if exists_translation:
             msg = ('This project already has a translation for {lang}.')
             raise forms.ValidationError(
-                _(msg).format(lang=self.translation.get_language_display())
+                _(msg).format(lang=self.translation.get_language_display()),
             )
         is_parent = self.translation.translations.exists()
         if is_parent:
@@ -692,7 +702,7 @@ class DomainBaseForm(forms.ModelForm):
         _id = self.initial.get('id')
         if canonical and Domain.objects.filter(project=self.project, canonical=True).exclude(pk=_id).exists():  # yapf: disabled  # noqa
             raise forms.ValidationError(
-                _('Only 1 Domain can be canonical at a time.')
+                _('Only 1 Domain can be canonical at a time.'),
             )
         return canonical
 
@@ -797,7 +807,7 @@ class EnvironmentVariableForm(forms.ModelForm):
         elif self.project.environmentvariable_set.filter(name=name).exists():
             raise forms.ValidationError(
                 _(
-                    'There is already a variable with this name for this project'
+                    'There is already a variable with this name for this project',
                 ),
             )
         elif ' ' in name:

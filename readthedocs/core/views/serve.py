@@ -115,7 +115,7 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
     return HttpResponseRedirect(
-        resolve(subproject or project, filename=filename)
+        resolve(subproject or project, filename=filename),
     )
 
 
@@ -134,7 +134,7 @@ def _serve_file(request, filename, basepath):
 
     # Serve from Nginx
     content_type, encoding = mimetypes.guess_type(
-        os.path.join(basepath, filename)
+        os.path.join(basepath, filename),
     )
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(content_type=content_type)
@@ -162,7 +162,7 @@ def _serve_file(request, filename, basepath):
 @map_subproject_slug
 def serve_docs(
         request, project, subproject, lang_slug=None, version_slug=None,
-        filename=''
+        filename='',
 ):
     """Map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
@@ -229,7 +229,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
-        'File not found. Tried these files: %s' % ','.join(files_tried)
+        'File not found. Tried these files: %s' % ','.join(files_tried),
     )
 
 

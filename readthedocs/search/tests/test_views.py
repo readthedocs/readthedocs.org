@@ -35,8 +35,10 @@ class TestElasticSearch:
         self._reindex_elasticsearch(es_index=es_index)
 
     def test_search_by_project_name(self, client, project):
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': project.name})
+        result, _ = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': project.name},
+        )
 
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
 
@@ -46,8 +48,10 @@ class TestElasticSearch:
         G(Project, language='bn', name=project.name)
         self._reindex_elasticsearch(es_index=es_index)
 
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params={'q': project.name})
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': project.name},
+        )
 
         content = page.find('.navigable .language-list')
         # There should be 2 languages
@@ -61,8 +65,10 @@ class TestElasticSearch:
         self._reindex_elasticsearch(es_index=es_index)
         search_params = {'q': project.name, 'language': 'bn'}
 
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params=search_params)
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params=search_params,
+        )
 
         # There should be only 1 result
         assert len(result) == 1
@@ -75,11 +81,15 @@ class TestElasticSearch:
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_by_file_content(self, client, project, data_type, page_num):
-        query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
-                                                   data_type=data_type)
+        query = get_search_query_from_project_file(
+            project_slug=project.slug, page_num=page_num,
+            data_type=data_type,
+        )
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
+        result, _ = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': query, 'type': 'file'},
+        )
         assert len(result) == 1
 
     def test_file_search_show_projects(self, client):
@@ -88,8 +98,10 @@ class TestElasticSearch:
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params={'q': 'GitHub', 'type': 'file'})
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': 'GitHub', 'type': 'file'},
+        )
 
         # There should be 2 search result
         assert len(result) == 2
@@ -108,8 +120,10 @@ class TestElasticSearch:
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase but filter through `kuma` project
         search_params = {'q': 'GitHub', 'type': 'file', 'project': 'kuma'}
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params=search_params)
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params=search_params,
+        )
 
         # There should be 1 search result as we have filtered
         assert len(result) == 1
@@ -139,8 +153,10 @@ class TestElasticSearch:
 
         query = get_search_query_from_project_file(project_slug=project.slug)
 
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params={'q': query, 'type': 'file'})
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': query, 'type': 'file'},
+        )
 
         # There should be only one result because by default
         # only latest version result should be there
@@ -172,7 +188,9 @@ class TestElasticSearch:
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
         search_params = {'q': query, 'type': 'file', 'project': project.slug}
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params=search_params)
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params=search_params,
+        )
 
         assert len(result) == 1

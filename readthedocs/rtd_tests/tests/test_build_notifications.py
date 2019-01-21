@@ -71,7 +71,11 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors,
-            {'url':
-                ['Enter a valid URL.',
-                    'Ensure this value has at most 600 characters (it has 1507).']
-             })
+            {
+                'url':
+                   [
+                       'Enter a valid URL.',
+                       'Ensure this value has at most 600 characters (it has 1507).',
+                   ],
+                },
+        )

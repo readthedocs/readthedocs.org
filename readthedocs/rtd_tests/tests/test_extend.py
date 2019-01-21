@@ -63,10 +63,12 @@ class ExtendTests(TestCase):
         override_class = get_override_class(Foo, Foo._default_class)
         self.assertEqual(override_class, NewFoo)
 
-    @override_settings(FOO_OVERRIDE_CLASS=None,
-                       CLASS_OVERRIDES={
-                           EXTEND_PATH: EXTEND_OVERRIDE_PATH,
-                       })
+    @override_settings(
+        FOO_OVERRIDE_CLASS=None,
+        CLASS_OVERRIDES={
+            EXTEND_PATH: EXTEND_OVERRIDE_PATH,
+        },
+    )
     def test_with_advanced_override(self):
         """Test class with override using `CLASS_OVERRIDES`"""
         class Foo(SettingsOverrideObject):
@@ -81,10 +83,12 @@ class ExtendTests(TestCase):
         override_class = get_override_class(Foo, Foo._default_class)
         self.assertEqual(override_class, NewFoo)
 
-    @override_settings(FOO_OVERRIDE_CLASS=None,
-                       CLASS_OVERRIDES={
-                           EXTEND_PATH: EXTEND_OVERRIDE_PATH,
-                       })
+    @override_settings(
+        FOO_OVERRIDE_CLASS=None,
+        CLASS_OVERRIDES={
+            EXTEND_PATH: EXTEND_OVERRIDE_PATH,
+        },
+    )
     def test_with_advanced_override_only(self):
         """Test class with no `override_setting`"""
         class Foo(SettingsOverrideObject):

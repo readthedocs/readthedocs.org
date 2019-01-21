@@ -90,7 +90,7 @@ class ConfigOptionNotSupportedError(ConfigError):
         )
         super().__init__(
             template.format(self.configuration),
-            CONFIG_NOT_SUPPORTED
+            CONFIG_NOT_SUPPORTED,
         )
 
 
@@ -342,7 +342,7 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    DOCKER_DEFAULT_IMAGE, build['image']
+                    DOCKER_DEFAULT_IMAGE, build['image'],
                 )
         # Update docker default settings from image name
         if build['image'] in DOCKER_IMAGE_SETTINGS:
@@ -378,14 +378,14 @@ class BuildConfigV1(BuildConfigBase):
             if 'use_system_site_packages' in raw_python:
                 with self.catch_validation_error('python.use_system_site_packages'):
                     python['use_system_site_packages'] = validate_bool(
-                        raw_python['use_system_site_packages']
+                        raw_python['use_system_site_packages'],
                     )
 
             # Validate pip_install.
             if 'pip_install' in raw_python:
                 with self.catch_validation_error('python.pip_install'):
                     python['install_with_pip'] = validate_bool(
-                        raw_python['pip_install']
+                        raw_python['pip_install'],
                     )
 
             # Validate extra_requirements.
@@ -395,7 +395,7 @@ class BuildConfigV1(BuildConfigBase):
                     self.error(
                         'python.extra_requirements',
                         self.PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE,
-                        code=PYTHON_INVALID
+                        code=PYTHON_INVALID,
                     )
                 if not python['install_with_pip']:
                     python['extra_requirements'] = []
@@ -403,14 +403,14 @@ class BuildConfigV1(BuildConfigBase):
                     for extra_name in raw_extra_requirements:
                         with self.catch_validation_error('python.extra_requirements'):
                             python['extra_requirements'].append(
-                                validate_string(extra_name)
+                                validate_string(extra_name),
                             )
 
             # Validate setup_py_install.
             if 'setup_py_install' in raw_python:
                 with self.catch_validation_error('python.setup_py_install'):
                     python['install_with_setup'] = validate_bool(
-                        raw_python['setup_py_install']
+                        raw_python['setup_py_install'],
                     )
 
             if 'version' in raw_python:
@@ -445,7 +445,7 @@ class BuildConfigV1(BuildConfigBase):
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
                     conda_environment = validate_file(
-                        raw_conda['file'], self.base_path
+                        raw_conda['file'], self.base_path,
                     )
             conda['environment'] = conda_environment
 
@@ -683,7 +683,7 @@ class BuildConfigV2(BuildConfigBase):
 
         with self.catch_validation_error('python.extra_requirements'):
             extra_requirements = self.pop_config(
-                'python.extra_requirements', []
+                'python.extra_requirements', [],
             )
             extra_requirements = validate_list(extra_requirements)
             if extra_requirements and not python['install_with_pip']:
@@ -801,7 +801,7 @@ class BuildConfigV2(BuildConfigBase):
             if not configuration:
                 configuration = None
             configuration = self.pop_config(
-                'sphinx.configuration', configuration
+                'sphinx.configuration', configuration,
             )
             if configuration is not None:
                 configuration = validate_file(configuration, self.base_path)
@@ -828,7 +828,7 @@ class BuildConfigV2(BuildConfigBase):
 
             if dashboard_doctype == 'mkdocs' or not self.sphinx:
                 error_msg += ' but there is no "{}" key specified.'.format(
-                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
+                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx',
                 )
             else:
                 error_msg += ' but your "sphinx.builder" key does not match.'

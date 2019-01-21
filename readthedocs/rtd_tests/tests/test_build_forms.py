@@ -28,7 +28,7 @@ class TestVersionForm(TestCase):
                 'active': True,
                 'privacy_level': PRIVATE,
             },
-            instance=version
+            instance=version,
         )
         self.assertTrue(form.is_valid())
 
@@ -46,7 +46,7 @@ class TestVersionForm(TestCase):
                 'active': False,
                 'privacy_level': PRIVATE,
             },
-            instance=version
+            instance=version,
         )
         self.assertFalse(form.is_valid())
         self.assertIn('active', form.errors)

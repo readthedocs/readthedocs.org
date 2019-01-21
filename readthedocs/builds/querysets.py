@@ -38,7 +38,7 @@ class VersionQuerySetBase(models.QuerySet):
 
     def protected(self, user=None, project=None, only_active=True):
         queryset = self.filter(
-            privacy_level__in=[constants.PUBLIC, constants.PROTECTED]
+            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
         )
         if user:
             queryset = self._add_user_repos(queryset, user)

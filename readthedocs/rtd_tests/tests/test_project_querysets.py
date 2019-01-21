@@ -24,12 +24,12 @@ class ProjectQuerySetTests(TestCase):
         mgr = ChildRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromChildRelatedProjectQuerySetBase'
+            'ManagerFromChildRelatedProjectQuerySetBase',
         )
         mgr = ParentRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromParentRelatedProjectQuerySetBase'
+            'ManagerFromParentRelatedProjectQuerySetBase',
         )
 
     def test_is_active(self):

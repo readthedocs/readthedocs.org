@@ -180,8 +180,10 @@ htmlhelp_basename = 'sampledoc'
 # Grouping the document tree into LaTeX files. List of tuples (source start
 # file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'sample.tex', 'sample Documentation',
-     'Dan', 'manual'),
+    (
+        'index', 'sample.tex', 'sample Documentation',
+        'Dan', 'manual',
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -213,6 +215,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'sample', 'sample Documentation',
-     ['Dan'], 1)
+    (
+        'index', 'sample', 'sample Documentation',
+        ['Dan'], 1,
+    ),
 ]

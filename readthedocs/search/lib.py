@@ -44,7 +44,7 @@ def search_project(request, query, language=None):
 
     if language:
         body['facets']['language']['facet_filter'] = {
-            'term': {'lang': language}
+            'term': {'lang': language},
         }
         body['filter'] = {'term': {'lang': language}}
 
@@ -54,7 +54,7 @@ def search_project(request, query, language=None):
 
 
 def search_file(
-        request, query, project_slug=None, version_slug=LATEST, taxonomy=None
+        request, query, project_slug=None, version_slug=LATEST, taxonomy=None,
 ):
     """
     Search index for files matching query.
@@ -79,7 +79,7 @@ def search_file(
                                 'boost': 10,
                                 'slop': 2,
                             },
-                        }
+                        },
                     },
                     {
                         'match_phrase': {
@@ -88,7 +88,7 @@ def search_file(
                                 'boost': 5,
                                 'slop': 3,
                             },
-                        }
+                        },
                     },
                     {
                         'match_phrase': {
@@ -96,7 +96,7 @@ def search_file(
                                 'query': query,
                                 'slop': 5,
                             },
-                        }
+                        },
                     },
                 ],
             },
@@ -142,7 +142,7 @@ def search_file(
                     )
                 )
                 final_filter['and'].append({
-                    'terms': {'project': project_slugs}
+                    'terms': {'project': project_slugs},
                 })
 
                 # Add routing to optimize search by hitting the right shard.
@@ -212,7 +212,7 @@ def search_section(
                                 'boost': 10,
                                 'slop': 2,
                             },
-                        }
+                        },
                     },
                     {
                         'match_phrase': {
@@ -220,7 +220,7 @@ def search_section(
                                 'query': query,
                                 'slop': 5,
                             },
-                        }
+                        },
                     },
                 ],
             },

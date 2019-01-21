@@ -46,8 +46,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forwards_move_repo_source,
-                             backwards_move_repo_source),
-        migrations.RunPython(forwards_move_org_source,
-                             backwards_move_org_source),
+        migrations.RunPython(
+            forwards_move_repo_source,
+            backwards_move_repo_source,
+        ),
+        migrations.RunPython(
+            forwards_move_org_source,
+            backwards_move_org_source,
+        ),
     ]

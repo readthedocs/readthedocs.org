@@ -145,7 +145,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
             response.render()
             self.assertContains(
                 response,
-                'name="{}-current_step"'.format(self.wizard_class_slug)
+                'name="{}-current_step"'.format(self.wizard_class_slug),
             )
 
     # We use camelCase on purpose here to conform with unittest's naming

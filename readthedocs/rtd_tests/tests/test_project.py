@@ -104,7 +104,8 @@ class TestProject(ProjectMixin, TestCase):
         full_find_method.return_value = []
         with self.assertRaisesMessage(
                 ProjectConfigurationError,
-                ProjectConfigurationError.NOT_FOUND) as cm:
+                ProjectConfigurationError.NOT_FOUND,
+        ) as cm:
             self.pip.conf_file()
 
     @patch('readthedocs.projects.models.Project.find')
@@ -116,7 +117,8 @@ class TestProject(ProjectMixin, TestCase):
         ]
         with self.assertRaisesMessage(
                 ProjectConfigurationError,
-                ProjectConfigurationError.MULTIPLE_CONF_FILES) as cm:
+                ProjectConfigurationError.MULTIPLE_CONF_FILES,
+        ) as cm:
             self.pip.conf_file()
 
 
@@ -163,23 +165,24 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertFalse(Project.objects.filter(pk=project_delete.pk).exists())
         self.assertTrue(Project.objects.filter(pk=project_keep.pk).exists())
         self.assertIsNone(
-            Project.objects.get(pk=project_keep.pk).main_language_project)
+            Project.objects.get(pk=project_keep.pk).main_language_project,
+        )
 
     def test_user_can_add_own_project_as_translation(self):
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
-            language='en', main_language_project=None
+            language='en', main_language_project=None,
         )
         project_b = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
 
         self.client.login(username=user_a.username, password='test')
         self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
-            data={'project': project_b.slug}
+            data={'project': project_b.slug},
         )
 
         self.assertEqual(project_a.translations.first(), project_b)
@@ -191,20 +194,20 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
 
         user_b = User.objects.get(username='tester')
         # User A and B are owners of project B
         project_b = get(
             Project, users=[user_b, user_a],
-            language='en', main_language_project=None
+            language='en', main_language_project=None,
         )
 
         self.client.login(username=user_a.username, password='test')
         self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
-            data={'project': project_b.slug}
+            data={'project': project_b.slug},
         )
 
         self.assertEqual(project_a.translations.first(), project_b)
@@ -214,20 +217,20 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
 
         user_b = User.objects.get(username='tester')
         project_b = get(
             Project, users=[user_b],
-            language='en', main_language_project=None
+            language='en', main_language_project=None,
         )
 
         # User A try to add project B as translation of project A
         self.client.login(username=user_a.username, password='test')
         resp = self.client.post(
             reverse('projects_translations', args=[project_a.slug]),
-            data={'project': project_b.slug}
+            data={'project': project_b.slug},
         )
 
         self.assertContains(resp, 'Select a valid choice')
@@ -243,13 +246,13 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
 
         user_b = User.objects.get(username='tester')
         project_b = get(
             Project, users=[user_b],
-            language='en', main_language_project=None
+            language='en', main_language_project=None,
         )
 
         project_a.translations.add(project_b)
@@ -259,16 +262,16 @@ class TestProjectTranslations(ProjectMixin, TestCase):
 
         # Project B is listed under user A translations
         resp = self.client.get(
-            reverse('projects_translations', args=[project_a.slug])
+            reverse('projects_translations', args=[project_a.slug]),
         )
         self.assertContains(resp, project_b.slug)
 
         resp = self.client.post(
             reverse(
                 'projects_translations_delete',
-                args=[project_a.slug, project_b.slug]
+                args=[project_a.slug, project_b.slug],
             ),
-            follow=True
+            follow=True,
         )
         self.assertEqual(resp.status_code, 200)
         self.assertNotIn(project_b, project_a.translations.all())
@@ -277,11 +280,11 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
         project_b = get(
             Project, users=[user_a],
-            language='en', main_language_project=None
+            language='en', main_language_project=None,
         )
 
         project_a.translations.add(project_b)
@@ -290,11 +293,11 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         user_b = User.objects.get(username='tester')
         project_c = get(
             Project, users=[user_b],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
         project_d = get(
             Project, users=[user_b, user_a],
-            language='en', main_language_project=None
+            language='en', main_language_project=None,
         )
         project_d.translations.add(project_c)
         project_d.save()
@@ -305,9 +308,9 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         resp = self.client.post(
             reverse(
                 'projects_translations_delete',
-                args=[project_a.slug, project_b.slug]
+                args=[project_a.slug, project_b.slug],
             ),
-            follow=True
+            follow=True,
         )
         self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
@@ -319,9 +322,9 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         resp = self.client.post(
             reverse(
                 'projects_translations_delete',
-                args=[project_d.slug, project_b.slug]
+                args=[project_d.slug, project_b.slug],
             ),
-            follow=True
+            follow=True,
         )
         self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
@@ -333,9 +336,9 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         resp = self.client.post(
             reverse(
                 'projects_translations_delete',
-                args=[project_b.slug, project_b.slug]
+                args=[project_b.slug, project_b.slug],
             ),
-            follow=True
+            follow=True,
         )
         self.assertEqual(resp.status_code, 404)
         self.assertIn(project_b, project_a.translations.all())
@@ -345,7 +348,7 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         project_a = Project.objects.get(slug='read-the-docs')
         project_b = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
 
         project_a.translations.add(project_b)
@@ -362,16 +365,16 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         resp = self.client.post(
             reverse(
                 'projects_edit',
-                args=[project_a.slug]
+                args=[project_a.slug],
             ),
             data=data,
-            follow=True
+            follow=True,
         )
         self.assertEqual(resp.status_code, 200)
         self.assertContains(
             resp,
             'There is already a &quot;es&quot; translation '
-            'for the read-the-docs project'
+            'for the read-the-docs project',
         )
 
     def test_user_can_change_project_with_same_lang(self):
@@ -379,7 +382,7 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         project_a = Project.objects.get(slug='read-the-docs')
         project_b = get(
             Project, users=[user_a],
-            language='es', main_language_project=None
+            language='es', main_language_project=None,
         )
 
         project_a.translations.add(project_b)
@@ -396,10 +399,10 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         resp = self.client.post(
             reverse(
                 'projects_edit',
-                args=[project_a.slug]
+                args=[project_a.slug],
             ),
             data=data,
-            follow=True
+            follow=True,
         )
         self.assertEqual(resp.status_code, 200)
         self.assertNotContains(resp, 'There is already a')
@@ -430,7 +433,8 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_2.date = (
-            timezone.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1)
+        )
         self.build_2.save()
 
         # Build started an hour ago with custom time (2 hours)
@@ -440,7 +444,8 @@ class TestFinishInactiveBuildsTask(TestCase):
             state=BUILD_STATE_TRIGGERED,
         )
         self.build_3.date = (
-            timezone.now() - datetime.timedelta(hours=1))
+            timezone.now() - datetime.timedelta(hours=1)
+        )
         self.build_3.save()
 
     def test_finish_inactive_builds_task(self):

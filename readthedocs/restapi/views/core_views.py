@@ -28,8 +28,10 @@ def docurl(request):
     version = request.GET.get('version', LATEST)
     doc = request.GET.get('doc', 'index')
     if project is None:
-        return Response({'error': 'Need project and doc'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Need project and doc'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     project = get_object_or_404(Project, slug=project)
     version = get_object_or_404(
@@ -39,6 +41,6 @@ def docurl(request):
     )
     return Response({
         'url': make_document_url(
-            project=project, version=version.slug, page=doc
+            project=project, version=version.slug, page=doc,
         ),
     })

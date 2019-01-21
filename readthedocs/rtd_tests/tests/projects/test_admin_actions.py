@@ -35,7 +35,7 @@ class ProjectAdminActionsTest(TestCase):
         }
         resp = self.client.post(
             urls.reverse('admin:projects_project_changelist'),
-            action_data
+            action_data,
         )
         self.assertTrue(self.project.users.filter(profile__banned=True).exists())
         self.assertFalse(self.project.users.filter(profile__banned=False).exists())
@@ -53,7 +53,7 @@ class ProjectAdminActionsTest(TestCase):
         }
         resp = self.client.post(
             urls.reverse('admin:projects_project_changelist'),
-            action_data
+            action_data,
         )
         self.assertFalse(self.project.users.filter(profile__banned=True).exists())
         self.assertEqual(self.project.users.filter(profile__banned=False).count(), 2)
@@ -70,11 +70,11 @@ class ProjectAdminActionsTest(TestCase):
         }
         resp = self.client.post(
             urls.reverse('admin:projects_project_changelist'),
-            action_data
+            action_data,
         )
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
         broadcast.assert_has_calls([
             mock.call(
-                type='app', task=remove_dirs, args=[(self.project.doc_path,)]
+                type='app', task=remove_dirs, args=[(self.project.doc_path,)],
             ),
         ])

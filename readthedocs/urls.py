@@ -75,7 +75,7 @@ api_urls = [
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
     url(
         r'^api-auth/',
-        include('rest_framework.urls', namespace='rest_framework')
+        include('rest_framework.urls', namespace='rest_framework'),
     ),
 ]
 
@@ -121,7 +121,7 @@ debug_urls += [
 # Export URLs
 groups = [
     basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
-    deprecated_urls
+    deprecated_urls,
 ]
 
 if settings.DO_NOT_TRACK_ENABLED:

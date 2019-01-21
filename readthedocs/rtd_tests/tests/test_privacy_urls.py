@@ -71,8 +71,10 @@ class URLAccessMixin:
                 val,
                 ('Attribute mismatch for view {view} ({path}): '
                  '{key} != {expected} (got {value})'
-                 .format(view=name, path=path, key=key, expected=val,
-                         value=resp_val))
+                 .format(
+                     view=name, path=path, key=key, expected=val,
+                     value=resp_val,
+                 )),
             )
         return response
 
@@ -104,7 +106,8 @@ class URLAccessMixin:
         url_ctx = self.get_url_path_ctx()
         if url_ctx:
             self.response_data = {
-                url.format(**url_ctx): data for url, data in self.response_data.items()}
+                url.format(**url_ctx): data for url, data in self.response_data.items()
+            }
 
         for (view, regex, namespace, name) in deconstructed_urls:
             request_data = self.request_data.get(name, {}).copy()
@@ -123,10 +126,14 @@ class URLAccessMixin:
         # Previous Fixtures
         self.owner = create_user(username='owner', password='test')
         self.tester = create_user(username='tester', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner],
-                       privacy_level='public', main_language_project=None)
-        self.private = get(Project, slug='private', privacy_level='private',
-                           main_language_project=None)
+        self.pip = get(
+            Project, slug='pip', users=[self.owner],
+            privacy_level='public', main_language_project=None,
+        )
+        self.private = get(
+            Project, slug='private', privacy_level='private',
+            main_language_project=None,
+        )
 
 
 class ProjectMixin(URLAccessMixin):
@@ -135,8 +142,10 @@ class ProjectMixin(URLAccessMixin):
         super().setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
-        self.subproject = get(Project, slug='sub', language='ja',
-                              users=[self.owner], main_language_project=None)
+        self.subproject = get(
+            Project, slug='sub', language='ja',
+            users=[self.owner], main_language_project=None,
+        )
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.subproject)
         self.integration = get(Integration, project=self.pip, provider_data='')

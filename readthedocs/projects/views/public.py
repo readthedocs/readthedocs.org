@@ -115,8 +115,10 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 def project_badge(request, project_slug):
     """Return a sweet badge for the project."""
     style = request.GET.get('style', 'flat')
-    if style not in ('flat', 'plastic', 'flat-square', 'for-the-badge',
-                     'social'):
+    if style not in (
+        'flat', 'plastic', 'flat-square', 'for-the-badge',
+        'social',
+    ):
         style = 'flat'
 
     # Get the local path to the badge files
@@ -138,8 +140,10 @@ def project_badge(request, project_slug):
     ).first()
 
     if version:
-        last_build = version.builds.filter(type='html',
-                                           state='finished').order_by('-date').first()
+        last_build = version.builds.filter(
+            type='html',
+            state='finished',
+        ).order_by('-date').first()
         if last_build:
             if last_build.success:
                 file_path = badge_path % 'passing'
@@ -154,7 +158,7 @@ def project_badge(request, project_slug):
             )
     except (IOError, OSError):
         log.exception(
-            'Failed to read local filesystem while serving a docs badge'
+            'Failed to read local filesystem while serving a docs badge',
         )
         return HttpResponse(status=503)
 
@@ -415,8 +419,9 @@ def project_embed(request, project_slug):
         slug=project_slug,
     )
     version = project.versions.get(slug=LATEST)
-    files = version.imported_files.filter(name__endswith='.html'
-                                          ).order_by('path')
+    files = version.imported_files.filter(
+        name__endswith='.html',
+    ).order_by('path')
 
     return render(
         request,

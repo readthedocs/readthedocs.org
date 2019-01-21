@@ -47,7 +47,7 @@ class TestVersionURLs(TestCase):
     def test_version_url_with_caps(self):
         url = reverse(
             'project_download_media',
-            kwargs={'type_': 'pdf', 'version_slug': '1.4.X', 'project_slug': 'django'}
+            kwargs={'type_': 'pdf', 'version_slug': '1.4.X', 'project_slug': 'django'},
         )
         self.assertTrue(url)
 
@@ -57,18 +57,18 @@ class TestProfileDetailURLs(TestCase):
     def test_profile_detail_url(self):
         url = reverse(
             'profiles_profile_detail',
-            kwargs={'username': 'foo+bar'}
-            )
+            kwargs={'username': 'foo+bar'},
+        )
         self.assertEqual(url, '/profiles/foo+bar/')
 
         url = reverse(
             'profiles_profile_detail',
-            kwargs={'username': 'abc+def@ghi.jkl'}
-            )
+            kwargs={'username': 'abc+def@ghi.jkl'},
+        )
         self.assertEqual(url, '/profiles/abc+def@ghi.jkl/')
 
         url = reverse(
             'profiles_profile_detail',
-            kwargs={'username': 'abc-def+ghi'}
-            )
+            kwargs={'username': 'abc-def+ghi'},
+        )
         self.assertEqual(url, '/profiles/abc-def+ghi/')

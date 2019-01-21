@@ -315,8 +315,10 @@ class DockerBuildCommand(BuildCommand):
             killed_in_output = 'Killed' in '\n'.join(
                 self.output.splitlines()[-15:],
             )
-            if self.exit_code == DOCKER_OOM_EXIT_CODE or (self.exit_code == 1 and
-                                                          killed_in_output):
+            if self.exit_code == DOCKER_OOM_EXIT_CODE or (
+                self.exit_code == 1 and
+                killed_in_output
+            ):
                 self.output += str(
                     _(
                         '\n\nCommand killed due to excessive memory consumption\n',
@@ -975,11 +977,13 @@ class DockerBuildEnvironment(BuildEnvironment):
                     _('Build exited due to excessive memory consumption'),
                 )
             elif state.get('Error'):
-                self.failure = BuildEnvironmentError((
-                    _('Build exited due to unknown error: {0}').format(
-                        state.get('Error'),
-                    )
-                ),)
+                self.failure = BuildEnvironmentError(
+                    (
+                        _('Build exited due to unknown error: {0}').format(
+                            state.get('Error'),
+                        )
+                    ),
+                )
 
     def create_container(self):
         """Create docker container."""

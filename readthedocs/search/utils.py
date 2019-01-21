@@ -37,10 +37,10 @@ def process_mkdocs_json(version, build_dir=True):
         relative_path = parse_path_from_file(file_path=filename)
         html = parse_content_from_file(file_path=filename)
         headers = parse_headers_from_file(
-            documentation_type='mkdocs', file_path=filename
+            documentation_type='mkdocs', file_path=filename,
         )
         sections = parse_sections_from_file(
-            documentation_type='mkdocs', file_path=filename
+            documentation_type='mkdocs', file_path=filename,
         )
         try:
             title = sections[0]['title']
@@ -81,7 +81,7 @@ def valid_mkdocs_json(file_path):
         if to_check not in page_json:
             log.warning(
                 '(Search Index) Unable to index file: %s error: Invalid JSON',
-                file_path
+                file_path,
             )
             return None
 
@@ -137,7 +137,7 @@ def parse_content_from_file(file_path):
 
     if not content:
         log.info(
-            '(Search Index) Unable to index file: %s, empty file', file_path
+            '(Search Index) Unable to index file: %s, empty file', file_path,
         )
     else:
         log.debug('(Search Index) %s length: %s', file_path, len(content))

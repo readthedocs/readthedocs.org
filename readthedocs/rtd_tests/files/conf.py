@@ -10,7 +10,7 @@ templates_path = ['templates', '_templates', '.templates']
 source_suffix = ['.rst', '.md']
 source_parsers = {
             '.md': CommonMarkParser,
-        }
+}
 master_doc = 'index'
 project = 'Pip'
 copyright = str(datetime.now().year)
@@ -22,6 +22,8 @@ htmlhelp_basename = 'pip'
 html_theme = 'sphinx_rtd_theme'
 file_insertion_enabled = False
 latex_documents = [
-  ('index', 'pip.tex', 'Pip Documentation',
-   '', 'manual'),
+  (
+      'index', 'pip.tex', 'Pip Documentation',
+      '', 'manual',
+  ),
 ]

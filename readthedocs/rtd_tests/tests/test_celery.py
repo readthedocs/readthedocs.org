@@ -78,14 +78,17 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     def test_update_docs(self):
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -95,14 +98,17 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -112,14 +118,17 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -129,14 +138,17 @@ class TestCeleryBuilding(RTDTestCase):
     def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
         mock_setup_vcs.side_effect = VersionLockedError()
 
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
 
         mock_send_notifications.assert_not_called()
         self.assertTrue(result.successful())
@@ -166,7 +178,7 @@ class TestCeleryBuilding(RTDTestCase):
             sync_repository.sync_repo()
         self.assertEqual(
             str(e.exception),
-            RepositoryError.DUPLICATED_RESERVED_VERSIONS
+            RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         )
 
         delete_git_branch(self.repo, 'latest')
@@ -192,7 +204,7 @@ class TestCeleryBuilding(RTDTestCase):
             sync_repository.sync_repo()
         self.assertEqual(
             str(e.exception),
-            RepositoryError.DUPLICATED_RESERVED_VERSIONS
+            RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         )
 
         # TODO: Check that we can build properly after
@@ -230,9 +242,11 @@ class TestCeleryBuilding(RTDTestCase):
         # although the task risen an exception, it's success since we add the
         # exception into the ``info`` attributes
         self.assertEqual(result.status, 'SUCCESS')
-        self.assertEqual(result.info, {
-            'task_name': 'public_task_exception',
-            'context': {},
-            'public_data': {},
-            'error': 'Something bad happened',
-        })
+        self.assertEqual(
+            result.info, {
+                'task_name': 'public_task_exception',
+                'context': {},
+                'public_data': {},
+                'error': 'Something bad happened',
+            },
+        )

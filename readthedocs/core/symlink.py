@@ -101,7 +101,7 @@ class Symlink:
                     project=self.project.slug,
                     version='',
                     msg='Removing single version symlink',
-                )
+                ),
             )
             safe_unlink(self.project_root)
             safe_makedirs(self.project_root)
@@ -190,7 +190,7 @@ class Symlink:
                 project=self.project.slug,
                 version='',
                 msg=log_msg,
-            )
+            ),
         )
         symlink = os.path.join(self.CNAME_ROOT, domain.domain)
         safe_unlink(symlink)
@@ -217,14 +217,14 @@ class Symlink:
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
                 log_msg = 'Symlinking subproject: {} -> {}'.format(
-                    from_slug, to_slug
+                    from_slug, to_slug,
                 )
                 log.info(
                     constants.LOG_TEMPLATE.format(
                         project=self.project.slug,
                         version='',
                         msg=log_msg,
-                    )
+                    ),
                 )
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
@@ -378,13 +378,14 @@ class PublicSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
     PROJECT_CNAME_ROOT = os.path.join(
-        settings.SITE_ROOT, 'public_cname_project'
+        settings.SITE_ROOT, 'public_cname_project',
     )
 
     def get_version_queryset(self):
         return (
-            self.project.versions.protected(only_active=False
-                                            ).filter(built=True) |
+            self.project.versions.protected(
+                only_active=False,
+            ).filter(built=True) |
             self.project.versions.protected(only_active=True)
         )
 
@@ -399,7 +400,7 @@ class PrivateSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
     PROJECT_CNAME_ROOT = os.path.join(
-        settings.SITE_ROOT, 'private_cname_project'
+        settings.SITE_ROOT, 'private_cname_project',
     )
 
     def get_version_queryset(self):

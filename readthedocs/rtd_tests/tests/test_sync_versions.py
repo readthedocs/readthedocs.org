@@ -169,7 +169,7 @@ class TestSyncVersions(TestCase):
         }
 
         self.assertTrue(
-            Version.objects.filter(slug='0.8.3').exists()
+            Version.objects.filter(slug='0.8.3').exists(),
         )
 
         self.client.post(
@@ -180,7 +180,7 @@ class TestSyncVersions(TestCase):
 
         # There isn't a v0.8.3
         self.assertFalse(
-            Version.objects.filter(slug='0.8.3').exists()
+            Version.objects.filter(slug='0.8.3').exists(),
         )
 
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
@@ -205,7 +205,7 @@ class TestSyncVersions(TestCase):
         # 0.8.3 is the current stable
         self.assertEqual(
             version8.identifier,
-            current_stable.identifier
+            current_stable.identifier,
         )
         self.assertTrue(current_stable.machine)
 
@@ -239,7 +239,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             '1abc2def3',
-            current_stable.identifier
+            current_stable.identifier,
         )
 
         # Deleting the tag should return the RTD's stable
@@ -270,7 +270,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             '0.8.3',
-            current_stable.identifier
+            current_stable.identifier,
         )
         self.assertTrue(current_stable.machine)
 
@@ -317,7 +317,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             '1abc2def3',
-            current_stable.identifier
+            current_stable.identifier,
         )
 
         # User activates the stable version
@@ -352,7 +352,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             '0.8.3',
-            current_stable.identifier
+            current_stable.identifier,
         )
         self.assertTrue(current_stable.machine)
 
@@ -380,7 +380,7 @@ class TestSyncVersions(TestCase):
         # 0.8.3 is the current stable
         self.assertEqual(
             '0.8.3',
-            current_stable.identifier
+            current_stable.identifier,
         )
         self.assertTrue(current_stable.machine)
 
@@ -412,7 +412,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             'origin/stable',
-            current_stable.identifier
+            current_stable.identifier,
         )
 
         # Deleting the branch should return the RTD's stable
@@ -441,7 +441,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             'origin/0.8.3',
-            current_stable.identifier
+            current_stable.identifier,
         )
         self.assertTrue(current_stable.machine)
 
@@ -484,7 +484,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             'origin/stable',
-            current_stable.identifier
+            current_stable.identifier,
         )
 
         # User activates the stable version
@@ -517,7 +517,7 @@ class TestSyncVersions(TestCase):
         current_stable = self.pip.get_stable_version()
         self.assertEqual(
             'origin/0.8.3',
-            current_stable.identifier
+            current_stable.identifier,
         )
         self.assertTrue(current_stable.machine)
 
@@ -554,7 +554,7 @@ class TestSyncVersions(TestCase):
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             '1abc2def3',
-            version_latest.identifier
+            version_latest.identifier,
         )
 
         # Deleting the tag should return the RTD's latest
@@ -565,7 +565,7 @@ class TestSyncVersions(TestCase):
                     'verbose_name': 'master',
                 },
             ],
-            'tags': []
+            'tags': [],
         }
 
         resp = self.client.post(
@@ -579,7 +579,7 @@ class TestSyncVersions(TestCase):
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'master',
-            version_latest.identifier
+            version_latest.identifier,
         )
         self.assertTrue(version_latest.machine)
 
@@ -614,7 +614,7 @@ class TestSyncVersions(TestCase):
         version_latest = self.pip.versions.get(slug='latest')
         self.assertEqual(
             'origin/latest',
-            version_latest.identifier
+            version_latest.identifier,
         )
 
         # Deleting the branch should return the RTD's latest
@@ -668,7 +668,7 @@ class TestSyncVersions(TestCase):
         # We only have one version with an identifier `1234`
         self.assertEqual(
             self.pip.versions.filter(identifier='1234').count(),
-            1
+            1,
         )
 
         # We add a new tag with the same identifier
@@ -701,7 +701,7 @@ class TestSyncVersions(TestCase):
         # We have two versions with an identifier `1234`
         self.assertEqual(
             self.pip.versions.filter(identifier='1234').count(),
-            2
+            2,
         )
 
         # We delete one version with identifier `1234`
@@ -730,7 +730,7 @@ class TestSyncVersions(TestCase):
         # We have only one version with an identifier `1234`
         self.assertEqual(
             self.pip.versions.filter(identifier='1234').count(),
-            1
+            1,
         )
 
 
@@ -826,7 +826,7 @@ class TestStableVersion(TestCase):
             'tags': [
                 {
                     'identifier': 'this.is.invalid',
-                    'verbose_name': 'this.is.invalid'
+                    'verbose_name': 'this.is.invalid',
                 },
             ],
         }
@@ -847,7 +847,7 @@ class TestStableVersion(TestCase):
                 },
                 {
                     'identifier': 'this.is.invalid',
-                    'verbose_name': 'this.is.invalid'
+                    'verbose_name': 'this.is.invalid',
                 },
             ],
         }
@@ -897,7 +897,7 @@ class TestStableVersion(TestCase):
                     'identifier': '1.0.0',
                     'verbose_name': '1.0.0',
                 },
-            ]
+            ],
         }
 
         self.client.post(
@@ -1109,12 +1109,12 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(
             '1abc2def3',
-            self.pip.get_stable_version().identifier
+            self.pip.get_stable_version().identifier,
         )
 
         # There arent others stable slugs like stable_a
         other_stable = self.pip.versions.filter(
-            slug__startswith='stable_'
+            slug__startswith='stable_',
         )
         self.assertFalse(other_stable.exists())
 
@@ -1131,10 +1131,10 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(
             '1abc2def3',
-            self.pip.get_stable_version().identifier
+            self.pip.get_stable_version().identifier,
         )
         other_stable = self.pip.versions.filter(
-            slug__startswith='stable_'
+            slug__startswith='stable_',
         )
         self.assertFalse(other_stable.exists())
 
@@ -1197,11 +1197,11 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(
             'origin/stable',
-            self.pip.get_stable_version().identifier
+            self.pip.get_stable_version().identifier,
         )
         # There arent others stable slugs like stable_a
         other_stable = self.pip.versions.filter(
-            slug__startswith='stable_'
+            slug__startswith='stable_',
         )
         self.assertFalse(other_stable.exists())
 
@@ -1218,10 +1218,10 @@ class TestStableVersion(TestCase):
         self.assertTrue(version_stable.active)
         self.assertEqual(
             'origin/stable',
-            self.pip.get_stable_version().identifier
+            self.pip.get_stable_version().identifier,
         )
         other_stable = self.pip.versions.filter(
-            slug__startswith='stable_'
+            slug__startswith='stable_',
         )
         self.assertFalse(other_stable.exists())
 
@@ -1277,12 +1277,12 @@ class TestLatestVersion(TestCase):
         self.assertTrue(version_latest.active)
         self.assertEqual(
             '1abc2def3',
-            version_latest.identifier
+            version_latest.identifier,
         )
 
         # There arent others latest slugs like latest_a
         other_latest = self.pip.versions.filter(
-            slug__startswith='latest_'
+            slug__startswith='latest_',
         )
         self.assertFalse(other_latest.exists())
 
@@ -1299,10 +1299,10 @@ class TestLatestVersion(TestCase):
         self.assertTrue(version_latest.active)
         self.assertEqual(
             '1abc2def3',
-            version_latest.identifier
+            version_latest.identifier,
         )
         other_latest = self.pip.versions.filter(
-            slug__startswith='latest_'
+            slug__startswith='latest_',
         )
         self.assertFalse(other_latest.exists())
 
@@ -1334,12 +1334,12 @@ class TestLatestVersion(TestCase):
         self.assertTrue(version_latest.active)
         self.assertEqual(
             'origin/latest',
-            version_latest.identifier
+            version_latest.identifier,
         )
 
         # There arent others latest slugs like latest_a
         other_latest = self.pip.versions.filter(
-            slug__startswith='latest_'
+            slug__startswith='latest_',
         )
         self.assertFalse(other_latest.exists())
 
@@ -1356,9 +1356,9 @@ class TestLatestVersion(TestCase):
         self.assertTrue(version_latest.active)
         self.assertEqual(
             'origin/latest',
-            version_latest.identifier
+            version_latest.identifier,
         )
         other_latest = self.pip.versions.filter(
-            slug__startswith='latest_'
+            slug__startswith='latest_',
         )
         self.assertFalse(other_latest.exists())

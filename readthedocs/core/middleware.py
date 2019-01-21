@@ -68,7 +68,8 @@ class SubdomainMiddleware(MiddlewareMixin):
             subdomain = domain_parts[0]
             is_www = subdomain.lower() == 'www'
             if not is_www and (  # Support ports during local dev
-                    public_domain in host or public_domain in full_host):
+                    public_domain in host or public_domain in full_host
+            ):
                 if not Project.objects.filter(slug=subdomain).exists():
                     raise Http404(_('Project not found'))
                 request.subdomain = True
@@ -77,8 +78,10 @@ class SubdomainMiddleware(MiddlewareMixin):
                 return None
 
         # Serve CNAMEs
-        if (public_domain not in host and production_domain not in host and
-                'localhost' not in host and 'testserver' not in host):
+        if (
+            public_domain not in host and production_domain not in host and
+            'localhost' not in host and 'testserver' not in host
+        ):
             request.cname = True
             domains = Domain.objects.filter(domain=host)
             if domains.count():
@@ -91,11 +94,13 @@ class SubdomainMiddleware(MiddlewareMixin):
                             LOG_TEMPLATE.format(
                                 msg='Domain Object Detected: %s' % domain.domain,
                                 **log_kwargs
-                            )
+                            ),
                         )
                         break
-            if (not hasattr(request, 'domain_object') and
-                    'HTTP_X_RTD_SLUG' in request.META):
+            if (
+                not hasattr(request, 'domain_object') and
+                'HTTP_X_RTD_SLUG' in request.META
+            ):
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
                 request.urlconf = SUBDOMAIN_URLCONF
                 request.rtdheader = True
@@ -103,7 +108,7 @@ class SubdomainMiddleware(MiddlewareMixin):
                     LOG_TEMPLATE.format(
                         msg='X-RTD-Slug header detected: %s' % request.slug,
                         **log_kwargs
-                    )
+                    ),
                 )
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
@@ -117,7 +122,7 @@ class SubdomainMiddleware(MiddlewareMixin):
                             LOG_TEMPLATE.format(
                                 msg='CNAME cached: {}->{}'.format(slug, host),
                                 **log_kwargs
-                            )
+                            ),
                         )
                     request.slug = slug
                     request.urlconf = SUBDOMAIN_URLCONF
@@ -125,12 +130,12 @@ class SubdomainMiddleware(MiddlewareMixin):
                         LOG_TEMPLATE.format(
                             msg='CNAME detected: %s' % request.slug,
                             **log_kwargs
-                        )
+                        ),
                     )
                 except:  # noqa
                     # Some crazy person is CNAMEing to us. 404.
                     log.warning(
-                        LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs)
+                        LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs),
                     )
                     raise Http404(_('Invalid hostname'))
         # Google was finding crazy www.blah.readthedocs.org domains.
@@ -139,12 +144,12 @@ class SubdomainMiddleware(MiddlewareMixin):
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
                 log.debug(
-                    LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs)
+                    LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs),
                 )
                 return HttpResponseBadRequest(_('Invalid hostname'))
             log.debug(
                 LOG_TEMPLATE
-                .format(msg='Allowing long domain name', **log_kwargs)
+                .format(msg='Allowing long domain name', **log_kwargs),
             )
             # raise Http404(_('Invalid hostname'))
         # Normal request.
@@ -248,13 +253,15 @@ class FooterNoSessionMiddleware(SessionMiddleware):
     """
 
     IGNORE_URLS = [
-        '/api/v2/footer_html', '/sustainability/view', '/sustainability/click'
+        '/api/v2/footer_html', '/sustainability/view', '/sustainability/click',
     ]
 
     def process_request(self, request):
         for url in self.IGNORE_URLS:
-            if (request.path_info.startswith(url) and
-                    settings.SESSION_COOKIE_NAME not in request.COOKIES):
+            if (
+                request.path_info.startswith(url) and
+                settings.SESSION_COOKIE_NAME not in request.COOKIES
+            ):
                 # Hack request.session otherwise the Authentication middleware complains.
                 request.session = {}
                 return
@@ -262,7 +269,9 @@ class FooterNoSessionMiddleware(SessionMiddleware):
 
     def process_response(self, request, response):
         for url in self.IGNORE_URLS:
-            if (request.path_info.startswith(url) and
-                    settings.SESSION_COOKIE_NAME not in request.COOKIES):
+            if (
+                request.path_info.startswith(url) and
+                settings.SESSION_COOKIE_NAME not in request.COOKIES
+            ):
                 return response
         return super().process_response(request, response)

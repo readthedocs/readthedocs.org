@@ -67,7 +67,7 @@ def build_branches(project, branch_list):
         versions = project.versions_from_branch_name(branch)
         for version in versions:
             log.info(
-                '(Branch Build) Processing %s:%s', project.slug, version.slug
+                '(Branch Build) Processing %s:%s', project.slug, version.slug,
             )
             ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
@@ -151,7 +151,7 @@ def _build_url(url, projects, branches):
     for project_slug, built in list(all_built.items()):
         if built:
             msg = '(URL Build) Build Started: {} [{}]'.format(
-                url, ' '.join(built)
+                url, ' '.join(built),
             )
             log_info(project_slug, msg=msg)
             ret += msg
@@ -159,7 +159,7 @@ def _build_url(url, projects, branches):
     for project_slug, not_building in list(all_not_building.items()):
         if not_building:
             msg = '(URL Build) Not Building: {} [{}]'.format(
-                url, ' '.join(not_building)
+                url, ' '.join(not_building),
             )
             log_info(project_slug, msg=msg)
             ret += msg
@@ -296,7 +296,7 @@ def bitbucket_build(request):
                 if not repository['absolute_url']:
                     return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org{}'.format(
-                    repository['absolute_url'].rstrip('/')
+                    repository['absolute_url'].rstrip('/'),
                 )
             elif version == 2:
                 changes = data['push']['changes']
@@ -304,7 +304,7 @@ def bitbucket_build(request):
                 if not data['repository']['full_name']:
                     return HttpResponse('Invalid request', status=400)
                 search_url = 'bitbucket.org/{}'.format(
-                    data['repository']['full_name']
+                    data['repository']['full_name'],
                 )
         except (TypeError, ValueError, KeyError):
             log.exception('Invalid Bitbucket webhook payload')
@@ -353,10 +353,10 @@ def generic_build(request, project_id_or_slug=None):
         except (Project.DoesNotExist, ValueError):
             log.exception(
                 '(Incoming Generic Build) Repo not found:  %s',
-                project_id_or_slug
+                project_id_or_slug,
             )
             return HttpResponseNotFound(
-                'Repo not found: %s' % project_id_or_slug
+                'Repo not found: %s' % project_id_or_slug,
             )
     # This endpoint doesn't require authorization, we shouldn't allow builds to
     # be triggered from this any longer. Deprecation plan is to selectively

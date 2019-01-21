@@ -73,8 +73,10 @@ class Backend(BaseVCS):
         submodules_in_config = (
             config.submodules.exclude != ALL or config.submodules.include
         )
-        if (self.project.has_feature(Feature.SKIP_SUBMODULES) or
-                not submodules_in_config):
+        if (
+            self.project.has_feature(Feature.SKIP_SUBMODULES) or
+            not submodules_in_config
+        ):
             return False
 
         # Keep compatibility with previous projects
@@ -160,7 +162,7 @@ class Backend(BaseVCS):
         code, out, err = self.run('git', 'checkout', '--force', revision)
         if code != 0:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(revision)
+                RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             )
         return [code, out, err]
 
