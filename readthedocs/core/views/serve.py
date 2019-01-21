@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Doc serving from Python.
 
@@ -24,13 +25,6 @@ Settings
 PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
-
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
 
 import logging
 import mimetypes
@@ -63,8 +57,11 @@ def map_subproject_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
+
     @wraps(view_func)
-    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):  # noqa
+    def inner_view(
+            request, subproject=None, subproject_slug=None, *args, **kwargs
+    ):  # noqa
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
@@ -90,8 +87,11 @@ def map_project_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
+
     @wraps(view_func)
-    def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
+    def inner_view(
+            request, project=None, project_slug=None, *args, **kwargs
+    ):  # noqa
         if project is None:
             if not project_slug:
                 project_slug = request.slug
@@ -109,10 +109,12 @@ def map_project_slug(view_func):
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
     urlparse_result = urlparse(request.get_full_path())
-    return HttpResponseRedirect(resolve(
-        subproject or project,
-        query_params=urlparse_result.query,
-    ))
+    return HttpResponseRedirect(
+        resolve(
+            subproject or project,
+            query_params=urlparse_result.query,
+        )
+    )
 
 
 @map_project_slug
@@ -120,11 +122,13 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
     urlparse_result = urlparse(request.get_full_path())
-    return HttpResponseRedirect(resolve(
-        subproject or project,
-        filename=filename,
-        query_params=urlparse_result.query,
-    ))
+    return HttpResponseRedirect(
+        resolve(
+            subproject or project,
+            filename=filename,
+            query_params=urlparse_result.query,
+        )
+    )
 
 
 def _serve_401(request, project):
@@ -142,7 +146,8 @@ def _serve_file(request, filename, basepath):
 
     # Serve from Nginx
     content_type, encoding = mimetypes.guess_type(
-        os.path.join(basepath, filename))
+        os.path.join(basepath, filename)
+    )
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(content_type=content_type)
     if encoding:
@@ -169,8 +174,10 @@ def _serve_file(request, filename, basepath):
 @map_subproject_slug
 def serve_docs(
         request, project, subproject, lang_slug=None, version_slug=None,
-        filename=''):
-    """Exists to map existing proj, lang, version, filename views to the file format."""
+        filename=''
+):
+    """Exists to map existing proj, lang, version, filename views to the file
+    format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:
@@ -235,4 +242,5 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
-        'File not found. Tried these files: %s' % ','.join(files_tried))
+        'File not found. Tried these files: %s' % ','.join(files_tried)
+    )

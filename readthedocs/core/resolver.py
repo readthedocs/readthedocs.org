@@ -1,11 +1,9 @@
+# -*- coding: utf-8 -*-
 """URL resolver for documentation."""
-
-from __future__ import absolute_import
 
 import re
 from urllib.parse import urlunparse
 
-from builtins import object
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -53,9 +51,11 @@ class ResolverBase(object):
         /docs/<project_slug>/projects/<subproject_slug>/<filename>
     """
 
-    def base_resolve_path(self, project_slug, filename, version_slug=None,
-                          language=None, private=False, single_version=None,
-                          subproject_slug=None, subdomain=None, cname=None):
+    def base_resolve_path(
+            self, project_slug, filename, version_slug=None, language=None,
+            private=False, single_version=None, subproject_slug=None,
+            subdomain=None, cname=None
+    ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
@@ -74,14 +74,18 @@ class ResolverBase(object):
             url += u'{language}/{version_slug}/{filename}'
 
         return url.format(
-            project_slug=project_slug, filename=filename,
-            version_slug=version_slug, language=language,
-            single_version=single_version, subproject_slug=subproject_slug,
+            project_slug=project_slug,
+            filename=filename,
+            version_slug=version_slug,
+            language=language,
+            single_version=single_version,
+            subproject_slug=subproject_slug,
         )
 
-    def resolve_path(self, project, filename='', version_slug=None,
-                     language=None, single_version=None, subdomain=None,
-                     cname=None, private=None):
+    def resolve_path(
+            self, project, filename='', version_slug=None, language=None,
+            single_version=None, subdomain=None, cname=None, private=None
+    ):
         """Resolve a URL with a subset of fields defined."""
         cname = cname or project.domains.filter(canonical=True).first()
         version_slug = version_slug or project.get_default_version()
@@ -140,8 +144,10 @@ class ResolverBase(object):
 
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
-    def resolve(self, project, require_https=False, filename='',
-                query_params='', private=None, **kwargs):
+    def resolve(
+            self, project, require_https=False, filename='', query_params='',
+            private=None, **kwargs
+    ):
         if private is None:
             version_slug = kwargs.get('version_slug')
             if version_slug is None:
@@ -212,7 +218,7 @@ class ResolverBase(object):
         if self._use_subdomain():
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
-            return "%s.%s" % (subdomain_slug, public_domain)
+            return '%s.%s' % (subdomain_slug, public_domain)
 
     def _get_project_custom_domain(self, project):
         return project.domains.filter(canonical=True).first()
@@ -223,7 +229,9 @@ class ResolverBase(object):
             version = project.versions.get(slug=version_slug)
             private = version.privacy_level == PRIVATE
         except Version.DoesNotExist:
-            private = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC) == PRIVATE
+            private = getattr(
+                settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC
+            ) == PRIVATE
         return private
 
     def _fix_filename(self, project, filename):
@@ -241,17 +249,17 @@ class ResolverBase(object):
         if filename:
             if filename.endswith('/') or filename.endswith('.html'):
                 path = filename
-            elif project.documentation_type == "sphinx_singlehtml":
-                path = "index.html#document-" + filename
-            elif project.documentation_type in ["sphinx_htmldir", "mkdocs"]:
-                path = filename + "/"
+            elif project.documentation_type == 'sphinx_singlehtml':
+                path = 'index.html#document-' + filename
+            elif project.documentation_type in ['sphinx_htmldir', 'mkdocs']:
+                path = filename + '/'
             elif '#' in filename:
                 # do nothing if the filename contains URL fragments
                 path = filename
             else:
-                path = filename + ".html"
+                path = filename + '.html'
         else:
-            path = ""
+            path = ''
         return path
 
     def _use_custom_domain(self, custom_domain):
