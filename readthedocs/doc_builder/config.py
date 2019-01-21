@@ -43,8 +43,6 @@ def load_yaml_config(version):
         'build': {
             'image': img_name,
         },
-        'output_base': '',
-        'name': version.slug,
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
