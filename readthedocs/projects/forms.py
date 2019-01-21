@@ -4,6 +4,7 @@
 
 from random import choice
 from re import fullmatch
+from urllib.parse import urlparse
 
 from django import forms
 from django.conf import settings
@@ -11,7 +12,6 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from future.backports.urllib.parse import urlparse
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
