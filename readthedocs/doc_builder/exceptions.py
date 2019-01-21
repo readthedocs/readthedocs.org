@@ -60,3 +60,13 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
     GENERIC_WITH_PARSE_EXCEPTION = ugettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',
     )
+
+    INVALID_DOCS_DIR_CONFIG = ugettext_noop(
+        'The "docs_dir" config from your MkDocs YAML config file has to be a '
+        'string with relative or absolute path.',
+    )
+
+    INVALID_EXTRA_CONFIG = ugettext_noop(
+        'The "{config}" config from your MkDocs YAML config file has to be a '
+        'a list of relative paths.',
+    )

@@ -84,7 +84,7 @@ class BaseMkdocs(BaseBuilder):
         """
         Load a YAML config.
 
-        Raise BuildEnvironmentError if failed due to syntax errors.
+        :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
             return yaml.safe_load(open(self.yaml_file, 'r'),)
@@ -105,7 +105,12 @@ class BaseMkdocs(BaseBuilder):
             )
 
     def append_conf(self, **__):
-        """Set mkdocs config values."""
+        """
+        Set mkdocs config values.
+
+        :raises: ``MkDocsYAMLParseError`` if failed due to known type errors
+                 (i.e. expecting a list and a string is found).
+        """
         if not self.yaml_file:
             self.yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
 
@@ -113,12 +118,27 @@ class BaseMkdocs(BaseBuilder):
 
         # Handle custom docs dirs
         user_docs_dir = user_config.get('docs_dir')
+        if not isinstance(user_docs_dir, (type(None), str)):
+            raise MkDocsYAMLParseError(
+                MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
+            )
+
         docs_dir = self.docs_dir(docs_dir=user_docs_dir)
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
         static_url = get_absolute_static_url()
+
+        for config in ('extra_css', 'extra_javascript'):
+            user_value = user_config.get(config, [])
+            if not isinstance(user_value, list):
+                raise MkDocsYAMLParseError(
+                    MkDocsYAMLParseError.INVALID_EXTRA_CONFIG.format(
+                        config=config,
+                    ),
+                )
+
         user_config.setdefault('extra_javascript', []).extend([
             'readthedocs-data.js',
             '%score/js/readthedocs-doc-embed.js' % static_url,

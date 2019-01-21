@@ -1157,8 +1157,9 @@ class TestPythonEnvironment(TestCase):
         ]
 
         self.pip_install_args = [
-            'python',
-            mock.ANY,  # pip path
+            mock.ANY,  # python path
+            '-m',
+            'pip',
             'install',
             '--upgrade',
             '--cache-dir',
@@ -1247,8 +1248,9 @@ class TestPythonEnvironment(TestCase):
             os.path.join(checkout_path, 'docs'): True,
         }
         args = [
-            'python',
-            mock.ANY,  # pip path
+            mock.ANY,  # python path
+            '-m',
+            'pip',
             'install',
             '--exists-action=w',
             '--cache-dir',
@@ -1319,8 +1321,9 @@ class TestPythonEnvironment(TestCase):
         ]
 
         args_pip = [
-            'python',
-            mock.ANY,  # pip path
+            mock.ANY,  # python path
+            '-m',
+            'pip',
             'install',
             '-U',
             '--cache-dir',
@@ -1332,6 +1335,7 @@ class TestPythonEnvironment(TestCase):
             'conda',
             'install',
             '--yes',
+            '--quiet',
             '--name',
             self.version_sphinx.slug,
         ]
@@ -1358,8 +1362,9 @@ class TestPythonEnvironment(TestCase):
         ]
 
         args_pip = [
-            'python',
-            mock.ANY,  # pip path
+            mock.ANY,  # python path
+            '-m',
+            'pip',
             'install',
             '-U',
             '--cache-dir',
@@ -1371,6 +1376,7 @@ class TestPythonEnvironment(TestCase):
             'conda',
             'install',
             '--yes',
+            '--quiet',
             '--name',
             self.version_mkdocs.slug,
         ]

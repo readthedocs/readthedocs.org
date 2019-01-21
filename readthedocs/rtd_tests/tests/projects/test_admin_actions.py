@@ -59,7 +59,7 @@ class ProjectAdminActionsTest(TestCase):
     @mock.patch('readthedocs.projects.admin.broadcast')
     def test_project_delete(self, broadcast):
         """Test project and artifacts are removed"""
-        from readthedocs.projects.tasks import remove_dir
+        from readthedocs.projects.tasks import remove_dirs
         action_data = {
             ACTION_CHECKBOX_NAME: [self.project.pk],
             'action': 'delete_selected',
@@ -73,6 +73,6 @@ class ProjectAdminActionsTest(TestCase):
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
         broadcast.assert_has_calls([
             mock.call(
-                type='app', task=remove_dir, args=[self.project.doc_path]
+                type='app', task=remove_dirs, args=[(self.project.doc_path,)]
             ),
         ])

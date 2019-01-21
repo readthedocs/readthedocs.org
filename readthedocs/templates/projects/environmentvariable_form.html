@@ -1,0 +1,22 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Environment Variables" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-environment-variables %}class="active"{% endblock %}
+
+{% block project-environment-variables-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Environment Variables" %}{% endblock %}
+
+{% block project_edit_content %}
+  <form
+      method="post"
+      action="{% url 'projects_environmentvariables_create' project_slug=project.slug %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="{% trans "Save" %}">
+  </form>
+{% endblock %}

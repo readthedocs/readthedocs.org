@@ -41,8 +41,6 @@ def load_yaml_config(version):
         'build': {
             'image': img_name,
         },
-        'output_base': '',
-        'name': version.slug,
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
@@ -57,7 +55,6 @@ def load_yaml_config(version):
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
     if img_settings:
         env_config.update(img_settings)
-        env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
     try:
         config = load_config(

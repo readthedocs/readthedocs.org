@@ -75,8 +75,9 @@ class PythonEnvironment:
                     ','.join(self.config.python.extra_requirements),
                 )
             self.build_env.run(
-                'python',
-                self.venv_bin(filename='pip'),
+                self.venv_bin(filename='python'),
+                '-m',
+                'pip',
                 'install',
                 '--ignore-installed',
                 '--cache-dir',
@@ -87,7 +88,7 @@ class PythonEnvironment:
             )
         elif self.config.python.install_with_setup:
             self.build_env.run(
-                'python',
+                self.venv_bin(filename='python'),
                 'setup.py',
                 'install',
                 '--force',
@@ -237,8 +238,9 @@ class Virtualenv(PythonEnvironment):
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""
         pip_install_cmd = [
-            'python',
-            self.venv_bin(filename='pip'),
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
             'install',
             '--upgrade',
             '--cache-dir',
@@ -318,8 +320,9 @@ class Virtualenv(PythonEnvironment):
 
         if requirements_file_path:
             args = [
-                'python',
-                self.venv_bin(filename='pip'),
+                self.venv_bin(filename='python'),
+                '-m',
+                'pip',
                 'install',
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
@@ -367,6 +370,7 @@ class Conda(PythonEnvironment):
             'conda',
             'env',
             'create',
+            '--quiet',
             '--name',
             self.version.slug,
             '--file',
@@ -398,6 +402,7 @@ class Conda(PythonEnvironment):
             'conda',
             'install',
             '--yes',
+            '--quiet',
             '--name',
             self.version.slug,
         ]
@@ -408,8 +413,9 @@ class Conda(PythonEnvironment):
         )
 
         pip_cmd = [
-            'python',
-            self.venv_bin(filename='pip'),
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
             'install',
             '-U',
             '--cache-dir',

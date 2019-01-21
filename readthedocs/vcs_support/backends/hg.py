@@ -108,4 +108,11 @@ class Backend(BaseVCS):
         super().checkout()
         if not identifier:
             identifier = 'tip'
-        return self.run('hg', 'update', '--clean', identifier)
+        exit_code, stdout, stderr = self.run(
+            'hg', 'update', '--clean', identifier
+        )
+        if exit_code != 0:
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(identifier)
+            )
+        return exit_code, stdout, stderr

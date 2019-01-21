@@ -44,6 +44,10 @@ class RepositoryError(BuildEnvironmentError):
         'You can not have two versions with the name latest or stable.',
     )
 
+    FAILED_TO_CHECKOUT = _(
+        'Failed to checkout revision: {}'
+    )
+
     def get_default_message(self):
         if settings.ALLOW_PRIVATE_REPOS:
             return self.PRIVATE_ALLOWED

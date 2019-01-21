@@ -15,6 +15,7 @@ from mock import patch
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
@@ -383,6 +384,39 @@ class MkdocsBuilderTest(TestCase):
             config['site_name'],
             'mkdocs'
         )
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_existing_yaml_on_root_with_invalid_setting(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        checkout_path.return_value = tmpdir
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        # We can't use ``@pytest.mark.parametrize`` on a Django test case
+        yaml_contents = [
+            {'docs_dir': ['docs']},
+            {'extra_css': 'a string here'},
+            {'extra_javascript': None},
+        ]
+        for content in yaml_contents:
+            yaml.safe_dump(
+                content,
+                open(yaml_file, 'w'),
+            )
+            with self.assertRaises(MkDocsYAMLParseError):
+                self.searchbuilder.append_conf()
+
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')

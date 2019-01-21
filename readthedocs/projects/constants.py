@@ -13,7 +13,6 @@ from django.utils.translation import ugettext_lazy as _
 
 
 DOCUMENTATION_CHOICES = (
-    ('auto', _('Automatically Choose')),
     ('sphinx', _('Sphinx Html')),
     ('mkdocs', _('Mkdocs (Markdown)')),
     ('sphinx_htmldir', _('Sphinx HtmlDir')),

@@ -20,6 +20,8 @@ details and a list of HTTP exchanges that have taken place for the integration.
 You need this information for the URL, webhook, or Payload URL needed by the
 repository provider such as GitHub, GitLab, or Bitbucket.
 
+.. _webhook-creation:
+
 Webhook Creation
 ----------------
 
@@ -35,6 +37,8 @@ to add. After you have added the integration, you'll see a link to information a
 As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
 
 Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
+
+.. _webhook-integration-github:
 
 GitHub
 ~~~~~~
@@ -54,6 +58,8 @@ For a 403 error, it's likely that the Payload URL is incorrect.
 
 .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
+.. _webhook-integration-bitbucket:
+
 Bitbucket
 ~~~~~~~~~
 
@@ -64,6 +70,8 @@ Bitbucket
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
+.. _webhook-integration-gitlab:
+
 GitLab
 ~~~~~~
 
@@ -73,6 +81,8 @@ GitLab
   found on the **Dashboard** > **Admin** > **Integrations** page
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
+
+.. _webhook-integration-generic:
 
 Using the generic API integration
 ---------------------------------
@@ -137,3 +147,69 @@ Resyncing webhooks
 It might be necessary to re-establish a webhook if you are noticing problems.
 To resync a webhook from Read the Docs, visit the integration detail page and
 follow the directions for re-syncing your repository webhook.
+
+Troubleshooting
+---------------
+
+My project isn't automatically building
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If your project isn't automatically building, you can check your integration on
+Read the Docs to see the payload sent to our servers. If there is no recent
+activity on your Read the Docs project webhook integration, then it's likely
+that your VCS provider is not configured correctly. If there is payload
+information on your Read the Docs project, you might need to verify that your
+versions are configured to build correctly.
+
+Either way, it may help to either resync your webhook integration (see
+`Resyncing webhooks`_ for information on this process), or set up an entirely
+new webhook integration.
+
+.. _webhook-github-services:
+
+I was warned I shouldn't use GitHub Services
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Last year, GitHub announced that effective Jan 31st, 2019, GitHub Services will stop
+working [1]_. This means GitHub will stop sending notifications to Read the Docs
+for projects configured with the ``ReadTheDocs`` GitHub Service. If your project
+has been configured on Read the Docs for a long time, you are most likely still
+using this service to automatically build your project on Read the Docs.
+
+In order for your project to continue automatically building, you will need to
+configure your GitHub repository with a new webhook. You can use either a
+connected GitHub account and a :ref:`GitHub webhook integration <webhook-integration-github>`
+on your Read the Docs project, or you can use a
+:ref:`generic webhook integration <webhook-integration-generic>` without a connected
+account.
+
+.. [1] https://developer.github.com/changes/2018-04-25-github-services-deprecation/
+
+.. _webhook-deprecated-endpoints:
+
+I was warned that my project won't automatically build after April 1st
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to :ref:`no longer supporting GitHub Services <webhook-github-services>`,
+we have decided to no longer support several other legacy incoming webhook
+endpoints that were used before we introduced project webhook integrations. When
+we introduced our webhook integrations, we added several features and improved
+security for incoming webhooks and these features were not added to our leagcy
+incoming webhooks. New projects have not been able to use our legacy incoming
+webhooks since, however if you have a project that has been established for a
+while, you may still be using these endpoints.
+
+After March 1st, 2019, we will stop accepting incoming webhook notifications for
+these legacy incoming webhooks. Your project will need to be reconfigured and
+have a webhook integration configured, pointing to a new webhook with your VCS
+provider.
+
+In particular, the incoming webhook URLs that will be removed are:
+
+* ``https://readthedocs.org/build``
+* ``https://readthedocs.org/bitbucket``
+* ``https://readthedocs.org/github`` (as noted :ref:`above <webhook-github-services>`)
+* ``https://readthedocs.org/gitlab``
+
+In order to establish a new project webhook integration, :ref:`follow
+the directions for your VCS provider <webhook-creation>`

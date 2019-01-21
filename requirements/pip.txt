@@ -2,18 +2,6 @@
 pip==18.1
 appdirs==1.4.3
 virtualenv==16.2.0
-docutils==0.14
-Sphinx==1.8.3
-sphinx_rtd_theme==0.4.2
-sphinx-tabs==1.1.10
-# Required to avoid Transifex error with reserved slug
-# https://github.com/sphinx-doc/sphinx-intl/pull/27
-git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
-
-Pygments==2.3.1
-
-mkdocs==1.0.4
-Markdown==3.0.1
 
 django==1.11.18
 django-tastypie==0.14.2
@@ -39,6 +27,8 @@ requests-toolbelt==0.8.0
 slumber==0.7.1
 lxml==4.2.5
 defusedxml==0.5.0
+pyyaml==3.13
+Pygments==2.3.1
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -93,15 +83,6 @@ django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
 django-taggit==0.23.0
 dj-pagination==2.4.0
-
-# Docs
-sphinxcontrib-httpdomain==1.7.0
-
-# commonmark 0.5.5 is the latest version compatible with our docs, the
-# newer ones make `tox -e docs` to fail
-commonmark==0.5.5
-
-recommonmark==0.4.0
 
 # Version comparison stuff
 packaging==18.0

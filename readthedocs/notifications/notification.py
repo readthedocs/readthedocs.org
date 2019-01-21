@@ -35,6 +35,7 @@ class Notification:
     subject = None
     user = None
     send_email = True
+    extra_tags = ''
 
     def __init__(self, context_object, request, user=None):
         self.object = context_object
