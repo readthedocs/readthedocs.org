@@ -80,7 +80,7 @@ from .signals import (
     before_vcs,
     files_changed,
     bulk_post_create,
-    bulk_post_delete
+    bulk_post_delete,
     domain_verify,
 )
 
