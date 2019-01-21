@@ -1,22 +1,10 @@
 # Base packages
 pip==18.1
 appdirs==1.4.3
-virtualenv==16.1.0
-docutils==0.14
-Sphinx==1.8.2
-sphinx_rtd_theme==0.4.2
-sphinx-tabs==1.1.10
-# Required to avoid Transifex error with reserved slug
-# https://github.com/sphinx-doc/sphinx-intl/pull/27
-git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
+virtualenv==16.2.0
 
-Pygments==2.3.0
-
-mkdocs==1.0.4
-Markdown==3.0.1
-
-django==1.11.16
-six==1.11.0
+django==1.11.18
+six==1.12.0
 future==0.17.1
 django-tastypie==0.14.2
 django-guardian==1.4.9
@@ -33,10 +21,10 @@ djangorestframework==3.9.0
 # E   SyntaxError: invalid syntax
 django-filter<2.0.0
 
-django-vanilla-views==1.0.5
+django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
-requests==2.20.1
+requests==2.21.0
 requests-toolbelt==0.8.0
 slumber==0.7.1
 lxml==4.2.5
@@ -53,7 +41,7 @@ celery==4.1.1
 
 django-allauth==0.38.0
 
-dnspython==1.15.0
+dnspython==1.16.0
 
 # VCS
 httplib2==0.12.0
@@ -76,11 +64,11 @@ pyquery==1.4.0
 # Utils
 django-gravatar2==1.4.2
 pytz==2018.7
-beautifulsoup4==4.6.3
+beautifulsoup4==4.7.0
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.13.0
+stripe==2.17.0
 
 django-formtools==2.1
 
@@ -96,15 +84,6 @@ django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
 django-taggit==0.23.0
 dj-pagination==2.4.0
-
-# Docs
-sphinxcontrib-httpdomain==1.7.0
-
-# commonmark 0.5.5 is the latest version compatible with our docs, the
-# newer ones make `tox -e docs` to fail
-commonmark==0.5.5
-
-recommonmark==0.4.0
 
 # Version comparison stuff
 packaging==18.0

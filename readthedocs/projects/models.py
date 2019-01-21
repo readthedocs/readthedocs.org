@@ -7,13 +7,13 @@ from __future__ import (
 import fnmatch
 import logging
 import os
+from six.moves import shlex_quote
 
 from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import NoReverseMatch, reverse
 from django.db import models
-from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -274,11 +274,6 @@ class Project(models.Model):
             self.slug = slugify(self.name)
             if not self.slug:
                 raise Exception(_('Model must have slug'))
-        if self.documentation_type == 'auto':
-            # This used to determine the type and automatically set the
-            # documentation type to Sphinx for rST and Mkdocs for markdown.
-            # It now just forces Sphinx, due to markdown support.
-            self.documentation_type = 'sphinx'
         super(Project, self).save(*args, **kwargs)
         for owner in self.users.all():
             assign('view_project', owner, self)
@@ -1061,6 +1056,8 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    DONT_SHALLOW_CLONE = 'dont_shallow_clone'
+    USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1069,10 +1066,14 @@ class Feature(models.Model):
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (DONT_OVERWRITE_SPHINX_CONTEXT, _(
-            'Do not overwrite context vars in conf.py with Read the Docs context',)),
+            'Do not overwrite context vars in conf.py with Read the Docs context')),
         (ALLOW_V2_CONFIG_FILE, _(
             'Allow to use the v2 of the configuration file')),
         (MKDOCS_THEME_RTD, _('Use Read the Docs theme for MkDocs as default theme')),
+        (DONT_SHALLOW_CLONE, _(
+            'Do not shallow clone when cloning git repos')),
+        (USE_TESTING_BUILD_IMAGE, _(
+            'Use Docker image labelled as `testing` to build the docs')),
     )
 
     projects = models.ManyToManyField(
@@ -1112,6 +1113,7 @@ class Feature(models.Model):
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
 
 
+@python_2_unicode_compatible
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,
@@ -1126,3 +1128,10 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
     )
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        self.value = shlex_quote(self.value)
+        return super(EnvironmentVariable, self).save(*args, **kwargs)

@@ -31,12 +31,20 @@ from .models import (
     ProjectRelationship,
     WebHook,
 )
-from .notifications import ResourceUsageNotification
-from .tasks import remove_dir
+from .notifications import (
+    DeprecatedBuildWebhookNotification,
+    DeprecatedGitHubWebhookNotification,
+    ResourceUsageNotification,
+)
+from .tasks import remove_dirs
 
 
 class ProjectSendNotificationView(SendNotificationView):
-    notification_classes = [ResourceUsageNotification]
+    notification_classes = [
+        ResourceUsageNotification,
+        DeprecatedBuildWebhookNotification,
+        DeprecatedGitHubWebhookNotification,
+    ]
 
     def get_object_recipients(self, obj):
         for owner in obj.users.all():
@@ -120,7 +128,7 @@ class ProjectAdmin(GuardedModelAdmin):
     list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
     list_filter = ('repo_type', 'featured', 'privacy_level',
                    'documentation_type', 'programming_language',
-                   ProjectOwnerBannedFilter)
+                   'feature__feature_id', ProjectOwnerBannedFilter)
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [ProjectRelationshipInline, RedirectInline,
@@ -175,7 +183,11 @@ class ProjectAdmin(GuardedModelAdmin):
         """
         if request.POST.get('post'):
             for project in queryset:
-                broadcast(type='app', task=remove_dir, args=[project.doc_path])
+                broadcast(
+                    type='app',
+                    task=remove_dirs,
+                    args=[(project.doc_path,)],
+                )
         return delete_selected(self, request, queryset)
 
     def get_actions(self, request):

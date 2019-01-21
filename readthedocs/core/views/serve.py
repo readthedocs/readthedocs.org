@@ -37,6 +37,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -134,10 +135,17 @@ def _serve_file(request, filename, basepath):
     if encoding:
         response['Content-Encoding'] = encoding
     try:
-        response['X-Accel-Redirect'] = os.path.join(
+        iri_path = os.path.join(
             basepath[len(settings.SITE_ROOT):],
             filename,
         )
+        # NGINX does not support non-ASCII characters in the header, so we
+        # convert the IRI path to URI so it's compatible with what NGINX expects
+        # as the header value.
+        # https://github.com/benoitc/gunicorn/issues/1448
+        # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
+        x_accel_redirect = iri_to_uri(iri_path)
+        response['X-Accel-Redirect'] = x_accel_redirect
     except UnicodeEncodeError:
         raise Http404
 
@@ -215,3 +223,49 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     raise Http404(
         'File not found. Tried these files: %s' % ','.join(files_tried))
+
+
+@map_project_slug
+def robots_txt(request, project):
+    """
+    Serve custom user's defined ``/robots.txt``.
+
+    If the user added a ``robots.txt`` in the "default version" of the project,
+    we serve it directly.
+    """
+    # Use the ``robots.txt`` file from the default version configured
+    version_slug = project.get_default_version()
+    version = project.versions.get(slug=version_slug)
+
+    no_serve_robots_txt = any([
+        # If project is private or,
+        project.privacy_level == constants.PRIVATE,
+        # default version is private or,
+        version.privacy_level == constants.PRIVATE,
+        # default version is not active or,
+        not version.active,
+        # default version is not built
+        not version.built,
+    ])
+    if no_serve_robots_txt:
+        # ... we do return a 404
+        raise Http404()
+
+    filename = resolve_path(
+        project,
+        version_slug=version_slug,
+        filename='robots.txt',
+        subdomain=True,  # subdomain will make it a "full" path without a URL prefix
+    )
+
+    # This breaks path joining, by ignoring the root when given an "absolute" path
+    if filename[0] == '/':
+        filename = filename[1:]
+
+    basepath = PublicSymlink(project).project_root
+    fullpath = os.path.join(basepath, filename)
+
+    if os.path.exists(fullpath):
+        return HttpResponse(open(fullpath).read(), content_type='text/plain')
+
+    return HttpResponse('User-agent: *\nAllow: /\n', content_type='text/plain')
