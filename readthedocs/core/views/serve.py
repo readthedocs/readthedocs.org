@@ -58,9 +58,9 @@ def map_subproject_slug(view_func):
     """
 
     @wraps(view_func)
-    def inner_view(
-            request, subproject=None, subproject_slug=None, *args, **kwargs
-    ):  # noqa
+    def inner_view(  # noqa
+            request, subproject=None, subproject_slug=None, *args, **kwargs,
+    ):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
@@ -88,9 +88,9 @@ def map_project_slug(view_func):
     """
 
     @wraps(view_func)
-    def inner_view(
+    def inner_view(  # noqa
             request, project=None, project_slug=None, *args, **kwargs
-    ):  # noqa
+    ):
         if project is None:
             if not project_slug:
                 project_slug = request.slug

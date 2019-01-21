@@ -1046,7 +1046,7 @@ class APIProject(Project):
                 'absolute_url',
                 'downloads',
                 'main_language_project',
-                'related_projects',]:
+                'related_projects']:
             try:
                 del kwargs[key]
             except KeyError:

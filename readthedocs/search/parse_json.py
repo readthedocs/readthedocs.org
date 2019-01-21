@@ -30,7 +30,7 @@ def process_all_json_files(version, build_dir=True):
             if filename in [
                     'search.fjson',
                     'genindex.fjson',
-                    'py-modindex.fjson',]:
+                    'py-modindex.fjson']:
                 continue
             html_files.append(os.path.join(root, filename))
     page_list = []

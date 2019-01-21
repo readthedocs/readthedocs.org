@@ -37,11 +37,7 @@ class Command(BaseCommand):
             print('Invalid GitHub token, exiting')
             return
 
-        for project in Project.objects.filter(
-            programming_language__in=[
-            'none', '', 'words',
-            ],
-        ).filter(repo__contains='github',):
+        for project in Project.objects.filter(programming_language__in=['none', '', 'words']).filter(repo__contains='github'):
             user = repo = ''
             repo_url = project.repo
             for regex in GITHUB_REGEXS:

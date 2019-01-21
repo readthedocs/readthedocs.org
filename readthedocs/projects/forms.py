@@ -616,9 +616,14 @@ class TranslationBaseForm(forms.Form):
             raise forms.ValidationError(
                 _(msg).format(lang=self.parent.get_language_display()),
             )
+
+        # yapf: disable
         exists_translation = (
-            self.parent.translations.filter(language=self.translation.language).exists()  # yapf: disabled
+            self.parent.translations
+            .filter(language=self.translation.language)
+            .exists()
         )
+        # yapf: enable
         if exists_translation:
             msg = ('This project already has a translation for {lang}.')
             raise forms.ValidationError(
