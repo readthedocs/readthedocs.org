@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os import path
 
 import pytest
@@ -16,10 +17,9 @@ V2_SCHEMA = path.join(
 class PathValidator(Validator):
 
     """
-    Path validator
+    Path validator.
 
-    Checks if the given value is a string and a existing
-    file.
+    Checks if the given value is a string and a existing file.
     """
 
     tag = 'path'

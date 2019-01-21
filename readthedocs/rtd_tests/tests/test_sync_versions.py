@@ -2,7 +2,6 @@
 
 import json
 
-import pytest
 from django.test import TestCase
 from django.urls import reverse
 
@@ -447,13 +446,11 @@ class TestSyncVersions(TestCase):
         self.assertTrue(current_stable.machine)
 
     def test_machine_attr_when_user_define_stable_branch_and_delete_it_new_project(self):
-        """
-        The user imports a new project with a branch named ``stable``,
-        when syncing the versions, the RTD's ``stable`` is lost
-        (set to machine=False) and doesn't update automatically anymore,
-        when the branch is deleted on the user repository, the RTD's ``stable``
-        is back (set to machine=True).
-        """
+        """The user imports a new project with a branch named ``stable``, when
+        syncing the versions, the RTD's ``stable`` is lost (set to
+        machine=False) and doesn't update automatically anymore, when the branch
+        is deleted on the user repository, the RTD's ``stable`` is back (set to
+        machine=True)."""
         # There isn't a stable version yet
         self.pip.versions.exclude(slug='master').delete()
         current_stable = self.pip.get_stable_version()
@@ -525,13 +522,11 @@ class TestSyncVersions(TestCase):
         self.assertTrue(current_stable.machine)
 
     def test_machine_attr_when_user_define_latest_tag_and_delete_it(self):
-        """
-        The user creates a tag named ``latest`` on an existing repo,
-        when syncing the versions, the RTD's ``latest`` is lost
-        (set to machine=False) and doesn't update automatically anymore,
-        when the tag is deleted on the user repository, the RTD's ``latest``
-        is back (set to machine=True).
-        """
+        """The user creates a tag named ``latest`` on an existing repo, when
+        syncing the versions, the RTD's ``latest`` is lost (set to
+        machine=False) and doesn't update automatically anymore, when the tag is
+        deleted on the user repository, the RTD's ``latest`` is back (set to
+        machine=True)."""
         version_post_data = {
             'branches': [
                 {
@@ -589,13 +584,11 @@ class TestSyncVersions(TestCase):
         self.assertTrue(version_latest.machine)
 
     def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
-        """
-        The user creates a branch named ``latest`` on an existing repo,
-        when syncing the versions, the RTD's ``latest`` is lost
-        (set to machine=False) and doesn't update automatically anymore,
-        when the branch is deleted on the user repository, the RTD's ``latest``
-        is back (set to machine=True).
-        """
+        """The user creates a branch named ``latest`` on an existing repo, when
+        syncing the versions, the RTD's ``latest`` is lost (set to
+        machine=False) and doesn't update automatically anymore, when the branch
+        is deleted on the user repository, the RTD's ``latest`` is back (set to
+        machine=True)."""
         version_post_data = {
             'branches': [
                 {

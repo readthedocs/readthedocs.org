@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from django.test import TestCase
@@ -10,7 +11,7 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class ImportedFileTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')

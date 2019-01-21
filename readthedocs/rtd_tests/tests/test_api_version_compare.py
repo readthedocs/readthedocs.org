@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 
 from readthedocs.builds.constants import LATEST

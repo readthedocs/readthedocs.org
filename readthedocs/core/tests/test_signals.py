@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import django_dynamic_fixture
 import pytest
 from django.contrib.auth.models import User
@@ -11,11 +12,9 @@ class TestProjectOrganizationSignal:
 
     @pytest.mark.parametrize('model_class', [Project, RemoteOrganization])
     def test_project_organization_get_deleted_upon_user_delete(self, model_class):
-        """
-        If the user has Project or RemoteOrganization where he is the only user,
-        upon deleting his account, the Project or RemoteOrganization should also get
-        deleted.
-        """
+        """If the user has Project or RemoteOrganization where he is the only
+        user, upon deleting his account, the Project or RemoteOrganization
+        should also get deleted."""
 
         obj = django_dynamic_fixture.get(model_class)
         user1 = django_dynamic_fixture.get(User)
@@ -32,10 +31,8 @@ class TestProjectOrganizationSignal:
 
     @pytest.mark.parametrize('model_class', [Project, RemoteOrganization])
     def test_multiple_users_project_organization_not_delete(self, model_class):
-        """
-        Check Project or RemoteOrganization which have multiple users do not get deleted
-        when any of the user delete his account.
-        """
+        """Check Project or RemoteOrganization which have multiple users do not
+        get deleted when any of the user delete his account."""
 
         obj = django_dynamic_fixture.get(model_class)
         user1 = django_dynamic_fixture.get(User)

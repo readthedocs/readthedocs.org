@@ -131,9 +131,15 @@ class BuildConfigBase:
     """
 
     PUBLIC_ATTRIBUTES = [
-        'version', 'formats', 'python',
-        'conda', 'build', 'doctype',
-        'sphinx', 'mkdocs', 'submodules',
+        'version',
+        'formats',
+        'python',
+        'conda',
+        'build',
+        'doctype',
+        'sphinx',
+        'mkdocs',
+        'submodules',
     ]
     version = None
 
@@ -336,14 +342,11 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    DOCKER_DEFAULT_IMAGE,
-                    build['image']
+                    DOCKER_DEFAULT_IMAGE, build['image']
                 )
         # Update docker default settings from image name
         if build['image'] in DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(
-                DOCKER_IMAGE_SETTINGS[build['image']]
-            )
+            self.env_config.update(DOCKER_IMAGE_SETTINGS[build['image']])
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -368,22 +371,22 @@ class BuildConfigV1(BuildConfigBase):
             raw_python = self.raw_config['python']
             if not isinstance(raw_python, dict):
                 self.error(
-                    'python',
-                    self.PYTHON_INVALID_MESSAGE,
-                    code=PYTHON_INVALID)
+                    'python', self.PYTHON_INVALID_MESSAGE, code=PYTHON_INVALID,
+                )
 
             # Validate use_system_site_packages.
             if 'use_system_site_packages' in raw_python:
-                with self.catch_validation_error(
-                        'python.use_system_site_packages'):
+                with self.catch_validation_error('python.use_system_site_packages'):
                     python['use_system_site_packages'] = validate_bool(
-                        raw_python['use_system_site_packages'])
+                        raw_python['use_system_site_packages']
+                    )
 
             # Validate pip_install.
             if 'pip_install' in raw_python:
                 with self.catch_validation_error('python.pip_install'):
                     python['install_with_pip'] = validate_bool(
-                        raw_python['pip_install'])
+                        raw_python['pip_install']
+                    )
 
             # Validate extra_requirements.
             if 'extra_requirements' in raw_python:
@@ -392,13 +395,13 @@ class BuildConfigV1(BuildConfigBase):
                     self.error(
                         'python.extra_requirements',
                         self.PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE,
-                        code=PYTHON_INVALID)
+                        code=PYTHON_INVALID
+                    )
                 if not python['install_with_pip']:
                     python['extra_requirements'] = []
                 else:
                     for extra_name in raw_extra_requirements:
-                        with self.catch_validation_error(
-                                'python.extra_requirements'):
+                        with self.catch_validation_error('python.extra_requirements'):
                             python['extra_requirements'].append(
                                 validate_string(extra_name)
                             )
@@ -407,7 +410,8 @@ class BuildConfigV1(BuildConfigBase):
             if 'setup_py_install' in raw_python:
                 with self.catch_validation_error('python.setup_py_install'):
                     python['install_with_setup'] = validate_bool(
-                        raw_python['setup_py_install'])
+                        raw_python['setup_py_install']
+                    )
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
@@ -813,9 +817,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates that the doctype is the same as the admin panel.
 
-        This a temporal validation, as the configuration file
-        should support per version doctype, but we need to
-        adapt the rtd code for that.
+        This a temporal validation, as the configuration file should support per
+        version doctype, but we need to adapt the rtd code for that.
         """
         dashboard_doctype = self.defaults.get('doctype', 'sphinx')
         if self.doctype != dashboard_doctype:
@@ -887,8 +890,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Checks that we don't have extra keys (invalid ones).
 
-        This should be called after all the validations are done
-        and all keys are popped from `self.raw_config`.
+        This should be called after all the validations are done and all keys
+        are popped from `self.raw_config`.
         """
         msg = (
             'Invalid configuration option: {}. '
@@ -978,10 +981,7 @@ def load(path, env_config):
     filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        raise ConfigError(
-            'No configuration file found',
-            code=CONFIG_REQUIRED
-        )
+        raise ConfigError('No configuration file found', code=CONFIG_REQUIRED)
     with open(filename, 'r') as configuration_file:
         try:
             config = parse(configuration_file.read())

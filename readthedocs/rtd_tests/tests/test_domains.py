@@ -70,7 +70,7 @@ class FormTests(TestCase):
         self.project = get(Project, slug='kong')
 
     def test_https(self):
-        """Make sure https is an admin-only attribute"""
+        """Make sure https is an admin-only attribute."""
         form = DomainForm({'domain': 'example.com', 'canonical': True},
                           project=self.project)
         self.assertTrue(form.is_valid())
@@ -82,7 +82,7 @@ class FormTests(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_canonical_change(self):
-        """Make sure canonical can be properly changed"""
+        """Make sure canonical can be properly changed."""
         form = DomainForm({'domain': 'example.com', 'canonical': True},
                           project=self.project)
         self.assertTrue(form.is_valid())

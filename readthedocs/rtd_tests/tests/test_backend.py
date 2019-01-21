@@ -30,8 +30,8 @@ class TestGitBackend(RTDTestCase):
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="git",
+            name='Test Project',
+            repo_type='git',
             #Our top-level checkout
             repo=git_repo
         )
@@ -179,7 +179,7 @@ class TestGitBackend(RTDTestCase):
     def test_check_invalid_submodule_urls(self):
         repo = self.project.vcs_repo()
         repo.update()
-        r = repo.checkout('invalidsubmodule')
+        repo.checkout('invalidsubmodule')
         with self.assertRaises(RepositoryError) as e:
             repo.update_submodules(self.dummy_conf)
         # `invalid` is created in `make_test_git`

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 from readthedocs.config.find import find_one

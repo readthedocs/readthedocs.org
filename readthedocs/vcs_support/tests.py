@@ -1,9 +1,9 @@
+# -*- coding: utf-8 -*-
 import os
 import shutil
 import unittest
 
 import mock
-from django.conf import settings
 
 from readthedocs.vcs_support import utils
 

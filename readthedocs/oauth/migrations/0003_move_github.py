@@ -3,7 +3,7 @@ import gc
 import json
 import logging
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def chunks(queryset, chunksize=1000):
 
 
 def forwards_move_repos(apps, schema_editor):
-    """Moves OAuth repos"""
+    """Moves OAuth repos."""
     db = schema_editor.connection.alias
 
     # Organizations
@@ -107,7 +107,7 @@ def forwards_move_repos(apps, schema_editor):
             else:
                 new_repo.clone_url = data.get('clone_url')
             new_repo.json = json.dumps(data)
-        except (SyntaxError, ValueError) as e:
+        except (SyntaxError, ValueError):
             pass
         new_repo.save()
         log.info('Migrated project: %s', project.name)
@@ -148,14 +148,14 @@ def forwards_move_repos(apps, schema_editor):
                 new_repo.clone_url = clone_urls.get('ssh', project.git_url)
             else:
                 new_repo.clone_url = clone_urls.get('https', project.html_url)
-        except (SyntaxError, ValueError) as e:
+        except (SyntaxError, ValueError):
             pass
         new_repo.save()
         log.info('Migrated project: %s', project.name)
 
 
 def reverse_move_repos(apps, schema_editor):
-    """Drop OAuth repos"""
+    """Drop OAuth repos."""
     db = schema_editor.connection.alias
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
     RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')

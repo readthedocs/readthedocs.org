@@ -169,7 +169,7 @@ class TestProjectForms(TestCase):
         data['tags'] = '{},{}'.format('a'*90, 'b'*100)
         form = ProjectExtraForm(data)
         self.assertTrue(form.is_valid())
-        
+
         data['tags'] = '{},{}'.format('a'*99, 'b'*101)
         form = ProjectExtraForm(data)
         self.assertFalse(form.is_valid())

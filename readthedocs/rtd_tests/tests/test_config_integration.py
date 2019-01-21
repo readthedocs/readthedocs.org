@@ -371,9 +371,7 @@ class TestLoadConfigV2:
     def test_build_formats_only_pdf(
             self, append_conf, html_build, build_docs_class,
             checkout_path, tmpdir):
-        """
-        Only the pdf format is build.
-        """
+        """Only the pdf format is build."""
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {'formats': ['pdf']})
 

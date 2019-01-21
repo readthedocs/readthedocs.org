@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
 import mock
 from django.contrib.auth.models import User
@@ -31,7 +32,7 @@ class GoldSubscriptionFormTests(TestCase):
         self.mocks['request'].request = mock.Mock(side_effect=resp)
 
     def test_add_subscription(self):
-        """Valid subscription form"""
+        """Valid subscription form."""
         subscription_list = {
             'object': 'list',
             'data': [],
@@ -97,7 +98,7 @@ class GoldSubscriptionFormTests(TestCase):
         ])
 
     def test_add_subscription_update_user(self):
-        """Valid subscription form"""
+        """Valid subscription form."""
         subscription_list = {
             'object': 'list',
             'data': [],
@@ -167,7 +168,7 @@ class GoldSubscriptionFormTests(TestCase):
         ])
 
     def test_update_subscription_plan(self):
-        """Update subcription plan"""
+        """Update subcription plan."""
         subscription_obj = {
             'id': 'sub_12345',
             'object': 'subscription',

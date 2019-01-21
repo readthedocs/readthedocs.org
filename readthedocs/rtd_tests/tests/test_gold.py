@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import fixture, get

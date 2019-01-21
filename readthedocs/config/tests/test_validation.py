@@ -79,7 +79,7 @@ class TestValidateList:
 
     def test_it_rejects_string_types(self):
         with raises(ValidationError) as excinfo:
-            result = validate_list('choice')
+            validate_list('choice')
         assert excinfo.value.code == INVALID_LIST
 
 

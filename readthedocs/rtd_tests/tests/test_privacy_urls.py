@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 
 import mock
@@ -90,10 +91,10 @@ class URLAccessMixin:
             for not_obj in self.context_data:
                 if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
                     self.assertNotIn(not_obj, obj)
-                    print("{} not in {}".format(not_obj, obj))
+                    print('{} not in {}'.format(not_obj, obj))
                 else:
                     self.assertNotEqual(not_obj, obj)
-                    print("{} is not {}".format(not_obj, obj))
+                    print('{} is not {}'.format(not_obj, obj))
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)

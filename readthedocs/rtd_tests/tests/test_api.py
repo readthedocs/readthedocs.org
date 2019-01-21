@@ -196,10 +196,7 @@ class APIBuildTests(TestCase):
         )
 
     def test_response_building(self):
-        """
-        The ``view docs`` attr should return a link
-        to the dashboard.
-        """
+        """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
@@ -238,10 +235,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['docs_url'], dashboard_url)
 
     def test_response_finished_and_success(self):
-        """
-        The ``view docs`` attr should return a link
-        to the docs.
-        """
+        """The ``view docs`` attr should return a link to the docs."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
@@ -276,10 +270,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['docs_url'], docs_url)
 
     def test_response_finished_and_fail(self):
-        """
-        The ``view docs`` attr should return a link
-        to the dashboard.
-        """
+        """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
@@ -1482,9 +1473,8 @@ class APIVersionTests(TestCase):
         )
 
     def test_get_active_versions(self):
-        """
-        Test the full response of ``/api/v2/version/?project__slug=pip&active=true``
-        """
+        """Test the full response of
+        ``/api/v2/version/?project__slug=pip&active=true``"""
         pip = Project.objects.get(slug='pip')
 
         data = QueryDict('', mutable=True)

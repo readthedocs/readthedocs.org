@@ -3,7 +3,7 @@ from django.db import migrations, transaction
 
 
 def migrate_canonical(apps, schema_editor):
-    Project = apps.get_model("projects", "Project")
+    Project = apps.get_model('projects', 'Project')
     for project in Project.objects.all():
         if project.canonical_url:
             try:
@@ -12,10 +12,10 @@ def migrate_canonical(apps, schema_editor):
                         url=project.canonical_url,
                         canonical=True,
                     )
-                    print("Added {url} to {project}".format(url=project.canonical_url, project=project.name))
+                    print('Added {url} to {project}'.format(url=project.canonical_url, project=project.name))
             except Exception as e:
                 print(e)
-                print("Failed adding {url} to {project}".format(
+                print('Failed adding {url} to {project}'.format(
                     url=project.canonical_url, project=project.name
                 ))
 

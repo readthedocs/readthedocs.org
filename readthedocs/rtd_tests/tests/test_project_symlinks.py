@@ -21,7 +21,8 @@ from readthedocs.projects.tasks import (
 
 
 def get_filesystem(path, top_level_path=None):
-    """Recurse into path, return dictionary mapping of path and files
+    """
+    Recurse into path, return dictionary mapping of path and files.
 
     This will return the path `path` as a nested dictionary of path objects.
     Directories are mapped to dictionary objects, file objects will have a
@@ -255,7 +256,7 @@ class BaseSymlinkCnames:
         )
 
     def test_symlink_cname_dont_link_missing_domains(self):
-        """Domains should be relinked after deletion"""
+        """Domains should be relinked after deletion."""
         self.domain = get(Domain, project=self.project, domain='woot.com',
                           url='http://woot.com', cname=True)
         self.symlink.symlink_cnames()
@@ -320,7 +321,7 @@ class BaseSubprojects:
         self.symlink = self.symlink_class(self.project)
 
     def test_subproject_normal(self):
-        """Symlink pass adds symlink for subproject"""
+        """Symlink pass adds symlink for subproject."""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -362,7 +363,7 @@ class BaseSubprojects:
         self.assertFilesystem(filesystem)
 
     def test_subproject_alias(self):
-        """Symlink pass adds symlink for subproject alias"""
+        """Symlink pass adds symlink for subproject alias."""
         self.project.add_subproject(self.subproject, alias='sweet-alias')
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -409,7 +410,7 @@ class BaseSubprojects:
         self.assertFilesystem(filesystem)
 
     def test_subproject_alias_with_spaces(self):
-        """Symlink pass adds symlink for subproject alias"""
+        """Symlink pass adds symlink for subproject alias."""
         self.project.add_subproject(self.subproject, alias='Sweet Alias')
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -456,7 +457,7 @@ class BaseSubprojects:
         self.assertFilesystem(filesystem)
 
     def test_remove_subprojects(self):
-        """Nonexistent subprojects are unlinked"""
+        """Nonexistent subprojects are unlinked."""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -538,7 +539,7 @@ class BaseSymlinkTranslations:
         self.assertIn(self.translation, self.project.translations.all())
 
     def test_symlink_basic(self):
-        """Test basic scenario, language english, translation german"""
+        """Test basic scenario, language english, translation german."""
         self.symlink.symlink_translations()
         filesystem = {
             'private_cname_project': {},
@@ -589,7 +590,7 @@ class BaseSymlinkTranslations:
         self.assertFilesystem(filesystem)
 
     def test_symlink_non_english(self):
-        """Test language german, translation english"""
+        """Test language german, translation english."""
         self.project.language = 'de'
         self.translation.language = 'en'
         self.project.save()
@@ -644,7 +645,8 @@ class BaseSymlinkTranslations:
         self.assertFilesystem(filesystem)
 
     def test_symlink_no_english(self):
-        """Test language german, no english
+        """
+        Test language german, no english.
 
         This should symlink the translation to 'en' even though there is no 'en'
         language in translations or project language
@@ -1057,8 +1059,8 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
         """
         Change subproject's ``privacy_level`` creates proper symlinks.
 
-        When the ``privacy_level`` changes in the subprojects, we need to
-        re-symlink the superproject also to keep in sync its symlink under the
+        When the ``privacy_level`` changes in the subprojects, we need to re-
+        symlink the superproject also to keep in sync its symlink under the
         private/public roots.
         """
         filesystem_before = {

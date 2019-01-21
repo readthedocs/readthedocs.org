@@ -41,7 +41,7 @@ class TestElasticSearch:
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
 
     def test_search_project_show_languages(self, client, project, es_index):
-        """Test that searching project should show all available languages"""
+        """Test that searching project should show all available languages."""
         # Create a project in bn and add it as a translation
         G(Project, language='bn', name=project.name)
         self._reindex_elasticsearch(es_index=es_index)
@@ -55,7 +55,7 @@ class TestElasticSearch:
         assert 'bn' in content.text()
 
     def test_search_project_filter_language(self, client, project, es_index):
-        """Test that searching project filtered according to language"""
+        """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
         translate = G(Project, language='bn', name=project.name)
         self._reindex_elasticsearch(es_index=es_index)
@@ -83,7 +83,8 @@ class TestElasticSearch:
         assert len(result) == 1
 
     def test_file_search_show_projects(self, client):
-        """Test that search result page shows list of projects while searching for files"""
+        """Test that search result page shows list of projects while searching
+        for files."""
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase
@@ -102,7 +103,7 @@ class TestElasticSearch:
         assert 'kuma' and 'pipeline' in text
 
     def test_file_search_filter_by_project(self, client):
-        """Test that search result are filtered according to project"""
+        """Test that search result are filtered according to project."""
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase but filter through `kuma` project
@@ -122,11 +123,11 @@ class TestElasticSearch:
         # as the query is present in both projects
         content = page.find('.navigable .project-list')
         if len(content) != 2:
-            pytest.xfail("failing because currently all projects are not showing in project list")
+            pytest.xfail('failing because currently all projects are not showing in project list')
         else:
             assert 'kuma' and 'pipeline' in content.text()
 
-    @pytest.mark.xfail(reason="Versions are not showing correctly! Fixme while rewrite!")
+    @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
         # override the settings to index all versions
         settings.INDEX_ONLY_LATEST = False
@@ -161,7 +162,7 @@ class TestElasticSearch:
         assert sorted(project_versions) == sorted(content_versions)
 
     def test_file_search_subprojects(self, client, all_projects, es_index):
-        """File search should return results from subprojects also"""
+        """File search should return results from subprojects also."""
         project = all_projects[0]
         subproject = all_projects[1]
         # Add another project as subproject of the project

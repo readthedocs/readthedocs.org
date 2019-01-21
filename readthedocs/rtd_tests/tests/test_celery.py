@@ -26,7 +26,11 @@ from readthedocs.rtd_tests.utils import (
 
 class TestCeleryBuilding(RTDTestCase):
 
-    """These tests run the build functions directly. They don't use celery"""
+    """
+    These tests run the build functions directly.
+
+    They don't use celery
+    """
 
     def setUp(self):
         repo = make_test_git()
@@ -36,8 +40,8 @@ class TestCeleryBuilding(RTDTestCase):
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="git",
+            name='Test Project',
+            repo_type='git',
             # Our top-level checkout
             repo=repo,
         )

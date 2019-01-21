@@ -220,9 +220,7 @@ def project_delete(request, project_slug):
 
     if request.method == 'POST':
         broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[(project.doc_path,)]
+            type='app', task=tasks.remove_dirs, args=[(project.doc_path,)]
         )
         project.delete()
         messages.success(request, _('Project deleted'))
@@ -725,6 +723,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class DomainList(DomainMixin, ListViewWithForm):
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 

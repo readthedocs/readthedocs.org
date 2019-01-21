@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 import mock
 
 
 class EnvironmentMockGroup:
 
-    """Mock out necessary environment pieces"""
+    """Mock out necessary environment pieces."""
 
     def __init__(self):
         self.patches = {
@@ -58,7 +59,7 @@ class EnvironmentMockGroup:
         self.mocks = {}
 
     def start(self):
-        """Create a patch object for class patches"""
+        """Create a patch object for class patches."""
         for patch in self.patches:
             self.mocks[patch] = self.patches[patch].start()
         self.mocks['process'].communicate.return_value = ('', '')
@@ -76,7 +77,7 @@ class EnvironmentMockGroup:
                 pass
 
     def configure_mock(self, mock, kwargs):
-        """Configure object mocks"""
+        """Configure object mocks."""
         self.mocks[mock].configure_mock(**kwargs)
 
     def __getattr__(self, name):

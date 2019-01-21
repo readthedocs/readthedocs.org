@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         # so that we don't break a bunch of folks URL's.
         # They will have to change them on update.
         invalid_chars_re = re.compile('[^-._a-zA-Z0-9]')
-        ProjectRelationship = apps.get_model("projects", "ProjectRelationship")
+        ProjectRelationship = apps.get_model('projects', 'ProjectRelationship')
         for p in ProjectRelationship.objects.all():
             if p.alias and invalid_chars_re.match(p.alias):
                 new_alias = invalid_chars_re.sub('', p.alias)

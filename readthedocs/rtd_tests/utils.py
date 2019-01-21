@@ -20,9 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def get_readthedocs_app_path():
-    """
-    Return the absolute path of the ``readthedocs`` app.
-    """
+    """Return the absolute path of the ``readthedocs`` app."""
 
     try:
         import readthedocs

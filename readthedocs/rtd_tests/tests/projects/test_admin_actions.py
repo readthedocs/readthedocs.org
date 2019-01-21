@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
 import mock
 from django import urls
@@ -59,7 +60,7 @@ class ProjectAdminActionsTest(TestCase):
 
     @mock.patch('readthedocs.projects.admin.broadcast')
     def test_project_delete(self, broadcast):
-        """Test project and artifacts are removed"""
+        """Test project and artifacts are removed."""
         from readthedocs.projects.tasks import remove_dirs
         action_data = {
             ACTION_CHECKBOX_NAME: [self.project.pk],

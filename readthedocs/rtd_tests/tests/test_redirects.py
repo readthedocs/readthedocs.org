@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 from django.http import Http404
@@ -14,7 +15,7 @@ from readthedocs.redirects.models import Redirect
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False, APPEND_SLASH=False)
 class RedirectTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         logging.disable(logging.DEBUG)
@@ -105,7 +106,7 @@ class RedirectTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectAppTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
@@ -336,7 +337,7 @@ class CustomRedirectTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectBuildTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.project = get(Project,
@@ -359,10 +360,10 @@ class RedirectBuildTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class GetFullPathTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.proj = Project.objects.get(slug="read-the-docs")
+        self.proj = Project.objects.get(slug='read-the-docs')
         self.redirect = get(Redirect, project=self.proj)
 
     def test_http_filenames_return_themselves(self):

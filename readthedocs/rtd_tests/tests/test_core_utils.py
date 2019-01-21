@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test core util functions"""
+"""Test core util functions."""
 
 import mock
 from django.test import TestCase
@@ -30,7 +30,7 @@ class CoreUtilTests(TestCase):
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_custom_queue(self, update_docs):
-        """Use a custom queue when routing the task"""
+        """Use a custom queue when routing the task."""
         self.project.build_queue = 'build03'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
@@ -56,7 +56,7 @@ class CoreUtilTests(TestCase):
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_time_limit(self, update_docs):
-        """Pass of time limit"""
+        """Pass of time limit."""
         trigger_build(project=self.project, version=self.version)
         kwargs = {
             'version_pk': self.version.pk,
@@ -81,7 +81,7 @@ class CoreUtilTests(TestCase):
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_invalid_time_limit(self, update_docs):
-        """Time limit as string"""
+        """Time limit as string."""
         self.project.container_time_limit = '200s'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
@@ -107,7 +107,7 @@ class CoreUtilTests(TestCase):
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_rounded_time_limit(self, update_docs):
-        """Time limit should round down"""
+        """Time limit should round down."""
         self.project.container_time_limit = 3
         trigger_build(project=self.project, version=self.version)
         kwargs = {
@@ -132,7 +132,7 @@ class CoreUtilTests(TestCase):
         update_docs.signature().apply_async.assert_called()
 
     def test_slugify(self):
-        """Test additional slugify"""
+        """Test additional slugify."""
         self.assertEqual(slugify('This is a test'),
                          'this-is-a-test')
         self.assertEqual(slugify('project_with_underscores-v.1.0'),

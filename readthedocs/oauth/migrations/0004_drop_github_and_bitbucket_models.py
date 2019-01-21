@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.db import migrations, models
+from django.db import migrations
 
 
 def forwards_remove_content_types(apps, schema_editor):

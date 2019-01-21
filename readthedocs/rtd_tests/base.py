@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Base classes and mixins for unit tests."""
 import logging
 import os
@@ -21,7 +22,7 @@ class RTDTestCase(TestCase):
         self.original_DOCROOT = settings.DOCROOT
         self.cwd = os.path.dirname(__file__)
         self.build_dir = tempfile.mkdtemp()
-        log.info("build dir: %s", self.build_dir)
+        log.info('build dir: %s', self.build_dir)
         if not os.path.exists(self.build_dir):
             os.makedirs(self.build_dir)
         settings.DOCROOT = self.build_dir

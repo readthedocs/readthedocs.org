@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import logging
 
@@ -33,7 +34,7 @@ class PrivacyTests(TestCase):
                      version_privacy_level='private'):
         self.client.login(username='eric', password='test')
         log.info(
-            "Making kong with privacy: %s and version privacy: %s",
+            'Making kong with privacy: %s and version privacy: %s',
             privacy_level,
             version_privacy_level,
         )
@@ -165,22 +166,22 @@ class PrivacyTests(TestCase):
     def test_public_repo_api(self):
         self._create_kong('public', 'public')
         self.client.login(username='eric', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/django-kong/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
 
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
 
         self.client.login(username='tester', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/django-kong/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
@@ -188,21 +189,21 @@ class PrivacyTests(TestCase):
     def test_private_repo_api(self):
         self._create_kong('private', 'private')
         self.client.login(username='eric', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/django-kong/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
 
         self.client.login(username='tester', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/django-kong/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 404)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get('http://testserver/api/v1/project/',
+                               data={'format': 'json'})
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 0)
@@ -365,9 +366,7 @@ class PrivacyTests(TestCase):
         self.assertNotContains(r, 'test-slug')
 
     def test_queryset_chaining(self):
-        """
-        Test that manager methods get set on related querysets.
-        """
+        """Test that manager methods get set on related querysets."""
         kong = self._create_kong('public', 'private')
         self.assertEqual(
             kong.versions.private().get(slug='latest').slug,

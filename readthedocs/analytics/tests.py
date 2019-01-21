@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 
 from .utils import anonymize_ip_address, anonymize_user_agent

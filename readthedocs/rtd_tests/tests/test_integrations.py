@@ -1,8 +1,7 @@
+# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-from django.contrib.contenttypes.models import ContentType
-from django.test import RequestFactory, TestCase
-from rest_framework.response import Response
-from rest_framework.test import APIClient, APIRequestFactory
+from django.test import TestCase
+from rest_framework.test import APIClient
 
 from readthedocs.integrations.models import (
     GitHubWebhook,
@@ -14,7 +13,8 @@ from readthedocs.projects.models import Project
 
 class HttpExchangeTests(TestCase):
 
-    """Test HttpExchange model by using existing views
+    """
+    Test HttpExchange model by using existing views.
 
     This doesn't mock out a req/resp cycle, as manually creating these outside
     views misses a number of attributes on the request object.

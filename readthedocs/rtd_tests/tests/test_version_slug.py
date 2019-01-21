@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 
 from django.test import TestCase
@@ -26,7 +27,7 @@ class VersionSlugPatternTests(TestCase):
 
 
 class VersionSlugFieldTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')

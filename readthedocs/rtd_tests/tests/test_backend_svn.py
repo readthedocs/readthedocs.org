@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Tests For SVN"""
+"""Tests For SVN."""
 
 from django_dynamic_fixture import get
-from mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project

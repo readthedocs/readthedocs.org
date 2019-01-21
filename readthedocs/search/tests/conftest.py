@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random
 import string
 from random import shuffle

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Notification tests"""
+"""Notification tests."""
 
-from datetime import timedelta
 
 import django_dynamic_fixture as fixture
 import mock
@@ -9,7 +8,6 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import timezone
 from messages_extends.models import Message as PersistentMessage
 
 from readthedocs.builds.models import Build
@@ -122,7 +120,7 @@ class NotificationBackendTests(TestCase):
         self.assertEqual(message.user, user)
 
     def test_message_anonymous_user(self, render_to_string):
-        """Anonymous user still throwns exception on persistent messages"""
+        """Anonymous user still throwns exception on persistent messages."""
         render_to_string.return_value = 'Test'
 
         class TestNotification(Notification):

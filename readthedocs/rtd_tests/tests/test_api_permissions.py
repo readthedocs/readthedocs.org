@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from functools import partial
 from unittest import TestCase
 

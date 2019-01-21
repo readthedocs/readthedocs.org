@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 import mock
@@ -26,7 +27,7 @@ class BuildEnvironmentTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build(self, load_config):
-        '''Test full build'''
+        """Test full build."""
         load_config.side_effect = create_load()
         project = get(Project,
                       slug='project-1',
@@ -36,7 +37,7 @@ class BuildEnvironmentTests(TestCase):
         version = project.versions.all()[0]
         self.mocks.configure_mock('api_versions', {'return_value': [version]})
         self.mocks.configure_mock('api', {
-            'get.return_value': {'downloads': "no_url_here"}
+            'get.return_value': {'downloads': 'no_url_here'}
         })
         self.mocks.patches['html_build'].stop()
 
@@ -57,7 +58,7 @@ class BuildEnvironmentTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):
-        '''Build output format control'''
+        """Build output format control."""
         load_config.side_effect = create_load()
         project = get(Project,
                       slug='project-1',
@@ -120,7 +121,7 @@ class BuildEnvironmentTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_epub_flag(self, load_config):
-        '''Test build with epub enabled'''
+        """Test build with epub enabled."""
         load_config.side_effect = create_load()
         project = get(Project,
                       slug='project-1',
@@ -148,7 +149,7 @@ class BuildEnvironmentTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_yaml(self, load_config):
-        '''Test YAML build options'''
+        """Test YAML build options."""
         load_config.side_effect = create_load({'formats': ['epub']})
         project = get(Project,
                       slug='project-1',
@@ -177,7 +178,7 @@ class BuildEnvironmentTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_pdf_latex_failures(self, load_config):
-        '''Build failure if latex fails'''
+        """Build failure if latex fails."""
 
         load_config.side_effect = create_load()
         self.mocks.patches['html_build'].stop()
@@ -223,7 +224,7 @@ class BuildEnvironmentTests(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_pdf_latex_not_failure(self, load_config):
-        '''Test pass during PDF builds and bad latex failure status code'''
+        """Test pass during PDF builds and bad latex failure status code."""
 
         load_config.side_effect = create_load()
         self.mocks.patches['html_build'].stop()
