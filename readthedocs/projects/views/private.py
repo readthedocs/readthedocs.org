@@ -2,13 +2,6 @@
 
 """Project views for authenticated users."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 
 from allauth.socialaccount.models import SocialAccount
@@ -67,7 +60,9 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+
 from ..tasks import retry_domain_verification
+
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +82,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         return Project.objects.dashboard(self.request.user)
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectDashboard, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         return context
 
@@ -227,7 +222,7 @@ def project_delete(request, project_slug):
         broadcast(
             type='app',
             task=tasks.remove_dirs,
-            args=[(project.doc_path,)]
+            args=[(project.doc_path,)],
         )
         project.delete()
         messages.success(request, _('Project deleted'))
@@ -257,7 +252,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     def get_template_names(self):
         """Return template names based on step name."""
-        return 'projects/import_{0}.html'.format(self.steps.current)
+        return 'projects/import_{}.html'.format(self.steps.current)
 
     def done(self, form_list, **kwargs):
         """
@@ -358,7 +353,7 @@ class ImportDemoView(PrivateViewMixin, View):
     def get_form_data(self):
         """Get form data to post to import form."""
         return {
-            'name': '{0}-demo'.format(self.request.user.username),
+            'name': '{}-demo'.format(self.request.user.username),
             'repo_type': 'git',
             'repo': 'https://github.com/readthedocs/template.git',
         }
@@ -412,7 +407,7 @@ class ImportView(PrivateViewMixin, TemplateView):
                     )
                 )),  # yapf: disable
             )
-        return super(ImportView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         initial_data = {}
@@ -426,7 +421,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
     def get_context_data(self, **kwargs):
-        context = super(ImportView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['view_csrf_token'] = get_token(self.request)
         context['has_connected_accounts'] = SocialAccount.objects.filter(
             user=self.request.user,
@@ -447,10 +442,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['user'] = self.request.user
-        return super(
-            ProjectRelationshipMixin,
-            self,
-        ).get_form(data, files, **kwargs)
+        return super().get_form(data, files, **kwargs)
 
     def form_valid(self, form):
         broadcast(
@@ -458,7 +450,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
             task=tasks.symlink_subproject,
             args=[self.get_project().pk],
         )
-        return super(ProjectRelationshipMixin, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('projects_subprojects', args=[self.get_project().slug])
@@ -467,7 +459,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
 
     def get_context_data(self, **kwargs):
-        ctx = super(ProjectRelationshipList, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         ctx['superproject'] = self.project.superprojects.first()
         return ctx
 
@@ -733,8 +725,9 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class DomainList(DomainMixin, ListViewWithForm):
+
     def get_context_data(self, **kwargs):
-        ctx = super(DomainList, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
 
         # Retry validation on all domains if applicable
         for domain in ctx['domain_list']:
@@ -789,7 +782,7 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_template_names(self):
         if self.template_name:
             return self.template_name
-        return 'projects/integration{0}.html'.format(self.template_name_suffix)
+        return 'projects/integration{}.html'.format(self.template_name_suffix)
 
 
 class IntegrationList(IntegrationMixin, ListView):
@@ -824,7 +817,7 @@ class IntegrationDetail(IntegrationMixin, DetailView):
         integration_type = self.get_integration().integration_type
         suffix = self.SUFFIX_MAP.get(integration_type, integration_type)
         return (
-            'projects/integration_{0}{1}.html'
+            'projects/integration_{}{}.html'
             .format(suffix, self.template_name_suffix)
         )
 

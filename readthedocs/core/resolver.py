@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """URL resolver for documentation."""
 
 import re
@@ -10,7 +11,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 
 
-class ResolverBase(object):
+class ResolverBase:
 
     """
     Read the Docs URL Resolver.
@@ -52,26 +53,33 @@ class ResolverBase(object):
     """
 
     def base_resolve_path(
-            self, project_slug, filename, version_slug=None, language=None,
-            private=False, single_version=None, subproject_slug=None,
-            subdomain=None, cname=None
+            self,
+            project_slug,
+            filename,
+            version_slug=None,
+            language=None,
+            private=False,
+            single_version=None,
+            subproject_slug=None,
+            subdomain=None,
+            cname=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
         # pylint: disable=unused-argument
         if subdomain or cname or (self._use_subdomain()):
-            url = u'/'
+            url = '/'
         else:
-            url = u'/docs/{project_slug}/'
+            url = '/docs/{project_slug}/'
 
         if subproject_slug:
-            url += u'projects/{subproject_slug}/'
+            url += 'projects/{subproject_slug}/'
 
         if single_version:
-            url += u'{filename}'
+            url += '{filename}'
         else:
-            url += u'{language}/{version_slug}/{filename}'
+            url += '{language}/{version_slug}/{filename}'
 
         return url.format(
             project_slug=project_slug,
@@ -83,8 +91,15 @@ class ResolverBase(object):
         )
 
     def resolve_path(
-            self, project, filename='', version_slug=None, language=None,
-            single_version=None, subdomain=None, cname=None, private=None
+            self,
+            project,
+            filename='',
+            version_slug=None,
+            language=None,
+            single_version=None,
+            subdomain=None,
+            cname=None,
+            private=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         cname = cname or project.domains.filter(canonical=True).first()
@@ -145,8 +160,8 @@ class ResolverBase(object):
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(
-            self, project, require_https=False, filename='', query_params='',
-            private=None, **kwargs
+            self, project, require_https=False, filename='', private=None,
+            **kwargs
     ):
         if private is None:
             version_slug = kwargs.get('version_slug')
@@ -218,7 +233,7 @@ class ResolverBase(object):
         if self._use_subdomain():
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
-            return '%s.%s' % (subdomain_slug, public_domain)
+            return '{}.{}'.format(subdomain_slug, public_domain)
 
     def _get_project_custom_domain(self, project):
         return project.domains.filter(canonical=True).first()
@@ -230,7 +245,9 @@ class ResolverBase(object):
             private = version.privacy_level == PRIVATE
         except Version.DoesNotExist:
             private = getattr(
-                settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC
+                settings,
+                'DEFAULT_PRIVACY_LEVEL',
+                PUBLIC,
             ) == PRIVATE
         return private
 
