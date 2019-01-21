@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, print_function, unicode_literals)
-
-from django.db import models, migrations
 from urllib.parse import urlparse
+
+from django.db import migrations, models
+
 import readthedocs.projects.validators
 
 

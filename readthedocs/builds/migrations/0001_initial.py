@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
-from django.db import models, migrations
-import readthedocs.builds.version_slug
 import taggit.managers
+from django.db import migrations, models
+
+import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):

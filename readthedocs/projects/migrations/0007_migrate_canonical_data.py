@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals, print_function
-
-from __future__ import absolute_import
-from django.db import migrations
-from django.db import transaction
+from django.db import migrations, transaction
 
 
 def migrate_canonical(apps, schema_editor):
