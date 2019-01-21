@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
-
 import os
 import re
 import textwrap
@@ -38,6 +36,7 @@ from readthedocs.config.validation import (
 
 from .utils import apply_fs
 
+
 yaml_config_dir = {
     'readthedocs.yml': textwrap.dedent(
         '''
@@ -56,13 +55,15 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
     )
 
 
-@pytest.mark.parametrize('files', [
-    {'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}},
-    {'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}},
-    {'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}},
-    {'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}},
-    {'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}},
-])
+@pytest.mark.parametrize(
+    'files', [
+        {'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}},
+        {'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}},
+        {'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}},
+        {'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}},
+        {'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}},
+    ],
+)
 def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
@@ -72,9 +73,11 @@ def test_load_no_config_file(tmpdir, files):
 
 
 def test_load_empty_config_file(tmpdir):
-    apply_fs(tmpdir, {
-        'readthedocs.yml': ''
-    })
+    apply_fs(
+        tmpdir, {
+            'readthedocs.yml': '',
+        },
+    )
     base = str(tmpdir)
     with raises(ConfigError):
         load(base, {})
@@ -88,33 +91,39 @@ def test_minimal_config(tmpdir):
 
 
 def test_load_version1(tmpdir):
-    apply_fs(tmpdir, {
-        'readthedocs.yml': textwrap.dedent('''
+    apply_fs(
+        tmpdir, {
+            'readthedocs.yml': textwrap.dedent('''
             version: 1
-        ''')
-    })
+        '''),
+        },
+    )
     base = str(tmpdir)
     build = load(base, {'allow_v2': True})
     assert isinstance(build, BuildConfigV1)
 
 
 def test_load_version2(tmpdir):
-    apply_fs(tmpdir, {
-        'readthedocs.yml': textwrap.dedent('''
+    apply_fs(
+        tmpdir, {
+            'readthedocs.yml': textwrap.dedent('''
             version: 2
-        ''')
-    })
+        '''),
+        },
+    )
     base = str(tmpdir)
     build = load(base, {'allow_v2': True})
     assert isinstance(build, BuildConfigV2)
 
 
 def test_load_unknow_version(tmpdir):
-    apply_fs(tmpdir, {
-        'readthedocs.yml': textwrap.dedent('''
+    apply_fs(
+        tmpdir, {
+            'readthedocs.yml': textwrap.dedent('''
             version: 9
-        ''')
-    })
+        '''),
+        },
+    )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
         load(base, {'allow_v2': True})
@@ -122,15 +131,17 @@ def test_load_unknow_version(tmpdir):
 
 
 def test_yaml_extension(tmpdir):
-    """Make sure it's capable of loading the 'readthedocs' file with a 'yaml' extension."""
-    apply_fs(tmpdir, {
-        'readthedocs.yaml': textwrap.dedent(
-            '''
+    """Make sure loading the 'readthedocs' file with a 'yaml' extension."""
+    apply_fs(
+        tmpdir, {
+            'readthedocs.yaml': textwrap.dedent(
+                '''
             python:
               version: 3
             '''
-        ),
-    })
+            ),
+        },
+    )
     base = str(tmpdir)
     config = load(base, {})
     assert isinstance(config, BuildConfigV1)
@@ -143,13 +154,15 @@ def test_build_config_has_source_file(tmpdir):
 
 
 def test_build_config_has_list_with_single_empty_value(tmpdir):
-    base = str(apply_fs(tmpdir, {
-        'readthedocs.yml': textwrap.dedent(
-            '''
+    base = str(apply_fs(
+        tmpdir, {
+            'readthedocs.yml': textwrap.dedent(
+                '''
             formats: []
             '''
-        )
-    }))
+            ),
+        },
+    ))
     build = load(base, {})
     assert isinstance(build, BuildConfigV1)
     assert build.formats == []
@@ -167,7 +180,7 @@ def test_doc_type():
             'defaults': {
                 'doctype': 'sphinx',
             },
-        }
+        },
     )
     build.validate()
     assert build.doctype == 'sphinx'
@@ -211,7 +224,7 @@ def test_python_pip_install_default():
     assert build.python.install_with_pip is False
 
 
-class TestValidatePythonExtraRequirements(object):
+class TestValidatePythonExtraRequirements:
 
     def test_it_defaults_to_list(self):
         build = get_build_config({'python': {}})
@@ -243,7 +256,7 @@ class TestValidatePythonExtraRequirements(object):
         validate_string.assert_any_call('tests')
 
 
-class TestValidateUseSystemSitePackages(object):
+class TestValidateUseSystemSitePackages:
 
     def test_it_defaults_to_false(self):
         build = get_build_config({'python': {}})
@@ -269,7 +282,7 @@ class TestValidateUseSystemSitePackages(object):
         validate_bool.assert_any_call('to-validate')
 
 
-class TestValidateSetupPyInstall(object):
+class TestValidateSetupPyInstall:
 
     def test_it_defaults_to_false(self):
         build = get_build_config({'python': {}})
@@ -295,7 +308,7 @@ class TestValidateSetupPyInstall(object):
         validate_bool.assert_any_call('to-validate')
 
 
-class TestValidatePythonVersion(object):
+class TestValidatePythonVersion:
 
     def test_it_defaults_to_a_valid_version(self):
         build = get_build_config({'python': {}})
@@ -386,7 +399,7 @@ class TestValidatePythonVersion(object):
         assert build.python.version == value
 
 
-class TestValidateFormats(object):
+class TestValidateFormats:
 
     def test_it_defaults_to_empty(self):
         build = get_build_config({})
@@ -459,7 +472,7 @@ def test_valid_build_config():
     assert build.python.use_system_site_packages is False
 
 
-class TestValidateBuild(object):
+class TestValidateBuild:
 
     def test_it_fails_if_build_is_invalid_option(self, tmpdir):
         apply_fs(tmpdir, yaml_config_dir)
@@ -523,7 +536,8 @@ class TestValidateBuild(object):
         assert build.build.image == 'readthedocs/build:2.0'
 
     @pytest.mark.parametrize(
-        'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
+        'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'],
+    )
     def test_it_priorities_image_from_env_config(self, tmpdir, image):
         apply_fs(tmpdir, yaml_config_dir)
         defaults = {
@@ -643,9 +657,11 @@ def test_raise_config_not_supported():
     assert excinfo.value.code == CONFIG_NOT_SUPPORTED
 
 
-@pytest.mark.parametrize('correct_config_filename',
-                         [prefix + 'readthedocs.' + extension for prefix in {"", "."}
-                          for extension in {"yml", "yaml"}])
+@pytest.mark.parametrize(
+    'correct_config_filename',
+    [prefix + 'readthedocs.' + extension for prefix in {'', '.'}
+     for extension in {'yml', 'yaml'}],
+)
 def test_config_filenames_regex(correct_config_filename):
     assert re.match(CONFIG_FILENAME_REGEX, correct_config_filename)
 
@@ -704,10 +720,11 @@ def test_as_dict(tmpdir):
     assert build.as_dict() == expected_dict
 
 
-class TestBuildConfigV2(object):
+class TestBuildConfigV2:
 
     def get_build_config(
-            self, config, env_config=None, source_file='readthedocs.yml'):
+            self, config, env_config=None, source_file='readthedocs.yml',
+    ):
         return BuildConfigV2(
             env_config or {},
             config,
@@ -740,7 +757,7 @@ class TestBuildConfigV2(object):
 
     def test_formats_check_invalid_type(self):
         build = self.get_build_config(
-            {'formats': ['htmlzip', 'invalid', 'epub']}
+            {'formats': ['htmlzip', 'invalid', 'epub']},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -837,7 +854,8 @@ class TestBuildConfigV2(object):
         assert excinfo.value.key == 'build.image'
 
     @pytest.mark.parametrize(
-        'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'])
+        'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'],
+    )
     def test_build_image_priorities_default(self, image):
         build = self.get_build_config(
             {'build': {'image': 'latest'}},
@@ -881,9 +899,13 @@ class TestBuildConfigV2(object):
             build.validate()
         assert excinfo.value.key == 'python'
 
-    @pytest.mark.parametrize('image,versions',
-                             [('latest', [2, 2.7, 3, 3.5, 3.6]),
-                              ('stable', [2, 2.7, 3, 3.5, 3.6])])
+    @pytest.mark.parametrize(
+        'image,versions',
+        [
+            ('latest', [2, 2.7, 3, 3.5, 3.6]),
+            ('stable', [2, 2.7, 3, 3.5, 3.6]),
+        ],
+    )
     def test_python_version(self, image, versions):
         for version in versions:
             build = self.get_build_config({
@@ -909,9 +931,13 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.python.version == 3.6
 
-    @pytest.mark.parametrize('image,versions',
-                             [('latest', [1, 2.8, 4, 3.8]),
-                              ('stable', [1, 2.8, 4, 3.8])])
+    @pytest.mark.parametrize(
+        'image,versions',
+        [
+            ('latest', [1, 2.8, 4, 3.8]),
+            ('stable', [1, 2.8, 4, 3.8]),
+        ],
+    )
     def test_python_version_invalid(self, image, versions):
         for version in versions:
             build = self.get_build_config({
@@ -1087,7 +1113,7 @@ class TestBuildConfigV2(object):
             'python': {
                 'install': 'pip',
                 'extra_requirements': ['docs', 'tests'],
-            }
+            },
         })
         build.validate()
         assert build.python.extra_requirements == ['docs', 'tests']
@@ -1096,7 +1122,7 @@ class TestBuildConfigV2(object):
         build = self.get_build_config({
             'python': {
                 'extra_requirements': ['docs', 'tests'],
-            }
+            },
         })
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -1107,7 +1133,7 @@ class TestBuildConfigV2(object):
             'python': {
                 'install': 'setup.py',
                 'extra_requirements': ['docs', 'tests'],
-            }
+            },
         })
         with raises(InvalidConfig) as excinfo:
             build.validate()
@@ -1203,10 +1229,14 @@ class TestBuildConfigV2(object):
         assert build.mkdocs is None
         assert build.doctype == 'sphinx'
 
-    @pytest.mark.parametrize('value,expected',
-                             [('html', 'sphinx'),
-                              ('htmldir', 'sphinx_htmldir'),
-                              ('singlehtml', 'sphinx_singlehtml')])
+    @pytest.mark.parametrize(
+        'value,expected',
+        [
+            ('html', 'sphinx'),
+            ('htmldir', 'sphinx_htmldir'),
+            ('singlehtml', 'sphinx_singlehtml'),
+        ],
+    )
     def test_sphinx_builder_check_valid(self, value, expected):
         build = self.get_build_config(
             {'sphinx': {'builder': value}},
@@ -1229,7 +1259,8 @@ class TestBuildConfigV2(object):
         build.sphinx.builder == 'sphinx'
 
     @pytest.mark.skip(
-        'This test is not compatible with the new validation around doctype.')
+        'This test is not compatible with the new validation around doctype.',
+    )
     def test_sphinx_builder_ignores_default(self):
         build = self.get_build_config(
             {},
@@ -1461,7 +1492,7 @@ class TestBuildConfigV2(object):
     def test_submodules_include_check_valid(self):
         build = self.get_build_config({
             'submodules': {
-                'include': ['one', 'two']
+                'include': ['one', 'two'],
             },
         })
         build.validate()
@@ -1494,8 +1525,8 @@ class TestBuildConfigV2(object):
     def test_submodules_exclude_check_valid(self):
         build = self.get_build_config({
             'submodules': {
-                'exclude': ['one', 'two']
-            }
+                'exclude': ['one', 'two'],
+            },
         })
         build.validate()
         assert build.submodules.include == []
@@ -1595,26 +1626,28 @@ class TestBuildConfigV2(object):
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
 
-    @pytest.mark.parametrize('value,key', [
-        ({'typo': 'something'}, 'typo'),
-        (
-            {
-                'pyton': {
-                    'version': 'another typo',
-                }
-            },
-            'pyton.version'
-        ),
-        (
-            {
-                'build': {
-                    'image': 'latest',
-                    'extra': 'key',
-                }
-            },
-            'build.extra'
-        )
-    ])
+    @pytest.mark.parametrize(
+        'value,key', [
+            ({'typo': 'something'}, 'typo'),
+            (
+                {
+                    'pyton': {
+                        'version': 'another typo',
+                    },
+                },
+                'pyton.version',
+            ),
+            (
+                {
+                    'build': {
+                        'image': 'latest',
+                        'extra': 'key',
+                    },
+                },
+                'build.extra',
+            ),
+        ],
+    )
     def test_strict_validation(self, value, key):
         build = self.get_build_config(value)
         with raises(InvalidConfig) as excinfo:
@@ -1632,13 +1665,15 @@ class TestBuildConfigV2(object):
         build.validate()
         assert build.raw_config == {}
 
-    @pytest.mark.parametrize('value,expected', [
-        ({}, []),
-        ({'one': 1}, ['one']),
-        ({'one': {'two': 3}}, ['one', 'two']),
-        (OrderedDict([('one', 1), ('two', 2)]), ['one']),
-        (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
-    ])
+    @pytest.mark.parametrize(
+        'value,expected', [
+            ({}, []),
+            ({'one': 1}, ['one']),
+            ({'one': {'two': 3}}, ['one', 'two']),
+            (OrderedDict([('one', 1), ('two', 2)]), ['one']),
+            (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
+        ],
+    )
     def test_get_extra_key(self, value, expected):
         build = self.get_build_config({})
         assert build._get_extra_key(value) == expected

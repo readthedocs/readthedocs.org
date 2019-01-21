@@ -1,13 +1,12 @@
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
 import os
 import shutil
 import unittest
 
 import mock
 
-from django.conf import settings
-
 from readthedocs.vcs_support import utils
+
 
 TEST_STATICS = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test_statics')
 
@@ -32,23 +31,31 @@ class TestNonBlockingLock(unittest.TestCase):
         self.version_mock.slug = 'test-version-slug'
 
     def test_simplelock(self):
-        with utils.NonBlockingLock(project=self.project_mock,
-                                   version=self.version_mock) as f_lock:
+        with utils.NonBlockingLock(
+            project=self.project_mock,
+            version=self.version_mock,
+        ) as f_lock:
             self.assertTrue(os.path.exists(f_lock.fpath))
 
     def test_simplelock_cleanup(self):
         lock_path = None
-        with utils.NonBlockingLock(project=self.project_mock,
-                                   version=self.version_mock) as f_lock:
+        with utils.NonBlockingLock(
+            project=self.project_mock,
+            version=self.version_mock,
+        ) as f_lock:
             lock_path = f_lock.fpath
         self.assertTrue(lock_path is not None and not os.path.exists(lock_path))
 
     def test_nonreentrant(self):
-        with utils.NonBlockingLock(project=self.project_mock,
-                                   version=self.version_mock) as f_lock:
+        with utils.NonBlockingLock(
+            project=self.project_mock,
+            version=self.version_mock,
+        ) as f_lock:
             try:
-                with utils.NonBlockingLock(project=self.project_mock,
-                                           version=self.version_mock) as f_lock:
+                with utils.NonBlockingLock(
+                    project=self.project_mock,
+                    version=self.version_mock,
+                ) as f_lock:
                     pass
             except utils.LockTimeout:
                 pass
@@ -56,13 +63,15 @@ class TestNonBlockingLock(unittest.TestCase):
                 raise AssertionError('Should have thrown LockTimeout')
 
     def test_forceacquire(self):
-        with utils.NonBlockingLock(project=self.project_mock,
-                                   version=self.version_mock) as f_lock:
+        with utils.NonBlockingLock(
+            project=self.project_mock,
+            version=self.version_mock,
+        ) as f_lock:
             try:
-                with utils.NonBlockingLock(project=self.project_mock,
-                                           version=self.version_mock, max_lock_age=0) as f_lock:
+                with utils.NonBlockingLock(
+                    project=self.project_mock,
+                    version=self.version_mock, max_lock_age=0,
+                ) as f_lock:
                     pass
             except utils.LockTimeout:
                 raise AssertionError('Should have thrown LockTimeout')
-
-
