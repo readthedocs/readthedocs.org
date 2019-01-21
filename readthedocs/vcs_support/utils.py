@@ -29,7 +29,8 @@ class Lock:
     def __init__(self, project, version, timeout=5, polling_interval=0.1):
         self.name = project.slug
         self.fpath = os.path.join(
-            project.doc_path, '%s__rtdlock' % version.slug,
+            project.doc_path,
+            '%s__rtdlock' % version.slug,
         )
         self.timeout = timeout
         self.polling_interval = polling_interval
@@ -95,7 +96,8 @@ class NonBlockingLock:
 
     def __init__(self, project, version, max_lock_age=None):
         self.fpath = os.path.join(
-            project.doc_path, '%s__rtdlock' % version.slug,
+            project.doc_path,
+            '%s__rtdlock' % version.slug,
         )
         self.max_lock_age = max_lock_age
         self.name = project.slug

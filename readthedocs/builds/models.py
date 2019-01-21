@@ -50,7 +50,9 @@ from .version_slug import VersionSlugField
 
 
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
-    settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public',
+    settings,
+    'DEFAULT_VERSION_PRIVACY_LEVEL',
+    'public',
 )
 
 log = logging.getLogger(__name__)
@@ -91,7 +93,9 @@ class Version(models.Model):
     #: filesystem to determine how the paths for this version are called. It
     #: must not be used for any other identifying purposes.
     slug = VersionSlugField(
-        _('Slug'), max_length=255, populate_from='verbose_name',
+        _('Slug'),
+        max_length=255,
+        populate_from='verbose_name',
     )
 
     supported = models.BooleanField(_('Supported'), default=True)
@@ -199,7 +203,8 @@ class Version(models.Model):
             )
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(
-            version_slug=self.slug, private=private,
+            version_slug=self.slug,
+            private=private,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -209,7 +214,9 @@ class Version(models.Model):
         for owner in self.project.users.all():
             assign('view_version', owner, self)
         broadcast(
-            type='app', task=tasks.symlink_project, args=[self.project.pk],
+            type='app',
+            task=tasks.symlink_project,
+            args=[self.project.pk],
         )
         return obj
 
@@ -256,22 +263,26 @@ class Version(models.Model):
                 data['PDF'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
                 data['HTML'] = project.get_production_media_url(
-                    'htmlzip', self.slug,
+                    'htmlzip',
+                    self.slug,
                 )
             if project.has_epub(self.slug):
                 data['Epub'] = project.get_production_media_url(
-                    'epub', self.slug,
+                    'epub',
+                    self.slug,
                 )
         else:
             if project.has_pdf(self.slug):
                 data['pdf'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
                 data['htmlzip'] = project.get_production_media_url(
-                    'htmlzip', self.slug,
+                    'htmlzip',
+                    self.slug,
                 )
             if project.has_epub(self.slug):
                 data['epub'] = project.get_production_media_url(
-                    'epub', self.slug,
+                    'epub',
+                    self.slug,
                 )
         return data
 
@@ -321,7 +332,11 @@ class Version(models.Model):
             log.exception('Build path cleanup failed')
 
     def get_github_url(
-            self, docroot, filename, source_suffix='.rst', action='view',
+            self,
+            docroot,
+            filename,
+            source_suffix='.rst',
+            action='view',
     ):
         """
         Return a GitHub URL for a given filename.
@@ -364,7 +379,11 @@ class Version(models.Model):
         )
 
     def get_gitlab_url(
-            self, docroot, filename, source_suffix='.rst', action='view',
+            self,
+            docroot,
+            filename,
+            source_suffix='.rst',
+            action='view',
     ):
         repo_url = self.project.repo
         if 'gitlab' not in repo_url:
@@ -462,16 +481,27 @@ class Build(models.Model):
     """Build data."""
 
     project = models.ForeignKey(
-        Project, verbose_name=_('Project'), related_name='builds',
+        Project,
+        verbose_name=_('Project'),
+        related_name='builds',
     )
     version = models.ForeignKey(
-        Version, verbose_name=_('Version'), null=True, related_name='builds',
+        Version,
+        verbose_name=_('Version'),
+        null=True,
+        related_name='builds',
     )
     type = models.CharField(
-        _('Type'), max_length=55, choices=BUILD_TYPES, default='html',
+        _('Type'),
+        max_length=55,
+        choices=BUILD_TYPES,
+        default='html',
     )
     state = models.CharField(
-        _('State'), max_length=55, choices=BUILD_STATE, default='finished',
+        _('State'),
+        max_length=55,
+        choices=BUILD_STATE,
+        default='finished',
     )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
@@ -482,18 +512,25 @@ class Build(models.Model):
     error = models.TextField(_('Error'), default='', blank=True)
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(
-        _('Commit'), max_length=255, null=True, blank=True,
+        _('Commit'),
+        max_length=255,
+        null=True,
+        blank=True,
     )
     _config = JSONField(_('Configuration used in the build'), default=dict)
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
     builder = models.CharField(
-        _('Builder'), max_length=255, null=True, blank=True,
+        _('Builder'),
+        max_length=255,
+        null=True,
+        blank=True,
     )
 
     cold_storage = models.NullBooleanField(
-        _('Cold Storage'), help_text='Build steps stored outside the database.',
+        _('Cold Storage'),
+        help_text='Build steps stored outside the database.',
     )
 
     # Manager
@@ -624,7 +661,9 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     """Build command for a ``Build``."""
 
     build = models.ForeignKey(
-        Build, verbose_name=_('Build'), related_name='commands',
+        Build,
+        verbose_name=_('Build'),
+        related_name='commands',
     )
 
     command = models.TextField(_('Command'))

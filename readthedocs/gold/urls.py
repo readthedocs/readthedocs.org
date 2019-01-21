@@ -16,7 +16,9 @@ urlpatterns = [
         name='gold_subscription',
     ),
     url(
-        r'^cancel/$', views.DeleteGoldSubscription.as_view(), name='gold_cancel',
+        r'^cancel/$',
+        views.DeleteGoldSubscription.as_view(),
+        name='gold_cancel',
     ),
     url(r'^projects/$', views.projects, name='gold_projects'),
     url(

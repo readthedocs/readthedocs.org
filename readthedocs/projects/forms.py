@@ -228,13 +228,16 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
-            'identifier', 'verbose_name',
+            'identifier',
+            'verbose_name',
         )
         self.fields['default_branch'].widget = forms.Select(
             choices=[default_choice] + list(all_versions),
         )
 
-        active_versions = self.instance.all_active_versions().values_list('slug', 'verbose_name')  # yapf: disabled
+        active_versions = self.instance.all_active_versions().values_list(
+            'slug', 'verbose_name'
+        )  # yapf: disabled
         self.fields['default_version'].widget = forms.Select(
             choices=active_versions,
         )
@@ -252,8 +255,9 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
 
 class UpdateProjectForm(
-    ProjectTriggerBuildMixin, ProjectBasicsForm,
-    ProjectExtraForm,
+        ProjectTriggerBuildMixin,
+        ProjectBasicsForm,
+        ProjectExtraForm,
 ):
 
     class Meta:
@@ -459,7 +463,8 @@ def build_versions_form(project):
 class BaseUploadHTMLForm(forms.Form):
     content = forms.FileField(label=_('Zip file of HTML'))
     overwrite = forms.BooleanField(
-        required=False, label=_('Overwrite existing HTML?'),
+        required=False,
+        label=_('Overwrite existing HTML?'),
     )
 
     def __init__(self, *args, **kwargs):
@@ -535,7 +540,8 @@ class EmailHookForm(forms.Form):
 
     def clean_email(self):
         self.email = EmailHook.objects.get_or_create(
-            email=self.cleaned_data['email'], project=self.project,
+            email=self.cleaned_data['email'],
+            project=self.project,
         )[0]
         return self.email
 
@@ -554,7 +560,8 @@ class WebHookForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.webhook = WebHook.objects.get_or_create(
-            url=self.cleaned_data['url'], project=self.project,
+            url=self.cleaned_data['url'],
+            project=self.project,
         )[0]
         self.project.webhook_notifications.add(self.webhook)
         return self.project
@@ -577,14 +584,13 @@ class TranslationBaseForm(forms.Form):
         self.fields['project'].choices = self.get_choices()
 
     def get_choices(self):
-        return [
-            (
-                project.slug, '{project} ({lang})'.format(
-                project=project.slug, lang=project.get_language_display(),
-                ),
-            )
-            for project in self.get_translation_queryset().all()
-        ]
+        return [(
+            project.slug,
+            '{project} ({lang})'.format(
+                project=project.slug,
+                lang=project.get_language_display(),
+            ),
+        ) for project in self.get_translation_queryset().all()]
 
     def clean_project(self):
         translation_project_slug = self.cleaned_data['project']

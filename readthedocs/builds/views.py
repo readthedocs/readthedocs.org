@@ -59,7 +59,8 @@ class BuildTriggerMixin:
         )
 
         update_docs_task, build = trigger_build(
-            project=project, version=version,
+            project=project,
+            version=version,
         )
         if (update_docs_task, build) == (None, None):
             # Build was skipped

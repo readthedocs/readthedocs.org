@@ -120,7 +120,12 @@ debug_urls += [
 
 # Export URLs
 groups = [
-    basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls,
+    basic_urls,
+    rtd_urls,
+    project_urls,
+    api_urls,
+    core_urls,
+    i18n_urls,
     deprecated_urls,
 ]
 

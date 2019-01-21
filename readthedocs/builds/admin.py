@@ -15,11 +15,23 @@ class BuildCommandResultInline(admin.TabularInline):
 
 class BuildAdmin(admin.ModelAdmin):
     fields = (
-        'project', 'version', 'type', 'state', 'error', 'success', 'length',
+        'project',
+        'version',
+        'type',
+        'state',
+        'error',
+        'success',
+        'length',
         'cold_storage',
     )
     list_display = (
-        'id', 'project', 'version_name', 'success', 'type', 'state', 'date',
+        'id',
+        'project',
+        'version_name',
+        'success',
+        'type',
+        'state',
+        'date',
     )
     list_filter = ('type', 'state', 'success')
     list_select_related = ('project', 'version')
@@ -34,7 +46,12 @@ class BuildAdmin(admin.ModelAdmin):
 class VersionAdmin(GuardedModelAdmin):
     search_fields = ('slug', 'project__name')
     list_display = (
-        'slug', 'type', 'project', 'privacy_level', 'active', 'built',
+        'slug',
+        'type',
+        'project',
+        'privacy_level',
+        'active',
+        'built',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
     raw_id_fields = ('project',)

@@ -237,7 +237,8 @@ class ProjectIndex(Index):
                     'id': {'type': 'long'},
                     'name': {'type': 'string', 'analyzer': 'default_icu'},
                     'description': {
-                        'type': 'string', 'analyzer': 'default_icu',
+                        'type': 'string',
+                        'analyzer': 'default_icu',
                     },
                     'slug': {'type': 'string', 'index': 'not_analyzed'},
                     'lang': {'type': 'string', 'index': 'not_analyzed'},
@@ -266,7 +267,14 @@ class ProjectIndex(Index):
         doc = {}
 
         attrs = (
-            'id', 'name', 'slug', 'description', 'lang', 'tags', 'author', 'url',
+            'id',
+            'name',
+            'slug',
+            'description',
+            'lang',
+            'tags',
+            'author',
+            'url',
         )
         for attr in attrs:
             doc[attr] = data.get(attr, '')
@@ -367,7 +375,8 @@ class SectionIndex(Index):
                         'type': 'object',
                         'properties': {
                             'code': {
-                                'type': 'string', 'analyzer': 'default_icu',
+                                'type': 'string',
+                                'analyzer': 'default_icu',
                             },
                         },
                     },
@@ -383,7 +392,13 @@ class SectionIndex(Index):
         doc = {}
 
         attrs = (
-            'id', 'project', 'title', 'page_id', 'version', 'path', 'content',
+            'id',
+            'project',
+            'title',
+            'page_id',
+            'version',
+            'path',
+            'content',
             'commit',
         )
         for attr in attrs:

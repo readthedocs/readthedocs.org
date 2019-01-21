@@ -246,7 +246,9 @@ class ResolverBase:
             private = version.privacy_level == PRIVATE
         except Version.DoesNotExist:
             private = getattr(
-                settings, 'DEFAULT_PRIVACY_LEVEL', PUBLIC,
+                settings,
+                'DEFAULT_PRIVACY_LEVEL',
+                PUBLIC,
             ) == PRIVATE
         return private
 

@@ -118,13 +118,21 @@ class ProjectAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
     list_filter = (
-        'repo_type', 'featured', 'privacy_level', 'documentation_type',
-        'programming_language', 'feature__feature_id', ProjectOwnerBannedFilter,
+        'repo_type',
+        'featured',
+        'privacy_level',
+        'documentation_type',
+        'programming_language',
+        'feature__feature_id',
+        ProjectOwnerBannedFilter,
     )
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
     inlines = [
-        ProjectRelationshipInline, RedirectInline, VersionInline, DomainInline,
+        ProjectRelationshipInline,
+        RedirectInline,
+        VersionInline,
+        DomainInline,
     ]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
@@ -153,21 +161,23 @@ class ProjectAdmin(GuardedModelAdmin):
         for project in queryset:
             if project.users.count() == 1:
                 count = (
-                    UserProfile.objects
-                    .filter(user__projects=project)
-                    .update(banned=True)
+                    UserProfile.objects.filter(user__projects=project
+                                               ).update(banned=True)
                 )  # yapf: disabled
                 total += count
             else:
                 messages.add_message(
-                    request, messages.ERROR,
+                    request,
+                    messages.ERROR,
                     'Project has multiple owners: {}'.format(project),
                 )
         if total == 0:
             messages.add_message(request, messages.ERROR, 'No users banned')
         else:
             messages.add_message(
-                request, messages.INFO, 'Banned {} user(s)'.format(total),
+                request,
+                messages.INFO,
+                'Banned {} user(s)'.format(total),
             )
 
     ban_owner.short_description = 'Ban project owner'
@@ -191,7 +201,8 @@ class ProjectAdmin(GuardedModelAdmin):
     def get_actions(self, request):
         actions = super().get_actions(request)
         actions['delete_selected'] = (
-            self.__class__.delete_selected_and_artifacts, 'delete_selected',
+            self.__class__.delete_selected_and_artifacts,
+            'delete_selected',
             delete_selected.short_description,
         )
         return actions

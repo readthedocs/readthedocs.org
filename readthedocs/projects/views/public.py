@@ -116,8 +116,11 @@ def project_badge(request, project_slug):
     """Return a sweet badge for the project."""
     style = request.GET.get('style', 'flat')
     if style not in (
-        'flat', 'plastic', 'flat-square', 'for-the-badge',
-        'social',
+            'flat',
+            'plastic',
+            'flat-square',
+            'for-the-badge',
+            'social',
     ):
         style = 'flat'
 

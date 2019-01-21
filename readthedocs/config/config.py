@@ -342,7 +342,8 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    DOCKER_DEFAULT_IMAGE, build['image'],
+                    DOCKER_DEFAULT_IMAGE,
+                    build['image'],
                 )
         # Update docker default settings from image name
         if build['image'] in DOCKER_IMAGE_SETTINGS:
@@ -371,7 +372,9 @@ class BuildConfigV1(BuildConfigBase):
             raw_python = self.raw_config['python']
             if not isinstance(raw_python, dict):
                 self.error(
-                    'python', self.PYTHON_INVALID_MESSAGE, code=PYTHON_INVALID,
+                    'python',
+                    self.PYTHON_INVALID_MESSAGE,
+                    code=PYTHON_INVALID,
                 )
 
             # Validate use_system_site_packages.
@@ -445,7 +448,8 @@ class BuildConfigV1(BuildConfigBase):
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
                     conda_environment = validate_file(
-                        raw_conda['file'], self.base_path,
+                        raw_conda['file'],
+                        self.base_path,
                     )
             conda['environment'] = conda_environment
 
@@ -683,7 +687,8 @@ class BuildConfigV2(BuildConfigBase):
 
         with self.catch_validation_error('python.extra_requirements'):
             extra_requirements = self.pop_config(
-                'python.extra_requirements', [],
+                'python.extra_requirements',
+                [],
             )
             extra_requirements = validate_list(extra_requirements)
             if extra_requirements and not python['install_with_pip']:
@@ -801,7 +806,8 @@ class BuildConfigV2(BuildConfigBase):
             if not configuration:
                 configuration = None
             configuration = self.pop_config(
-                'sphinx.configuration', configuration,
+                'sphinx.configuration',
+                configuration,
             )
             if configuration is not None:
                 configuration = validate_file(configuration, self.base_path)

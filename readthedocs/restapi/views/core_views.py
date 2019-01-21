@@ -41,6 +41,8 @@ def docurl(request):
     )
     return Response({
         'url': make_document_url(
-            project=project, version=version.slug, page=doc,
+            project=project,
+            version=version.slug,
+            page=doc,
         ),
     })

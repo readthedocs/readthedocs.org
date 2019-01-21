@@ -138,7 +138,8 @@ class ProjectViewSet(UserSelectViewSet):
         })
 
     @decorators.action(
-        detail=True, permission_classes=[permissions.IsAdminUser],
+        detail=True,
+        permission_classes=[permissions.IsAdminUser],
     )
     def token(self, request, **kwargs):
         project = get_object_or_404(

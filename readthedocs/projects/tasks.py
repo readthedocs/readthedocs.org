@@ -161,20 +161,16 @@ class SyncRepositoryMixin:
         version_post_data = {'repo': version_repo.repo_url}
 
         if version_repo.supports_tags:
-            version_post_data['tags'] = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                } for v in version_repo.tags
-            ]
+            version_post_data['tags'] = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in version_repo.tags]
 
         if version_repo.supports_branches:
-            version_post_data['branches'] = [
-                {
-                    'identifier': v.identifier,
-                    'verbose_name': v.verbose_name,
-                } for v in version_repo.branches
-            ]
+            version_post_data['branches'] = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in version_repo.branches]
 
         self.validate_duplicate_reserved_versions(version_post_data)
 
@@ -1230,8 +1226,8 @@ def send_notifications(version_pk, build_pk):
     for hook in version.project.webhook_notifications.all():
         webhook_notification(version, build, hook.url)
     for email in version.project.emailhook_notifications.all().values_list(
-        'email',
-        flat=True,
+            'email',
+            flat=True,
     ):
         email_notification(version, build, email)
 

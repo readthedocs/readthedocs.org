@@ -54,7 +54,11 @@ def search_project(request, query, language=None):
 
 
 def search_file(
-        request, query, project_slug=None, version_slug=LATEST, taxonomy=None,
+        request,
+        query,
+        project_slug=None,
+        version_slug=LATEST,
+        taxonomy=None,
 ):
     """
     Search index for files matching query.

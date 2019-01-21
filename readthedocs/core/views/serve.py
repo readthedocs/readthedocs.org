@@ -161,7 +161,11 @@ def _serve_file(request, filename, basepath):
 @map_project_slug
 @map_subproject_slug
 def serve_docs(
-        request, project, subproject, lang_slug=None, version_slug=None,
+        request,
+        project,
+        subproject,
+        lang_slug=None,
+        version_slug=None,
         filename='',
 ):
     """Map existing proj, lang, version, filename views to the file format."""

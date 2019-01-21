@@ -189,14 +189,12 @@ class RemoteRepository(models.Model):
                     .filter(Q(repo=self.clone_url) |
                             Q(repo__iendswith=fuzzy_url) |
                             Q(repo__iendswith=fuzzy_url + '.git')))  # yapf: disable
-        return [
-            {
-                'id': project.slug,
-                'url': reverse(
-                    'projects_detail',
-                    kwargs={
-                        'project_slug': project.slug,
-                    },
-                ),
-            } for project in projects
-        ]
+        return [{
+            'id': project.slug,
+            'url': reverse(
+                'projects_detail',
+                kwargs={
+                    'project_slug': project.slug,
+                },
+            ),
+        } for project in projects]

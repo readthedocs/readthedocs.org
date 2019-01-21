@@ -109,7 +109,10 @@ class Backend(BaseVCS):
         if not identifier:
             identifier = 'tip'
         exit_code, stdout, stderr = self.run(
-            'hg', 'update', '--clean', identifier,
+            'hg',
+            'update',
+            '--clean',
+            identifier,
         )
         if exit_code != 0:
             raise RepositoryError(

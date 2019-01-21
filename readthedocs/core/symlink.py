@@ -217,7 +217,8 @@ class Symlink:
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
                 log_msg = 'Symlinking subproject: {} -> {}'.format(
-                    from_slug, to_slug,
+                    from_slug,
+                    to_slug,
                 )
                 log.info(
                     constants.LOG_TEMPLATE.format(
@@ -378,7 +379,8 @@ class PublicSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
     PROJECT_CNAME_ROOT = os.path.join(
-        settings.SITE_ROOT, 'public_cname_project',
+        settings.SITE_ROOT,
+        'public_cname_project',
     )
 
     def get_version_queryset(self):
@@ -400,7 +402,8 @@ class PrivateSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
     PROJECT_CNAME_ROOT = os.path.join(
-        settings.SITE_ROOT, 'private_cname_project',
+        settings.SITE_ROOT,
+        'private_cname_project',
     )
 
     def get_version_queryset(self):

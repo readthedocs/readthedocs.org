@@ -977,13 +977,11 @@ class DockerBuildEnvironment(BuildEnvironment):
                     _('Build exited due to excessive memory consumption'),
                 )
             elif state.get('Error'):
-                self.failure = BuildEnvironmentError(
-                    (
-                        _('Build exited due to unknown error: {0}').format(
-                            state.get('Error'),
-                        )
-                    ),
-                )
+                self.failure = BuildEnvironmentError((
+                    _('Build exited due to unknown error: {0}').format(
+                        state.get('Error'),
+                    )
+                ),)
 
     def create_container(self):
         """Create docker container."""

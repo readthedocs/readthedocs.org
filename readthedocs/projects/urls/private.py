@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Project URLs for authenticated users."""
 
 from django.conf.urls import url
@@ -112,20 +113,24 @@ urlpatterns = [
 
 domain_urls = [
     url(
-        r'^(?P<project_slug>[-\w]+)/domains/$', DomainList.as_view(),
+        r'^(?P<project_slug>[-\w]+)/domains/$',
+        DomainList.as_view(),
         name='projects_domains',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/domains/create/$', DomainCreate.as_view(),
+        r'^(?P<project_slug>[-\w]+)/domains/create/$',
+        DomainCreate.as_view(),
         name='projects_domains_create',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/edit/$',
-        DomainUpdate.as_view(), name='projects_domains_edit',
+        DomainUpdate.as_view(),
+        name='projects_domains_edit',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/domains/(?P<domain_pk>[-\w]+)/delete/$',
-        DomainDelete.as_view(), name='projects_domains_delete',
+        DomainDelete.as_view(),
+        name='projects_domains_delete',
     ),
 ]
 
@@ -135,12 +140,15 @@ integration_urls = [
     url(
         r'^(?P<project_slug>{project_slug})/integrations/$'.format(
             **pattern_opts
-        ), IntegrationList.as_view(), name='projects_integrations',
+        ),
+        IntegrationList.as_view(),
+        name='projects_integrations',
     ),
     url(
         r'^(?P<project_slug>{project_slug})/integrations/sync/$'.format(
             **pattern_opts
-        ), IntegrationWebhookSync.as_view(),
+        ),
+        IntegrationWebhookSync.as_view(),
         name='projects_integrations_webhooks_sync',
     ),
     url(
@@ -148,7 +156,9 @@ integration_urls = [
             r'^(?P<project_slug>{project_slug})/integrations/create/$'.format(
                 **pattern_opts
             )
-        ), IntegrationCreate.as_view(), name='projects_integrations_create',
+        ),
+        IntegrationCreate.as_view(),
+        name='projects_integrations_create',
     ),
     url(
         (
@@ -156,15 +166,18 @@ integration_urls = [
             r'integrations/(?P<integration_pk>{integer_pk})/$'.format(
                 **pattern_opts
             )
-        ), IntegrationDetail.as_view(), name='projects_integrations_detail',
+        ),
+        IntegrationDetail.as_view(),
+        name='projects_integrations_detail',
     ),
     url(
         (
             r'^(?P<project_slug>{project_slug})/'
             r'integrations/(?P<integration_pk>{integer_pk})/'
             r'exchange/(?P<exchange_pk>[-\w]+)/$'.format(**pattern_opts)
-        ), IntegrationExchangeDetail.as_view(),
-            name='projects_integrations_exchanges_detail',
+        ),
+        IntegrationExchangeDetail.as_view(),
+        name='projects_integrations_exchanges_detail',
     ),
     url(
         (
@@ -172,8 +185,9 @@ integration_urls = [
             r'integrations/(?P<integration_pk>{integer_pk})/sync/$'.format(
                 **pattern_opts
             )
-        ), IntegrationWebhookSync.as_view(),
-            name='projects_integrations_webhooks_sync',
+        ),
+        IntegrationWebhookSync.as_view(),
+        name='projects_integrations_webhooks_sync',
     ),
     url(
         (
@@ -181,7 +195,9 @@ integration_urls = [
             r'integrations/(?P<integration_pk>{integer_pk})/delete/$'.format(
                 **pattern_opts
             )
-        ), IntegrationDelete.as_view(), name='projects_integrations_delete',
+        ),
+        IntegrationDelete.as_view(),
+        name='projects_integrations_delete',
     ),
 ]
 
@@ -191,7 +207,8 @@ subproject_urls = [
     url(
         r'^(?P<project_slug>{project_slug})/subprojects/$'.format(
             **pattern_opts
-        ), private.ProjectRelationshipList.as_view(),
+        ),
+        private.ProjectRelationshipList.as_view(),
         name='projects_subprojects',
     ),
     url(
@@ -199,8 +216,9 @@ subproject_urls = [
             r'^(?P<project_slug>{project_slug})/subprojects/create/$'.format(
                 **pattern_opts
             )
-        ), private.ProjectRelationshipCreate.as_view(),
-            name='projects_subprojects_create',
+        ),
+        private.ProjectRelationshipCreate.as_view(),
+        name='projects_subprojects_create',
     ),
     url(
         (
@@ -208,8 +226,9 @@ subproject_urls = [
             r'subprojects/(?P<subproject_slug>{project_slug})/edit/$'.format(
                 **pattern_opts
             )
-        ), private.ProjectRelationshipUpdate.as_view(),
-            name='projects_subprojects_update',
+        ),
+        private.ProjectRelationshipUpdate.as_view(),
+        name='projects_subprojects_update',
     ),
     url(
         (
@@ -217,8 +236,9 @@ subproject_urls = [
             r'subprojects/(?P<subproject_slug>{project_slug})/delete/$'.format(
                 **pattern_opts
             )
-        ), private.ProjectRelationshipDelete.as_view(),
-            name='projects_subprojects_delete',
+        ),
+        private.ProjectRelationshipDelete.as_view(),
+        name='projects_subprojects_delete',
     ),
 ]
 
@@ -227,7 +247,8 @@ urlpatterns += subproject_urls
 environmentvariable_urls = [
     url(
         r'^(?P<project_slug>[-\w]+)/environmentvariables/$',
-        EnvironmentVariableList.as_view(), name='projects_environmentvariables',
+        EnvironmentVariableList.as_view(),
+        name='projects_environmentvariables',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/environmentvariables/create/$',

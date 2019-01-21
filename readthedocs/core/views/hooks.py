@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """Views pertaining to builds."""
 
 import json
@@ -67,7 +68,9 @@ def build_branches(project, branch_list):
         versions = project.versions_from_branch_name(branch)
         for version in versions:
             log.info(
-                '(Branch Build) Processing %s:%s', project.slug, version.slug,
+                '(Branch Build) Processing %s:%s',
+                project.slug,
+                version.slug,
             )
             ret = _build_version(project, version.slug, already_built=to_build)
             if ret:
@@ -92,7 +95,9 @@ def sync_versions(project):
     try:
         version_identifier = project.get_default_branch()
         version = (
-            project.versions.filter(identifier=version_identifier,).first()
+            project.versions.filter(
+                identifier=version_identifier,
+            ).first()
         )
         if not version:
             log.info('Unable to sync from %s version', version_identifier)
@@ -116,7 +121,11 @@ def get_project_from_url(url):
 
 def log_info(project, msg):
     log.info(
-        constants.LOG_TEMPLATE.format(project=project, version='', msg=msg,),
+        constants.LOG_TEMPLATE.format(
+            project=project,
+            version='',
+            msg=msg,
+        ),
     )
 
 
@@ -151,7 +160,8 @@ def _build_url(url, projects, branches):
     for project_slug, built in list(all_built.items()):
         if built:
             msg = '(URL Build) Build Started: {} [{}]'.format(
-                url, ' '.join(built),
+                url,
+                ' '.join(built),
             )
             log_info(project_slug, msg=msg)
             ret += msg
@@ -159,7 +169,8 @@ def _build_url(url, projects, branches):
     for project_slug, not_building in list(all_not_building.items()):
         if not_building:
             msg = '(URL Build) Not Building: {} [{}]'.format(
-                url, ' '.join(not_building),
+                url,
+                ' '.join(not_building),
             )
             log_info(project_slug, msg=msg)
             ret += msg
@@ -206,12 +217,14 @@ def github_build(request):  # noqa: D205
             if repo_projects:
                 log.info(
                     'GitHub webhook search: url=%s branches=%s',
-                    http_search_url, branches,
+                    http_search_url,
+                    branches,
                 )
             ssh_projects = get_project_from_url(ssh_search_url)
             if ssh_projects:
                 log.info(
-                    'GitHub webhook search: url=%s branches=%s', ssh_search_url,
+                    'GitHub webhook search: url=%s branches=%s',
+                    ssh_search_url,
                     branches,
                 )
             projects = repo_projects | ssh_projects

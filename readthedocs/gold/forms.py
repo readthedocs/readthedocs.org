@@ -120,5 +120,6 @@ class GoldProjectForm(forms.Form):
             return cleaned_data
 
         self.add_error(
-            None, 'You already have the max number of supported projects.',
+            None,
+            'You already have the max number of supported projects.',
         )
