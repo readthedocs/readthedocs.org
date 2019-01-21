@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import User
 from datetime import timedelta
 
 import django_dynamic_fixture as fixture
+from django.contrib.auth.models import User
 from django.test import TestCase
 
-from readthedocs.projects.models import Project, Feature
-from readthedocs.projects.querysets import (ParentRelatedProjectQuerySet,
-                                            ChildRelatedProjectQuerySet)
+from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.querysets import (
+    ChildRelatedProjectQuerySet,
+    ParentRelatedProjectQuerySet,
+)
 
 
 class ProjectQuerySetTests(TestCase):
@@ -22,12 +24,12 @@ class ProjectQuerySetTests(TestCase):
         mgr = ChildRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromChildRelatedProjectQuerySetBase'
+            'ManagerFromChildRelatedProjectQuerySetBase',
         )
         mgr = ParentRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromParentRelatedProjectQuerySetBase'
+            'ManagerFromParentRelatedProjectQuerySetBase',
         )
 
     def test_is_active(self):

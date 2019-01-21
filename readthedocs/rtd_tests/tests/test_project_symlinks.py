@@ -1,25 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-from builtins import object
 import os
 import shutil
 import tempfile
 
 import mock
 from django.conf import settings
-from django.urls import reverse
 from django.test import TestCase, override_settings
+from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.tasks import broadcast_remove_orphan_symlinks, remove_orphan_symlinks, symlink_project
-from readthedocs.core.symlink import PublicSymlink, PrivateSymlink
+from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.tasks import (
+    broadcast_remove_orphan_symlinks,
+    remove_orphan_symlinks,
+    symlink_project,
+)
 
 
 def get_filesystem(path, top_level_path=None):
-    """Recurse into path, return dictionary mapping of path and files
+    """
+    Recurse into path, return dictionary mapping of path and files.
 
     This will return the path `path` as a nested dictionary of path objects.
     Directories are mapped to dictionary objects, file objects will have a
@@ -39,8 +42,10 @@ def get_filesystem(path, top_level_path=None):
         if os.path.islink(full_path):
             fs[child] = {
                 'type': 'link',
-                'target': os.path.relpath(os.path.realpath(full_path),
-                                          top_level_path)
+                'target': os.path.relpath(
+                    os.path.realpath(full_path),
+                    top_level_path,
+                ),
             }
         elif os.path.isfile(full_path):
             fs[child] = {
@@ -74,47 +79,47 @@ class TempSiteRootTestCase(TestCase):
         self.mocks = {
             'PublicSymlinkBase.CNAME_ROOT': mock.patch(
                 'readthedocs.core.symlink.PublicSymlinkBase.CNAME_ROOT',
-                new_callable=mock.PropertyMock
+                new_callable=mock.PropertyMock,
             ),
             'PublicSymlinkBase.WEB_ROOT': mock.patch(
                 'readthedocs.core.symlink.PublicSymlinkBase.WEB_ROOT',
-                new_callable=mock.PropertyMock
+                new_callable=mock.PropertyMock,
             ),
             'PublicSymlinkBase.PROJECT_CNAME_ROOT': mock.patch(
                 'readthedocs.core.symlink.PublicSymlinkBase.PROJECT_CNAME_ROOT',
-                new_callable=mock.PropertyMock
+                new_callable=mock.PropertyMock,
             ),
             'PrivateSymlinkBase.CNAME_ROOT': mock.patch(
                 'readthedocs.core.symlink.PrivateSymlinkBase.CNAME_ROOT',
-                new_callable=mock.PropertyMock
+                new_callable=mock.PropertyMock,
             ),
             'PrivateSymlinkBase.WEB_ROOT': mock.patch(
                 'readthedocs.core.symlink.PrivateSymlinkBase.WEB_ROOT',
-                new_callable=mock.PropertyMock
+                new_callable=mock.PropertyMock,
             ),
             'PrivateSymlinkBase.PROJECT_CNAME_ROOT': mock.patch(
                 'readthedocs.core.symlink.PrivateSymlinkBase.PROJECT_CNAME_ROOT',
-                new_callable=mock.PropertyMock
+                new_callable=mock.PropertyMock,
             ),
         }
-        self.patches = dict((key, mock.start()) for (key, mock) in list(self.mocks.items()))
+        self.patches = {key: mock.start() for (key, mock) in list(self.mocks.items())}
         self.patches['PublicSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
-            settings.SITE_ROOT, 'public_cname_root'
+            settings.SITE_ROOT, 'public_cname_root',
         )
         self.patches['PublicSymlinkBase.WEB_ROOT'].return_value = os.path.join(
-            settings.SITE_ROOT, 'public_web_root'
+            settings.SITE_ROOT, 'public_web_root',
         )
         self.patches['PublicSymlinkBase.PROJECT_CNAME_ROOT'].return_value = os.path.join(
-            settings.SITE_ROOT, 'public_cname_project'
+            settings.SITE_ROOT, 'public_cname_project',
         )
         self.patches['PrivateSymlinkBase.CNAME_ROOT'].return_value = os.path.join(
-            settings.SITE_ROOT, 'private_cname_root'
+            settings.SITE_ROOT, 'private_cname_root',
         )
         self.patches['PrivateSymlinkBase.WEB_ROOT'].return_value = os.path.join(
-            settings.SITE_ROOT, 'private_web_root'
+            settings.SITE_ROOT, 'private_web_root',
         )
         self.patches['PrivateSymlinkBase.PROJECT_CNAME_ROOT'].return_value = os.path.join(
-            settings.SITE_ROOT, 'private_cname_project'
+            settings.SITE_ROOT, 'private_cname_project',
         )
 
     def tearDown(self):
@@ -127,30 +132,34 @@ class TempSiteRootTestCase(TestCase):
         self.assertEqual(filesystem, get_filesystem(settings.SITE_ROOT))
 
 
-class BaseSymlinkCnames(object):
+class BaseSymlinkCnames:
 
     def setUp(self):
-        super(BaseSymlinkCnames, self).setUp()
-        self.project = get(Project, slug='kong', privacy_level=self.privacy,
-                           main_language_project=None)
+        super().setUp()
+        self.project = get(
+            Project, slug='kong', privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.project.versions.update(privacy_level=self.privacy)
         self.project.save()
         self.symlink = self.symlink_class(self.project)
 
     def test_symlink_cname(self):
-        self.domain = get(Domain, project=self.project, domain='woot.com',
-                          url='http://woot.com', cname=True)
+        self.domain = get(
+            Domain, project=self.project, domain='woot.com',
+            url='http://woot.com', cname=True,
+        )
         self.symlink.symlink_cnames()
         filesystem = {
             'private_cname_project': {
-                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
             },
             'private_cname_root': {
                 'woot.com': {'type': 'link', 'target': 'private_web_root/kong'},
             },
             'private_web_root': {'kong': {'en': {}}},
             'public_cname_project': {
-                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
             },
             'public_cname_root': {
                 'woot.com': {'type': 'link', 'target': 'public_web_root/kong'},
@@ -159,8 +168,8 @@ class BaseSymlinkCnames(object):
                 'kong': {'en': {'latest': {
                     'type': 'link',
                     'target': 'user_builds/kong/rtd-builds/latest',
-                }}}
-            }
+                }}},
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -170,8 +179,10 @@ class BaseSymlinkCnames(object):
         self.assertFilesystem(filesystem)
 
     def test_symlink_remove_orphan_symlinks(self):
-        self.domain = get(Domain, project=self.project, domain='woot.com',
-                          url='http://woot.com', cname=True)
+        self.domain = get(
+            Domain, project=self.project, domain='woot.com',
+            url='http://woot.com', cname=True,
+        )
         self.symlink.symlink_cnames()
 
         # Editing the Domain and calling save will symlink the new domain and
@@ -201,8 +212,8 @@ class BaseSymlinkCnames(object):
                 'kong': {'en': {'latest': {
                     'type': 'link',
                     'target': 'user_builds/kong/rtd-builds/latest',
-                }}}
-            }
+                }}},
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -253,20 +264,22 @@ class BaseSymlinkCnames(object):
         )
 
     def test_symlink_cname_dont_link_missing_domains(self):
-        """Domains should be relinked after deletion"""
-        self.domain = get(Domain, project=self.project, domain='woot.com',
-                          url='http://woot.com', cname=True)
+        """Domains should be relinked after deletion."""
+        self.domain = get(
+            Domain, project=self.project, domain='woot.com',
+            url='http://woot.com', cname=True,
+        )
         self.symlink.symlink_cnames()
         filesystem = {
             'private_cname_project': {
-                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
             },
             'private_cname_root': {
                 'woot.com': {'type': 'link', 'target': 'private_web_root/kong'},
             },
             'private_web_root': {'kong': {'en': {}}},
             'public_cname_project': {
-                'woot.com': {'type': 'link', 'target': 'user_builds/kong'}
+                'woot.com': {'type': 'link', 'target': 'user_builds/kong'},
             },
             'public_cname_root': {
                 'woot.com': {'type': 'link', 'target': 'public_web_root/kong'},
@@ -275,8 +288,8 @@ class BaseSymlinkCnames(object):
                 'kong': {'en': {'latest': {
                     'type': 'link',
                     'target': 'user_builds/kong/rtd-builds/latest',
-                }}}
-            }
+                }}},
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -303,22 +316,26 @@ class TestPrivateSymlinkCnames(BaseSymlinkCnames, TempSiteRootTestCase):
     symlink_class = PrivateSymlink
 
 
-class BaseSubprojects(object):
+class BaseSubprojects:
 
     def setUp(self):
-        super(BaseSubprojects, self).setUp()
-        self.project = get(Project, slug='kong', privacy_level=self.privacy,
-                           main_language_project=None)
+        super().setUp()
+        self.project = get(
+            Project, slug='kong', privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.project.versions.update(privacy_level=self.privacy)
         self.project.save()
-        self.subproject = get(Project, slug='sub', privacy_level=self.privacy,
-                              main_language_project=None)
+        self.subproject = get(
+            Project, slug='sub', privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.subproject.versions.update(privacy_level=self.privacy)
         self.subproject.save()
         self.symlink = self.symlink_class(self.project)
 
     def test_subproject_normal(self):
-        """Symlink pass adds symlink for subproject"""
+        """Symlink pass adds symlink for subproject."""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -340,16 +357,16 @@ class BaseSubprojects(object):
                         'sub': {
                             'type': 'link',
                             'target': 'public_web_root/sub',
-                        }
-                    }
+                        },
+                    },
                 },
                 'sub': {
                     'en': {'latest': {
                         'type': 'link',
                         'target': 'user_builds/sub/rtd-builds/latest',
-                    }}
-                }
-            }
+                    }},
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -360,7 +377,7 @@ class BaseSubprojects(object):
         self.assertFilesystem(filesystem)
 
     def test_subproject_alias(self):
-        """Symlink pass adds symlink for subproject alias"""
+        """Symlink pass adds symlink for subproject alias."""
         self.project.add_subproject(self.subproject, alias='sweet-alias')
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -387,15 +404,15 @@ class BaseSubprojects(object):
                             'type': 'link',
                             'target': 'public_web_root/sub',
                         },
-                    }
+                    },
                 },
                 'sub': {
                     'en': {'latest': {
                         'type': 'link',
                         'target': 'user_builds/sub/rtd-builds/latest',
-                    }}
-                }
-            }
+                    }},
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -407,7 +424,7 @@ class BaseSubprojects(object):
         self.assertFilesystem(filesystem)
 
     def test_subproject_alias_with_spaces(self):
-        """Symlink pass adds symlink for subproject alias"""
+        """Symlink pass adds symlink for subproject alias."""
         self.project.add_subproject(self.subproject, alias='Sweet Alias')
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -434,15 +451,15 @@ class BaseSubprojects(object):
                             'type': 'link',
                             'target': 'public_web_root/sub',
                         },
-                    }
+                    },
                 },
                 'sub': {
                     'en': {'latest': {
                         'type': 'link',
                         'target': 'user_builds/sub/rtd-builds/latest',
-                    }}
-                }
-            }
+                    }},
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -454,7 +471,7 @@ class BaseSubprojects(object):
         self.assertFilesystem(filesystem)
 
     def test_remove_subprojects(self):
-        """Nonexistent subprojects are unlinked"""
+        """Nonexistent subprojects are unlinked."""
         self.project.add_subproject(self.subproject)
         self.symlink.symlink_subprojects()
         filesystem = {
@@ -476,16 +493,16 @@ class BaseSubprojects(object):
                         'sub': {
                             'type': 'link',
                             'target': 'public_web_root/sub',
-                        }
-                    }
+                        },
+                    },
                 },
                 'sub': {
                     'en': {'latest': {
                         'type': 'link',
                         'target': 'user_builds/sub/rtd-builds/latest',
-                    }}
-                }
-            }
+                    }},
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -514,29 +531,37 @@ class TestPrivateSubprojects(BaseSubprojects, TempSiteRootTestCase):
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkTranslations(object):
+class BaseSymlinkTranslations:
 
     def setUp(self):
-        super(BaseSymlinkTranslations, self).setUp()
-        self.project = get(Project, slug='kong', privacy_level=self.privacy,
-                           main_language_project=None)
+        super().setUp()
+        self.project = get(
+            Project, slug='kong', privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.project.versions.update(privacy_level=self.privacy)
         self.project.save()
-        self.translation = get(Project, slug='pip', language='de',
-                               privacy_level=self.privacy,
-                               main_language_project=None)
+        self.translation = get(
+            Project, slug='pip', language='de',
+            privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.translation.versions.update(privacy_level=self.privacy)
         self.translation.save()
         self.project.translations.add(self.translation)
         self.symlink = self.symlink_class(self.project)
-        get(Version, slug='master', verbose_name='master', active=True,
-            project=self.project, privacy_level=self.privacy)
-        get(Version, slug='master', verbose_name='master', active=True,
-            project=self.translation, privacy_level=self.privacy)
+        get(
+            Version, slug='master', verbose_name='master', active=True,
+            project=self.project, privacy_level=self.privacy,
+        )
+        get(
+            Version, slug='master', verbose_name='master', active=True,
+            project=self.translation, privacy_level=self.privacy,
+        )
         self.assertIn(self.translation, self.project.translations.all())
 
     def test_symlink_basic(self):
-        """Test basic scenario, language english, translation german"""
+        """Test basic scenario, language english, translation german."""
         self.symlink.symlink_translations()
         filesystem = {
             'private_cname_project': {},
@@ -574,9 +599,9 @@ class BaseSymlinkTranslations(object):
                             'type': 'link',
                             'target': 'user_builds/pip/rtd-builds/master',
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -587,7 +612,7 @@ class BaseSymlinkTranslations(object):
         self.assertFilesystem(filesystem)
 
     def test_symlink_non_english(self):
-        """Test language german, translation english"""
+        """Test language german, translation english."""
         self.project.language = 'de'
         self.translation.language = 'en'
         self.project.save()
@@ -629,9 +654,9 @@ class BaseSymlinkTranslations(object):
                             'type': 'link',
                             'target': 'user_builds/pip/rtd-builds/master',
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -642,7 +667,8 @@ class BaseSymlinkTranslations(object):
         self.assertFilesystem(filesystem)
 
     def test_symlink_no_english(self):
-        """Test language german, no english
+        """
+        Test language german, no english.
 
         This should symlink the translation to 'en' even though there is no 'en'
         language in translations or project language
@@ -685,9 +711,9 @@ class BaseSymlinkTranslations(object):
                             'type': 'link',
                             'target': 'user_builds/pip/rtd-builds/master',
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -734,9 +760,9 @@ class BaseSymlinkTranslations(object):
                             'type': 'link',
                             'target': 'user_builds/pip/rtd-builds/master',
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -766,12 +792,14 @@ class TestPrivateSymlinkTranslations(BaseSymlinkTranslations, TempSiteRootTestCa
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkSingleVersion(object):
+class BaseSymlinkSingleVersion:
 
     def setUp(self):
-        super(BaseSymlinkSingleVersion, self).setUp()
-        self.project = get(Project, slug='kong', privacy_level=self.privacy,
-                           main_language_project=None)
+        super().setUp()
+        self.project = get(
+            Project, slug='kong', privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.project.versions.update(privacy_level=self.privacy)
         self.project.save()
         self.version = self.project.versions.get(slug='latest')
@@ -794,7 +822,7 @@ class BaseSymlinkSingleVersion(object):
                     'type': 'link',
                     'target': 'user_builds/kong/rtd-builds/latest',
                 },
-            }
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -820,8 +848,8 @@ class BaseSymlinkSingleVersion(object):
                 'kong': {
                     'type': 'link',
                     'target': 'user_builds/kong/rtd-builds/latest',
-                }
-            }
+                },
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -841,17 +869,21 @@ class TestPublicSymlinkSingleVersion(BaseSymlinkSingleVersion, TempSiteRootTestC
     symlink_class = PrivateSymlink
 
 
-class BaseSymlinkVersions(object):
+class BaseSymlinkVersions:
 
     def setUp(self):
-        super(BaseSymlinkVersions, self).setUp()
-        self.project = get(Project, slug='kong', privacy_level=self.privacy,
-                           main_language_project=None)
+        super().setUp()
+        self.project = get(
+            Project, slug='kong', privacy_level=self.privacy,
+            main_language_project=None,
+        )
         self.project.versions.update(privacy_level=self.privacy)
         self.project.save()
-        self.stable = get(Version, slug='stable', verbose_name='stable',
-                          active=True, project=self.project,
-                          privacy_level=self.privacy)
+        self.stable = get(
+            Version, slug='stable', verbose_name='stable',
+            active=True, project=self.project,
+            privacy_level=self.privacy,
+        )
         self.project.versions.update(privacy_level=self.privacy)
         self.symlink = self.symlink_class(self.project)
 
@@ -878,7 +910,7 @@ class BaseSymlinkVersions(object):
                         },
                     },
                 },
-            }
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -908,7 +940,7 @@ class BaseSymlinkVersions(object):
                         'target': 'user_builds/kong/rtd-builds/stable',
                     },
                 }},
-            }
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -947,7 +979,7 @@ class BaseSymlinkVersions(object):
                     'type': 'link',
                     'target': 'user_builds/kong/rtd-builds/latest',
                 }}},
-            }
+            },
         }
         if self.privacy == 'private':
             public_root = filesystem['public_web_root'].copy()
@@ -970,12 +1002,16 @@ class TestPrivateSymlinkVersions(BaseSymlinkVersions, TempSiteRootTestCase):
 class TestPublicSymlinkUnicode(TempSiteRootTestCase):
 
     def setUp(self):
-        super(TestPublicSymlinkUnicode, self).setUp()
-        self.project = get(Project, slug='kong', name=u'foo-∫',
-                           main_language_project=None)
+        super().setUp()
+        self.project = get(
+            Project, slug='kong', name='foo-∫',
+            main_language_project=None,
+        )
         self.project.save()
-        self.stable = get(Version, slug='foo-a', verbose_name=u'foo-∂',
-                          active=True, project=self.project)
+        self.stable = get(
+            Version, slug='foo-a', verbose_name='foo-∂',
+            active=True, project=self.project,
+        )
         self.symlink = PublicSymlink(self.project)
 
     def test_symlink_no_error(self):
@@ -1035,19 +1071,21 @@ class TestPublicSymlinkUnicode(TempSiteRootTestCase):
 class TestPublicPrivateSymlink(TempSiteRootTestCase):
 
     def setUp(self):
-        super(TestPublicPrivateSymlink, self).setUp()
+        super().setUp()
         from django.contrib.auth.models import User
 
         self.user = get(User)
         self.project = get(
             Project, name='project', slug='project', privacy_level='public',
-            users=[self.user], main_language_project=None)
+            users=[self.user], main_language_project=None,
+        )
         self.project.versions.update(privacy_level='public')
         self.project.save()
 
         self.subproject = get(
             Project, name='subproject', slug='subproject', privacy_level='public',
-            users=[self.user], main_language_project=None)
+            users=[self.user], main_language_project=None,
+        )
         self.subproject.versions.update(privacy_level='public')
         self.subproject.save()
 
@@ -1055,8 +1093,8 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
         """
         Change subproject's ``privacy_level`` creates proper symlinks.
 
-        When the ``privacy_level`` changes in the subprojects, we need to
-        re-symlink the superproject also to keep in sync its symlink under the
+        When the ``privacy_level`` changes in the subprojects, we need to re-
+        symlink the superproject also to keep in sync its symlink under the
         private/public roots.
         """
         filesystem_before = {
@@ -1152,11 +1190,13 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
 
         self.client.force_login(self.user)
         self.client.post(
-            reverse('project_version_detail',
-                    kwargs={
-                        'project_slug': self.subproject.slug,
-                        'version_slug': self.subproject.versions.first().slug,
-                    }),
+            reverse(
+                'project_version_detail',
+                kwargs={
+                    'project_slug': self.subproject.slug,
+                    'version_slug': self.subproject.versions.first().slug,
+                },
+            ),
             data={'privacy_level': 'private', 'active': True},
         )
 
@@ -1164,10 +1204,12 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
         self.assertTrue(self.subproject.versions.first().active)
 
         self.client.post(
-            reverse('projects_advanced',
-                    kwargs={
-                        'project_slug': self.subproject.slug,
-                    }),
+            reverse(
+                'projects_advanced',
+                kwargs={
+                    'project_slug': self.subproject.slug,
+                },
+            ),
             data={
                 # Required defaults
                 'python_interpreter': 'python',
