@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Search views."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Search views."""
 import collections
 import logging
 from pprint import pprint
@@ -13,8 +11,9 @@ from django.shortcuts import render
 from readthedocs.builds.constants import LATEST
 from readthedocs.search import lib as search_lib
 
+
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
+LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
 
 UserInput = collections.namedtuple(
     'UserInput',
@@ -46,11 +45,18 @@ def elastic_search(request):
     if user_input.query:
         if user_input.type == 'project':
             results = search_lib.search_project(
-                request, user_input.query, language=user_input.language)
+                request,
+                user_input.query,
+                language=user_input.language,
+            )
         elif user_input.type == 'file':
             results = search_lib.search_file(
-                request, user_input.query, project_slug=user_input.project,
-                version_slug=user_input.version, taxonomy=user_input.taxonomy)
+                request,
+                user_input.query,
+                project_slug=user_input.project,
+                version_slug=user_input.version,
+                taxonomy=user_input.taxonomy,
+            )
 
     if results:
         # pre and post 1.0 compat
@@ -82,7 +88,8 @@ def elastic_search(request):
                 version=user_input.version or '',
                 language=user_input.language or '',
                 msg=user_input.query or '',
-            ))
+            ),
+        )
 
     template_vars = user_input._asdict()
     template_vars.update({

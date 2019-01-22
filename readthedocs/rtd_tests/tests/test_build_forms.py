@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, print_function, unicode_literals
-
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -30,7 +28,7 @@ class TestVersionForm(TestCase):
                 'active': True,
                 'privacy_level': PRIVATE,
             },
-            instance=version
+            instance=version,
         )
         self.assertTrue(form.is_valid())
 
@@ -48,7 +46,7 @@ class TestVersionForm(TestCase):
                 'active': False,
                 'privacy_level': PRIVATE,
             },
-            instance=version
+            instance=version,
         )
         self.assertFalse(form.is_valid())
         self.assertIn('active', form.errors)

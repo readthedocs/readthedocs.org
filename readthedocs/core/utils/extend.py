@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
 """Patterns for extending Read the Docs."""
 
-from __future__ import absolute_import
 import inspect
 
 from django.conf import settings
 from django.utils.module_loading import import_string
-import six
 
 
 def get_override_class(proxy_class, default_class=None):
@@ -21,7 +21,7 @@ def get_override_class(proxy_class, default_class=None):
         default_class = getattr(proxy_class, '_default_class')
     class_id = '.'.join([
         inspect.getmodule(proxy_class).__name__,
-        proxy_class.__name__
+        proxy_class.__name__,
     ])
     class_path = getattr(settings, 'CLASS_OVERRIDES', {}).get(class_id)
     # pylint: disable=protected-access
@@ -34,14 +34,18 @@ def get_override_class(proxy_class, default_class=None):
 
 class SettingsOverrideMeta(type):
 
-    """Meta class for passing along classmethod class to the underlying class."""  # noqa
+    """
+    Meta class to manage our Setting configurations.
+
+    Meta class for passing along classmethod class to the underlying class.
+    """
 
     def __getattr__(cls, attr):  # noqa: pep8 false positive
         proxy_class = get_override_class(cls, getattr(cls, '_default_class'))
         return getattr(proxy_class, attr)
 
 
-class SettingsOverrideObject(six.with_metaclass(SettingsOverrideMeta, object)):
+class SettingsOverrideObject(metaclass=SettingsOverrideMeta):
 
     """
     Base class for creating class that can be overridden.
