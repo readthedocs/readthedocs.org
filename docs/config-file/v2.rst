@@ -103,7 +103,7 @@ The Python version (this depends on :ref:`config-file/v2:build.image`).
 python.install
 ``````````````
 
-List of installation of packages and requirements.
+List of installation methods of packages and requirements.
 
 Requirements file
 '''''''''''''''''
@@ -377,11 +377,10 @@ You can see the complete schema
 Migrating from v1
 -----------------
 
-First, make sure to add the :ref:`version setting <config-file/v2:version>`.
-
 Changes
 ~~~~~~~
 
+- The version setting is required. See :ref:`config-file/v2:version`.
 - The default value of the :ref:`config-file/v2:formats` setting has changed to ``[]``
   and it doesn't include the values from the web interface.
 - The top setting ``requirements_file`` was moved to ``python.install``
