@@ -20,7 +20,7 @@ Using a configuration file
 --------------------------
 
 The recommended approach for specifying a pip requirements file is to use a :doc:`/config-file/index` file, 
-see :ref:`config-file/v2:python.requirements`.
+see :ref:`config-file/v2:Requirements file`.
 
 Using the project admin dashboard
 ---------------------------------
