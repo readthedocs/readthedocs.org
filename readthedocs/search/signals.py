@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
+
 """We define custom Django signals to trigger before executing searches."""
-from __future__ import absolute_import
 import django.dispatch
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver

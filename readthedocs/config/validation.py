@@ -1,9 +1,8 @@
-"""Validations for the RTD configuration file."""
-from __future__ import division, print_function, unicode_literals
+# -*- coding: utf-8 -*-
 
+"""Validations for the RTD configuration file."""
 import os
 
-from six import string_types, text_type
 
 INVALID_BOOL = 'invalid-bool'
 INVALID_CHOICE = 'invalid-choice'
@@ -29,7 +28,7 @@ class ValidationError(Exception):
         INVALID_PATH: 'path {value} does not exist',
         INVALID_STRING: 'expected string',
         INVALID_LIST: 'expected list',
-        VALUE_NOT_FOUND: '{value} not found'
+        VALUE_NOT_FOUND: '{value} not found',
     }
 
     def __init__(self, value, code, format_kwargs=None):
@@ -41,12 +40,12 @@ class ValidationError(Exception):
         if format_kwargs is not None:
             defaults.update(format_kwargs)
         message = self.messages[code].format(**defaults)
-        super(ValidationError, self).__init__(message)
+        super().__init__(message)
 
 
 def validate_list(value):
     """Check if ``value`` is an iterable."""
-    if isinstance(value, (dict, string_types)):
+    if isinstance(value, (dict, str)):
         raise ValidationError(value, INVALID_LIST)
     if not hasattr(value, '__iter__'):
         raise ValidationError(value, INVALID_LIST)
@@ -63,9 +62,13 @@ def validate_choice(value, choices):
     """Check that ``value`` is in ``choices``."""
     choices = validate_list(choices)
     if value not in choices:
-        raise ValidationError(value, INVALID_CHOICE, {
-            'choices': ', '.join(map(str, choices))
-        })
+        raise ValidationError(
+            value,
+            INVALID_CHOICE,
+            {
+                'choices': ', '.join(map(str, choices)),
+            },
+        )
     return value
 
 
@@ -113,6 +116,6 @@ def validate_path(value, base_path):
 
 def validate_string(value):
     """Check that ``value`` is a string type."""
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise ValidationError(value, INVALID_STRING)
-    return text_type(value)
+    return str(value)

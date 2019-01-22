@@ -67,7 +67,7 @@
               <a href="?{% url_replace request 'version' ''  %}">{{ name }}
             {% else %}
               <a href="?{% url_replace request 'version' name  %}">{{ name }}
-            {% endif %}            
+            {% endif %}
             ({{ count }})
             </a>
          </li>
@@ -76,7 +76,7 @@
     {% endif %}
 
   {% endif %}
-  
+
 {% block sponsor %}
 <div class="search-sponsored">
 Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted on <a href="https://www.elastic.co/cloud">Elastic Cloud</a>.

@@ -26,8 +26,10 @@ class TestProjectSearch(object):
         return result, page
 
     def test_search_by_project_name(self, client, project):
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': project.name})
+        result, _ = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': project.name},
+        )
 
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
 
@@ -36,8 +38,10 @@ class TestProjectSearch(object):
         # Create a project in bn and add it as a translation
         G(Project, language='bn', name=project.name)
 
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params={'q': project.name})
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': project.name},
+        )
 
         content = page.find('.navigable .language-list')
         # There should be 2 languages
@@ -50,8 +54,10 @@ class TestProjectSearch(object):
         translate = G(Project, language='bn', name=project.name)
         search_params = {'q': project.name, 'language': 'bn'}
 
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params=search_params)
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params=search_params,
+        )
 
         # There should be only 1 result
         assert len(result) == 1
@@ -141,8 +147,10 @@ class TestPageSearch(object):
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params={'q': 'GitHub', 'type': 'file'})
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': 'GitHub', 'type': 'file'},
+        )
 
         # There should be 2 search result
         assert len(result) == 2
@@ -156,13 +164,15 @@ class TestPageSearch(object):
         assert 'kuma' and 'pipeline' in text
 
     def test_file_search_filter_by_project(self, client):
-        """Test that search result are filtered according to project"""
+        """Test that search result are filtered according to project."""
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase but filter through `kuma` project
         search_params = {'q': 'GitHub', 'type': 'file', 'project': 'kuma'}
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params=search_params)
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params=search_params,
+        )
 
         # There should be 1 search result as we have filtered
         assert len(result) == 1
@@ -176,11 +186,11 @@ class TestPageSearch(object):
         # as the query is present in both projects
         content = page.find('.navigable .project-list')
         if len(content) != 2:
-            pytest.xfail("failing because currently all projects are not showing in project list")
+            pytest.xfail('failing because currently all projects are not showing in project list')
         else:
             assert 'kuma' and 'pipeline' in content.text()
 
-    @pytest.mark.xfail(reason="Versions are not showing correctly! Fixme while rewrite!")
+    @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
         # override the settings to index all versions
         settings.INDEX_ONLY_LATEST = False
@@ -191,8 +201,10 @@ class TestPageSearch(object):
 
         query = get_search_query_from_project_file(project_slug=project.slug)
 
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params={'q': query, 'type': 'file'})
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params={'q': query, 'type': 'file'},
+        )
 
         # There should be only one result because by default
         # only latest version result should be there
@@ -214,7 +226,7 @@ class TestPageSearch(object):
         assert sorted(project_versions) == sorted(content_versions)
 
     def test_file_search_subprojects(self, client, all_projects, es_index):
-        """File search should return results from subprojects also"""
+        """File search should return results from subprojects also."""
         project = all_projects[0]
         subproject = all_projects[1]
         # Add another project as subproject of the project
@@ -223,7 +235,9 @@ class TestPageSearch(object):
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
         search_params = {'q': query, 'type': 'file', 'project': project.slug}
-        result, page = self._get_search_result(url=self.url, client=client,
-                                               search_params=search_params)
+        result, page = self._get_search_result(
+            url=self.url, client=client,
+            search_params=search_params,
+        )
 
         assert len(result) == 1

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Search views."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Search views."""
 import collections
 import logging
 from pprint import pprint
@@ -14,8 +12,9 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.search.documents import ProjectDocument, PageDocument
 from readthedocs.search.utils import get_project_list_or_404
 
+
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
+LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
 
 UserInput = collections.namedtuple(
     'UserInput',
@@ -80,7 +79,8 @@ def elastic_search(request):
                 version=user_input.version or '',
                 language=user_input.language or '',
                 msg=user_input.query or '',
-            ))
+            ),
+        )
 
     template_vars = user_input._asdict()
     template_vars.update({

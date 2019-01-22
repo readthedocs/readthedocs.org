@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Utility functions that are used by both views and celery tasks."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Utility functions that are used by both views and celery tasks."""
 
 import logging
 
@@ -23,13 +17,15 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Version
 
+
 log = logging.getLogger(__name__)
 
 
 def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     """Update the database with the current versions from the repository."""
     old_version_values = project.versions.filter(type=type).values_list(
-        'verbose_name', 'identifier'
+        'verbose_name',
+        'identifier',
     )
     old_versions = dict(old_version_values)
 
@@ -47,7 +43,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 slug=STABLE,
                 version_id=version_id,
                 verbose_name=version_name,
-                type_=type
+                type_=type,
             )
             if created:
                 added.add(created_version.slug)
@@ -58,7 +54,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 slug=LATEST,
                 version_id=version_id,
                 verbose_name=version_name,
-                type_=type
+                type_=type,
             )
             if created:
                 added.add(created_version.slug)
@@ -69,11 +65,13 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             else:
                 # Update slug with new identifier
                 Version.objects.filter(
-                    project=project, verbose_name=version_name).update(
-                        identifier=version_id,
-                        type=type,
-                        machine=False,
-                    )  # noqa
+                    project=project,
+                    verbose_name=version_name,
+                ).update(
+                    identifier=version_id,
+                    type=type,
+                    machine=False,
+                )  # noqa
 
                 log.info(
                     '(Sync Versions) Updated Version: [%s=%s] ',
@@ -91,9 +89,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             added.add(created_version.slug)
     if not has_user_stable:
         stable_version = (
-            project.versions
-            .filter(slug=STABLE, type=type)
-            .first()
+            project.versions.filter(slug=STABLE, type=type).first()
         )
         if stable_version:
             # Put back the RTD's stable version
@@ -101,9 +97,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             stable_version.save()
     if not has_user_latest:
         latest_version = (
-            project.versions
-            .filter(slug=LATEST, type=type)
-            .first()
+            project.versions.filter(slug=LATEST, type=type).first()
         )
         if latest_version:
             # Put back the RTD's latest version
@@ -118,11 +112,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
 
 def set_or_create_version(project, slug, version_id, verbose_name, type_):
     """Search or create a version and set its machine attribute to false."""
-    version = (
-        project.versions
-        .filter(slug=slug)
-        .first()
-    )
+    version = (project.versions.filter(slug=slug).first())
     if version:
         version.identifier = version_id
         version.machine = False
@@ -144,12 +134,10 @@ def delete_versions(project, version_data):
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
     versions_tags = [
-        version['verbose_name']
-        for version in version_data.get('tags', [])
+        version['verbose_name'] for version in version_data.get('tags', [])
     ]
     versions_branches = [
-        version['identifier']
-        for version in version_data.get('branches', [])
+        version['identifier'] for version in version_data.get('branches', [])
     ]
     to_delete_qs = project.versions.all()
     to_delete_qs = to_delete_qs.exclude(
