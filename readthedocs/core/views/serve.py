@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Doc serving from Python.
 
@@ -25,18 +26,14 @@ PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 import mimetypes
 import os
 from functools import wraps
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
@@ -46,6 +43,7 @@ from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ProjectRelationship
+
 
 log = logging.getLogger(__name__)
 
@@ -58,8 +56,11 @@ def map_subproject_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
+
     @wraps(view_func)
-    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):  # noqa
+    def inner_view(  # noqa
+            request, subproject=None, subproject_slug=None, *args, **kwargs
+    ):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
@@ -85,8 +86,11 @@ def map_project_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
+
     @wraps(view_func)
-    def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
+    def inner_view(  # noqa
+            request, project=None, project_slug=None, *args, **kwargs
+    ):
         if project is None:
             if not project_slug:
                 project_slug = request.slug
@@ -111,13 +115,14 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
     return HttpResponseRedirect(
-        resolve(subproject or project, filename=filename))
+        resolve(subproject or project, filename=filename),
+    )
 
 
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
-    log.debug('Unauthorized access to {0} documentation'.format(project.slug))
+    log.debug('Unauthorized access to {} documentation'.format(project.slug))
     return res
 
 
@@ -129,7 +134,8 @@ def _serve_file(request, filename, basepath):
 
     # Serve from Nginx
     content_type, encoding = mimetypes.guess_type(
-        os.path.join(basepath, filename))
+        os.path.join(basepath, filename),
+    )
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(content_type=content_type)
     if encoding:
@@ -155,9 +161,14 @@ def _serve_file(request, filename, basepath):
 @map_project_slug
 @map_subproject_slug
 def serve_docs(
-        request, project, subproject, lang_slug=None, version_slug=None,
-        filename=''):
-    """Exists to map existing proj, lang, version, filename views to the file format."""
+        request,
+        project,
+        subproject,
+        lang_slug=None,
+        version_slug=None,
+        filename='',
+):
+    """Map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:
@@ -222,7 +233,8 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
-        'File not found. Tried these files: %s' % ','.join(files_tried))
+        'File not found. Tried these files: %s' % ','.join(files_tried),
+    )
 
 
 @map_project_slug

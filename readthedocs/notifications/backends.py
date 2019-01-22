@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Pluggable backends for the delivery of notifications.
 
@@ -7,10 +8,6 @@ Django settings. For example, they might be e-mailed to users as well as
 displayed on the site.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
-from builtins import object
 from django.conf import settings
 from django.http import HttpRequest
 from django.utils.module_loading import import_string
@@ -35,7 +32,7 @@ def send_notification(request, notification):
         backend.send(notification)
 
 
-class Backend(object):
+class Backend:
 
     def __init__(self, request):
         self.request = request
