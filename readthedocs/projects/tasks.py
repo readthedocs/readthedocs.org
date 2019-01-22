@@ -741,7 +741,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
-                kwargs={'search': search},
+                search=search,
             ),
         )
 
