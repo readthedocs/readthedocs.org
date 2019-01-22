@@ -8,6 +8,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
+from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
@@ -277,6 +278,7 @@ class BuildViewSet(SettingsOverrideObject):
 
 
 class BuildCommandViewSet(UserSelectViewSet):
+    parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer

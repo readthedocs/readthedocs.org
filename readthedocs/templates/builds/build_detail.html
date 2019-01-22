@@ -177,6 +177,15 @@ $(document).ready(function () {
            data-bind="text: error">
           {{ build.error }}
         </p>
+        <p>
+          {% block github_issue_link %}
+            {% if issue_url %}
+              {% blocktrans trimmed with url=issue_url %}
+                <a href="{{ url }}">Report any build issues here</a>.
+              {% endblocktrans %}
+            {% endif %}
+          {% endblock %}
+        </p>
       </div>
 
       <div id="build-commands"

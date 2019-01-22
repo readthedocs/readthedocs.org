@@ -233,7 +233,7 @@ We deploy readthedocs.org from the `rel` branch in our GitHub repository. You ca
 
 
 How can I avoid search results having a deprecated version of my docs?
----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
 It may happen that this version is already deprecated and you want to stop Google indexing it as a result,

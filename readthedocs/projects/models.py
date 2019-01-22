@@ -654,11 +654,11 @@ class Project(models.Model):
 
     def full_json_path(self, version=LATEST):
         """The path to the build json docs in the project."""
-        if 'sphinx' in self.documentation_type:
-            return os.path.join(self.conf_dir(version), '_build', 'json')
-
-        if 'mkdocs' in self.documentation_type:
-            return os.path.join(self.checkout_path(version), '_build', 'json')
+        json_path = os.path.join(
+            self.conf_dir(version),
+            '_build', 'json'
+        )
+        return json_path
 
     def full_singlehtml_path(self, version=LATEST):
         """The path to the build singlehtml docs in the project."""
@@ -1199,7 +1199,7 @@ class Domain(models.Model):
         broadcast(
             type='app',
             task=tasks.symlink_domain,
-            args=[self.project.pk, self.pk],
+            args=[self.project.pk, self.domain],
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -1207,7 +1207,7 @@ class Domain(models.Model):
         broadcast(
             type='app',
             task=tasks.symlink_domain,
-            args=[self.project.pk, self.pk, True],
+            args=[self.project.pk, self.domain, True],
         )
         super().delete(*args, **kwargs)
 
@@ -1239,6 +1239,7 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
@@ -1276,6 +1277,7 @@ class Feature(models.Model):
                 'Use Docker image labelled as `testing` to build the docs',
             ),
         ),
+        (API_LARGE_DATA, _('Try alternative method of posting large data'))
     )
 
     projects = models.ManyToManyField(
