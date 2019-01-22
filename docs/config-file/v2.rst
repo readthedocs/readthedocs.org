@@ -14,7 +14,9 @@ Here is an example of how this file looks like:
 
    python:
      version: 3.6
-     install: pip
+     install:
+        - method: pip
+          path: .
 
 Supported settings
 ------------------
@@ -81,10 +83,13 @@ Example:
 
    python:
       version: 3.6
-      requirements: docs/requirements.txt
-      install: pip
-      extra_requirements:
-        - docs
+      install:
+         - requirements: docs/requirements.txt
+         - method: pip
+           path: .
+           extra_requirements: docs
+         - method: setuptools
+           path: another/package
       system_packages: true
 
 python.version
@@ -95,46 +100,73 @@ The Python version (this depends on :ref:`config-file/v2:build.image`).
 :Type: ``number``
 :Default: ``3``
 
-python.requirements
-```````````````````
-
-The path to the requirements file, relative to the root of the project.
-
-:Type: ``path``
-:Default: ``null``
-
-If the value is ``null``,
-Read the Docs would try to find a requirements file in your ``docs/`` directory and in the root of your project.
-If you want to completely ignore the requirements file, you can use an empty string ``''``.
-
 python.install
 ``````````````
 
-Install the project using python ``python setup.py install`` or ``pip install .``.
+List of installation of packages and requirements.
 
-:Type: ``string``
+Requirements file
+'''''''''''''''''
+
+Install packages from a requirements file.
+
+The path to the requirements file, relative to the root of the project.
+
+:Key: ``requirements``
+:Type: ``path``
+:Required: ``true``
+
+Example:
+
+.. code-block:: yaml
+
+   python:
+      version: 3.6
+      install:
+         - requirements: docs/requirements.txt
+         - requirements: requirements.txt
+
+Packages
+''''''''
+
+Install the project using ``python setup.py install`` or ``pip install``.
+
+The path to the package, relative to the root of the project.
+
+:Key: ``path``
+:Type: ``path``
+:Required: ``true``
+
+The installation method.
+
+:Key: ``method``
 :Options: ``pip``, ``setup.py``
-:Default: ``null``
-
-If the value is ``null``, Read the Docs would not install your project.
-
-python.extra_requirements
-`````````````````````````
+:Default: ``pip``
 
 `Extra requirements <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_
 section to install in addition to the `package dependencies <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies>`_.
 
+.. warning::
+
+   You need to install your project with ``pip`` to use ``extra_requirements``.
+
+:Key: ``extra_requirements``
 :Type: ``list``
 :Default: ``[]``
 
-.. warning::
+Example:
 
-   You need to install your project with ``pip`` to use this feature.
-   See :ref:`config-file/v2:python.install`.
+.. code-block:: yaml
 
-Behind the scene the following ``pip`` command will be run::
-
-   $ pip install -e .[tests,docs]
+   python:
+      version: 3.6
+      install:
+         - method: pip
+           path: .
+           extra_requirements:
+              - docs
+         - method: setuptools
+           path: package
 
 python.system_packages
 ``````````````````````
