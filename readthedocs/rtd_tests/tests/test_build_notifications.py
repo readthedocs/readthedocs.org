@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 """Notifications sent after build is completed."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import django_dynamic_fixture as fixture
 from django.core import mail
 from django.test import TestCase
 from mock import patch
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Project, EmailHook, WebHook
-from readthedocs.projects.tasks import send_notifications
 from readthedocs.projects.forms import WebHookForm
+from readthedocs.projects.models import EmailHook, Project, WebHook
+from readthedocs.projects.tasks import send_notifications
 
 
 class BuildNotificationsTests(TestCase):
@@ -81,7 +78,11 @@ class TestForms(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(
             form.errors,
-            {'url':
-                ['Enter a valid URL.',
-                    'Ensure this value has at most 600 characters (it has 1507).']
-             })
+            {
+                'url':
+                   [
+                       'Enter a valid URL.',
+                       'Ensure this value has at most 600 characters (it has 1507).',
+                   ],
+                },
+        )

@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
+
 """Integration admin models."""
 
-from __future__ import absolute_import
+from django import urls
 from django.contrib import admin
-from django.core import urlresolvers
 from django.utils.safestring import mark_safe
 from pygments.formatters import HtmlFormatter
 
-from .models import Integration, HttpExchange
+from .models import HttpExchange, Integration
 
 
 def pretty_json_field(field, description, include_styles=False):
@@ -18,11 +19,13 @@ def pretty_json_field(field, description, include_styles=False):
         if include_styles:
             formatter = HtmlFormatter(style='colorful')
             styles = '<style>' + formatter.get_style_defs() + '</style>'
-        return mark_safe('<div style="{0}">{1}</div>{2}'.format(
-            'float: left;',
-            obj.formatted_json(field),
-            styles,
-        ))
+        return mark_safe(
+            '<div style="{}">{}</div>{}'.format(
+                'float: left;',
+                obj.formatted_json(field),
+                styles,
+            ),
+        )
 
     inner.short_description = description
     return inner
@@ -96,16 +99,20 @@ class IntegrationAdmin(admin.ModelAdmin):
         JSONField doesn't do well with fieldsets for whatever reason. This is
         just to link to the exchanges.
         """
-        url = urlresolvers.reverse('admin:{0}_{1}_changelist'.format(
-            HttpExchange._meta.app_label,  # pylint: disable=protected-access
-            HttpExchange._meta.model_name,  # pylint: disable=protected-access
-        ))
-        return mark_safe('<a href="{0}?{1}={2}">{3} HTTP transactions</a>'.format(
-            url,
-            'integrations',
-            obj.pk,
-            obj.exchanges.count(),
-        ))
+        url = urls.reverse(
+            'admin:{}_{}_changelist'.format(
+                HttpExchange._meta.app_label,  # pylint: disable=protected-access
+                HttpExchange._meta.model_name,  # pylint: disable=protected-access
+            ),
+        )
+        return mark_safe(
+            '<a href="{}?{}={}">{} HTTP transactions</a>'.format(
+                url,
+                'integrations',
+                obj.pk,
+                obj.exchanges.count(),
+            ),
+        )
 
     exchanges.short_description = 'HTTP exchanges'
 

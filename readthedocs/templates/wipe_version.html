@@ -30,6 +30,7 @@
     {% endblocktrans %}
 
 <form method="post" action="#">
+  {% csrf_token %}
   <input type="submit" value="{% trans 'Wipe' %} {{ version.slug }}">
 </form>
 {% endif %}

@@ -50,7 +50,7 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
-        logging = super(CommunityDevSettings, self).LOGGING
+        logging = super().LOGGING
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False

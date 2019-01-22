@@ -1,15 +1,17 @@
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
 import os
+
 from django.test import TestCase
 
+from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.projects.tasks import _manage_imported_files
-from readthedocs.projects.models import Project, ImportedFile
+
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class ImportedFileTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')

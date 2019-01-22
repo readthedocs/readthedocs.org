@@ -2,13 +2,6 @@
 
 """Define routes between URL paths and views/endpoints."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from django.conf import settings
 from django.conf.urls import include, url
 from rest_framework import routers
@@ -35,27 +28,28 @@ from .views.model_views import (
     VersionViewSet,
 )
 
+
 router = routers.DefaultRouter()
-router.register(r'build', BuildViewSet, base_name='build')
-router.register(r'command', BuildCommandViewSet, base_name='buildcommandresult')
-router.register(r'version', VersionViewSet, base_name='version')
-router.register(r'project', ProjectViewSet, base_name='project')
-router.register(r'notification', NotificationViewSet, base_name='emailhook')
-router.register(r'domain', DomainViewSet, base_name='domain')
+router.register(r'build', BuildViewSet, basename='build')
+router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
+router.register(r'version', VersionViewSet, basename='version')
+router.register(r'project', ProjectViewSet, basename='project')
+router.register(r'notification', NotificationViewSet, basename='emailhook')
+router.register(r'domain', DomainViewSet, basename='domain')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
-    base_name='remoteorganization',
+    basename='remoteorganization',
 )
 router.register(
     r'remote/repo',
     RemoteRepositoryViewSet,
-    base_name='remoterepository',
+    basename='remoterepository',
 )
 router.register(
     r'remote/account',
     SocialAccountViewSet,
-    base_name='remoteaccount',
+    basename='remoteaccount',
 )
 
 urlpatterns = [
@@ -101,26 +95,30 @@ task_urls = [
 
 integration_urls = [
     url(
-        r'webhook/github/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/github/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.GitHubWebhookView.as_view(),
         name='api_webhook_github',
     ),
     url(
-        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.GitLabWebhookView.as_view(),
         name='api_webhook_gitlab',
     ),
     url(
-        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.BitbucketWebhookView.as_view(),
         name='api_webhook_bitbucket',
     ),
     url(
-        r'webhook/generic/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/generic/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.APIWebhookView.as_view(),
         name='api_webhook_generic',
     ),

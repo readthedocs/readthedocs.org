@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
-
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
 
@@ -17,12 +15,16 @@ class AttachWebhookNotification(SiteNotification):
     context_object_name = 'provider'
     success_message = _('Webhook successfully added.')
     failure_message = {
-        NO_PERMISSIONS: _('Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.'),  # noqa
-        NO_ACCOUNTS: _('Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.'),  # noqa
+        NO_PERMISSIONS: _(
+            'Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.',  # noqa
+        ),
+        NO_ACCOUNTS: _(
+            'Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.',  # noqa
+        ),
     }
 
     def get_context_data(self):
-        context = super(AttachWebhookNotification, self).get_context_data()
+        context = super().get_context_data()
         project = self.extra_context.get('project')
         context.update({
             'url_connect_account': reverse(
@@ -41,10 +43,11 @@ class InvalidProjectWebhookNotification(SiteNotification):
     failure_message = _(
         "The project {{ project.name }} doesn't have a valid webhook set up, "
         "commits won't trigger new builds for this project. "
-        "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.") # noqa
+        "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.",
+    )  # noqa
 
     def get_context_data(self):
-        context = super(InvalidProjectWebhookNotification, self).get_context_data()
+        context = super().get_context_data()
         context.update({
             'url_integrations': reverse(
                 'projects_integrations',

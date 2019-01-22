@@ -1,14 +1,15 @@
+# -*- coding: utf-8 -*-
 """Mock versions of many API-related classes."""
-from __future__ import absolute_import
-from builtins import object
-from contextlib import contextmanager
 import json
+from contextlib import contextmanager
+
 import mock
+
 
 # Mock tastypi API.
 
 
-class ProjectData(object):
+class ProjectData:
     def get(self):
         return dict()
 
@@ -18,7 +19,7 @@ class ProjectData(object):
 
 def mock_version(repo):
     """Construct and return a class implementing the Version interface."""
-    class MockVersion(object):
+    class MockVersion:
         def __init__(self, x=None):
             pass
 
@@ -44,11 +45,9 @@ def mock_version(repo):
                 {
                     "absolute_url": "/projects/docs/",
                     "analytics_code": "",
-                    "copyright": "",
                     "default_branch": "",
                     "default_version": "latest",
                     "description": "Make docs.readthedocs.org work :D",
-                    "django_packages_url": "",
                     "documentation_type": "sphinx",
                     "id": "2599",
                     "modified_date": "2012-03-12T19:59:09.130773",
@@ -60,13 +59,10 @@ def mock_version(repo):
                     "requirements_file": "",
                     "resource_uri": "/api/v1/project/2599/",
                     "slug": "docs",
-                    "suffix": ".rst",
-                    "theme": "default",
                     "install_project": false,
                     "users": [
                         "/api/v1/user/1/"
-                    ],
-                    "version": ""
+                    ]
                 }""")
             version['project'] = project
             project['repo'] = repo
@@ -76,7 +72,7 @@ def mock_version(repo):
     return MockVersion
 
 
-class MockApi(object):
+class MockApi:
     def __init__(self, repo):
         self.version = mock_version(repo)
 

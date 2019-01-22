@@ -1,17 +1,18 @@
-from __future__ import absolute_import
-import logging
+# -*- coding: utf-8 -*-
 import json
-import mock
+import logging
 
+import mock
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.auth.models import User
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version, Build
-from readthedocs.projects.models import Project
-from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.builds.models import Build, Version
 from readthedocs.projects import tasks
+from readthedocs.projects.forms import UpdateProjectForm
+from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 
@@ -29,34 +30,36 @@ class PrivacyTests(TestCase):
 
         tasks.update_docs_task.delay = mock.Mock()
 
-    def _create_kong(self, privacy_level='private',
-                     version_privacy_level='private'):
+    def _create_kong(
+        self, privacy_level='private',
+        version_privacy_level='private',
+    ):
         self.client.login(username='eric', password='test')
         log.info(
-            "Making kong with privacy: %s and version privacy: %s",
+            'Making kong with privacy: %s and version privacy: %s',
             privacy_level,
             version_privacy_level,
         )
         # Create project via project form, simulate import wizard without magic
         form = UpdateProjectForm(
-            data={'repo_type': 'git',
-                  'repo': 'https://github.com/ericholscher/django-kong',
-                  'name': 'Django Kong',
-                  'language': 'en',
-                  'default_branch': '',
-                  'project_url': 'http://django-kong.rtfd.org',
-                  'default_version': LATEST,
-                  'python_interpreter': 'python',
-                  'description': 'OOHHH AH AH AH KONG SMASH',
-                  'documentation_type': 'sphinx'},
-            user=User.objects.get(username='eric'))
+            data={
+                'repo_type': 'git',
+                'repo': 'https://github.com/ericholscher/django-kong',
+                'name': 'Django Kong',
+                'language': 'en',
+                'default_branch': '',
+                'project_url': 'http://django-kong.rtfd.org',
+                'default_version': LATEST,
+                'python_interpreter': 'python',
+                'description': 'OOHHH AH AH AH KONG SMASH',
+                'documentation_type': 'sphinx',
+            },
+            user=User.objects.get(username='eric'),
+        )
         proj = form.save()
         # Update these directly, no form has all the fields we need
         proj.privacy_level = privacy_level
         proj.version_privacy_level = version_privacy_level
-        proj.num_minor = 2
-        proj.num_major = 2
-        proj.num_point = 2
         proj.save()
 
         latest = proj.versions.get(slug='latest')
@@ -132,8 +135,10 @@ class PrivacyTests(TestCase):
         kong = self._create_kong('public', 'private')
 
         self.client.login(username='eric', password='test')
-        Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
+        Version.objects.create(
+            project=kong, identifier='test id',
+            verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True,
+        )
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.get(slug='test-slug').privacy_level, 'private')
         r = self.client.get('/projects/django-kong/')
@@ -152,9 +157,11 @@ class PrivacyTests(TestCase):
         kong = self._create_kong('public', 'public')
 
         self.client.login(username='eric', password='test')
-        Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', slug='test-slug',
-                               active=True, built=True)
+        Version.objects.create(
+            project=kong, identifier='test id',
+            verbose_name='test verbose', slug='test-slug',
+            active=True, built=True,
+        )
         self.assertEqual(Version.objects.count(), 2)
         self.assertEqual(Version.objects.all()[0].privacy_level, 'public')
         r = self.client.get('/projects/django-kong/')
@@ -168,22 +175,30 @@ class PrivacyTests(TestCase):
     def test_public_repo_api(self):
         self._create_kong('public', 'public')
         self.client.login(username='eric', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/django-kong/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
 
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
 
         self.client.login(username='tester', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/django-kong/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
@@ -191,21 +206,29 @@ class PrivacyTests(TestCase):
     def test_private_repo_api(self):
         self._create_kong('private', 'private')
         self.client.login(username='eric', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/django-kong/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 1)
 
         self.client.login(username='tester', password='test')
-        resp = self.client.get("http://testserver/api/v1/project/django-kong/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/django-kong/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 404)
-        resp = self.client.get("http://testserver/api/v1/project/",
-                               data={"format": "json"})
+        resp = self.client.get(
+            'http://testserver/api/v1/project/',
+            data={'format': 'json'},
+        )
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data['meta']['total_count'], 0)
@@ -214,11 +237,17 @@ class PrivacyTests(TestCase):
         kong = self._create_kong('public', 'private')
 
         self.client.login(username='eric', password='test')
-        Version.objects.create(project=kong, identifier='test id',
-                               verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
-        self.client.post('/dashboard/django-kong/versions/',
-                         {'version-test-slug': 'on',
-                          'privacy-test-slug': 'private'})
+        Version.objects.create(
+            project=kong, identifier='test id',
+            verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True,
+        )
+        self.client.post(
+            '/dashboard/django-kong/versions/',
+            {
+                'version-test-slug': 'on',
+                'privacy-test-slug': 'private',
+            },
+        )
         r = self.client.get('/docs/django-kong/en/test-slug/')
         self.client.login(username='eric', password='test')
         self.assertEqual(r.status_code, 404)
@@ -352,8 +381,10 @@ class PrivacyTests(TestCase):
         kong = self._create_kong('public', 'private')
 
         self.client.login(username='eric', password='test')
-        ver = Version.objects.create(project=kong, identifier='test id',
-                                     verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True)
+        ver = Version.objects.create(
+            project=kong, identifier='test id',
+            verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True,
+        )
 
         r = self.client.get('/projects/django-kong/builds/')
         self.assertContains(r, 'test-slug')
@@ -368,11 +399,9 @@ class PrivacyTests(TestCase):
         self.assertNotContains(r, 'test-slug')
 
     def test_queryset_chaining(self):
-        """
-        Test that manager methods get set on related querysets.
-        """
+        """Test that manager methods get set on related querysets."""
         kong = self._create_kong('public', 'private')
         self.assertEqual(
             kong.versions.private().get(slug='latest').slug,
-            'latest'
+            'latest',
         )

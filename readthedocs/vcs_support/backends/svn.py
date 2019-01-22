@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
+
 """Subversion-related utilities."""
 
-from __future__ import absolute_import
-
 import csv
-
-from builtins import str
-from six import StringIO  # noqa
+from io import StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -20,7 +17,7 @@ class Backend(BaseVCS):
     fallback_branch = '/trunk/'
 
     def __init__(self, *args, **kwargs):
-        super(Backend, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.repo_url[-1] != '/':
             self.base_url = self.repo_url
             self.repo_url += '/'
@@ -31,22 +28,26 @@ class Backend(BaseVCS):
             self.base_url = self.repo_url
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.
-        retcode = self.run('svn', 'info', record_as_success=True)[0]
+        retcode, _, _ = self.run('svn', 'info', record=False)
         if retcode == 0:
-            self.up()
-        else:
-            self.co()
+            return self.up()
+        return self.co()
 
     def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]
         if retcode != 0:
             raise RepositoryError
         retcode, out, err = self.run(
-            'svn', 'up', '--accept', 'theirs-full',
-            '--trust-server-cert', '--non-interactive')
+            'svn',
+            'up',
+            '--accept',
+            'theirs-full',
+            '--trust-server-cert',
+            '--non-interactive',
+        )
         if retcode != 0:
             raise RepositoryError
         return retcode, out, err
@@ -54,7 +55,7 @@ class Backend(BaseVCS):
     def co(self, identifier=None):
         self.make_clean_working_dir()
         if identifier:
-            url = self.base_url + identifier
+            url = self.get_url(self.base_url, identifier)
         else:
             url = self.repo_url
         retcode, out, err = self.run('svn', 'checkout', url, '.')
@@ -64,8 +65,12 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        retcode, stdout = self.run('svn', 'list', '%s/tags/'
-                                   % self.base_url, record_as_success=True)[:2]
+        retcode, stdout = self.run(
+            'svn',
+            'list',
+            '%s/tags/' % self.base_url,
+            record_as_success=True,
+        )[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
@@ -75,12 +80,12 @@ class Backend(BaseVCS):
         """
         Parses output of svn list, eg:
 
-            release-1.1/
-            release-1.2/
-            release-1.3/
-            release-1.4/
-            release-1.4.1/
-            release-1.5/
+        release-1.1/
+        release-1.2/
+        release-1.3/
+        release-1.4/
+        release-1.4.1/
+        release-1.5/
         """
         # parse the lines into a list of tuples (commit-hash, tag ref name)
         # StringIO below is expecting Unicode data, so ensure that it gets it.
@@ -98,11 +103,11 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
-        retcode = self.run('svn', 'info', record=False)[0]
-        if retcode == 0:
-            result = self.up()
-        else:
-            result = self.co(identifier)
-        # result is (return_code, stdout, stderr)
-        return result
+        super().checkout()
+        return self.co(identifier)
+
+    def get_url(self, base_url, identifier):
+        base = base_url.rstrip('/')
+        tag = identifier.lstrip('/')
+        url = '{}/{}'.format(base, tag)
+        return url
