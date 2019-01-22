@@ -384,16 +384,16 @@ Changes
 
 - The default value of the :ref:`config-file/v2:formats` setting has changed to ``[]``
   and it doesn't include the values from the web interface.
-- The top setting ``requirements_file`` was moved to ``python.requirements``
-  and it accepts the ``''`` (empty string) value to completely ignore finding a requirements file.
-  See :ref:`config-file/v2:python.requirements`.
+- The top setting ``requirements_file`` was moved to ``python.install``
+  and we don't try to find a requirements file if the option isn't present.
+  See :ref:`config-file/v2:Requirements file`.
 - The setting ``conda.file`` was renamed to ``conda.environment``.
   See :ref:`config-file/v2:conda.environment`.
 - The ``build.image`` setting now only has two options: ``latest`` (default) and ``stable``.
   See :ref:`config-file/v2:build.image`.
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
-  The previous setting is the same as ``python.install: setup.py`` or ``python.install: pip``.
-  See :ref:`config-file/v2:python.install`.
+  And now it accepts a path to the package.
+  See :ref:`config-file/v2:Packages`.
 - The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
   See :ref:`config-file/v2:python.system_packages`.
 - The build will fail if there are invalid keys (strict mode).
@@ -409,6 +409,7 @@ New
 - :ref:`config-file/v2:sphinx`
 - :ref:`config-file/v2:mkdocs`
 - :ref:`config-file/v2:submodules`
+- :ref:`config-file/v2:python.install`
 
 Migrating from the web interface
 --------------------------------
