@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Project notifications"""
 
-from __future__ import absolute_import
-from datetime import timedelta
-from django.utils import timezone
+"""Project notifications."""
+
 from django.http import HttpRequest
-from messages_extends.models import Message
+
 from readthedocs.notifications import Notification
 from readthedocs.notifications.constants import REQUIREMENT
 

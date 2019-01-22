@@ -1,3 +1,5 @@
+-r pip.txt
+
 # Base packages 
 docutils==0.14
 Sphinx==1.8.3
@@ -19,5 +21,4 @@ sphinx-prompt==1.0.0
 # commonmark 0.5.5 is the latest version compatible with our docs, the
 # newer ones make `tox -e docs` to fail
 commonmark==0.5.5
-
 recommonmark==0.4.0
