@@ -741,6 +741,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
+                search=search,
             ),
         )
 
@@ -766,8 +767,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.python_env.setup_base()
             self.python_env.save_environment_json()
             self.python_env.install_core_requirements()
-            self.python_env.install_user_requirements()
-            self.python_env.install_package()
+            self.python_env.install_requirements()
 
     def build_docs(self):
         """
@@ -1043,14 +1043,7 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     if not version:
         return
 
-    if 'sphinx' in version.project.documentation_type:
-        page_list = process_all_json_files(version, build_dir=False)
-    else:
-        log.debug(
-            'Unknown documentation type: %s',
-            version.project.documentation_type,
-        )
-        return
+    page_list = process_all_json_files(version, build_dir=False)
 
     log_msg = ' '.join([page['path'] for page in page_list])
     log.info(
@@ -1080,9 +1073,16 @@ def symlink_project(project_pk):
 
 
 @app.task(queue='web', throws=(BuildEnvironmentWarning,))
-def symlink_domain(project_pk, domain_pk, delete=False):
+def symlink_domain(project_pk, domain, delete=False):
+    """
+    Symlink domain.
+
+    :param project_pk: project's pk
+    :type project_pk: int
+    :param domain: domain for the symlink
+    :type domain: str
+    """
     project = Project.objects.get(pk=project_pk)
-    domain = Domain.objects.get(pk=domain_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         if delete:
@@ -1407,7 +1407,8 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
-    update_search(version_pk, commit=commit)
+    if kwargs.get('search'):
+        update_search(version_pk, commit=commit)
 
 
 @app.task()

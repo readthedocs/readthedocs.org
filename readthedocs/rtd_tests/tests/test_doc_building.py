@@ -1302,8 +1302,8 @@ class TestPythonEnvironment(TestCase):
         paths[docs_requirements] = True
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
-            python_env.install_user_requirements()
-        args[-1] = docs_requirements
+            python_env.install_requirements()
+        args[-1] = 'docs/requirements.txt'
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1313,8 +1313,8 @@ class TestPythonEnvironment(TestCase):
         paths[docs_requirements] = False
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
-            python_env.install_user_requirements()
-        args[-1] = root_requirements
+            python_env.install_requirements()
+        args[-1] = 'requirements.txt'
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1324,8 +1324,8 @@ class TestPythonEnvironment(TestCase):
         paths[docs_requirements] = True
         paths[root_requirements] = True
         with fake_paths_lookup(paths):
-            python_env.install_user_requirements()
-        args[-1] = docs_requirements
+            python_env.install_requirements()
+        args[-1] = 'docs/requirements.txt'
         self.build_env_mock.run.assert_called_with(
             *args, cwd=mock.ANY, bin_path=mock.ANY
         )
@@ -1336,7 +1336,7 @@ class TestPythonEnvironment(TestCase):
         paths[docs_requirements] = False
         paths[root_requirements] = False
         with fake_paths_lookup(paths):
-            python_env.install_user_requirements()
+            python_env.install_requirements()
         self.build_env_mock.run.assert_not_called()
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -1433,7 +1433,7 @@ class TestPythonEnvironment(TestCase):
             version=self.version_sphinx,
             build_env=self.build_env_mock,
         )
-        python_env.install_user_requirements()
+        python_env.install_requirements()
         self.build_env_mock.run.assert_not_called()
 
 
