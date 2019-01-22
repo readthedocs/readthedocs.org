@@ -5,6 +5,7 @@
 import fnmatch
 import logging
 import os
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
