@@ -274,7 +274,7 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-    DOCKER_DEFAULT_VERSION = '3.0'
+    DOCKER_DEFAULT_VERSION = 'stable'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         'readthedocs/build:1.0': {
@@ -290,6 +290,8 @@ class CommunityBaseSettings(Settings):
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
         },
     }
+
+    # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:3.0'),
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
