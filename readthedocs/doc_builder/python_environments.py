@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""An abstraction over virtualenv and Conda environments."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""An abstraction over virtualenv and Conda environments."""
 
 import copy
 import itertools
@@ -15,8 +9,7 @@ import logging
 import os
 import shutil
 
-import six
-from builtins import object, open
+from django.conf import settings
 
 from readthedocs.config import PIP, SETUPTOOLS
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
@@ -27,10 +20,11 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
 
+
 log = logging.getLogger(__name__)
 
 
-class PythonEnvironment(object):
+class PythonEnvironment:
 
     """An isolated environment into which Python packages can be installed."""
 
@@ -49,24 +43,29 @@ class PythonEnvironment(object):
         # Handle deleting old build dir
         build_dir = os.path.join(
             self.venv_path(),
-            'build')
+            'build',
+        )
         if os.path.exists(build_dir):
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Removing existing build directory',
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Removing existing build directory',
+                ),
+            )
             shutil.rmtree(build_dir)
 
     def delete_existing_venv_dir(self):
         venv_dir = self.venv_path()
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Removing existing venv directory',
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Removing existing venv directory',
+                ),
+            )
             shutil.rmtree(venv_dir)
 
     def install_requirements(self):
@@ -165,7 +164,9 @@ class PythonEnvironment(object):
             with open(self.environment_json_path(), 'r') as fpath:
                 environment_conf = json.load(fpath)
         except (IOError, TypeError, KeyError, ValueError):
-            log.warning('Unable to read/parse readthedocs-environment.json file')
+            log.warning(
+                'Unable to read/parse readthedocs-environment.json file',
+            )
             # We remove the JSON file here to avoid cycling over time with a
             # corrupted file.
             os.remove(self.environment_json_path())
@@ -199,7 +200,15 @@ class PythonEnvironment(object):
         ])
 
     def save_environment_json(self):
-        """Save on disk Python and build image versions used to create the venv."""
+        """
+        Save on builders disk data about the environment used to build docs.
+
+        The data is saved as a ``.json`` file with this information on it:
+
+        - python.version
+        - build.image
+        - build.hash
+        """
         data = {
             'python': {
                 'version': self.config.python_full_version,
@@ -218,7 +227,7 @@ class PythonEnvironment(object):
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects
             # unicode but ``json.dumps`` returns str in Py2.
-            fpath.write(six.text_type(json.dumps(data)))
+            fpath.write(str(json.dumps(data)))
 
 
 class Virtualenv(PythonEnvironment):
@@ -265,9 +274,7 @@ class Virtualenv(PythonEnvironment):
         # so it is used when installing the other requirements.
         cmd = pip_install_cmd + ['pip']
         self.build_env.run(
-            *cmd,
-            bin_path=self.venv_bin(),
-            cwd=self.checkout_path
+            *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
@@ -299,7 +306,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<1.8',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.6'
+                'readthedocs-sphinx-ext<0.6',
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -328,8 +335,12 @@ class Virtualenv(PythonEnvironment):
             # This only happens when the config file is from v1.
             # We try to find a requirements file.
             builder_class = get_builder_class(self.config.doctype)
-            docs_dir = (builder_class(build_env=self.build_env, python_env=self)
-                        .docs_dir())
+            docs_dir = (
+                builder_class(
+                    build_env=self.build_env,
+                    python_env=self,
+                ).docs_dir()
+            )
             paths = [docs_dir, '']
             req_files = ['pip_requirements.txt', 'requirements.txt']
             for path, req_file in itertools.product(paths, req_files):
@@ -381,11 +392,13 @@ class Conda(PythonEnvironment):
 
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
-            log.info(LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Removing existing conda directory',
-            ))
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version=self.version.slug,
+                    msg='Removing existing conda directory',
+                ),
+            )
             shutil.rmtree(version_path)
         self.build_env.run(
             'conda',

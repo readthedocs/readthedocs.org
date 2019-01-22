@@ -14,4 +14,3 @@ pylint-celery==0.3
 prospector==1.1.6.2
 # prospector 1.1.6.2 is not compatible with 2.0.0
 pyflakes<2.0.0
-Pygments==2.3.1
