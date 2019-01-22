@@ -160,8 +160,8 @@ class ResolverBase:
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(
-            self, project, require_https=False, filename='', private=None,
-            **kwargs
+            self, project, require_https=False, filename='', query_params='',
+            private=None, **kwargs
     ):
         if private is None:
             version_slug = kwargs.get('version_slug')
