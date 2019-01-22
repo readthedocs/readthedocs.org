@@ -1074,9 +1074,16 @@ def symlink_project(project_pk):
 
 
 @app.task(queue='web', throws=(BuildEnvironmentWarning,))
-def symlink_domain(project_pk, domain_pk, delete=False):
+def symlink_domain(project_pk, domain, delete=False):
+    """
+    Symlink domain.
+
+    :param project_pk: project's pk
+    :type project_pk: int
+    :param domain: domain for the symlink
+    :type domain: str
+    """
     project = Project.objects.get(pk=project_pk)
-    domain = Domain.objects.get(pk=domain_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         if delete:
