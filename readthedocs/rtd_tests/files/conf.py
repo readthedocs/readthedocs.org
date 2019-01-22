@@ -7,13 +7,13 @@ from datetime import datetime
 from recommonmark.parser import CommonMarkParser
 
 extensions = []
-templates_path = ['/tmp/sphinx-template-dir', 'templates', '_templates', '.templates']
+templates_path = ['templates', '_templates', '.templates']
 source_suffix = ['.rst', '.md']
 source_parsers = {
             '.md': CommonMarkParser,
         }
 master_doc = 'index'
-project = u'Pip'
+project = 'Pip'
 copyright = str(datetime.now().year)
 version = '0.8.1'
 release = '0.8.1'
@@ -23,6 +23,6 @@ htmlhelp_basename = 'pip'
 html_theme = 'sphinx_rtd_theme'
 file_insertion_enabled = False
 latex_documents = [
-  ('index', 'pip.tex', u'Pip Documentation',
-   u'', 'manual'),
+  ('index', 'pip.tex', 'Pip Documentation',
+   '', 'manual'),
 ]

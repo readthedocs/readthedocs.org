@@ -13,6 +13,7 @@
 # https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
 #
 
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import importlib
 import sys
@@ -37,7 +38,6 @@ if not 'html_static_path' in globals():
     html_static_path = []
 if os.path.exists('_static'):
     html_static_path.append('_static')
-html_static_path.append('{{ static_path }}')
 
 # Add RTD Theme only if they aren't overriding it already
 using_rtd_theme = (
@@ -82,9 +82,9 @@ context = {
         ("{{ slug }}", "{{ url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
-    'name': u'{{ project.name }}',
-    'rtd_language': u'{{ project.language }}',
-    'programming_language': u'{{ project.programming_language }}',
+    'name': '{{ project.name }}',
+    'rtd_language': '{{ project.language }}',
+    'programming_language': '{{ project.programming_language }}',
     'canonical_url': '{{ project.get_canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'single_version': {{ project.single_version }},

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Project constants.
 
@@ -6,15 +7,12 @@ Default values and other various configuration for projects, including available
 theme names and repository types.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import re
 
 from django.utils.translation import ugettext_lazy as _
 
+
 DOCUMENTATION_CHOICES = (
-    ('auto', _('Automatically Choose')),
     ('sphinx', _('Sphinx Html')),
     ('mkdocs', _('Mkdocs (Markdown)')),
     ('sphinx_htmldir', _('Sphinx HtmlDir')),
@@ -312,10 +310,13 @@ GITLAB_REGEXS = [
 ]
 GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}')
+    '{action}/{version}{docroot}{path}{source_suffix}'
+)
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
-    'src/{version}{docroot}{path}{source_suffix}')
+    'src/{version}{docroot}{path}{source_suffix}'
+)
 GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}')
+    '{action}/{version}{docroot}{path}{source_suffix}'
+)

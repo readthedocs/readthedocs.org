@@ -67,6 +67,9 @@ function create_sidebar_placement() {
         if (!offset || offset.top > $(window).height()) {
             // If this is off screen, lower the priority
             priority = constants.LOW_PROMO_PRIORITY;
+        } else if (bowser && !bowser.mobile) {
+            // If this isn't mobile, then the ad will be ATF, so raise the priority
+            priority = constants.MAXIMUM_PROMO_PRIORITY;
         }
 
         return {

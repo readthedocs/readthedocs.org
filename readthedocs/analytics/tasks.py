@@ -1,6 +1,6 @@
-"""Tasks for Read the Docs' analytics"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Tasks for Read the Docs' analytics."""
 
 from django.conf import settings
 
@@ -11,24 +11,24 @@ from .utils import send_to_analytics
 
 
 DEFAULT_PARAMETERS = {
-    'v': '1',               # analytics version (always 1)
-    'aip': '1',             # anonymize IP
+    'v': '1',  # analytics version (always 1)
+    'aip': '1',  # anonymize IP
     'tid': settings.GLOBAL_ANALYTICS_CODE,
 
     # User data
-    'uip': None,            # User IP address
-    'ua': None,             # User agent
+    'uip': None,  # User IP address
+    'ua': None,  # User agent
 
     # Application info
     'an': 'Read the Docs',
-    'av': readthedocs.__version__,    # App version
+    'av': readthedocs.__version__,  # App version
 }
 
 
 @app.task(queue='web')
 def analytics_pageview(url, title=None, **kwargs):
     """
-    Send a pageview to Google Analytics
+    Send a pageview to Google Analytics.
 
     :see: https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
     :param url: the URL of the pageview
@@ -37,8 +37,8 @@ def analytics_pageview(url, title=None, **kwargs):
     """
     data = {
         't': 'pageview',
-        'dl': url,          # URL of the pageview (required)
-        'dt': title,        # Title of the page
+        'dl': url,  # URL of the pageview (required)
+        'dt': title,  # Title of the page
     }
     data.update(DEFAULT_PARAMETERS)
     data.update(kwargs)
@@ -46,9 +46,12 @@ def analytics_pageview(url, title=None, **kwargs):
 
 
 @app.task(queue='web')
-def analytics_event(event_category, event_action, event_label=None, event_value=None, **kwargs):
+def analytics_event(
+        event_category, event_action, event_label=None, event_value=None,
+        **kwargs
+):
     """
-    Send an analytics event to Google Analytics
+    Send an analytics event to Google Analytics.
 
     :see: https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide#event
     :param event_category: the category of the event
@@ -58,11 +61,11 @@ def analytics_event(event_category, event_action, event_label=None, event_value=
     :param kwargs: extra event parameters to send to GA
     """
     data = {
-        't': 'event',           # GA event - don't change
-        'ec': event_category,   # Event category (required)
-        'ea': event_action,     # Event action (required)
-        'el': event_label,      # Event label
-        'ev': event_value,      # Event value (numeric)
+        't': 'event',  # GA event - don't change
+        'ec': event_category,  # Event category (required)
+        'ea': event_action,  # Event action (required)
+        'el': event_label,  # Event label
+        'ev': event_value,  # Event value (numeric)
     }
     data.update(DEFAULT_PARAMETERS)
     data.update(kwargs)
