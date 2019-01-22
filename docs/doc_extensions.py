@@ -17,9 +17,6 @@ from __future__ import division, print_function, unicode_literals
 from django.conf import settings
 from docutils import nodes, utils
 
-from readthedocs.config.config import (
-    DOCKER_DEFAULT_IMAGE, DOCKER_IMAGE_SETTINGS)
-
 
 def django_setting_role(typ, rawtext, text, lineno, inliner, options=None,
                         content=None):
@@ -32,8 +29,8 @@ def django_setting_role(typ, rawtext, text, lineno, inliner, options=None,
 def python_supported_versions_role(typ, rawtext, text, lineno, inliner,
                                    options=None, content=None):
     """Up to date supported python versions for each build image."""
-    image = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, text)
-    image_settings = DOCKER_IMAGE_SETTINGS[image]
+    image = '{}:{}'.format(settings.DOCKER_DEFAULT_IMAGE, text)
+    image_settings = settings.DOCKER_IMAGE_SETTINGS[image]
     python_versions = image_settings['python']['supported_versions']
     node_list = []
     separator = ', '
