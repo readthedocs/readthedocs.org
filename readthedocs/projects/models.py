@@ -1239,6 +1239,7 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
@@ -1276,6 +1277,7 @@ class Feature(models.Model):
                 'Use Docker image labelled as `testing` to build the docs',
             ),
         ),
+        (API_LARGE_DATA, _('Try alternative method of posting large data'))
     )
 
     projects = models.ManyToManyField(
