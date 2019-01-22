@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division, print_function, unicode_literals
+
 from datetime import datetime
 
 from recommonmark.parser import CommonMarkParser
@@ -23,5 +24,5 @@ html_theme = 'sphinx_rtd_theme'
 file_insertion_enabled = False
 latex_documents = [
   ('index', 'pip.tex', 'Pip Documentation',
-   '', 'manual'),
+   u'', 'manual'),
 ]
