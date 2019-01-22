@@ -1466,3 +1466,23 @@ def retry_domain_verification(domain_pk):
         sender=domain.__class__,
         domain=domain,
     )
+
+
+def change_project_slug(project, new_slug):
+    """
+    Change the slug of the given project.
+
+    :param project: project whose slug is to be changed
+    :type project: projects.models.Project
+    :param new_slug: new slug of the project
+    :param new_slug: str
+    """
+    old_doc_path = project.doc_path
+    new_doc_path = os.path.join(
+        os.path.dirname(project.doc_path),
+        new_slug
+    )
+    broadcast(
+        type='web', task=rename_project_dir,
+        args=[old_doc_path, new_doc_path]
+    )

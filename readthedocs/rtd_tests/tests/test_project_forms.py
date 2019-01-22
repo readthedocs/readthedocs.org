@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -29,6 +30,7 @@ from readthedocs.projects.forms import (
     EmailHookForm
 )
 from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.tasks import rename_project_dir
 
 
 class TestProjectForms(TestCase):
@@ -491,6 +493,7 @@ class TestTranslationForms(TestCase):
                 'name': self.project_a_es.name,
                 'documentation_type': 'sphinx',
                 'language': 'es',
+                'slug': self.project_a_es.slug,
             },
             instance=self.project_a_es,
         )
@@ -504,10 +507,116 @@ class TestTranslationForms(TestCase):
                 'name': self.project_b_en.name,
                 'documentation_type': 'sphinx',
                 'language': 'en',
+                'slug': self.project_b_en.slug,
             },
             instance=self.project_b_en,
         )
         self.assertTrue(form.is_valid())
+
+    @mock.patch('readthedocs.projects.tasks.broadcast')
+    def test_can_change_slug(self, mock_broadcast):
+        self.assertFalse(Project.objects.filter(slug='new-slug').exists())
+        old_doc_path = self.project_b_en.doc_path
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+                'slug': 'new-slug',
+            },
+            instance=self.project_b_en,
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project_b_en.slug, 'new-slug')
+
+        expected_new_doc_path = os.path.join(
+            os.path.dirname(self.project_b_en.doc_path),
+            'new-slug',
+        )
+
+        mock_broadcast.assert_called_once_with(
+            type='web',
+            task=rename_project_dir,
+            args=[old_doc_path, expected_new_doc_path],
+        )
+
+    @mock.patch('readthedocs.projects.tasks.broadcast')
+    def test_changing_slug_with_already_existed_slug(self, mock_broadcast):
+        self.assertTrue(Project.objects.filter(slug=self.project_a_es.slug).exists())
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+                'slug': self.project_a_es.slug,
+            },
+            instance=self.project_b_en,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(
+            form.errors,
+            {'slug': ['This slug is currently not available. Please try a different one.']}
+        )
+        mock_broadcast.assert_not_called()
+
+    @mock.patch('readthedocs.projects.tasks.broadcast')
+    def test_changing_slug_with_same_slug(self, mock_broadcast):
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+                'slug': self.project_b_en.slug,
+            },
+            instance=self.project_b_en,
+        )
+        self.assertTrue(form.is_valid())
+        mock_broadcast.assert_not_called()
+
+    @mock.patch('readthedocs.projects.tasks.broadcast')
+    def test_changing_slug_with_wrong_format(self, mock_broadcast):
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+                'slug': 'wrong-ooh!!',
+            },
+            instance=self.project_b_en,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(
+            form.errors,
+            {'slug': ["Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens."]}
+        )
+        mock_broadcast.assert_not_called()
+
+    @mock.patch('readthedocs.projects.tasks.broadcast')
+    def test_no_slug_provided(self, mock_broadcast):
+        form = UpdateProjectForm(
+            {
+                'repo': 'https://github.com/test/test',
+                'repo_type': self.project_b_en.repo_type,
+                'name': self.project_b_en.name,
+                'documentation_type': 'sphinx',
+                'language': 'es',
+            },
+            instance=self.project_b_en,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(
+            form.errors,
+            {'slug': ['This field is required.']}
+        )
+        mock_broadcast.assert_not_called()
 
 
 class TestNotificationForm(TestCase):

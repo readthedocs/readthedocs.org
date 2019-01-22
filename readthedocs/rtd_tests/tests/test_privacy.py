@@ -53,6 +53,7 @@ class PrivacyTests(TestCase):
                 'python_interpreter': 'python',
                 'description': 'OOHHH AH AH AH KONG SMASH',
                 'documentation_type': 'sphinx',
+                'slug': 'django-kong'
             },
             user=User.objects.get(username='eric'),
         )

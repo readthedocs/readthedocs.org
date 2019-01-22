@@ -33,6 +33,8 @@ from readthedocs.projects.models import (
 )
 from readthedocs.redirects.models import Redirect
 
+from .tasks import change_project_slug
+
 
 class ProjectForm(forms.ModelForm):
 
@@ -267,6 +269,7 @@ class UpdateProjectForm(
             'name',
             'repo',
             'repo_type',
+            'slug',
             # Extra
             'description',
             'documentation_type',
@@ -305,6 +308,22 @@ class UpdateProjectForm(
                         msg.format(lang=language, proj=main_project.slug),
                     )
         return language
+
+    def clean_slug(self):
+        new_slug = self.cleaned_data.get('slug')
+        old_slug = self.instance.slug
+
+        if new_slug != old_slug:
+            if not Project.objects.filter(slug=new_slug).exists():
+                change_project_slug(
+                    project=self.instance,
+                    new_slug=new_slug
+                )
+            else:
+                raise forms.ValidationError(
+                    _('This slug is currently not available. Please try a different one.')
+                )
+        return new_slug
 
 
 class ProjectRelationshipBaseForm(forms.ModelForm):
