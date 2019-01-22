@@ -183,14 +183,19 @@ class Symlink:
             )
 
     def remove_symlink_cname(self, domain):
-        """Remove CNAME symlink."""
-        log_msg = "Removing symlink for CNAME {}".format(domain)
+        """
+        Remove CNAME symlink.
+
+        :param domain: domain for which symlink is to be removed
+        :type domain: str
+        """
+        log_msg = 'Removing symlink for CNAME {}'.format(domain)
         log.info(
             constants.LOG_TEMPLATE.format(
                 project=self.project.slug,
                 version='',
                 msg=log_msg
-              ),
+            ),
         )
         symlink = os.path.join(self.CNAME_ROOT, domain)
         safe_unlink(symlink)
