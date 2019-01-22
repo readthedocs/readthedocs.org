@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import tempfile
 from os import path
 
@@ -118,8 +115,10 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:1.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.get_valid_python_versions(),
-                         [2, 2.7, 3, 3.4])
+        self.assertEqual(
+            config.get_valid_python_versions(),
+            [2, 2.7, 3, 3.4],
+        )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_2_0(self, load_config):
@@ -127,8 +126,10 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.get_valid_python_versions(),
-                         [2, 2.7, 3, 3.5])
+        self.assertEqual(
+            config.get_valid_python_versions(),
+            [2, 2.7, 3, 3.5],
+        )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_latest(self, load_config):
@@ -136,8 +137,10 @@ class LoadConfigTests(TestCase):
         self.project.container_image = 'readthedocs/build:latest'
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.get_valid_python_versions(),
-                         [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6])
+        self.assertEqual(
+            config.get_valid_python_versions(),
+            [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6],
+        )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_default_version(self, load_config):
@@ -170,7 +173,7 @@ class LoadConfigTests(TestCase):
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_invalid_version_in_config(self, load_config):
         load_config.side_effect = create_load({
-            'python': {'version': 2.6}
+            'python': {'version': 2.6},
         })
         self.project.container_image = 'readthedocs/build:2.0'
         self.project.save()
@@ -183,11 +186,11 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.python.install_with_pip or config.python.install_with_setup,
-            False
+            False,
         )
 
         load_config.side_effect = create_load({
-            'python': {'setup_py_install': True}
+            'python': {'setup_py_install': True},
         })
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.install_with_setup, True)
@@ -197,16 +200,16 @@ class LoadConfigTests(TestCase):
         load_config.side_effect = create_load({
             'python': {
                 'pip_install': True,
-                'extra_requirements': ['tests', 'docs']
-            }
+                'extra_requirements': ['tests', 'docs'],
+            },
         })
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.extra_requirements, ['tests', 'docs'])
 
         load_config.side_effect = create_load({
             'python': {
-                'extra_requirements': ['tests', 'docs']
-            }
+                'extra_requirements': ['tests', 'docs'],
+            },
         })
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.extra_requirements, [])
@@ -218,8 +221,8 @@ class LoadConfigTests(TestCase):
         load_config.side_effect = create_load({
             'python': {
                 'setup_py_install': True,
-                'extra_requirements': ['tests', 'docs']
-            }
+                'extra_requirements': ['tests', 'docs'],
+            },
         })
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.extra_requirements, [])
@@ -236,7 +239,7 @@ class LoadConfigTests(TestCase):
             {
                 'conda': {
                     'file': conda_file,
-                }
+                },
             },
             base_path=base_path,
         )
@@ -291,7 +294,7 @@ class LoadConfigTests(TestCase):
 
 @pytest.mark.django_db
 @mock.patch('readthedocs.projects.models.Project.checkout_path')
-class TestLoadConfigV2(object):
+class TestLoadConfigV2:
 
     @pytest.fixture(autouse=True)
     def create_project(self):
@@ -310,9 +313,11 @@ class TestLoadConfigV2(object):
         )
 
     def create_config_file(self, tmpdir, config):
-        base_path = apply_fs(tmpdir, {
-            'readthedocs.yml': '',
-        })
+        base_path = apply_fs(
+            tmpdir, {
+                'readthedocs.yml': '',
+            },
+        )
         config.setdefault('version', 2)
         config_file = path.join(str(base_path), 'readthedocs.yml')
         yaml.safe_dump(config, open(config_file, 'w'))
@@ -320,7 +325,7 @@ class TestLoadConfigV2(object):
 
     def get_update_docs_task(self):
         build_env = LocalBuildEnvironment(
-            self.project, self.version, record=False
+            self.project, self.version, record=False,
         )
 
         update_docs = tasks.UpdateDocsTaskStep(
@@ -349,7 +354,8 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_default_empty(
-            self, append_conf, html_build, checkout_path, config, tmpdir):
+            self, append_conf, html_build, checkout_path, config, tmpdir,
+    ):
         """
         The default value for formats is [], which means no extra
         formats are build.
@@ -361,7 +367,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=update_docs.config
+            config=update_docs.config,
         )
         update_docs.python_env = python_env
         outcomes = update_docs.build_docs()
@@ -378,10 +384,9 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
     def test_build_formats_only_pdf(
             self, append_conf, html_build, build_docs_class,
-            checkout_path, tmpdir):
-        """
-        Only the pdf format is build.
-        """
+            checkout_path, tmpdir,
+    ):
+        """Only the pdf format is build."""
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {'formats': ['pdf']})
 
@@ -389,7 +394,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=update_docs.config
+            config=update_docs.config,
         )
         update_docs.python_env = python_env
 
@@ -413,8 +418,8 @@ class TestLoadConfigV2(object):
         base_path = self.create_config_file(
             tmpdir,
             {
-                'conda': {'environment': conda_file}
-            }
+                'conda': {'environment': conda_file},
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -471,8 +476,8 @@ class TestLoadConfigV2(object):
         base_path = self.create_config_file(
             tmpdir,
             {
-                'python': {'requirements': requirements_file}
-            }
+                'python': {'requirements': requirements_file},
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -481,7 +486,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
         update_docs.python_env.install_user_requirements()
@@ -498,8 +503,8 @@ class TestLoadConfigV2(object):
         self.create_config_file(
             tmpdir,
             {
-                'python': {'requirements': ''}
-            }
+                'python': {'requirements': ''},
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -508,7 +513,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
         update_docs.python_env.install_user_requirements()
@@ -522,8 +527,8 @@ class TestLoadConfigV2(object):
         self.create_config_file(
             tmpdir,
             {
-                'python': {'install': 'setup.py'}
-            }
+                'python': {'install': 'setup.py'},
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -532,7 +537,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
         update_docs.python_env.install_package()
@@ -550,8 +555,8 @@ class TestLoadConfigV2(object):
         self.create_config_file(
             tmpdir,
             {
-                'python': {'install': 'pip'}
-            }
+                'python': {'install': 'pip'},
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -560,7 +565,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
         update_docs.python_env.install_package()
@@ -593,8 +598,8 @@ class TestLoadConfigV2(object):
                 'python': {
                     'install': 'pip',
                     'extra_requirements': ['docs'],
-                }
-            }
+                },
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -603,7 +608,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
         update_docs.python_env.install_package()
@@ -624,8 +629,8 @@ class TestLoadConfigV2(object):
             {
                 'python': {
                     'system_packages': True,
-                }
-            }
+                },
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -634,7 +639,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
         update_docs.python_env.setup_base()
@@ -644,13 +649,18 @@ class TestLoadConfigV2(object):
         assert '--system-site-packages' in args
         assert config.python.use_system_site_packages
 
-    @pytest.mark.parametrize('value,result',
-                             [('html', 'sphinx'),
-                              ('htmldir', 'sphinx_htmldir'),
-                              ('singlehtml', 'sphinx_singlehtml')])
+    @pytest.mark.parametrize(
+        'value,result',
+        [
+            ('html', 'sphinx'),
+            ('htmldir', 'sphinx_htmldir'),
+            ('singlehtml', 'sphinx_singlehtml'),
+        ],
+    )
     @patch('readthedocs.projects.tasks.get_builder_class')
     def test_sphinx_builder(
-            self, get_builder_class, checkout_path, value, result, tmpdir):
+            self, get_builder_class, checkout_path, value, result, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {'sphinx': {'builder': value}})
 
@@ -663,10 +673,12 @@ class TestLoadConfigV2(object):
         get_builder_class.assert_called_with(result)
 
     @pytest.mark.skip(
-        'This test is not compatible with the new validation around doctype.')
+        'This test is not compatible with the new validation around doctype.',
+    )
     @patch('readthedocs.projects.tasks.get_builder_class')
     def test_sphinx_builder_default(
-            self, get_builder_class, checkout_path, tmpdir):
+            self, get_builder_class, checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(tmpdir, {})
 
@@ -682,7 +694,8 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     def test_sphinx_configuration_default(
-            self, run, append_conf, move, checkout_path, tmpdir):
+            self, run, append_conf, move, checkout_path, tmpdir,
+    ):
         """Should be default to find a conf.py file."""
         checkout_path.return_value = str(tmpdir)
 
@@ -696,7 +709,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
 
@@ -711,7 +724,8 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     def test_sphinx_configuration_default(
-            self, run, append_conf, move, checkout_path, tmpdir):
+            self, run, append_conf, move, checkout_path, tmpdir,
+    ):
         """Should be default to find a conf.py file."""
         checkout_path.return_value = str(tmpdir)
 
@@ -725,7 +739,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
 
@@ -740,21 +754,24 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     def test_sphinx_configuration(
-            self, run, append_conf, move, checkout_path, tmpdir):
+            self, run, append_conf, move, checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
-        apply_fs(tmpdir, {
-            'conf.py': '',
-            'docx': {
+        apply_fs(
+            tmpdir, {
                 'conf.py': '',
+                'docx': {
+                    'conf.py': '',
+                },
             },
-        })
+        )
         self.create_config_file(
             tmpdir,
             {
                 'sphinx': {
                     'configuration': 'docx/conf.py',
                 },
-            }
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -762,7 +779,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
 
@@ -777,13 +794,16 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     def test_sphinx_fail_on_warning(
-            self, run, append_conf, move, checkout_path, tmpdir):
+            self, run, append_conf, move, checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
-        apply_fs(tmpdir, {
-            'docx': {
-                'conf.py': '',
+        apply_fs(
+            tmpdir, {
+                'docx': {
+                    'conf.py': '',
+                },
             },
-        })
+        )
         self.create_config_file(
             tmpdir,
             {
@@ -791,7 +811,7 @@ class TestLoadConfigV2(object):
                     'configuration': 'docx/conf.py',
                     'fail_on_warning': True,
                 },
-            }
+            },
         )
 
         update_docs = self.get_update_docs_task()
@@ -799,7 +819,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
 
@@ -814,21 +834,24 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
     def test_mkdocs_configuration(
-            self, run, append_conf, move, checkout_path, tmpdir):
+            self, run, append_conf, move, checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
-        apply_fs(tmpdir, {
-            'mkdocs.yml': '',
-            'docx': {
+        apply_fs(
+            tmpdir, {
                 'mkdocs.yml': '',
+                'docx': {
+                    'mkdocs.yml': '',
+                },
             },
-        })
+        )
         self.create_config_file(
             tmpdir,
             {
                 'mkdocs': {
                     'configuration': 'docx/mkdocs.yml',
                 },
-            }
+            },
         )
         self.project.documentation_type = 'mkdocs'
         self.project.save()
@@ -838,7 +861,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
 
@@ -854,13 +877,16 @@ class TestLoadConfigV2(object):
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf')
     @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.run')
     def test_mkdocs_fail_on_warning(
-            self, run, append_conf, move, checkout_path, tmpdir):
+            self, run, append_conf, move, checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
-        apply_fs(tmpdir, {
-            'docx': {
-                'mkdocs.yml': '',
+        apply_fs(
+            tmpdir, {
+                'docx': {
+                    'mkdocs.yml': '',
+                },
             },
-        })
+        )
         self.create_config_file(
             tmpdir,
             {
@@ -868,7 +894,7 @@ class TestLoadConfigV2(object):
                     'configuration': 'docx/mkdocs.yml',
                     'fail_on_warning': True,
                 },
-            }
+            },
         )
         self.project.documentation_type = 'mkdocs'
         self.project.save()
@@ -878,7 +904,7 @@ class TestLoadConfigV2(object):
         python_env = Virtualenv(
             version=self.version,
             build_env=update_docs.build_env,
-            config=config
+            config=config,
         )
         update_docs.python_env = python_env
 
@@ -889,11 +915,17 @@ class TestLoadConfigV2(object):
         append_conf.assert_called_once()
         move.assert_called_once()
 
-    @pytest.mark.parametrize('value,expected', [(ALL, ['one', 'two', 'three']),
-                                                (['one', 'two'], ['one', 'two'])])
+    @pytest.mark.parametrize(
+        'value,expected', [
+            (ALL, ['one', 'two', 'three']),
+            (['one', 'two'], ['one', 'two']),
+        ],
+    )
     @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
-    def test_submodules_include(self, checkout_submodules,
-                                checkout_path, tmpdir, value, expected):
+    def test_submodules_include(
+        self, checkout_submodules,
+        checkout_path, tmpdir, value, expected,
+    ):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(
             tmpdir,
@@ -901,7 +933,7 @@ class TestLoadConfigV2(object):
                 'submodules': {
                     'include': value,
                 },
-            }
+            },
         )
 
         git_repo = make_git_repo(str(tmpdir))
@@ -918,8 +950,10 @@ class TestLoadConfigV2(object):
         assert update_docs.config.submodules.recursive is False
 
     @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
-    def test_submodules_exclude(self, checkout_submodules,
-                                checkout_path, tmpdir):
+    def test_submodules_exclude(
+        self, checkout_submodules,
+        checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(
             tmpdir,
@@ -928,7 +962,7 @@ class TestLoadConfigV2(object):
                     'exclude': ['one'],
                     'recursive': True,
                 },
-            }
+            },
         )
 
         git_repo = make_git_repo(str(tmpdir))
@@ -945,8 +979,10 @@ class TestLoadConfigV2(object):
         assert update_docs.config.submodules.recursive is True
 
     @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
-    def test_submodules_exclude_all(self, checkout_submodules,
-                                    checkout_path, tmpdir):
+    def test_submodules_exclude_all(
+        self, checkout_submodules,
+        checkout_path, tmpdir,
+    ):
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(
             tmpdir,
@@ -955,7 +991,7 @@ class TestLoadConfigV2(object):
                     'exclude': ALL,
                     'recursive': True,
                 },
-            }
+            },
         )
 
         git_repo = make_git_repo(str(tmpdir))
@@ -970,13 +1006,15 @@ class TestLoadConfigV2(object):
         checkout_submodules.assert_not_called()
 
     @patch('readthedocs.vcs_support.backends.git.Backend.checkout_submodules')
-    def test_submodules_default_exclude_all(self, checkout_submodules,
-                                            checkout_path, tmpdir):
+    def test_submodules_default_exclude_all(
+        self, checkout_submodules,
+        checkout_path, tmpdir,
+    ):
 
         checkout_path.return_value = str(tmpdir)
         self.create_config_file(
             tmpdir,
-            {}
+            {},
         )
 
         git_repo = make_git_repo(str(tmpdir))

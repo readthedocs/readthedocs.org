@@ -43,7 +43,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
-    PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
+    PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
