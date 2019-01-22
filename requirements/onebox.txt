@@ -1,7 +1,0 @@
--r pip.txt
-gunicorn
-#For resizing images
-pillow
-python-memcached
-whoosh
-django-redis

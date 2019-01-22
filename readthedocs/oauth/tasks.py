@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Tasks for OAuth services."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Tasks for OAuth services."""
 
 import logging
 
@@ -22,6 +16,7 @@ from readthedocs.projects.models import Project
 from readthedocs.worker import app
 
 from .services import registry
+
 
 log = logging.getLogger(__name__)
 

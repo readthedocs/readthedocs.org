@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import mock
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,7 +7,10 @@ from django.test.utils import override_settings
 
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
-    BitbucketService, GitHubService, GitLabService)
+    BitbucketService,
+    GitHubService,
+    GitLabService,
+)
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 
@@ -39,7 +39,8 @@ class GitHubOAuthTests(TestCase):
             'clone_url': 'https://github.com/testuser/testrepo.git',
         }
         repo = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testuser/testrepo')
@@ -51,9 +52,11 @@ class GitHubOAuthTests(TestCase):
         self.assertIn(self.user, repo.users.all())
         self.assertEqual(repo.organization, self.org)
         self.assertEqual(
-            repo.clone_url, 'https://github.com/testuser/testrepo.git')
+            repo.clone_url, 'https://github.com/testuser/testrepo.git',
+        )
         self.assertEqual(
-            repo.ssh_url, 'ssh://git@github.com:testuser/testrepo.git')
+            repo.ssh_url, 'ssh://git@github.com:testuser/testrepo.git',
+        )
         self.assertEqual(repo.html_url, 'https://github.com/testuser/testrepo')
 
     def test_make_project_fail(self):
@@ -68,7 +71,8 @@ class GitHubOAuthTests(TestCase):
             'clone_url': '',
         }
         github_project = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
         self.assertIsNone(github_project)
 
     def test_make_organization(self):
@@ -105,29 +109,35 @@ class GitHubOAuthTests(TestCase):
         }
 
         github_project = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
 
         user2 = User.objects.get(pk=2)
         service = GitHubService(user=user2, account=None)
         github_project_2 = service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
         self.assertIsInstance(github_project, RemoteRepository)
         self.assertIsInstance(github_project_2, RemoteRepository)
         self.assertNotEqual(github_project_2, github_project)
 
         github_project_3 = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
         github_project_4 = service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
         self.assertIsInstance(github_project_3, RemoteRepository)
         self.assertIsInstance(github_project_4, RemoteRepository)
         self.assertEqual(github_project, github_project_3)
         self.assertEqual(github_project_2, github_project_4)
 
         github_project_5 = self.service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
         github_project_6 = service.create_repository(
-            repo_json, organization=self.org, privacy=self.privacy)
+            repo_json, organization=self.org, privacy=self.privacy,
+        )
 
         self.assertEqual(github_project, github_project_5)
         self.assertEqual(github_project_2, github_project_6)
@@ -261,7 +271,8 @@ class BitbucketOAuthTests(TestCase):
     def test_make_project_pass(self):
         repo = self.service.create_repository(
             self.repo_response_data, organization=self.org,
-            privacy=self.privacy)
+            privacy=self.privacy,
+        )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'tutorials.bitbucket.org')
         self.assertEqual(repo.full_name, 'tutorials/tutorials.bitbucket.org')
@@ -269,24 +280,30 @@ class BitbucketOAuthTests(TestCase):
         self.assertEqual(
             repo.avatar_url, (
                 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2012/Nov/28/'
-                'tutorials.bitbucket.org-logo-1456883302-9_avatar.png'))
+                'tutorials.bitbucket.org-logo-1456883302-9_avatar.png'
+            ),
+        )
         self.assertIn(self.user, repo.users.all())
         self.assertEqual(repo.organization, self.org)
         self.assertEqual(
             repo.clone_url,
-            'https://bitbucket.org/tutorials/tutorials.bitbucket.org')
+            'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
+        )
         self.assertEqual(
             repo.ssh_url,
-            'ssh://hg@bitbucket.org/tutorials/tutorials.bitbucket.org')
+            'ssh://hg@bitbucket.org/tutorials/tutorials.bitbucket.org',
+        )
         self.assertEqual(
             repo.html_url,
-            'https://bitbucket.org/tutorials/tutorials.bitbucket.org')
+            'https://bitbucket.org/tutorials/tutorials.bitbucket.org',
+        )
 
     def test_make_project_fail(self):
         data = self.repo_response_data.copy()
         data['is_private'] = True
         repo = self.service.create_repository(
-            data, organization=self.org, privacy=self.privacy)
+            data, organization=self.org, privacy=self.privacy,
+        )
         self.assertIsNone(repo)
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
@@ -307,7 +324,9 @@ class BitbucketOAuthTests(TestCase):
         self.assertEqual(
             org.avatar_url, (
                 'https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Sep/24/'
-                'teamsinspace-avatar-3731530358-7_avatar.png'))
+                'teamsinspace-avatar-3731530358-7_avatar.png'
+            ),
+        )
         self.assertEqual(org.url, 'https://bitbucket.org/teamsinspace')
 
     def test_import_with_no_token(self):
@@ -430,7 +449,8 @@ class GitLabOAuthTests(TestCase):
             m.return_value = True
             repo = self.service.create_repository(
                 self.repo_response_data, organization=self.org,
-                privacy=self.privacy)
+                privacy=self.privacy,
+            )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testorga / testrepo')
@@ -453,13 +473,15 @@ class GitLabOAuthTests(TestCase):
     def test_make_private_project_fail(self):
         repo = self.service.create_repository(
             self.get_private_repo_data(), organization=self.org,
-            privacy=self.privacy)
+            privacy=self.privacy,
+        )
         self.assertIsNone(repo)
 
     def test_make_private_project_success(self):
         repo = self.service.create_repository(
             self.get_private_repo_data(), organization=self.org,
-            privacy=constants.PRIVATE)
+            privacy=constants.PRIVATE,
+        )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertTrue(repo.private, True)
 

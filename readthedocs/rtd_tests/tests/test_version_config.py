@@ -1,5 +1,4 @@
-from __future__ import division, print_function, unicode_literals
-
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -17,12 +16,12 @@ class VersionConfigTests(TestCase):
         build_old = Build.objects.create(
             project=self.project,
             version=self.version,
-            config={'version': 1}
+            config={'version': 1},
         )
         build_new = Build.objects.create(
             project=self.project,
             version=self.version,
-            config={'version': 2}
+            config={'version': 2},
         )
         build_new_error = Build.objects.create(
             project=self.project,
@@ -43,7 +42,7 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={}
+            config={},
         )
         build_old.config = {'version': 1}
         build_old.save()
@@ -52,7 +51,7 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={}
+            config={},
         )
         build_new.config = {'version': 1}
         build_new.save()

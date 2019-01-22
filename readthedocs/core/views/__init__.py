@@ -19,7 +19,7 @@ from django.views.generic import TemplateView
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dir
+from readthedocs.projects.tasks import remove_dirs
 from readthedocs.redirects.utils import get_redirect_response
 
 log = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class HomepageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
-        context = super(HomepageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
         context['projects_count'] = Project.objects.count()
         return context
@@ -45,7 +45,7 @@ class SupportView(TemplateView):
     template_name = 'support.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SupportView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         support_email = getattr(settings, 'SUPPORT_EMAIL', None)
         if not support_email:
             support_email = 'support@{domain}'.format(
@@ -89,7 +89,7 @@ def wipe_version(request, project_slug, version_slug):
             os.path.join(version.project.doc_path, 'conda', version.slug),
         ]
         for del_dir in del_dirs:
-            broadcast(type='build', task=remove_dir, args=[del_dir])
+            broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
         return redirect('project_version_list', project_slug)
     return render(
         request,
@@ -133,13 +133,15 @@ def do_not_track(request):
     dnt_header = request.META.get('HTTP_DNT')
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
-    return JsonResponse({   # pylint: disable=redundant-content-type-for-json-response
-        'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
-        'same-party': [
-            'readthedocs.org',
-            'readthedocs.com',
-            'readthedocs.io',           # .org Documentation Sites
-            'readthedocs-hosted.com',   # .com Documentation Sites
-        ],
-        'tracking': 'N' if dnt_header == '1' else 'T',
-    }, content_type='application/tracking-status+json')
+    return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response
+        {
+            'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
+            'same-party': [
+                'readthedocs.org',
+                'readthedocs.com',
+                'readthedocs.io',           # .org Documentation Sites
+                'readthedocs-hosted.com',   # .com Documentation Sites
+            ],
+            'tracking': 'N' if dnt_header == '1' else 'T',
+        }, content_type='application/tracking-status+json',
+    )
