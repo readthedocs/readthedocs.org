@@ -24,7 +24,7 @@ from taggit.models import Tag
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
-from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.views import LOG_TEMPLATE
 
@@ -262,8 +262,10 @@ def elastic_project_search(request, project_slug):
 
     if query:
         req = PageDocument.simple_search(query=query)
-        filtered_query = (req.filter('term', project=project.slug)
-                             .filter('term', version=version_slug))
+        filtered_query = (
+            req.filter('term', project=project.slug)
+            .filter('term', version=version_slug)
+        )
         paginated_query = filtered_query[:50]
         results = paginated_query.execute()
 

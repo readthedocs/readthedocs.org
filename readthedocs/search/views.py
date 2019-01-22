@@ -9,7 +9,7 @@ from django.conf import settings
 from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.search.documents import ProjectDocument, PageDocument
+from readthedocs.search.documents import PageDocument, ProjectDocument
 from readthedocs.search.utils import get_project_list_or_404
 
 
@@ -45,21 +45,25 @@ def elastic_search(request):
 
     if user_input.query:
         if user_input.type == 'project':
-            project_search = ProjectDocument.faceted_search(query=user_input.query,
-                                                            language=user_input.language)
+            project_search = ProjectDocument.faceted_search(
+                query=user_input.query, language=user_input.language
+            )
             results = project_search.execute()
             facets = results.facets
         elif user_input.type == 'file':
             kwargs = {}
             if user_input.project:
-                projects_list = get_project_list_or_404(project_slug=user_input.project,
-                                                        user=request.user)
+                projects_list = get_project_list_or_404(
+                    project_slug=user_input.project, user=request.user
+                )
                 project_slug_list = [project.slug for project in projects_list]
                 kwargs['projects_list'] = project_slug_list
             if user_input.version:
                 kwargs['versions_list'] = user_input.version
 
-            page_search = PageDocument.faceted_search(query=user_input.query, **kwargs)
+            page_search = PageDocument.faceted_search(
+                query=user_input.query, **kwargs
+            )
             results = page_search.execute()
             facets = results.facets
 
@@ -83,10 +87,7 @@ def elastic_search(request):
         )
 
     template_vars = user_input._asdict()
-    template_vars.update({
-        'results': results,
-        'facets': facets
-    })
+    template_vars.update({'results': results, 'facets': facets})
     return render(
         request,
         'search/elastic_search.html',

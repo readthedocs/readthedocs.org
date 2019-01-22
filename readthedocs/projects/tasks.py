@@ -62,16 +62,15 @@ from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
+
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, ImportedFile, Project
-from .models import HTMLFile
+from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
     after_vcs,
     before_build,
     before_vcs,
-    files_changed,
     bulk_post_create,
     bulk_post_delete,
     domain_verify,
@@ -1153,8 +1152,9 @@ def _manage_imported_files(version, path, commit):
             else:
                 model_class = ImportedFile
 
-            dirpath = os.path.join(root.replace(path, '').lstrip('/'),
-                                   filename.lstrip('/'))
+            dirpath = os.path.join(
+                root.replace(path, '').lstrip('/'), filename.lstrip('/')
+            )
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
@@ -1184,8 +1184,10 @@ def _manage_imported_files(version, path, commit):
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
-    delete_queryset = (HTMLFile.objects.filter(project=version.project, version=version)
-                                       .exclude(commit=commit))
+    delete_queryset = (
+        HTMLFile.objects.filter(project=version.project,
+                                version=version).exclude(commit=commit)
+    )
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
     # Safely delete from database
@@ -1194,8 +1196,11 @@ def _manage_imported_files(version, path, commit):
     bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
-    (ImportedFile.objects.filter(project=version.project, version=version)
-                         .exclude(commit=commit).delete())
+    (
+        ImportedFile.objects.filter(project=version.project,
+                                    version=version).exclude(commit=commit
+                                                             ).delete()
+    )
     changed_files = [
         resolve_path(
             version.project,

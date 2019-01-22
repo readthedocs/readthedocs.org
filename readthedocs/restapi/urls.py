@@ -7,7 +7,13 @@ from django.conf.urls import include, url
 from rest_framework import routers
 
 from readthedocs.constants import pattern_opts
-from readthedocs.restapi.views import (core_views, footer_views, task_views, integrations)
+from readthedocs.restapi.views import (
+    core_views,
+    footer_views,
+    integrations,
+    task_views,
+)
+
 from .views.model_views import (
     BuildCommandViewSet,
     BuildViewSet,
@@ -105,11 +111,9 @@ integration_urls = [
     ),
 ]
 
-
 urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
-
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # pylint: disable=import-error

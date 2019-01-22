@@ -27,10 +27,8 @@ def process_all_json_files(version, build_dir=True):
     html_files = []
     for root, _, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.fjson'):
-            if filename in [
-                    'search.fjson',
-                    'genindex.fjson',
-                    'py-modindex.fjson']:
+            if filename in ['search.fjson', 'genindex.fjson',
+                            'py-modindex.fjson']:
                 continue
             html_files.append(os.path.join(root, filename))
     page_list = []

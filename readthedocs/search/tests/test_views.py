@@ -1,14 +1,13 @@
+# -*- coding: utf-8 -*-
 
 import pytest
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
-
 from pyquery import PyQuery as pq
-
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project, HTMLFile
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
@@ -34,7 +33,7 @@ class TestProjectSearch(object):
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
 
     def test_search_project_show_languages(self, client, project):
-        """Test that searching project should show all available languages"""
+        """Test that searching project should show all available languages."""
         # Create a project in bn and add it as a translation
         G(Project, language='bn', name=project.name)
 
@@ -49,7 +48,7 @@ class TestProjectSearch(object):
         assert 'bn' in content.text()
 
     def test_search_project_filter_language(self, client, project):
-        """Test that searching project filtered according to language"""
+        """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
         translate = G(Project, language='bn', name=project.name)
         search_params = {'q': project.name, 'language': 'bn'}
@@ -94,7 +93,8 @@ class TestPageSearch(object):
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_file_search_case_insensitive(self, client, project, case):
-        """Check File search is case insensitive
+        """
+        Check File search is case insensitive.
 
         It tests with uppercase, lowercase and camelcase
         """
@@ -111,10 +111,11 @@ class TestPageSearch(object):
         assert query_text in result.text()
 
     def test_file_search_exact_match(self, client, project):
-        """Check quoted query match exact phrase
+        """
+        Check quoted query match exact phrase.
 
-        Making a query with quoted text like ``"foo bar"`` should match
-        exactly ``foo bar`` phrase.
+        Making a query with quoted text like ``"foo bar"`` should match exactly
+        ``foo bar`` phrase.
         """
 
         # `Github` word is present both in `kuma` and `pipeline` files
@@ -128,7 +129,7 @@ class TestPageSearch(object):
         assert len(result) == 1
 
     def test_page_search_not_return_removed_page(self, client, project):
-        """Check removed page are not in the search index"""
+        """Check removed page are not in the search index."""
         query = get_search_query_from_project_file(project_slug=project.slug)
         # Make a query to check it returns result
         result, _ = self._get_search_result(url=self.url, client=client,
@@ -143,7 +144,8 @@ class TestPageSearch(object):
         assert len(result) == 0
 
     def test_file_search_show_projects(self, client, all_projects):
-        """Test that search result page shows list of projects while searching for files"""
+        """Test that search result page shows list of projects while searching
+        for files."""
 
         # `Github` word is present both in `kuma` and `pipeline` files
         # so search with this phrase

@@ -5,9 +5,7 @@
 import fnmatch
 import logging
 import os
-from six.moves import shlex_quote
 
-from builtins import object  # pylint: disable=redefined-builtin
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -658,10 +656,7 @@ class Project(models.Model):
 
     def full_json_path(self, version=LATEST):
         """The path to the build json docs in the project."""
-        json_path = os.path.join(
-            self.conf_dir(version),
-            '_build', 'json'
-        )
+        json_path = os.path.join(self.conf_dir(version), '_build', 'json')
         return json_path
 
     def full_singlehtml_path(self, version=LATEST):
@@ -849,7 +844,8 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
+        for version_data in api.project(self.pk
+                                        ).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1044,13 +1040,8 @@ class APIProject(Project):
         ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
-        for key in [
-                'users',
-                'resource_uri',
-                'absolute_url',
-                'downloads',
-                'main_language_project',
-                'related_projects']:
+        for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
+                    'main_language_project', 'related_projects']:
             try:
                 del kwargs[key]
             except KeyError:
@@ -1134,9 +1125,9 @@ class HTMLFile(ImportedFile):
         basename = os.path.splitext(self.path)[0]
         file_path = basename + '.fjson'
 
-        full_json_path = self.project.get_production_media_path(type_='json',
-                                                                version_slug=self.version.slug,
-                                                                include_file=False)
+        full_json_path = self.project.get_production_media_path(
+            type_='json', version_slug=self.version.slug, include_file=False
+        )
 
         file_path = os.path.join(full_json_path, file_path)
         return file_path
@@ -1146,12 +1137,11 @@ class HTMLFile(ImportedFile):
         try:
             return process_file(file_path)
         except Exception:
-            log.warning('Unhandled exception during search processing file: %s' % file_path)
+            log.warning(
+                'Unhandled exception during search processing file: %s' % file_path
+            )
         return {
-            'headers': [],
-            'content': '',
-            'path': file_path,
-            'title': '',
+            'headers': [], 'content': '', 'path': file_path, 'title': '',
             'sections': []
         }
 
@@ -1296,36 +1286,30 @@ class Feature(models.Model):
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
-        (
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
             ),
-        ),
-        (
+        ), (
             ALLOW_V2_CONFIG_FILE,
             _(
                 'Allow to use the v2 of the configuration file',
             ),
-        ),
-        (
+        ), (
             MKDOCS_THEME_RTD,
             _('Use Read the Docs theme for MkDocs as default theme')
-        ),
-        (
+        ), (
             DONT_SHALLOW_CLONE,
             _(
                 'Do not shallow clone when cloning git repos',
             ),
-        ),
-        (
+        ), (
             USE_TESTING_BUILD_IMAGE,
             _(
                 'Use Docker image labelled as `testing` to build the docs',
             ),
-        ),
-        (API_LARGE_DATA, _('Try alternative method of posting large data'))
+        ), (API_LARGE_DATA, _('Try alternative method of posting large data'))
     )
 
     projects = models.ManyToManyField(

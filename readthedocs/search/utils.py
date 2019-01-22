@@ -9,11 +9,11 @@ import logging
 import os
 import re
 
-from builtins import next, range
 from django.shortcuts import get_object_or_404
 from pyquery import PyQuery
 
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 
@@ -338,7 +338,7 @@ def get_project_list_or_404(project_slug, user):
 
 
 def get_chunk(total, chunk_size):
-    """Yield successive `chunk_size` chunks"""
+    """Yield successive `chunk_size` chunks."""
     # Based on https://stackoverflow.com/a/312464
     # licensed under cc by-sa 3.0
     for i in range(0, total, chunk_size):
