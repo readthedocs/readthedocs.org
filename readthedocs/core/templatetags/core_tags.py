@@ -1,15 +1,14 @@
+# -*- coding: utf-8 -*-
+
 """Template tags for core app."""
 
-from __future__ import absolute_import
-
 import hashlib
+from urllib.parse import urlencode
 
-from builtins import str  # pylint: disable=redefined-builtin
 from django import template
 from django.conf import settings
 from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
-from future.backports.urllib.parse import urlencode
 
 from readthedocs import __version__
 from readthedocs.core.resolver import resolve
@@ -22,23 +21,25 @@ register = template.Library()
 @register.filter
 def gravatar(email, size=48):
     """
-    Hacked from djangosnippets.org, but basically given an email address
+    Hacked from djangosnippets.org, but basically given an email address.
 
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading
     """
-    url = "http://www.gravatar.com/avatar.php?%s" % urlencode({
+    url = 'http://www.gravatar.com/avatar.php?%s' % urlencode({
         'gravatar_id': hashlib.md5(email).hexdigest(),
-        'size': str(size)
+        'size': str(size),
     })
-    return ('<img src="%s" width="%s" height="%s" alt="gravatar" '
-            'class="gravatar" border="0" />' % (url, size, size))
+    return (
+        '<img src="%s" width="%s" height="%s" alt="gravatar" '
+        'class="gravatar" border="0" />' % (url, size, size)
+    )
 
 
-@register.simple_tag(name="doc_url")
+@register.simple_tag(name='doc_url')
 def make_document_url(project, version=None, page=''):
     if not project:
-        return ""
+        return ''
     return resolve(project=project, version_slug=version, filename=page)
 
 
@@ -51,7 +52,7 @@ def restructuredtext(value, short=False):
         if settings.DEBUG:
             raise template.TemplateSyntaxError(
                 "Error in 'restructuredtext' filter: "
-                "The Python docutils library isn't installed."
+                "The Python docutils library isn't installed.",
             )
         return force_text(value)
     else:
@@ -59,20 +60,22 @@ def restructuredtext(value, short=False):
             'raw_enabled': False,
             'file_insertion_enabled': False,
         }
-        docutils_settings.update(getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}))
+        docutils_settings.update(
+            getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}),
+        )
         try:
             parts = publish_parts(
                 source=force_bytes(value),
-                writer_name="html4css1",
+                writer_name='html4css1',
                 settings_overrides=docutils_settings,
             )
         except ApplicationError:
             return force_text(value)
 
-        out = force_text(parts["fragment"])
+        out = force_text(parts['fragment'])
         try:
             if short:
-                out = out.split("\n")[0]
+                out = out.split('\n')[0]
         except IndexError:
             pass
         return mark_safe(out)

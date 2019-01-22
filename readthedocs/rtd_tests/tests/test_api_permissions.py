@@ -1,7 +1,8 @@
-from __future__ import absolute_import
+# -*- coding: utf-8 -*-
 from functools import partial
-from mock import Mock
 from unittest import TestCase
+
+from mock import Mock
 
 from readthedocs.restapi.permissions import APIRestrictedPermission
 
@@ -17,23 +18,27 @@ class APIRestrictedPermissionTests(TestCase):
         if obj is None:
             self.assertTrue(handler.has_permission(
                 request=self.get_request(method, is_admin=is_admin),
-                view=None))
+                view=None,
+            ))
         else:
             self.assertTrue(handler.has_object_permission(
                 request=self.get_request(method, is_admin=is_admin),
                 view=None,
-                obj=obj))
+                obj=obj,
+            ))
 
     def assertDisallow(self, handler, method, is_admin, obj=None):
         if obj is None:
             self.assertFalse(handler.has_permission(
                 request=self.get_request(method, is_admin=is_admin),
-                view=None))
+                view=None,
+            ))
         else:
             self.assertFalse(handler.has_object_permission(
                 request=self.get_request(method, is_admin=is_admin),
                 view=None,
-                obj=obj))
+                obj=obj,
+            ))
 
     def test_non_object_permissions(self):
         handler = APIRestrictedPermission()

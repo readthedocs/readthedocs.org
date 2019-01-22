@@ -1,4 +1,4 @@
-if ! [[ "$TOXENV" =~ ^(docs|lint|eslint) ]];
+if ! [[ "$TOXENV" =~ ^(docs|lint|eslint|migrations) ]];
 then
     args="'--including-search'"
 fi
