@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-"""API resources."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""API resources."""
 import logging
-from builtins import object
 
 import redis
 from django.conf.urls import url
@@ -25,6 +22,7 @@ from readthedocs.projects.models import ImportedFile, Project
 
 from .utils import PostAuthentication
 
+
 log = logging.getLogger(__name__)
 
 
@@ -34,7 +32,7 @@ class ProjectResource(ModelResource):
 
     users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
 
-    class Meta(object):
+    class Meta:
         include_absolute_url = True
         allowed_methods = ['get', 'post', 'put']
         queryset = Project.objects.api()
@@ -48,7 +46,7 @@ class ProjectResource(ModelResource):
 
     def get_object_list(self, request):
         self._meta.queryset = Project.objects.api(user=request.user)
-        return super(ProjectResource, self).get_object_list(request)
+        return super().get_object_list(request)
 
     def dehydrate(self, bundle):
         bundle.data['downloads'] = bundle.obj.get_downloads()
@@ -72,7 +70,9 @@ class ProjectResource(ModelResource):
         # Force this in an ugly way, at least should do "reverse"
         deserialized['users'] = ['/api/v1/user/%s/' % request.user.id]
         bundle = self.build_bundle(
-            data=dict_strip_unicode_keys(deserialized), request=request)
+            data=dict_strip_unicode_keys(deserialized),
+            request=request,
+        )
         self.is_valid(bundle)
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
@@ -81,14 +81,20 @@ class ProjectResource(ModelResource):
         return [
             url(
                 r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
-                self.wrap_view('get_schema'), name='api_get_schema'),
+                self.wrap_view('get_schema'),
+                name='api_get_schema',
+            ),
             url(
                 r'^(?P<resource_name>%s)/search%s$' %
                 (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_search'), name='api_get_search'),
-            url((r'^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$') %
-                self._meta.resource_name, self.wrap_view('dispatch_detail'),
-                name='api_dispatch_detail'),
+                self.wrap_view('get_search'),
+                name='api_get_search',
+            ),
+            url(
+                (r'^(?P<resource_name>%s)/(?P<slug>[a-z-_]+)/$') % self._meta.resource_name,
+                self.wrap_view('dispatch_detail'),
+                name='api_dispatch_detail',
+            ),
         ]
 
 
@@ -98,7 +104,7 @@ class VersionResource(ModelResource):
 
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta(object):
+    class Meta:
         allowed_methods = ['get', 'put', 'post']
         always_return_data = True
         queryset = Version.objects.api()
@@ -112,7 +118,7 @@ class VersionResource(ModelResource):
 
     def get_object_list(self, request):
         self._meta.queryset = Version.objects.api(user=request.user)
-        return super(VersionResource, self).get_object_list(request)
+        return super().get_object_list(request)
 
     def build_version(self, request, **kwargs):
         project = get_object_or_404(Project, slug=kwargs['project_slug'])
@@ -125,17 +131,23 @@ class VersionResource(ModelResource):
         return [
             url(
                 r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
-                self.wrap_view('get_schema'), name='api_get_schema'),
+                self.wrap_view('get_schema'),
+                name='api_get_schema',
+            ),
             url(
                 r'^(?P<resource_name>%s)/(?P<project__slug>[a-z-_]+[a-z0-9-_]+)/$'  # noqa
                 % self._meta.resource_name,
                 self.wrap_view('dispatch_list'),
-                name='api_version_list'),
-            url((
-                r'^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+[a-z0-9-_]+)/(?P'
-                r'<version_slug>[a-z0-9-_.]+)/build/$') %
-                self._meta.resource_name, self.wrap_view('build_version'),
-                name='api_version_build_slug'),
+                name='api_version_list',
+            ),
+            url(
+                (
+                    r'^(?P<resource_name>%s)/(?P<project_slug>[a-z-_]+[a-z0-9-_]+)/(?P'
+                    r'<version_slug>[a-z0-9-_.]+)/build/$'
+                ) % self._meta.resource_name,
+                self.wrap_view('build_version'),
+                name='api_version_build_slug',
+            ),
         ]
 
 
@@ -145,7 +157,7 @@ class FileResource(ModelResource):
 
     project = fields.ForeignKey(ProjectResource, 'project', full=True)
 
-    class Meta(object):
+    class Meta:
         allowed_methods = ['get', 'post']
         queryset = ImportedFile.objects.all()
         excludes = ['md5', 'slug']
@@ -157,11 +169,15 @@ class FileResource(ModelResource):
         return [
             url(
                 r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
-                self.wrap_view('get_schema'), name='api_get_schema'),
+                self.wrap_view('get_schema'),
+                name='api_get_schema',
+            ),
             url(
                 r'^(?P<resource_name>%s)/anchor%s$' %
                 (self._meta.resource_name, trailing_slash()),
-                self.wrap_view('get_anchor'), name='api_get_anchor'),
+                self.wrap_view('get_anchor'),
+                name='api_get_anchor',
+            ),
         ]
 
     def get_anchor(self, request, **__):
@@ -190,7 +206,7 @@ class UserResource(ModelResource):
 
     """Read-only API resource for User model."""
 
-    class Meta(object):
+    class Meta:
         allowed_methods = ['get']
         queryset = User.objects.all()
         fields = ['username', 'id']
@@ -202,9 +218,12 @@ class UserResource(ModelResource):
         return [
             url(
                 r'^(?P<resource_name>%s)/schema/$' % self._meta.resource_name,
-                self.wrap_view('get_schema'), name='api_get_schema'),
+                self.wrap_view('get_schema'),
+                name='api_get_schema',
+            ),
             url(
-                r'^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$' %
-                self._meta.resource_name, self.wrap_view('dispatch_detail'),
-                name='api_dispatch_detail'),
+                r'^(?P<resource_name>%s)/(?P<username>[a-z-_]+)/$' % self._meta.resource_name,
+                self.wrap_view('dispatch_detail'),
+                name='api_dispatch_detail',
+            ),
         ]

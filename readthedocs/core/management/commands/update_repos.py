@@ -6,9 +6,6 @@ Custom management command to rebuild documentation for all projects.
 Invoked via ``./manage.py update_repos``.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 
 from django.core.management.base import BaseCommand
@@ -17,6 +14,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 
