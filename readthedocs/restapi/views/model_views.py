@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Endpoints for listing Projects, Versions, Builds, etc."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""Endpoints for listing Projects, Versions, Builds, etc."""
 
 import logging
 
 from allauth.socialaccount.models import SocialAccount
-from builtins import str
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
+from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
@@ -25,12 +23,25 @@ from readthedocs.projects.version_handling import determine_stable_version
 
 from .. import utils as api_utils
 from ..permissions import (
-    APIPermission, APIRestrictedPermission, IsOwner, RelatedProjectIsOwner)
+    APIPermission,
+    APIRestrictedPermission,
+    IsOwner,
+    RelatedProjectIsOwner,
+)
 from ..serializers import (
-    BuildAdminSerializer, BuildCommandSerializer, BuildSerializer,
-    DomainSerializer, ProjectAdminSerializer, ProjectSerializer,
-    RemoteOrganizationSerializer, RemoteRepositorySerializer,
-    SocialAccountSerializer, VersionAdminSerializer, VersionSerializer)
+    BuildAdminSerializer,
+    BuildCommandSerializer,
+    BuildSerializer,
+    DomainSerializer,
+    ProjectAdminSerializer,
+    ProjectSerializer,
+    RemoteOrganizationSerializer,
+    RemoteRepositorySerializer,
+    SocialAccountSerializer,
+    VersionAdminSerializer,
+    VersionSerializer,
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +63,8 @@ class PlainTextBuildRenderer(BaseRenderer):
         if not response or response.exception:
             return data.get('detail', '').encode(self.charset)
         data = render_to_string(
-            'restapi/log.txt', {'build': data}
+            'restapi/log.txt',
+            {'build': data},
         )
         return data.encode(self.charset)
 
@@ -69,8 +81,10 @@ class UserSelectViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         try:
-            if (self.request.user.is_staff and
-                    self.admin_serializer_class is not None):
+            if (
+                self.request.user.is_staff and
+                self.admin_serializer_class is not None
+            ):
                 return self.admin_serializer_class
         except AttributeError:
             pass
@@ -104,7 +118,9 @@ class ProjectViewSet(UserSelectViewSet):
     @decorators.action(detail=True)
     def subprojects(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -114,16 +130,23 @@ class ProjectViewSet(UserSelectViewSet):
     @decorators.action(detail=True)
     def active_versions(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         versions = project.versions.filter(active=True)
         return Response({
             'versions': VersionSerializer(versions, many=True).data,
         })
 
-    @decorators.action(detail=True, permission_classes=[permissions.IsAdminUser])
+    @decorators.action(
+        detail=True,
+        permission_classes=[permissions.IsAdminUser],
+    )
     def token(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         token = GitHubService.get_token_for_project(project, force_local=True)
         return Response({
             'token': token,
@@ -132,13 +155,16 @@ class ProjectViewSet(UserSelectViewSet):
     @decorators.action(detail=True)
     def canonical_url(self, request, **kwargs):
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
         return Response({
             'url': project.get_docs_url(),
         })
 
     @decorators.action(
-        detail=True, permission_classes=[permissions.IsAdminUser],
+        detail=True,
+        permission_classes=[permissions.IsAdminUser],
         methods=['post'],
     )
     def sync_versions(self, request, **kwargs):  # noqa: D205
@@ -150,7 +176,9 @@ class ProjectViewSet(UserSelectViewSet):
         :returns: the identifiers for the versions that have been deleted.
         """
         project = get_object_or_404(
-            Project.objects.api(request.user), pk=kwargs['pk'])
+            Project.objects.api(request.user),
+            pk=kwargs['pk'],
+        )
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
@@ -166,11 +194,17 @@ class ProjectViewSet(UserSelectViewSet):
             added_versions = set()
             if 'tags' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['tags'], type=TAG)
+                    project=project,
+                    versions=data['tags'],
+                    type=TAG,
+                )
                 added_versions.update(ret_set)
             if 'branches' in data:
                 ret_set = api_utils.sync_versions(
-                    project=project, versions=data['branches'], type=BRANCH)
+                    project=project,
+                    versions=data['branches'],
+                    type=BRANCH,
+                )
                 added_versions.update(ret_set)
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
@@ -189,13 +223,16 @@ class ProjectViewSet(UserSelectViewSet):
                 'Triggering new stable build: {project}:{version}'.format(
                     project=project.slug,
                     version=new_stable.identifier,
-                ))
+                ),
+            )
             trigger_build(project=project, version=new_stable)
 
             # Marking the tag that is considered the new stable version as
             # active and building it if it was just added.
-            if (activate_new_stable and
-                    promoted_version.slug in added_versions):
+            if (
+                activate_new_stable and
+                promoted_version.slug in added_versions
+            ):
                 promoted_version.active = True
                 promoted_version.save()
                 trigger_build(project=project, version=promoted_version)
@@ -213,8 +250,14 @@ class VersionViewSet(UserSelectViewSet):
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
     model = Version
-    filter_fields = ('active', 'project__slug',)  # django-filter<2.0.0
-    filterset_fields = ('active', 'project__slug',)
+    filter_fields = (
+        'active',
+        'project__slug',
+    )  # django-filter<2.0.0
+    filterset_fields = (
+        'active',
+        'project__slug',
+    )
 
 
 class BuildViewSetBase(UserSelectViewSet):
@@ -235,6 +278,7 @@ class BuildViewSet(SettingsOverrideObject):
 
 
 class BuildCommandViewSet(UserSelectViewSet):
+    parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
@@ -269,7 +313,9 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
             self.model.objects.api(self.request.user).filter(
                 account__provider__in=[
                     service.adapter.provider_id for service in registry
-                ]))
+                ],
+            )
+        )
 
 
 class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -295,7 +341,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         query = query.filter(
             account__provider__in=[
                 service.adapter.provider_id for service in registry
-            ])
+            ],
+        )
         return query
 
 

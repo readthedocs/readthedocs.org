@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Project notifications"""
 
-from __future__ import absolute_import
+"""Project notifications."""
 
-from datetime import timedelta
-from django.utils import timezone
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpRequest
-from messages_extends.models import Message
 from messages_extends.constants import ERROR_PERSISTENT
 
 from readthedocs.notifications import Notification, SiteNotification

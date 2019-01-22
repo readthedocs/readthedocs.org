@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Django administration interface for `projects.models`"""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Django administration interface for `projects.models`"""
 
 import os
 
@@ -113,9 +107,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
     OWNER_BANNED = 'true'
 
     def lookups(self, request, model_admin):
-        return (
-            (self.OWNER_BANNED, _('Yes')),
-        )
+        return ((self.OWNER_BANNED, _('Yes')),)
 
     def queryset(self, request, queryset):
         if self.value() == self.OWNER_BANNED:
@@ -129,13 +121,23 @@ class ProjectAdmin(GuardedModelAdmin):
 
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'slug', 'repo', 'repo_type', 'featured')
-    list_filter = ('repo_type', 'featured', 'privacy_level',
-                   'documentation_type', 'programming_language',
-                   'feature__feature_id', ProjectOwnerBannedFilter)
+    list_filter = (
+        'repo_type',
+        'featured',
+        'privacy_level',
+        'documentation_type',
+        'programming_language',
+        'feature__feature_id',
+        ProjectOwnerBannedFilter,
+    )
     list_editable = ('featured',)
     search_fields = ('slug', 'repo')
-    inlines = [ProjectRelationshipInline, RedirectInline,
-               VersionInline, DomainInline]
+    inlines = [
+        ProjectRelationshipInline,
+        RedirectInline,
+        VersionInline,
+        DomainInline,
+    ]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
     actions = [
@@ -150,7 +152,7 @@ class ProjectAdmin(GuardedModelAdmin):
 
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
-            action_name='send_owner_email'
+            action_name='send_owner_email',
         )
         return view(request, queryset=queryset)
 
@@ -167,18 +169,25 @@ class ProjectAdmin(GuardedModelAdmin):
         total = 0
         for project in queryset:
             if project.users.count() == 1:
-                count = (UserProfile.objects
-                         .filter(user__projects=project)
-                         .update(banned=True))
+                count = (
+                    UserProfile.objects.filter(user__projects=project
+                                               ).update(banned=True)
+                )  # yapf: disabled
                 total += count
             else:
-                messages.add_message(request, messages.ERROR,
-                                     'Project has multiple owners: {0}'.format(project))
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Project has multiple owners: {}'.format(project),
+                )
         if total == 0:
             messages.add_message(request, messages.ERROR, 'No users banned')
         else:
-            messages.add_message(request, messages.INFO,
-                                 'Banned {0} user(s)'.format(total))
+            messages.add_message(
+                request,
+                messages.INFO,
+                'Banned {} user(s)'.format(total),
+            )
 
     ban_owner.short_description = 'Ban project owner'
 
@@ -264,11 +273,11 @@ class ProjectAdmin(GuardedModelAdmin):
     request_namespace.short_description = 'Request namespace'
 
     def get_actions(self, request):
-        actions = super(ProjectAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         actions['delete_selected'] = (
             self.__class__.delete_selected_and_artifacts,
             'delete_selected',
-            delete_selected.short_description
+            delete_selected.short_description,
         )
         return actions
 

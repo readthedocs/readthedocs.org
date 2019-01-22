@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Models for the core app."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Models for the core app."""
 import logging
 
 from annoying.fields import AutoOneToOneField
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext
 from django.urls import reverse
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
+
 
 STANDARD_EMAIL = 'anonymous@readthedocs.org'
 
@@ -23,7 +22,10 @@ class UserProfile(models.Model):
     """Additional information about a User."""
 
     user = AutoOneToOneField(
-        'auth.User', verbose_name=_('User'), related_name='profile')
+        'auth.User',
+        verbose_name=_('User'),
+        related_name='profile',
+    )
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     banned = models.BooleanField(_('Banned'), default=False)
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
@@ -41,10 +43,14 @@ class UserProfile(models.Model):
     def __str__(self):
         return (
             ugettext("%(username)s's profile") %
-            {'username': self.user.username})
+            {'username': self.user.username}
+        )
 
     def get_absolute_url(self):
-        return reverse('profiles_profile_detail',  kwargs={'username': self.user.username})
+        return reverse(
+            'profiles_profile_detail',
+            kwargs={'username': self.user.username},
+        )
 
     def get_contribution_details(self):
         """

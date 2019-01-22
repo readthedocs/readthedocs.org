@@ -1,6 +1,7 @@
-"""Project RSS feeds"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Project RSS feeds."""
+
 from django.contrib.syndication.views import Feed
 
 from readthedocs.projects.models import Project
@@ -8,11 +9,11 @@ from readthedocs.projects.models import Project
 
 class LatestProjectsFeed(Feed):
 
-    """RSS feed for projects that were recently updated"""
+    """RSS feed for projects that were recently updated."""
 
-    title = "Recently updated documentation"
-    link = "http://readthedocs.org"
-    description = "Recently updated documentation on Read the Docs"
+    title = 'Recently updated documentation'
+    link = 'http://readthedocs.org'
+    description = 'Recently updated documentation on Read the Docs'
 
     def items(self):
         return Project.objects.public().order_by('-modified_date')[:10]
@@ -26,11 +27,11 @@ class LatestProjectsFeed(Feed):
 
 class NewProjectsFeed(Feed):
 
-    """RSS feed for newly created projects"""
+    """RSS feed for newly created projects."""
 
-    title = "Newest documentation"
-    link = "http://readthedocs.org"
-    description = "Recently created documentation on Read the Docs"
+    title = 'Newest documentation'
+    link = 'http://readthedocs.org'
+    description = 'Recently created documentation on Read the Docs'
 
     def items(self):
         return Project.objects.public().order_by('-pk')[:10]
